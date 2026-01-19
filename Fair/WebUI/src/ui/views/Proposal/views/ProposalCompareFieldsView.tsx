@@ -1,9 +1,18 @@
 import { memo, useMemo } from "react"
 
+import { useGetProductCompareFields } from "entities"
+import { ProductFieldsDiff } from "ui/components/specific"
 import { PublicationUpdation } from "types"
-import { ProductCompareFields } from "ui/components/proposal"
 
 import { ProposalTypeViewProps } from "./types"
+
+const CompareFieldsForPublication = ({ id, version }: { id: string; version: number }) => {
+  const { isFetching, data } = useGetProductCompareFields(id, version)
+
+  if (isFetching || !data) return <div>LOADING</div>
+
+  return <ProductFieldsDiff from={data.from} to={data.to} />
+}
 
 export const ProposalCompareFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {
   const publications = useMemo(
@@ -18,5 +27,17 @@ export const ProposalCompareFieldsView = memo(({ proposal }: ProposalTypeViewPro
     [proposal],
   )
 
-  return <ProductCompareFields publications={publications} />
+  if (!publications?.length) return null
+
+  return (
+    <>
+      {publications.map(publication => (
+        <CompareFieldsForPublication
+          key={`${publication.id}_${publication.version}`}
+          id={publication.id}
+          version={publication.version}
+        />
+      ))}
+    </>
+  )
 })

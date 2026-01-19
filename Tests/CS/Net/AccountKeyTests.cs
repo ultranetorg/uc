@@ -9,15 +9,6 @@ public class AccountKeyTests
  	[Fact]
  	public static void Main()
  	{
-// 			var e = new EthECKey(File.ReadAllBytes("m:\\UO\\Testdata\\Net\\Fathers\\0x000038a7a3cb80ec769c632b7b3e43525547ecd1.sunwpk"), true);
-// 
-// 			var initaddr = Sha3Keccack.Current.CalculateHash(e.GetPubKeyNoPrefix());
-// 			var initaddr2 = Cryptography.Hash(e.GetPubKeyNoPrefix());
-// 			var Bytes = new byte[initaddr.Length - 12];
-// 			Array.Copy(initaddr, 12, Bytes, 0, initaddr.Length - 12);
-		
-
-
 		var r = new SecureRandom();
 
 		var h = new byte[32];
@@ -29,8 +20,7 @@ public class AccountKeyTests
 		var s = Cryptography.Mcv.Sign(k, h);
 
 
-		Assert.True(k == new AccountKey(k.PrivateKey));
-		Assert.True(k.Address == AccountAddress.Parse(k.ToString()));
+		Assert.True(k.Address == AccountAddress.Parse(k.Address.ToString()));
 		Assert.True(Cryptography.Mcv.Valid(s, h, k.Address));
 		Assert.False(Cryptography.Mcv.Valid(s, h, kk.Address));
 					

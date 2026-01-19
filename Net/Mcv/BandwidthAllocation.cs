@@ -38,7 +38,7 @@ public class BandwidthAllocation : Operation
 
 		for(int i = 0; i < Days; i++)
 		{
-			if(execution.Bandwidths[i] + Bandwidth <= execution.Net.BandwidthDayCapacity)
+			if(execution.Bandwidths[i] + Bandwidth <= execution.Net.EnergyDayEmission)
 			{
 				execution.Bandwidths[i] += Bandwidth;
 			}

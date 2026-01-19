@@ -25,6 +25,7 @@ export const enUS = {
     language: "language",
     lastsFor: "Lasts for",
     latestVersion: "latest version",
+    login: "login",
     moderator: "moderator",
     neither: "Neither",
     next: "Next",
@@ -41,6 +42,8 @@ export const enUS = {
     review: "review",
     reviewer: "Reviewer",
     saveChanges: "Save changes",
+    signIn: "sign in",
+    signUp: "sign up",
     text: "Text",
     title: "Title",
     type: "type",
@@ -102,8 +105,12 @@ export const enUS = {
   currentAccount: {
     addAccount: "Add account",
     authenticate: "Authenticate Yourself",
+    authenticationCancelled: "Authentication cancelled",
     createNickname: "Create nickname",
     profile: "Profile",
+    registrationCancelled: "Registration cancelled",
+    successfullyAuthenticated: "User {{userName}} successfully authenticated",
+    successfullyRegistered: "User {{userName}} successfully registered",
     switchAccounts: "Switch Accounts",
   },
   moderatorOptionsMenu: {
@@ -342,6 +349,13 @@ export const enUS = {
     title: "Select image",
     noFiles: "You don't have any image",
   },
+  signInModal: {
+    alreadyHaveAccount: "Already have an account?",
+    dontHaveAccount: "Don’t have an account?",
+    signIn: "sign in",
+    signUp: "sign up",
+    uniqueNickname: "Choose a unique nickname. It will be visible to other users.",
+  },
 
   /* Tabs */
   tabChangedPublications: {
@@ -421,6 +435,7 @@ export const enUS = {
     enterCategoryTitle: "Enter category title",
     enterDescription: "Enter description",
     enterNickname: "Enter nickname",
+    enterYourNickname: "Enter your nickname",
     enterOptionTitle: "Enter option title",
     enterProductId: "Enter product ID",
     enterSlogan: "Enter slogan",
@@ -440,14 +455,18 @@ export const enUS = {
     selectUser: "Select user",
     selectUsersRemove: "Select users to remove",
     selectVersion: "Select version",
+    yourNickname: "Your nickname",
   },
 
   /* Validation messages */
   validation: {
     differentCategory: "Destination category must be different from one of the selected parent categories",
     differentParentCategory: "Parent category must be different from destination category",
+    invalidUserName: "Invalid user name",
     maxLength: "Must be at most {{count}} characters",
     minLength: "Must be at least {{count}} characters",
+    nicknameAlreadyInUse: "Nickname is already in use",
+    nicknameAvailable: "Nickname is available",
     onlyLowercaseLatinAndNumbers: "Only lowercase Latin letters and numbers are allowed",
     required: "This field is required",
     requiredAddOrRemoveMembers: "Add or remove members is required",
@@ -464,6 +483,7 @@ export const enUS = {
     uniqueSiteNickname: "Site nickname must be unique",
     uniqueTitle: "Title must be unique",
     uniqueOptions: "Some options are identical. Each must differ by at least one field.",
+    userNotFound: "User not found",
   },
 
   /* Misc */

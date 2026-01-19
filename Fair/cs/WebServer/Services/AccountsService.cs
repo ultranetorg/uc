@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
+using System.Security.Principal;
+using System.Xml.Linq;
 using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,23 +13,64 @@ public class AccountsService
 	FairMcv mcv
 )
 {
-	public AccountModel GetByAddress([NotNull][NotEmpty] string address)
+	public AccountBaseModel Get([NotNull][NotEmpty] string name)
 	{
-		throw new NotImplementedException("Need to use User.Id (or User.Name) instead of address");
-		///logger.LogDebug("{ClassName}.{MethodName} method called with {AccountAddress}", nameof(AccountsService), nameof(GetByAddress), address);
-		///
-		///Guard.Against.NullOrEmpty(address);
-		///
-		///AccountAddress accountAddress = AccountAddress.Parse(address);
-		///
-		///lock(mcv.Lock)
-		///{
-		///	FairAccount account = (FairAccount)mcv.Users.Latest(accountAddress);
-		///	return new AccountModel(account)
-		///	{
-		///		FavoriteSites = account.FavoriteSites.Length > 0 ? LoadAccountSites(account.FavoriteSites) : []
-		///	};
-		///}
+		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountName}", nameof(AccountsService), nameof(Get), name);
+
+		Guard.Against.NullOrEmpty(name);
+
+		lock(mcv.Lock)
+		{
+			FairUser account = (FairUser) mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			if(account == null)
+			{
+				throw new EntityNotFoundException(nameof(User), name);
+			}
+
+			return new AccountBaseModel(account);
+		}
+	}
+
+	public AccountModel GetDetails([NotNull][NotEmpty] string name)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(AccountsService), nameof(GetDetails), name);
+
+		Guard.Against.NullOrEmpty(name);
+
+		lock(mcv.Lock)
+		{
+			FairUser account = (FairUser) mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			if(account == null)
+			{
+				throw new EntityNotFoundException(nameof(User).ToLower(), name);
+			}
+
+			return new AccountModel(account)
+			{
+				FavoriteSites = account.FavoriteSites.Length > 0 ? LoadAccountSites(account.FavoriteSites) : []
+			};
+		}
+	}
+
+	public AccountModel GetByName([NotNull][NotEmpty] string name)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountName}", nameof(AccountsService), nameof(GetByName), name);
+
+		Guard.Against.NullOrEmpty(name);
+
+		lock(mcv.Lock)
+		{
+			FairUser account = (FairUser)mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			if(account == null)
+			{
+				throw new EntityNotFoundException(nameof(User).ToLower(), name);
+			}
+
+			return new AccountModel(account)
+			{
+				FavoriteSites = account.FavoriteSites.Length > 0 ? LoadAccountSites(account.FavoriteSites) : []
+			};
+		}
 	}
 
 	SiteBaseModel[] LoadAccountSites(AutoId[] sitesIds)
@@ -45,9 +88,9 @@ public class AccountsService
 		return sites;
 	}
 
-	public UserModel Get([NotNull][NotEmpty] string userId)
+	public UserModel GetById([NotNull][NotEmpty] string userId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(AccountsService), nameof(Get), userId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(AccountsService), nameof(GetById), userId);
 
 		Guard.Against.NullOrEmpty(userId);
 
@@ -157,6 +200,7 @@ public class AccountsService
 		return result;
 	}
 
+	[Obsolete("This method is deprected use GetUserAvatar instead")]
 	public FileContentResult GetAvatar([NotNull][NotEmpty] string accountId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountId}", nameof(AccountsService), nameof(GetAvatar), accountId);
@@ -171,6 +215,24 @@ public class AccountsService
 			if(account == null || account.Avatar == null)
 			{
 				throw new EntityNotFoundException(nameof(User).ToLower(), accountId);
+			}
+
+			return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);
+		}
+	}
+
+	public FileContentResult GetUserAvatar([NotNull][NotEmpty] string name)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(AccountsService), nameof(GetUserAvatar), name);
+
+		Guard.Against.NullOrEmpty(name);
+
+		lock(mcv.Lock)
+		{
+			FairUser account = (FairUser)mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			if(account == null || account.Avatar == null)
+			{
+				throw new EntityNotFoundException(nameof(User).ToLower(), name);
 			}
 
 			return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);

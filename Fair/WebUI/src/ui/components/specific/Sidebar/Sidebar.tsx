@@ -3,8 +3,8 @@ import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { useAccountsContext, useSiteContext } from "app"
-import { useTransactMutationWithStatus } from "entities/mcv"
+import { useSiteContext, useUserContext } from "app"
+import { useTransactMutationWithStatus } from "entities/node"
 import { FavoriteSiteChange, PropsWithClassName, SiteBase } from "types"
 import { SitesList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"
@@ -16,7 +16,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const { t } = useTranslation("sites")
 
   const { site } = useSiteContext()
-  const { currentAccount, refetchAccount } = useAccountsContext()
+  const { user, refetch } = useUserContext()
   const [showPending, setShowPending] = useState(false)
   const [disabledIds, setDisabledIds] = useState<string[]>([])
   const { mutate } = useTransactMutationWithStatus()
@@ -43,11 +43,11 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         onSettled: () => {
           setDisabledIds(() => [])
           setShowPending(false)
-          refetchAccount()
+          refetch()
         },
       })
     },
-    [mutate, refetchAccount, t],
+    [mutate, refetch, t],
   )
 
   const handleFavoriteAdd = useCallback((item: SiteBase) => transactOperation(item, true), [transactOperation])
@@ -62,7 +62,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         </Link>
         {site && (
           <SitesList
-            disabledFavorite={(!currentAccount || currentAccount?.favoriteSites?.some(s => s.id === site.id)) ?? false}
+            disabledFavorite={(!user || user?.favoriteSites?.some(s => s.id === site.id)) ?? false}
             title={t("currentSite")}
             items={[site]}
             emptyStateMessage={t("emptySitesList")}
@@ -72,7 +72,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         )}
         <SitesList
           title={t("starredSites")}
-          items={currentAccount?.favoriteSites}
+          items={user?.favoriteSites}
           emptyStateMessage={t("emptySitesList")}
           onFavoriteClick={handleFavoriteRemove}
           isStarred={true}

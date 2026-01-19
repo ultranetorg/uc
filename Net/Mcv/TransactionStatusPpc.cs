@@ -36,7 +36,7 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 							Transactions = Signatures.Select(t =>	new TransactionStatusPpr.Item
 																	{
 																		Signature	= t,
-																		Status		= (Peering.IncomingTransactions.Find(i => i.Signature.SequenceEqual(t))
+																		Status		= (Peering.CandidateTransactions.Find(i => i.Signature.SequenceEqual(t))
 																					  ?? 
 																					  Peering.ConfirmedTransactions.Find(i => i.Signature.SequenceEqual(t)))?.Status ?? TransactionStatus.FailedOrNotFound
 																	})

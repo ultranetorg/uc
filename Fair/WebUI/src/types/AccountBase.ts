@@ -1,5 +1,5 @@
 export type AccountBase = {
   id: string
-  nickname?: string
+  nickname: string
   address: string
 }

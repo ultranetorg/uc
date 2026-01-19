@@ -140,7 +140,7 @@ public class AddAccountToWalletApc : AdminApc
 
 public class OverrideAuthenticationApc : AdminApc
 {
-	public bool				Active { get; set; }
+	public bool			Active { get; set; }
 
 	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
@@ -193,7 +193,7 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 				return new AuthenticationResult {Account = c.Account, Session = n.Session};
 			} 
 			else
-				return null;
+				throw new VaultException(VaultError.Rejected);
 		}
 	}
 }

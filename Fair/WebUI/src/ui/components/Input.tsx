@@ -6,6 +6,7 @@ import { PropsWithClassName } from "types"
 export type InputMode = "primary" | "secondary"
 
 export type InputBaseProps = {
+  containerClassName?: string
   mode?: InputMode
   error?: boolean
   iconBefore?: ReactNode
@@ -23,6 +24,7 @@ export type InputProps = Pick<
 
 export const Input = memo(
   ({
+    containerClassName,
     className,
     autoFocus = false,
     disabled = false,
@@ -45,6 +47,7 @@ export const Input = memo(
           mode === "secondary" && "rounded-lg bg-gray-200",
           error && "border-error hover:border-1.5 hover:border-error focus:border-1.5 focus:border-error",
           disabled && "cursor-not-allowed border-gray-200 bg-gray-50 hover:border-gray-200",
+          containerClassName,
         )}
       >
         {iconBefore}

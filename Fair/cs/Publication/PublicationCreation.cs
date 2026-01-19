@@ -79,7 +79,6 @@ public class PublicationCreation : VotableOperation
 		
 		if(!Site.Publishers.Any(i => i.Author == r.Author))
 		{
-
 			Site.Publishers = [..Site.Publishers, new Publisher {Author = a.Id, EnergyLimit = Publisher.Unlimit, SpacetimeLimit = Publisher.Unlimit}];
 			a.Sites = [..a.Sites, Site.Id];
 		}

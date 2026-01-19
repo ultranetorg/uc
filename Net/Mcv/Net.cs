@@ -80,20 +80,22 @@ public abstract class McvNet : Net
 	public int								ExternalVerificationRoundDurationLimit	= 1000;
 	public int								MembersLimit							= 1000;
 	public long								CandidatesMaximum						= 1000 * 10;
-	public long								TransactionsPerRoundAbsoluteLimit		= 15_000;
-	public long								TransactionsPerRoundExecutionLimit		= 5_000; /// for 5000 tx/s signature recovering
-	public long								OverloadFeeFactor						= 2;
+	
+	public long								TransactionsPerRoundMaximum				= 100_000;
+	public long								OperationsPerRoundMaximum					= 100_000;
+	//public long								OverloadFeeFactor						= 2;
+	
 	public int								ExecutionCyclesPerTransactionLimit		= 200;
-	public long								ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
-	public long								ECDayEmission							=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
-	public long								EnergyEmission							=> ECDayEmission * 365;
+	//public long								ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
+	public long								EnergyDayEmission						=> OperationsPerRoundMaximum * IdealRoundsPerDay;
+	public long								EnergyEmission							=> EnergyDayEmission * 365;
 	public long								SpacetimeDayEmission					= 1024L*1024L * IdealRoundsPerDay;
 	public long								DeclarationCost							=> 1000_000;
 	
 	public int								EntityLength							= 100;
 
 	public int								BandwidthDaysMaximum					=> 365;
-	public long								BandwidthDayCapacity					=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
+	//public long								BandwidthDayCapacity					=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
 	//public long								BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
 
 	public abstract int						TablesCount { get; }

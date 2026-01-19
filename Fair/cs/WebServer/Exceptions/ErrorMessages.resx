@@ -153,4 +153,10 @@
   <data name="InvalidPublicationVersionFormat1" xml:space="preserve">
     <value>An incorrect publication {0} version {1} specified.</value>
   </data>
+  <data name="InvalidEntityParameterFormat2" xml:space="preserve">
+    <value>An incorrect {0} {1} has been provided.</value>
+  </data>
+  <data name="InvalidEntityParameterFormat3" xml:space="preserve">
+    <value>An incorrect {0} {1} has been provided {2}.</value>
+  </data>
 </root>

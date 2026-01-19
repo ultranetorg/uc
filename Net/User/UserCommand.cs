@@ -18,7 +18,7 @@ public class UserCommand : McvCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Description = "Create a new account entity";
+		a.Description = "Create a new user entity";
 		a.Arguments = [	new (name,	NAME, "User name"),
 						new (owner, AA, "Account public address of account owner")];
 
@@ -26,6 +26,24 @@ public class UserCommand : McvCommand
 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
 
 								return new UserCreation {Name = GetString(name), Owner = GetAccountAddress(owner)};
+							};
+		return a;
+	}
+
+	public CommandAction UpdateName()
+	{
+		var name = "name";
+
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Name = "un";
+		a.Description = "Set a new name for a user";
+		a.Arguments = [new (name, NAME, "A new user name")];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+
+								return new UserNameChange {Name = GetString(name)};
 							};
 		return a;
 	}

@@ -173,7 +173,7 @@ public abstract class Mcv /// Mutual chain voting
 
 			var r = GetRound(0);
 
-			r.ConsensusECEnergyCost = 1; ///1
+			r.ConsensusEnergyCost = 1; ///1
 			r.ConsensusFundJoiners = [Net.Father0Signer];
 			r.ConsensusTransactions = r.OrderedTransactions.ToArray();
 			r.ConsensusViolators = [];
@@ -507,7 +507,7 @@ public abstract class Mcv /// Mutual chain voting
 		var r = GetRound(p.Id + 1);
 		
 		r.ConsensusTime			= Time.Now(Clock);
-		r.ConsensusECEnergyCost	= LastConfirmedRound.ConsensusECEnergyCost;
+		r.ConsensusEnergyCost	= LastConfirmedRound.ConsensusEnergyCost;
 		//r.Spacetimes			= LastConfirmedRound.Spacetimes;
 
 		r.Execute([transaction]);

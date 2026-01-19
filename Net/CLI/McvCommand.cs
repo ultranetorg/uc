@@ -71,6 +71,7 @@ public abstract class McvCommand : NetCommand
 													{
 														Operations = operations,
 														User = user,
+														Application = Assembly.GetEntryAssembly().Location,
 														ActionOnResult = aor
 													},
 													Flow);

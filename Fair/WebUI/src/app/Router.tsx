@@ -25,9 +25,11 @@ import {
   SitesPage,
 } from "ui/pages"
 
-import { AccountsProvider } from "./AccountsProvider"
+import { ManageUsersProvider } from "./ManageUsersProvider"
 import { ModerationProvider } from "./ModerationProvider"
+import { NodeCheckerProvider } from "./NodeCheckerProvider"
 import { SiteProvider } from "./SiteProvider"
+import { UserProvider } from "./UserProvider"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
 
@@ -35,11 +37,15 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: (
-      <AccountsProvider>
-        <SiteProvider>
-          <BaseLayout />
-        </SiteProvider>
-      </AccountsProvider>
+      <NodeCheckerProvider>
+        <ManageUsersProvider>
+          <UserProvider>
+            <SiteProvider>
+              <BaseLayout />
+            </SiteProvider>
+          </UserProvider>
+        </ManageUsersProvider>
+      </NodeCheckerProvider>
     ),
     errorElement: (
       <AppLayout>

@@ -31,34 +31,31 @@ public class Transaction : IBinarySerializable
 										}
 									 }
 	public Operation[]				Operations = {};
-	public bool						Successful => Error == null && Operations.Any() && Operations.All(i => i.Error == null);
-
-#if IMMISSION
-	public bool						EmissionOnly => Operations.All(i => i is Immission);
-#endif
-
 	public string					User { get; set; }
 	public int						Nonce { get; set; }
-	//public bool						UserCreationRequest => User != Mcv.GodName && User[0] == '?';
+	public int						Expiration { get; set; }
+	public byte[]					Signature { get; set; }
+
+	public string					Applicaiton { get; set; } /// for API
+
 	public McvNet					Net;
 	public Vote						Vote;
 	public Round					Round;
 	public AutoId					Member;
-	public int						Expiration { get; set; }
 	public byte[]					Tag;
-	public long						Bonus;
 	
 	public long						EnergyConsumed;
-	public byte[]					Signature { get; set; }
 
 	AccountAddress					_Signer;
 	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); protected set => _Signer = value; }
+	public bool						Successful => Error == null && Operations.Any() && Operations.All(i => i.Error == null);
 	public TransactionStatus		Status;
 	public IHomoPeer				Ppi;
 	public Flow						Flow;
 	public DateTime					Inquired;
 	public string					Error;
 	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;
+
 
 	public bool Valid(Mcv mcv)
 	{
@@ -103,7 +100,6 @@ public class Transaction : IBinarySerializable
 		w.Write(Member);
 		w.Write7BitEncodedInt(Nonce);
 		w.Write7BitEncodedInt(Expiration);
-		w.Write(Bonus);
 		w.WriteBytes(Tag);
 		w.Write(Operations, i => i.Write(w));
 
@@ -115,7 +111,6 @@ public class Transaction : IBinarySerializable
 		writer.WriteUtf8(User);
 		//writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
-		writer.Write7BitEncodedInt64(Bonus);
 		writer.Write(Operations, i =>{
 										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
@@ -129,7 +124,6 @@ public class Transaction : IBinarySerializable
 		User		= reader.ReadUtf8();
 		//Member		= reader.Read<AutoId>();
 		Nonce		= reader.Read7BitEncodedInt();
-		Bonus		= reader.Read7BitEncodedInt64();
  		Operations	= reader.ReadArray(() => {
  												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
  												o.Transaction = this;
@@ -147,7 +141,6 @@ public class Transaction : IBinarySerializable
 		writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
-		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
 		writer.Write(Operations, i =>	{
 											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
@@ -164,7 +157,6 @@ public class Transaction : IBinarySerializable
 		Member				= reader.Read<AutoId>();
 		Nonce				= reader.Read7BitEncodedInt();
 		Expiration			= reader.Read7BitEncodedInt();
-		Bonus				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
  		Operations			= reader.ReadArray(() => {
  													 	var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
@@ -183,7 +175,6 @@ public class Transaction : IBinarySerializable
 		writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
-		writer.Write7BitEncodedInt64(Bonus);
 		writer.WriteBytes(Tag);
 		writer.Write(Operations, i =>	{
 											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
@@ -200,7 +191,6 @@ public class Transaction : IBinarySerializable
 		Member				= reader.Read<AutoId>();
 		Nonce				= reader.Read7BitEncodedInt();
 		Expiration			= reader.Read7BitEncodedInt();
-		Bonus				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
 		Operations			= reader.ReadArray(() => {
 														var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;

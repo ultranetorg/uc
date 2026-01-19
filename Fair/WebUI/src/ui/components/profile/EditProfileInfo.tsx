@@ -3,13 +3,13 @@ import { TFunction } from "i18next"
 import { useNavigate } from "react-router-dom"
 import { Controller, useForm } from "react-hook-form"
 
-import { useTransactMutationWithStatus } from "entities/mcv"
+import { useUserContext } from "app"
+import { useTransactMutationWithStatus } from "entities/node"
 import { PROFILE_SRC } from "testConfig"
 import { AccountNicknameChange } from "types"
 import { ButtonPrimary, Input, ValidationWrapper } from "ui/components"
 import { showToast } from "utils"
 
-import { useAccountsContext } from "app"
 import pngBackground from "./background.png"
 
 interface IFromData {
@@ -37,7 +37,7 @@ export const EditProfileInfo = memo(({ t, nickname }: EditProfileInfoProps) => {
 
   const navigate = useNavigate()
 
-  const { refetchAccount } = useAccountsContext()
+  const { refetch } = useUserContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const submit = (data: IFromData) => {
@@ -51,7 +51,7 @@ export const EditProfileInfo = memo(({ t, nickname }: EditProfileInfoProps) => {
       },
       onSettled: () => {
         navigate(-1)
-        refetchAccount()
+        refetch()
       },
     })
   }

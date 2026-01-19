@@ -2,40 +2,32 @@ import { forwardRef, memo, useCallback } from "react"
 import { useCopyToClipboard } from "usehooks-ts"
 import { useTranslation } from "react-i18next"
 
-import { useAccountsContext } from "app"
-import { SvgPersonSquare, SvgChevronRight, SvgPencilSm, SvgPerson2 } from "assets"
+import { SvgChevronRight, SvgPencilSm, SvgPerson2 } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { ButtonGhost, CopyButton, LinkFullscreen } from "ui/components"
-import { buildAccountAvatarUrl, shortenAddress } from "utils"
+import { ButtonGhost, CopyButton, ImageFallback, LinkFullscreen } from "ui/components"
+import { buildUserAvatarUrl, shortenAddress } from "utils"
 
 import pngBackground from "./background.png"
-import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
+import { AccountSwitcher, AccountSwitcherBaseProps } from "./AccountSwitcher"
 import { ProfileButton } from "./ProfileButton"
 
 type ProfileMenuBaseProps = {
   customParentId: string
-  accountId?: string // NOTE: Account should be passed as "accountId" not as an "id", because "id" property is already used by getFloatingProps() function of Floating UI.
-  items: AccountSwitcherItem[]
-  onAdd: () => void
-  onRemove: (index: number) => void
-  onSelect: (index: number) => void
   onNicknameCreate: () => void
-}
+} & AccountSwitcherBaseProps
 
 export type ProfileMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id"> & ProfileMenuBaseProps
 
 export const ProfileMenu = memo(
   forwardRef<HTMLDivElement, ProfileMenuProps>(
-    ({ customParentId, style, accountId, nickname, address, items, onAdd, onRemove, onSelect }, ref) => {
+    ({ customParentId, style, selectedUserName, address, ...userSwitcherProps }, ref) => {
       const { t } = useTranslation("currentAccount")
 
       const accountMenu = useSubmenu({ placement: "right-end", customParentId })
 
       const [copiedText, copy] = useCopyToClipboard()
-
-      const { currentAccount } = useAccountsContext()
 
       const handleCopyClick = useCallback(() => {
         copy(address)
@@ -57,26 +49,18 @@ export const ProfileMenu = memo(
               <div className="absolute bottom-0 left-[20px] size-[98px] rounded-full bg-gray-75" />
               <div
                 className="absolute bottom-[4px] left-[24px] size-[90px] overflow-hidden rounded-full"
-                title={nickname ?? address}
+                title={selectedUserName}
               >
-                <img
-                  className="size-full object-cover object-center"
-                  src={accountId != null ? buildAccountAvatarUrl(accountId) : avatarFallback}
-                  loading="lazy"
-                  onError={e => {
-                    e.currentTarget.onerror = null
-                    e.currentTarget.src = avatarFallback
-                  }}
-                />
+                <ImageFallback src={buildUserAvatarUrl(selectedUserName!)} fallbackSrc={avatarFallback} />
               </div>
             </div>
             <div className="flex flex-col gap-2 px-6 py-2">
-              {nickname ? (
+              {selectedUserName ? (
                 <span
                   className="overflow-hidden text-ellipsis text-nowrap text-xl font-semibold leading-6 text-gray-800"
                   title={address}
                 >
-                  {nickname}
+                  {selectedUserName}
                 </span>
               ) : (
                 <LinkFullscreen to={`/p/${address}`} params={{ defaultTabKey: "profileSettings" }}>
@@ -99,9 +83,9 @@ export const ProfileMenu = memo(
               </div>
             </div>
             <div className="flex flex-col gap-2 p-6">
-              <LinkFullscreen to={`/p/${address}`}>
+              {/* <LinkFullscreen to={`/p/${address}`}>
                 <ProfileButton iconBefore={<SvgPersonSquare className="fill-gray-800" />} label={t("profile")} />
-              </LinkFullscreen>
+              </LinkFullscreen> */}
               <ProfileButton
                 label={t("switchAccounts")}
                 iconBefore={<SvgPerson2 className="fill-gray-800" />}
@@ -115,11 +99,8 @@ export const ProfileMenu = memo(
             <AccountSwitcher
               ref={accountMenu.refs.setFloating}
               style={accountMenu.floatingStyles}
-              selectedItemAddress={currentAccount!.address}
-              items={items}
-              onAdd={onAdd}
-              onRemove={onRemove}
-              onSelect={onSelect}
+              selectedUserName={selectedUserName}
+              {...userSwitcherProps}
               {...accountMenu.getFloatingProps()}
             />
           )}

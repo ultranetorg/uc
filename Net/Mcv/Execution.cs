@@ -128,7 +128,7 @@ public class Execution : ITableExecution
 	{
 		if(a.EnergyThisPeriod != Time.Days/Net.ECLifetime.Days)
 		{
-			if(a.EnergyThisPeriod + 1 == Time.Days/Net.ECLifetime.Days)
+			if(a.EnergyThisPeriod + 1 == Time.Days/Net.ECLifetime.Days) /// if this is next period only
 				a.Energy = a.EnergyNext;
 	
 			a.EnergyNext = 0;
@@ -144,15 +144,17 @@ public class Execution : ITableExecution
 			spender.BandwidthTodayBalance	= spender.Bandwidth;
 		}
 
-		var d = spender.BandwidthTodayBalance - EnergyCost;
+		spender.BandwidthTodayBalance -= EnergyCost;
 
-		if(d < 0)
-		{
-			d = -d;
-			spender.Energy -= Math.Min(d, EnergyCost);
-			EnergySpenders.Add(spender);
-		}
-		
+		/// var d = spender.BandwidthTodayBalance - EnergyCost;
+		/// 
+		/// if(d < 0)
+		/// {
+		/// 	d = -d;
+		/// 	spender.Energy -= Math.Min(d, EnergyCost);
+		/// 	EnergySpenders.Add(spender);
+		/// }
+		/// 
 		Transaction.EnergyConsumed += EnergyCost;
 	}
 
