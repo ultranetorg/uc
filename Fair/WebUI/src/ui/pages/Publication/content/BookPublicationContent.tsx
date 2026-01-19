@@ -43,8 +43,8 @@ export const BookPublicationContent = memo(
     return (
       <>
         {/* Left column: cover + download buttons */}
-        <div className="flex w-87.5 flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
-          <div className="flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-gray-200">
+        <div className="flex h-fit w-87.5 flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
+          <div className="flex h-112.5 items-center justify-center overflow-hidden rounded-lg bg-gray-200">
             {coverSrc ? (
               <img src={coverSrc} alt={publication.title} className="size-full object-cover" />
             ) : (
