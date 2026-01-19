@@ -54,7 +54,7 @@ public class ProposalVoting : FairOperation
 		var s = execution.Sites.Affect(p.Site);
         var c = p.OptionClass;
 
-		if(s.IsReferendum(c) && c != FairOperationClass.SitePolicyChange)
+		if(s.IsReferendum(c) && c != FairOperationClass.SiteApprovalPolicyChange)
  		{
 			if(!IsPublisher(execution, s, Voter, out var x, out Error))
 				return;

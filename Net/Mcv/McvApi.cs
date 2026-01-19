@@ -345,7 +345,7 @@ public class EstimateOperationApc : McvApc
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		var t = new Transaction {Net = node.Mcv.Net, Applicaiton = Application, User = User, Operations = Operations.ToArray()};
+		var t = new Transaction {Net = node.Mcv.Net, Application = Application, User = User, Operations = Operations.ToArray()};
 
 		//t.Signer = By;
 		t.Signature	= node.VaultApi.Call<byte[]>(new AuthorizeApc

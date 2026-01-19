@@ -163,8 +163,8 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	public static readonly Restiction[]			Restrictions;
 
-	public PerpetualSurvey						FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is SitePolicyChange o && o.Operation == operation);
-	public sbyte								FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is SitePolicyChange o && o.Operation == operation);
+	public PerpetualSurvey						FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is SiteApprovalPolicyChange o && o.Operation == operation);
+	public sbyte								FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is SiteApprovalPolicyChange o && o.Operation == operation);
 
 	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{

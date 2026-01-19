@@ -72,10 +72,10 @@ public class SiteCreation : FairOperation
  
 														z.LastWin = -1;
  														z.Options = Enum.GetValues<ApprovalRequirement>()	.Where(i => i != ApprovalRequirement.None)
-																											.Select(a => new SurveyOption(	new SitePolicyChange
+																											.Select(a => new SurveyOption(	new SiteApprovalPolicyChange
 																																			{
 																																				Operation = i.OperationClass, 
-																																				Creators = Site.Restrictions.First(j => j.OperationClass == i.OperationClass).Creators,
+																																				//Creators = Site.Restrictions.First(j => j.OperationClass == i.OperationClass).Creators,
 																																				Approval = a
 																																			}))
 																											.ToArray();

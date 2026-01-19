@@ -543,7 +543,7 @@ public abstract class McvPeering : HomoTcpPeering
 						t.Flow			 = Flow;
 						t.Net			 = Net;
 						t.User			 = gs.User;
-						t.Applicaiton	 = Assembly.GetEntryAssembly().Location;
+						t.Application	 = Assembly.GetEntryAssembly().Location;
 	 					t.ActionOnResult = ActionOnResult.RetryUntilConfirmed;
 				
 						t.AddOperation(Mcv.CreateCandidacyDeclaration());
@@ -805,7 +805,7 @@ public abstract class McvPeering : HomoTcpPeering
 			{
 				var min = CandidateTransactions.MinBy(i => t.Operations.First().User.BandwidthTodayBalance); /// find the one with the lowest bandwidth balance
 
-				if(t.Operations.First().User.BandwidthTodayBalance > min.Operations.First().User.BandwidthTodayBalance) /// if the new one is better, replace with the old one
+				if(t.Operations.First().User.BandwidthTodayBalance + t.Boost > min.Operations.First().User.BandwidthTodayBalance) /// if the new one is better, replace with the old one
 					CandidateTransactions.Remove(min);
 				else
 					continue;
@@ -878,7 +878,7 @@ public abstract class McvPeering : HomoTcpPeering
 			IEnumerable<IGrouping<string, Transaction>> nones;
 
 			lock(Lock)
-				nones = OutgoingTransactions.Where(i => GetSession(i.Applicaiton, i.User) != null).GroupBy(i => i.User).Where(g => !g.Any(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
+				nones = OutgoingTransactions.Where(i => GetSession(i.Application, i.User) != null).GroupBy(i => i.User).Where(g => !g.Any(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
 
 			foreach(var g in nones)
 			{
@@ -888,7 +888,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 				foreach(var t in g.Where(i => i.Status == TransactionStatus.None))
 				{
-					var s = GetSession(t.Applicaiton, g.Key);
+					var s = GetSession(t.Application, g.Key);
 
 					try
 					{
@@ -898,7 +898,7 @@ public abstract class McvPeering : HomoTcpPeering
 						t.Signature	 = VaultApi.Call<byte[]>(new AuthorizeApc
 															 {
 																Cryptography	= Net.Cryptography.Type,
-																Application		= t.Applicaiton,
+																Application		= t.Application,
 																Net				= Net.Name,
 																User			= t.User,
 																Session			= s.Session,
@@ -939,7 +939,7 @@ public abstract class McvPeering : HomoTcpPeering
 						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc
 															 {
 																Cryptography	= Net.Cryptography.Type,
-																Application		= t.Applicaiton,
+																Application		= t.Application,
 																Net				= Net.Name,
 																User			= t.User,
 																Session			= s.Session,
@@ -1081,7 +1081,7 @@ public abstract class McvPeering : HomoTcpPeering
 		
 		if(OutgoingTransactions.Count <= Mcv.TransactionQueueLimit)
 		{
-			if(GetSession(t.Applicaiton, t.User) == null)
+			if(GetSession(t.Application, t.User) == null)
 				throw new NodeException(NodeError.NoSession);
 
 			if(TransactingThread == null)
@@ -1113,7 +1113,7 @@ public abstract class McvPeering : HomoTcpPeering
 			i.PreTransact(Node, flow);
 
 		var t = new Transaction();
-		t.Applicaiton			= application;	
+		t.Application			= application;	
 		t.User					= user;
 		t.Net					= Net;
 		t.Tag					= tag ?? Guid.NewGuid().ToByteArray();

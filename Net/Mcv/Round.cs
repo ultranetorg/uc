@@ -315,6 +315,7 @@ public abstract class Round : IBinarySerializable
 		foreach(var i in Mcv.Tables)
 			FindState<TableStateBase>(i)?.StartRoundExecution(this);
 
+
 		foreach(var t in transactions.Reverse())
 		{
 			var e = CreateExecution(t);
@@ -337,6 +338,8 @@ public abstract class Round : IBinarySerializable
 
 				if(o.Error != null)
 					break;
+
+				u.Energy -= t.Boost;
 
 				if(u.Energy < 0)
 				{

@@ -169,22 +169,22 @@ public abstract class McvCommand : NetCommand
 			return def;
 	}
 
-	protected long GetEC(string paramenter)
+	protected ushort GetUInt16(string paramenter)
 	{
 		var p = One(paramenter);
 
 		if(p != null)
-			return long.Parse(p.Get<string>(), NumberStyles.AllowThousands);
+			return ushort.Parse(p.Get<string>(), NumberStyles.AllowThousands);
 		else
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	protected long GetEC(string paramenter, long def)
+	protected long GetUInt16(string paramenter, ushort def)
 	{
 		var p = One(paramenter);
 
 		if(p != null)
-			return long.Parse(p.Get<string>(), NumberStyles.AllowThousands);
+			return ushort.Parse(p.Get<string>(), NumberStyles.AllowThousands);
 		else
 			return def;
 	}

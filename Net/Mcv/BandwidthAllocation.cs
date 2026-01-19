@@ -2,10 +2,10 @@
 
 public class BandwidthAllocation : Operation
 {
-	public long				Bandwidth { get; set; }
-	public short			Days  { get; set; }
+	public ushort			Bandwidth { get; set; }
+	public ushort			Days  { get; set; }
 
-	public override string	Explanation => $"Allocation of {Bandwidth} EC for {Days} days";
+	public override string	Explanation => $"Allocation of {Bandwidth} bandwidth for {Days} days";
 	public override bool	IsValid(McvNet net) => Bandwidth >= 0 && Days > 0 && Days <= net.BandwidthDaysMaximum;
 	
 	public BandwidthAllocation()
@@ -14,13 +14,13 @@ public class BandwidthAllocation : Operation
 
 	public override void Read(BinaryReader reader)
 	{
-		Bandwidth	= reader.Read7BitEncodedInt64();
-		Days		= reader.ReadInt16();
+		Bandwidth	= reader.ReadUInt16();
+		Days		= reader.ReadUInt16();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write7BitEncodedInt64(Bandwidth);
+		writer.Write(Bandwidth);
 		writer.Write(Days);
 	}
 

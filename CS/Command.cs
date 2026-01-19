@@ -273,6 +273,16 @@ public abstract class Command
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
+	public long GetLong(string paramenter, long def)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return long.Parse(p.Get<string>(), NumberStyles.AllowThousands);
+		else
+			return def;
+	}
+
 	public int GetInt(string paramenter)
 	{
 		var p = One(paramenter);
