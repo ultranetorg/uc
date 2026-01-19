@@ -61,16 +61,17 @@ public enum RequestError : uint
 
 public enum VaultError : uint
 {
-	Locked,
-	Corrupted,
 	AlreadyExists,
 	AlreadyLocked,
 	AlreadyUnlocked,
     AccountNotFound,
+	Corrupted,
+	IncorrectArgumets,
+	Locked,
     NetNotFound,
     NotFound,
-	IncorrectArgumets,
-	UnknownCtyptography
+	Rejected,
+	UnknownCtyptography,
 }
 
 public class NodeException : CodeException

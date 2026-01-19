@@ -157,7 +157,7 @@ public class McvSummaryApc : McvApc
 					new ("IP(Reported):Port",		$"{node.Peering.Settings.EP} ({node.Peering})"),
 					new ("Votes Acceped/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"),
 
-					new ("Incoming Transactions",	$"{node.Peering.IncomingTransactions.Count}"),
+					new ("Incoming Transactions",	$"{node.Peering.CandidateTransactions.Count}"),
 					new ("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}"),
 					new ("    Pending",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
 					new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
@@ -415,7 +415,7 @@ public class IncomingTransactionsApc : McvApc
 			throw new NodeException(NodeError.NoPeering);
 
 		lock(node.Peering.Lock)
-			return node.Peering.IncomingTransactions.Select(i => new TransactionApe(i)).ToArray();
+			return node.Peering.CandidateTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }
 

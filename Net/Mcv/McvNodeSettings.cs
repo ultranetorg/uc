@@ -20,6 +20,7 @@ public class McvNodeSettings : SavableSettings
 	//public PeeringSettings			NnPeering { get; set; }
 	public AccountSessionSettings[]	Sessions { get; set; }
 	public bool						Log { get; set; }
+	public int						PoolMaximum { get; set; } = 100_000;
 	public int						RdcQueryTimeout { get; set; } = 5000;
 	public int						RdcTransactingTimeout { get; set; } = 5*60*1000;
 	public int						TransactionNoInquireKeepPeriod { get; set; } = 60; /// In seconds
