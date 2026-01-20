@@ -140,6 +140,9 @@ public class Execution : ITableExecution
 	{
 		if(spender.BandwidthTodayTime < Time.Days) /// switch to this day
 		{	
+			if(spender.BandwidthExpiration < Time.Days) /// bandwidth expired
+				spender.Bandwidth = 0;
+
 			spender.BandwidthTodayTime		= Time.Days;
 			spender.BandwidthTodayBalance	= spender.Bandwidth;
 		}

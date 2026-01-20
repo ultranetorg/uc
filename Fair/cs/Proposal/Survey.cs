@@ -37,7 +37,7 @@ public class PerpetualSurvey : IBinarySerializable
 	public sbyte				LastWin { get; set; }
 	public AutoId[]				Comments;
 	
-	public sbyte				FindIndex(ApprovalRequirement policy) => (sbyte)Array.FindIndex(Options, i => i.Operation is SitePolicyChange o && o.Approval == policy);
+	public sbyte				FindIndex(ApprovalRequirement policy) => (sbyte)Array.FindIndex(Options, i => i.Operation is SiteApprovalPolicyChange o && o.Approval == policy);
 
 	public PerpetualSurvey()
 	{

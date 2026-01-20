@@ -43,8 +43,8 @@ public class UtilityCommand : McvCommand
 															AutoId.Parse(GetString(from).Split('/')[1]),
 															info.Tables[GetString(to).Split('/')[0]], 
 															toid,
-															GetEC("e", 0), 
-															GetEC("en", 0), 
+															GetLong("e", 0), 
+															GetLong("en", 0), 
 															GetBD("st", 0));
 							};
 

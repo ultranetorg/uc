@@ -8,6 +8,7 @@ public struct Time : IBinarySerializable
 {
 	public int						Seconds;
 	public short					Days => (short)(Seconds/TimeSpan.SecondsPerDay);
+	public short					Months => (short)(Seconds/(TimeSpan.SecondsPerDay * 30));
 	public const string				DateFormat = "yyyy-MM-dd HH:mm:ss";
 
 	public static readonly Time		Zero = new Time(0);

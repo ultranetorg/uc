@@ -28,7 +28,7 @@ public enum FairOperationClass : uint
 	Site							= 103,
 		SiteCreation				= 103_000_001, 
 		SiteRenewal					= 103_000_002,
-		SitePolicyChange			= 103_000_003,
+		SiteApprovalPolicyChange	= 103_000_003,
 		SiteModeratorAddition		= 103_000_004,
 		SiteModeratorRemoval		= 103_000_005,
 		SiteAuthorsChange			= 103_000_006,

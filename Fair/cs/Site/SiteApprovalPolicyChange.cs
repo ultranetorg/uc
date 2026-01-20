@@ -1,28 +1,28 @@
 ﻿namespace Uccs.Fair;
 
-public class SitePolicyChange : SiteOperation
+public class SiteApprovalPolicyChange : SiteOperation
 {
 	public FairOperationClass	Operation { get; set; }
-	public Role					Creators { get; set; }
+	//public Role					Creators { get; set; }
 	public ApprovalRequirement	Approval { get; set; }
 
 	public override bool		IsValid(McvNet net) =>	Enum.IsDefined<FairOperationClass>(Operation) && 
-														Enum.IsDefined<Role>(Creators)&&
+														//Enum.IsDefined<Role>(Creators)&&
 														Enum.IsDefined<ApprovalRequirement>(Approval);
 
-	public override string		Explanation => $"Site={Site}, Operation+{Operation}, Creators={Creators}, Approval={Approval}";
+	public override string		Explanation => $"Site={Site}, Operation+{Operation}, Approval={Approval}";
 	
 	public override void Read(BinaryReader reader)
 	{
 		Operation	= reader.Read<FairOperationClass>();
-		Creators	= reader.Read<Role>();
+		//Creators	= reader.Read<Role>();
 		Approval	= reader.Read<ApprovalRequirement>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Operation);
-		writer.Write(Creators);
+		//writer.Write(Creators);
 		writer.Write(Approval);
 	}
 
@@ -53,11 +53,11 @@ public class SitePolicyChange : SiteOperation
 			return;
 		}
 
-		if(!Site.Restrictions.First(i => i.OperationClass == Operation).Creators.HasFlag(Creators))
-		{
-			Error = Denied;
-			return;
-		}
+		//if(!Site.Restrictions.First(i => i.OperationClass == Operation).Creators.HasFlag(Creators))
+		//{
+		//	Error = Denied;
+		//	return;
+		//}
 
  		var s = Site;
 
@@ -65,6 +65,6 @@ public class SitePolicyChange : SiteOperation
 		
 		var i = Array.FindIndex(s.Policies, i => i.OperationClass == Operation);
 
-		s.Policies[i] = new Policy(Operation, Creators, Approval);
+		s.Policies[i] = new Policy(Operation, s.Policies[i].Creators, Approval);
 	}
 }
