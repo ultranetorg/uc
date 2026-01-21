@@ -7,6 +7,7 @@ namespace Uccs.Net;
 public struct Time : IBinarySerializable
 {
 	public int						Seconds;
+	public int						Hours => (int)(Seconds/TimeSpan.SecondsPerHour);
 	public short					Days => (short)(Seconds/TimeSpan.SecondsPerDay);
 	public short					Months => (short)(Seconds/(TimeSpan.SecondsPerDay * 30));
 	public const string				DateFormat = "yyyy-MM-dd HH:mm:ss";

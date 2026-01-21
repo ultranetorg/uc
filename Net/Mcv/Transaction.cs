@@ -111,6 +111,7 @@ public class Transaction : IBinarySerializable
  	public void	WriteConfirmed(BinaryWriter writer)
  	{
 		writer.WriteUtf8(User);
+		//writer.Write(Signer);
 		//writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt64(Boost);
@@ -125,6 +126,7 @@ public class Transaction : IBinarySerializable
 		Status		= TransactionStatus.Confirmed;
 
 		User		= reader.ReadUtf8();
+		//Signer		= reader.Read<AccountAddress>();
 		//Member		= reader.Read<AutoId>();
 		Nonce		= reader.Read7BitEncodedInt();
 		Boost		= reader.Read7BitEncodedInt64();

@@ -85,4 +85,26 @@ public class UserCommand : McvCommand
 							};
 		return a;
 	}
+
+	public CommandAction AllocateBandwidth()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+		
+		a.Name = "ab";
+		a.Description = "Allocate execution bandwidth";
+		a.Arguments =	[
+							new ("bandwidth", EC, "Amount of energy allocated per hour"),
+							new ("months", INT, "Number of months to allocate bandwidth for"),
+							ByArgument()
+						];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+
+								return new BandwidthAllocation {Bandwidth = GetUInt16("bandwidth"), Months = GetByte("months")};
+							};
+
+		return a;
+	}
+
 }

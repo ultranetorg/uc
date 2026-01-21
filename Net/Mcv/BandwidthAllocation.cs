@@ -3,10 +3,10 @@
 public class BandwidthAllocation : Operation
 {
 	public ushort			Bandwidth { get; set; }
-	public ushort			Days  { get; set; }
+	public byte				Months  { get; set; }
 
-	public override string	Explanation => $"Allocation of {Bandwidth} bandwidth for {Days} days";
-	public override bool	IsValid(McvNet net) => Bandwidth >= 0 && Days > 0 && Days <= net.BandwidthDaysMaximum;
+	public override string	Explanation => $"Allocation of {Bandwidth} bandwidth for {Months} months";
+	public override bool	IsValid(McvNet net) => Bandwidth >= 0 && Months > 0 && Months <= McvNet.BandwidthRentMonthsMaximum;
 	
 	public BandwidthAllocation()
 	{
@@ -15,30 +15,34 @@ public class BandwidthAllocation : Operation
 	public override void Read(BinaryReader reader)
 	{
 		Bandwidth	= reader.ReadUInt16();
-		Days		= reader.ReadUInt16();
+		Months		= reader.ReadByte();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Bandwidth);
-		writer.Write(Days);
+		writer.Write(Months);
 	}
 
 	public override void Execute(Execution execution)
 	{
-		var r = User.BandwidthExpiration - execution.Time.Days;
+		var r = User.BandwidthExpiration - execution.Time.Hours;
+		
+		execution.AffectBandwidths();
 
 		if(r > 0) /// reclaim the remaining
 		{
-			User.Energy += User.Bandwidth * r;
+			///User.Energy += User.Bandwidth * r;
 
 			for(int i = 0; i < r; i++)
 				execution.Bandwidths[i] -= User.Bandwidth;
 		}
+		
+		var h = Months * 30 * 24;
 
-		for(int i = 0; i < Days; i++)
+		for(int i = 0; i < h; i++)
 		{
-			if(execution.Bandwidths[i] + Bandwidth <= execution.Net.EnergyDayEmission)
+			if(execution.Bandwidths[i] + Bandwidth <= execution.Net.EnergyHourlyEmission)
 			{
 				execution.Bandwidths[i] += Bandwidth;
 			}
@@ -49,8 +53,10 @@ public class BandwidthAllocation : Operation
 			}
 		}
 
-		User.Energy					-= Bandwidth * Days;
+		User.Energy					-= Bandwidth * h;
 		User.Bandwidth				= Bandwidth;
-		User.BandwidthExpiration	= (short)(execution.Time.Days + Days);
+		User.BandwidthExpiration	= execution.Time.Hours + h;
+
+		execution.EnergySpenders.Add(User);
 	}
 }

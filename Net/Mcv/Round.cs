@@ -300,11 +300,11 @@ public abstract class Round : IBinarySerializable
 				o.Error = null;
 		}
 
-		Candidates	= Id == 0 ? new()								: Previous.Candidates.ToList();
-		Members		= Id == 0 ? new()								: Previous.Members;
-		Funds		= Id == 0 ? new()								: Previous.Funds;
-		Bandwidths	= Id == 0 ? new long[Net.BandwidthDaysMaximum]	: Previous.Bandwidths.Clone() as long[];
-		Spacetimes	= Id == 0 ? new long[1]							: Previous.Spacetimes.Clone() as long[];
+		Candidates	= Id == 0 ? new()										: Previous.Candidates; /// cloned in Execution.AffectCandidate
+		Members		= Id == 0 ? new()										: Previous.Members;
+		Funds		= Id == 0 ? new()										: Previous.Funds;
+		Bandwidths	= Id == 0 ? new long[McvNet.BandwidthPeriodsMaximum]	: Previous.Bandwidths;
+		Spacetimes	= Id == 0 ? new long[1]									: Previous.Spacetimes;
 
 		AffectedMetas.Clear();
 		AffectedAccounts.Clear();
@@ -340,12 +340,6 @@ public abstract class Round : IBinarySerializable
 					break;
 
 				u.Energy -= t.Boost;
-
-				if(u.Energy < 0)
-				{
-					o.Error = Operation.NotEnoughEnergy;
-					break;
-				}
 				
 				foreach(var i in e.EnergySpenders)
 				{
@@ -395,9 +389,9 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in execution.NextEids[t])
 				NextEids[t][i.Key] = i.Value;
 
-		if(execution.Candidates != null)	Candidates	= execution.Candidates;
-		if(execution.Spaces != null)		Spacetimes	= execution.Spaces;
-		if(execution.Bandwidths != null)	Bandwidths	= execution.Bandwidths;
+		Candidates	= execution.Candidates;
+		Spacetimes	= execution.Spaces;
+		Bandwidths	= execution.Bandwidths;
 	}
 
 	public void Confirm()
@@ -461,20 +455,31 @@ public abstract class Round : IBinarySerializable
 		Funds.RemoveAll(i => ConsensusFundLeavers.Contains(i));
 		Funds.AddRange(ConsensusFundJoiners);
 
-		if(Id > 0 && ConsensusTime.Days != Previous.ConsensusTime.Days) /// day switched
+
+		if(Id > 0)
 		{
 			var d = ConsensusTime.Days - Previous.ConsensusTime.Days;
-
-			e.Bandwidths = d < e.Bandwidths.Length ? [..e.Bandwidths[d..], ..new long[d]] : new long[d];
-
-			foreach(var i in Members.Select(i => e.AffectUser(i.Id)))
-			{
-				i.EnergyNext += d * Net.EnergyDayEmission / Members.Count;
-				i.Spacetime	 += d * (Net.SpacetimeDayEmission + e.Spaces.Take(d).Sum()) / Members.Count;
-			}
 			
-			if(d <= e.Spaces.Length)
-				e.Spaces = e.Spaces[d..];
+			if(d > 0) /// day switched
+			{
+				e.AffectSpaces();
+
+				foreach(var i in Members.Select(i => e.AffectUser(i.Id)))
+				{
+					i.EnergyNext += d * Net.EnergyDailyEmission / Members.Count;
+					i.Spacetime	 += d * (Net.SpacetimeDayEmission + e.Spaces.Take(d).Sum()) / Members.Count;
+				}
+				
+				if(d <= e.Spaces.Length)
+					e.Spaces = e.Spaces[d..];
+			}
+	
+			var h = ConsensusTime.Hours - Previous.ConsensusTime.Hours;
+	
+			if(h > 0) /// hours switched
+			{
+				e.Bandwidths = h < e.Bandwidths.Length ? [..e.Bandwidths[h..], ..new long[h]] : new long[h];
+			}
 		}
 
 		Absorb(e);

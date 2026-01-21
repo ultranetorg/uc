@@ -37,20 +37,21 @@ public interface IEnergyHolder : IHolder
 	byte		EnergyThisPeriod { get; set; }
 	long		EnergyNext { get; set; }
 	
-	long		Bandwidth { get; set; }
-	short		BandwidthExpiration { get; set; }
-	short		BandwidthTodayTime { get; set; }
-	long		BandwidthTodayBalance { get; set; }
+	int			Bandwidth { get; set; }
+	int			BandwidthExpiration { get; set; }
+	int			BandwidthPeriod { get; set; }
+	int			BandwidthPeriodBalance { get; set; }
 
 	public void Clone(IEnergyHolder a)
 	{ 
-		a.Energy				 = Energy;
-		a.EnergyThisPeriod       = EnergyThisPeriod;
-		a.EnergyNext             = EnergyNext;
-		a.Bandwidth              = Bandwidth;
-		a.BandwidthExpiration    = BandwidthExpiration;
-		a.BandwidthTodayTime     = BandwidthTodayTime;
-		a.BandwidthTodayBalance		= BandwidthTodayBalance;
+		a.Energy				= Energy;
+		a.EnergyThisPeriod      = EnergyThisPeriod;
+		a.EnergyNext            = EnergyNext;
+			
+		a.Bandwidth					= Bandwidth;
+		a.BandwidthExpiration		= BandwidthExpiration;
+		a.BandwidthPeriod			= BandwidthPeriod;
+		a.BandwidthPeriodBalance	= BandwidthPeriodBalance;
 	}
 
 	public void WriteEnergyHolder(BinaryWriter writer)
@@ -59,10 +60,10 @@ public interface IEnergyHolder : IHolder
 		writer.Write(EnergyThisPeriod);
 		writer.Write7BitEncodedInt64(EnergyNext);
 	
-		writer.Write7BitEncodedInt64(Bandwidth);
-		writer.Write(BandwidthExpiration);
-		writer.Write(BandwidthTodayTime);
-		writer.Write7BitEncodedInt64(BandwidthTodayBalance);
+		writer.Write7BitEncodedInt(Bandwidth);
+		writer.Write7BitEncodedInt(BandwidthExpiration);
+		writer.Write7BitEncodedInt(BandwidthPeriod);
+		writer.Write7BitEncodedInt(BandwidthPeriodBalance);
 	}
 
 	public void ReadEnergyHolder(BinaryReader reader)
@@ -71,10 +72,10 @@ public interface IEnergyHolder : IHolder
 		EnergyThisPeriod 	= reader.ReadByte();
 		EnergyNext	 		= reader.Read7BitEncodedInt64();
 
-		Bandwidth			= reader.Read7BitEncodedInt64();
-		BandwidthExpiration	= reader.ReadInt16();
-		BandwidthTodayTime	= reader.ReadInt16();
-		BandwidthTodayBalance	= reader.Read7BitEncodedInt64();
+		Bandwidth				= reader.Read7BitEncodedInt();
+		BandwidthExpiration		= reader.Read7BitEncodedInt();
+		BandwidthPeriod			= reader.Read7BitEncodedInt();
+		BandwidthPeriodBalance	= reader.Read7BitEncodedInt();
 	}
 }
 
@@ -92,11 +93,10 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public byte				EnergyThisPeriod { get; set; }
 	public long				EnergyNext { get; set; }
 
-	public long				Bandwidth { get; set; }
-	public short			BandwidthExpiration { get; set; } = -1;
-	public long				BandwidthToday { get; set; }
-	public short			BandwidthTodayTime { get; set; }
-	public long				BandwidthTodayBalance { get; set; }
+	public int				Bandwidth { get; set; }
+	public int				BandwidthExpiration { get; set; }
+	public int				BandwidthPeriod { get; set; }
+	public int				BandwidthPeriodBalance { get; set; }
 
 	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
@@ -145,10 +145,10 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	{
 		Id					= reader.Read<AutoId>();
 		Owner				= reader.ReadAccount();
-		Name			= reader.ReadASCII();
+		Name				= reader.ReadASCII();
 
 		Spacetime 			= reader.Read7BitEncodedInt64();
-		LastNonce	= reader.Read7BitEncodedInt();
+		LastNonce			= reader.Read7BitEncodedInt();
 		AverageUptime		= reader.Read7BitEncodedInt64();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
@@ -169,9 +169,9 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 
 		a.Id					= Id;
 		a.Owner					= Owner;
-		a.Name				= Name;
+		a.Name					= Name;
 		a.Spacetime				= Spacetime;
-		a.LastNonce	= LastNonce;
+		a.LastNonce				= LastNonce;
 		a.AverageUptime			= AverageUptime;
 
 		((IEnergyHolder)this).Clone(a);

@@ -263,6 +263,16 @@ public abstract class Command
 			return def;
 	}
 
+	public byte GetByte(string paramenter)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return byte.Parse(p.Get<string>());
+		else
+			throw new SyntaxException($"Parameter '{paramenter}' not provided");
+	}
+
 	public long GetLong(string paramenter)
 	{
 		var p = One(paramenter);
