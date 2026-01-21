@@ -36,22 +36,22 @@ public interface IEnergyHolder : IHolder
 	long		Energy { get; set; }
 	byte		EnergyThisPeriod { get; set; }
 	long		EnergyNext { get; set; }
+	int			EnergyPeriod { get; set; }
+	int			EnergyRating { get; set; }
 	
 	int			Bandwidth { get; set; }
 	int			BandwidthExpiration { get; set; }
-	int			BandwidthPeriod { get; set; }
-	int			BandwidthPeriodBalance { get; set; }
 
 	public void Clone(IEnergyHolder a)
 	{ 
 		a.Energy				= Energy;
 		a.EnergyThisPeriod      = EnergyThisPeriod;
 		a.EnergyNext            = EnergyNext;
+		a.EnergyPeriod			= EnergyPeriod;
+		a.EnergyRating			= EnergyRating;
 			
-		a.Bandwidth					= Bandwidth;
-		a.BandwidthExpiration		= BandwidthExpiration;
-		a.BandwidthPeriod			= BandwidthPeriod;
-		a.BandwidthPeriodBalance	= BandwidthPeriodBalance;
+		a.Bandwidth				= Bandwidth;
+		a.BandwidthExpiration	= BandwidthExpiration;
 	}
 
 	public void WriteEnergyHolder(BinaryWriter writer)
@@ -59,11 +59,11 @@ public interface IEnergyHolder : IHolder
 		writer.Write7BitEncodedInt64(Energy);
 		writer.Write(EnergyThisPeriod);
 		writer.Write7BitEncodedInt64(EnergyNext);
+		writer.Write7BitEncodedInt(EnergyPeriod);
+		writer.Write7BitEncodedInt(EnergyRating);
 	
 		writer.Write7BitEncodedInt(Bandwidth);
 		writer.Write7BitEncodedInt(BandwidthExpiration);
-		writer.Write7BitEncodedInt(BandwidthPeriod);
-		writer.Write7BitEncodedInt(BandwidthPeriodBalance);
 	}
 
 	public void ReadEnergyHolder(BinaryReader reader)
@@ -71,11 +71,11 @@ public interface IEnergyHolder : IHolder
 		Energy	 			= reader.Read7BitEncodedInt64();
 		EnergyThisPeriod 	= reader.ReadByte();
 		EnergyNext	 		= reader.Read7BitEncodedInt64();
+		EnergyPeriod		= reader.Read7BitEncodedInt();
+		EnergyRating		= reader.Read7BitEncodedInt();
 
 		Bandwidth				= reader.Read7BitEncodedInt();
 		BandwidthExpiration		= reader.Read7BitEncodedInt();
-		BandwidthPeriod			= reader.Read7BitEncodedInt();
-		BandwidthPeriodBalance	= reader.Read7BitEncodedInt();
 	}
 }
 
@@ -92,11 +92,11 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public long				Energy { get; set; }
 	public byte				EnergyThisPeriod { get; set; }
 	public long				EnergyNext { get; set; }
+	public int				EnergyPeriod { get; set; }
+	public int				EnergyRating { get; set; }
 
 	public int				Bandwidth { get; set; }
 	public int				BandwidthExpiration { get; set; }
-	public int				BandwidthPeriod { get; set; }
-	public int				BandwidthPeriodBalance { get; set; }
 
 	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }

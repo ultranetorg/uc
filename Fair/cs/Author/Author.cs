@@ -34,8 +34,8 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public int						Bandwidth { get; set; }
 	public int						BandwidthExpiration { get; set; }
-	public int						BandwidthPeriod { get; set; }
-	public int						BandwidthPeriodBalance { get; set; }
+	public int						EnergyPeriod { get; set; }
+	public int						EnergyRating { get; set; }
 	
 	public AutoId[]					Products { get; set; }
 	public AutoId[]					Sites { get; set; }

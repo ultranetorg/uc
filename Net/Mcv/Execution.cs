@@ -143,16 +143,16 @@ public class Execution : ITableExecution
 
 	public void PayCycleEnergy(IEnergyHolder spender)
 	{
-		if(spender.BandwidthPeriod < Time.Hours) /// switch to this day
+		if(spender.EnergyPeriod < Time.Hours) /// switch to this day
 		{	
 			if(spender.BandwidthExpiration < Time.Hours) /// bandwidth expired
 				spender.Bandwidth = 0;
 
-			spender.BandwidthPeriod			= Time.Hours;
-			spender.BandwidthPeriodBalance	= spender.Bandwidth;
+			spender.EnergyPeriod	= Time.Hours;
+			spender.EnergyRating	= spender.Bandwidth;
 		}
 
-		spender.BandwidthPeriodBalance -= (int)EnergyCost;
+		spender.EnergyRating -= (int)EnergyCost;
 
 		/// var d = spender.BandwidthTodayBalance - EnergyCost;
 		/// 

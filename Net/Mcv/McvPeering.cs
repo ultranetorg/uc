@@ -683,7 +683,7 @@ public abstract class McvPeering : HomoTcpPeering
 	
 					var stxs = txs.Select(i => new {t = i, a = Mcv.Users.Find(i.User, pp.Id)});
 	
-					foreach(var t in stxs.Where(i => i.a != null).OrderByDescending(i => i.a.BandwidthPeriodBalance))	/// Allocated bandwidth first
+					foreach(var t in stxs.Where(i => i.a != null).OrderByDescending(i => i.a.EnergyRating))	/// Allocated bandwidth first
 						if(false == tryplace(t.t, false))
 							break;
 	
@@ -803,9 +803,9 @@ public abstract class McvPeering : HomoTcpPeering
 		{
 			if(CandidateTransactions.Sum(i => i.Operations.Length) >= Node.Settings.PoolMaximum) /// limit reached
 			{
-				var min = CandidateTransactions.MinBy(i => t.Operations.First().User.BandwidthPeriodBalance); /// find the one with the lowest bandwidth balance
+				var min = CandidateTransactions.MinBy(i => t.Operations.First().User.EnergyRating); /// find the one with the lowest bandwidth balance
 
-				if(t.Operations.First().User.BandwidthPeriodBalance + t.Boost > min.Operations.First().User.BandwidthPeriodBalance) /// if the new one is better, replace with the old one
+				if(t.Operations.First().User.EnergyRating + t.Boost > min.Operations.First().User.EnergyRating) /// if the new one is better, replace with the old one
 					CandidateTransactions.Remove(min);
 				else
 					continue;

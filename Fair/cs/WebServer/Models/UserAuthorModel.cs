@@ -20,7 +20,7 @@ public class UserAuthorModel : AuthorBaseModel
 	public int Bandwidth { get; set; }
 	public int BandwidthExpiration { get; set; }
 	public int BandwidthTodayTime { get; set; }
-	public int BandwidthPeriodBalance { get; set; }
+	public int EnergyRating { get; set; }
 
 	public UserAuthorModel(Author author) : base(author)
 	{
@@ -34,6 +34,6 @@ public class UserAuthorModel : AuthorBaseModel
 		
 		Bandwidth = author.Bandwidth;
 		BandwidthExpiration = author.BandwidthExpiration;
-		BandwidthPeriodBalance = author.BandwidthPeriodBalance;
+		EnergyRating = author.EnergyRating;
 	}
 }

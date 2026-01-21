@@ -152,8 +152,8 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long							EnergyNext { get; set; }
 	public int							Bandwidth { get; set; }
 	public int							BandwidthExpiration { get; set; }
-	public int							BandwidthPeriod { get; set; }
-	public int							BandwidthPeriodBalance { get; set; }
+	public int							EnergyPeriod { get; set; }
+	public int							EnergyRating { get; set; }
 	
 	public Policy[]						Policies { get; set; }
 
