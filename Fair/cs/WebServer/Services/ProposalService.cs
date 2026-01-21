@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Diagnostics.CodeAnalysis;
+using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -7,18 +8,18 @@ public class ProposalService
 (
 	ILogger<ProposalService> logger,
 	FairMcv mcv
-) : IProposalService
+)
 {
-	public ProposalDetailsModel GetDiscussion(string siteId, string proposalId) =>
+	public ProposalDetailsModel GetDiscussion([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string proposalId) =>
 		GetProposalDetails(siteId, proposalId, true);
 
-	public TotalItemsResult<ProposalModel> GetDiscussions(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
+	public TotalItemsResult<ProposalModel> GetDiscussions([NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>
 		GetProposals(siteId, true, page, pageSize, search, cancellationToken);
 
-	public ProposalDetailsModel GetReferendum(string siteId, string proposalId) =>
+	public ProposalDetailsModel GetReferendum([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string proposalId) =>
 		GetProposalDetails(siteId, proposalId, false);
 
-	public TotalItemsResult<ProposalModel> GetReferendums(string siteId, int page, int pageSize, string search, CancellationToken cancellationToken) =>
+	public TotalItemsResult<ProposalModel> GetReferendums([NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>
 		GetProposals(siteId, false, page, pageSize, search, cancellationToken);
 
 	/// <param name="discussionOrReferendums">`true` for Discussion, `false` for Referendum</param>

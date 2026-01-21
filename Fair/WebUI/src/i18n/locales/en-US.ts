@@ -33,6 +33,7 @@ export const enUS = {
     no: "No",
     noVotes: "No votes",
     ok: "ok",
+    operation: "operation",
     options: "Options",
     product: "Product",
     publication: "Publication",
@@ -202,10 +203,15 @@ export const enUS = {
     refreshPage: "Refresh page",
   },
   governance: {
-    createReferendum: "Create Referendum",
+    createReferendum: "Create referendum",
     searchProposal: "Search referendum",
+    noPerpetualSurveys: "No open perpetual surveys",
     noProposals: "No open referendums",
+    noVotes: "No votes",
+    perpetual: "Perpetual surveys",
+    referendums: "Referendums",
     title: "Governance",
+    votedApproval: "Voted approval",
   },
   moderation: {
     changedPublications: "Changed publications",
@@ -382,6 +388,13 @@ export const enUS = {
   },
 
   /* Type literals names */
+  approvalRequirement: {
+    none: "None",
+    "any-moderator": "Any moderator",
+    "moderators-majority": "Moderators majority",
+    "all-moderators": "All moderators",
+    "publishers-majority": "Publishers majority",
+  },
   categoryTypes: {
     none: "None",
     book: "Book",
@@ -399,6 +412,7 @@ export const enUS = {
     "publication-creation": "Publication creation",
     "publication-deletion": "Publication deletion",
     "publication-publish": "Publication publish",
+    "publication-unpublish": "Publication unpublish",
     "publication-updation": "Publication updation",
     "review-creation": "Review creation",
     "review-edit": "Review edit",
@@ -411,6 +425,7 @@ export const enUS = {
     "site-text-change": "Site text change",
     "user-deletion": "User deletion",
     "user-registration": "User registration",
+    "user-unregistration": "User unregistration",
   },
   extraOperations: {
     "site-author-addition": "Site author addition",

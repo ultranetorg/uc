@@ -1,4 +1,4 @@
-@Uccs.Fair.WebApi_HostAddress = http://127.1.0.1:1080
+@Uccs.Fair.WebApi_HostAddress = http://127.1.0.0:1080
 
 ### GET User
 
@@ -88,4 +88,14 @@ Accept: application/json
 ### GET Author Publications
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors/65537-0/publications
+Accept: application/json
+
+### GET Perpetual Surveys
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/author/sites/287078-61/perpetual-surveys
+Accept: application/json
+
+### GET Perpetual Survey Details
+
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/author/sites/287078-61/perpetual-surveys/0
 Accept: application/json

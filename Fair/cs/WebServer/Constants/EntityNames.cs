@@ -6,6 +6,8 @@ internal static class EntityNames
 
 	internal const string DiscussionEntityName = "discussion";
 
+	internal const string PerpetualSurveyName = "perpetual survey";
+
 	internal const string ReferendumEntityName = "referendum";
 
 	internal const string UserEntityName = "user";

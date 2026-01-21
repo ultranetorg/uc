@@ -22,11 +22,12 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<IAuthorsService, AuthorsService>();
 		services.AddSingleton<ICategoriesService, CategoriesService>();
 		services.AddSingleton<FilesService>();
-		services.AddSingleton<IProposalService, ProposalService>();
+		services.AddSingleton<ProposalService>();
 		services.AddSingleton<PublicationsService>();
 		services.AddSingleton<IReviewsService, ReviewsService>();
 		services.AddSingleton<ISearchService, SearchService>();
 		services.AddSingleton<SitesService>();
+		services.AddSingleton<PerpetualSurveysService>();
 		services.AddSingleton<ProductsService>();
 		services.AddSingleton<AccountsService>();
 		services.AddSingleton<ModeratorProposalsService>();

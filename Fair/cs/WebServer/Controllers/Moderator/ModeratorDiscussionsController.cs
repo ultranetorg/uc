@@ -9,7 +9,7 @@ public class ModeratorDiscussionsController
 	ILogger<ModeratorDiscussionsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IProposalService proposalsService
+	ProposalService proposalsService
 ) : BaseController
 {
 	[HttpGet]

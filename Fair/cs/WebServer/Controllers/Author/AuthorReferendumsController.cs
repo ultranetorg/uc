@@ -9,7 +9,7 @@ public class AuthorReferendumsController
 	ILogger<AuthorReferendumsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IProposalService proposalsService
+	ProposalService proposalsService
 ) : BaseController
 {
 	[HttpGet]

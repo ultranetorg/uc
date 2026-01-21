@@ -197,15 +197,6 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
 
   const logout = useCallback((userName: string) => removeUser(userName), [removeUser])
 
-  console.log(
-    "isAuthenticatePending",
-    isAuthenticatePending,
-    "isAuthenticatedPending",
-    isAuthenticatedPending,
-    "isRegisterPending",
-    isRegisterPending,
-  )
-
   const value = useMemo(
     () => ({
       users: storage.users,

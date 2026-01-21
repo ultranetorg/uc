@@ -6,8 +6,10 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
-  ProductFieldDiff,
+  PerpetualSurvey,
+  PerpetualSurveyDetails,
   ProductField,
+  ProductFieldDiff,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -87,6 +89,15 @@ export type Api = {
 
   // Author
   getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+
+  getAuthorPerpetualSurveys(siteId: string): Promise<PerpetualSurvey[]>
+  getAuthorPerpetualSurveyDetails(siteId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails>
+  getAuthorPerpetualSurveyComments(
+    siteId: string,
+    perpetualSurveyId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<TotalItemsResult<ProposalComment>>
 
   getAuthorReferendum(siteId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(

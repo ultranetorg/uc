@@ -1,4 +1,5 @@
 export * from "./changedPublicationItemRenderer"
+export * from "./perpetualSurveysItemRenderer"
 export * from "./proposalsItemRenderer"
 export * from "./publicationsItemRenderer"
 export * from "./reviewsItemRenderer"

@@ -16,6 +16,7 @@ import {
   ModeratorPublicationPage,
   ModeratorUnpublishedProductPage,
   ModeratorUserRegistrationPage,
+  PerpetualSurveyPage,
   ProfilePage,
   PublicationPage,
   ReferendumPage,
@@ -94,11 +95,15 @@ const routes: RouteObject[] = [
             ),
           },
           {
-            path: "/:siteId/g",
+            path: "/:siteId/g/:tabKey?",
             element: <ReferendumsPage />,
           },
           {
-            path: "/:siteId/g/:referendumId",
+            path: "/:siteId/g/p/:perpetualSurveyId",
+            element: <PerpetualSurveyPage />,
+          },
+          {
+            path: "/:siteId/g/r/:referendumId",
             element: <ReferendumPage />,
           },
 
