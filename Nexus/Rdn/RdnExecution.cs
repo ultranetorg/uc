@@ -47,7 +47,7 @@ public class RdnExecution : Execution
 
 		l = Math.Min(l, 10);
 
-		return 10_000 * Time.FromYears(years).Days / (l * l * l * l);
+		return 10_000_000 * years / (l * l * l * l);
 	}
 
 	public void PayForForever(int size)
@@ -57,5 +57,4 @@ public class RdnExecution : Execution
 		s.Spacetime -= ToBD(size, Uccs.Net.Mcv.Forever);
 		SpacetimeSpenders.Add(s);
 	}
-
 }

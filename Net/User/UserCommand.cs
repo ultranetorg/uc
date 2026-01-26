@@ -30,6 +30,23 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
+	public CommandAction FreeCreate()
+	{
+
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Name = "fc";
+		a.Description = "Create a new user without fo free";
+		a.Arguments = [];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+
+								return new UserFreeCreation {};
+							};
+		return a;
+	}
+
 	public CommandAction UpdateName()
 	{
 		var name = "name";
@@ -101,7 +118,7 @@ public class UserCommand : McvCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								return new BandwidthAllocation {Bandwidth = GetUInt16("bandwidth"), Months = GetByte("months")};
+								return new UserBandwidthAllocation {Bandwidth = GetUInt16("bandwidth"), Months = GetByte("months")};
 							};
 
 		return a;

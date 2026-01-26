@@ -68,6 +68,8 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public static string			GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
 	public static string			GetName(string name) => name.Substring(0, name.IndexOf('.'));
 
+	public bool						IsFree(Execution execution) => (execution.Net as Rdn).IsFree(this);
+
 	public Domain()
 	{
 	}

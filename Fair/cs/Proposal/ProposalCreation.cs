@@ -163,7 +163,7 @@ public class ProposalCreation : FairOperation
 			}
 
 			a = execution.Authors.Affect(By);
-			execution.PayCycleEnergy(a);
+			execution.PayOperationEnergy(a);
  		}
 		else if(As == Role.Moderator && p.Creators.HasFlag(Role.Moderator))
  		{
@@ -179,7 +179,7 @@ public class ProposalCreation : FairOperation
 				return;
 			}
 
-			execution.PayCycleEnergy(s);
+			execution.PayOperationEnergy(s);
  		}
  		else if(As == Role.Candidate && p.Creators.HasFlag(Role.Candidate))
  		{
@@ -191,14 +191,14 @@ public class ProposalCreation : FairOperation
 			a.Energy -= s.CandidateRequestFee;
 			s.Energy += s.CandidateRequestFee;
 
-			execution.PayCycleEnergy(a);
+			execution.PayOperationEnergy(a);
  		}
 		else if(As == Role.User && p.Creators.HasFlag(Role.User))
 		{
 			if(!CanAccessAccount(execution, By, out var _, out Error))
 				return;
 		
-			execution.PayCycleEnergy(s);
+			execution.PayOperationEnergy(s);
 		}
 		else
 		{

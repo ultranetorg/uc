@@ -87,7 +87,7 @@ public class DomainMigration : RdnOperation
 
 		UserId = User.Id;
 	
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 
 	public void ConfirmedExecute(Execution execution)

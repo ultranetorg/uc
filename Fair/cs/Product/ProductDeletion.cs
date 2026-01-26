@@ -32,6 +32,6 @@ public class ProductDeletion : FairOperation
 		execution.Products.Affect(Product).Deleted = true;
 
 		execution.Free(a, a, execution.Net.EntityLength + p.Length);
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }

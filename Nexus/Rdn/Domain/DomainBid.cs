@@ -8,8 +8,8 @@ public class DomainBid : RdnOperation
 	
 	public override bool IsValid(McvNet net)
 	{
-		if(!(net as Rdn).Auctions)
-			return false;
+		///if(!(net as Rdn).Auctions)
+		///	return false;
 
 		if(!Domain.IsWeb(Name))
 			return false;

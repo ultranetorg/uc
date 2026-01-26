@@ -27,7 +27,8 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
 	public long						ModerationReward  { get; set; }
-
+	public bool						IsFree(Execution execution) => false;
+	
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
 	public long						EnergyNext { get; set; }

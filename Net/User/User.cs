@@ -18,6 +18,8 @@ public interface ISpaceConsumer
 	long		Space { get; set; }
 	short		Expiration { get; set; }
 
+	bool		IsFree(Execution execution);
+
 	public void WriteSpaceConsumer(BinaryWriter writer)
 	{
 		writer.Write7BitEncodedInt64(Space);

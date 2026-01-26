@@ -42,6 +42,6 @@ public class AuthorCreation : FairOperation
 		e.Space		= execution.Net.EntityLength;
 
 		execution.Prolong(User, e, Time.FromYears(Years));
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 }

@@ -33,33 +33,40 @@ public class DomainRenewal : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var e = execution.Domains.Find(Id);
+		var d = execution.Domains.Find(Id);
 		
-		if(e == null)
+		if(d == null)
 		{
 			Error = NotFound;
 			return;
 		}	
 
-		if(!e.CanRenew(User, execution.Time, Time.FromYears(Years)))
+		if(!d.CanRenew(User, execution.Time, Time.FromYears(Years)))
+		{
+			Error = NotAvailable;
+			return;
+		}
+
+		if(execution.Net.IsFree(d) && Years > 1)
 		{
 			Error = NotAvailable;
 			return;
 		}
 	
-		e = execution.Domains.Affect(e.Address);
+		d = execution.Domains.Affect(d.Address);
 
-		if(Domain.IsRoot(e.Address))
+		if(Domain.IsRoot(d.Address))
 		{
-			execution.PayForName(e.Address, Years);
+			if(!execution.Net.IsFree(d))
+				execution.PayForName(d.Address, Years);
 		} 
 		else
 		{
 			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 
-		execution.Prolong(User, e, Time.FromYears(Years));
-		execution.PayCycleEnergy(User);
+		execution.Prolong(User, d, Time.FromYears(Years));
+		execution.PayOperationEnergy(User);
 	}
 }
 
@@ -142,7 +149,7 @@ public class DomainTransfer : RdnOperation
 			e.Owner	= Owner;
 		}
 
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 }
 
@@ -212,6 +219,6 @@ public class DomainPolicyUpdation : RdnOperation
 			return;
 		}
 
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 }

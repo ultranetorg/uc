@@ -59,6 +59,6 @@ public class AuthorLinksChange : FairOperation
  		foreach(var i in Removals)
  			a.Links = a.Links.Remove(i);
 
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }

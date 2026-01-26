@@ -141,7 +141,7 @@ public class ResourceUpdation : RdnOperation
 				}
 			} 
 
-			execution.PayCycleEnergy(User);
+			execution.PayOperationEnergy(User);
 		}
 
 		execute(x.Address);

@@ -72,6 +72,6 @@ public class ResourceCreation : RdnOperation
 			execution.Allocate(User, d, execution.Net.EntityLength + r.Length);
 		}
 
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 }

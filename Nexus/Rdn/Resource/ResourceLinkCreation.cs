@@ -69,6 +69,6 @@ public class ResourceLinkCreation : RdnOperation
 			execution.Allocate(User, sd, execution.Net.EntityLength);
 		}
 
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 }

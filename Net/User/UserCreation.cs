@@ -9,7 +9,7 @@ public class UserCreation : Operation
 
 	public override string		Explanation => $"Name={Name} Owner={Owner}";
 	
-	public UserCreation ()
+	public UserCreation()
 	{
 	}
 	
@@ -42,7 +42,7 @@ public class UserCreation : Operation
 
 		if(execution.Round.Id > 0)
 		{
-			User.Spacetime -= execution.Round.AccountAllocationFee();
+			User.Spacetime -= execution.Round.UserAllocationFee();
 
 			execution.SpacetimeSpenders.Add(User);
 		}

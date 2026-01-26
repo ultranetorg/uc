@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class BandwidthAllocation : Operation
+public class UserBandwidthAllocation : Operation
 {
 	public ushort			Bandwidth { get; set; }
 	public byte				Months  { get; set; }
@@ -8,7 +8,7 @@ public class BandwidthAllocation : Operation
 	public override string	Explanation => $"Allocation of {Bandwidth} bandwidth for {Months} months";
 	public override bool	IsValid(McvNet net) => Bandwidth >= 0 && Months > 0 && Months <= McvNet.BandwidthRentMonthsMaximum;
 	
-	public BandwidthAllocation()
+	public UserBandwidthAllocation()
 	{
 	}
 

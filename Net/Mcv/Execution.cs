@@ -141,7 +141,7 @@ public class Execution : ITableExecution
 		}
 	}
 
-	public void PayCycleEnergy(IEnergyHolder spender)
+	public void PayOperationEnergy(IEnergyHolder spender)
 	{
 		if(spender.EnergyPeriod < Time.Hours) /// switch to this day
 		{	
@@ -166,23 +166,26 @@ public class Execution : ITableExecution
 		Transaction.EnergyConsumed += EnergyCost;
 	}
 
-	public void AllocateForever(ISpacetimeHolder payer, int length)
-	{
-		payer.Spacetime -= ToBD(length, Mcv.Forever);
-		SpacetimeSpenders.Add(payer);
-	}
+///	public void AllocateForever(ISpacetimeHolder payer, int length)
+///	{
+///		if(payer.Space > McvNet.FreeSpaceMaximum)
+///		{
+///			payer.Spacetime -= ToBD(length, Mcv.Forever);
+///			SpacetimeSpenders.Add(payer);
+///		}
+///	}
 
-	public void FreeForever(ISpacetimeHolder payer, int length)
-	{
-		payer.Spacetime += ToBD(length, Mcv.Forever);
-	}
+///	public void FreeForever(ISpacetimeHolder payer, int length)
+///	{
+///		payer.Spacetime += ToBD(length, Mcv.Forever);
+///	}
 
-	public void FreeEntity()
-	{
-		AffectSpaces();
-
-		Spaces[Time.Days] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
-	}
+///	public void FreeEntity()
+///	{
+///		AffectSpaces();
+///
+///		Spaces[Time.Days] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
+///	}
 
 	public static long ToBD(long length, short time)
 	{
@@ -203,14 +206,16 @@ public class Execution : ITableExecution
 
 		var n = consumer.Expiration - Time.Days;
 	
-		payer.Spacetime -= ToBD(space, (short)n);
+		if(!consumer.IsFree(this))
+		{	
+			payer.Spacetime -= ToBD(space, (short)n);
+			SpacetimeSpenders.Add(payer);
+		}
 
 		AffectSpaces();
 
 		for(int i = 0; i < n; i++)
 			Spaces[i] += space;
-
-		SpacetimeSpenders.Add(payer);
 	}
 
 	public void Prolong(ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
@@ -220,7 +225,7 @@ public class Execution : ITableExecution
 
 		consumer.Expiration = (short)(start + duration.Days);
 
-		if(consumer.Space > 0)
+		if(!consumer.IsFree(this))
 		{
 			payer.Spacetime -= ToBD(consumer.Space, duration);
 			SpacetimeSpenders.Add(payer);
@@ -254,7 +259,8 @@ public class Execution : ITableExecution
 		
 		if(d > 0)
 		{
-			beneficiary.Spacetime += ToBD(space, (short)(d - 1));
+			if(!consumer.IsFree(this))
+				beneficiary.Spacetime += ToBD(space, (short)(d - 1));
 	
 			AffectSpaces();
 			

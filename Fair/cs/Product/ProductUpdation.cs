@@ -94,6 +94,6 @@ public class ProductUpdation : FairOperation
 
 		r.Updated = execution.Time;
 
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }

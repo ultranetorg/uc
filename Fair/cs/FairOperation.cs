@@ -4,10 +4,10 @@ namespace Uccs.Fair;
 
 public enum FairOperationClass : uint
 {
-	User							= 100,
-		UserFreeCreation			= 100_000_000,
-		UserAvatarChange			= 100_000_001,
-		FavoriteSiteChange			= 100_000_002,
+	User							= 001,
+		FairUser					= 001_001,
+			UserAvatarChange		= 001_001_001,
+			FavoriteSiteChange		= 001_001_002,
 
 	Author							= 101, 
 		AuthorCreation				= 101_000_001, 
@@ -97,7 +97,6 @@ public abstract class FairOperation : Operation
 	public const string			Ended = "Ended";
 	public const string			InvalidOwnerAddress = "Invalid Owner Type";
 	public const string			DoesNotBelogToSite = "Does not belong to site";
-	public const string			DoesNotSatisfy = "Does Not Satisfy";
 	public const string			NotEmptyReferencies = "Not Empty References";
 	public const string			TypeAlreadyDefined = "Type already defined";
 

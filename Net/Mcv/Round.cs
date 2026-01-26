@@ -60,12 +60,10 @@ public abstract class Round : IBinarySerializable
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
 
-	public abstract long								AccountAllocationFee();
-	//public abstract int									GetSpaceUsers();
+	public abstract long								UserAllocationFee();
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation o){}
 	public virtual void									ConfirmForeign(Execution execution){}
-
 
 	public int MinimumForConsensus
 	{

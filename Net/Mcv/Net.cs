@@ -75,7 +75,9 @@ public abstract class McvNet : Net
 	public const long						IdealRoundsPerDay						= 60*60*24;
 	public const int						BandwidthRentMonthsMaximum				= 12;
 	public const int						BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
+	public virtual int						FreeSpaceMaximum						=> 0;
 	public Time								ECLifetime								= Time.FromYears(1);
+	public ushort							UserFreeCreationPoWDifficulity			= 172;
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
 	public int								CommitLength							= 1000;

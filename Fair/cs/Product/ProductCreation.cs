@@ -37,6 +37,6 @@ public class ProductCreation : FairOperation
 		a.Products = [..a.Products, p.Id];
 
 		execution.Allocate(a, a, execution.Net.EntityLength);
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }

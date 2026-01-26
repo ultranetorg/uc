@@ -9,9 +9,9 @@ public abstract class Rdn : McvNet
 	public override	string			Name => Root;
 	public override ushort			PpiPort => MapPort(Zone, KnownProtocol.Rdn);
 	public override int				TablesCount => Enum.GetValues<RdnTable>().Length;
- 		
-	public bool						Auctions				= false;
-
+	public override int				FreeSpaceMaximum => 4096;
+	public int						FreeNameLengthMinimum => 5;
+		
  	public static readonly Rdn		Local = new RdnLocal();
  	public static readonly Rdn		Test = new RdnTest();
  	public static readonly Rdn		Developer0 = new RdnDeveloper0();
@@ -19,18 +19,10 @@ public abstract class Rdn : McvNet
 	public static readonly Rdn		Main = null;
 
 	public static Rdn				ByZone(Zone zone) => new Rdn[]{Local, Developer0, Test, TA}.First(i => i.Zone == zone);
-	
+	public bool						IsFree(Domain domain) => domain.Space <= FreeSpaceMaximum && domain.Address.Length >= FreeNameLengthMinimum;
+
 	public Rdn()
 	{
-		//foreach(var i in Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Operation)) && !i.IsAbstract))
-		//{
-		//	if(Enum.TryParse<RdnOperationClass>(i.Name, out var v))
-		//	{
-		//		Codes[i] = (uint)v;
-		//		Contructors[typeof(Operation)][(uint)v]  = i.GetConstructor([]);
-		//	}
-		//}
-
 		Constructor.Register<Operation>(Assembly.GetExecutingAssembly(), typeof(RdnOperationClass), i => i, overwrite: true);
 	}
 }
@@ -41,13 +33,13 @@ public class RdnLocal : Rdn
 	
 	public RdnLocal()
 	{
-		Father0IP		= new(DefaultHost, PpiPort);
-		Cryptography	= Cryptography.No;
-		Auctions		= false;
-		CommitLength	= 100;
-		ECLifetime		= Time.FromYears(100);
+		Father0IP						= new(DefaultHost, PpiPort);
+		Cryptography					= Cryptography.No;
+		CommitLength					= 100;
+		ECLifetime						= Time.FromYears(100);
+		UserFreeCreationPoWDifficulity	= 0;
 
-		Initials		= LocalInitials;
+		Initials						= LocalInitials;
 	}
 }
 

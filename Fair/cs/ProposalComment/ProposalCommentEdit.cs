@@ -42,7 +42,7 @@ public class ProposalCommentEdit : FairOperation
 			execution.Free(s, s, Encoding.UTF8.GetByteCount(c.Text));
  			execution.Allocate(s, s, Encoding.UTF8.GetByteCount(Text));
 		
-			execution.PayCycleEnergy(s);
+			execution.PayOperationEnergy(s);
  		}
  		else
  		{
@@ -54,7 +54,7 @@ public class ProposalCommentEdit : FairOperation
 			execution.Free(a, a, Encoding.UTF8.GetByteCount(c.Text));
  			execution.Allocate(a, a, Encoding.UTF8.GetByteCount(Text));
 
-			execution.PayCycleEnergy(a);
+			execution.PayOperationEnergy(a);
  		}
 
 		c.Text = Text; /// after all above

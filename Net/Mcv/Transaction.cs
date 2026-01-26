@@ -97,7 +97,7 @@ public class Transaction : IBinarySerializable
 
 		w.Write(Net.Zone);
 		w.WriteUtf8(Net.Address);
-		w.WriteUtf8(User);
+		w.WriteASCII(User);
 		w.Write(Member);
 		w.Write7BitEncodedInt(Nonce);
 		w.Write7BitEncodedInt(Expiration);
@@ -110,24 +110,23 @@ public class Transaction : IBinarySerializable
 
  	public void	WriteConfirmed(BinaryWriter writer)
  	{
-		writer.WriteUtf8(User);
-		//writer.Write(Signer);
-		//writer.Write(Member);
+		writer.WriteASCII(User);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt64(Boost);
 		writer.Write(Operations, i =>{
 										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
 									 });
+		
+		if(Operations.Any(i => i is UserFreeCreation))
+			writer.Write(Signer);
  	}
  		
  	public void	ReadConfirmed(BinaryReader reader)
  	{
 		Status		= TransactionStatus.Confirmed;
 
-		User		= reader.ReadUtf8();
-		//Signer		= reader.Read<AccountAddress>();
-		//Member		= reader.Read<AutoId>();
+		User		= reader.ReadASCII();
 		Nonce		= reader.Read7BitEncodedInt();
 		Boost		= reader.Read7BitEncodedInt64();
  		Operations	= reader.ReadArray(() => {
@@ -136,6 +135,9 @@ public class Transaction : IBinarySerializable
  												o.Read(reader); 
  												return o; 
  											});
+		
+		if(Operations.Any(i => i is UserFreeCreation))
+			Signer = reader.Read<AccountAddress>();
  	}
 
 	public void	WriteForVote(BinaryWriter writer)

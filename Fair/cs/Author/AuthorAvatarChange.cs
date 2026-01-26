@@ -42,6 +42,6 @@ public class AuthorAvatarChange : FairOperation
 		a.Avatar = f.Id;
 		f.Refs++;
 
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }

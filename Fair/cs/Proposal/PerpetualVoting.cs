@@ -92,6 +92,6 @@ public class PerpetualVoting : FairOperation
 		}
 
 		var a = execution.Authors.Affect(Publisher);
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }

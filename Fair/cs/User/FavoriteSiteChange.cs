@@ -48,6 +48,6 @@ public class FavoriteSiteChange : FairOperation
 			User.FavoriteSites = User.FavoriteSites.Remove(Site);
 		}
 
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 }
