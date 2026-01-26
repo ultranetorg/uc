@@ -37,7 +37,7 @@ public class RdnLocal : Rdn
 		Cryptography					= Cryptography.No;
 		CommitLength					= 100;
 		ECLifetime						= Time.FromYears(100);
-		UserFreeCreationPoWDifficulity	= 0;
+		UserFreeCreationPoWDifficulity	= 150;
 
 		Initials						= LocalInitials;
 	}

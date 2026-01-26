@@ -63,7 +63,7 @@ public class DomainMigration : RdnOperation
 
 		if(a?.Owner != null)
 		{
-			Error = AlreadyExists;
+			Error = AlreadyTaken;
 			return;
 		}
 

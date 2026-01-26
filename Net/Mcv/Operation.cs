@@ -35,6 +35,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public abstract string		Explanation { get; }
 
 	public const string			AlreadyExists = "Already exists";
+	public const string			AlreadyTaken = "Already taken";
 	public const string			AtLeastOneOwnerRequired = "At least one owner required";
 	public const string			Denied = "Access denied";
 	public const string			DoesNotSatisfy = "Does Not Satisfy";

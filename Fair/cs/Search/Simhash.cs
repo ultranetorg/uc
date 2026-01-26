@@ -42,7 +42,8 @@ public class Simhash : IMetric<string>
 
 		foreach(var t in tokens)
 		{
-			ulong hash = System.IO.Hashing.XxHash3.HashToUInt64(Encoding.UTF8.GetBytes(t));
+			throw new NotImplementedException();
+			ulong hash = 0;// System.IO.Hashing.XxHash3.HashToUInt64(Encoding.UTF8.GetBytes(t));
 
 			for(int i = 0; i < 8; i++)
 			{

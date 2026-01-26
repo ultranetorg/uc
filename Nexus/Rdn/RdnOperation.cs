@@ -29,11 +29,11 @@ public enum RdnOperationClass : uint
 public abstract class RdnOperation : Operation
 {
 	public const string		CantChangeSealedResource = "Cant change sealed resource";
+	public const string		NoData = "NoData";
 	public const string		NotRoot = "Not root domain";
+	public const string		NotSealed = "NotSealed";
 	public const string		OtherTldHasPriority = "Other tld has priority";
 	public const string		Sealed = "Sealed";
-	public const string		NotSealed = "NotSealed";
-	public const string		NoData = "NoData";
 
 	public abstract void Execute(RdnExecution execution);
 
