@@ -10,7 +10,7 @@ public abstract class Rdn : McvNet
 	public override ushort			PpiPort => MapPort(Zone, KnownProtocol.Rdn);
 	public override int				TablesCount => Enum.GetValues<RdnTable>().Length;
 	public override int				FreeSpaceMaximum => 4096;
-	public int						FreeNameLengthMinimum => 5;
+	public int						FreeNameLengthMinimum => 8;
 		
  	public static readonly Rdn		Local = new RdnLocal();
  	public static readonly Rdn		Test = new RdnTest();
@@ -19,7 +19,7 @@ public abstract class Rdn : McvNet
 	public static readonly Rdn		Main = null;
 
 	public static Rdn				ByZone(Zone zone) => new Rdn[]{Local, Developer0, Test, TA}.First(i => i.Zone == zone);
-	public bool						IsFree(Domain domain) => domain.Space <= FreeSpaceMaximum && domain.Address.Length >= FreeNameLengthMinimum;
+	//public bool						IsFree(Domain domain) => domain.Space <= FreeSpaceMaximum && domain.Address.Length >= FreeNameLengthMinimum;
 
 	public Rdn()
 	{

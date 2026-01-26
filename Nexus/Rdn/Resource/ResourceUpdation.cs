@@ -91,6 +91,7 @@ public class ResourceUpdation : RdnOperation
 				r.Updated	= execution.Time;
 
 				execution.Allocate(User, d, r.Data.Value.Length);
+				d.ResetFreeIfNeeded(execution);
 			}
 			else if(Changes.HasFlag(ResourceChanges.NullData))
 			{

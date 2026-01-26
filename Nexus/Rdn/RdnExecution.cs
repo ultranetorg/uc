@@ -43,9 +43,7 @@ public class RdnExecution : Execution
 
 	public static int NameFee(int years, string address)
 	{
-		var l = Domain.IsWeb(address) ? address.Length : (address.Length - Domain.NormalPrefix.ToString().Length);
-
-		l = Math.Min(l, 10);
+		var l = Math.Min(address.Length, 10);
 
 		return 10_000_000 * years / (l * l * l * l);
 	}

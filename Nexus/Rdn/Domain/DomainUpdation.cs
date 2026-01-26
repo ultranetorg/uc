@@ -46,18 +46,15 @@ public class DomainRenewal : RdnOperation
 			Error = NotAvailable;
 			return;
 		}
-
-		if(execution.Net.IsFree(d) && Years > 1)
-		{
-			Error = NotAvailable;
-			return;
-		}
 	
 		d = execution.Domains.Affect(d.Address);
 
 		if(Domain.IsRoot(d.Address))
 		{
-			if(!execution.Net.IsFree(d))
+			if(d.Free && Years > 1)
+				d.Free = false;
+
+			if(!d.Free)
 				execution.PayForName(d.Address, Years);
 		} 
 		else

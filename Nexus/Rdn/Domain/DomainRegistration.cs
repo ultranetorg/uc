@@ -63,17 +63,21 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			d = execution.Domains.Affect(Address);
+			var priority = DomainExecution.Priority.FirstOrDefault(i => i.Value.Contains(Address));
 
-			if(execution.Net.IsFree(d) && Years > 1)
+			if(priority.Key != null)
 			{
 				Error = NotAvailable;
 				return;
 			}
+
+			d = execution.Domains.Affect(Address);
+
+			d.Free = Address.Length >= execution.Net.FreeNameLengthMinimum && Years == 1;
 			
 			execution.Prolong(User, d, Time.FromYears(Years));
 			
-			if(!execution.Net.IsFree(d))
+			if(!d.Free)
 				execution.PayForName(Address, Years);
 							
 			d.Owner	= User.Id;

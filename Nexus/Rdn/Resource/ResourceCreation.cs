@@ -70,6 +70,7 @@ public class ResourceCreation : RdnOperation
 		{	
 			d = execution.Domains.Affect(d.Id);
 			execution.Allocate(User, d, execution.Net.EntityLength + r.Length);
+			d.ResetFreeIfNeeded(execution);
 		}
 
 		execution.PayOperationEnergy(User);

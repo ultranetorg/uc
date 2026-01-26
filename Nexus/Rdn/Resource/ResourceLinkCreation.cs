@@ -67,6 +67,7 @@ public class ResourceLinkCreation : RdnOperation
 		{	
 			sd = execution.Domains.Affect(sd.Id);
 			execution.Allocate(User, sd, execution.Net.EntityLength);
+			sd.ResetFreeIfNeeded(execution);
 		}
 
 		execution.PayOperationEnergy(User);

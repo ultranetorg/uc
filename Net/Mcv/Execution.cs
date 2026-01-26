@@ -225,7 +225,7 @@ public class Execution : ITableExecution
 
 		consumer.Expiration = (short)(start + duration.Days);
 
-		if(!consumer.IsFree(this))
+		if(!consumer.IsFree(this) || duration.Years != 1)
 		{
 			payer.Spacetime -= ToBD(consumer.Space, duration);
 			SpacetimeSpenders.Add(payer);

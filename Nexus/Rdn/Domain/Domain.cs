@@ -6,7 +6,7 @@ public enum DomainFlag : byte
 {
 	None, 
 	Owned		= 0b_______1, 
-//	Auction		= 0b______10, 
+	Free		= 0b______10, 
 	ChildNet	= 0b__100000, 
 }
 
@@ -31,7 +31,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	//public const int				ExclusiveLengthMax = 12;
 	public const int				NameLengthMin = 1;
 	public const int				NameLengthMax = 256;
-	public const char				NormalPrefix = '_';
+	//public const char				NormalPrefix = '_';
 	public const char				National = '~';
 	public const char				Subdomain = '~';
 
@@ -46,6 +46,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public AutoId					Id { get; set; }
 	public string					Address { get; set; }
 	public AutoId					Owner { get; set; }
+	public bool						Free { get; set; }
 	//public Time					FirstBidTime { get; set; } = Time.Empty;
 	//public AutoId					LastWinner { get; set; }
 	//public long					LastBid { get; set; }
@@ -62,13 +63,11 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public bool						Deleted { get; set; }
 	Mcv								Mcv;
 
-	public static bool				IsWeb(string name) => IsRoot(name) && name[0] != NormalPrefix; 
 	public static bool				IsRoot(string name) => !name.Contains('.'); 
 	public static bool				IsChild(string name) => name.Contains('.'); 
+	public bool						IsFree(Execution execution) => Free;
 	public static string			GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
 	public static string			GetName(string name) => name.Substring(0, name.IndexOf('.'));
-
-	public bool						IsFree(Execution execution) => (execution.Net as Rdn).IsFree(this);
 
 	public Domain()
 	{
@@ -90,10 +89,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 								Address = Address,
 								Owner = Owner,
 								Expiration = Expiration,
-//								FirstBidTime = FirstBidTime,
-//								LastWinner = LastWinner,
-//								LastBid = LastBid,
-//								LastBidTime = LastBidTime,
+								Free = Free,
 								Space = Space,
 								NnChildNet = NnChildNet,
 								NnSelfHash = NnSelfHash};
@@ -121,7 +117,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		if(name.Length < NameLengthMin || name.Length > NameLengthMax)
 			return false;
 
-		if(Regex.Match(name, $@"^{NormalPrefix}?[a-z0-9]+[a-z0-9{Subdomain}{National}]*").Success == false)
+		if(Regex.Match(name, $@"^[a-z0-9\.]+[a-z0-9{Subdomain}{National}]*$").Success == false)
 			return false;
 
 		return true;
@@ -152,14 +148,15 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 
 	public static bool CanRegister(string name, Domain domain, Time time, User by)
 	{
-		return	domain == null && !IsWeb(name) || /// available
-				domain != null && !IsWeb(name) && domain.Owner != null && time.Days >= domain.Expiration /// not renewed by current owner
-			//	domain != null && IsWeb(name) && domain.Owner == null && domain.LastWinner == by.Id &&	
-			//		time > domain.FirstBidTime + AuctionMinimalDuration && /// auction lasts minimum specified period
-			//		time > domain.LastBidTime + Prolongation && /// wait until prolongation is over
-			//		time < domain.AuctionEnd + WinnerRegistrationPeriod /// auction is over and a winner can register an domain during special period
-			;
+		return	domain == null || /// available
+				domain != null && domain.Owner != null && time.Days >= domain.Expiration; /// not renewed by current owner
 				
+	}
+
+	public void ResetFreeIfNeeded(Execution execution)
+	{
+		if(Free && Space > execution.Net.FreeSpaceMaximum)
+			Free = false;
 	}
 
 //	public static bool CanBid(Domain domain, Time time)
@@ -193,21 +190,11 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		//if(LastWinner != null)	f |= DomainFlag.Auction;
 		if(Owner != null)		f |= DomainFlag.Owned;
 		if(NnChildNet != null)	f |= DomainFlag.ChildNet;
+		if(Free)				f |= DomainFlag.Free;
 
 		writer.Write((byte)f);
 		writer.WriteUtf8(Address);
 		writer.Write7BitEncodedInt64(Space);
-
-		//if(IsWeb(Address))
-		//{
-		//	if(f.HasFlag(DomainFlag.Auction))
-		//	{
-		//		writer.Write(FirstBidTime);
-		//		writer.Write(LastWinner);
-		//		writer.Write(LastBidTime);
-		//		writer.Write7BitEncodedInt64(LastBid);
-		//	}
-		//}
 
 		if(f.HasFlag(DomainFlag.Owned))
 		{
@@ -233,17 +220,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		var f		= (DomainFlag)reader.ReadByte();
 		Address		= reader.ReadUtf8();
 		Space		= reader.Read7BitEncodedInt64();
-
-		if(IsWeb(Address))
-		{
-			//if(f.HasFlag(DomainFlag.Auction))
-			//{
-			//	FirstBidTime	= reader.Read<Time>();
-			//	LastWinner		= reader.Read<AutoId>();
-			//	LastBidTime		= reader.Read<Time>();
-			//	LastBid			= reader.Read7BitEncodedInt64();
-			//}
-		}
+		Free		= f.HasFlag(DomainFlag.Free);
 
 		if(f.HasFlag(DomainFlag.Owned))
 		{

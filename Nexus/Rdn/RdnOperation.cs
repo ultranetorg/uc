@@ -30,7 +30,7 @@ public abstract class RdnOperation : Operation
 {
 	public const string		CantChangeSealedResource = "Cant change sealed resource";
 	public const string		NotRoot = "Not root domain";
-	public const string		ReservedForOwner = "Unknown web domain";
+	public const string		OtherTldHasPriority = "Other tld has priority";
 	public const string		Sealed = "Sealed";
 	public const string		NotSealed = "NotSealed";
 	public const string		NoData = "NoData";
