@@ -3,14 +3,14 @@ import { FloatingPortal } from "@floating-ui/react"
 import { useTranslation } from "react-i18next"
 
 import { twMerge } from "tailwind-merge"
-import { useSiteContext } from "app"
+import { useUserContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { SimpleMenu } from "ui/components"
 
 export const ModeratorCategoryMenu = () => {
   const { t } = useTranslation("moderatorCategoryMenu")
-  const { isModerator } = useSiteContext()
+  const { isModerator } = useUserContext()
 
   const menu = useSubmenu({ placement: "bottom-end" })
   useScrollOrResize(() => menu.setOpen(false), menu.isOpen)

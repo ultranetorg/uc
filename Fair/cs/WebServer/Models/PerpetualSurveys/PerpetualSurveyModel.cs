@@ -1,9 +1,5 @@
 ﻿namespace Uccs.Fair;
 
-public class PerpetualSurveyModel
+public class PerpetualSurveyModel : BasePerpetualSurveyModel<SurveyOptionModel>
 {
-	public int Id { get; init; }
-
-	public IEnumerable<SurveyOptionModel> Options { get; init; }
-	public sbyte LastWin { get; init; }
 }

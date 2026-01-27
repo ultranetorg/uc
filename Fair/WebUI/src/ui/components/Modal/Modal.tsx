@@ -4,6 +4,7 @@ import { createPortal } from "react-dom"
 
 import { SvgX } from "assets"
 import { PropsWithClassName } from "types"
+import { getClass } from "utils"
 
 import { Backdrop } from "./Backdrop"
 
@@ -18,6 +19,8 @@ export type ModalProps = PropsWithClassName & PropsWithChildren & ModalBaseProps
 
 export const Modal = memo((props: ModalProps) => {
   const { className, children, title, isBackdropStatic, footer, onClose, ...rest } = props
+
+  const gapClass = getClass(className, "gap")
 
   useEffect(() => {
     document.body.style.overflow = "hidden"
@@ -42,7 +45,7 @@ export const Modal = memo((props: ModalProps) => {
             {onClose && <SvgX onClick={onClose} className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" />}
           </div>
         )}
-        <div className="flex-1 overflow-hidden">{children}</div>
+        <div className={twMerge("flex flex-col overflow-hidden", gapClass)}>{children}</div>
         {footer && <div>{footer}</div>}
       </div>
     </Backdrop>,

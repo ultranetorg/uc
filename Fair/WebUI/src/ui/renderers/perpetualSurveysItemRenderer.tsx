@@ -3,6 +3,7 @@ import { TFunction } from "i18next"
 
 import { PerpetualSurvey, SiteApprovalPolicyChange } from "types"
 import { TableColumn, TableItem } from "ui/components/Table"
+import { formatPercents } from "utils"
 
 const getOperation = (survey: PerpetualSurvey, index: number): SiteApprovalPolicyChange | undefined =>
   survey?.options && survey.options.length > 0 && index < survey.options.length
@@ -22,9 +23,14 @@ export const perpetualSurveysItemRenderer =
         return t(`operations:${operation.operation}`)
       }
 
-      case "votedApproval": {
-        const winOperation = survey.lastWin !== -1 ? getOperation(survey, survey.lastWin) : undefined
-        return winOperation ? t(`approvalRequirement:${winOperation.approval}`) : t("noVotes")
+      case "voted-approval": {
+        if (survey.lastWin === -1) return "-"
+
+        const winOperation = getOperation(survey, survey.lastWin)!
+        return t(`approvalRequirement:${winOperation.approval}`)
       }
+
+      case "win-percentage":
+        return survey.lastWin !== -1 ? formatPercents(survey.options[survey.lastWin].votePercents) : ""
     }
   }

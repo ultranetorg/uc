@@ -8,8 +8,8 @@ public class AuthorPerpetualSurveysController
 (
 	ILogger<AuthorPerpetualSurveysController> logger,
 	IAutoIdValidator autoIdValidator,
-	PerpetualSurveysService proposalsService,
-	IPaginationValidator paginationValidator
+	PerpetualSurveysService proposalsService
+	//IPaginationValidator paginationValidator
 ) : BaseController
 {
 	[HttpGet]
@@ -33,20 +33,20 @@ public class AuthorPerpetualSurveysController
 		return proposalsService.GetPerpetualReferendumDetails(siteId, perpetualSurveyId);
 	}
 
-	[HttpGet("{perpetualSurveyId}/comments")]
-	public IEnumerable<ProposalCommentModel> GetComments(string siteId, int perpetualSurveyId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
-	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {PerpetualSurveyId}, {Pagination}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetComments), siteId, perpetualSurveyId, pagination);
+	//[HttpGet("{perpetualSurveyId}/comments")]
+	//public IEnumerable<ProposalCommentModel> GetComments(string siteId, int perpetualSurveyId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	//{
+	//	logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {PerpetualSurveyId}, {Pagination}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetComments), siteId, perpetualSurveyId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		ValidatePerpetualSurveyId(perpetualSurveyId);
-		paginationValidator.Validate(pagination);
+	//	autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+	//	ValidatePerpetualSurveyId(perpetualSurveyId);
+	//	paginationValidator.Validate(pagination);
 
-		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		var comments = proposalsService.GetPerpetualReferendumComments(siteId, perpetualSurveyId, page, pageSize, cancellationToken);
+	//	(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+	//	var comments = proposalsService.GetPerpetualReferendumComments(siteId, perpetualSurveyId, page, pageSize, cancellationToken);
 
-		return this.OkPaged(comments.Items, page, pageSize, comments.TotalItems);
-	}
+	//	return this.OkPaged(comments.Items, page, pageSize, comments.TotalItems);
+	//}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	static void ValidatePerpetualSurveyId(int perpetualSurveyId)

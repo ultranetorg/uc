@@ -31,7 +31,6 @@ export const enUS = {
     next: "Next",
     nickname: "nickname",
     no: "No",
-    noVotes: "No votes",
     ok: "ok",
     operation: "operation",
     options: "Options",
@@ -106,12 +105,8 @@ export const enUS = {
   currentAccount: {
     addAccount: "Add account",
     authenticate: "Authenticate Yourself",
-    authenticationCancelled: "Authentication cancelled",
     createNickname: "Create nickname",
     profile: "Profile",
-    registrationCancelled: "Registration cancelled",
-    successfullyAuthenticated: "User {{userName}} successfully authenticated",
-    successfullyRegistered: "User {{userName}} successfully registered",
     switchAccounts: "Switch Accounts",
   },
   moderatorOptionsMenu: {
@@ -173,6 +168,7 @@ export const enUS = {
     favoriteAdded: `Site "{{site}}" added to favorites`,
     favoriteRemoved: `Site "{{site}}" removed from favorites`,
     nicknameChanged: "Nickname changed successfully",
+    perpetualVoted: `Publisher "{{publisher}}" successfully voted`,
   },
 
   /* Pages */
@@ -207,11 +203,14 @@ export const enUS = {
     searchProposal: "Search referendum",
     noPerpetualSurveys: "No open perpetual surveys",
     noProposals: "No open referendums",
-    noVotes: "No votes",
+    noWinners: "No winners yet",
     perpetual: "Perpetual surveys",
     referendums: "Referendums",
     title: "Governance",
+    totalVotes: "Total votes",
     votedApproval: "Voted approval",
+    votesRequired: "Votes required",
+    winPercentage: "Win percentage",
   },
   moderation: {
     changedPublications: "Changed publications",
@@ -223,6 +222,13 @@ export const enUS = {
     title: "Moderation",
     unpublishedProducts: "Unpublished products",
     userRegistrations: "User registrations",
+  },
+  perpetualSurvey: {
+    title: "Change approval policy for {{operation}}",
+    "any-moderator": "This action can be performed by any single moderator without requiring approval from others",
+    "moderators-majority": "This action can be performed only if it is approved by a majority of moderators",
+    "all-moderators": "This action can be performed only if it is approved unanimously by all moderators",
+    "publishers-majority": "This action can be performed only if it is approved by a majority of publishers",
   },
   profile: {
     authors: "My authors",
@@ -357,9 +363,13 @@ export const enUS = {
   },
   signInModal: {
     alreadyHaveAccount: "Already have an account?",
+    authenticationCancelled: "Authentication cancelled",
     dontHaveAccount: "Don’t have an account?",
+    registrationCancelled: "Registration cancelled",
     signIn: "sign in",
     signUp: "sign up",
+    successfullyAuthenticated: "User {{userName}} successfully authenticated",
+    successfullyRegistered: "User {{userName}} successfully registered",
     uniqueNickname: "Choose a unique nickname. It will be visible to other users.",
   },
 

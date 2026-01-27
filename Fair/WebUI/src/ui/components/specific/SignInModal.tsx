@@ -2,33 +2,31 @@ import { useCallback, useMemo, useState } from "react"
 import { useDebounceValue } from "usehooks-ts"
 import { useTranslation } from "react-i18next"
 
+import { useManageUsersContext } from "app"
 import { SvgCheckCircle, SvgSpinner, SvgXCircleSm } from "assets"
 import { SEARCH_DELAY } from "config"
 import { USER_NAME_MAX_LENGTH, USER_NAME_MIN_LENGTH } from "constants/validation"
 import { useGetUser } from "entities"
 import { useEscapeKey } from "hooks"
 import { ButtonPrimary, Input, Modal, ModalProps, ValidationWrapper, ValidationWrapperBaseProps } from "ui/components"
-import { USER_NAME_REGEXP } from "utils"
+import { showToast, USER_NAME_REGEXP } from "utils"
 
 import { ActiveAccount } from "./ActiveAccount"
 
 export type SignInModalState = "sign-in" | "sign-up"
 
-type SignInModalBaseProps = {
-  formDisabled: boolean
-  onSubmit(state: SignInModalState, userName: string, address?: string): void
-}
+export type SignInModalProps = Pick<ModalProps, "onClose">
 
-export type SignInModalProps = Pick<ModalProps, "onClose"> & SignInModalBaseProps
-
-export const SignInModal = ({ formDisabled, onSubmit, ...rest }: SignInModalProps) => {
+export const SignInModal = (props: SignInModalProps) => {
   const { t } = useTranslation("signInModal")
 
-  useEscapeKey(rest.onClose)
+  useEscapeKey(props.onClose)
 
   const [state, setState] = useState<SignInModalState>("sign-in")
   const [userName, setUserName] = useState("")
   const [debouncedUserName] = useDebounceValue(userName, SEARCH_DELAY)
+
+  const { isPending, authenticate, register } = useManageUsersContext()
 
   const { data: user, isFetching } = useGetUser(debouncedUserName)
 
@@ -58,24 +56,60 @@ export const SignInModal = ({ formDisabled, onSubmit, ...rest }: SignInModalProp
     return { message: t("uniqueNickname"), type: "default" }
   }, [t, user, userName])
 
-  const handleSubmit = useCallback(
-    () => onSubmit(state, userName, user?.data?.address),
-    [onSubmit, state, user?.data?.address, userName],
+  const authenticateUser = useCallback(
+    (userName: string, address: string) => {
+      authenticate(userName, address!, {
+        onSuccess: data => {
+          if (data === null) {
+            showToast(t("authenticationCancelled"), "success")
+            return
+          }
+
+          showToast(t("successfullyAuthenticated", { userName }), "success")
+          props.onClose?.()
+        },
+        onError: error => showToast(error.message, "error"),
+      })
+    },
+    [authenticate, props, t],
   )
+
+  const registerUser = useCallback(
+    (userName: string) => {
+      register(userName, {
+        onSuccess: data => {
+          if (data === null) {
+            showToast(t("registrationCancelled"), "success")
+            return
+          }
+
+          showToast(t("successfullyRegistered", { userName }), "success")
+          props.onClose?.()
+        },
+        onError: error => showToast(error.message, "error"),
+      })
+    },
+    [props, register, t],
+  )
+
+  const handleSubmit = useCallback(() => {
+    if (state === "sign-in") authenticateUser(userName, user!.data!.address)
+    else registerUser(userName)
+  }, [authenticateUser, registerUser, state, user, userName])
 
   const toggleState = () => (state === "sign-in" ? setState("sign-up") : setState("sign-in"))
 
   const title = state === "sign-in" ? t("signIn") : t("signUp")
 
   return (
-    <Modal className="w-130 gap-0 p-4" {...rest}>
+    <Modal className="w-130 gap-0 p-4" {...props}>
       <div className="flex flex-col gap-6 px-4 pb-4">
         <span className="text-center text-[44px] font-semibold first-letter:uppercase">{title}</span>
         <div className="flex flex-col gap-2">
           <span className="text-2xs font-medium first-letter:uppercase">{t("common:nickname")}</span>
           <ValidationWrapper {...(state === "sign-in" ? signInValidationProps : signUpValidationProps)}>
             <Input
-              disabled={formDisabled}
+              disabled={isPending}
               containerClassName="h-10 px-3 py-2.5"
               placeholder={state === "sign-in" ? t("placeholders:enterYourNickname") : t("placeholders:yourNickname")}
               value={userName}
@@ -94,7 +128,7 @@ export const SignInModal = ({ formDisabled, onSubmit, ...rest }: SignInModalProp
           </ValidationWrapper>
         </div>
         {state === "sign-in" && user?.ok && (
-          <ActiveAccount disabled={formDisabled} {...user.data!} onClick={handleSubmit} />
+          <ActiveAccount disabled={isPending} {...user.data!} onClick={handleSubmit} />
         )}
         <div className="flex justify-end gap-6">
           <ButtonPrimary
@@ -102,7 +136,7 @@ export const SignInModal = ({ formDisabled, onSubmit, ...rest }: SignInModalProp
             label={title}
             onClick={handleSubmit}
             disabled={
-              formDisabled ||
+              isPending ||
               userName.length < USER_NAME_MIN_LENGTH ||
               (state === "sign-in" ? !!signInValidationProps : signUpValidationProps?.type !== "success")
             }

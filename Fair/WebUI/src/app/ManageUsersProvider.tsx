@@ -137,6 +137,7 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
                 return {
                   ...prev,
                   users: prev.users.map((acc, i) => (i === existingIndex ? { ...acc, session: data.session } : acc)),
+                  selectedUserName: userName,
                 }
               }
 

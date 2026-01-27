@@ -1,43 +1,15 @@
-import { memo, useMemo } from "react"
+import { memo } from "react"
 
 import { useGetProductCompareFields } from "entities"
 import { ProductFieldsDiff } from "ui/components/specific"
 import { PublicationUpdation } from "types"
+import { getFirstOperation } from "utils"
 
 import { ProposalTypeViewProps } from "./types"
 
-const CompareFieldsForPublication = ({ id, version }: { id: string; version: number }) => {
-  const { isFetching, data } = useGetProductCompareFields(id, version)
-
-  if (isFetching || !data) return <div>LOADING</div>
-
-  return <ProductFieldsDiff from={data.from} to={data.to} />
-}
-
 export const ProposalCompareFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {
-  const publications = useMemo(
-    () =>
-      proposal?.options
-        ?.map(option => option.operation)
-        .filter((operation): operation is PublicationUpdation => operation.$type === "publication-updation")
-        .map(operation => ({
-          id: operation.publicationId,
-          version: operation.version,
-        })),
-    [proposal],
-  )
+  const operation = getFirstOperation<PublicationUpdation>(proposal, "publication-updation")
+  const { data: fields } = useGetProductCompareFields(operation?.publicationId, operation?.version)
 
-  if (!publications?.length) return null
-
-  return (
-    <>
-      {publications.map(publication => (
-        <CompareFieldsForPublication
-          key={`${publication.id}_${publication.version}`}
-          id={publication.id}
-          version={publication.version}
-        />
-      ))}
-    </>
-  )
+  return fields !== undefined ? <ProductFieldsDiff from={fields.from} to={fields.to} /> : null
 })

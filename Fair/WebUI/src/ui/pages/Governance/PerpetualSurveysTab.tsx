@@ -22,8 +22,24 @@ export const PerpetualSurveysTab = () => {
       {
         accessor: "votedApproval",
         label: t("votedApproval"),
-        type: "votedApproval",
-        className: "w-3/5 first-letter:uppercase",
+        type: "voted-approval",
+        className: "w-1/5 first-letter:uppercase",
+      },
+      {
+        accessor: "totalVotes",
+        label: t("totalVotes"),
+        className: "w-1/5 first-letter:uppercase",
+      },
+      {
+        accessor: "votesRequiredToWin",
+        label: t("votesRequired"),
+        className: "w-1/5 first-letter:uppercase",
+      },
+      {
+        accessor: "winPercentage",
+        label: t("winPercentage"),
+        type: "win-percentage",
+        className: "w-1/5 first-letter:uppercase",
       },
     ],
     [t],

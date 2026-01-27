@@ -206,20 +206,6 @@ const getAuthorPerpetualSurveys = (siteId: string): Promise<PerpetualSurvey[]> =
 const getAuthorPerpetualSurveyDetails = (siteId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/perpetual-surveys/${perpetualSurveyId}`).then(res => res.json())
 
-const getAuthorPerpetualSurveyComments = async (
-  siteId: string,
-  perpetualSurveyId: string,
-  page: number,
-  pageSize: number,
-): Promise<TotalItemsResult<ProposalComment>> => {
-  const params = buildUrlParams(
-    { page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
-  )
-  const res = await fetch(`${BASE_URL}/author/sites/${siteId}/perpetual-surveys/${perpetualSurveyId}/comments` + params)
-  return await toTotalItemsResult(res)
-}
-
 const getAuthorReferendum = (siteId: string, referendumId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
 
@@ -367,9 +353,10 @@ const api: Api = {
   searchLiteAccounts,
 
   getAuthorFiles,
+
   getAuthorPerpetualSurveys,
   getAuthorPerpetualSurveyDetails,
-  getAuthorPerpetualSurveyComments,
+
   getAuthorReferendum,
   getAuthorReferendums,
   getAuthorReferendumComments,

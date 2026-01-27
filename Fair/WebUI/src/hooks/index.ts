@@ -1,5 +1,7 @@
 export * from "./useEscapeKey"
+export * from "./useConfirmationModal"
 export * from "./useInfiniteScrollWithPosition"
+export * from "./useModalOpen"
 export * from "./useScrollOrResize"
 export * from "./useSubmenu"
 export * from "./useUrlParamsState"

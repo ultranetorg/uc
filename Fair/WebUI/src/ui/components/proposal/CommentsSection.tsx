@@ -5,7 +5,7 @@ import { CommentsList, CommentsSectionHeader } from "ui/components"
 
 export type CommentsSectionProps = {
   isFetching: boolean
-  comments: TotalItemsResult<ProposalComment>
+  comments: TotalItemsResult<ProposalComment> | undefined
 }
 
 export const CommentsSection = ({ isFetching, comments }: CommentsSectionProps) => {

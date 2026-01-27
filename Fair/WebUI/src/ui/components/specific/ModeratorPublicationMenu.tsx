@@ -11,11 +11,11 @@ import {
 } from "@floating-ui/react"
 import { useTranslation } from "react-i18next"
 
+import { useUserContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
 import { PropsWithClassName } from "types"
-import { useSiteContext } from "app"
 
 type ModeratorPublicationMenuBaseProps = {
   publicationId: string
@@ -25,7 +25,7 @@ export type ModeratorPublicationMenuProps = PropsWithClassName & ModeratorPublic
 
 export const ModeratorPublicationMenu = memo(({ className, publicationId }: ModeratorPublicationMenuProps) => {
   const { t } = useTranslation("moderatorPublicationMenu")
-  const { isModerator } = useSiteContext()
+  const { isModerator } = useUserContext()
 
   const [isExpanded, setExpanded] = useState(false)
 

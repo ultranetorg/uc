@@ -7,11 +7,7 @@ import { buildCategoryTree } from "utils"
 
 import { LinkFullscreenState } from "ui/components"
 
-import { useUserContext } from "./UserProvider"
-
 type SiteContextType = {
-  isAuthor?: boolean
-  isModerator?: boolean
   isPending: boolean
   site?: Site
   error?: Error
@@ -33,7 +29,6 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
   const state = location.state as LinkFullscreenState
   const effectiveSiteId = siteId || state?.siteId
 
-  const { user } = useUserContext()
   const { data: site, isPending, error } = useGetSite(effectiveSiteId)
   const { data: categories, isPending: isCategoriesPending } = useGetCategories(effectiveSiteId, 2)
 
@@ -41,15 +36,13 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
 
   const value = useMemo<SiteContextType>(() => {
     return {
-      isAuthor: !!(user?.id && site?.authorsIds.includes(user?.id)),
-      isModerator: !!(user?.id && site?.moderatorsIds.includes(user?.id)),
       isPending,
       site,
       error,
       isCategoriesPending,
       categories: categoriesTree,
     }
-  }, [categoriesTree, user?.id, error, isCategoriesPending, isPending, site])
+  }, [categoriesTree, error, isCategoriesPending, isPending, site])
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>
 }

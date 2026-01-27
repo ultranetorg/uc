@@ -821,7 +821,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public AccountSessionSettings GetSession(string application, string user)
 	{
-		var s = Node.Settings.Sessions.FirstOrDefault(i => i.User == user);
+		var s = Node.Settings.Sessions.FirstOrDefault(i => i.User == user && i.Applicaiton == application);
 
 		if(s != null)
 			return s;

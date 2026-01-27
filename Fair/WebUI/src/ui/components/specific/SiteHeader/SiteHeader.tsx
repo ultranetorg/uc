@@ -3,7 +3,7 @@ import { Link, useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSiteContext, useSearchQueryContext } from "app"
+import { useSiteContext, useSearchQueryContext, useUserContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
@@ -20,7 +20,8 @@ export const SiteHeader = () => {
 
   const { t } = useTranslation("site")
 
-  const { site, isModerator } = useSiteContext()
+  const { site } = useSiteContext()
+  const { isModerator } = useUserContext()
   const { setQuery: setSiteQuery } = useSearchQueryContext()
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(

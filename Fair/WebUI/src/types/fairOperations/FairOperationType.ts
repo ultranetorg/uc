@@ -1,1 +1,6 @@
-export type FairOperationType = "AccountNicknameChange" | "FavoriteSiteChange" | "UserFreeCreation"
+export type FairOperationType =
+  | "AccountNicknameChange"
+  | "FavoriteSiteChange"
+  | "PerpetualVoting"
+  | "ProposalVoting"
+  | "UserFreeCreation"

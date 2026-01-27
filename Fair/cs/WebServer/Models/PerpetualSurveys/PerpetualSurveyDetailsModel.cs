@@ -1,5 +1,5 @@
 ﻿namespace Uccs.Fair;
 
-public class PerpetualSurveyDetailsModel : PerpetualSurveyModel
+public class PerpetualSurveyDetailsModel : BasePerpetualSurveyModel<SurveyOptionDetailsModel>
 {
 }

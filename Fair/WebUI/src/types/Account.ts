@@ -3,4 +3,5 @@ import { SiteBase } from "./SiteBase"
 
 export type Account = {
   favoriteSites: SiteBase[]
+  authorsIds: string[]
 } & AccountBase

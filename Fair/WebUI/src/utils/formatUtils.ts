@@ -47,6 +47,8 @@ export const formatOption = (option: BaseVotableOperation, t: TFunction) => {
 export const formatOSes = (oses: string[], maxItems: number = 3): string =>
   oses.length > maxItems ? oses.slice(0, maxItems).join(OS_DIVIDER) + " " + THREE_DOTS : oses.join(OS_DIVIDER)
 
+export const formatPercents = (value?: number): string | undefined => (value !== undefined ? `${value} %` : undefined)
+
 export const formatRoles = (categories: string[]) => categories.map(capitalize).join(ROLES_DELIMITER)
 
 export const formatSoftwareCategories = (categories: string[]) => categories.join(SOFTWARE_DELIMITER)

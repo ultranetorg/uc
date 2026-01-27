@@ -6,21 +6,25 @@ import { ButtonPrimary } from "ui/components"
 
 export type OptionCollapseProps = {
   description: string
+  disabled?: boolean
   expanded?: boolean
   showResults?: boolean
+  showVoteButton?: boolean
   title: string
   voted?: boolean
   votePercents: number
   votesCount: number
   onExpand?: (expanded: boolean) => void
-  onVoteClick: () => void
+  onVoteClick?: () => void
   votesText: string
 }
 
 export const OptionCollapse = ({
   description,
+  disabled = false,
   expanded = false,
   showResults,
+  showVoteButton = false,
   title,
   voted,
   votesCount,
@@ -81,13 +85,18 @@ export const OptionCollapse = ({
       {isExpanded && (
         <div className="flex flex-col gap-4 p-4">
           <span className="text-2sm leading-5">{description}</span>
-          <hr className="h-px border-0 bg-gray-300" />
-          <ButtonPrimary
-            label="Vote for this"
-            className="h-11 w-37.5 self-end"
-            iconAfter={<SvgCheckSquareSmSvg className="fill-white" />}
-            onClick={onVoteClick}
-          />
+          {showVoteButton && !voted && (
+            <>
+              <hr className="h-px border-0 bg-gray-300" />
+              <ButtonPrimary
+                label="Vote for this"
+                className="h-11 w-37.5 self-end"
+                iconAfter={<SvgCheckSquareSmSvg className="fill-white" />}
+                onClick={onVoteClick}
+                disabled={disabled}
+              />
+            </>
+          )}
         </div>
       )}
     </div>

@@ -92,12 +92,6 @@ export type Api = {
 
   getAuthorPerpetualSurveys(siteId: string): Promise<PerpetualSurvey[]>
   getAuthorPerpetualSurveyDetails(siteId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails>
-  getAuthorPerpetualSurveyComments(
-    siteId: string,
-    perpetualSurveyId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<TotalItemsResult<ProposalComment>>
 
   getAuthorReferendum(siteId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(

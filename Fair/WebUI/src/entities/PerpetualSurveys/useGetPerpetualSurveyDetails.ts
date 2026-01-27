@@ -7,11 +7,11 @@ const api = getApi()
 export const useGetPerpetualSurveyDetails = (siteId?: string, perpetualSurveyId?: string) => {
   const queryFn = () => api.getAuthorPerpetualSurveyDetails(siteId!, perpetualSurveyId!)
 
-  const { isFetching, isError, data } = useQuery({
+  const { isFetching, isError, data, refetch } = useQuery({
     queryKey: ["sites", siteId, "perpetual-surveys", perpetualSurveyId],
     queryFn: queryFn,
     enabled: !!siteId && perpetualSurveyId !== undefined,
   })
 
-  return { isFetching, isError, data }
+  return { isFetching, isError, data, refetch }
 }

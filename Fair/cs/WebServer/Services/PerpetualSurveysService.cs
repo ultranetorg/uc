@@ -27,15 +27,15 @@ public class PerpetualSurveysService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return ToPerpetualSurveys(site.PerpetualSurveys);
+			return ToPerpetualSurveys(site.PerpetualSurveys, site.Publishers.Length);
 		}
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	IEnumerable<PerpetualSurveyModel> ToPerpetualSurveys(PerpetualSurvey[] surveys)
+	IEnumerable<PerpetualSurveyModel> ToPerpetualSurveys(PerpetualSurvey[] surveys, int sitePublishersCount)
 	{
 		int id = 0;
-		return surveys.Select(x => ToPerpetualSurvey<PerpetualSurveyModel>(id++, x));
+		return surveys.Select(x => ToPerpetualSurvey<PerpetualSurveyModel, SurveyOptionModel>(sitePublishersCount, id++, x));
 	}
 
 	public PerpetualSurveyDetailsModel GetPerpetualReferendumDetails([NotNull][NotEmpty] string siteId, [NonNegativeValue] int surveyIndex)
@@ -60,23 +60,41 @@ public class PerpetualSurveysService
 			}
 
 			PerpetualSurvey survey = site.PerpetualSurveys[surveyIndex];
-			return ToPerpetualSurvey<PerpetualSurveyDetailsModel>(surveyIndex, survey);
+			return ToPerpetualSurvey<PerpetualSurveyDetailsModel, SurveyOptionDetailsModel>(site.Publishers.Length, surveyIndex, survey, (model, option) =>
+			{
+				model.YesVotes = option.Yes.Select(x => x.ToString());
+			});
 		}
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static T ToPerpetualSurvey<T>(int id, PerpetualSurvey survey) where T : PerpetualSurveyModel, new()
+	static TSurvey ToPerpetualSurvey<TSurvey, TOption>(int sitePublishersCount, int id, PerpetualSurvey survey, Action<TOption, SurveyOption>? mapOption = null)
+		where TOption : SurveyOptionModel, new()
+		where TSurvey : BasePerpetualSurveyModel<TOption>, new()
 	{
-		var options = survey.Options.Select(x => new SurveyOptionModel
+		int totalVotes = survey.Options.Sum(x => x.Yes.Length);
+
+		var options = survey.Options.Select((x, i) =>
 		{
-			Operation = ProposalUtils.ToBaseVotableOperationModel(x.Operation)
+			var newOption = new TOption
+			{
+				Operation = ProposalUtils.ToBaseVotableOperationModel(x.Operation),
+				VotePercents = totalVotes != 0 ? (sbyte)(x.Yes.Length * 100f / totalVotes) : (sbyte)0
+			};
+
+			if(mapOption != null)
+				mapOption(newOption, x);
+
+			return newOption;
 		});
 
-		return new T
+		return new TSurvey
 		{
 			Id = id,
 			LastWin = survey.LastWin,
-			Options = options
+			Options = options,
+			TotalVotes = totalVotes,
+			VotesRequiredToWin = sitePublishersCount / 2 + (sitePublishersCount & 1)
 		};
 	}
 

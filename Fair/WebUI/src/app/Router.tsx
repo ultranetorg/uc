@@ -40,11 +40,11 @@ const routes: RouteObject[] = [
     element: (
       <NodeCheckerProvider>
         <ManageUsersProvider>
-          <UserProvider>
-            <SiteProvider>
+          <SiteProvider>
+            <UserProvider>
               <BaseLayout />
-            </SiteProvider>
-          </UserProvider>
+            </UserProvider>
+          </SiteProvider>
         </ManageUsersProvider>
       </NodeCheckerProvider>
     ),

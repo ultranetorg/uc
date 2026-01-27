@@ -1,17 +1,20 @@
-import React from "react"
-import { memo } from "react"
+import React, { memo } from "react"
 
 export type MultilineTextProps = {
   children?: string
 }
 
-export const MultilineText = memo(({ children }: MultilineTextProps) => (
-  <>
-    {children?.split("\n").map((line, i) => (
-      <React.Fragment key={i}>
-        {line}
-        <br />
-      </React.Fragment>
-    ))}
-  </>
-))
+export const MultilineText = memo(({ children }: MultilineTextProps) => {
+  const lines = children?.split("\n") ?? []
+
+  return (
+    <>
+      {lines.map((line, i) => (
+        <React.Fragment key={i}>
+          {line}
+          {i !== lines.length - 1 && <div className="h-2" />}
+        </React.Fragment>
+      ))}
+    </>
+  )
+})

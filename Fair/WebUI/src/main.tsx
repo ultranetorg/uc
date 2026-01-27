@@ -9,7 +9,7 @@ import { Router, SearchQueryProvider } from "./app"
 import "./i18n"
 import "./styles/index.css"
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: true } } })
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

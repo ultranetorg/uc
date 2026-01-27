@@ -4,13 +4,12 @@ import { useTranslation } from "react-i18next"
 import { useManageUsersContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
-import { showToast } from "utils"
+import { SignInModal } from "ui/components/specific"
 
 import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
 import { CurrentAccountButton } from "./components"
 import { ProfileButton } from "./ProfileButton"
 import { ProfileMenu } from "./ProfileMenu"
-import { SignInModal, SignInModalState } from "./SignInModal"
 
 const STICKY_CLASSNAME = "sticky bottom-2 z-20"
 
@@ -21,18 +20,10 @@ export const CurrentAccount = () => {
   const accountsMenu = useSubmenu({ placement: "right-end" })
   useScrollOrResize(() => profileMenu.setOpen(false))
 
-  const [showUserModal, setShowUserModal] = useState(false)
+  const [showSignInModal, setShowUserModal] = useState(false)
 
   const { user } = useUserContext()
-  const {
-    isPending,
-    selectedUserName,
-    users,
-    authenticate: authenticateMutation,
-    logout,
-    register,
-    selectUser,
-  } = useManageUsersContext()
+  const { selectedUserName, users, logout, selectUser } = useManageUsersContext()
 
   const userItems = useMemo(
     () =>
@@ -70,50 +61,6 @@ export const CurrentAccount = () => {
   )
 
   const handleNicknameCreate = useCallback(() => alert("handleNicknameCreate"), [])
-
-  const authenticateUser = useCallback(
-    (userName: string, address: string) => {
-      authenticateMutation(userName, address!, {
-        onSuccess: data => {
-          if (data === null) {
-            showToast(t("authenticationCancelled"), "success")
-            return
-          }
-
-          showToast(t("successfullyAuthenticated", { userName }), "success")
-          setShowUserModal(false)
-        },
-        onError: error => showToast(error.message, "error"),
-      })
-    },
-    [authenticateMutation, t],
-  )
-
-  const registerUser = useCallback(
-    (userName: string) => {
-      register(userName, {
-        onSuccess: data => {
-          if (data === null) {
-            showToast(t("registrationCancelled"), "success")
-            return
-          }
-
-          showToast(t("successfullyRegistered", { userName }), "success")
-          setShowUserModal(false)
-        },
-        onError: error => showToast(error.message, "error"),
-      })
-    },
-    [register, t],
-  )
-
-  const handleModalSubmit = useCallback(
-    (state: SignInModalState, userName: string, address?: string) => {
-      if (state === "sign-in") authenticateUser(userName, address!)
-      else registerUser(userName)
-    },
-    [authenticateUser, registerUser],
-  )
 
   const userSwitcherProps = useMemo(
     () => ({
@@ -174,9 +121,7 @@ export const CurrentAccount = () => {
           {...accountsMenu.getFloatingProps()}
         />
       )}
-      {showUserModal && (
-        <SignInModal formDisabled={isPending} onClose={() => setShowUserModal(false)} onSubmit={handleModalSubmit} />
-      )}
+      {showSignInModal && <SignInModal onClose={() => setShowUserModal(false)} />}
     </>
   )
 }
