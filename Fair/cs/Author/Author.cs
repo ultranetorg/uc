@@ -27,14 +27,16 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public long						Space { get; set; }
 	public long						Spacetime { get; set; }
 	public long						ModerationReward  { get; set; }
-
+	public bool						IsFree(Execution execution) => false;
+	
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
 	public long						EnergyNext { get; set; }
-	public long						Bandwidth { get; set; }
-	public short					BandwidthExpiration { get; set; } = -1;
-	public short					BandwidthTodayTime { get; set; }
-	public long						BandwidthTodayBalance { get; set; }
+
+	public int						Bandwidth { get; set; }
+	public int						BandwidthExpiration { get; set; }
+	public int						EnergyPeriod { get; set; }
+	public int						EnergyRating { get; set; }
 	
 	public AutoId[]					Products { get; set; }
 	public AutoId[]					Sites { get; set; }

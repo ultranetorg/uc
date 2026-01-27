@@ -15,7 +15,6 @@ public abstract class Fair : McvNet
 	public ushort					NicknameLengthMaximum = 32;
 	public const ushort				TitleLengthMaximum = 64;
 	public const ushort				SloganLengthMaximum = 128;
-	public ushort					UserFreeCreationPoWComplexity = 172;
  		
 	public static Dictionary<Type, uint>								OCodes = [];
 	public static Dictionary<Type, Dictionary<uint, ConstructorInfo>>	OContructors = [];
@@ -52,13 +51,13 @@ public class FairLocal : Fair
 	
 	public FairLocal()
 	{
-		Father0IP		= new (DefaultHost, PpiPort);
-		Cryptography	= Cryptography.No;
-		CommitLength	= 100;
-		ECLifetime		= Time.FromYears(100);
-		//PoWComplexity	= 0;
+		Father0IP						= new (DefaultHost, PpiPort);
+		Cryptography					= Cryptography.No;
+		CommitLength					= 100;
+		ECLifetime						= Time.FromYears(100);
+		UserFreeCreationPoWDifficulity	= 150;
 
-		Initials		= LocalInitials;
+		Initials						= LocalInitials;
 	}
 }
 

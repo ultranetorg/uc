@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 
-namespace Uccs.Fair;
+namespace Uccs.Net;
 
-public class UserFreeCreation : FairOperation
+public class UserFreeCreation : Operation
 {
 	public byte[]				Pow { get; set; }
 	public override string		Explanation => $"Pow={Pow.ToHex()}";
@@ -41,7 +41,7 @@ public class UserFreeCreation : FairOperation
 																 
 																 		var f = h.Sum(i => BitOperations.PopCount(i));
 																 
-																 		if(f >= (node.Net as Fair).UserFreeCreationPoWComplexity)
+																 		if(f >= node.Net.UserFreeCreationPoWDifficulity)
 																 		{
 																 			Pow = b;
 																 		}
@@ -54,7 +54,7 @@ public class UserFreeCreation : FairOperation
 			i.Join();
 	}
 
-	public override void Execute(FairExecution execution)
+	public override void Execute(Execution execution)
 	{
 		if(execution.Transaction.Nonce != 0)
 		{
@@ -62,7 +62,7 @@ public class UserFreeCreation : FairOperation
 			return;
 		}
 
-		if(Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < execution.Net.UserFreeCreationPoWComplexity)
+		if(Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < execution.Net.UserFreeCreationPoWDifficulity)
 		{
 			Error = DoesNotSatisfy;
 			return;

@@ -25,9 +25,6 @@ public class DomainMigration : RdnOperation
 		if(!Domain.Valid(Name))
 			return false;
 
-		if(!Domain.IsWeb(Name))
-			return false;
-
 		if(!Domain.ExclusiveTlds.Contains(Tld))
 			return false;
 
@@ -48,22 +45,15 @@ public class DomainMigration : RdnOperation
 
 	public void WriteBaseState(BinaryWriter writer)
 	{
-		//writer.Write(Id);
 		writer.Write(UserId);
 		writer.WriteUtf8(Name);
-		//writer.WriteUtf8(Tld);
 		writer.Write(Generator);
 	}
 
 	public void ReadBaseState(BinaryReader reader)
 	{
-		//_Id	= reader.Read<OperationId>();
-
-		//Transaction = new ();
-		
 		UserId		= reader.Read<AutoId>();
 		Name		= reader.ReadUtf8();
-		//Tld			= reader.ReadUtf8();
 		Generator	= reader.Read<AutoId>();
 	}
 
@@ -73,21 +63,27 @@ public class DomainMigration : RdnOperation
 
 		if(a?.Owner != null)
 		{
-			Error = "Already Owned";
+			Error = AlreadyTaken;
 			return;
 		}
 
 		var existing = DomainExecution.Priority.FirstOrDefault(i => i.Value.Contains(Name));
 
-		if(existing.Key != null && existing.Key != Tld)
+		if(existing.Key == null)
 		{
-			Error = ReservedForOwner;
+			Error = NotFound;
+			return;
+		}
+
+		if(existing.Key != Tld)
+		{
+			Error = OtherTldHasPriority;
 			return;
 		}
 
 		UserId = User.Id;
 	
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 
 	public void ConfirmedExecute(Execution execution)

@@ -12,48 +12,53 @@ public enum OperationClass : uint
 {
 	None = 0, 
 	Genesis						= 000_000_001, 
-	UserCreation				= 000_000_002, 
-	UserOwnerChange				= 000_000_003, 
-	UserNameChange				= 000_000_004, 
-	CandidacyDeclaration		= 000_000_005, 
-	UtilityTransfer				= 000_000_006,
-	BandwidthAllocation			= 000_000_007,
+	UtilityTransfer				= 000_000_002,
+	CandidacyDeclaration		= 000_000_003, 
+	
+	User						= 001,
+		UserCreation			= 001_000_001, 
+		UserFreeCreation		= 001_000_002,
+		UserOwnerChange			= 001_000_003, 
+		UserNameChange			= 001_000_004, 
+		UserBandwidthAllocation	= 001_000_005,
 
-	ChildNet					= 001, 
-		ChildNetInitialization	= 001_000_001,
+	ChildNet					= 002, 
+		ChildNetInitialization	= 002_000_001,
 }
 
 
 public abstract class Operation : ITypeCode, IBinarySerializable
 {
-	public string						Error;
-	public Transaction					Transaction;
-	public User							User;
-	public abstract string				Explanation { get; }
+	public string				Error;
+	public Transaction			Transaction;
+	public User					User;
+	public abstract string		Explanation { get; }
 
-	public const string					AlreadyExists = "Already exists";
-	public const string					AtLeastOneOwnerRequired = "At least one owner required";
-	public const string					Denied = "Access denied";
-	public const string					ExistingAccountRequired = "ExistingAccountRequired";
-	public const string					Expired = "Expired";
-	public const string					InvalidName = "Invalid Name";
-	public const string					LimitReached = "Limit Reached";
-	public const string					OutOfBounds = "Out Of Bounds";
-	public const string					Mismatch = "Mismatch";
-	public const string					NotAvailable = "Not Available";
-	public const string					NotFound = "Not found";
-	public const string					NotSequential = "Not sequential";
-	public const string					NotEnergyHolder = "Not Energy Holder";
-	public const string					NotEnoughSpacetime = "Not enough spacetime";
-	public const string					NotEnoughEnergy = "Not enough execution units";
-	public const string					NotEnoughEnergyNext = "Not enough energy for next period";
-	public const string					NotEnoughBandwidth = "Not enough bandwidth";
-	public const string					NotSpacetimeHolder = "Not spacetime holder";
-	public const string					NothingLastCreated = "Nothing last created";
-	public const string					NotReady = "Not ready";
-	public const string					Rejected = "Rejected";
+	public const string			AlreadyExists = "Already exists";
+	public const string			AlreadyTaken = "Already taken";
+	public const string			AtLeastOneOwnerRequired = "At least one owner required";
+	public const string			Denied = "Access denied";
+	public const string			DoesNotSatisfy = "Does Not Satisfy";
+	public const string			ExistingAccountRequired = "ExistingAccountRequired";
+	public const string			Expired = "Expired";
+	public const string			InvalidName = "Invalid Name";
+	public const string			LimitReached = "Limit Reached";
+	public const string			OutOfBounds = "Out Of Bounds";
+	public const string			Mismatch = "Mismatch";
+	public const string			NotAvailable = "Not Available";
+	public const string			NotFound = "Not found";
+	public const string			NotSequential = "Not sequential";
+	public const string			NotEnergyHolder = "Not Energy Holder";
+	public const string			NotEnoughSpacetime = "Not enough spacetime";
+	public const string			NotEnoughEnergy = "Not enough execution units";
+	public const string			NotEnoughEnergyNext = "Not enough energy for next period";
+	public const string			NotEnoughBandwidth = "Not enough bandwidth";
+	public const string			NotSpacetimeHolder = "Not spacetime holder";
+	public const string			NothingLastCreated = "Nothing last created";
+	public const string			NotReady = "Not ready";
+	public const string			Rejected = "Rejected";
 
-	protected OperationId				_Id;
+	protected OperationId		_Id;
 	
 	public OperationId Id
 	{

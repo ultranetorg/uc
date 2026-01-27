@@ -73,7 +73,11 @@ public abstract class Net
 public abstract class McvNet : Net
 {
 	public const long						IdealRoundsPerDay						= 60*60*24;
+	public const int						BandwidthRentMonthsMaximum				= 12;
+	public const int						BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
+	public virtual int						FreeSpaceMaximum						=> 0;
 	public Time								ECLifetime								= Time.FromYears(1);
+	public ushort							UserFreeCreationPoWDifficulity			= 172;
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
 	public int								CommitLength							= 1000;
@@ -82,19 +86,19 @@ public abstract class McvNet : Net
 	public long								CandidatesMaximum						= 1000 * 10;
 	
 	public long								TransactionsPerRoundMaximum				= 100_000;
-	public long								OperationsPerRoundMaximum					= 100_000;
-	//public long								OverloadFeeFactor						= 2;
+	public long								OperationsPerRoundMaximum				= 100_000;
+	//public long							OverloadFeeFactor						= 2;
 	
 	public int								ExecutionCyclesPerTransactionLimit		= 200;
 	//public long								ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
-	public long								EnergyDayEmission						=> OperationsPerRoundMaximum * IdealRoundsPerDay;
-	public long								EnergyEmission							=> EnergyDayEmission * 365;
+	public long								EnergyDailyEmission						=> OperationsPerRoundMaximum * IdealRoundsPerDay;
+	public long								EnergyHourlyEmission					=> OperationsPerRoundMaximum * IdealRoundsPerDay/24;
+	public long								EnergyEmission							=> EnergyDailyEmission * 365;
 	public long								SpacetimeDayEmission					= 1024L*1024L * IdealRoundsPerDay;
 	public long								DeclarationCost							=> 1000_000;
 	
 	public int								EntityLength							= 100;
 
-	public int								BandwidthDaysMaximum					=> 365;
 	//public long								BandwidthDayCapacity					=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
 	//public long								BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
 

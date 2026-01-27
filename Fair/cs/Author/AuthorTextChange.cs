@@ -47,6 +47,6 @@ public class AuthorTextChange : FairOperation
 			execution.Allocate(a, a, Encoding.UTF8.GetByteCount(Description));
 		}
 
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }

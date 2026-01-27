@@ -8,21 +8,24 @@ public class StampPpc : McvPpc<StampPpr>
 		{
 			RequireGraph();
 			
-			if(Mcv.GraphState == null)
-				throw new NodeException(NodeError.TooEearly);
+			//if(Mcv.GraphState == null)
+			//	throw new NodeException(NodeError.TooEearly);
 
 			var r = new StampPpr
 					{
 						GraphState				= Mcv.GraphState,
 						GraphHash				= Mcv.GraphHash,
-						LastCommitedRoundHash	= Mcv.LastCommitedRound.Hash,
+						LastCommitedRoundHash	= Mcv.LastCommitedRound?.Hash,
 						FirstTailRound			= Mcv.Tail.Last().Id,
 						LastTailRound			= Mcv.Tail.First().Id,
 						Tables					= Mcv.Tables.Select(i => new StampPpr.Table
 																		 {
 																			Id = i.Id, 
-																			Clusters = i.Clusters.Select(i => new StampPpr.SuperCluster{Id = i.Id, 
-																			Hash = i.Hash}).ToArray()
+																			Clusters = i.Clusters.Select(i =>	new StampPpr.SuperCluster
+																												{
+																													Id = i.Id, 
+																													Hash = i.Hash
+																												}).ToArray()
 																		 }).ToArray()
 					};
 			return r;

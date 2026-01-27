@@ -119,52 +119,53 @@ public class Restiction
 
 public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry, IExpirable
 {
-	public const int							PoWLength = 32;
+	public const int					PoWLength = 32;
 
-	public AutoId								Id { get; set; }
-	public string								Nickname { get; set; }
-	public string								Title { get; set; }
-	public string								Slogan { get; set; }
-	public string								Description { get; set; }
-	public int									ModerationReward { get; set; }
-	public int									PoWComplexity { get; set; }
-	public AutoId								Avatar  { get; set; }
+	public AutoId						Id { get; set; }
+	public string						Nickname { get; set; }
+	public string						Title { get; set; }
+	public string						Slogan { get; set; }
+	public string						Description { get; set; }
+	public int							ModerationReward { get; set; }
+	public int							PoWComplexity { get; set; }
+	public AutoId						Avatar  { get; set; }
 
-	public short								Expiration { get; set; }
-	public long									Space { get; set; }
-	public long									Spacetime { get; set; }
+	public short						Expiration { get; set; }
+	public long							Space { get; set; }
+	public long							Spacetime { get; set; }
+	public bool							IsFree(Execution execution) => false;
 
-	public Publisher[]							Publishers { get; set; }
-	public Moderator[]							Moderators { get; set; }
-	public AutoId[]								Categories { get; set; }
-	public PerpetualSurvey[]					PerpetualSurveys { get; set; }
-	public AutoId[]								Proposals { get; set; }
-	public AutoId[]								UnpublishedPublications { get; set; }
-	public AutoId[]								ChangedPublications { get; set; }
-	public AutoId[]								Files { get; set; }
-	public AutoId[]								Users { get; set; }
+	public Publisher[]					Publishers { get; set; }
+	public Moderator[]					Moderators { get; set; }
+	public AutoId[]						Categories { get; set; }
+	public PerpetualSurvey[]			PerpetualSurveys { get; set; }
+	public AutoId[]						Proposals { get; set; }
+	public AutoId[]						UnpublishedPublications { get; set; }
+	public AutoId[]						ChangedPublications { get; set; }
+	public AutoId[]						Files { get; set; }
+	public AutoId[]						Users { get; set; }
 
-	public int									PublicationsCount { get; set; }
-	public int									CandidateRequestFee { get; set; }
+	public int							PublicationsCount { get; set; }
+	public int							CandidateRequestFee { get; set; }
 
-	public long									Energy { get; set; }
-	public byte									EnergyThisPeriod { get; set; }
-	public long									EnergyNext { get; set; }
-	public long									Bandwidth { get; set; }
-	public short								BandwidthExpiration { get; set; } = -1;
-	public short								BandwidthTodayTime { get; set; }
-	public long									BandwidthTodayBalance { get; set; }
+	public long							Energy { get; set; }
+	public byte							EnergyThisPeriod { get; set; }
+	public long							EnergyNext { get; set; }
+	public int							Bandwidth { get; set; }
+	public int							BandwidthExpiration { get; set; }
+	public int							EnergyPeriod { get; set; }
+	public int							EnergyRating { get; set; }
 	
-	public Policy[]								Policies { get; set; }
+	public Policy[]						Policies { get; set; }
 
-	public EntityId								Key => Id;
-	public bool									Deleted { get; set; }
-	FairMcv										Mcv;
+	public EntityId						Key => Id;
+	public bool							Deleted { get; set; }
+	FairMcv								Mcv;
 
-	public static readonly Restiction[]			Restrictions;
+	public static readonly Restiction[]	Restrictions;
 
-	public PerpetualSurvey						FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is SiteApprovalPolicyChange o && o.Operation == operation);
-	public sbyte								FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is SiteApprovalPolicyChange o && o.Operation == operation);
+	public PerpetualSurvey				FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is SiteApprovalPolicyChange o && o.Operation == operation);
+	public sbyte						FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is SiteApprovalPolicyChange o && o.Operation == operation);
 
 	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{

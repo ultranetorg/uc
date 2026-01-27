@@ -53,33 +53,38 @@ public class DomainRegistration : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var e = execution.Domains.Find(Address);
+		var d = execution.Domains.Find(Address);
 
 		if(Domain.IsRoot(Address))
 		{
-			if(!Domain.CanRegister(Address, e, execution.Time, User))
+			if(!Domain.CanRegister(Address, d, execution.Time, User))
 			{
 				Error = NotAvailable;
 				return;
 			}
 
-			e = execution.Domains.Affect(Address);
-			
-			execution.PayForName(Address, Years);
-			execution.Prolong(User, e, Time.FromYears(Years));
+			var priority = DomainExecution.Priority.FirstOrDefault(i => i.Value.Contains(Address));
 
-			///if(Domain.IsWeb(e.Address)) /// distribite winner bid, one time
-			///	Transaction.BYReturned += e.LastBid;
+			if(priority.Key != null)
+			{
+				Error = NotAvailable;
+				return;
+			}
+
+			d = execution.Domains.Affect(Address);
+
+			d.Free = Address.Length >= execution.Net.FreeNameLengthMinimum && Years == 1;
+			
+			execution.Prolong(User, d, Time.FromYears(Years));
+			
+			if(!d.Free)
+				execution.PayForName(Address, Years);
 							
-			e.Owner			= User.Id;
-			//e.LastWinner	= null;
-			//e.LastBid		= 0;
-			//e.LastBidTime	= Time.Empty;
-			//e.FirstBidTime	= Time.Empty;
+			d.Owner	= User.Id;
 		}
 		else
 		{
-			if(e != null)
+			if(d != null)
 			{
 				Error = AlreadyExists;
 				return;
@@ -102,17 +107,17 @@ public class DomainRegistration : RdnOperation
 				return;
 			}
 
-			e = execution.Domains.Affect(Address);
+			d = execution.Domains.Affect(Address);
 			
-			var start = e.Expiration < execution.Time.Days ? execution.Time.Days : e.Expiration;
+			var start = d.Expiration < execution.Time.Days ? execution.Time.Days : d.Expiration;
 
-			e.Owner			= o.Id;
-			e.ParentPolicy	= Policy;
-			e.Expiration	= (short)(start + Time.FromYears(Years).Days);
+			d.Owner			= o.Id;
+			d.ParentPolicy	= Policy;
+			d.Expiration	= (short)(start + Time.FromYears(Years).Days);
 
 			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 
-		execution.PayCycleEnergy(User);
+		execution.PayOperationEnergy(User);
 	}
 }

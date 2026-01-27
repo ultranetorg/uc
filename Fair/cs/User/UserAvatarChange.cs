@@ -35,7 +35,7 @@ public class UserAvatarChange : FairOperation
 
 		User.Avatar = Image;
 
-		execution.AllocateForever(User, Image.Length);
-		execution.PayCycleEnergy(User);
+		///execution.AllocateForever(User, Image.Length);
+		execution.PayOperationEnergy(User);
 	}
 }

@@ -45,7 +45,7 @@ public class AuthorRenewal : FairOperation
 		}
 
 		execution.Prolong(a, a, Time.FromYears(Years));
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }
 
@@ -86,7 +86,7 @@ public class AuthorModerationReward : FairOperation
 
 		a.ModerationReward = Amount;
 
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }
 
@@ -130,7 +130,7 @@ public class AuthorOwnerAddition : FairOperation
 
 		a.Owners = [..a.Owners, x.Id];
 
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }
 
@@ -180,6 +180,6 @@ public class AuthorOwnerRemoval : FairOperation
 
 		a.Owners = a.Owners.Remove(x.Id);
 
-		execution.PayCycleEnergy(a);
+		execution.PayOperationEnergy(a);
 	}
 }

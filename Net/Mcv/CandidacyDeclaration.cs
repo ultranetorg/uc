@@ -48,5 +48,7 @@ public class CandidacyDeclaration : Operation
 		c.Address		= User.Owner;
 		c.GraphPpcIPs	= GraphIPs;
 		c.Registered	= execution.Round.Id;
+
+		execution.EnergySpenders.Add(User);
 	}
 }

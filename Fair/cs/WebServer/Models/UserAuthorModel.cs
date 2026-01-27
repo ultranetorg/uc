@@ -17,10 +17,10 @@ public class UserAuthorModel : AuthorBaseModel
 	public byte EnergyThisPeriod { get; set; }
 	public long EnergyNext { get; set; }
 
-	public long Bandwidth { get; set; }
-	public short BandwidthExpiration { get; set; }
-	public short BandwidthTodayTime { get; set; }
-	public long BandwidthTodayAvailable { get; set; }
+	public int Bandwidth { get; set; }
+	public int BandwidthExpiration { get; set; }
+	public int BandwidthTodayTime { get; set; }
+	public int EnergyRating { get; set; }
 
 	public UserAuthorModel(Author author) : base(author)
 	{
@@ -31,8 +31,9 @@ public class UserAuthorModel : AuthorBaseModel
 		Energy = author.Energy;
 		EnergyThisPeriod = author.EnergyThisPeriod;
 		EnergyNext = author.EnergyNext;
+		
 		Bandwidth = author.Bandwidth;
 		BandwidthExpiration = author.BandwidthExpiration;
-		BandwidthTodayAvailable = author.BandwidthTodayBalance;
+		EnergyRating = author.EnergyRating;
 	}
 }

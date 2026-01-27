@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Diagnostics;
+
+namespace Uccs.Net;
 
 public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 {
@@ -20,7 +22,9 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 		
-			w.Write(Enumerable.Range(From, To - From + 1).Select(Mcv.FindRound).Where(i => i != null && i.Confirmed), i => i.Write(w));
+			var rs = Enumerable.Range(From, To - From + 1).Select(Mcv.FindRound).Where(i => i != null && i.Confirmed);
+
+			w.Write(rs, i => i.Write(w));
 		
 			return new DownloadRoundsPpr {	LastNonEmptyRound	= Mcv.LastNonEmptyRound.Id,
 											LastConfirmedRound	= Mcv.LastConfirmedRound.Id,

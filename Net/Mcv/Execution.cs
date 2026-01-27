@@ -5,22 +5,25 @@ public class Execution : ITableExecution
 	public Dictionary<MetaId, MetaEntity>		AffectedMetas = new();
 	public Dictionary<AutoId, User>				AffectedUsers = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
-	public Dictionary<int, int>[]				NextEids;
-	public long[]								Spaces;
-	public long[]								Bandwidths;
+	
+	Dictionary<int, int>[]						_NextEids;
+	long[]										_Spaces;
+	long[]										_Bandwidths;
+	List<Generator>								_Candidates;
+	
+	public Dictionary<int, int>[]				NextEids => _NextEids ??= [..Mcv.Tables.Select(i => new Dictionary<int, int>())];
+	public long[]								Spaces  { get => _Spaces ?? Round.Spacetimes; set => _Spaces = value; }
+	public long[]								Bandwidths  { get => _Bandwidths ?? Round.Bandwidths; set => _Bandwidths = value; }
+	public List<Generator>						Candidates  { get => _Candidates ?? Round.Candidates; set => _Candidates = value; }
 
-	public List<Generator>						Candidates;
-
-	public Time									Time;
+	public Time									Time => Round.ConsensusTime;
 	public McvNet								Net;
 	public Mcv									Mcv;
 	public Round								Round;
 	public Transaction							Transaction;
-	//protected Account							AffectedSigner;
 
 	public AutoId								LastCreatedId { get; set; }
 
-	//public IEnergyHolder						EnergyFeePayer;
 	public HashSet<IEnergyHolder>				EnergySpenders;
 	public HashSet<ISpacetimeHolder>			SpacetimeSpenders;
 	public long									EnergyCost;
@@ -33,14 +36,6 @@ public class Execution : ITableExecution
 		Mcv = mcv;
 		Round = round;
 		Transaction = transaction;
-		//Signer = signer;
-		Time = round.ConsensusTime;
-
-		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
-
-		Candidates = round.Candidates;
-		Spaces = round.Spacetimes;
-		Bandwidths = round.Bandwidths;
 	}
 
 	public virtual ITableExecution FindExecution(byte table)
@@ -63,6 +58,16 @@ public class Execution : ITableExecution
 		if(table == Mcv.Users)	return AffectedUsers;
 
 		throw new IntegrityException();
+	}
+
+	public void AffectBandwidths()
+	{
+		_Bandwidths ??= [..Round.Bandwidths];
+	}
+
+	public void AffectSpaces()
+	{
+		_Spaces ??= [..Round.Spacetimes];
 	}
 
 	public Dictionary<K, E> AffectedByTable<K, E>(TableBase table)
@@ -136,18 +141,18 @@ public class Execution : ITableExecution
 		}
 	}
 
-	public void PayCycleEnergy(IEnergyHolder spender)
+	public void PayOperationEnergy(IEnergyHolder spender)
 	{
-		if(spender.BandwidthTodayTime < Time.Days) /// switch to this day
+		if(spender.EnergyPeriod < Time.Hours) /// switch to this day
 		{	
-			if(spender.BandwidthExpiration < Time.Days) /// bandwidth expired
+			if(spender.BandwidthExpiration < Time.Hours) /// bandwidth expired
 				spender.Bandwidth = 0;
 
-			spender.BandwidthTodayTime		= Time.Days;
-			spender.BandwidthTodayBalance	= spender.Bandwidth;
+			spender.EnergyPeriod	= Time.Hours;
+			spender.EnergyRating	= spender.Bandwidth;
 		}
 
-		spender.BandwidthTodayBalance -= EnergyCost;
+		spender.EnergyRating -= (int)EnergyCost;
 
 		/// var d = spender.BandwidthTodayBalance - EnergyCost;
 		/// 
@@ -161,21 +166,26 @@ public class Execution : ITableExecution
 		Transaction.EnergyConsumed += EnergyCost;
 	}
 
-	public void AllocateForever(ISpacetimeHolder payer, int length)
-	{
-		payer.Spacetime -= ToBD(length, Mcv.Forever);
-		SpacetimeSpenders.Add(payer);
-	}
+///	public void AllocateForever(ISpacetimeHolder payer, int length)
+///	{
+///		if(payer.Space > McvNet.FreeSpaceMaximum)
+///		{
+///			payer.Spacetime -= ToBD(length, Mcv.Forever);
+///			SpacetimeSpenders.Add(payer);
+///		}
+///	}
 
-	public void FreeForever(ISpacetimeHolder payer, int length)
-	{
-		payer.Spacetime += ToBD(length, Mcv.Forever);
-	}
+///	public void FreeForever(ISpacetimeHolder payer, int length)
+///	{
+///		payer.Spacetime += ToBD(length, Mcv.Forever);
+///	}
 
-	public void FreeEntity()
-	{
-		Spaces[Time.Days] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
-	}
+///	public void FreeEntity()
+///	{
+///		AffectSpaces();
+///
+///		Spaces[Time.Days] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
+///	}
 
 	public static long ToBD(long length, short time)
 	{
@@ -196,23 +206,26 @@ public class Execution : ITableExecution
 
 		var n = consumer.Expiration - Time.Days;
 	
-		payer.Spacetime -= ToBD(space, (short)n);
+		if(!consumer.IsFree(this))
+		{	
+			payer.Spacetime -= ToBD(space, (short)n);
+			SpacetimeSpenders.Add(payer);
+		}
+
+		AffectSpaces();
 
 		for(int i = 0; i < n; i++)
 			Spaces[i] += space;
-
-		SpacetimeSpenders.Add(payer);
 	}
 
 	public void Prolong(ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
 	{	
 		var now = Time.Days;
-
 		var start = now >= consumer.Expiration ? now : consumer.Expiration;
 
 		consumer.Expiration = (short)(start + duration.Days);
 
-		if(consumer.Space > 0)
+		if(!consumer.IsFree(this) || duration.Years != 1)
 		{
 			payer.Spacetime -= ToBD(consumer.Space, duration);
 			SpacetimeSpenders.Add(payer);
@@ -220,8 +233,10 @@ public class Execution : ITableExecution
 
 		var exp = start + duration.Days;
 
-		if(exp - now > Spaces.Length)
+		if(exp - now >	Spaces.Length)
 			Spaces = [..Spaces, ..new long[Spaces.Length + exp - now]];
+		else
+			AffectSpaces(); /// needed below
 
 		for(int i = start - now; i < exp - now; i++)
 			Spaces[i] += consumer.Space;
@@ -244,8 +259,11 @@ public class Execution : ITableExecution
 		
 		if(d > 0)
 		{
-			beneficiary.Spacetime += ToBD(space, (short)(d - 1));
+			if(!consumer.IsFree(this))
+				beneficiary.Spacetime += ToBD(space, (short)(d - 1));
 	
+			AffectSpaces();
+			
 			for(int i = 0; i < consumer.Expiration - now; i++)
 				Spaces[i] -= space;
 		}
@@ -366,8 +384,7 @@ public class Execution : ITableExecution
 		if(AffectedCandidates.TryGetValue(id, out Generator a))
 			return a;
 
-		if(Candidates == Round.Candidates)
-			Candidates = Round.Candidates.ToList();
+		_Candidates ??= [..Round.Candidates];
 
 		var c = Candidates.Find(i => i.Id == id);
 

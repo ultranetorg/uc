@@ -60,14 +60,14 @@ public class ProposalVoting : FairOperation
 				return;
 
 			var a = execution.Authors.Affect(Voter);
-			execution.PayCycleEnergy(a);
+			execution.PayOperationEnergy(a);
  		}
 		else if(s.IsDiscussion(c))
  		{
 			if(!IsModerator(execution, s, Voter, out var _, out Error))
 				return;
 
-			execution.PayCycleEnergy(s);
+			execution.PayOperationEnergy(s);
  		}
 		else
 		{
