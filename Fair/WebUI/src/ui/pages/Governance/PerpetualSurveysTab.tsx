@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-import { useGetPerpetualSurveys } from "entities/perpetualSurveys"
+import { useGetPerpetualSurveys } from "entities/PerpetualSurveys"
 import { Table, TableEmptyState } from "ui/components"
 import { perpetualSurveysItemRenderer } from "ui/renderers"
 
