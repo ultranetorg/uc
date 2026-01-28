@@ -1,5 +1,6 @@
 import { forwardRef, memo, MouseEvent, useCallback, useMemo } from "react"
 import { Link, To } from "react-router-dom"
+import { twMerge } from "tailwind-merge"
 
 import { PropsWithStyle } from "types"
 import { chunkArray } from "utils"
@@ -20,13 +21,14 @@ export type SimpleMenuItem =
 
 type SimpleMenuBaseProps = {
   items: SimpleMenuItem[]
+  menuItemClassName?: string
   onClick?: () => void
 }
 
 export type SimpleMenuProps = PropsWithStyle & SimpleMenuBaseProps
 
 export const SimpleMenu = memo(
-  forwardRef<HTMLDivElement, SimpleMenuProps>(({ style, items, onClick }, ref) => {
+  forwardRef<HTMLDivElement, SimpleMenuProps>(({ style, items, menuItemClassName, onClick }, ref) => {
     const chunks = useMemo(() => chunkArray(items, 8), [items])
 
     const handleClick = useCallback(
@@ -45,14 +47,24 @@ export const SimpleMenu = memo(
         onClick={handleClick}
       >
         {chunks.map((chunk, i) => (
-          <div key={i} className="flex flex-col">
+          <div key={i} style={{ width: `calc(100% / ${chunks.length})` }} className="flex flex-col">
             {chunk.map(({ label, to, onClick }) =>
               onClick ? (
-                <div key={i + label} onClick={onClick} className={MENU_ITEM_CLASSNAME} title={label}>
+                <div
+                  key={i + label}
+                  onClick={onClick}
+                  className={twMerge(MENU_ITEM_CLASSNAME, menuItemClassName)}
+                  title={label}
+                >
                   {label}
                 </div>
               ) : (
-                <Link key={i + to.toString()} to={to} className={MENU_ITEM_CLASSNAME} title={label}>
+                <Link
+                  key={i + to.toString()}
+                  to={to}
+                  className={twMerge(MENU_ITEM_CLASSNAME, menuItemClassName)}
+                  title={label}
+                >
                   {label}
                 </Link>
               ),

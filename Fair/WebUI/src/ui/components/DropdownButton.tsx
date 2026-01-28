@@ -1,7 +1,7 @@
 import { forwardRef, memo } from "react"
+import { twMerge } from "tailwind-merge"
 
 import { ChevronDownSvg } from "assets"
-import { twMerge } from "tailwind-merge"
 
 export type DropdownButtonProps = {
   expanded?: boolean

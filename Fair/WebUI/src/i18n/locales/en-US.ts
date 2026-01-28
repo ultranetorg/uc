@@ -204,7 +204,7 @@ export const enUS = {
     noPerpetualSurveys: "No open perpetual surveys",
     noProposals: "No open referendums",
     noWinners: "No winners yet",
-    perpetual: "Perpetual surveys",
+    perpetual: "Surveys",
     referendums: "Referendums",
     title: "Governance",
     totalVotes: "Total votes",
