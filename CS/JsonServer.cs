@@ -85,15 +85,15 @@ public class BatchApc : Apc
 
 public abstract class JsonServer
 {
-	HttpListener					Listener;
-	Thread							Thread;
-	ApiSettings						Settings;
-	Flow							Flow;
-	JsonSerializerOptions			Options;
-	Dictionary<string, ConstructorInfo>			Calls = [];
+	HttpListener							Listener;
+	Thread									Thread;
+	ApiSettings								Settings;
+	Flow									Flow;
+	protected JsonSerializerOptions			Options;
+	Dictionary<string, ConstructorInfo>		Calls = [];
 
-	protected abstract object		Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
-	protected abstract Type			Create(string call);
+	protected abstract object				Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	protected abstract Type					Create(string call);
 
 	public JsonServer(ApiSettings settings, JsonSerializerOptions options, Flow workflow)
 	{
