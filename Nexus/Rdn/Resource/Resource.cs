@@ -92,14 +92,17 @@ public class Resource : ITableEntry
 
 	public object Clone()
 	{
-		return new Resource(Mcv)  {	Id = Id,
-									Domain = Domain,
-						            Address	= Address, 
-						            Flags = Flags,
-						            Data = Data?.Clone(),
-						            Updated = Updated,
-						            Outbounds = Outbounds,
-						            Inbounds = Inbounds};
+		return	new Resource(Mcv)
+				{
+					Id = Id,
+					Domain = Domain,
+					Address = Address,
+					Flags = Flags,
+					Data = Data,
+					Updated = Updated,
+					Outbounds = Outbounds,
+					Inbounds = Inbounds
+				};
 	}
 
 	public void WriteMain(BinaryWriter writer)
@@ -144,7 +147,7 @@ public class Resource : ITableEntry
 		{
 			var l = new ResourceLink {Affected = true, Destination = destination};
 			
-			Outbounds = Outbounds == null ? [l] : Outbounds.Append(l).ToArray();
+			Outbounds = [..Outbounds, l];
 			OutboundsCloned = true;
 			
 			return l;
@@ -153,7 +156,7 @@ public class Resource : ITableEntry
 		{
 			if(!OutboundsCloned)
 			{
-				Outbounds = Outbounds.ToArray();
+				Outbounds = [..Outbounds];
 				OutboundsCloned = true;
 			}
 
@@ -174,11 +177,11 @@ public class Resource : ITableEntry
 		if(i != -1)
 		{
 			if(!InboundsCloned)
-				Inbounds = Inbounds.ToArray();
+				Inbounds = [..Inbounds];
 		} 
 		else
 		{
-			Inbounds = Inbounds == null ? [source] : Inbounds.Append(source).ToArray();
+			Inbounds = [..Inbounds, source];
 		}
 
 		InboundsCloned = true;
@@ -186,13 +189,14 @@ public class Resource : ITableEntry
 
 	public void RemoveOutbound(AutoId destination)
 	{
-		Outbounds = Outbounds.Where(i => i.Destination != destination).ToArray();
+		var l = Outbounds.First(i => i.Destination == destination);
+		Outbounds = Outbounds.Remove(l);
 		OutboundsCloned = true;
 	}
 
 	public void RemoveInbound(AutoId destination)
 	{
-		Inbounds = Inbounds.Where(i => i != destination).ToArray();
+		Inbounds = Inbounds.Remove(destination);
 		InboundsCloned = true;
 	}
 }

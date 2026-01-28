@@ -276,10 +276,10 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 		return !(left == right);
 	}
 	
-	public ResourceData Clone()
-	{
-		return new ResourceData {Type = Type, Value = Value};
-	}
+	//public ResourceData Clone()
+	//{
+	//	return new ResourceData {Type = Type, Value = Value};
+	//}
 }
 
 public class ResourceDataJsonConverter : JsonConverter<ResourceData>
