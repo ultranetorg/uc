@@ -74,7 +74,8 @@ public class SitesService
 				Categories = categories,
 				ModeratorsIds = moderatorsIds,
 				AuthorsIds = authorsIds,
-				DiscussionOperations = discussionOperations
+				DiscussionOperations = discussionOperations,
+				ReferendumOperations = referendumOperations
 			};
 		}
 	}

@@ -3,6 +3,7 @@ import {
   offset,
   Placement,
   safePolygon,
+  size,
   useDismiss,
   useFloating,
   useFloatingNodeId,
@@ -15,6 +16,7 @@ export type UseSubmenuProps = {
   customParentId?: string
   placement?: Placement
   offset?: number
+  setFloatSizeAsReference?: boolean
 }
 
 export const useSubmenu = (options?: UseSubmenuProps) => {
@@ -24,7 +26,20 @@ export const useSubmenu = (options?: UseSubmenuProps) => {
 
   const { context, floatingStyles, refs } = useFloating({
     nodeId,
-    middleware: [offset(options?.offset ?? 8)],
+    middleware: [
+      offset(options?.offset ?? 8),
+      ...(options?.setFloatSizeAsReference === true
+        ? [
+            size({
+              apply({ rects, elements }) {
+                Object.assign(elements.floating.style, {
+                  width: `${rects.reference.width}px`,
+                })
+              },
+            }),
+          ]
+        : []),
+    ],
     open: isOpen,
     placement: options?.placement ?? "right-start",
     onOpenChange: setOpen,
