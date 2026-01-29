@@ -51,6 +51,7 @@ export const ModerationPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <GovernanceModerationHeader
+        proposalType="discussion"
         siteId={siteId!}
         title={t("title")}
         onCreateButtonClick={handleCreateButtonClick}

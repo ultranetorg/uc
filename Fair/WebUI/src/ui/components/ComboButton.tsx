@@ -17,7 +17,7 @@ type ComboButtonBaseProps = {
 export type ComboButtonProps = PropsWithClassName & ComboButtonBaseProps
 
 export const ComboButton = memo(({ items, label, onButtonClick }: ComboButtonProps) => {
-  const menu = useSubmenu({ placement: "bottom-end", offset: 4, setFloatSizeAsReference: items.length < 8 })
+  const menu = useSubmenu({ placement: "bottom-end", offset: 4, setFloatSizeAsReference: items && items.length < 8 })
 
   const handleMenuClick = useCallback(() => menu.setOpen(false), [menu])
 
@@ -40,7 +40,7 @@ export const ComboButton = memo(({ items, label, onButtonClick }: ComboButtonPro
           <SvgChevronDown2Sm className="stroke-white" />
         </div>
       </div>
-      {menu.isOpen && (
+      {items && menu.isOpen && (
         <FloatingPortal>
           <SimpleMenu
             ref={menu.refs.setFloating}

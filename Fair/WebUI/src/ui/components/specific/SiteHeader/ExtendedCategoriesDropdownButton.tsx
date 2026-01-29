@@ -12,7 +12,7 @@ import {
 } from "@floating-ui/react"
 
 import { TEST_CATEGORIES_ITEMS } from "testConfig"
-import { DropdownButton, HeadingsMenu } from "ui/components"
+import { ChevronDownButton, HeadingsMenu } from "ui/components"
 import { PropsWithClassName } from "types"
 
 type ExtendedCategoriesDropdownButtonBaseProps = {
@@ -63,7 +63,7 @@ export const ExtendedCategoriesDropdownButton = memo(({ className, label }: Exte
         )}
         {...getReferenceProps()}
       >
-        {label} <DropdownButton />
+        {label} <ChevronDownButton />
       </div>
       {isExpanded && (
         <FloatingPortal>
