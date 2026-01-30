@@ -46,9 +46,9 @@ public class ResourceLinkDeletion : RdnOperation
 			return;
 		}
 
-		if(l.Flags.HasFlag(ResourceLinkFlag.Sealed))
+		if(l.Flags.HasFlag(ResourceLinkFlag.Dependency) && sr.IsLocked(execution)) /// a resource with dependent ones cant change its own dependencies
 		{
-			Error = Sealed;
+			Error = Locked;
 			return;
 		}
 

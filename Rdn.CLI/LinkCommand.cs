@@ -20,7 +20,9 @@ public class LinkCommand : RdnCommand
 		a.Description = "Creates a link from one resource to another";
 		a.Arguments =	[
 							new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
-							new ("to", RA, "Address of a destination resource")
+							new ("to", RA, "Address of a destination resource"),
+							new ("dependency", RA, "Mark link as dependency"),
+							new ("hierarchy", RA, "Mark link as part of hierarchy"),
 						];
 
 		a.Execute = () =>	{
@@ -29,7 +31,8 @@ public class LinkCommand : RdnCommand
 								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
 								var d = Ppc(new ResourcePpc(GetResourceAddress(a[1].Name))).Resource;
 
-								return new ResourceLinkCreation(s.Id, d.Id);
+								return new ResourceLinkCreation(s.Id, d.Id, (Has("dependency") ? ResourceLinkFlag.Dependency : 0) |
+																			(Has("hierarchy") ? ResourceLinkFlag.Hierarchy : 0));
 							};
 		return a;
 	}

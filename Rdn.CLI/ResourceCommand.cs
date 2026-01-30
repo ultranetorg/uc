@@ -1,15 +1,13 @@
 ﻿using System.Reflection;
-using Uccs.Net;
 
 namespace Uccs.Rdn.CLI;
 
-/// <summary>
-/// Usage: 
-///		release publish 
-/// </summary>
 public class ResourceCommand : RdnCommand
 {
 	Ura First => Ura.Parse(Args[0].Name);
+
+	Argument Data => new ("data", HEX, "A data to be associated with the resource", Flag.Optional);
+	Argument Dependable => new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", Flag.Optional);
 
 	public ResourceCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
@@ -24,7 +22,8 @@ public class ResourceCommand : RdnCommand
 		a.Description = "Creates a resource entity in the distributed database";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to create", Flag.First),
-							new ("data", HEX, "A data associated with the resource"),
+							Data,
+							Dependable,
 							ByArgument()
 						];
 
@@ -38,7 +37,7 @@ public class ResourceCommand : RdnCommand
 																						Data = GetData()});
 													};
 
-								return new ResourceCreation(First, GetData(), Has("seal"));
+								return new ResourceCreation(First, GetData(), Has(Dependable.Name));
 							};
 		return a;
 	}
@@ -73,8 +72,8 @@ public class ResourceCommand : RdnCommand
 		a.Description = "Updates a resource entity properties in the distributed database";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to update", Flag.First),
-							new ("data", HEX, "A data associated with the resource", Flag.Optional),
-							new ("seal", null, "If set, resource data cannot be changed anymore", Flag.Optional),
+							Data,
+							Dependable,
 							new ("recursive", null, "Update all descendants", Flag.Optional),
 							ByArgument()
 						];
@@ -91,9 +90,9 @@ public class ResourceCommand : RdnCommand
 
 								var o =	new ResourceUpdation(r.Id);
 
-								if(Has("data"))			o.Change(GetData());
-								if(Has("seal"))			o.Seal();
-								if(Has("recursive"))	o.MakeRecursive();
+								if(Has(Data.Name))			o.Change(GetData());
+								if(Has(Dependable.Name))	o.MakeDependable();
+								if(Has("recursive"))		o.MakeRecursive();
 
 								return o;
 							};

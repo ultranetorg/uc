@@ -26,9 +26,9 @@ public class ResourceDeletion : RdnOperation
 		if(RequireSignerResource(execution, Resource, out var d, out var r) == false)
 			return;
 
-		if(r.Flags.HasFlag(ResourceFlags.Sealed))
+		if(r.IsLocked(execution))
 		{
-			Error = Sealed;
+			Error = Locked;
 			return;
 		}
 

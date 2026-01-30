@@ -183,8 +183,11 @@ public class DomainCommand : RdnCommand
 								var d = Ppc(new DomainPpc(First)).Domain;
 								var to = Ppc(new UserPpc(GetString(a.Arguments[1].Name))).User;
 
-								return new DomainTransfer  {Id		= d.Id,
-															Owner	= to.Id};
+								return new DomainTransfer
+										{
+											Id		= d.Id,
+											Owner	= to.Id
+										};
 							};
 
 		return a;

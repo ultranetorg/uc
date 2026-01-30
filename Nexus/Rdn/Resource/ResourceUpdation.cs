@@ -29,9 +29,9 @@ public class ResourceUpdation : RdnOperation
 			Changes = ResourceChanges.NullData;
 	}
 
-	public void Seal()
+	public void MakeDependable()
 	{
-		Changes |= ResourceChanges.Seal;
+		Changes |= ResourceChanges.Dependable;
 	}
 
 	public void MakeRecursive()
@@ -75,9 +75,9 @@ public class ResourceUpdation : RdnOperation
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{
-				if(r.Flags.HasFlag(ResourceFlags.Sealed))
+				if(r.IsLocked(execution))
 				{
-					Error = Sealed;
+					Error = Locked;
 					return;
 				}
 
@@ -95,9 +95,9 @@ public class ResourceUpdation : RdnOperation
 			}
 			else if(Changes.HasFlag(ResourceChanges.NullData))
 			{
-				if(r.Flags.HasFlag(ResourceFlags.Sealed))
+				if(r.IsLocked(execution))
 				{
-					Error = Sealed;
+					Error = Locked;
 					return;
 				}
 
@@ -113,15 +113,15 @@ public class ResourceUpdation : RdnOperation
 				r.Data = null;
 			}
 
-			if(Changes.HasFlag(ResourceChanges.Seal))
+			if(Changes.HasFlag(ResourceChanges.Dependable))
 			{
-				if(r.Flags.HasFlag(ResourceFlags.Sealed))
+				if(r.Flags.HasFlag(ResourceFlags.Dependable))
 				{
-					Error = Sealed;
+					Error = AlreadySet;
 					return;
 				}
 
-				r.Flags	|= ResourceFlags.Sealed;
+				r.Flags	|= ResourceFlags.Dependable;
 
 				execution.PayForForever(execution.Net.EntityLength + r.Length);
 			}

@@ -6,30 +6,30 @@ namespace Uccs.Rdn;
 public enum ResourceFlags : byte
 {
 	None			= 0, 
-	Sealed			= 0b_______1, 
-	Data			= 0b______10,
+	Data			= 0b_______1,
+	Dependable		= 0b______10, 
 }
 
 [Flags]
 public enum ResourceChanges : byte
 {
-	None		= 0,
-	SetData		= 0b________1,
-	NullData	= 0b_______10,
-	Seal		= 0b______100,
-	Recursive	= 0b1000_0000,
+	None			= 0,
+	SetData			= 0b________1,
+	NullData		= 0b_______10,
+	Dependable		= 0b______100,
+	Recursive		= 0b1000_0000,
 }
 
 public enum ResourceLinkFlag : byte
 {
 	None		= 0,
 	Hierarchy	= 0b________1,
-	Sealed		= 0b_______10,
+	Dependency	= 0b_______10,
 }
 
 public enum ResourceLinkChanges : byte
 {
-	None, Seal
+	None, Dependency
 }
 
 public class ResourceLink : IBinarySerializable
@@ -74,7 +74,9 @@ public class Resource : ITableEntry
 	public bool					Deleted { get; set; }
 	RdnMcv						Mcv;
 
-	public int					Length => (Flags.HasFlag(ResourceFlags.Data) ? (/*Data.Type.Control + Data.Type.Content.Length + */Data.Value.Length) : 0); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
+	public bool					IsLocked(RdnExecution execution) => Flags.HasFlag(ResourceFlags.Dependable) && Inbounds.Any(i => execution.Resources.Find(i).Outbounds.Any(j => j.Destination == Id && j.Flags.HasFlag(ResourceLinkFlag.Dependency)));
+
+	public int					Length => Flags.HasFlag(ResourceFlags.Data) ? Data.Value.Length : 0; /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
 	public override string ToString()
 	{
@@ -110,8 +112,8 @@ public class Resource : ITableEntry
 		writer.Write(Id);
 		writer.Write7BitEncodedInt(Domain.E);
 		writer.WriteUtf8(Address.Resource);
-		writer.Write(Flags);
 		writer.Write(Updated);
+		writer.Write(Flags);
 		
 		if(Flags.HasFlag(ResourceFlags.Data))
 			writer.Write(Data);
@@ -125,8 +127,8 @@ public class Resource : ITableEntry
 		Id		= reader.Read<AutoId>();
 		Domain	= new (Id.B, reader.Read7BitEncodedInt());
 		Address = new Ura(null, reader.ReadUtf8());
-		Flags	= reader.Read<ResourceFlags>();
 		Updated	= reader.Read<Time>();
+		Flags	= reader.Read<ResourceFlags>();
 
 		if(Flags.HasFlag(ResourceFlags.Data))
 			Data = reader.Read<ResourceData>();

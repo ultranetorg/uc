@@ -14,13 +14,13 @@ public class ResourceCreation : RdnOperation
 	{
 	}
 
-	public ResourceCreation(Ura resource, ResourceData data, bool seal)
+	public ResourceCreation(Ura resource, ResourceData data, bool referancable)
 	{
 		Address = resource;
 		Data = data;
 
 		if(Data != null)	Changes |= ResourceChanges.SetData;
-		if(seal)			Changes |= ResourceChanges.Seal;
+		if(referancable)	Changes |= ResourceChanges.Dependable;
 	}
 
 	public override void Read(BinaryReader reader)
@@ -61,10 +61,10 @@ public class ResourceCreation : RdnOperation
 			r.Updated	= execution.Time;
 		}
 
-		if(Changes.HasFlag(ResourceChanges.Seal))
+		if(Changes.HasFlag(ResourceChanges.Dependable))
 		{
-			r.Flags	|= ResourceFlags.Sealed;
-			execution.PayForForever(execution.Net.EntityLength + r.Length);
+			r.Flags	|= ResourceFlags.Dependable;
+			///execution.PayForForever(execution.Net.EntityLength + r.Length);
 		}
 		else
 		{	

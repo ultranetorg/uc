@@ -4,7 +4,7 @@ public class ResourceLinkCreation : RdnOperation
 {
 	public AutoId				Source { get; set; }
 	public AutoId				Destination { get; set; }
-	public ResourceLinkChanges	Changes  { get; set; }
+	public ResourceLinkFlag		Flags  { get; set; }
 	
 	public override string		Explanation => $"Source={Source}, Destination={Destination}";
 	public override bool		IsValid(McvNet net) => true;
@@ -13,62 +13,87 @@ public class ResourceLinkCreation : RdnOperation
 	{
 	}
 
-	public ResourceLinkCreation(bool seal)
-	{
-		if(seal)
-			Changes |= ResourceLinkChanges.Seal;
-	}
-
-	public ResourceLinkCreation(AutoId source, AutoId destination)
+	public ResourceLinkCreation(AutoId source, AutoId destination, ResourceLinkFlag flags)
 	{
 		Source = source;
 		Destination = destination;
+		Flags = flags;
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Source);
 		writer.Write(Destination);
-		writer.Write((byte)Changes);
+		writer.Write(Flags);
 	}
 	
 	public override void Read(BinaryReader reader)
 	{
 		Source		= reader.Read<AutoId>();
 		Destination	= reader.Read<AutoId>();
-		Changes		= (ResourceLinkChanges)reader.ReadByte();
+		Flags		= reader.Read<ResourceLinkFlag>();
 	}
 
 	public override void Execute(RdnExecution execution)
 	{
-		if(RequireSignerResource(execution, Source, out var sd, out var sr) == false)
+		if(RequireSignerResource(execution, Source, out var sd, out var s) == false)
 			return;
 
-		if(RequireResource(execution, Destination, out var dd, out var dr) == false)
+		if(RequireResource(execution, Destination, out var dd, out var d) == false)
 			return;
 
-		sr = execution.Resources.Affect(sd, sr.Address.Resource);
-		sr.AffectOutbound(dr.Id);
+		s = execution.Resources.Affect(sd, s.Address.Resource);
+		var l = s.AffectOutbound(d.Id);
 
-		dr = execution.Resources.Affect(dd, dr.Address.Resource);
-		dr.AffectInbound(sr.Id);
+		d = execution.Resources.Affect(dd, d.Address.Resource);
+		d.AffectInbound(s.Id);
 
-		if(Changes.HasFlag(ResourceLinkChanges.Seal))
+		if(Flags.HasFlag(ResourceLinkFlag.Dependency))
 		{
-			if(!sr.Flags.HasFlag(ResourceFlags.Sealed) || !dr.Flags.HasFlag(ResourceFlags.Sealed))
+			if(!d.Flags.HasFlag(ResourceFlags.Dependable))
 			{
-				Error = NotSealed;
+				Error = NotDependable;
 				return;
 			}
 
-			execution.PayForForever(execution.Net.EntityLength);
+			l.Flags = Flags;
+
+			var n = 0;
+
+			bool circular(ResourceLink[] outs)
+			{
+				n++;
+
+				if(n > execution.Net.CircularDependeciesChecksMaximum)
+				{
+					Error = LimitExceeded;
+					return false;
+				}
+
+				foreach(var i in outs.Where(i => i.Flags.HasFlag(ResourceLinkFlag.Dependency)))
+				{
+					if(i.Destination == s.Id)
+						return true;
+
+					if(circular(execution.Resources.Find(i.Destination).Outbounds))
+						return true;
+				}
+
+				return false;
+			}
+
+			if(circular(d.Outbounds))
+			{
+				Error ??= CircularDependency;
+				return;
+			}
+
+			///execution.PayForForever(execution.Net.EntityLength);
 		}
-		else
-		{	
-			sd = execution.Domains.Affect(sd.Id);
-			execution.Allocate(User, sd, execution.Net.EntityLength);
-			sd.ResetFreeIfNeeded(execution);
-		}
+
+		sd = execution.Domains.Affect(sd.Id);
+		execution.Allocate(User, sd, execution.Net.EntityLength);
+		sd.ResetFreeIfNeeded(execution);
 
 		execution.PayOperationEnergy(User);
 	}
