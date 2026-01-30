@@ -123,7 +123,7 @@ public class ResourceUpdation : RdnOperation
 
 				r.Flags	|= ResourceFlags.Dependable;
 
-				execution.PayForForever(execution.Net.EntityLength + r.Length);
+				//execution.PayForForever(execution.Net.EntityLength + r.Length);
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Recursive))
