@@ -50,11 +50,11 @@ public class ResourceLinkCreation : RdnOperation
 
 		if(Flags.HasFlag(ResourceLinkFlag.Dependency))
 		{
-			//if(!d.Flags.HasFlag(ResourceFlags.Dependable))
-			//{
-			//	Error = NotDependable;
-			//	return;
-			//}
+			if(!d.Flags.HasFlag(ResourceFlags.Dependable))
+			{
+				Error = NotDependable;
+				return;
+			}
 
 			l.Flags = Flags;
 
