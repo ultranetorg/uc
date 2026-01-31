@@ -183,12 +183,12 @@ public class Execution : ITableExecution
 
 		consumer.Space += space;
 
-		if(consumer.IsFree(this) && consumer.Space > Net.FreeSpaceMaximum)
-			consumer.ResetFree(this);
+		if(consumer.Free && consumer.Space > Net.FreeSpaceMaximum)
+			consumer.Free = false;
 	
 		var n = consumer.Expiration - Time.Days;
 
-		if(!consumer.IsFree(this))
+		if(!consumer.Free)
 		{	
 			payer.Spacetime -= ToBD(space, (short)n);
 			SpacetimeSpenders.Add(payer);
@@ -207,7 +207,7 @@ public class Execution : ITableExecution
 
 		consumer.Expiration = (short)(start + duration.Days);
 
-		if(!consumer.IsFree(this) || duration.Years != 1)
+		if(!consumer.Free || duration.Years != 1)
 		{
 			payer.Spacetime -= ToBD(consumer.Space, duration);
 			SpacetimeSpenders.Add(payer);
@@ -241,7 +241,7 @@ public class Execution : ITableExecution
 		
 		if(d > 0)
 		{
-			if(!consumer.IsFree(this))
+			if(!consumer.Free)
 				beneficiary.Spacetime += ToBD(space, (short)(d - 1));
 	
 			AffectSpaces();

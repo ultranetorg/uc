@@ -133,8 +133,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public short						Expiration { get; set; }
 	public long							Space { get; set; }
 	public long							Spacetime { get; set; }
-	public bool							IsFree(Execution execution) => false;
-	public void							ResetFree(Execution execution){}
+	public bool							Free { get; set; }
 
 	public Publisher[]					Publishers { get; set; }
 	public Moderator[]					Moderators { get; set; }

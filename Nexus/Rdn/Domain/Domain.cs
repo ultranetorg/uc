@@ -28,29 +28,17 @@ public enum NnStatus
 
 public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirable
 {
-	//public const int				ExclusiveLengthMax = 12;
 	public const int				NameLengthMin = 1;
 	public const int				NameLengthMax = 256;
-	//public const char				NormalPrefix = '_';
 	public const char				National = '~';
 	public const char				Subdomain = '~';
 
 	public static readonly string[] ExclusiveTlds = ["com", "org", "net", "info", "biz"];
 
-	//public static readonly Time	AuctionMinimalDuration = Time.FromDays(365);
-	//public static readonly Time	Prolongation = Time.FromDays(30);
-	//public static readonly Time	WinnerRegistrationPeriod = Time.FromDays(30);
-	//public static readonly short	RenewalPeriod = (short)(Time.FromDays(365).Days);
-	//public Time					AuctionEnd => Time.Max(FirstBidTime + AuctionMinimalDuration, LastBidTime + Prolongation);
-
 	public AutoId					Id { get; set; }
 	public string					Address { get; set; }
 	public AutoId					Owner { get; set; }
 	public bool						Free { get; set; }
-	//public Time					FirstBidTime { get; set; } = Time.Empty;
-	//public AutoId					LastWinner { get; set; }
-	//public long					LastBid { get; set; }
-	//public Time					LastBidTime { get; set; } = Time.Empty;
 	
 	public short					Expiration { get; set; }
 	public long						Space { get; set; }
@@ -65,7 +53,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 
 	public static bool				IsRoot(string name) => !name.Contains('.'); 
 	public static bool				IsChild(string name) => name.Contains('.'); 
-	public bool						IsFree(Execution execution) => Free;
+	
 	public static string			GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
 	public static string			GetName(string name) => name.Substring(0, name.IndexOf('.'));
 
@@ -151,11 +139,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		return	domain == null || /// available
 				domain != null && domain.Owner != null && time.Days >= domain.Expiration; /// not renewed by current owner
 				
-	}
-
-	public void ResetFree(Execution execution)
-	{
-		Free = false;
 	}
 
 //	public static bool CanBid(Domain domain, Time time)
