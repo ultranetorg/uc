@@ -153,10 +153,9 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 				
 	}
 
-	public void ResetFreeIfNeeded(Execution execution)
+	public void ResetFree(Execution execution)
 	{
-		if(Free && Space > execution.Net.FreeSpaceMaximum)
-			Free = false;
+		Free = false;
 	}
 
 //	public static bool CanBid(Domain domain, Time time)

@@ -41,7 +41,7 @@ public class ResourceCreation : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		if(RequireDomainAccess(execution, Address.Domain, out var d) == false)
+		if(!RequireDomainAccess(execution, Address.Domain, out var d))
 			return;
 
 		var r = execution.Resources.Find(Address);
@@ -64,15 +64,10 @@ public class ResourceCreation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.Dependable))
 		{
 			r.Flags	|= ResourceFlags.Dependable;
-			///execution.PayForForever(execution.Net.EntityLength + r.Length);
-		}
-		else
-		{	
-			d = execution.Domains.Affect(d.Id);
-			execution.Allocate(User, d, execution.Net.EntityLength + r.Length);
-			d.ResetFreeIfNeeded(execution);
 		}
 
+		d = execution.Domains.Affect(d.Id);
+		execution.Allocate(User, d, execution.Net.EntityLength + r.DataLength);
 		execution.PayOperationEnergy(User);
 	}
 }

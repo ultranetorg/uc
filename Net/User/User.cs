@@ -19,6 +19,7 @@ public interface ISpaceConsumer
 	short		Expiration { get; set; }
 
 	bool		IsFree(Execution execution);
+	void		ResetFree(Execution execution);
 
 	public void WriteSpaceConsumer(BinaryWriter writer)
 	{

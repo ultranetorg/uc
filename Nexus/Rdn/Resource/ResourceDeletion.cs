@@ -35,7 +35,7 @@ public class ResourceDeletion : RdnOperation
 		d = execution.Domains.Affect(d.Id);
 		execution.Resources.Affect(Resource).Deleted = true;
 
-		execution.Free(User, d, execution.Net.EntityLength + r.Length);
+		execution.Free(User, d, execution.Net.EntityLength + r.DataLength);
 
 		foreach(var i in r.Outbounds)
 		{

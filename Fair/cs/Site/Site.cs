@@ -134,6 +134,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public long							Space { get; set; }
 	public long							Spacetime { get; set; }
 	public bool							IsFree(Execution execution) => false;
+	public void							ResetFree(Execution execution){}
 
 	public Publisher[]					Publishers { get; set; }
 	public Moderator[]					Moderators { get; set; }

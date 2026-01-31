@@ -87,14 +87,10 @@ public class ResourceLinkCreation : RdnOperation
 				Error ??= CircularDependency;
 				return;
 			}
-
-			///execution.PayForForever(execution.Net.EntityLength);
 		}
 
 		sd = execution.Domains.Affect(sd.Id);
 		execution.Allocate(User, sd, execution.Net.EntityLength);
-		sd.ResetFreeIfNeeded(execution);
-
 		execution.PayOperationEnergy(User);
 	}
 }

@@ -166,27 +166,6 @@ public class Execution : ITableExecution
 		Transaction.EnergyConsumed += EnergyCost;
 	}
 
-///	public void AllocateForever(ISpacetimeHolder payer, int length)
-///	{
-///		if(payer.Space > McvNet.FreeSpaceMaximum)
-///		{
-///			payer.Spacetime -= ToBD(length, Mcv.Forever);
-///			SpacetimeSpenders.Add(payer);
-///		}
-///	}
-
-///	public void FreeForever(ISpacetimeHolder payer, int length)
-///	{
-///		payer.Spacetime += ToBD(length, Mcv.Forever);
-///	}
-
-///	public void FreeEntity()
-///	{
-///		AffectSpaces();
-///
-///		Spaces[Time.Days] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
-///	}
-
 	public static long ToBD(long length, short time)
 	{
 		return time * length;
@@ -204,8 +183,11 @@ public class Execution : ITableExecution
 
 		consumer.Space += space;
 
-		var n = consumer.Expiration - Time.Days;
+		if(consumer.IsFree(this) && consumer.Space > Net.FreeSpaceMaximum)
+			consumer.ResetFree(this);
 	
+		var n = consumer.Expiration - Time.Days;
+
 		if(!consumer.IsFree(this))
 		{	
 			payer.Spacetime -= ToBD(space, (short)n);

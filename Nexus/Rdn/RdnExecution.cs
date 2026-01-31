@@ -48,11 +48,11 @@ public class RdnExecution : Execution
 		return 10_000_000 * years / (l * l * l * l);
 	}
 
-	public void PayForForever(int size)
-	{
-		var s = AffectSigner();
-
-		s.Spacetime -= ToBD(size, Uccs.Net.Mcv.Forever);
-		SpacetimeSpenders.Add(s);
-	}
+	//public void PayForForever(int size)
+	//{
+	//	var s = AffectSigner();
+	//
+	//	s.Spacetime -= ToBD(size, Uccs.Net.Mcv.Forever);
+	//	SpacetimeSpenders.Add(s);
+	//}
 }
