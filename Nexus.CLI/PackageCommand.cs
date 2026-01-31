@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Uccs.Net;
 using Uccs.Rdn;
 
 namespace Uccs.Nexus;
@@ -7,9 +8,9 @@ public class PackageCommand : NexusCommand
 {
 	Ura	Package => Ura.Parse(Args[0].Name);
 
-	public readonly ArgumentType PA 	= new ArgumentType("PA", "Package resource address", [@"company/application/windows/1.2.3"]);
-	public readonly ArgumentType APR 	= new ArgumentType("APR", "Realization address", [@"company/application/windows"]);
-	public readonly ArgumentType APRV 	= new ArgumentType("APRV", "Release address", [@"company/application/windows/1.2.3", @"company/application/windows/4.5.6"]);
+	public readonly ArgumentType PA 	= new ("PA", "Package resource address", [@"company/application/windows/1.2.3"]);
+	public readonly ArgumentType APR 	= new ("APR", "Realization address", [@"company/application/windows"]);
+	public readonly ArgumentType APRV 	= new ("APRV", "Release address", [@"company/application/windows/1.2.3", @"company/application/windows/4.5.6"]);
 
 	public PackageCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
@@ -22,10 +23,12 @@ public class PackageCommand : NexusCommand
 		a.Name = "c";
 		a.Description = "Builds and deploys a package to a node filebase for distribution via RDN";
 		a.Arguments =	[
-							new (null,			 APRV,		"Resource address of package to create", Flag.First),
-							new ("previous",	 APRV,		"Address of previous release", Flag.Optional),
-							new ("source",		 PATH,		"A list of paths to files separated by comma", Flag.Multi),
-							new ("dependencies", FILEPATH,	"A path to version manifest file where complete dependencies are defined", Flag.Optional),
+							new (null,				APRV,		"Resource address of package to create", Flag.First),
+							new ("previous",		APRV,		"Address of previous release", Flag.Optional),
+							new ("source",			PATH,		"A list of paths to files separated by comma", Flag.Multi),
+							new ("dependencies",	FILEPATH,	"A path to version manifest file where complete dependencies are defined", Flag.Optional),
+							new ("cr",				null,		"Create resource", Flag.Optional),
+							new ("cdl",				null,		"Create dependency links ", Flag.Optional),
 						];
 
 		a.Examples =	() =>	[
@@ -33,19 +36,47 @@ public class PackageCommand : NexusCommand
 							];
 
 		a.Execute = () =>	{
-								var r = Api<LocalReleaseApe>(new PackageBuildApc   {Resource		 = Ura.Parse(Args[0].Name), 
-																					Sources			 = Args.Where(i => i.Name == "source").Select(i => i.Get<string>()), 
-																					DependenciesPath = GetString("dependencies", false),
-																					Previous		 = GetResourceAddress("previous", false),
-																					AddressCreator	 =	new()
-																										{
-																											Type = GetEnum("addresstype", UrrScheme.Urrh),
-																											Owner = GetAccountAddress("owner", false),
-																											Resource = Ura.Parse(Args[0].Name)
-																										}});
-								Flow.Log.Dump($"Address : {r}");
+								var dp = GetString("dependencies", null);
 
-								return r;
+								var r = Api<LocalReleaseApe>(new PackageBuildApc   
+															 {
+																Resource		 = Ura.Parse(Args[0].Name), 
+																Sources			 = Args.Where(i => i.Name == "source").Select(i => i.Get<string>()), 
+																DependenciesPath = dp,
+																Previous		 = GetResourceAddress("previous", false),
+																AddressCreator	 =	new()
+																					{
+																						Type = GetEnum("addresstype", UrrScheme.Urrh),
+																						Owner = GetAccountAddress("owner", false),
+																						Resource = Ura.Parse(Args[0].Name)
+																					}
+															 });
+								Flow.Log.Dump(r);
+
+								List<Operation> ops = [];
+
+								var rdn = new RdnApiClient(Net.Api.ForNode(Rdn.Rdn.ByZone(Cli.Nexus.Settings.Zone), Cli.Nexus.Settings.Api.LocalIP, false), null);
+
+								if(Has(a.Arguments[4].Name))
+								{
+									ops.Add(new ResourceCreation(Ura.Parse(Args[0].Name), rdn.Call<LocalResource>(new LocalResourceApc {Address = Ura.Parse(Args[0].Name)}, Flow).Last, false));
+								}
+
+								if(Has(a.Arguments[5].Name))
+								{
+									var vm = VersionManifest.Load(dp);
+
+									var id = Has(a.Arguments[4].Name) ? AutoId.LastCreated : rdn.Call<ResourcePpr>(new PpcApc(new ResourcePpc(Ura.Parse(Args[0].Name))), Flow).Resource.Id;
+	
+									ops.AddRange(vm.CompleteDependencies.Select(i => new ResourceLinkCreation(id, 
+																											  rdn.Call<ResourcePpr>(new PpcApc(new ResourcePpc(i.Address)), Flow).Resource.Id,
+																											  ResourceLinkFlag.Dependency)));
+								}
+								
+								if(ops.Any())
+									Transact(rdn, ops, GetString(McvCommand.ByArg), McvCommand.GetActionOnResult(Args));
+
+								return ops;
 							};
 		return a;
 	}

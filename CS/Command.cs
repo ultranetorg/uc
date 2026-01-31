@@ -240,17 +240,14 @@ public abstract class Command
 		return One(paramenter) != null;
 	}
 
-	public string GetString(string paramenter, bool mandatory = true)
+	public string GetString(string paramenter)
 	{
 		var p = One(paramenter);
 
 		if(p != null)
 			return p.Get<string>();
 		else
-			if(mandatory)
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
-			else
-				return null;
+			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
 	public string GetString(string paramenter, string def)

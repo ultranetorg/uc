@@ -14,13 +14,13 @@ public class ResourceCreation : RdnOperation
 	{
 	}
 
-	public ResourceCreation(Ura resource, ResourceData data, bool referancable)
+	public ResourceCreation(Ura resource, ResourceData data, bool dependable)
 	{
 		Address = resource;
 		Data = data;
 
 		if(Data != null)	Changes |= ResourceChanges.SetData;
-		if(referancable)	Changes |= ResourceChanges.Dependable;
+		if(dependable)		Changes |= ResourceChanges.Dependable;
 	}
 
 	public override void Read(BinaryReader reader)

@@ -65,46 +65,6 @@ public abstract class McvCommand : NetCommand
 		return rp;
 	}
 
-	public TransactionApe Transact(IEnumerable<Operation> operations, string user, ActionOnResult aor)
-	{
-		var t = Cli.ApiClient.Call<TransactionApe>(	new TransactApc
-													{
-														Operations = operations,
-														User = user,
-														Application = Assembly.GetEntryAssembly().Location,
-														ActionOnResult = aor
-													},
-													Flow);
-		int n = 0;
-
-		do 
-		{
-			t = Cli.ApiClient.Call<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
-
-			if(t.Status != TransactionStatus.FailedOrNotFound)
-			{
-				foreach(var i in t.Log.Skip(n))
-				{
-					foreach(var j in i.Text)
-						Report(j);
-				}
-	
-				n += t.Log.Length;
-			}
-
-			Thread.Sleep(1);
-		}
-		while(!(aor == ActionOnResult.RetryUntilConfirmed && t.Status == TransactionStatus.Confirmed || 
-				aor == ActionOnResult.ExpectFailure && t.Status == TransactionStatus.FailedOrNotFound ||
-				aor == ActionOnResult.CancelOnFailure && (t.Status == TransactionStatus.FailedOrNotFound || t.Status == TransactionStatus.Confirmed) ||
-				aor == ActionOnResult.DoNotCare));
-
-		if(t.Status == TransactionStatus.Confirmed)
-			Flow.Log.Dump(t);
-
-		return t;
-	}
-
 	//protected AccountKey GetPrivate(string walletarg)
 	//{
 	//	string p = null;

@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Reflection;
+
+namespace Uccs.Net;
 
 public abstract class NetCommand : Command
 {
@@ -106,4 +108,45 @@ public abstract class NetCommand : Command
 		else
 			WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
 	}
+
+	public TransactionApe Transact(McvApiClient api, IEnumerable<Operation> operations, string user, ActionOnResult aor)
+	{
+		var t = api.Call<TransactionApe>(	new TransactApc
+											{
+												Operations = operations,
+												User = user,
+												Application = Assembly.GetEntryAssembly().Location,
+												ActionOnResult = aor
+											},
+											Flow);
+		int n = 0;
+
+		do 
+		{
+			t = api.Call<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
+
+			if(t.Status != TransactionStatus.FailedOrNotFound)
+			{
+				foreach(var i in t.Log.Skip(n))
+				{
+					foreach(var j in i.Text)
+						Report(j);
+				}
+	
+				n += t.Log.Length;
+			}
+
+			Thread.Sleep(1);
+		}
+		while(!(aor == ActionOnResult.RetryUntilConfirmed && t.Status == TransactionStatus.Confirmed || 
+				aor == ActionOnResult.ExpectFailure && t.Status == TransactionStatus.FailedOrNotFound ||
+				aor == ActionOnResult.CancelOnFailure && (t.Status == TransactionStatus.FailedOrNotFound || t.Status == TransactionStatus.Confirmed) ||
+				aor == ActionOnResult.DoNotCare));
+
+		if(t.Status == TransactionStatus.Confirmed)
+			Flow.Log.Dump(t);
+
+		return t;
+	}
+
 }

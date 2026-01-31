@@ -55,7 +55,7 @@ public class McvCli : Cli
 			else
 			{
 
-				var t = c.Transact(ops, c.GetString(McvCommand.ByArg), McvCommand.GetActionOnResult(args));
+				var t = c.Transact(ApiClient, ops, c.GetString(McvCommand.ByArg), McvCommand.GetActionOnResult(args));
 
 				c.Transacted?.Invoke();
 			}

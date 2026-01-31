@@ -423,6 +423,15 @@ public class PpcApc : McvApc
 {
 	public PeerRequest Request { get; set; }
 
+	public PpcApc()
+	{
+	}
+
+	public PpcApc(PeerRequest request)
+	{
+		Request = request;
+	}
+
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		if(node.Peering == null)
