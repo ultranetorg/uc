@@ -22,8 +22,6 @@ public class ResourceTable : Table<AutoId, Resource>
 		if(e == null)
 			return null;
 
-		e.Address.Domain = Mcv.Domains.Find(e.Domain, ridmax).Address;
-
 		return e;
 	}
 	
@@ -36,18 +34,13 @@ public class ResourceTable : Table<AutoId, Resource>
 
   		foreach(var r in Tail.Where(i => i.Id <= ridmax))
  		{	
- 			var x = r.Resources.Affected.Values.FirstOrDefault(i => i.Address == address);
+ 			var x = r.Resources.Affected.Values.FirstOrDefault(i => i.Domain == d.Id && i.Name == address.Resource);
  					
  			if(x != null)
   				return x.Deleted ? null : x;
  		}
 
-  		var e = FindBucket(d.Id.B)?.Entries.FirstOrDefault(i => i.Address == address);
-
-		if(e == null)
-			return null;
-
-		e.Address.Domain = d.Address;
+  		var e = FindBucket(d.Id.B)?.Entries.FirstOrDefault(i => i.Domain == d.Id && i.Name == address.Resource);
 
 		return e;
 	}
@@ -63,27 +56,32 @@ public class ResourceExecution : TableExecution<AutoId, Resource>
 
 	public Resource Find(Ura address)
 	{
-		if(Affected.Values.FirstOrDefault(i => i.Address == address) is Resource a && !a.Deleted)
+		var d = (Execution as RdnExecution).Domains.Find(address.Domain);
+
+        if(d == null)
+            return null;
+
+		if(Affected.Values.FirstOrDefault(i => i.Domain == d.Id && i.Name == address.Resource) is Resource a && !a.Deleted)
 			return a;
 
 		return Table.Find(address, Execution.Round.Id);
 	}
 
-  	public Resource Affect(Domain domain, string resource)
+  	public Resource Affect(Domain domain, string name)
   	{
-		var r =	Affected.Values.FirstOrDefault(i => i.Address.Domain == domain.Address && i.Address.Resource == resource);
+		var r =	Affected.Values.FirstOrDefault(i => i.Domain == domain.Id && i.Name == name);
 		
 		if(r != null && !r.Deleted)
 			return r;
 
-		r = Table.Find(new Ura(domain.Address, resource), Execution.Round.Id);
+		r = Table.Find(new Ura(domain.Address, name), Execution.Round.Id);
 
   		if(r == null)
   		{
   			r = new Resource();
 			r.Id = LastCreatedId =  new AutoId(domain.Id.B, Execution.GetNextEid(Table, domain.Id.B));
 			r.Domain = domain.Id;
-  			r.Address = new Ura(domain.Address, resource);
+  			r.Name = name;
   		} 
   		else
 			r = r.Clone() as Resource;

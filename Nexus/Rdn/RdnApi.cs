@@ -89,15 +89,15 @@ public class RdnApiClient : McvApiClient
 
 	public LocalReleaseApe Download(Ura address, Flow flow)
 	{
-		var r = Call<Resource>(new ResourceDownloadApc {Identifier = new(address)}, flow);
+		var r = Call<ResourcePpr>(new ResourceDownloadApc {Identifier = new(address)}, flow);
 
 		do
 		{
-			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
+			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Resource.Data.Parse<Urr>()}, flow);
 
 			if(d is null)
 			{
-				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
+				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Resource.Data.Parse<Urr>()}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{

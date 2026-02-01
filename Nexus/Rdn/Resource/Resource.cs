@@ -63,7 +63,7 @@ public class Resource : ITableEntry
 {
 	public AutoId				Id { get; set; }
 	public AutoId				Domain { get; set; }
-	[JsonIgnore]public Ura		Address { get; set; }
+	public string				Name { get; set; }
 	public ResourceFlags		Flags { get; set; }
 	public ResourceData			Data { get; set; }
 	public Time					Updated { get; set; }
@@ -82,7 +82,7 @@ public class Resource : ITableEntry
 
 	public override string ToString()
 	{
-		return $"{Id}, {Address}, {Flags}, Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
+		return $"{Id}, {Name}, {Flags}, Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
 	}
 
 	public Resource()
@@ -100,7 +100,7 @@ public class Resource : ITableEntry
 				{
 					Id = Id,
 					Domain = Domain,
-					Address = Address,
+					Name = Name,
 					Flags = Flags,
 					Data = Data,
 					Updated = Updated,
@@ -113,7 +113,7 @@ public class Resource : ITableEntry
 	{
 		writer.Write(Id);
 		writer.Write7BitEncodedInt(Domain.E);
-		writer.WriteUtf8(Address.Resource);
+		writer.WriteUtf8(Name);
 		writer.Write(Updated);
 		writer.Write(Flags);
 		
@@ -128,7 +128,7 @@ public class Resource : ITableEntry
 	{
 		Id		= reader.Read<AutoId>();
 		Domain	= new (Id.B, reader.Read7BitEncodedInt());
-		Address = new Ura(null, reader.ReadUtf8());
+		Name	= reader.ReadUtf8();
 		Updated	= reader.Read<Time>();
 		Flags	= reader.Read<ResourceFlags>();
 

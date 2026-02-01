@@ -189,13 +189,13 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								var r = Api<Resource>(new ResourceDownloadApc{Identifier = new(First), LocalPath = GetString("localpath", null)});
+								var r = Api<ResourcePpr>(new ResourceDownloadApc{Identifier = new(First), LocalPath = GetString("localpath", null)});
 
 								if(!Has("nowait"))
 								{
 									while(Flow.Active)
 									{
-										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()});
+										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Resource.Data.Parse<Urr>()});
 	
 										if(p is null)
 											break;

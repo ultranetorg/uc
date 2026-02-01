@@ -72,8 +72,8 @@ public class LinkCommand : RdnCommand
 
 								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
 				
-								Flow.Log.Dump(	r.Resource.Outbounds.Select((o, i) => new {I = i, L = o, R = Ppc(new ResourcePpc(o.Destination)).Resource}),
-												["#",		"Type",			"To Id",				"To Address"],
+								Flow.Log.Dump(	r.Resource.Outbounds.Select((o, i) => new {I = i, L = o, R = Ppc(new ResourcePpc(o.Destination))}),
+												["#",		"Type",			"Id",					"Address"],
 												[i => i.I,	i => i.L.Type,	i => i.L.Destination,	i => i.R.Address]);
 
 								return r;
@@ -97,9 +97,9 @@ public class LinkCommand : RdnCommand
 
 								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
 																	
-								Flow.Log.Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Ppc(new ResourcePpc(i)).Resource}),
-												["#", "Source", "Source Data"],
-												[i => i.L, i => i.R.Address, i => i.R.Data?.ToString()]);
+								Flow.Log.Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Ppc(new ResourcePpc(i))}),
+												["Id",		"Address"],
+												[i => i.L,	i => i.R.Address]);
 
 								return r;
 							};

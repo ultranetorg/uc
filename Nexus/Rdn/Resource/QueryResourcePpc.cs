@@ -8,7 +8,8 @@ public class QueryResourcePpc : RdnPpc<QueryResourcePpr>
 	{
  		lock(Mcv.Lock)
 		{	
-			return new QueryResourcePpr {Resources = Mcv.SearchResources(Query).Select(i => i.Address).ToArray()};
+			///return new QueryResourcePpr {Resources = Mcv.SearchResources(Query).Select(i => i.Name).ToArray()};
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -32,14 +32,14 @@ public class ResourcePpc : RdnPpc<ResourcePpr>
 			if(Identifier.Addres != null)
 				r = Mcv.Resources.Find(Identifier.Addres, Mcv.LastConfirmedRound.Id);
 			else if(Identifier.Id != null)
-				r = Mcv.Resources.Find(Identifier.Id, Mcv.LastConfirmedRound.Id);
+				r = Mcv.Resources.Latest(Identifier.Id);
 			else
 				throw new RequestException(RequestError.IncorrectRequest);
 			
 			if(r == null)
 				throw new EntityException(EntityError.NotFound);
 			
-			return new ResourcePpr {Resource = r};
+			return new ResourcePpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
 		}
 	}
 }
@@ -47,5 +47,6 @@ public class ResourcePpc : RdnPpc<ResourcePpr>
 public class ResourcePpr : Result
 {
 	public Resource Resource { get; set; }
+	public Ura		Address { get; set; }
 }
 	
