@@ -61,12 +61,12 @@ public class AnalysisResultUpdation : RdnOperation
 
 		var an = ar.Data.Read<Analysis>();
 		 
-		var j = Array.FindIndex(an.Results, i => i.Analyzer == aix);
-		an.Results ??= [];
+		var r = an.Results.Find(i => i.Analyzer == aix);
+		//an.Results ??= [];
 		
- 		if(j == -1)
+ 		if(r == null)
 		{
-			an.Results = [..an.Results, new AnalyzerResult {Analyzer = (byte)aix, Result = Result}];
+			an.Results.Add(new AnalyzerReport {Analyzer = (byte)aix, Result = Result});
 
 			User.Energy	  += an.EnergyReward / c.Analyzers.Length;
 			User.Spacetime  += an.SpacetimeReward / c.Analyzers.Length;
@@ -81,9 +81,10 @@ public class AnalysisResultUpdation : RdnOperation
 		}
  		else
 		{	
-			an.Results = [..an.Results];
-			an.Results[j].Result = Result;
+			r.Result = Result;
 		}
+
+		ar.Data = new ResourceData(ar.Data.Type, an);
 
 		execution.PayOperationEnergy(User);
 	}

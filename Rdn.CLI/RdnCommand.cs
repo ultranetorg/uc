@@ -16,7 +16,7 @@ public abstract class RdnCommand : McvCommand
 	{
 		Program = program;
 	
-		Flow.Log?.TypesForExpanding.AddRange([typeof(IEnumerable<AnalyzerResult>), 
+		Flow.Log?.TypesForExpanding.AddRange([typeof(IEnumerable<AnalyzerReport>), 
 											  typeof(Resource)]);
 	}
 

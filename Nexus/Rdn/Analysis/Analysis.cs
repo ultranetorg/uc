@@ -43,7 +43,7 @@ public enum AnalysisResult : byte
 	Vulnerable,
 }
 
-public struct AnalyzerResult
+public class AnalyzerReport
 {
 	public byte				Analyzer { get; set; }
 	public AnalysisResult	Result { get; set; }
@@ -60,11 +60,11 @@ public class Analysis : IBinarySerializable
 	public long						EnergyReward { get; set; }
 	public long						SpacetimeReward { get; set; }
 	public AutoId					Consil	{ get; set; }
-	public AnalyzerResult[]			Results { get; set; }
+	public List<AnalyzerReport>		Results { get; set; }
 
 	public override string ToString()
 	{
-		return $"{Release}, EnergyReward={EnergyReward}, SpacetimeReward={SpacetimeReward}, Consil={Consil}, Results={Results.Length}";
+		return $"{Release}, EnergyReward={EnergyReward}, SpacetimeReward={SpacetimeReward}, Consil={Consil}, Results={Results.Count}";
 	}
 
 	public void Read(BinaryReader reader)
@@ -73,8 +73,11 @@ public class Analysis : IBinarySerializable
 		Consil			= reader.Read<AutoId>();
 		EnergyReward	= reader.Read7BitEncodedInt64();
 		SpacetimeReward	= reader.Read7BitEncodedInt64();
-		Results			= reader.ReadArray(() => new AnalyzerResult {Analyzer = reader.ReadByte(), 
-																	 Result = reader.Read<AnalysisResult>() });
+		Results			= reader.ReadList(() => new AnalyzerReport
+												{
+													Analyzer = reader.ReadByte(), 
+													Result = reader.Read<AnalysisResult>()
+												});
 	}
 
 	public void Write(BinaryWriter writer)
@@ -83,8 +86,10 @@ public class Analysis : IBinarySerializable
 		writer.Write(Consil);
 		writer.Write7BitEncodedInt64(EnergyReward);
 		writer.Write7BitEncodedInt64(SpacetimeReward);
-		writer.Write(Results, i => { writer.Write(i.Analyzer);
-									 writer.Write(i.Result); });
+		writer.Write(Results, i =>	{ 
+										writer.Write(i.Analyzer);
+										writer.Write(i.Result);
+									});
 	}
 
 //	public Analysis Clone()
