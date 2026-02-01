@@ -64,9 +64,9 @@ public class ResourceUpdation : RdnOperation
 
 		d = execution.Domains.Affect(d.Id);
 		
-		void execute(Ura resource)
+		void execute(AutoId resource)
 		{
-			var r = execution.Resources.Affect(d, resource.Resource);
+			var r = execution.Resources.Affect(resource);
 
 			if(rs.Contains(r.Id.E))
 				return;
@@ -132,11 +132,7 @@ public class ResourceUpdation : RdnOperation
 					foreach(var i in r.Inbounds)
 					{
 						if(i == d.Id)
-						{
-							var l = execution.Resources.Find(i);
-
-							execute(l.Address);
-						}
+							execute(i);
 					}
 				}
 			} 
@@ -144,6 +140,6 @@ public class ResourceUpdation : RdnOperation
 			execution.PayOperationEnergy(User);
 		}
 
-		execute(x.Address);
+		execute(Resource);
 	}
 }

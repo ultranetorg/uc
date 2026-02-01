@@ -31,49 +31,6 @@ public abstract class NetCommand : Command
 	{
 	}
 
-	public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
-	{
-		if(Has(paramenter))
-			return AccountAddress.Parse(GetString(paramenter));
-		else
-			if(mandatory)
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
-			else
-				return null;
-	}
-
-	protected E GetEnum<E>(string paramenter, E def) where E : struct
-	{
-		var p = One(paramenter);
-
-		if(p != null)
-			return Enum.Parse<E>(p.Get<string>());
-		else
-			return def;
-	}
-
-	protected E GetEnum<E>(string paramenter) where E : struct
-	{
-		var p = One(paramenter);
-
-		if(p != null)
-			return Enum.Parse<E>(p.Get<string>());
-		else
-			throw new SyntaxException($"Parameter '{paramenter}' not provided");
-	}
-
-	protected E GetEnum<E>(int index) where E : struct
-	{
-		try
-		{
-			return Enum.Parse<E>(Args[index].Name);
-		}
-		catch(Exception)
-		{
-			throw new SyntaxException($"Parameter at {index} position is not provided or incorrect");
-		}
-	}
-
 	protected void Run(Cli cli, CommandAction action)
 	{
  		if(ConsoleAvailable)
@@ -149,4 +106,46 @@ public abstract class NetCommand : Command
 		return t;
 	}
 
+	public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
+	{
+		if(Has(paramenter))
+			return AccountAddress.Parse(GetString(paramenter));
+		else
+			if(mandatory)
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+			else
+				return null;
+	}
+
+	protected E GetEnum<E>(string paramenter, E def) where E : struct
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return Enum.Parse<E>(p.Get<string>(), true);
+		else
+			return def;
+	}
+
+	protected E GetEnum<E>(string paramenter) where E : struct
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return Enum.Parse<E>(p.Get<string>(), true);
+		else
+			throw new SyntaxException($"Parameter '{paramenter}' not provided");
+	}
+
+	protected E GetEnum<E>(int index) where E : struct
+	{
+		try
+		{
+			return Enum.Parse<E>(Args[index].Name, true);
+		}
+		catch(Exception)
+		{
+			throw new SyntaxException($"Parameter at {index} position is not provided or incorrect");
+		}
+	}
 }

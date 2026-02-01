@@ -4,34 +4,34 @@ public class ResourceLinkCreation : RdnOperation
 {
 	public AutoId				Source { get; set; }
 	public AutoId				Destination { get; set; }
-	public ResourceLinkFlag		Flags  { get; set; }
+	public ResourceLinkType		Type  { get; set; }
 	
-	public override string		Explanation => $"Source={Source}, Destination={Destination}";
+	public override string		Explanation => $"Source={Source}, Destination={Destination}, Type={Type}";
 	public override bool		IsValid(McvNet net) => true;
 
 	public ResourceLinkCreation()
 	{
 	}
 
-	public ResourceLinkCreation(AutoId source, AutoId destination, ResourceLinkFlag flags)
+	public ResourceLinkCreation(AutoId source, AutoId destination, ResourceLinkType flags)
 	{
 		Source = source;
 		Destination = destination;
-		Flags = flags;
+		Type = flags;
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Source);
 		writer.Write(Destination);
-		writer.Write(Flags);
+		writer.Write(Type);
 	}
 	
 	public override void Read(BinaryReader reader)
 	{
 		Source		= reader.Read<AutoId>();
 		Destination	= reader.Read<AutoId>();
-		Flags		= reader.Read<ResourceLinkFlag>();
+		Type		= reader.Read<ResourceLinkType>();
 	}
 
 	public override void Execute(RdnExecution execution)
@@ -42,13 +42,13 @@ public class ResourceLinkCreation : RdnOperation
 		if(RequireResource(execution, Destination, out var dd, out var d) == false)
 			return;
 
-		s = execution.Resources.Affect(sd, s.Address.Resource);
+		s = execution.Resources.Affect(Source);
 		var l = s.AffectOutbound(d.Id);
 
-		d = execution.Resources.Affect(dd, d.Address.Resource);
+		d = execution.Resources.Affect(Destination);
 		d.AffectInbound(s.Id);
 
-		if(Flags.HasFlag(ResourceLinkFlag.Dependency))
+		if(Type.HasFlag(ResourceLinkType.Dependency))
 		{
 			if(!d.Flags.HasFlag(ResourceFlags.Dependable))
 			{
@@ -56,7 +56,7 @@ public class ResourceLinkCreation : RdnOperation
 				return;
 			}
 
-			l.Flags = Flags;
+			l.Type = Type;
 
 			var n = 0;
 
@@ -70,7 +70,7 @@ public class ResourceLinkCreation : RdnOperation
 					return false;
 				}
 
-				foreach(var i in outs.Where(i => i.Flags.HasFlag(ResourceLinkFlag.Dependency)))
+				foreach(var i in outs.Where(i => i.Type.HasFlag(ResourceLinkType.Dependency)))
 				{
 					if(i.Destination == s.Id)
 						return true;

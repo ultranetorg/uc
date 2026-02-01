@@ -57,7 +57,7 @@ public class AnalysisResultUpdation : RdnOperation
 			return;
 		}
 
-		ar = execution.Resources.Affect(ad, ar.Address.Resource);
+		ar = execution.Resources.Affect(Analysis);
 
 		var an = ar.Data.Read<Analysis>();
 		 

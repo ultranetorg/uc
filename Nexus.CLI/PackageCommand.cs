@@ -70,7 +70,7 @@ public class PackageCommand : NexusCommand
 	
 									ops.AddRange(vm.CompleteDependencies.Select(i => new ResourceLinkCreation(id, 
 																											  rdn.Call<ResourcePpr>(new PpcApc(new ResourcePpc(i.Address)), Flow).Resource.Id,
-																											  ResourceLinkFlag.Dependency)));
+																											  ResourceLinkType.Dependency)));
 								}
 								
 								if(ops.Any())

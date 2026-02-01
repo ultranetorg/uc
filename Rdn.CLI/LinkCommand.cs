@@ -21,8 +21,7 @@ public class LinkCommand : RdnCommand
 		a.Arguments =	[
 							new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
 							new ("to", RA, "Address of a destination resource"),
-							new ("dependency", RA, "Mark link as dependency"),
-							new ("hierarchy", RA, "Mark link as part of hierarchy"),
+							new ("type", LT, "The type of link to create", Flag.Optional),
 						];
 
 		a.Execute = () =>	{
@@ -31,13 +30,12 @@ public class LinkCommand : RdnCommand
 								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
 								var d = Ppc(new ResourcePpc(GetResourceAddress(a[1].Name))).Resource;
 
-								return new ResourceLinkCreation(s.Id, d.Id, (Has("dependency") ? ResourceLinkFlag.Dependency : 0) |
-																			(Has("hierarchy") ? ResourceLinkFlag.Hierarchy : 0));
+								return new ResourceLinkCreation(s.Id, d.Id, GetEnum("type", ResourceLinkType.None));
 							};
 		return a;
 	}
 
-	public CommandAction Destroy()
+	public CommandAction Delete()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
@@ -45,16 +43,15 @@ public class LinkCommand : RdnCommand
 		a.Description = "Destroys existing link";
 		a.Arguments =	[
 							new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
-							new ("to", RA, "Address of a destination resource")
+							new ("index", INT, "An index of link to delete")
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
 								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
-								var d = Ppc(new ResourcePpc(GetResourceAddress(a[1].Name))).Resource;
 
-								return new ResourceLinkDeletion(s.Id, d.Id);
+								return new ResourceLinkDeletion(s.Id, GetInt(a[1].Name));
 							};
 		return a;
 	}
@@ -75,9 +72,9 @@ public class LinkCommand : RdnCommand
 
 								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
 				
-								Flow.Log.Dump(	r.Resource.Outbounds.Select(i => new {L = i, R = Ppc(new ResourcePpc(i.Destination)).Resource}),
-												["#", "Flags", "Destination", "Destination Data"],
-												[i => i.L.Destination, i => i.L.Flags, i => i.R.Address, i => i.R.Data?.ToString()]);
+								Flow.Log.Dump(	r.Resource.Outbounds.Select((o, i) => new {I = i, L = o, R = Ppc(new ResourcePpc(o.Destination)).Resource}),
+												["#",		"Type",			"To Id",				"To Address"],
+												[i => i.I,	i => i.L.Type,	i => i.L.Destination,	i => i.R.Address]);
 
 								return r;
 							};

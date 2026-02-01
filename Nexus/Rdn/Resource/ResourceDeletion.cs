@@ -39,9 +39,7 @@ public class ResourceDeletion : RdnOperation
 
 		foreach(var i in r.Outbounds)
 		{
-			var dr = execution.Resources.Find(i.Destination);
-
-			dr = execution.Resources.Affect(d, dr.Address.Resource);
+			var dr = execution.Resources.Affect(i.Destination);
 			dr.RemoveInbound(r.Id);
 
 			execution.Free(User, d, execution.Net.EntityLength);
@@ -49,9 +47,7 @@ public class ResourceDeletion : RdnOperation
 
 		foreach(var i in r.Inbounds ?? [])
 		{
-			var sr = execution.Resources.Find(i);
-
-			sr = execution.Resources.Affect(d, sr.Address.Resource);
+			var sr = execution.Resources.Affect(i);
 			sr.RemoveOutbound(r.Id);
 		}
 	}

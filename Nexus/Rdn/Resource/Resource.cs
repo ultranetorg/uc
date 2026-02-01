@@ -20,11 +20,13 @@ public enum ResourceChanges : byte
 	Recursive		= 0b1000_0000,
 }
 
-public enum ResourceLinkFlag : byte
+public enum ResourceLinkType : byte
 {
-	None		= 0,
-	Hierarchy	= 0b________1,
-	Dependency	= 0b_______10,
+	None,
+	Hierarchy,
+	Dependency,
+	Extra,
+	AntimalwareAnalysis,
 }
 
 public enum ResourceLinkChanges : byte
@@ -35,25 +37,25 @@ public enum ResourceLinkChanges : byte
 public class ResourceLink : IBinarySerializable
 {
 	public AutoId			Destination { get; set; }
-	public ResourceLinkFlag	Flags { get; set; }
+	public ResourceLinkType	Type { get; set; }
 
 	public bool				Affected;
 
 	public ResourceLink Clone()
 	{
-		return new ResourceLink {Destination = Destination, Flags = Flags};
+		return new ResourceLink {Destination = Destination, Type = Type};
 	}
 
 	public void Read(BinaryReader reader)
 	{
 		Destination	= reader.Read<AutoId>();
-		Flags		= (ResourceLinkFlag)reader.ReadByte();
+		Type		= reader.Read<ResourceLinkType>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Destination);
-		writer.Write((byte)Flags);
+		writer.Write(Type);
 	}
 }
 
@@ -74,13 +76,13 @@ public class Resource : ITableEntry
 	public bool					Deleted { get; set; }
 	RdnMcv						Mcv;
 
-	public bool					IsLocked(RdnExecution execution) => Flags.HasFlag(ResourceFlags.Dependable) && Inbounds.Any(i => execution.Resources.Find(i).Outbounds.Any(j => j.Destination == Id && j.Flags.HasFlag(ResourceLinkFlag.Dependency)));
+	public bool					IsLocked(RdnExecution execution) => Flags.HasFlag(ResourceFlags.Dependable) && Inbounds.Any(i => execution.Resources.Find(i).Outbounds.Any(j => j.Destination == Id && j.Type.HasFlag(ResourceLinkType.Dependency)));
 
 	public int					DataLength => Flags.HasFlag(ResourceFlags.Data) ? Data.Value.Length : 0; /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
 	public override string ToString()
 	{
-		return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
+		return $"{Id}, {Address}, {Flags}, Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
 	}
 
 	public Resource()

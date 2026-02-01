@@ -2,13 +2,14 @@
 
 public abstract class RdnCommand : McvCommand
 {
-	public static readonly ArgumentType DA		= new ArgumentType("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"demo.application.company"]);
-	public static readonly ArgumentType RDA		= new ArgumentType("RDA",	@"Root domain address",														[@"ultranet123"]);
-	public static readonly ArgumentType SDA		= new ArgumentType("SDA",	@"Subdoman address",														[@"application.company"]);
-	public static readonly ArgumentType DCP		= new ArgumentType("DCP",	@"Domain child address",													[DomainChildPolicy.FullFreedom.ToString()]);
-	public static readonly ArgumentType RA		= new ArgumentType("RA",	@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"rdn/company/application", "/author/product"]);
-	public static readonly ArgumentType TLD		= new ArgumentType("TLD",	@"Web top-level domain",													[@"com"]);
-	public static readonly ArgumentType RZA		= new ArgumentType("RZA",	@"Release address",															[$@"{UrrScheme.Urrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType DA		= new ("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"demo.application.company"]);
+	public static readonly ArgumentType RDA		= new ("RDA",	@"Root domain address",														[@"ultranet123"]);
+	public static readonly ArgumentType SDA		= new ("SDA",	@"Subdoman address",														[@"application.company"]);
+	public static readonly ArgumentType DCP		= new ("DCP",	@"Domain child address",													[DomainChildPolicy.FullFreedom.ToString()]);
+	public static readonly ArgumentType RA		= new ("RA",	@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"rdn/company/application", "/author/product"]);
+	public static readonly ArgumentType TLD		= new ("TLD",	@"Web top-level domain",													[@"com"]);
+	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",															[$@"{UrrScheme.Urrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType LT		= new ("RLT",	@"Resource link type",														[ResourceLinkType.Hierarchy.ToString()]);
 
 	protected RdnCli			Program;
 

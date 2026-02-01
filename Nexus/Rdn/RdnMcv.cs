@@ -97,19 +97,21 @@ public class RdnMcv : Mcv
 
 	public IEnumerable<Resource> SearchResources(string query)
 	{
-		var r = Ura.Parse(query);
-	
-		var d = Domains.Find(r.Domain, LastConfirmedRound.Id);
-		
-		if(d == null)
-			yield break;
-		
-		var c = Resources.FindBucket(d.Id.B);
-		
-		if(c == null)
-			yield break;
+		///var r = Ura.Parse(query);
+		///
+		///var d = Domains.Find(r.Domain, LastConfirmedRound.Id);
+		///
+		///if(d == null)
+		///	yield break;
+		///
+		///var c = Resources.FindBucket(d.Id.B);
+		///
+		///if(c == null)
+		///	yield break;
+		///
+		///foreach(var i in c.Entries.Where(i => i.Id.E == d.Id.E && i.Address.Resource.StartsWith(r.Resource)))
+		///	yield return i;
 
-		foreach(var i in c.Entries.Where(i => i.Id.E == d.Id.E && i.Address.Resource.StartsWith(r.Resource)))
-			yield return i;
+		throw new NotImplementedException();
 	}
 }
