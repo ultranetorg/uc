@@ -348,7 +348,7 @@ public class PackageHub
 			r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				
 			var p = Get(resource);
-			p.Resource.AddData(new DataType(DataType.File, ContentType.Rdn_VersionManifest), a);
+			p.Resource.AddData(new DataType(DataType.File, ContentType.Software_PackageManifest), a);
 
 			workflow.Log?.Report(this, $"Address: {a}");
 

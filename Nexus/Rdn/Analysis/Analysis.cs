@@ -62,6 +62,8 @@ public class Analysis : IBinarySerializable
 	public AutoId					Consil	{ get; set; }
 	public List<AnalyzerReport>		Results { get; set; }
 
+	public const string				ResourceNamePostfix = "analysis";
+
 	public override string ToString()
 	{
 		return $"{Release}, EnergyReward={EnergyReward}, SpacetimeReward={SpacetimeReward}, Consil={Consil}, Results={Results.Count}";

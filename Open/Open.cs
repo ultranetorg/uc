@@ -66,7 +66,7 @@ public class Open : Cli
 			//Ura apr = null;
 			Ura aprv = null;
 	
-			if(d.Type.Content == ContentType.Rdn_ProductManifest)
+			if(d.Type.Content == ContentType.Software_ProductManifest)
 			{
 				var lrr = RdnApi.Download(ura, flow);
 	
@@ -74,7 +74,7 @@ public class Open : Cli
 	
 				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
 			}
-			else if(d.Type.Content == ContentType.Rdn_VersionManifest)
+			else if(d.Type.Content == ContentType.Software_PackageManifest)
 			{
 				aprv = ura;
 			}

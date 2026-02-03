@@ -80,7 +80,7 @@ public class PackageDownload
 											{
 												last = node.Peering.Call(new ResourcePpc(package.Resource.Address), workflow).Resource;
 													
-												if(last.Data?.Type != new DataType(DataType.File, ContentType.Rdn_VersionManifest))
+												if(last.Data?.Type != new DataType(DataType.File, ContentType.Software_PackageManifest))
 												{
 													Package.Activity = null;
 													return;
