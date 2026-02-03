@@ -14,7 +14,7 @@ public class NexusCommand : NetCommand
 		Flow.Log?.TypesForExpanding.AddRange(  [typeof(IEnumerable<Dependency>), 
 												typeof(IEnumerable<AnalyzerReport>), 
 												typeof(Resource), 
-												typeof(VersionManifest)]);
+												typeof(PackageManifest)]);
 	}
 
 	public void Api(Apc call)

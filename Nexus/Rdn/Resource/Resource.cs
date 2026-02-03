@@ -26,7 +26,7 @@ public enum ResourceLinkType : byte
 	Hierarchy,
 	Dependency,
 	Extra,
-	AntimalwareAnalysis,
+	//AntimalwareAnalysis,
 }
 
 public enum ResourceLinkChanges : byte

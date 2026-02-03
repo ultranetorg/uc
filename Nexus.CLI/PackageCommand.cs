@@ -32,7 +32,7 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Examples =	() =>	[
-								new (null, @$"{Keyword} {a.Name} {APRV.Example} previous={APRV.Example1} source={FILEPATH.Example} source{FILEPATH.Example1} dependencies={DIRPATH}\1.2.3.{VersionManifest.Extension}")
+								new (null, @$"{Keyword} {a.Name} {APRV.Example} previous={APRV.Example1} source={FILEPATH.Example} source{FILEPATH.Example1} dependencies={DIRPATH}\1.2.3.{PackageManifest.Extension}")
 							];
 
 		a.Execute = () =>	{
@@ -64,7 +64,7 @@ public class PackageCommand : NexusCommand
 
 								if(Has(a.Arguments[5].Name))
 								{
-									var vm = VersionManifest.Load(dp);
+									var vm = PackageManifest.Load(dp);
 
 									var id = Has(a.Arguments[4].Name) ? AutoId.LastCreated : rdn.Call<ResourcePpr>(new PpcApc(new ResourcePpc(Ura.Parse(Args[0].Name))), Flow).Resource.Id;
 	

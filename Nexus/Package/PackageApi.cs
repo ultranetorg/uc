@@ -14,7 +14,7 @@ public class PackageInfo
 {
 	public bool				Available { get; set; }
 	public string			Path { get; set; }
-	public VersionManifest	Manifest { get; set; }
+	public PackageManifest	Manifest { get; set; }
 
 	public PackageInfo()
 	{
