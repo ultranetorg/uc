@@ -67,7 +67,7 @@ public abstract class RdnCommand : McvCommand
 					if(cnt == ContentType.Unknown)
 						return new ResourceData(t, d.Get<string>("hex").FromHex());
 			
-					if(cnt == ContentType.Ampp_Consil)
+					if(cnt == ContentType.Ampp_Council)
 						return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
 																SizeEnergyFeeMinimum = d.Get<long>("sefm"),
 																ResultEnergyFeeMinimum = d.Get<long>("refm"),

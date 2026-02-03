@@ -87,13 +87,11 @@ public enum ContentType
 	Audio							= 030,
 	Video							= 040,
 	Font							= 050,
-	Applied							= 100,
-		Software					= 100_000,
-			Software_ProductManifest= 100_000_000,
-			Software_PackageManifest= 100_000_001,
-		Ampp						= 100_001,
-			Ampp_Consil				= 100_001_000,
-			Ampp_Analysis			= 100_001_001,
+	Software						= 100,
+		Software_ProductManifest	= 100_000_000,
+		Software_PackageManifest	= 100_000_001,
+		Ampp_Council				= 100_001_000,
+		Ampp_Analysis				= 100_001_001,
 }
 
 public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
