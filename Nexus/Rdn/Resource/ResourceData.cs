@@ -12,6 +12,7 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	public const ushort	Data							= 000;
 	public const ushort	File							= 001;
 	public const ushort	Directory						= 002;
+	public const ushort	Subnet							= 003;
 	public const ushort	Redirect						= 010;
 	public const ushort		Redirect_Uri				= 010_00;
 
@@ -78,20 +79,20 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	}
 }
 
-public enum ContentType
+public enum ContentType : uint
 {
 	Unknown 						= 0,
 	Raw 							= 0,
-	Text							= 010,
-	Image							= 020,
-	Audio							= 030,
-	Video							= 040,
-	Font							= 050,
-	Software						= 100,
-		Software_ProductManifest	= 100_000_000,
-		Software_PackageManifest	= 100_000_001,
-		Ampp_Council				= 100_001_000,
-		Ampp_Analysis				= 100_001_001,
+	Text							= 0010,
+	Image							= 0020,
+	Audio							= 0030,
+	Video							= 0040,
+	Font							= 0050,
+	Software						= 1000,
+		Software_ProductManifest	= 1000_000_000,
+		Software_PackageManifest	= 1000_000_001,
+		Ampp_Council				= 1000_001_000,
+		Ampp_Analysis				= 1000_001_001,
 }
 
 public class ResourceData : IBinarySerializable, IEquatable<ResourceData>

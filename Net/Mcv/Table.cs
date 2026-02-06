@@ -40,7 +40,7 @@ public abstract class TableBase
 
 		public int									Id;
 		public int									Size;
- 		public int									NextE { get; set; }
+ 		public int									NextI { get; set; }
 		public byte[]								Hash { get; set; }
 		public abstract IEnumerable<ITableEntry>	Entries { get; }
 
@@ -102,14 +102,14 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	
 				Hash			= r.ReadHash();
 				Size			= r.Read7BitEncodedInt();
-				NextE			= r.Read7BitEncodedInt();
+				NextI			= r.Read7BitEncodedInt();
 				_Entries		= r.ReadSortedDictionary(() => r.Read<ID>(), () => new Item());
 			}
 		}
 
 		public override string ToString()
 		{
-			return $"{Id}, Entries={{{_Entries?.Count}}}, Hash={Hash?.ToHex()}, NextE={NextE}";
+			return $"{Id}, Entries={{{_Entries?.Count}}}, Hash={Hash?.ToHex()}, NextE={NextI}";
 		}
 
 		public E Find(ID id)
@@ -144,7 +144,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 			
-			w.Write7BitEncodedInt(NextE); /// hash this too
+			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
 
 			Hash = Cryptography.Hash(s.ToArray());
@@ -171,7 +171,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
-			w.Write7BitEncodedInt(NextE);
+			w.Write7BitEncodedInt(NextI);
 			w.Write(_Entries.Keys);
 
 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
@@ -182,7 +182,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write7BitEncodedInt(NextE); /// hash this too
+			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
 
 			foreach(var i in _Entries)
@@ -208,7 +208,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			var s = new MemoryStream(data);
 			var r = new BinaryReader(s);
 
-			NextE = r.Read7BitEncodedInt();
+			NextI = r.Read7BitEncodedInt();
 			var n = r.Read7BitEncodedInt();
 
 			Hash = Cryptography.Hash(data[..(int)s.Position]);
@@ -232,7 +232,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
-			w.Write7BitEncodedInt(NextE);
+			w.Write7BitEncodedInt(NextI);
 			w.Write(_Entries.Keys);
 
 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
@@ -579,8 +579,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 				b.Remove(batch, i.Key as ID);
 
 			if(i.Key is AutoId id)
-				if(b.NextE < id.E + 1)
-					b.NextE = id.E + 1;
+				if(b.NextI < id.I + 1)
+					b.NextI = id.I + 1;
 
 			bs.Add(b);
 			cs.Add(c);

@@ -68,10 +68,10 @@ public class ResourceUpdation : RdnOperation
 		{
 			var r = execution.Resources.Affect(resource);
 
-			if(rs.Contains(r.Id.E))
+			if(rs.Contains(r.Id.I))
 				return;
 			else
-				rs.Add(r.Id.E);
+				rs.Add(r.Id.I);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{

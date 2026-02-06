@@ -112,7 +112,7 @@ public class Resource : ITableEntry
 	public void WriteMain(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write7BitEncodedInt(Domain.E);
+		writer.Write7BitEncodedInt(Domain.I);
 		writer.WriteUtf8(Name);
 		writer.Write(Updated);
 		writer.Write(Flags);

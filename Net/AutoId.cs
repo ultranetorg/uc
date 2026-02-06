@@ -5,11 +5,11 @@ namespace Uccs.Net;
 
 public class AutoId : EntityId
 {
-	public override int					B { get; set; }
-	public int							E { get; set; }
+	public override int					B { get; set; } /// bucket
+	public int							I { get; set; }
 
-	public static readonly AutoId		LastCreated = new AutoId {E = -1};
-	public static readonly AutoId		God = new AutoId {E = -2};
+	public static readonly AutoId		LastCreated = new AutoId {I = -1};
+	public static readonly AutoId		God = new AutoId {I = -2};
 
 	public AutoId()
 	{
@@ -18,12 +18,12 @@ public class AutoId : EntityId
 	public AutoId(int b , int e)
 	{
 		B = b;
-		E = e;
+		I = e;
 	}
 
 	public override string ToString()
 	{
-		return $"{B}-{E}";
+		return $"{B}-{I}";
 	}
 
 	public override int GetHashCode()
@@ -75,13 +75,13 @@ public class AutoId : EntityId
 	public override void Read(BinaryReader reader)
 	{
 		B	= reader.Read7BitEncodedInt();
-		E	= reader.Read7BitEncodedInt();
+		I	= reader.Read7BitEncodedInt();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write7BitEncodedInt(B);
-		writer.Write7BitEncodedInt(E);
+		writer.Write7BitEncodedInt(I);
 	}
 
 	public override bool Equals(object obj)
@@ -91,7 +91,7 @@ public class AutoId : EntityId
 
 	public override bool Equals(EntityId a)
 	{
-		return a is AutoId e && B == a.B && E == e.E;
+		return a is AutoId e && B == a.B && I == e.I;
 	}
 
 	public override int CompareTo(EntityId a)
@@ -106,7 +106,7 @@ public class AutoId : EntityId
 		if(c != 0)
 			return c;
 		
-		c = E.CompareTo(a.E);
+		c = I.CompareTo(a.I);
 		
 		if(c != 0)
 			return c;

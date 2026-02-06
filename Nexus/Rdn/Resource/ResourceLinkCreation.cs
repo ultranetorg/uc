@@ -7,7 +7,7 @@ public class ResourceLinkCreation : RdnOperation
 	public ResourceLinkType		Type  { get; set; }
 	
 	public override string		Explanation => $"Source={Source}, Destination={Destination}, Type={Type}";
-	public override bool		IsValid(McvNet net) => true;
+	public override bool		IsValid(McvNet net) => Source != Destination;
 
 	public ResourceLinkCreation()
 	{

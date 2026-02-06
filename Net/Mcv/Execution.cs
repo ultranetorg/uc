@@ -122,7 +122,7 @@ public class Execution : ITableExecution
 		}
 			
 		if(e == 0)
-			e = table.FindBucket(b)?.NextE ?? 0;
+			e = table.FindBucket(b)?.NextI ?? 0;
 
 		NextEids[table.Id][b] = e + 1;
 
