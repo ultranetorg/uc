@@ -42,31 +42,6 @@ public class DomainCommand : RdnCommand
 
 	}
 
-	public CommandAction Acquire()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "a";
-		a.Description = "Obtain ownership of a domain name for a specified period";
-		a.Arguments =	[
-							new (null, RDA, "Address of a root domain to be acquired", Flag.First),
-							new ("years", YEARS, "Integer number of years in [1..10] range"),
-							ByArgument("Address of account that owns or is going to register the domain")
-						];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-
-								///if(Domain.IsChild(First))
-								///	throw new SyntaxException("Only root domains name are allowed");
-
-								return new DomainRegistration{	Address	= First,
-																Years	= byte.Parse(GetString("years"))};
-							};
-
-		return a;
-	}
-
 	public CommandAction Migrate()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
@@ -112,12 +87,12 @@ public class DomainCommand : RdnCommand
 		return a;
 	}
 
-	public CommandAction Create_Subdomain()
+	public CommandAction Acquire()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "cs";
-		a.Description = "Create a subdomain";
+		a.Name = "a";
+		a.Description = "Register a domain or subdomain";
 		a.Arguments =	[
 							new (null, SDA, "Subdomain address to create", Flag.First),
 							new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
@@ -129,15 +104,26 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 
-								var f = Ppc(new UserPpc(GetString(a.Arguments[3].Name)));
-
-								return	new DomainRegistration
-										{
-											Address	= First,
-											Policy	= GetEnum(a.Arguments[1].Name, DomainChildPolicy.FullOwnership),
-											Years	= byte.Parse(GetString(a.Arguments[2].Name)),
-											Owner	= f.User.Id
-										};
+								if(Domain.IsRoot(First))
+								{
+									return	new DomainRegistration
+											{
+												Address	= First,
+												Years	= byte.Parse(GetString("years"))
+											};
+								} 
+								else
+								{
+									var f = Ppc(new UserPpc(GetString(a.Arguments[3].Name)));
+	
+									return	new DomainRegistration
+											{
+												Address	= First,
+												Policy	= GetEnum(a.Arguments[1].Name, DomainChildPolicy.FullOwnership),
+												Years	= byte.Parse(GetString(a.Arguments[2].Name)),
+												Owner	= f.User.Id
+											};
+								}
 							};
 		return a;
 	}
