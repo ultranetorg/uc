@@ -217,35 +217,18 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
  	{
 		var e = Affected.Values.FirstOrDefault(i => i.Data.Equals(data));
 
- 		if(e != null)
-			if(!e.Deleted)
-    			return e;
-			else
-				return null;
+		if(e != null)
+			return e.Deleted ? null : e;
 
 		if(Parent != null)
 			return Parent.Find(data);
 
-  		foreach(var i in Execution.Mcv.Tail.Where(i => i.Id <= Execution.Round.Id))
-		{	
-			e = i.FindState<HnswTableState<D, E>>(Table).Affected.Values.FirstOrDefault(i => i.Data.Equals(data));
-
-			if(e != null)
-				if(!e.Deleted)
-    				return e;
-				else
-					return null;
-		}
- 		
-		e = Table.FindBucket(DataToBucket(data))?.Entries.FirstOrDefault(i => i.Data.Equals(data));
-
+ 		e = Execution.Round.FindState<HnswTableState<D, E>>(Table).Affected.Values.FirstOrDefault(i => i.Data.Equals(data));
+		
 		if(e != null)
-			if(!e.Deleted)
-    			return e;
-			else
-				return null;
-
-		return null;
+			return e.Deleted ? null : e;
+ 		
+		return Table.FindBucket(DataToBucket(data))?.Entries.FirstOrDefault(i => i.Data.Equals(data));
  	}
 
 	public virtual E Affect(HnswId id)
@@ -255,8 +238,8 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
  		
 		if(Parent != null)
 			a = Parent.Find(id);
-		else
-	 		a = Table.Find(id, Execution.Round.Id);
+		else if(!Execution.Round.FindState<HnswTableState<D, E>>(Table).Affected.TryGetValue(id, out a))
+			a = Table.Find(id);
  
 		a = a.Clone() as E;
 

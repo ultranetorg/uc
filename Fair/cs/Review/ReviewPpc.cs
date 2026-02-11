@@ -2,7 +2,7 @@
 
 public class ReviewPpc : FairPpc<ReviewPpr>
 {
-	public new AutoId	Id { get; set; }
+	public AutoId	Id { get; set; }
 
 	public ReviewPpc()
 	{
@@ -22,7 +22,7 @@ public class ReviewPpc : FairPpc<ReviewPpr>
 		{	
 			RequireGraph();
 
-			var	e = Mcv.Reviews.Find(Id, Mcv.LastConfirmedRound.Id);
+			var	e = Mcv.Reviews.Latest(Id);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);

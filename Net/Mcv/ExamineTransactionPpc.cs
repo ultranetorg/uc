@@ -9,15 +9,13 @@ public class ExamineTransactionPpc : McvPpc<ExamineTransactionPpr>
 		lock(Peering.Lock)
 			lock(Mcv.Lock)
 			{
-				//var m = RequireMemberFor(Transaction.Signer);
-
-				var u = Mcv.Users.Find(Transaction.User, Mcv.LastConfirmedRound.Id);
+				var u = Mcv.Users.Latest(Transaction.User);
 
 				Transaction.Expiration = Mcv.LastConfirmedRound.Id + 1;
 
 				if(Peering.ValidateIncoming(Transaction, false, out var r))
 				{
-					var b = r.AffectedAccounts.Values.First(i => u == null ? i.Name == Transaction.User : i.Id == u.Id);
+					var b = r.AffectedUsers.Values.First(i => u == null ? i.Name == Transaction.User : i.Id == u.Id);
 				
 					var atr = new ExamineTransactionPpr
 							  {

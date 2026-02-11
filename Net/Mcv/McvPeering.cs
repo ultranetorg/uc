@@ -360,10 +360,6 @@ public abstract class McvPeering : HomoTcpPeering
 
 							r.Confirmed = false;
 							r.Confirm();
-
-							if(r.Members.Count == 0)
-								throw new SynchronizationException("Incorrect round (Members.Count == 0)");
-
 							Mcv.Save(r);
 							
 							foreach(var i in SyncTail.Keys)
@@ -892,6 +888,9 @@ public abstract class McvPeering : HomoTcpPeering
 
 					try
 					{
+						foreach(var i in t.Operations)
+							i.PreTransact(Node, t.Flow);
+
 						t.Nonce		 = 0;
 						t.Expiration = 0;
 						t.Member	 = new(0, -1);
@@ -1108,9 +1107,6 @@ public abstract class McvPeering : HomoTcpPeering
 
 		if(!operations.Any() || operations.Any(i => !i.IsValid(Net)))
 			throw new NodeException(NodeError.Invalid);
-
-		foreach(var i in operations)
-			i.PreTransact(Node, flow);
 
 		var t = new Transaction();
 		t.Application			= application;	

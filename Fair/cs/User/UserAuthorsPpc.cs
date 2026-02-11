@@ -19,7 +19,7 @@ public class UserAuthorsPpc : McvPpc<UserAuthorsPpr>
 		{
 			RequireGraph();
 
-			var	e = Mcv.Users.Find(Name, Mcv.LastConfirmedRound.Id) as FairUser;
+			var	e = Mcv.Users.Latest(Name) as FairUser;
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);

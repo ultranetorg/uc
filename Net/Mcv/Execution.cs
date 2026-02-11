@@ -82,8 +82,8 @@ public class Execution : ITableExecution
 
 		if(Parent != null)
 			Parent.AffectedMetas.TryGetValue(id, out a);
-		else
-			a = Mcv.Metas.Find(id, Round.Id);
+		else if(!Round.AffectedMetas.TryGetValue(id, out a))
+			a = Mcv.Metas.Find(id);
 		
 		if(a == null)
 		{
@@ -111,16 +111,8 @@ public class Execution : ITableExecution
 		NextEids[table.Id].TryGetValue(b, out e);
 
 		if(e == 0)
-		{
-			foreach(var r in Mcv.Tail.Where(i => i.Id <= Round.Id))
-			{	
-				var eids = r.NextEids[table.Id];
-
-				if(eids != null && eids.TryGetValue(b, out e))
-					break;
-			}
-		}
-			
+			Round.NextEids[table.Id].TryGetValue(b, out e);
+		
 		if(e == 0)
 			e = table.FindBucket(b)?.NextI ?? 0;
 
@@ -263,8 +255,10 @@ public class Execution : ITableExecution
 		
 		if(Parent != null)
 			s = Parent.FindUser(u);
+		else if(Round.AffectedUsers.Values.FirstOrDefault(i => i.Name == u) is User x)
+			s = x;
 		else
-			s = Mcv.Users.Find(u, Round.Id);
+			s = Mcv.Users.FindEntry(u);
 
 		if(s == null)
 		{	
@@ -309,7 +303,10 @@ public class Execution : ITableExecution
 		if(Parent != null)
 			return Parent.FindUser(id);
 
-		return Mcv.Users.Find(id, Round.Id);
+		if(Round.AffectedUsers.TryGetValue(id, out a))
+			return a;
+
+		return Mcv.Users.Find(id);
 	}
 
 	public User FindUser(string name)
@@ -320,7 +317,10 @@ public class Execution : ITableExecution
 		if(Parent != null)
 			return Parent.FindUser(name);
 
-		return Mcv.Users.Find(name, Round.Id);
+		if(Round.AffectedUsers.Values.FirstOrDefault(i => i.Name == name) is User x)
+			return x;
+
+		return Mcv.Users.FindEntry(name);
 	}
 
 	public virtual User CreateUser(string name, AccountAddress owner)
@@ -351,8 +351,10 @@ public class Execution : ITableExecution
 
 		if(Parent != null)
 			a = Parent.FindUser(id);
-		else
-			a = Mcv.Users.Find(id, Round.Id)?.Clone() as User;
+		else if(!Round.AffectedUsers.TryGetValue(id, out a))
+			a = Mcv.Users.Find(id);
+
+		a = a.Clone() as User;
 
 		AffectedUsers[a.Id] = a;
 

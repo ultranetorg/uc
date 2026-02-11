@@ -70,7 +70,7 @@ public class Transaction : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"Id={Id}, Nid={Nonce}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+		return $"Id={Id}, User={User}, Nid={Nonce}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 	}
 
 	public void Sign(AccountKey signer)

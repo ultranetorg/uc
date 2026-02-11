@@ -19,7 +19,7 @@ public class CategoryCategoriesPpc : FairPpc<CategoryCategoriesPPr>
 		{
 			RequireGraph();
 
-			var e = Mcv.Categories.Find(Category, Mcv.LastConfirmedRound.Id);
+			var e = Mcv.Categories.Latest(Category);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);

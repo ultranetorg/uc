@@ -27,7 +27,7 @@ public class UserTable : Table<AutoId, User>
 	public User Find(string nickname, int ridmax)
 	{
 		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(r.AffectedAccounts.Values.FirstOrDefault(i => i.Name == nickname) is User e && !e.Deleted)
+			if(r.AffectedUsers.Values.FirstOrDefault(i => i.Name == nickname) is User e && !e.Deleted)
 				return e;
 
 		return FindEntry(nickname);
@@ -35,6 +35,9 @@ public class UserTable : Table<AutoId, User>
 
 	public User Latest(string nickname)
 	{
-		return Find(nickname, Mcv.LastConfirmedRound.Id);
+		if(Mcv.LastConfirmedRound.AffectedUsers.Values.FirstOrDefault(i => i.Name == nickname) is User e && !e.Deleted)
+			return e;
+
+		return FindEntry(nickname);
 	}
 }

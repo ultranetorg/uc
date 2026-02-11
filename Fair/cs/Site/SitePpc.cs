@@ -2,7 +2,7 @@
 
 public class SitePpc : FairPpc<SitePpr>
 {
-	public new AutoId	Id { get; set; }
+	public AutoId	Id { get; set; }
 
 	public SitePpc()
 	{
@@ -22,7 +22,7 @@ public class SitePpc : FairPpc<SitePpr>
 		{	
 			RequireGraph();
 
-			var	e = Mcv.Sites.Find(Id, Mcv.LastConfirmedRound.Id);
+			var	e = Mcv.Sites.Latest(Id);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);

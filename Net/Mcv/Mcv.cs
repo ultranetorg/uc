@@ -430,6 +430,9 @@ public abstract class Mcv /// Mutual chain voting
 		if(preserve)
 			transaction.Nonce = nid;
 
+		if(transaction.Successful)
+			a=a;
+
 		return round;
 
 	}
@@ -502,7 +505,7 @@ public abstract class Mcv /// Mutual chain voting
 		//if(!Settings.Generators.Any(i => i.Signer == m))
 		//	return null;
 
-		var p = Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => Settings.Generators.Any(g => g.Signer == v.Generator))) ?? LastConfirmedRound;
+		var p = /*Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => Settings.Generators.Any(g => g.Signer == v.Generator))) ??*/ LastConfirmedRound;
 
 		var r = GetRound(p.Id + 1);
 		
@@ -517,58 +520,61 @@ public abstract class Mcv /// Mutual chain voting
 	
 	public void Save(Round round)
 	{
-		using(var b = new WriteBatch())
+		using var b = new WriteBatch();
+
+		if(round.IsLastInCommit)
 		{
-			if(round.IsLastInCommit)
-			{
-				foreach(var t in Tables)
-					t.Commit(b, Tail.TakeLast(Net.CommitLength).SelectMany(r => r.AffectedByTable(t).Values as IEnumerable<ITableEntry>).DistinctBy(i => i.Key), round.FindState<TableStateBase>(t), round);
+			foreach(var t in Tables)
+			{	
+				var a = round.AffectedByTable(t);
+				t.Commit(b, a.Values as IEnumerable<ITableEntry>, round.FindState<TableStateBase>(t), round);
+				a.Clear();
+			}
 
-				LastCommitedRound = round;
+			LastCommitedRound = round;
 					
-				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
 	
-				LastCommitedRound.WriteGraphState(w);
+			LastCommitedRound.WriteGraphState(w);
 	
-				GraphState = s.ToArray();
+			GraphState = s.ToArray();
 
-				Hashify();
+			Hashify();
 				
-				b.Put(GraphStateKey, GraphState);
-				b.Put(__GraphHashKey, GraphHash);
+			b.Put(GraphStateKey, GraphState);
+			b.Put(__GraphHashKey, GraphHash);
 
-				OldRounds.Clear();
+			OldRounds.Clear();
 
-				foreach(var i in Tail.SkipWhile(i => i.Id > round.Id).Take(JoinToVote + 1))
-				{
-					OldRounds[i.Id] = i;
-				}
-
-				Tail.RemoveAll(i => i.Id <= round.Id);
-
-				Recycle();
-			}
-
-			if(Settings.Chain != null)
+			foreach(var i in Tail.SkipWhile(i => i.Id > round.Id).Take(JoinToVote + 1))
 			{
-				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
-
-				w.Write7BitEncodedInt(round.Id);
-
-				b.Put(ChainStateKey, s.ToArray());
-
-				s = new MemoryStream();
-				w = new BinaryWriter(s);
-	
-				round.Save(w);
-	
-				b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), ChainFamily);
+				OldRounds[i.Id] = i;
 			}
 
-			Rocks.Write(b);
+			Tail.RemoveAll(i => i.Id <= round.Id);
+
+			Recycle();
 		}
+
+		if(Settings.Chain != null)
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write7BitEncodedInt(round.Id);
+
+			b.Put(ChainStateKey, s.ToArray());
+
+			s = new MemoryStream();
+			w = new BinaryWriter(s);
+	
+			round.Save(w);
+	
+			b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), ChainFamily);
+		}
+
+		Rocks.Write(b);
 	}
 
 	public Transaction FindTailTransaction(Func<Transaction, bool> transaction_predicate)

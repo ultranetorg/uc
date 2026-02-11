@@ -209,7 +209,7 @@ public class ModeratorProposalsService
 
 		lock (mcv.Lock)
 		{
-			Site site = mcv.Sites.Find(siteEntityId, mcv.LastConfirmedRound.Id);
+			Site site = mcv.Sites.Latest(siteEntityId);
 			if(site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);

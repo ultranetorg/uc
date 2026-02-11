@@ -672,7 +672,10 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 	public virtual E Latest(ID id)
 	{
-		return Find(id, Mcv.LastConfirmedRound.Id);
+		if(Mcv.LastConfirmedRound.AffectedByTable<ID, E>(this).TryGetValue(id, out var e))
+			return e.Deleted ? null : e;
+
+		return Find(id);
 	}
 
 	void Recycle()
@@ -731,94 +734,3 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	///}
 }
 
-public abstract class TableStateBase
-{	
-	public abstract void	Absorb(TableStateBase execution);
-	public abstract void	StartRoundExecution(Round round);
-
-	public virtual void Write(BinaryWriter writer)
-	{
-	}
-
-	public virtual void Read(BinaryReader reader)
-	{
-	}
-}
-
-public class TableState<ID, E> : TableStateBase where ID : EntityId, new() where E : class, ITableEntry
-{
-	public Dictionary<ID, E>	Affected = new();
-	public Table<ID, E>			Table;
-
-	public TableState(Table<ID, E> table)
-	{
-		Table = table;
-	}
-
-	public override void StartRoundExecution(Round round)
-	{
-		Affected.Clear();
-	}
-
-	public override void Absorb(TableStateBase execution)
-	{
-		var e = execution as TableState<ID, E>;
-
-		foreach(var i in e.Affected)	
-			Affected[i.Key] = i.Value;
-	}
-}
-
-public interface ITableExecution
-{
-	public AutoId		LastCreatedId { get; set; }
-}
-
-public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution where ID : EntityId, new() where E : class, ITableEntry
-{
-	public Execution				Execution;
-	public AutoId					LastCreatedId { get; set; }
-	public TableExecution<ID, E>	Parent;
-
-	protected TableExecution(Table<ID, E> table, Execution execution) : base(table)
-	{
-		Execution = execution;
-	}
-	
-	public E Find(ID id)
- 	{
-		id = (id == AutoId.LastCreated) ? LastCreatedId as ID : id;
-
-		if(id == null)
-			return null;
-
- 		if(Affected.TryGetValue(id, out var a))
- 			return a;
- 		
-		if(a?.Deleted ?? false)
-			return null;
-
-		if(Parent != null)
-			return Parent.Find(id);
-
-		return Table.Find(id, Execution.Round.Id);
- 	}
-
-	public virtual E Affect(ID id)
-	{
-		id = id == AutoId.LastCreated ? LastCreatedId as ID : id;
-		
-		if(Affected.TryGetValue(id, out var a))
-			return a;
-
-		if(Parent != null)
-			a = Parent.Find(id);
-		else
-			a = Table.Find(id, Execution.Round.Id);
-
-		if(a == null)
-			throw new IntegrityException();
-		
-		return Affected[id] = a.Clone() as E;
-	}
-}

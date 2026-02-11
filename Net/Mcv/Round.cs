@@ -54,7 +54,7 @@ public abstract class Round : IBinarySerializable
 	public long[]										Bandwidths;
 
 	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
-	public Dictionary<AutoId, User>						AffectedAccounts = new();
+	public Dictionary<AutoId, User>						AffectedUsers = new();
 	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;
@@ -129,7 +129,7 @@ public abstract class Round : IBinarySerializable
 
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Users)	return AffectedAccounts;
+		if(table == Mcv.Users)	return AffectedUsers;
 		if(table == Mcv.Metas)	return AffectedMetas;
 
 		throw new IntegrityException();
@@ -298,17 +298,20 @@ public abstract class Round : IBinarySerializable
 				o.Error = null;
 		}
 
-		Candidates	= Id == 0 ? new()										: Previous.Candidates; /// cloned in Execution.AffectCandidate
-		Members		= Id == 0 ? new()										: Previous.Members;
-		Funds		= Id == 0 ? new()										: Previous.Funds;
-		Bandwidths	= Id == 0 ? new long[McvNet.BandwidthPeriodsMaximum]	: Previous.Bandwidths;
-		Spacetimes	= Id == 0 ? new long[1]									: Previous.Spacetimes;
+		Candidates	= Id == 0 ? []										 : Previous.Candidates; /// cloned in Execution.AffectCandidate
+		Members		= Id == 0 ? []										 : Previous.Members;
+		Funds		= Id == 0 ? []										 : Previous.Funds;
+		Bandwidths	= Id == 0 ? new long[McvNet.BandwidthPeriodsMaximum] : Previous.Bandwidths;
+		Spacetimes	= Id == 0 ? new long[1]								 : Previous.Spacetimes;
 
-		AffectedMetas.Clear();
-		AffectedAccounts.Clear();
+		AffectedMetas		= Id == 0 ? [] : new (Previous.AffectedMetas);
+		AffectedUsers	= Id == 0 ? [] : new (Previous.AffectedUsers);
 		
-		foreach(var i in NextEids)
-			i.Clear();
+		NextEids = [..Mcv.Tables.Select(i => (Dictionary<int, int>)null)];
+		for(int i = 0; i < NextEids.Length; i++)
+		{
+			NextEids[i] = Id == 0 ? [] : new(Previous.NextEids[i]); 
+		}
 
 		foreach(var i in Mcv.Tables)
 			FindState<TableStateBase>(i)?.StartRoundExecution(this);
@@ -381,7 +384,7 @@ public abstract class Round : IBinarySerializable
 			AffectedMetas[i.Key] = i.Value;
 
 		foreach(var i in execution.AffectedUsers)
-			AffectedAccounts[i.Key] = i.Value;
+			AffectedUsers[i.Key] = i.Value;
 
 		for(int t=0; t<Mcv.Tables.Length; t++)
 			foreach(var i in execution.NextEids[t])

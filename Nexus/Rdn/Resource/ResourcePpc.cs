@@ -30,7 +30,7 @@ public class ResourcePpc : RdnPpc<ResourcePpr>
 			Resource r;
 
 			if(Identifier.Addres != null)
-				r = Mcv.Resources.Find(Identifier.Addres, Mcv.LastConfirmedRound.Id);
+				r = Mcv.Resources.Latest(Identifier.Addres);
 			else if(Identifier.Id != null)
 				r = Mcv.Resources.Latest(Identifier.Id);
 			else

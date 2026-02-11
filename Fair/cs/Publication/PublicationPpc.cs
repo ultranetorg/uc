@@ -22,7 +22,7 @@ public class PublicationPpc : FairPpc<PublicationPpr>
 		{	
 			RequireGraph();
 
-			var	e = Mcv.Publications.Find(Id, Mcv.LastConfirmedRound.Id);
+			var	e = Mcv.Publications.Latest(Id);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);

@@ -18,7 +18,7 @@ public class AuthorsService
 
 		lock (mcv.Lock)
 		{
-			Author author = mcv.Authors.Find(authorEntityId, mcv.LastConfirmedRound.Id);
+			Author author = mcv.Authors.Latest(authorEntityId);
 			if (author == null)
 			{
 				throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);

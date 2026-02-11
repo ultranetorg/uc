@@ -35,9 +35,9 @@ public class DomainPpc : RdnPpc<DomainPpr>
 			Domain e;
 
 			if(Identifier.Addres != null)
-				e = Mcv.Domains.Find(Identifier.Addres, Mcv.LastConfirmedRound.Id);
+				e = Mcv.Domains.Latest(Identifier.Addres);
 			else if(Identifier.Id != null)
-				e = Mcv.Domains.Find(Identifier.Id, Mcv.LastConfirmedRound.Id);
+				e = Mcv.Domains.Latest(Identifier.Id);
 			else
 				throw new RequestException(RequestError.IncorrectRequest);
 			

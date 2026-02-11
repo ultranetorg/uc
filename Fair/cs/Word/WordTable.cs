@@ -118,7 +118,10 @@ public class WordExecution : TableExecution<RawId, Word>
 		if(Affected.TryGetValue(id, out var a))
 			return a;
 			
-		a = Table.Find(id, Execution.Round.Id);
+		if(Parent != null)
+			a = Parent.Find(id);
+		else if(!(Execution.Round as FairRound).Words.Affected.TryGetValue(id, out a))
+			a = Table.Find(id);
 
 		if(a == null)
 		{

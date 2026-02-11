@@ -19,7 +19,7 @@ public class CategoriesService
 
 		lock (mcv.Lock)
 		{
-			Category category = mcv.Categories.Find(id, mcv.LastConfirmedRound.Id);
+			Category category = mcv.Categories.Latest(id);
 			if (category == null)
 			{
 				throw new EntityNotFoundException(nameof(Category).ToLower(), categoryId);
@@ -28,7 +28,7 @@ public class CategoriesService
 			Category parentCategory = null;
 			if (category.Parent != null)
 			{
-				parentCategory = mcv.Categories.Find(category.Parent, mcv.LastConfirmedRound.Id);
+				parentCategory = mcv.Categories.Latest(category.Parent);
 			}
 
 			IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
@@ -44,7 +44,7 @@ public class CategoriesService
 	{
 		return categoriesIds.Select(id =>
 		{
-			Category category = mcv.Categories.Find(id, mcv.LastConfirmedRound.Id);
+			Category category = mcv.Categories.Latest(id);
 			return new CategoryBaseModel(category);
 		}).ToArray();
 	}
