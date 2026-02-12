@@ -49,7 +49,7 @@ public class McvCli : Cli
 
 			if(c.Has("estimate"))
 			{
-				var rp = c.Api<ExamineTransactionPpr>(new EstimateOperationApc {Operations = ops, User = c.GetString(McvCommand.ByArg)});
+				var rp = c.Api<PretransactingPpr>(new EstimateOperationApc {Operations = ops, User = c.GetString(McvCommand.ByArg)});
 				flow.Log.Dump(rp);
 			}
 			else

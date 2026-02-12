@@ -654,39 +654,19 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	public virtual E Find(ID id)
 	{
 		return FindBucket(id.B)?.Find(id);
-		//var j = eee?.BinarySearch(null, new BinaryComparer(x => x.Key.CompareTo(id)));
-		//
-		//return j >= 0 ? eee[j.Value] : null;
-
-		//return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
 	}
 
-	public virtual E Find(ID id, int ridmax)
+	public virtual E Find(ID id, int rid)
 	{
-  		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedByTable<ID, E>(this).TryGetValue(id, out var r))
-				return r.Deleted ? null : r;
+		if(Mcv.FindRound(rid).AffectedByTable<ID, E>(this).TryGetValue(id, out var e))
+			return e.Deleted ? null : e;
 
 		return Find(id);
 	}
 
 	public virtual E Latest(ID id)
 	{
-		if(Mcv.LastConfirmedRound.AffectedByTable<ID, E>(this).TryGetValue(id, out var e))
-			return e.Deleted ? null : e;
-
-		return Find(id);
-	}
-
-	void Recycle()
-	{
-		//if(Clusters.Count > ClustersCacheLimit)
-		//{
-		//	foreach(var i in Clusters.OrderByDescending(i => i.Entries.Max(i => i.LastAccessed)).Skip(ClustersCacheLimit))
-		//	{
-		//		Clusters.Remove(i);
-		//	}
-		//}
+		return Find(id, Mcv.LastConfirmedRound.Id);
 	}
 
 	///public override long MeasureChanges(IEnumerable<Round> tail)

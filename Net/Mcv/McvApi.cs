@@ -339,29 +339,12 @@ public class OutgoingTransactionsApc : McvApc
 
 public class EstimateOperationApc : McvApc
 {
-	public IEnumerable<Operation>	Operations { get; set; }
-	public string					User  { get; set; }
-	public string					Application  { get; set; }
+	public Operation[]		Operations { get; set; }
+	public string			User  { get; set; }
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		var t = new Transaction {Net = node.Mcv.Net, Application = Application, User = User, Operations = Operations.ToArray()};
-
-		//t.Signer = By;
-		t.Signature	= node.VaultApi.Call<byte[]>(new AuthorizeApc
-												 {
-												 	Cryptography = node.Mcv.Net.Cryptography.Type,
-												 	Application = Application,
-												 	Net			= node.Mcv.Net.Name,
-												 	User		= User.ToString(),
-												 	Session		= node.Settings.Sessions.First(i => i.User == User).Session,
-												 	Hash		= t.Hashify()
-												 }, t.Flow);
-
-
-		///t.Sign(node.Vault.Find(By).Key, []);
-
-		return node.Peering.Call(new ExamineTransactionPpc {Transaction = t}, workflow);
+		return node.Peering.Call(new ExaminePpc {Operations = Operations, User = User}, workflow);
 	}
 }
 
@@ -374,7 +357,7 @@ public class TransactionApe
 	public int						Expiration { get; set; }
 	public byte[]					Tag { get; set; }
 	public byte[]					Signature { get; set; }
-		 
+	
 	public AccountAddress			Signer { get; set; }
 	public TransactionStatus		Status { get; set; }
 	public Endpoint					MemberEndpoint { get; set; }

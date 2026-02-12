@@ -10,7 +10,7 @@ public enum McvPpcClass : uint
 	None = 0, 
 	SharePeers = PpcClass._Last + 1, 
 	Info,
-	Vote, Time, Members, Funds, ExamineTransaction, PlaceTransactions, TransactionStatus, User, 
+	Vote, Time, Members, Funds, Pretransacting, PlaceTransactions, TransactionStatus, User, 
 	Stamp, TableStamp, DownloadTable, DownloadRounds,
 	Cost,
 	_Last = 199
@@ -787,9 +787,12 @@ public abstract class McvPeering : HomoTcpPeering
 			return false;
 		}
 
-		round = Mcv.Examine(transaction, preserve);
-
-		return round != null && transaction.Successful;
+		lock(Mcv.Lock)
+		{
+			round = Mcv.Examine(transaction, preserve);
+	
+			return round != null && transaction.Successful;
+		}
 
 	}
 
@@ -878,7 +881,6 @@ public abstract class McvPeering : HomoTcpPeering
 
 			foreach(var g in nones)
 			{
-				int nonce = -1;
 				var txs = new Dictionary<IHomoPeer, List<Transaction>>();
 
 
@@ -891,35 +893,31 @@ public abstract class McvPeering : HomoTcpPeering
 						foreach(var i in t.Operations)
 							i.PreTransact(Node, t.Flow);
 
-						t.Nonce		 = 0;
-						t.Expiration = 0;
-						t.Member	 = new(0, -1);
-						t.Signature	 = VaultApi.Call<byte[]>(new AuthorizeApc
-															 {
-																Cryptography	= Net.Cryptography.Type,
-																Application		= t.Application,
-																Net				= Net.Name,
-																User			= t.User,
-																Session			= s.Session,
-																Hash			= t.Hashify(),
-															 }, t.Flow);
-						if(t.Signature == null)
-						{	
-							t.Flow?.Log.ReportError(this, $"Failed to sign");
-							break;
-						}
+						//t.Nonce		 = 0;
+						//t.Expiration = 0;
+						//t.Member	 = new(0, -1);
+						//t.Signature	 = VaultApi.Call<byte[]>(new AuthorizeApc
+						//									 {
+						//										Cryptography	= Net.Cryptography.Type,
+						//										Application		= t.Application,
+						//										Net				= Net.Name,
+						//										User			= t.User,
+						//										Session			= s.Session,
+						//										Hash			= t.Hashify(),
+						//									 }, t.Flow);
+						//if(t.Signature == null)
+						//{	
+						//	t.Flow?.Log.ReportError(this, $"Failed to sign: {t}");
+						//	break;
+						//}
 
-						var at = Call(new ExamineTransactionPpc {Transaction = t}, t.Flow);
+						var at = Call(new PretransactingPpc {User = t.User}, t.Flow);
 							
-						if(nonce == -1)
-							nonce = at.NextNid;
-						else
-							nonce++;
 
 						//var m = members.NearestBy(i => i.Address, nonce);
 						IHomoPeer ppi; 
 						
-						var m = members.NearestBy(i => i.Address, s.Account, nonce);
+						var m = members.NearestBy(i => i.Address, s.Account, at.NextNonce);
 
 						try
 						{
@@ -933,7 +931,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 						t.Ppi		 = ppi;
 						t.Member	 = m.Id;
-						t.Nonce		 = nonce;
+						t.Nonce		 = at.NextNonce;
 						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
 						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc
 															 {
@@ -947,11 +945,11 @@ public abstract class McvPeering : HomoTcpPeering
 
 						(txs.TryGetValue(ppi, out var p) ? p : (txs[ppi] = [])).Add(t);
 
-						t.Flow.Log?.Report(this, $"Created:  Nid={t.Nonce}, Expiration={t.Expiration}, Operations={{{t.Operations.Length}}}, Signer={t.Signer}, Hash={t.Hashify()}, Signature={t.Signature.ToHex()}");
+						t.Flow.Log?.Report(this, $"Examine: {t}");
 					}
 					catch(NodeException ex)
 					{
-						Flow.Log?.ReportError(this, "Transaction allocation", ex);
+						t.Flow.Log?.ReportError(this, "Examine", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
@@ -964,13 +962,13 @@ public abstract class McvPeering : HomoTcpPeering
 								OutgoingTransactions.Remove(t);
 						} 
 
-						Flow.Log?.ReportError(this, "Transaction allocation", ex);
+						t.Flow.Log?.ReportError(this, "Examine", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 					catch(ApiCallException ex)
 					{
-						Flow.Log?.ReportError(this, "Transaction allocation", ex);
+						t.Flow.Log?.ReportError(this, "Examine", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
@@ -986,7 +984,9 @@ public abstract class McvPeering : HomoTcpPeering
 					}
 					catch(NodeException ex)
 					{
-						Flow.Log?.ReportError(this, "PlaceTransactionsRequest", ex);
+						foreach(var t in i.Value)
+							t.Flow.Log?.ReportError(this, "Place", ex);
+
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
@@ -1001,12 +1001,11 @@ public abstract class McvPeering : HomoTcpPeering
 							}
 							else
 							{
-								t.Flow.Log?.Report(this, $"Transaction Rejected by {i.Key}");
+								t.Flow.Log?.Report(this, $"Rejected by {i.Key}");
 
 								if(t.ActionOnResult == ActionOnResult.RetryUntilConfirmed)
 									t.Status = TransactionStatus.None;
 								else
-									//t.Status = TransactionStatus.FailedOrNotFound;
 									OutgoingTransactions.Remove(t);
 							}
 						}

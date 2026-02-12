@@ -413,28 +413,22 @@ public abstract class Mcv /// Mutual chain voting
 
 		var a = Users.Latest(transaction.User);
 
-		var nid = transaction.Nonce;
+		var oldnonce = transaction.Nonce;
 
-		if(a == null)
-		{	
-			//if(transaction.UserCreationRequest)
-				transaction.Nonce = 0;
-			//else
-			//	return null;
-		}
-		else
-			transaction.Nonce = a.LastNonce + 1;
+		transaction.Nonce = a == null ? 0 : a.LastNonce + 1;
 
-		var round = TryExecute(transaction);
+		var p = /*Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => Settings.Generators.Any(g => g.Signer == v.Generator))) ??*/ LastConfirmedRound;
+		var r = GetRound(p.Id + 1);
+		
+		r.ConsensusTime			= Time.Now(Clock);
+		r.ConsensusEnergyCost	= LastConfirmedRound.ConsensusEnergyCost;
+
+		r.Execute([transaction]);
 
 		if(preserve)
-			transaction.Nonce = nid;
+			transaction.Nonce = oldnonce;
 
-		if(transaction.Successful)
-			a=a;
-
-		return round;
-
+		return r;
 	}
 
 
@@ -495,27 +489,6 @@ public abstract class Mcv /// Mutual chain voting
 		foreach(var t in Tables.Where(i => !i.IsIndex))
 			foreach(var i in t.Clusters.OrderBy(i => i.Id))
 				GraphHash = Cryptography.Hash(GraphHash, i.Hash);
-	}
-
-
-	public Round TryExecute(Transaction transaction)
-	{
-		//var m = NextVotingRound.VotersRound.Members.NearestBy(transaction.Nonce).Address;
-		//
-		//if(!Settings.Generators.Any(i => i.Signer == m))
-		//	return null;
-
-		var p = /*Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => Settings.Generators.Any(g => g.Signer == v.Generator))) ??*/ LastConfirmedRound;
-
-		var r = GetRound(p.Id + 1);
-		
-		r.ConsensusTime			= Time.Now(Clock);
-		r.ConsensusEnergyCost	= LastConfirmedRound.ConsensusEnergyCost;
-		//r.Spacetimes			= LastConfirmedRound.Spacetimes;
-
-		r.Execute([transaction]);
-
-		return r;
 	}
 	
 	public void Save(Round round)

@@ -6,15 +6,15 @@ public class PlaceTransactionsPpc : McvPpc<PlaceTransactionsPpr>
 
 	public override Result Execute()
 	{
+		lock(Mcv.Lock)
+			RequireMember();
+
 		lock(Peering.Lock)
-			lock(Mcv.Lock)
-			{	
-				RequireMember();
+		{	
+			var acc = Peering.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
 
-				var acc = Peering.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
-
-				return new PlaceTransactionsPpr {Accepted = acc};
-			}
+			return new PlaceTransactionsPpr {Accepted = acc};
+		}
 	}
 }
 
