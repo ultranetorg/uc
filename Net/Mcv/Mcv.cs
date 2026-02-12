@@ -406,7 +406,7 @@ public abstract class Mcv /// Mutual chain voting
 		}
 	}
 
-	public Round Examine(Transaction transaction, bool preserve)
+	public Round Examine(Transaction transaction)
 	{
 		if(transaction.Expiration <= LastConfirmedRound.Id || !transaction.Valid(this))
 			return null;
@@ -425,8 +425,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		r.Execute([transaction]);
 
-		if(preserve)
-			transaction.Nonce = oldnonce;
+		transaction.Nonce = oldnonce;
 
 		return r;
 	}

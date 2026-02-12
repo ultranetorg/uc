@@ -778,28 +778,21 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public abstract bool ValidateIncoming(Operation o);
 
-	public bool ValidateIncoming(Transaction transaction, bool preserve, out Round round)
-	{
-		if( CandidateTransactions.Any(j => j.Signer == transaction.Signer && j.Nonce == transaction.Nonce) ||
-			transaction.Operations.Any(o => !ValidateIncoming(o)))
-		{
-			round = null;
-			return false;
-		}
-
-		lock(Mcv.Lock)
-		{
-			round = Mcv.Examine(transaction, preserve);
-	
-			return round != null && transaction.Successful;
-		}
-
-	}
-
 	public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
 	{
-		foreach(var t in txs.Where(i => ValidateIncoming(i, true, out var r)).OrderBy(i => i.Nonce))
+		foreach(var t in txs.OrderBy(i => i.Nonce))
 		{
+			if(CandidateTransactions.Any(j => j.User == t.User && j.Nonce == t.Nonce) || t.Operations.Any(o => !ValidateIncoming(o)))
+				continue;
+
+			lock(Mcv.Lock)
+			{
+				var r = Mcv.Examine(t);
+	
+				if(r == null || !t.Successful)
+					continue;
+			}
+
 			if(CandidateTransactions.Sum(i => i.Operations.Length) >= Node.Settings.PoolMaximum) /// limit reached
 			{
 				var min = CandidateTransactions.MinBy(i => t.Operations.First().User.EnergyRating); /// find the one with the lowest bandwidth balance
@@ -812,6 +805,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 			CandidateTransactions.Add(t);
 			t.Status = TransactionStatus.Accepted;
+
 			yield return t;
 		}
 
