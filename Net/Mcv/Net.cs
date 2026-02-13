@@ -81,6 +81,7 @@ public abstract class McvNet : Net
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
 	public int								CommitLength							= 1000;
+	public int								AffectedCountMaximum					= 100_000;
 	public int								ExternalVerificationRoundDurationLimit	= 1000;
 	public int								MembersLimit							= 1000;
 	public long								CandidatesMaximum						= 1000 * 10;

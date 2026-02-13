@@ -30,18 +30,26 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 			{
 				RequireGraph();
 	
-				return	new TransactionStatusPpr
+				var r = new TransactionStatusPpr
 						{								
-							LastConfirmedRoundId = Mcv.LastConfirmedRound.Id,
-							Transactions = Signatures.Select(t =>	new TransactionStatusPpr.Item
-																	{
-																		Signature	= t,
-																		Status		= (Peering.CandidateTransactions.Find(i => i.Signature.SequenceEqual(t))
-																					  ?? 
-																					  Peering.ConfirmedTransactions.Find(i => i.Signature.SequenceEqual(t)))?.Status ?? TransactionStatus.FailedOrNotFound
+							Transactions = Signatures.Select(s =>	{ 
+																		var  t = (Peering.CandidateTransactions.Find(i => i.Signature.SequenceEqual(s))
+																				 ?? 
+																				 Peering.ConfirmedTransactions.Find(i => i.Signature.SequenceEqual(s)));
+
+																		if(t != null)
+																			t.Inquired = DateTime.UtcNow;
+
+																		return	new TransactionStatusPpr.Item
+																				{
+																					Signature	= s,
+																					Status		= t?.Status ?? TransactionStatus.FailedOrNotFound
+																				};
 																	})
 														.ToArray()
 						};
+
+				return r;
 			}
 		}
 	}
@@ -55,6 +63,5 @@ public class TransactionStatusPpr : Result
 		public TransactionStatus	Status { get; set; }
 	}
 
-	public int		LastConfirmedRoundId { get; set; }
 	public Item[]	Transactions { get; set; }
 }

@@ -78,11 +78,14 @@ public abstract class McvPeering : HomoTcpPeering
 			Mcv.Confirmed += r =>	{
 										if(Synchronization == Synchronization.Synchronized)
 										{
-											bool old(Transaction t) => t.Vote?.Round?.Id == r.Id || t.Expiration <= r.Id;
-	
-											ConfirmedTransactions.AddRange(r.ConsensusTransactions.Where(j => Mcv.Settings.Generators.Any(g => g.Signer == j.Vote.Generator)));
-											CandidateTransactions.RemoveAll(old);
-											ConfirmedTransactions.RemoveAll(t => t.Expiration < r.Id - Net.CommitLength);
+											foreach(var i in r.ConsensusTransactions.Where(j => Mcv.Settings.Generators.Any(g => g.Signer == j.Vote.Generator)))
+											{
+												i.Inquired = DateTime.UtcNow;
+												ConfirmedTransactions.Add(i);
+											}
+
+											ConfirmedTransactions.RemoveAll(i => DateTime.UtcNow - i.Inquired > TimeSpan.FromSeconds(Node.Settings.TransactionNoInquireKeepPeriod));
+											CandidateTransactions.RemoveAll(t => t.Vote?.Round?.Id == r.Id || t.Expiration <= r.Id);
 										}
 									};
 		}

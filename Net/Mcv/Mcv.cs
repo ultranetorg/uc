@@ -395,17 +395,6 @@ public abstract class Mcv /// Mutual chain voting
 			return null;
 	}
 
-	void Recycle()
-	{
-		if(OldRounds.Count > Net.CommitLength)
-		{
-			foreach(var i in OldRounds.OrderByDescending(i => i.Value.Id).Skip(Net.CommitLength))
-			{
-				OldRounds.Remove(i.Key);
-			}
-		}
-	}
-
 	public Round Examine(Transaction transaction)
 	{
 		if(transaction.Expiration <= LastConfirmedRound.Id || !transaction.Valid(this))
@@ -525,8 +514,6 @@ public abstract class Mcv /// Mutual chain voting
 			}
 
 			Tail.RemoveAll(i => i.Id <= round.Id);
-
-			Recycle();
 		}
 
 		if(Settings.Chain != null)

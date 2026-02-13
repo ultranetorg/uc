@@ -17,6 +17,8 @@ public abstract class Round : IBinarySerializable
 	//public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
 	public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
+	///public bool										IsLastInCommit => AffectedCount >= Net.CommitCountMaximum;
+	public virtual int									AffectedCount => AffectedMetas.Count + AffectedUsers.Count + Mcv.Tables.Sum(i => AffectedByTable(i).Count);
 
 	public int											Try;
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
