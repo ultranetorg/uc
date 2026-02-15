@@ -17,18 +17,14 @@ public abstract class Mcv /// Mutual chain voting
 {
 	public const int							P = 6; /// pitch
 	public const int							RequiredVotersMaximum = 21; 
-	//public int								VotesRequired => Net.MembersLimit; /// 1000/8
 	public const int							JoinToVote = P + 1;
 	public const int							LastGenesisRound = JoinToVote - 1;
 	public const int							TransactionPlacingLifetime = P*2;
 	public static readonly Unit					BalanceMin = new Unit(0.000_000_001);
-	//public const int							EntityLength = 100;
 	public const int							EntityRentYearsMin = 1;
 	public const int							EntityRentYearsMax = 10;
 	public const int							TransactionQueueLimit = 1000;
 	public static readonly Time					Forever = Time.FromYears(30);
-	//public static Money							TimeFactor(Time time) => new Money(time.Days * time.Days)/Time.FromYears(1).Days;
-	//public static long							ApplyTimeFactor(Time time, long x) => x * time.Days/Time.FromYears(1).Days;
 
 	public readonly static AccountKey			God = new AccountKey([1, ..new byte[31]]);
 	public readonly static string				GodName = "";
@@ -105,7 +101,6 @@ public abstract class Mcv /// Mutual chain voting
 
 		lock(Lock)
 		{
-			///Settings = new RdnSettings {Roles = Role.Chain};
 			Net = net;
 			Settings = settings;
 			Datapath = datapath;
@@ -118,25 +113,22 @@ public abstract class Mcv /// Mutual chain voting
 
 			GraphHash = Net.Cryptography.ZeroHash;
 	
-			//if(!skipinitload)
-			{
-				var g = Rocks.Get(GenesisKey);
+			var g = Rocks.Get(GenesisKey);
 	
-				if(g == null)
+			if(g == null)
+			{
+				Initialize();
+			}
+			else
+			{
+				if(g.SequenceEqual((new Genesis() as IBinarySerializable).Raw))
 				{
-					Initialize();
+					Load();
 				}
 				else
-				{
-					if(g.SequenceEqual((new Genesis() as IBinarySerializable).Raw))
-					{
-						Load();
-					}
-					else
-					{ 
-						Clear();
-						Initialize();
-					}
+				{ 
+					Clear();
+					Initialize();
 				}
 			}
 		}
@@ -214,36 +206,30 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(Settings.Chain != null)
 		{
-			var s = Rocks.Get(ChainStateKey);
-
-			var rd = new BinaryReader(new MemoryStream(s));
-
+			var rd = new BinaryReader(new MemoryStream(Rocks.Get(ChainStateKey)));
+		
 			var lcr = FindRound(rd.Read7BitEncodedInt());
 				
-			if(lcr.Id < Net.CommitLength) /// clear to avoid genesis loading issues, it must be created - not loaded
+			if(GraphState == null) /// clear to avoid genesis loading issues, it must be created - not loaded
 			{
 				Clear();
 				Initialize();
 			} 
 			else
 			{
-				for(var i = lcr.Id - lcr.Id % Net.CommitLength; i <= lcr.Id; i++)
+				LastConfirmedRound = LastCommitedRound;
+
+				for(var i = LastCommitedRound.Id + 1; i <= lcr.Id; i++)
 				{
 					var r = FindRound(i);
-
+				
 					Tail.Insert(0, r);
-		
+				
 					r.Confirmed = false;
-					//Execute(r, r.ConfirmedTransactions);
 					r.Confirm();
 				}
 			}
 		}
-
-// 		foreach(var i in Tables)
-// 		{
-// 			i.Load();
-// 		}
 	}
 
 	public void Clear()
@@ -359,8 +345,13 @@ public abstract class Mcv /// Mutual chain voting
 		{	
 			r = CreateRound();
 			r.Id = rid;
-			Tail.Add(r);
-			Tail = Tail.OrderByDescending(i => i.Id).ToList();
+
+			var i = Tail.FindIndex(i => i.Id < rid);
+			
+			if(i != -1)
+				Tail.Insert(i, r);
+			else
+				Tail.Add(r);
 		}
 
 		return r;
@@ -418,34 +409,6 @@ public abstract class Mcv /// Mutual chain voting
 
 		return r;
 	}
-
-
-	///public Time CalculateTime(Round round, IEnumerable<Vote> votes)
-	///{
- 		///	if(round.Id == 0)
- 		///	{
- 		///		return round.ConfirmedTime;
- 		///	}
-	///	
- 		///	if(!votes.Any())
- 		///	{
-	///		return round.Previous.ConfirmedTime + new Time(1);
-	///	}
-	///	
-	///	if(votes.Count() < 3)
-	///	{
-	///		var a = votes.Sum(i => i.TimeDelta)/votes.Count();
-	///		return round.Previous.ConfirmedTime + new Time(a);
-	///	}
-	///	else
-	///	{
-	///		var n = votes.Count();
-	///		votes = votes.OrderBy(i => i.TimeDelta).Skip(n/3).Take(n/3);
-	///		var a = votes.Sum(i => i.TimeDelta)/votes.Count();
-	///	
-	///		return round.Previous.ConfirmedTime + new Time(a);
-	///	}
-	///}
 
 	public void Dump()
 	{
@@ -505,15 +468,6 @@ public abstract class Mcv /// Mutual chain voting
 				
 			b.Put(GraphStateKey, GraphState);
 			b.Put(__GraphHashKey, GraphHash);
-
-			OldRounds.Clear();
-
-			foreach(var i in Tail.SkipWhile(i => i.Id > round.Id).Take(JoinToVote + 1))
-			{
-				OldRounds[i.Id] = i;
-			}
-
-			Tail.RemoveAll(i => i.Id <= round.Id);
 		}
 
 		if(Settings.Chain != null)
@@ -535,42 +489,42 @@ public abstract class Mcv /// Mutual chain voting
 
 		Rocks.Write(b);
 	}
-
-	public Transaction FindTailTransaction(Func<Transaction, bool> transaction_predicate)
-	{
-		foreach(var r in Tail)
-			foreach(var t in r.Transactions)
-				if(transaction_predicate(t))
-					return t;
-
-		//if(LastDissolvedRound != null)
-		//	for(int i = LastDissolvedRound.Id; i > LastDissolvedRound.Id - Net.CommitLength; i--)
-		//	{
-		//		var t = FindRound(i).ConsensusTransactions.FirstOrDefault(transaction_predicate);
-		//
-		//		if(t != null)
-		//			return t;
-		//	}
-
-		return null;
-	}
-
-	public IEnumerable<Transaction> FindLastTailTransactions(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
-	{
-		foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
-			foreach(var t in transaction_predicate == null ? r.Transactions : r.Transactions.Where(transaction_predicate))
-				yield return t;
-	}
-
-	//public O FindLastTailOperation<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
-	//{
-	//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
-	//	return op == null ? ops.FirstOrDefault() : ops.FirstOrDefault(op);
-	//}
-	//
-	//IEnumerable<O> FindLastTailOperations<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
-	//{
-	//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
-	//	return op == null ? ops : ops.Where(op);
-	//}
+//
+//	public Transaction FindTailTransaction(Func<Transaction, bool> transaction_predicate)
+//	{
+//		foreach(var r in Tail)
+//			foreach(var t in r.Transactions)
+//				if(transaction_predicate(t))
+//					return t;
+//
+//		//if(LastDissolvedRound != null)
+//		//	for(int i = LastDissolvedRound.Id; i > LastDissolvedRound.Id - Net.CommitLength; i--)
+//		//	{
+//		//		var t = FindRound(i).ConsensusTransactions.FirstOrDefault(transaction_predicate);
+//		//
+//		//		if(t != null)
+//		//			return t;
+//		//	}
+//
+//		return null;
+//	}
+//
+//	public IEnumerable<Transaction> FindLastTailTransactions(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
+//	{
+//		foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
+//			foreach(var t in transaction_predicate == null ? r.Transactions : r.Transactions.Where(transaction_predicate))
+//				yield return t;
+//	}
+//
+//	//public O FindLastTailOperation<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
+//	//{
+//	//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
+//	//	return op == null ? ops.FirstOrDefault() : ops.FirstOrDefault(op);
+//	//}
+//	//
+//	//IEnumerable<O> FindLastTailOperations<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
+//	//{
+//	//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
+//	//	return op == null ? ops : ops.Where(op);
+//	//}
 }

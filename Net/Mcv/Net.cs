@@ -72,15 +72,16 @@ public abstract class Net
 
 public abstract class McvNet : Net
 {
-	public const long						IdealRoundsPerDay						= 60*60*24;
+	public const long						IdealRoundsPerSecond					= 1;
+	public const long						IdealRoundsPerDay						= IdealRoundsPerSecond * 60*60*24;
 	public const int						BandwidthRentMonthsMaximum				= 12;
 	public const int						BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
 	public virtual int						FreeSpaceMaximum						=> 0;
 	public Time								ECLifetime								= Time.FromYears(1);
 	public ushort							UserFreeCreationPoWDifficulity			= 172;
+	public int								EntityLength							= 100;
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
-	public int								CommitLength							= 1000;
 	public int								AffectedCountMaximum					= 100_000;
 	public int								ExternalVerificationRoundDurationLimit	= 1000;
 	public int								MembersLimit							= 1000;
@@ -88,7 +89,6 @@ public abstract class McvNet : Net
 	
 	public long								TransactionsPerRoundMaximum				= 100_000;
 	public long								OperationsPerRoundMaximum				= 100_000;
-	//public long							OverloadFeeFactor						= 2;
 	
 	public int								ExecutionCyclesPerTransactionLimit		= 200;
 	//public long								ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
@@ -97,18 +97,14 @@ public abstract class McvNet : Net
 	public long								EnergyEmission							=> EnergyDailyEmission * 365;
 	public long								SpacetimeDayEmission					= 1024L*1024L * IdealRoundsPerDay;
 	public long								DeclarationCost							=> 1000_000;
-	
-	public int								EntityLength							= 100;
 
-	//public long								BandwidthDayCapacity					=> ExecutionCyclesPerRoundMaximum * IdealRoundsPerDay;
-	//public long								BandwidthAllocationPerRoundMaximum		=> ExecutionCyclesPerRoundMaximum / 2; /// 50%
-
-	public abstract int						TablesCount { get; }
 
 	public Endpoint							Father0IP;
 	public readonly string					Father0Name		= "father0000";
-	public readonly AutoId					Father0Id		= new AutoId(287078, 0);
+	public readonly AutoId					Father0Id		= new (287078, 0);
 	public readonly AccountAddress			Father0Signer	= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
+
+	public abstract int						TablesCount { get; }
 
 	public McvNet()
 	{

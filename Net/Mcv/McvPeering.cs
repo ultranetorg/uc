@@ -745,23 +745,23 @@ public abstract class McvPeering : HomoTcpPeering
 					}
 				}
 	
-				for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastNonEmptyRound.Id; i++) /// better to start from votes.Min(i => i.Id) or last excuted
-				{
-					var r = Mcv.GetRound(i);
-						
-					if(r.Hash == null)
-					{
-						r.ConsensusTime			= r.Previous.ConsensusTime;
-						r.ConsensusEnergyCost	= r.Previous.ConsensusEnergyCost;
-						r.Members				= r.Previous.Members;
-						r.Funds					= r.Previous.Funds;
-					}
-	
-					if(!r.Confirmed)
-					{
-						r.Execute(r.OrderedTransactions.Where(i => Mcv.Settings.Generators.Any(g => g.Signer == i.Vote.Generator)));
-					}
-				}
+				//for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastNonEmptyRound.Id; i++) /// better to start from votes.Min(i => i.Id) or last excuted
+				//{
+				//	var r = Mcv.GetRound(i);
+				//		
+				//	if(r.Hash == null)
+				//	{
+				//		r.ConsensusTime			= r.Previous.ConsensusTime;
+				//		r.ConsensusEnergyCost	= r.Previous.ConsensusEnergyCost;
+				//		r.Members				= r.Previous.Members;
+				//		r.Funds					= r.Previous.Funds;
+				//	}
+				//
+				//	if(!r.Confirmed)
+				//	{
+				//		r.Execute(r.OrderedTransactions.Where(i => Mcv.Settings.Generators.Any(g => g.Signer == i.Vote.Generator)));
+				//	}
+				//}
 			}
 			catch(ConfirmationException ex)
 			{

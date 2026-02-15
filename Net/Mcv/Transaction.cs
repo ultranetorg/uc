@@ -117,6 +117,7 @@ public class Transaction : IBinarySerializable
 										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
 									 });
+		writer.Write(Member); /// Need  for migrations
 		
 		if(Operations.Any(i => i is UserFreeCreation))
 			writer.Write(Signer);
@@ -135,7 +136,8 @@ public class Transaction : IBinarySerializable
  												o.Read(reader); 
  												return o; 
  											});
-		
+		Member		= reader.Read<AutoId>(); /// Need  for migrations
+
 		if(Operations.Any(i => i is UserFreeCreation))
 			Signer = reader.Read<AccountAddress>();
  	}

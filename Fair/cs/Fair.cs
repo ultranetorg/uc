@@ -53,7 +53,7 @@ public class FairLocal : Fair
 	{
 		Father0IP						= new (DefaultHost, PpiPort);
 		Cryptography					= Cryptography.No;
-		CommitLength					= 100;
+		AffectedCountMaximum			= 10;
 		ECLifetime						= Time.FromYears(100);
 		UserFreeCreationPoWDifficulity	= 150;
 

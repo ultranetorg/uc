@@ -16,8 +16,8 @@ public abstract class Round : IBinarySerializable
 	public long											PerVoteOperationsMaximum			=> Mcv.Net.OperationsPerRoundMaximum / Members.Count;
 	//public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
-	public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
-	///public bool										IsLastInCommit => AffectedCount >= Net.CommitCountMaximum;
+	//public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
+	public bool											IsLastInCommit => AffectedCount >= Net.AffectedCountMaximum;
 	public virtual int									AffectedCount => AffectedMetas.Count + AffectedUsers.Count + Mcv.Tables.Sum(i => AffectedByTable(i).Count);
 
 	public int											Try;
@@ -66,6 +66,21 @@ public abstract class Round : IBinarySerializable
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation o){}
 	public virtual void									ConfirmForeign(Execution execution){}
+
+	public Round FindParent(int level)
+	{
+		var p = Parent;
+
+		for(int i = 0; i < level; i++)
+		{
+			p = p.Parent;
+
+			if(p == null)
+				break;
+		}
+
+		return p;
+	}
 
 	public int MinimumForConsensus
 	{
@@ -489,6 +504,7 @@ public abstract class Round : IBinarySerializable
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
+		Mcv.Tail.RemoveAll(i => i.Id < VotersId);
 		Mcv.Confirmed?.Invoke(this);
 	}
 
@@ -525,7 +541,7 @@ public abstract class Round : IBinarySerializable
 		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusEnergyCost	= reader.Read7BitEncodedInt64();
+		ConsensusEnergyCost		= reader.Read7BitEncodedInt64();
 	}
 
 	public virtual void WriteConfirmed(BinaryWriter writer)
@@ -542,7 +558,7 @@ public abstract class Round : IBinarySerializable
 	public virtual void ReadConfirmed(BinaryReader reader)
 	{
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusEnergyCost	= reader.Read7BitEncodedInt64();
+		ConsensusEnergyCost		= reader.Read7BitEncodedInt64();
 		ConsensusMemberLeavers	= reader.ReadArray<AutoId>();
 		ConsensusViolators		= reader.ReadArray<AutoId>();
 		ConsensusFundJoiners	= reader.ReadArray<AccountAddress>();
