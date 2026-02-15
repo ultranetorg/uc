@@ -106,14 +106,6 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
 		return new Table<HnswId, E>.EntityEnumeration(() => new LevelEnumerator(Table, Affected.Values, level, Execution.Round.Id));
 	}
 
-	public E Find(HnswId id)
- 	{
- 		if(Affected.TryGetValue(id, out var a))
- 			return a;
- 		
-		return Table.Find(id, Execution.Round.Id);
- 	}
-
 	public void Add(E node)
 	{
 		for(byte l = 0; l <= node.Level; l++)
@@ -212,6 +204,20 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
  		
  		return Affected[id] = a;
 	}
+
+	public E Find(HnswId id)
+ 	{
+		if(Affected.TryGetValue(id, out var e))
+			return e.Deleted ? null : e;
+
+		if(Parent != null)
+			return Parent.Find(id);
+
+ 		if(Execution.Round.FindState<HnswTableState<D, E>>(Table).Affected.TryGetValue(id, out e))
+			return e.Deleted ? null : e;
+ 		
+		return Table.Find(id);
+ 	}
 
 	public E Find(D data)
  	{

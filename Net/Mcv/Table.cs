@@ -656,17 +656,12 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		return FindBucket(id.B)?.Find(id);
 	}
 
-	public virtual E Find(ID id, int rid)
+	public virtual E Latest(ID id)
 	{
-		if(Mcv.FindRound(rid).AffectedByTable<ID, E>(this).TryGetValue(id, out var e))
+		if(Mcv.LastConfirmedRound.AffectedByTable<ID, E>(this).TryGetValue(id, out var e))
 			return e.Deleted ? null : e;
 
 		return Find(id);
-	}
-
-	public virtual E Latest(ID id)
-	{
-		return Find(id, Mcv.LastConfirmedRound.Id);
 	}
 
 	///public override long MeasureChanges(IEnumerable<Round> tail)
