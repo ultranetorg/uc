@@ -13,7 +13,7 @@ export type SimpleMenuItem =
       label: string
       to: To
       onClick?: never
-      separator: never
+      separator?: never
     }
   | {
       label: string

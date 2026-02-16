@@ -5,7 +5,6 @@ import { ProductType } from "./ProductType"
 export type CreateProposalData = {
   title: string
   description?: string
-  duration: string
   type?: OperationType
   options: CreateProposalDataOption[]
   categoryId?: string
@@ -23,7 +22,7 @@ export type CreateProposalDataOption = {
   description?: string
   fileId?: string
   moderatorsIds?: string[]
-  nickname?: string
+  name?: string
   parentCategoryId?: string
   siteTitle?: string
   slogan?: string

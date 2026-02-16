@@ -207,9 +207,8 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "string",
-          name: "nickname",
+          name: "name",
           placeholder: t("placeholders:enterNickname"),
-          // @ts-expect-error incompatible param.
           rules: { validate: validateUniqueSiteNickname(t) },
         },
       ],

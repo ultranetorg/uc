@@ -1,5 +1,5 @@
 import { CreateProposalView } from "ui/views"
 
 export const CreateReferendumPage = () => {
-  return <CreateProposalView proposalType="referendum" requiresVoting={true} />
+  return <CreateProposalView proposalType="referendum" />
 }

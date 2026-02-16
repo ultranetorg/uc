@@ -1,5 +1,6 @@
 import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
 
 import { useSiteContext, useUserContext } from "app"
 import { ProposalType } from "types"
@@ -11,7 +12,7 @@ import {
   DropdownButton,
   SimpleMenuItem,
 } from "ui/components"
-import { groupOperations } from "utils"
+import { getVisibleOperations, groupOperations } from "utils"
 
 export type GovernanceModerationHeaderProps = {
   proposalType: ProposalType
@@ -41,25 +42,27 @@ export const GovernanceModerationHeader = memo(
   }: GovernanceModerationHeaderProps) => {
     const { t } = useTranslation()
     const { site } = useSiteContext()
+    const navigate = useNavigate()
 
     const { isModerator, isPublisher } = useUserContext()
 
     const dropdownItems = useMemo<SimpleMenuItem[] | undefined>(() => {
       if (!site) return
 
-      const operations = proposalType === "discussion" ? site.discussionOperations : site.referendumOperations
+      const operations = getVisibleOperations(proposalType, site.discussionOperations, site.referendumOperations)
       const grouped = groupOperations(operations)
       return grouped.flatMap<SimpleMenuItem>(({ items }, i) => {
         const mapped = items.map<SimpleMenuItem>(x => ({
           label: t(`operations:${x}`),
-          onClick: () => console.log(`operations:${x}`),
+          onClick: () =>
+            navigate(`/${site.id}/${proposalType === "discussion" ? "m" : "g"}/new`, { state: { type: x } }),
         }))
 
         if (i !== grouped.length - 1) mapped.push({ separator: true })
 
         return mapped
       })
-    }, [proposalType, site, t])
+    }, [navigate, proposalType, site, t])
 
     return (
       <div className="flex flex-col gap-2">
@@ -81,7 +84,7 @@ export const GovernanceModerationHeader = memo(
               {onSearchProduct && searchProductLabel && (
                 <ButtonOutline className="w-48" label={searchProductLabel} onClick={onSearchProduct} />
               )}
-              {onCreateButtonClick && createButtonLabel && (
+              {dropdownItems && dropdownItems.length > 0 && onCreateButtonClick && createButtonLabel && (
                 <DropdownButton
                   label="Create referendum"
                   items={dropdownItems!}

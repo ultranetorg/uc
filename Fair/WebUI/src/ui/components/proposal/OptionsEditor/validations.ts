@@ -30,7 +30,7 @@ export const validateUniqueParentCategory = (t: TFunction) => (value: string, da
 }
 
 export const validateUniqueSiteNickname = (t: TFunction) => (value: string, data: CreateProposalData) => {
-  const duplicates = data.options.filter(opt => opt.nickname === value)
+  const duplicates = data.options.filter(opt => opt.name === value)
   return duplicates.length <= 1 || t("validation:uniqueSiteNickname")
 }
 

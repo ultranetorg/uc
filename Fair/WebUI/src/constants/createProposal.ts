@@ -1,9 +1,5 @@
 import { OperationType } from "types"
 
-export const CREATE_PROPOSAL_DURATIONS: string[] = ["10", "15", "30"]
-
-export const CREATE_PROPOSAL_DURATION_DEFAULT = CREATE_PROPOSAL_DURATIONS[1]
-
 export const CREATE_REFERENDUM_OPERATION_TYPES: OperationType[] = [
   "site-avatar-change",
   "site-moderator-addition",
@@ -27,7 +23,7 @@ export const CREATE_DISCUSSION_OPERATION_TYPES: (
   ...CREATE_DISCUSSION_EXTRA_OPERATION_TYPES,
 ] as const
 
-export const CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES: OperationType[] = [
+export const CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES: OperationType[] = [
   "publication-creation",
   "publication-deletion",
   "publication-publish",
@@ -36,7 +32,7 @@ export const CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES: OperationType[] = [
   "user-deletion",
 ]
 
-export const CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES: OperationType[] = [
+export const CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES: OperationType[] = [
   "category-deletion",
   "publication-creation",
   "publication-deletion",

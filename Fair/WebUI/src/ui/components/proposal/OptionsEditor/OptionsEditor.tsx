@@ -9,13 +9,11 @@ import {
   useWatch,
 } from "react-hook-form"
 
-import { useModerationContext } from "app"
+import { useModerationContext, useSiteContext } from "app"
 import {
   CREATE_DISCUSSION_EXTRA_OPERATION_TYPES,
-  CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES,
-  CREATE_DISCUSSION_OPERATION_TYPES,
-  CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES,
-  CREATE_REFERENDUM_OPERATION_TYPES,
+  CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES,
+  CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES,
 } from "constants/"
 import { CreateProposalData, CreateProposalDataOption, OperationType, ProposalType } from "types"
 import { Dropdown, DropdownItem, MessageBox, ValidationWrapper } from "ui/components"
@@ -52,10 +50,10 @@ export type OptionsEditorProps = {
   t: TFunction
   proposalType: ProposalType
   labelClassName: string
-  requiresVoting: boolean
 }
 
-export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVoting }: OptionsEditorProps) => {
+export const OptionsEditor = memo(({ t, proposalType, labelClassName }: OptionsEditorProps) => {
+  const { site } = useSiteContext()
   const { lastEditedOptionIndex } = useModerationContext()
   const { control, clearErrors, setError, unregister } = useFormContext<CreateProposalData>()
   const { fields, append, remove, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
@@ -64,21 +62,21 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
 
   const [operationField, setOperationField] = useState<EditorOperationFields | undefined>(undefined)
 
-  const discussionSingleOption =
-    proposalType === "discussion" &&
-    (!requiresVoting || (!!type && CREATE_DISCUSSION_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType)))
+  const isSingleOptionProposal = !!type && CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType)
 
   const discussionHiddenType =
-    proposalType === "discussion" && CREATE_DISCUSSION_HIDDEN_OPERATION_TYPES.includes(type as OperationType)
+    proposalType === "discussion" && CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES.includes(type as OperationType)
 
   const typesItems = useMemo<DropdownItem[]>(() => {
-    const types = proposalType === "discussion" ? CREATE_DISCUSSION_OPERATION_TYPES : CREATE_REFERENDUM_OPERATION_TYPES
+    if (!site) return []
+
+    const types = proposalType === "discussion" ? site.discussionOperations : site?.referendumOperations
     return types.map(x => ({
       // @ts-expect-error fix
       label: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x) ? t(`operations:${x}`) : t(`extraOperations:${x}`),
       value: x as string,
     }))
-  }, [proposalType, t])
+  }, [proposalType, site, t])
 
   const hiddenTypeItem = useMemo<DropdownItem[] | undefined>(
     () => (discussionHiddenType ? [{ label: t(`operations:${type}`), value: type! }] : undefined),
@@ -165,12 +163,12 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
       {fields.length > 0 && (
         <>
           <div className="flex flex-col gap-4">
-            {!discussionSingleOption && (
+            {!isSingleOptionProposal && (
               <span className="text-2xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}</span>
             )}
             <OptionsEditorList
               t={t}
-              singleOption={discussionSingleOption}
+              singleOption={isSingleOptionProposal}
               operationFields={operationField!}
               fields={fields}
               append={append}
@@ -179,7 +177,7 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName, requiresVo
           </div>
         </>
       )}
-      {type && requiresVoting && <MessageBox message={t("addedAnswers")} type="warning" />}
+      {type && <MessageBox message={t("addedAnswers")} type="warning" />}
     </>
   )
 })

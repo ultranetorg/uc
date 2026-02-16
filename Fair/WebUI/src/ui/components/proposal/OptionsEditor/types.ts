@@ -23,7 +23,7 @@ export type FieldNameType =
   | "description"
   | "fileId"
   | "moderatorsIds"
-  | "nickname"
+  | "name"
   | "parentCategoryId"
   | "siteTitle"
   | "slogan"

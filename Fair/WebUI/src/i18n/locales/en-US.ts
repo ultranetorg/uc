@@ -169,6 +169,7 @@ export const enUS = {
     favoriteRemoved: `Site "{{site}}" removed from favorites`,
     nicknameChanged: "Nickname changed successfully",
     perpetualVoted: `Publisher "{{publisher}}" successfully voted`,
+    proposalCreated: `Proposal "{{proposal}}" created successfully`,
   },
 
   /* Pages */
@@ -340,7 +341,6 @@ export const enUS = {
     createReferendum: "Create Referendum",
     description: "Description (optional)",
     enterNickname: "Enter nickname",
-    howManyDays: "how many days",
     optionEditorTitle: "Option #{{number}}",
     removeFile: "Remove file",
     selected: "Selected",

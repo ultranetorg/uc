@@ -1,5 +1,5 @@
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
 export type SiteNicknameChange = {
-  nickname: string
+  name: string
 } & BaseVotableOperation
