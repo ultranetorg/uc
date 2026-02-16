@@ -21,7 +21,7 @@ public class AccountsService
 
 		lock(mcv.Lock)
 		{
-			FairUser account = (FairUser) mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			FairUser account = (FairUser) mcv.Users.Latest(name);
 			if(account == null)
 			{
 				throw new EntityNotFoundException(nameof(User), name);
@@ -39,7 +39,7 @@ public class AccountsService
 
 		lock(mcv.Lock)
 		{
-			FairUser account = (FairUser) mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			FairUser account = (FairUser) mcv.Users.Latest(name);
 			if(account == null)
 			{
 				throw new EntityNotFoundException(nameof(User).ToLower(), name);
@@ -60,7 +60,7 @@ public class AccountsService
 
 		lock(mcv.Lock)
 		{
-			FairUser account = (FairUser)mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			FairUser account = (FairUser)mcv.Users.Latest(name);
 			if(account == null)
 			{
 				throw new EntityNotFoundException(nameof(User).ToLower(), name);
@@ -99,7 +99,7 @@ public class AccountsService
 		FairUser account = null;
 		lock (mcv.Lock)
 		{
-			account = (FairUser) mcv.Users.Find(id, mcv.LastConfirmedRound.Id);
+			account = (FairUser) mcv.Users.Latest(id);
 			if (account == null)
 			{
 				throw new EntityNotFoundException(nameof(User).ToLower(), userId);
@@ -133,7 +133,7 @@ public class AccountsService
 		{
 			return sitesIds.Select(id =>
 			{
-				Site site = mcv.Sites.Find(id, mcv.LastConfirmedRound.Id);
+				Site site = mcv.Sites.Latest(id);
 				return new UserSiteModel(site)
 				{
 					ProductsCount = 0, // TODO: calculate products count.
@@ -163,9 +163,9 @@ public class AccountsService
 			{
 				return product.Publications.Select(id =>
 				{
-					Publication publication = mcv.Publications.Find(id, mcv.LastConfirmedRound.Id);
-					Category category = mcv.Categories.Find(publication.Category, mcv.LastConfirmedRound.Id);
-					Site site = mcv.Sites.Find(category.Site, mcv.LastConfirmedRound.Id);
+					Publication publication = mcv.Publications.Latest(id);
+					Category category = mcv.Categories.Latest(publication.Category);
+					Site site = mcv.Sites.Latest(category.Site);
 
 					return new UserPublicationModel(publication, site, category, product);
 				}).ToArray();
@@ -183,11 +183,11 @@ public class AccountsService
 		{
 			productModels = authorsIds.SelectMany(authorId =>
 			{
-				Author author = mcv.Authors.Find(authorId, mcv.LastConfirmedRound.Id);
+				Author author = mcv.Authors.Latest(authorId);
 
 				return author.Products.Select(productId =>
 				{
-					Product product = mcv.Products.Find(productId, mcv.LastConfirmedRound.Id);
+					Product product = mcv.Products.Latest(productId);
 					productsList.AddLast(product);
 					return new UserProductModel(product);
 				}).ToArray();
@@ -229,7 +229,7 @@ public class AccountsService
 
 		lock(mcv.Lock)
 		{
-			FairUser account = (FairUser)mcv.Users.Find(name, mcv.LastConfirmedRound.Id);
+			FairUser account = (FairUser)mcv.Users.Latest(name);
 			if(account == null || account.Avatar == null)
 			{
 				throw new EntityNotFoundException(nameof(User).ToLower(), name);

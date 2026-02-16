@@ -48,7 +48,7 @@ public class UserBandwidthAllocation : Operation
 			}
 			else
 			{
-				Error = LimitReached;
+				Error = LimitExceeded;
 				return;
 			}
 		}

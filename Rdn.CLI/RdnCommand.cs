@@ -2,13 +2,14 @@
 
 public abstract class RdnCommand : McvCommand
 {
-	public static readonly ArgumentType DA		= new ArgumentType("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"demo.application.company"]);
-	public static readonly ArgumentType RDA		= new ArgumentType("RDA",	@"Root domain address",														[@"ultranet123"]);
-	public static readonly ArgumentType SDA		= new ArgumentType("SDA",	@"Subdoman address",														[@"application.company"]);
-	public static readonly ArgumentType DCP		= new ArgumentType("DCP",	@"Domain child address",													[DomainChildPolicy.FullFreedom.ToString()]);
-	public static readonly ArgumentType RA		= new ArgumentType("RA",	@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"rdn/company/application", "/author/product"]);
-	public static readonly ArgumentType TLD		= new ArgumentType("TLD",	@"Web top-level domain",													[@"com"]);
-	public static readonly ArgumentType RZA		= new ArgumentType("RZA",	@"Release address",															[$@"{UrrScheme.Urrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType DA		= new ("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"demo.application.company"]);
+	public static readonly ArgumentType RDA		= new ("RDA",	@"Root domain address",														[@"ultranet123"]);
+	public static readonly ArgumentType SDA		= new ("SDA",	@"Subdoman address",														[@"application.company"]);
+	public static readonly ArgumentType DCP		= new ("DCP",	@"Domain child address",													[DomainChildPolicy.FullFreedom.ToString()]);
+	public static readonly ArgumentType RA		= new ("RA",	@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"rdn/company/application", "/author/product"]);
+	public static readonly ArgumentType TLD		= new ("TLD",	@"Web top-level domain",													[@"com"]);
+	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",															[$@"{UrrScheme.Urrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType LT		= new ("RLT",	@"Resource link type",														[ResourceLinkType.Hierarchy.ToString()]);
 
 	protected RdnCli			Program;
 
@@ -16,8 +17,8 @@ public abstract class RdnCommand : McvCommand
 	{
 		Program = program;
 	
-		Flow.Log?.TypesForExpanding.AddRange([typeof(IEnumerable<AnalyzerResult>), 
-											 typeof(Resource)]);
+		Flow.Log?.TypesForExpanding.AddRange([typeof(IEnumerable<AnalyzerReport>), 
+											  typeof(Resource)]);
 	}
 
 	protected Ura GetResourceAddress(string paramenter, bool mandatory = true)
@@ -58,7 +59,7 @@ public abstract class RdnCommand : McvCommand
 			if(d.Nodes.Any())
 			{
 				var ctl = DataType.Parse(GetString("data"));
-				var cnt = GetString("data/type", false) is string a ? Enum.Parse<ContentType>(a) : ContentType.Unknown;
+				var cnt = GetEnum("data/type", ContentType.Unknown);
 				var t = new DataType(ctl, cnt);
 
 				if(ctl == DataType.Data)
@@ -66,13 +67,13 @@ public abstract class RdnCommand : McvCommand
 					if(cnt == ContentType.Unknown)
 						return new ResourceData(t, d.Get<string>("hex").FromHex());
 			
-					if(cnt == ContentType.Rdn_Consil)
+					if(cnt == ContentType.Ampp_Council)
 						return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
 																SizeEnergyFeeMinimum = d.Get<long>("sefm"),
 																ResultEnergyFeeMinimum = d.Get<long>("refm"),
 																ResultSpacetimeFeeMinimum = d.Get<long>("rstfm")});
 					
-					if(cnt == ContentType.Rdn_Analysis)
+					if(cnt == ContentType.Ampp_Analysis)
 						return new ResourceData(t, new Analysis{Release			= Urr.Parse(d.Get<string>("release")), 
 																EnergyReward	= d.Get<long>("ereward"),
 																SpacetimeReward	= d.Get<long>("streward"),

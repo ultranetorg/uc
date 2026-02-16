@@ -35,7 +35,8 @@ public class ProposalService
 
 		lock (mcv.Lock)
 		{
-			Site site = mcv.Sites.Find(siteEntityId, mcv.LastConfirmedRound.Id);
+			Site site = mcv.Sites.Latest(siteEntityId);
+			
 			if (site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
@@ -106,7 +107,7 @@ public class ProposalService
 
 		lock (mcv.Lock)
 		{
-			Site site = mcv.Sites.Find(siteEntityId, mcv.LastConfirmedRound.Id);
+			Site site = mcv.Sites.Latest(siteEntityId);
 			if (site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);

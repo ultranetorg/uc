@@ -32,20 +32,20 @@ public class ResourceDownloadApc : RdnApc
 
 	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		var r = sun.Peering.Call(new ResourcePpc(Identifier), workflow).Resource;
+		var r = sun.Peering.Call(new ResourcePpc(Identifier), workflow);
 
 		if(r == null)
 			throw new ResourceException(ResourceError.NotFound);
 
-		if(r.Data == null)
+		if(r.Resource.Data == null)
 			throw new ResourceException(ResourceError.NoData);
 
-		if(r.Data.Type.Control != DataType.File && r.Data.Type.Control != DataType.Directory)
+		if(r.Resource.Data.Type.Control != DataType.File && r.Resource.Data.Type.Control != DataType.Directory)
 			throw new ResourceException(ResourceError.NotSupportedDataControl);
 
 		IIntegrity itg;
 
-		var urr = r.Data.Parse<Urr>();
+		var urr = r.Resource.Data.Parse<Urr>();
 
 		switch(urr)
 		{ 
@@ -65,16 +65,16 @@ public class ResourceDownloadApc : RdnApc
 		lock(sun.ResourceHub.Lock)
 		{
 			var lrs = sun.ResourceHub.Find(r.Address) ?? sun.ResourceHub.Add(r.Address);
-			lrs.AddData(r.Data);
+			lrs.AddData(r.Resource.Data);
 
 			var lrl = sun.ResourceHub.Find(urr) ?? sun.ResourceHub.Add(urr);
 
-			if(r.Data.Type.Control == DataType.File)
+			if(r.Resource.Data.Type.Control == DataType.File)
 			{
 				sun.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, null, workflow);
 				return r;
 			}
-			else if(r.Data.Type.Control == DataType.Directory)
+			else if(r.Resource.Data.Type.Control == DataType.Directory)
 			{
 				sun.ResourceHub.DownloadDirectory(lrl, LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, workflow);
 				return r;

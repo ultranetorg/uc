@@ -2,7 +2,7 @@
 
 public class ProposalCommentPpc : FairPpc<ProposalCommentPpr>
 {
-	public new AutoId	Id { get; set; }
+	public AutoId	Id { get; set; }
 
 	public ProposalCommentPpc()
 	{
@@ -22,7 +22,7 @@ public class ProposalCommentPpc : FairPpc<ProposalCommentPpr>
 		{	
 			RequireGraph();
 
-			var	e = Mcv.ProposalComments.Find(Id, Mcv.LastConfirmedRound.Id);
+			var	e = Mcv.ProposalComments.Latest(Id);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);

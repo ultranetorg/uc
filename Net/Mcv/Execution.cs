@@ -82,8 +82,8 @@ public class Execution : ITableExecution
 
 		if(Parent != null)
 			Parent.AffectedMetas.TryGetValue(id, out a);
-		else
-			a = Mcv.Metas.Find(id, Round.Id);
+		else if(!Round.AffectedMetas.TryGetValue(id, out a))
+			a = Mcv.Metas.Find(id);
 		
 		if(a == null)
 		{
@@ -111,18 +111,10 @@ public class Execution : ITableExecution
 		NextEids[table.Id].TryGetValue(b, out e);
 
 		if(e == 0)
-		{
-			foreach(var r in Mcv.Tail.Where(i => i.Id <= Round.Id))
-			{	
-				var eids = r.NextEids[table.Id];
-
-				if(eids != null && eids.TryGetValue(b, out e))
-					break;
-			}
-		}
-			
+			Round.NextEids[table.Id].TryGetValue(b, out e);
+		
 		if(e == 0)
-			e = table.FindBucket(b)?.NextE ?? 0;
+			e = table.FindBucket(b)?.NextI ?? 0;
 
 		NextEids[table.Id][b] = e + 1;
 
@@ -166,27 +158,6 @@ public class Execution : ITableExecution
 		Transaction.EnergyConsumed += EnergyCost;
 	}
 
-///	public void AllocateForever(ISpacetimeHolder payer, int length)
-///	{
-///		if(payer.Space > McvNet.FreeSpaceMaximum)
-///		{
-///			payer.Spacetime -= ToBD(length, Mcv.Forever);
-///			SpacetimeSpenders.Add(payer);
-///		}
-///	}
-
-///	public void FreeForever(ISpacetimeHolder payer, int length)
-///	{
-///		payer.Spacetime += ToBD(length, Mcv.Forever);
-///	}
-
-///	public void FreeEntity()
-///	{
-///		AffectSpaces();
-///
-///		Spaces[Time.Days] += ToBD(Transaction.Net.EntityLength, Mcv.Forever); /// to be distributed between members
-///	}
-
 	public static long ToBD(long length, short time)
 	{
 		return time * length;
@@ -204,9 +175,12 @@ public class Execution : ITableExecution
 
 		consumer.Space += space;
 
-		var n = consumer.Expiration - Time.Days;
+		if(consumer.Free && consumer.Space > Net.FreeSpaceMaximum)
+			consumer.Free = false;
 	
-		if(!consumer.IsFree(this))
+		var n = consumer.Expiration - Time.Days;
+
+		if(!consumer.Free)
 		{	
 			payer.Spacetime -= ToBD(space, (short)n);
 			SpacetimeSpenders.Add(payer);
@@ -225,7 +199,7 @@ public class Execution : ITableExecution
 
 		consumer.Expiration = (short)(start + duration.Days);
 
-		if(!consumer.IsFree(this) || duration.Years != 1)
+		if(!consumer.Free || duration.Years != 1)
 		{
 			payer.Spacetime -= ToBD(consumer.Space, duration);
 			SpacetimeSpenders.Add(payer);
@@ -259,7 +233,7 @@ public class Execution : ITableExecution
 		
 		if(d > 0)
 		{
-			if(!consumer.IsFree(this))
+			if(!consumer.Free)
 				beneficiary.Spacetime += ToBD(space, (short)(d - 1));
 	
 			AffectSpaces();
@@ -281,8 +255,10 @@ public class Execution : ITableExecution
 		
 		if(Parent != null)
 			s = Parent.FindUser(u);
+		else if(Round.AffectedUsers.Values.FirstOrDefault(i => i.Name == u) is User x)
+			s = x;
 		else
-			s = Mcv.Users.Find(u, Round.Id);
+			s = Mcv.Users.FindEntry(u);
 
 		if(s == null)
 		{	
@@ -327,7 +303,10 @@ public class Execution : ITableExecution
 		if(Parent != null)
 			return Parent.FindUser(id);
 
-		return Mcv.Users.Find(id, Round.Id);
+		if(Round.AffectedUsers.TryGetValue(id, out a))
+			return a;
+
+		return Mcv.Users.Find(id);
 	}
 
 	public User FindUser(string name)
@@ -338,7 +317,10 @@ public class Execution : ITableExecution
 		if(Parent != null)
 			return Parent.FindUser(name);
 
-		return Mcv.Users.Find(name, Round.Id);
+		if(Round.AffectedUsers.Values.FirstOrDefault(i => i.Name == name) is User x)
+			return x;
+
+		return Mcv.Users.FindEntry(name);
 	}
 
 	public virtual User CreateUser(string name, AccountAddress owner)
@@ -369,8 +351,10 @@ public class Execution : ITableExecution
 
 		if(Parent != null)
 			a = Parent.FindUser(id);
-		else
-			a = Mcv.Users.Find(id, Round.Id)?.Clone() as User;
+		else if(!Round.AffectedUsers.TryGetValue(id, out a))
+			a = Mcv.Users.Find(id);
+
+		a = a.Clone() as User;
 
 		AffectedUsers[a.Id] = a;
 

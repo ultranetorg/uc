@@ -16,7 +16,9 @@ public abstract class Round : IBinarySerializable
 	public long											PerVoteOperationsMaximum			=> Mcv.Net.OperationsPerRoundMaximum / Members.Count;
 	//public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
-	public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
+	//public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
+	public bool											IsLastInCommit => AffectedCount >= Net.AffectedCountMaximum;
+	public virtual int									AffectedCount => AffectedMetas.Count + AffectedUsers.Count + Mcv.Tables.Sum(i => AffectedByTable(i).Count);
 
 	public int											Try;
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
@@ -54,7 +56,7 @@ public abstract class Round : IBinarySerializable
 	public long[]										Bandwidths;
 
 	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
-	public Dictionary<AutoId, User>						AffectedAccounts = new();
+	public Dictionary<AutoId, User>						AffectedUsers = new();
 	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;
@@ -64,6 +66,21 @@ public abstract class Round : IBinarySerializable
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation o){}
 	public virtual void									ConfirmForeign(Execution execution){}
+
+	public Round FindParent(int level)
+	{
+		var p = Parent;
+
+		for(int i = 0; i < level; i++)
+		{
+			p = p.Parent;
+
+			if(p == null)
+				break;
+		}
+
+		return p;
+	}
 
 	public int MinimumForConsensus
 	{
@@ -129,7 +146,7 @@ public abstract class Round : IBinarySerializable
 
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Users)	return AffectedAccounts;
+		if(table == Mcv.Users)	return AffectedUsers;
 		if(table == Mcv.Metas)	return AffectedMetas;
 
 		throw new IntegrityException();
@@ -298,17 +315,20 @@ public abstract class Round : IBinarySerializable
 				o.Error = null;
 		}
 
-		Candidates	= Id == 0 ? new()										: Previous.Candidates; /// cloned in Execution.AffectCandidate
-		Members		= Id == 0 ? new()										: Previous.Members;
-		Funds		= Id == 0 ? new()										: Previous.Funds;
-		Bandwidths	= Id == 0 ? new long[McvNet.BandwidthPeriodsMaximum]	: Previous.Bandwidths;
-		Spacetimes	= Id == 0 ? new long[1]									: Previous.Spacetimes;
+		Candidates	= Id == 0 ? []										 : Previous.Candidates; /// cloned in Execution.AffectCandidate
+		Members		= Id == 0 ? []										 : Previous.Members;
+		Funds		= Id == 0 ? []										 : Previous.Funds;
+		Bandwidths	= Id == 0 ? new long[McvNet.BandwidthPeriodsMaximum] : Previous.Bandwidths;
+		Spacetimes	= Id == 0 ? new long[1]								 : Previous.Spacetimes;
 
-		AffectedMetas.Clear();
-		AffectedAccounts.Clear();
+		AffectedMetas		= Id == 0 ? [] : new (Previous.AffectedMetas);
+		AffectedUsers	= Id == 0 ? [] : new (Previous.AffectedUsers);
 		
-		foreach(var i in NextEids)
-			i.Clear();
+		NextEids = [..Mcv.Tables.Select(i => (Dictionary<int, int>)null)];
+		for(int i = 0; i < NextEids.Length; i++)
+		{
+			NextEids[i] = Id == 0 ? [] : new(Previous.NextEids[i]); 
+		}
 
 		foreach(var i in Mcv.Tables)
 			FindState<TableStateBase>(i)?.StartRoundExecution(this);
@@ -381,7 +401,7 @@ public abstract class Round : IBinarySerializable
 			AffectedMetas[i.Key] = i.Value;
 
 		foreach(var i in execution.AffectedUsers)
-			AffectedAccounts[i.Key] = i.Value;
+			AffectedUsers[i.Key] = i.Value;
 
 		for(int t=0; t<Mcv.Tables.Length; t++)
 			foreach(var i in execution.NextEids[t])
@@ -484,6 +504,7 @@ public abstract class Round : IBinarySerializable
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
+		Mcv.Tail.RemoveAll(i => i.Id < VotersId);
 		Mcv.Confirmed?.Invoke(this);
 	}
 
@@ -520,7 +541,7 @@ public abstract class Round : IBinarySerializable
 		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusEnergyCost	= reader.Read7BitEncodedInt64();
+		ConsensusEnergyCost		= reader.Read7BitEncodedInt64();
 	}
 
 	public virtual void WriteConfirmed(BinaryWriter writer)
@@ -537,7 +558,7 @@ public abstract class Round : IBinarySerializable
 	public virtual void ReadConfirmed(BinaryReader reader)
 	{
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusEnergyCost	= reader.Read7BitEncodedInt64();
+		ConsensusEnergyCost		= reader.Read7BitEncodedInt64();
 		ConsensusMemberLeavers	= reader.ReadArray<AutoId>();
 		ConsensusViolators		= reader.ReadArray<AutoId>();
 		ConsensusFundJoiners	= reader.ReadArray<AccountAddress>();

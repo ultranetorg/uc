@@ -12,6 +12,7 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	public const ushort	Data							= 000;
 	public const ushort	File							= 001;
 	public const ushort	Directory						= 002;
+	public const ushort	Subnet							= 003;
 	public const ushort	Redirect						= 010;
 	public const ushort		Redirect_Uri				= 010_00;
 
@@ -39,18 +40,6 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	{
 		return $"{Control}, {Content}";
 	}
-
-	///public bool IsValueDerived(short[] value)
-	///{
-	///	return value.Length <= Control.Length && Control.Take(value.Length).SequenceEqual(value);
-	///}
-	///
-	///public bool IsContentDerived(short[] content)
-	///{
-	///	BitOperations.
-	///
-	///	return content.Length <= Content.Length && Content.Take(content.Length).SequenceEqual(content);
-	///}
 
 	public override bool Equals(object obj)
 	{
@@ -90,27 +79,21 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	}
 }
 
-public enum ContentType
+public enum ContentType : uint
 {
-	Unknown 					= 0,
-	Raw 						= 0 ,
-	Text						= 010,
-	Image						= 020,
-	Audio						= 030,
-	Video						= 040,
-	Font						= 050,
-	Applied						= 100,
-		Rdn						= 100_000,
-			Rdn_ProductManifest	= 100_000_000,
-			Rdn_VersionManifest	= 100_000_001,
-			Rdn_Consil			= 100_000_002,
-			Rdn_Analysis		= 100_000_003,
+	Unknown 						= 0,
+	Raw 							= 0,
+	Text							= 0010,
+	Image							= 0020,
+	Audio							= 0030,
+	Video							= 0040,
+	Font							= 0050,
+	Software						= 1000,
+		Software_ProductManifest	= 1000_000_000,
+		Software_PackageManifest	= 1000_000_001,
+		Ampp_Council				= 1000_001_000,
+		Ampp_Analysis				= 1000_001_001,
 }
-// 
-// 	public interface IResourceValue
-// 	{
-// 		byte[]		Transform();
-//  	}
 
 public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 {
@@ -131,19 +114,6 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
  			return s.ToArray().ToHex();
  		}
  	}
-// 
-// 		public object Interpretation
-// 		{
-// 			get
-// 			{
-// 				if(_Interpretation == null && _Value != null)
-// 				{
-// 					ReadInterpetation(new BinaryReader(new MemoryStream(_Value)));
-// 				}
-// 
-// 				return _Interpretation;
-// 			}
-// 		}
 
 	public ResourceData()
 	{
@@ -177,12 +147,6 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 		}
 	}
 
-	//public static ResourceData FromValue(DataType type, byte[] value)
-	//{
-	//	Type = type;
-	//	_Value = value;
-	//}
-
 	public override string ToString()
 	{
 		return $"{Type}, {Value.Length}";
@@ -209,46 +173,6 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 		Type	= reader.Read<DataType>();
 		Value	= reader.ReadBytes();
 	}
-// 
-// 		public void ReadInterpetation(BinaryReader reader)
-// 		{
-// 			switch(BaseType)
-// 			{
-// 				case DataBaseType.Bytes:	_Interpretation = reader.ReadBytes();	break;
-// 				case DataBaseType.UTF8:		_Interpretation = reader.ReadUtf8();	break;
-// 				case DataBaseType.Ura:		_Interpretation = reader.Read<Ura>();	break;
-// 				case DataBaseType.Urr:		_Interpretation = reader.ReadVirtual<Urr>(); break;
-// 
-// 				//case DataType.Consil:	_Interpretation = reader.Read<Consil>(); break;
-// 				//case DataType.Analysis:	_Interpretation = reader.Read<Analysis>(); break;
-// 
-// 
-// 				default:
-// 					throw new ResourceException(ResourceError.UnknownDataType);
-// 			}
-// 		}
-// 
-// 		void WriteInterpetation(BinaryWriter writer)
-// 		{
-// 			switch(BaseType)
-// 			{
-// 				case DataBaseType.Bytes:
-// 					writer.WriteBytes(Interpretation as byte[]);
-// 					break;
-// 	
-// 				case DataBaseType.UTF8:
-// 					writer.WriteUtf8(Interpretation as string);
-// 					break;
-// 				
-// 				case DataBaseType.Ura:
-// 				case DataBaseType.Urr:
-// 					writer.Write(Interpretation as IBinarySerializable);
-// 					break;
-// 
-// 				default:
-// 					throw new ResourceException(ResourceError.UnknownDataType);
-// 			}
-// 		}
 
 	public override int GetHashCode()
 	{
@@ -274,11 +198,6 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 	public static bool operator !=(ResourceData left, ResourceData right)
 	{
 		return !(left == right);
-	}
-	
-	public ResourceData Clone()
-	{
-		return new ResourceData {Type = Type, Value = Value};
 	}
 }
 

@@ -18,12 +18,8 @@ public class DomainTable : Table<AutoId, Domain>
 		return new Domain(Mcv);
 	}
 	
- 	public Domain Find(string name, int ridmax)
+ 	public Domain Find(string name)
  	{
- 		foreach(var r in Tail.Where(i => i.Id <= ridmax))
-			if(r.Domains.Affected.Values.FirstOrDefault(i => i.Address == name) is Domain d && !d.Deleted)
-				return d;
- 		
 		var bid = KeyToBid(name);
 
 		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Address == name);
@@ -31,13 +27,19 @@ public class DomainTable : Table<AutoId, Domain>
 
 	public virtual Domain Latest(string name)
 	{
-		return Find(name, Mcv.LastConfirmedRound.Id);
+		var e = (Mcv.LastConfirmedRound as RdnRound).Domains.Affected.Values.FirstOrDefault(i => i.Address == name);
+
+		if(e != null)
+			return e.Deleted ? null : e;
+
+		return Find(name);
 	}
 }
 
 public class DomainExecution : TableExecution<AutoId, Domain>
 {
 	new DomainTable										Table => base.Table as DomainTable;
+	new RdnExecution									Execution=> base.Execution as RdnExecution;
 	public static Dictionary<string, HashSet<string>>	Priority = [];
 		
 	public DomainExecution(RdnExecution execution) : base(execution.Mcv.Domains, execution)
@@ -55,30 +57,45 @@ public class DomainExecution : TableExecution<AutoId, Domain>
 
 	public Domain Find(string name)
 	{
-		if(Affected.Values.FirstOrDefault(i => i.Address == name) is Domain a)
-			return a;
+		var e = Affected.Values.FirstOrDefault(i => i.Address == name);
 
-		return Table.Find(name, Execution.Round.Id);
+		if(e != null)
+			return e.Deleted ? null : e;
+
+		if(Parent != null)
+			return (Parent as DomainExecution).Find(name);
+
+		e = Execution.Round.Domains.Affected.Values.FirstOrDefault(i => i.Address == name);
+
+		if(e != null)
+			return e.Deleted ? null : e;
+
+		return Table.Find(name);
 	}
 
-	public Domain Affect(string address)
+	public Domain Affect(string name)
 	{
-		if(Affected.Values.FirstOrDefault(i => i.Address == address) is Domain d && !d.Deleted)
+		if(Affected.Values.FirstOrDefault(i => i.Address == name) is Domain d)
 			return d;
-		
-		d = Table.Find(address, Execution.Round.Id);
+
+		if(Parent != null)
+			d = (Parent as DomainExecution).Find(name);
+		else if(Execution.Round.Domains.Affected.Values.FirstOrDefault(i => i.Address == name) is Domain x)
+			d = x;
+		else
+			d = Table.Find(name);
 
 		if(d != null)
 			return Affected[d.Id] = d.Clone() as Domain;
 		else
 		{
-			var b = Table.KeyToBid(address);
+			var b = Table.KeyToBid(name);
 			
 			int e = Execution.GetNextEid(Table, b);
 
 			d = new Domain(Execution.Mcv);
 			d.Id = LastCreatedId = new AutoId(b, e);
-			d.Address = address;
+			d.Address = name;
 
 			return Affected[d.Id] = d;
 		}

@@ -17,19 +17,20 @@ public interface ISpaceConsumer
 {
 	long		Space { get; set; }
 	short		Expiration { get; set; }
-
-	bool		IsFree(Execution execution);
+	bool		Free { get; set; }
 
 	public void WriteSpaceConsumer(BinaryWriter writer)
 	{
 		writer.Write7BitEncodedInt64(Space);
 		writer.Write(Expiration);
+		writer.Write(Free);
 	}
 
 	public void ReadSpaceConsumer(BinaryReader reader)
 	{
 		Space	 	= reader.Read7BitEncodedInt64();
 		Expiration 	= reader.ReadInt16();
+		Free	 	= reader.ReadBoolean();
 	}
 }
 

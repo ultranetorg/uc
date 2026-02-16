@@ -14,7 +14,7 @@ public class PackageInfo
 {
 	public bool				Available { get; set; }
 	public string			Path { get; set; }
-	public VersionManifest	Manifest { get; set; }
+	public PackageManifest	Manifest { get; set; }
 
 	public PackageInfo()
 	{
@@ -46,7 +46,7 @@ public class PackageAddApc : Apc, INexusApc
 			
 			lock(nexus.RdnNode.ResourceHub.Lock)
 			{
-				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Rdn_VersionManifest), a));
+				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Software_PackageManifest), a));
 				
 				var r = nexus.RdnNode.ResourceHub.Find(a) ?? nexus.RdnNode.ResourceHub.Add(a);
 

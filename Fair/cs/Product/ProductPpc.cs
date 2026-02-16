@@ -17,7 +17,7 @@ public class ProductPpc : FairPpc<ProductPpr>
 	{
  		lock(Mcv.Lock)
 		{	
-			var	r = Mcv.Products.Find(Id, Mcv.LastConfirmedRound.Id);
+			var	r = Mcv.Products.Latest(Id);
 							
 			if(r == null)
 				throw new EntityException(EntityError.NotFound);

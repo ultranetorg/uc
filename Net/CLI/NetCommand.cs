@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Reflection;
+
+namespace Uccs.Net;
 
 public abstract class NetCommand : Command
 {
@@ -27,49 +29,6 @@ public abstract class NetCommand : Command
 		
 	protected NetCommand(List<Xon> args, Flow flow) : base(args, flow)
 	{
-	}
-
-	public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
-	{
-		if(Has(paramenter))
-			return AccountAddress.Parse(GetString(paramenter));
-		else
-			if(mandatory)
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
-			else
-				return null;
-	}
-
-	protected E GetEnum<E>(string paramenter, E def) where E : struct
-	{
-		var p = One(paramenter);
-
-		if(p != null)
-			return Enum.Parse<E>(p.Get<string>());
-		else
-			return def;
-	}
-
-	protected E GetEnum<E>(string paramenter) where E : struct
-	{
-		var p = One(paramenter);
-
-		if(p != null)
-			return Enum.Parse<E>(p.Get<string>());
-		else
-			throw new SyntaxException($"Parameter '{paramenter}' not provided");
-	}
-
-	protected E GetEnum<E>(int index) where E : struct
-	{
-		try
-		{
-			return Enum.Parse<E>(Args[index].Name);
-		}
-		catch(Exception)
-		{
-			throw new SyntaxException($"Parameter at {index} position is not provided or incorrect");
-		}
 	}
 
 	protected void Run(Cli cli, CommandAction action)
@@ -105,5 +64,88 @@ public abstract class NetCommand : Command
 		}
 		else
 			WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
+	}
+
+	public TransactionApe Transact(McvApiClient api, IEnumerable<Operation> operations, string user, ActionOnResult aor)
+	{
+		var t = api.Call<TransactionApe>(	new TransactApc
+											{
+												Operations = operations,
+												User = user,
+												Application = Assembly.GetEntryAssembly().Location,
+												ActionOnResult = aor
+											},
+											Flow);
+		int n = 0;
+
+		do 
+		{
+			t = api.Call<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
+
+			if(t.Status != TransactionStatus.FailedOrNotFound)
+			{
+				foreach(var i in t.Log.Skip(n))
+				{
+					foreach(var j in i.Text)
+						Report(j);
+				}
+	
+				n += t.Log.Length;
+			}
+
+			Thread.Sleep(1);
+		}
+		while(!(aor == ActionOnResult.RetryUntilConfirmed && t.Status == TransactionStatus.Confirmed || 
+				aor == ActionOnResult.ExpectFailure && t.Status == TransactionStatus.FailedOrNotFound ||
+				aor == ActionOnResult.CancelOnFailure && (t.Status == TransactionStatus.FailedOrNotFound || t.Status == TransactionStatus.Confirmed) ||
+				aor == ActionOnResult.DoNotCare));
+
+		if(t.Status == TransactionStatus.Confirmed)
+			Flow.Log.Dump(t);
+
+		return t;
+	}
+
+	public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
+	{
+		if(Has(paramenter))
+			return AccountAddress.Parse(GetString(paramenter));
+		else
+			if(mandatory)
+				throw new SyntaxException($"Parameter '{paramenter}' not provided");
+			else
+				return null;
+	}
+
+	protected E GetEnum<E>(string paramenter, E def) where E : struct
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return Enum.Parse<E>(p.Get<string>(), true);
+		else
+			return def;
+	}
+
+	protected E GetEnum<E>(string paramenter) where E : struct
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return Enum.Parse<E>(p.Get<string>(), true);
+		else
+			throw new SyntaxException($"Parameter '{paramenter}' not provided");
+	}
+
+	protected E GetEnum<E>(int index) where E : struct
+	{
+		try
+		{
+			return Enum.Parse<E>(Args[index].Name, true);
+		}
+		catch(Exception)
+		{
+			throw new SyntaxException($"Parameter at {index} position is not provided or incorrect");
+		}
 	}
 }

@@ -35,6 +35,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public abstract string		Explanation { get; }
 
 	public const string			AlreadyExists = "Already exists";
+	public const string			AlreadySet = "Already set";
 	public const string			AlreadyTaken = "Already taken";
 	public const string			AtLeastOneOwnerRequired = "At least one owner required";
 	public const string			Denied = "Access denied";
@@ -42,7 +43,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			ExistingAccountRequired = "ExistingAccountRequired";
 	public const string			Expired = "Expired";
 	public const string			InvalidName = "Invalid Name";
-	public const string			LimitReached = "Limit Reached";
+	public const string			LimitExceeded = "Limit exceeded";
 	public const string			OutOfBounds = "Out Of Bounds";
 	public const string			Mismatch = "Mismatch";
 	public const string			NotAvailable = "Not Available";

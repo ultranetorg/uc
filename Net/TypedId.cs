@@ -16,7 +16,7 @@ public class TypedId<T> : AutoId where T : unmanaged, Enum
 
 	public override string ToString()
 	{
-		return $"{B}-{E}-{(byte)(object)Type}";
+		return $"{B}-{I}-{(byte)(object)Type}";
 	}
 
 	public override int GetHashCode()
@@ -65,14 +65,14 @@ public class TypedId<T> : AutoId where T : unmanaged, Enum
 	public override void Read(BinaryReader reader)
 	{
 		B		= reader.Read7BitEncodedInt();
-		E		= reader.Read7BitEncodedInt();
+		I		= reader.Read7BitEncodedInt();
 		Type	= reader.Read<T>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write7BitEncodedInt(B);
-		writer.Write7BitEncodedInt(E);
+		writer.Write7BitEncodedInt(I);
 		writer.Write(Type);
 	}
 
@@ -83,7 +83,7 @@ public class TypedId<T> : AutoId where T : unmanaged, Enum
 
 	public override bool Equals(EntityId a)
 	{
-		return a is TypedId<T> e && B == a.B && E == e.E && Type.Equals(e.Type);
+		return a is TypedId<T> e && B == a.B && I == e.I && Type.Equals(e.Type);
 	}
 
 	public override int CompareTo(EntityId a)

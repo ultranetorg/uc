@@ -11,6 +11,7 @@ public abstract class Rdn : McvNet
 	public override int				TablesCount => Enum.GetValues<RdnTable>().Length;
 	public override int				FreeSpaceMaximum => 4096;
 	public int						FreeNameLengthMinimum => 8;
+	public int						CircularDependeciesChecksMaximum => 100_000;
 		
  	public static readonly Rdn		Local = new RdnLocal();
  	public static readonly Rdn		Test = new RdnTest();
@@ -35,7 +36,7 @@ public class RdnLocal : Rdn
 	{
 		Father0IP						= new(DefaultHost, PpiPort);
 		Cryptography					= Cryptography.No;
-		CommitLength					= 100;
+		AffectedCountMaximum			= 10;
 		ECLifetime						= Time.FromYears(100);
 		UserFreeCreationPoWDifficulity	= 150;
 

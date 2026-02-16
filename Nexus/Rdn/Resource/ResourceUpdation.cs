@@ -29,9 +29,9 @@ public class ResourceUpdation : RdnOperation
 			Changes = ResourceChanges.NullData;
 	}
 
-	public void Seal()
+	public void MakeDependable()
 	{
-		Changes |= ResourceChanges.Seal;
+		Changes |= ResourceChanges.Dependable;
 	}
 
 	public void MakeRecursive()
@@ -64,20 +64,20 @@ public class ResourceUpdation : RdnOperation
 
 		d = execution.Domains.Affect(d.Id);
 		
-		void execute(Ura resource)
+		void execute(AutoId resource)
 		{
-			var r = execution.Resources.Affect(d, resource.Resource);
+			var r = execution.Resources.Affect(resource);
 
-			if(rs.Contains(r.Id.E))
+			if(rs.Contains(r.Id.I))
 				return;
 			else
-				rs.Add(r.Id.E);
+				rs.Add(r.Id.I);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{
-				if(r.Flags.HasFlag(ResourceFlags.Sealed))
+				if(r.IsLocked(execution))
 				{
-					Error = Sealed;
+					Error = Locked;
 					return;
 				}
 
@@ -91,13 +91,12 @@ public class ResourceUpdation : RdnOperation
 				r.Updated	= execution.Time;
 
 				execution.Allocate(User, d, r.Data.Value.Length);
-				d.ResetFreeIfNeeded(execution);
 			}
 			else if(Changes.HasFlag(ResourceChanges.NullData))
 			{
-				if(r.Flags.HasFlag(ResourceFlags.Sealed))
+				if(r.IsLocked(execution))
 				{
-					Error = Sealed;
+					Error = Locked;
 					return;
 				}
 
@@ -113,17 +112,17 @@ public class ResourceUpdation : RdnOperation
 				r.Data = null;
 			}
 
-			if(Changes.HasFlag(ResourceChanges.Seal))
+			if(Changes.HasFlag(ResourceChanges.Dependable))
 			{
-				if(r.Flags.HasFlag(ResourceFlags.Sealed))
+				if(r.Flags.HasFlag(ResourceFlags.Dependable))
 				{
-					Error = Sealed;
+					Error = AlreadySet;
 					return;
 				}
 
-				r.Flags	|= ResourceFlags.Sealed;
+				r.Flags	|= ResourceFlags.Dependable;
 
-				execution.PayForForever(execution.Net.EntityLength + r.Length);
+				//execution.PayForForever(execution.Net.EntityLength + r.Length);
 			}
 
 			if(Changes.HasFlag(ResourceChanges.Recursive))
@@ -133,11 +132,7 @@ public class ResourceUpdation : RdnOperation
 					foreach(var i in r.Inbounds)
 					{
 						if(i == d.Id)
-						{
-							var l = execution.Resources.Find(i);
-
-							execute(l.Address);
-						}
+							execute(i);
 					}
 				}
 			} 
@@ -145,6 +140,6 @@ public class ResourceUpdation : RdnOperation
 			execution.PayOperationEnergy(User);
 		}
 
-		execute(x.Address);
+		execute(Resource);
 	}
 }

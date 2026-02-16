@@ -26,22 +26,20 @@ public class ResourceDeletion : RdnOperation
 		if(RequireSignerResource(execution, Resource, out var d, out var r) == false)
 			return;
 
-		if(r.Flags.HasFlag(ResourceFlags.Sealed))
+		if(r.IsLocked(execution))
 		{
-			Error = Sealed;
+			Error = Locked;
 			return;
 		}
 
 		d = execution.Domains.Affect(d.Id);
 		execution.Resources.Affect(Resource).Deleted = true;
 
-		execution.Free(User, d, execution.Net.EntityLength + r.Length);
+		execution.Free(User, d, execution.Net.EntityLength + r.DataLength);
 
 		foreach(var i in r.Outbounds)
 		{
-			var dr = execution.Resources.Find(i.Destination);
-
-			dr = execution.Resources.Affect(d, dr.Address.Resource);
+			var dr = execution.Resources.Affect(i.Destination);
 			dr.RemoveInbound(r.Id);
 
 			execution.Free(User, d, execution.Net.EntityLength);
@@ -49,9 +47,7 @@ public class ResourceDeletion : RdnOperation
 
 		foreach(var i in r.Inbounds ?? [])
 		{
-			var sr = execution.Resources.Find(i);
-
-			sr = execution.Resources.Affect(d, sr.Address.Resource);
+			var sr = execution.Resources.Affect(i);
 			sr.RemoveOutbound(r.Id);
 		}
 	}

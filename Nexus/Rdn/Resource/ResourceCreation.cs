@@ -14,13 +14,13 @@ public class ResourceCreation : RdnOperation
 	{
 	}
 
-	public ResourceCreation(Ura resource, ResourceData data, bool seal)
+	public ResourceCreation(Ura resource, ResourceData data, bool dependable)
 	{
 		Address = resource;
 		Data = data;
 
 		if(Data != null)	Changes |= ResourceChanges.SetData;
-		if(seal)			Changes |= ResourceChanges.Seal;
+		if(dependable)		Changes |= ResourceChanges.Dependable;
 	}
 
 	public override void Read(BinaryReader reader)
@@ -41,7 +41,7 @@ public class ResourceCreation : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		if(RequireDomainAccess(execution, Address.Domain, out var d) == false)
+		if(!RequireDomainAccess(execution, Address.Domain, out var d))
 			return;
 
 		var r = execution.Resources.Find(Address);
@@ -61,18 +61,13 @@ public class ResourceCreation : RdnOperation
 			r.Updated	= execution.Time;
 		}
 
-		if(Changes.HasFlag(ResourceChanges.Seal))
+		if(Changes.HasFlag(ResourceChanges.Dependable))
 		{
-			r.Flags	|= ResourceFlags.Sealed;
-			execution.PayForForever(execution.Net.EntityLength + r.Length);
-		}
-		else
-		{	
-			d = execution.Domains.Affect(d.Id);
-			execution.Allocate(User, d, execution.Net.EntityLength + r.Length);
-			d.ResetFreeIfNeeded(execution);
+			r.Flags	|= ResourceFlags.Dependable;
 		}
 
+		d = execution.Domains.Affect(d.Id);
+		execution.Allocate(User, d, execution.Net.EntityLength + r.DataLength);
 		execution.PayOperationEnergy(User);
 	}
 }

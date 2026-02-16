@@ -40,7 +40,7 @@ public abstract class TableBase
 
 		public int									Id;
 		public int									Size;
- 		public int									NextE { get; set; }
+ 		public int									NextI { get; set; }
 		public byte[]								Hash { get; set; }
 		public abstract IEnumerable<ITableEntry>	Entries { get; }
 
@@ -102,14 +102,14 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	
 				Hash			= r.ReadHash();
 				Size			= r.Read7BitEncodedInt();
-				NextE			= r.Read7BitEncodedInt();
+				NextI			= r.Read7BitEncodedInt();
 				_Entries		= r.ReadSortedDictionary(() => r.Read<ID>(), () => new Item());
 			}
 		}
 
 		public override string ToString()
 		{
-			return $"{Id}, Entries={{{_Entries?.Count}}}, Hash={Hash?.ToHex()}, NextE={NextE}";
+			return $"{Id}, Entries={{{_Entries?.Count}}}, Hash={Hash?.ToHex()}, NextE={NextI}";
 		}
 
 		public E Find(ID id)
@@ -144,7 +144,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 			
-			w.Write7BitEncodedInt(NextE); /// hash this too
+			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
 
 			Hash = Cryptography.Hash(s.ToArray());
@@ -171,7 +171,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
-			w.Write7BitEncodedInt(NextE);
+			w.Write7BitEncodedInt(NextI);
 			w.Write(_Entries.Keys);
 
 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
@@ -182,7 +182,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
 
-			w.Write7BitEncodedInt(NextE); /// hash this too
+			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
 
 			foreach(var i in _Entries)
@@ -208,7 +208,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			var s = new MemoryStream(data);
 			var r = new BinaryReader(s);
 
-			NextE = r.Read7BitEncodedInt();
+			NextI = r.Read7BitEncodedInt();
 			var n = r.Read7BitEncodedInt();
 
 			Hash = Cryptography.Hash(data[..(int)s.Position]);
@@ -232,7 +232,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
-			w.Write7BitEncodedInt(NextE);
+			w.Write7BitEncodedInt(NextI);
 			w.Write(_Entries.Keys);
 
 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
@@ -579,8 +579,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 				b.Remove(batch, i.Key as ID);
 
 			if(i.Key is AutoId id)
-				if(b.NextE < id.E + 1)
-					b.NextE = id.E + 1;
+				if(b.NextI < id.I + 1)
+					b.NextI = id.I + 1;
 
 			bs.Add(b);
 			cs.Add(c);
@@ -654,36 +654,14 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	public virtual E Find(ID id)
 	{
 		return FindBucket(id.B)?.Find(id);
-		//var j = eee?.BinarySearch(null, new BinaryComparer(x => x.Key.CompareTo(id)));
-		//
-		//return j >= 0 ? eee[j.Value] : null;
-
-		//return FindBucket(id.B)?.Entries.Find(i => ((EntityId)i.Key).E == id.E);
-	}
-
-	public virtual E Find(ID id, int ridmax)
-	{
-  		foreach(var i in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(i.AffectedByTable<ID, E>(this).TryGetValue(id, out var r))
-				return r.Deleted ? null : r;
-
-		return Find(id);
 	}
 
 	public virtual E Latest(ID id)
 	{
-		return Find(id, Mcv.LastConfirmedRound.Id);
-	}
+		if(Mcv.LastConfirmedRound.AffectedByTable<ID, E>(this).TryGetValue(id, out var e))
+			return e.Deleted ? null : e;
 
-	void Recycle()
-	{
-		//if(Clusters.Count > ClustersCacheLimit)
-		//{
-		//	foreach(var i in Clusters.OrderByDescending(i => i.Entries.Max(i => i.LastAccessed)).Skip(ClustersCacheLimit))
-		//	{
-		//		Clusters.Remove(i);
-		//	}
-		//}
+		return Find(id);
 	}
 
 	///public override long MeasureChanges(IEnumerable<Round> tail)
@@ -731,94 +709,3 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 	///}
 }
 
-public abstract class TableStateBase
-{	
-	public abstract void	Absorb(TableStateBase execution);
-	public abstract void	StartRoundExecution(Round round);
-
-	public virtual void Write(BinaryWriter writer)
-	{
-	}
-
-	public virtual void Read(BinaryReader reader)
-	{
-	}
-}
-
-public class TableState<ID, E> : TableStateBase where ID : EntityId, new() where E : class, ITableEntry
-{
-	public Dictionary<ID, E>	Affected = new();
-	public Table<ID, E>			Table;
-
-	public TableState(Table<ID, E> table)
-	{
-		Table = table;
-	}
-
-	public override void StartRoundExecution(Round round)
-	{
-		Affected.Clear();
-	}
-
-	public override void Absorb(TableStateBase execution)
-	{
-		var e = execution as TableState<ID, E>;
-
-		foreach(var i in e.Affected)	
-			Affected[i.Key] = i.Value;
-	}
-}
-
-public interface ITableExecution
-{
-	public AutoId		LastCreatedId { get; set; }
-}
-
-public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution where ID : EntityId, new() where E : class, ITableEntry
-{
-	public Execution				Execution;
-	public AutoId					LastCreatedId { get; set; }
-	public TableExecution<ID, E>	Parent;
-
-	protected TableExecution(Table<ID, E> table, Execution execution) : base(table)
-	{
-		Execution = execution;
-	}
-	
-	public E Find(ID id)
- 	{
-		id = (id == AutoId.LastCreated) ? LastCreatedId as ID : id;
-
-		if(id == null)
-			return null;
-
- 		if(Affected.TryGetValue(id, out var a))
- 			return a;
- 		
-		if(a?.Deleted ?? false)
-			return null;
-
-		if(Parent != null)
-			return Parent.Find(id);
-
-		return Table.Find(id, Execution.Round.Id);
- 	}
-
-	public virtual E Affect(ID id)
-	{
-		id = id == AutoId.LastCreated ? LastCreatedId as ID : id;
-		
-		if(Affected.TryGetValue(id, out var a))
-			return a;
-
-		if(Parent != null)
-			a = Parent.Find(id);
-		else
-			a = Table.Find(id, Execution.Round.Id);
-
-		if(a == null)
-			throw new IntegrityException();
-		
-		return Affected[id] = a.Clone() as E;
-	}
-}

@@ -245,7 +245,7 @@ public class PackageHub
 		Build(stream, incs, rems, workflow);
 	}
 
-	public void DetermineDelta(Ura package, VersionManifest manifest, out bool canincrement, out List<Dependency> dependencies)
+	public void DetermineDelta(Ura package, PackageManifest manifest, out bool canincrement, out List<Dependency> dependencies)
 	{
 		var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Release));
 	
@@ -312,8 +312,8 @@ public class PackageHub
 			BuildIncremental(istream, resource, previous, files, workflow);
 		}
 		
-		var m = File.Exists(dependenciespath) ? VersionManifest.Load(dependenciespath)
-											  : new VersionManifest{CompleteDependencies = []};
+		var m = File.Exists(dependenciespath) ? PackageManifest.Load(dependenciespath)
+											  : new PackageManifest{CompleteDependencies = []};
 
 		///Add(release, m);
 		
@@ -324,7 +324,7 @@ public class PackageHub
 
 			if(previous != null) /// a single parent supported only
 			{
-				var vm = VersionManifest.Load(Find(previous).Release.Find(LocalPackage.ManifestFile).LocalPath);
+				var vm = PackageManifest.Load(Find(previous).Release.Find(LocalPackage.ManifestFile).LocalPath);
 			
 				var d = new ParentPackage {	Release				= previous,
 											AddedDependencies	= m.CompleteDependencies.Where(i => !vm.CompleteDependencies.Contains(i)).ToArray(),
@@ -348,7 +348,7 @@ public class PackageHub
 			r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				
 			var p = Get(resource);
-			p.Resource.AddData(new DataType(DataType.File, ContentType.Rdn_VersionManifest), a);
+			p.Resource.AddData(new DataType(DataType.File, ContentType.Software_PackageManifest), a);
 
 			workflow.Log?.Report(this, $"Address: {a}");
 
@@ -392,9 +392,9 @@ public class PackageHub
 		{
 			var p = Find(address);
 			
-			var rdnvm = Path.Join(AddressToDeployment(packagespath, new(address)), '.' + VersionManifest.Extension);
+			var rdnvm = Path.Join(AddressToDeployment(packagespath, new(address)), '.' + PackageManifest.Extension);
 
-			if(File.Exists(rdnvm) && p.Manifest.CompleteHash.SequenceEqual(VersionManifest.Load(rdnvm).CompleteHash))
+			if(File.Exists(rdnvm) && p.Manifest.CompleteHash.SequenceEqual(PackageManifest.Load(rdnvm).CompleteHash))
 				return;
 
 			var	d = new Deployment();
@@ -521,7 +521,7 @@ public class PackageHub
 											else
 												return;
 
-										foreach(var fs in Directory.EnumerateFiles(AddressToDeployment(packagespath, new(i.Address)), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != '.' + VersionManifest.Extension))
+										foreach(var fs in Directory.EnumerateFiles(AddressToDeployment(packagespath, new(i.Address)), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != '.' + PackageManifest.Extension))
 										{
 											var fd = Path.Join(AddressToDeployment(packagespath, new (s.Target.Resource.Address)), fs.Substring(AddressToDeployment(packagespath, new (i.Address)).Length + 1));
 											Directory.CreateDirectory(Path.GetDirectoryName(fd));
@@ -532,7 +532,7 @@ public class PackageHub
 									
 									}
 
-									File.Copy(s.Complete.Release.Find(LocalPackage.ManifestFile).LocalPath, Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), '.' + VersionManifest.Extension), true);
+									File.Copy(s.Complete.Release.Find(LocalPackage.ManifestFile).LocalPath, Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), '.' + PackageManifest.Extension), true);
 
 									s.Complete.Activity = null;
 								}

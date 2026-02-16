@@ -12,9 +12,9 @@ public class NexusCommand : NetCommand
 		Cli = uos;
 
 		Flow.Log?.TypesForExpanding.AddRange(  [typeof(IEnumerable<Dependency>), 
-												typeof(IEnumerable<AnalyzerResult>), 
+												typeof(IEnumerable<AnalyzerReport>), 
 												typeof(Resource), 
-												typeof(VersionManifest)]);
+												typeof(PackageManifest)]);
 	}
 
 	public void Api(Apc call)

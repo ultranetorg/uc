@@ -3,31 +3,31 @@
 public class ResourceLinkDeletion : RdnOperation
 {
 	public AutoId	Source { get; set; }
-	public AutoId	Destination { get; set; }
+	public int		Index { get; set; }
 	
-	public override string	Explanation => $"Source={Source}, Destination={Destination}";
+	public override string	Explanation => $"Source={Source}, Index={Index}";
 	public override bool	IsValid(McvNet net) => true;
 
 	public ResourceLinkDeletion()
 	{
 	}
 
-	public ResourceLinkDeletion(AutoId source, AutoId destination)
+	public ResourceLinkDeletion(AutoId source, int destination)
 	{
 		Source = source;
-		Destination = destination;
+		Index = Index;
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Source);
-		writer.Write(Destination);
+		writer.Write7BitEncodedInt(Index);
 	}
 	
 	public override void Read(BinaryReader reader)
 	{
 		Source	= reader.Read<AutoId>();
-		Destination	= reader.Read<AutoId>();
+		Index	= reader.Read7BitEncodedInt();
 	}
 
 	public override void Execute(RdnExecution execution)
@@ -35,31 +35,28 @@ public class ResourceLinkDeletion : RdnOperation
 		if(RequireSignerResource(execution, Source, out var sd, out var sr) == false)
 			return;
 
-		if(RequireResource(execution, Destination, out var dd, out var dr) == false)
-			return;
-
-		var l = sr.Outbounds.FirstOrDefault(i => i.Destination == dr.Id);
-
-		if(l == null)
+		if(Index >= sr.Outbounds.Length)
 		{
 			Error = NotFound;
 			return;
 		}
 
-		if(l.Flags.HasFlag(ResourceLinkFlag.Sealed))
+		var l = sr.Outbounds[Index];
+
+		if(l.Type.HasFlag(ResourceLinkType.Dependency) && sr.IsLocked(execution)) /// a resource with dependent ones cant change its own dependencies
 		{
-			Error = Sealed;
+			Error = Locked;
 			return;
 		}
 
-		sr = execution.Resources.Affect(sd, sr.Address.Resource);
-		sr.RemoveOutbound(dr.Id);
+		sr = execution.Resources.Affect(Source);
+		sr.RemoveOutbound(l.Destination);
 
 		sd = execution.Domains.Affect(sd.Id);
 		execution.Free(User, sd, execution.Net.EntityLength);
 
-		dr = execution.Resources.Affect(dd, dr.Address.Resource);
-		dr.RemoveInbound(sr.Id);
+		var dr = execution.Resources.Affect(l.Destination);
+		dr.RemoveInbound(Source);
 
 		execution.PayOperationEnergy(User);
 	}

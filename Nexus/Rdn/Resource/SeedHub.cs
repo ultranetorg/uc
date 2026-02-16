@@ -65,7 +65,7 @@ public class SeedHub
 					{
 						lock(Mcv.Lock)
 						{
-							var r = Mcv.Resources.Find(rsd.Resource, Mcv.LastConfirmedRound.Id);
+							var r = Mcv.Resources.Latest(rsd.Resource);
 	
 							if((r?.Data?.Type.Control == DataType.File || r?.Data?.Type.Control == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
 							{

@@ -74,7 +74,7 @@ public class FairExecution : Execution
 
 			if(publisher.SpacetimeLimit < 0)
 			{
-				error = Operation.LimitReached;
+				error = Operation.LimitExceeded;
 				return;
 			}
 		}

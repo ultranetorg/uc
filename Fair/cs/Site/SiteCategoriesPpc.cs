@@ -19,7 +19,7 @@ public class SiteCategoriesPpc : FairPpc<SiteCategoriesPpr>
 		{
 			RequireGraph();
 
-			var e = Mcv.Sites.Find(Site, Mcv.LastConfirmedRound.Id);
+			var e = Mcv.Sites.Latest(Site);
 			
 			if(e == null)
 				throw new EntityException(EntityError.NotFound);

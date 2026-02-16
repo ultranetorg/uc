@@ -6,54 +6,56 @@ namespace Uccs.Rdn;
 public enum ResourceFlags : byte
 {
 	None			= 0, 
-	Sealed			= 0b_______1, 
-	Data			= 0b______10,
+	Data			= 0b_______1,
+	Dependable		= 0b______10, 
 }
 
 [Flags]
 public enum ResourceChanges : byte
 {
-	None		= 0,
-	SetData		= 0b________1,
-	NullData	= 0b_______10,
-	Seal		= 0b______100,
-	Recursive	= 0b1000_0000,
+	None			= 0,
+	SetData			= 0b________1,
+	NullData		= 0b_______10,
+	Dependable		= 0b______100,
+	Recursive		= 0b1000_0000,
 }
 
-public enum ResourceLinkFlag : byte
+public enum ResourceLinkType : byte
 {
-	None		= 0,
-	Hierarchy	= 0b________1,
-	Sealed		= 0b_______10,
+	None,
+	Hierarchy,
+	Dependency,
+	Extra,
+	//AntimalwareAnalysis,
 }
 
 public enum ResourceLinkChanges : byte
 {
-	None, Seal
+	None, Dependency
 }
 
 public class ResourceLink : IBinarySerializable
 {
 	public AutoId			Destination { get; set; }
-	public ResourceLinkFlag	Flags { get; set; }
+	public ResourceLinkType	Type { get; set; }
 
 	public bool				Affected;
 
 	public ResourceLink Clone()
 	{
-		return new ResourceLink {Destination = Destination, Flags = Flags};
+		return new ResourceLink {Destination = Destination, Type = Type};
 	}
 
 	public void Read(BinaryReader reader)
 	{
 		Destination	= reader.Read<AutoId>();
-		Flags		= (ResourceLinkFlag)reader.ReadByte();
+		Type		= reader.Read<ResourceLinkType>();
 	}
 
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Destination);
-		writer.Write((byte)Flags);
+		writer.Write(Type);
 	}
 }
 
@@ -61,7 +63,7 @@ public class Resource : ITableEntry
 {
 	public AutoId				Id { get; set; }
 	public AutoId				Domain { get; set; }
-	[JsonIgnore]public Ura		Address { get; set; }
+	public string				Name { get; set; }
 	public ResourceFlags		Flags { get; set; }
 	public ResourceData			Data { get; set; }
 	public Time					Updated { get; set; }
@@ -74,11 +76,13 @@ public class Resource : ITableEntry
 	public bool					Deleted { get; set; }
 	RdnMcv						Mcv;
 
-	public int					Length => (Flags.HasFlag(ResourceFlags.Data) ? (/*Data.Type.Control + Data.Type.Content.Length + */Data.Value.Length) : 0); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
+	public bool					IsLocked(RdnExecution execution) => Flags.HasFlag(ResourceFlags.Dependable) && Inbounds.Any(i => execution.Resources.Find(i).Outbounds.Any(j => j.Destination == Id && j.Type.HasFlag(ResourceLinkType.Dependency)));
+
+	public int					DataLength => Flags.HasFlag(ResourceFlags.Data) ? Data.Value.Length : 0; /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
 	public override string ToString()
 	{
-		return $"{Id}, {Address}, [{Flags}], Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
+		return $"{Id}, {Name}, {Flags}, Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
 	}
 
 	public Resource()
@@ -92,23 +96,26 @@ public class Resource : ITableEntry
 
 	public object Clone()
 	{
-		return new Resource(Mcv)  {	Id = Id,
-									Domain = Domain,
-						            Address	= Address, 
-						            Flags = Flags,
-						            Data = Data?.Clone(),
-						            Updated = Updated,
-						            Outbounds = Outbounds,
-						            Inbounds = Inbounds};
+		return	new Resource(Mcv)
+				{
+					Id = Id,
+					Domain = Domain,
+					Name = Name,
+					Flags = Flags,
+					Data = Data,
+					Updated = Updated,
+					Outbounds = Outbounds,
+					Inbounds = Inbounds
+				};
 	}
 
 	public void WriteMain(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.Write7BitEncodedInt(Domain.E);
-		writer.WriteUtf8(Address.Resource);
-		writer.Write(Flags);
+		writer.Write7BitEncodedInt(Domain.I);
+		writer.WriteUtf8(Name);
 		writer.Write(Updated);
+		writer.Write(Flags);
 		
 		if(Flags.HasFlag(ResourceFlags.Data))
 			writer.Write(Data);
@@ -121,9 +128,9 @@ public class Resource : ITableEntry
 	{
 		Id		= reader.Read<AutoId>();
 		Domain	= new (Id.B, reader.Read7BitEncodedInt());
-		Address = new Ura(null, reader.ReadUtf8());
-		Flags	= reader.Read<ResourceFlags>();
+		Name	= reader.ReadUtf8();
 		Updated	= reader.Read<Time>();
+		Flags	= reader.Read<ResourceFlags>();
 
 		if(Flags.HasFlag(ResourceFlags.Data))
 			Data = reader.Read<ResourceData>();
@@ -144,7 +151,7 @@ public class Resource : ITableEntry
 		{
 			var l = new ResourceLink {Affected = true, Destination = destination};
 			
-			Outbounds = Outbounds == null ? [l] : Outbounds.Append(l).ToArray();
+			Outbounds = [..Outbounds, l];
 			OutboundsCloned = true;
 			
 			return l;
@@ -153,7 +160,7 @@ public class Resource : ITableEntry
 		{
 			if(!OutboundsCloned)
 			{
-				Outbounds = Outbounds.ToArray();
+				Outbounds = [..Outbounds];
 				OutboundsCloned = true;
 			}
 
@@ -174,11 +181,11 @@ public class Resource : ITableEntry
 		if(i != -1)
 		{
 			if(!InboundsCloned)
-				Inbounds = Inbounds.ToArray();
+				Inbounds = [..Inbounds];
 		} 
 		else
 		{
-			Inbounds = Inbounds == null ? [source] : Inbounds.Append(source).ToArray();
+			Inbounds = [..Inbounds, source];
 		}
 
 		InboundsCloned = true;
@@ -186,13 +193,14 @@ public class Resource : ITableEntry
 
 	public void RemoveOutbound(AutoId destination)
 	{
-		Outbounds = Outbounds.Where(i => i.Destination != destination).ToArray();
+		var l = Outbounds.First(i => i.Destination == destination);
+		Outbounds = Outbounds.Remove(l);
 		OutboundsCloned = true;
 	}
 
 	public void RemoveInbound(AutoId destination)
 	{
-		Inbounds = Inbounds.Where(i => i != destination).ToArray();
+		Inbounds = Inbounds.Remove(destination);
 		InboundsCloned = true;
 	}
 }

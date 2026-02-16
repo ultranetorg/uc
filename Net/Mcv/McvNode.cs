@@ -3,8 +3,8 @@
 public abstract class McvPpc<R> : Ppc<R> where R : Result
 {
 	public new McvPeering	Peering => base.Peering as McvPeering;
-	public McvNode				Node => Peering.Node;
-	public Mcv					Mcv => Node.Mcv;
+	public McvNode			Node => Peering.Node;
+	public Mcv				Mcv => Node.Mcv;
 
 	protected void RequireGraph()
 	{
@@ -40,7 +40,7 @@ public class McvNode : Node
 {
 	public new McvNet		Net => base.Net as McvNet;
 	public Mcv				Mcv;
-	public McvPeering	Peering;
+	public McvPeering		Peering;
 	public McvNodeSettings	Settings;
 
 	public McvNode(string name, McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(name, net, profile, nexussettings,  flow)

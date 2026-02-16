@@ -6,7 +6,7 @@ namespace Uccs.Nexus;
 
 public class PlatformExpression
 {
-	public string Operator;
+	public string				Operator;
 	public PlatformExpression[] Operands;
 
 	const string Greater = ">";
@@ -107,10 +107,10 @@ public class PlatformExpression
 
 public class Realization
 {
-	public Ura Latest;
-	public string Name;
-	public PlatformExpression Condition;
-	public string Channel;
+	public Ura					Latest;
+	public string				Name;
+	public PlatformExpression	Condition;
+	public string				Channel;
 
 	public Realization()
 	{
@@ -120,9 +120,9 @@ public class Realization
 	{
 		var r = new Realization();
 
-		r.Name = xon.Get<string>();
-		r.Latest = xon.One("Latest")?.Get<Ura>();
-		r.Channel = xon.Get<string>("Channel");
+		r.Name		= xon.Get<string>();
+		r.Latest	= xon.One("Latest")?.Get<Ura>();
+		r.Channel	= xon.Get<string>("Channel");
 		r.Condition = xon.Has("Condition") ? PlatformExpression.FromXon(xon.One("Condition").Nodes.First()) : null;
 
 		return r;
@@ -144,10 +144,10 @@ public class Realization
 
 public class ProductManifest
 {
-	public const string Extension = "rdnpm";
+	public const string		Extension = "rdnpm";
 
-	public Realization[] Realizations;
-	public string Title;
+	public Realization[]	Realizations;
+	public string			Title;
 
 	public Realization MatchRealization(Platform platform) => Realizations.FirstOrDefault(i => i.Condition.Match(platform));
 
