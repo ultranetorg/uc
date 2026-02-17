@@ -294,6 +294,8 @@ public class TransactApc : McvApc
 	public string					User { get; set; }
 	public string					Application { get; set; }
 	public byte[]					Tag { get; set; } /// optional
+	public byte[]					Session { get; set; }
+	public AccountAddress			Signer { get; set; }
 	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -301,7 +303,7 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = node.Peering.Transact(Operations, Application, User, Tag, ActionOnResult, flow);
+		var t = node.Peering.Transact(Operations, Application, User, Tag, Session, Signer, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
 	}
@@ -457,7 +459,6 @@ public class PpcApc : McvApc
 public class EnforceSessionsApc : McvApc
 {
 	public string	 User {get; set;}
-	public string	 Application {get; set;}
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -465,7 +466,7 @@ public class EnforceSessionsApc : McvApc
 			throw new NodeException(NodeError.NoPeering);
 
 		lock(node.Peering.Lock)
-			node.Peering.GetSession(Application, User);
+			node.Peering.CreateSession(User);
 
 		return null;
 	}

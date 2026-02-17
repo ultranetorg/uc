@@ -7,6 +7,7 @@ public abstract class Cli
 {
 	public const string			FailureExt = "failure";
 
+	public string				Application;
 	public static string		ExeDirectory;
 	public ConsoleLogView		LogView = new ConsoleLogView(false, true);
 	public Flow					Flow; 
@@ -35,6 +36,7 @@ public abstract class Cli
 
 	protected Cli()
 	{
+		Application = Assembly.GetEntryAssembly().Location;
 	}
 
 	public virtual Command Create(IEnumerable<Xon> commnad, Flow flow)

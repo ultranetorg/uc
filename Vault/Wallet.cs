@@ -1,4 +1,6 @@
 ﻿
+using System.Diagnostics;
+
 namespace Uccs.Vault;
 
 public class AuthenticationChoice
@@ -93,13 +95,14 @@ public class WalletAccount : IBinarySerializable
 		if(net == null)
 			throw new VaultException(VaultError.IncorrectArgumets);
 
-		//var a = FindAuthentication(net, application);
-		//
-		//if(a != null)
-		//	return a;
+		foreach(var i in Authentications.Where(i => i.Net == net && i.Application == application && i.User == user).ToArray())
+		{
+			Authentications.Remove(i);
+			var h = i.Hashify();
+			Wallet.AuthenticationHashes.RemoveAll(i => i.SequenceEqual(h));
+		}
 		
 		var s = new byte[32];
-	
 		Cryptography.Random.NextBytes(s);
 	
 		var a = new Authentication

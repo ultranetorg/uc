@@ -111,8 +111,8 @@ public class Open : Cli
 
 	public void SetupApplicationEnvironemnt(Ura address)
 	{
-		Environment.SetEnvironmentVariable(Application.PackageAddressKey,	address.ToString());
-		Environment.SetEnvironmentVariable(Application.ProfileKey,			Settings.Profile);
+		Environment.SetEnvironmentVariable(Nexus.Application.PackageAddressKey,	address.ToString());
+		Environment.SetEnvironmentVariable(Nexus.Application.ProfileKey,		Settings.Profile);
 
 		Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, address);
 	}

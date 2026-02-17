@@ -9,7 +9,7 @@ public enum Trust : byte
 
 public class AuthenticationResult
 {
-	public AccountAddress	Account { get; set; }
+	public AccountAddress	Signer { get; set; }
 	public byte[]			Session { get; set; }
 }
 

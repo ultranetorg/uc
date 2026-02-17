@@ -214,6 +214,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			Hash = Cryptography.Hash(data[..(int)s.Position]);
 			Size = 0;
 
+			_Entries.Clear();
+
 			for(int i=0; i<n; i++)
 			{
 				var id = r.Read<ID>();

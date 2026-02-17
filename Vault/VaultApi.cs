@@ -190,7 +190,7 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 		
 				var n = a.AddAuthentication(Application, Net, User, Logo, c.Trust);
 		
-				return new AuthenticationResult {Account = c.Account, Session = n.Session};
+				return new AuthenticationResult {Signer = c.Account, Session = n.Session};
 			} 
 			else
 				throw new VaultException(VaultError.Rejected);
