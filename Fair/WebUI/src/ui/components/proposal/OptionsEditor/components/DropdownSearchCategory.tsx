@@ -5,15 +5,25 @@ import { Dropdown, DropdownProps } from "ui/components"
 
 import { categoriesToDropdownItems, keepSpacesFormatOptionLabel } from "./utils"
 
+type DropdownSearchCategoryBaseProps = {
+  hasRoot?: boolean
+}
+
 export type DropdownSearchCategoryProps = Pick<
   DropdownProps<false>,
   "className" | "controlled" | "error" | "placeholder" | "size" | "onChange" | "value"
->
+> &
+  DropdownSearchCategoryBaseProps
 
-export const DropdownSearchCategory = ({ placeholder, size = "medium", ...rest }: DropdownSearchCategoryProps) => {
+export const DropdownSearchCategory = ({
+  placeholder,
+  size = "medium",
+  hasRoot = false,
+  ...rest
+}: DropdownSearchCategoryProps) => {
   const { refetchCategories, categories } = useModerationContext()
 
-  const items = useMemo(() => categoriesToDropdownItems(categories), [categories])
+  const items = useMemo(() => categoriesToDropdownItems(categories, 0, "  ", hasRoot), [categories, hasRoot])
 
   useEffect(() => {
     if (!categories) {

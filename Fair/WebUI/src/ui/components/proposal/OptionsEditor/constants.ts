@@ -45,8 +45,11 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "categoryTitle",
           placeholder: t("placeholders:enterCategoryTitle"),
-          // @ts-expect-error incompatible param.
-          rules: { required: t("validation:requiredCategoryTitle"), validate: validateUniqueCategoryTitle(t) },
+          rules: {
+            required: t("validation:requiredCategoryTitle"),
+            maxLength: { value: 64, message: t("validation:maxLength", { count: 64 }) },
+            validate: validateUniqueCategoryTitle(t),
+          },
         },
       ],
     },
@@ -56,15 +59,13 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       parameterName: "categoryId",
       parameterLabel: t("common:category"),
       parameterPlaceholder: t("placeholders:selectCategory"),
-      // @ts-expect-error incompatible param.
       parameterRules: { validate: validateUniqueParentCategory(t) },
       fields: [
         {
-          valueType: "category",
+          valueType: "category-root",
           name: "parentCategoryId",
           placeholder: t("placeholders:selectParentCategory"),
-          // @ts-expect-error incompatible param.
-          rules: { required: t("validation:requiredCategoryTitle"), validate: validateUniqueParentCategory(t) },
+          rules: { required: false, validate: validateUniqueParentCategory(t) },
         },
       ],
     },
@@ -209,7 +210,13 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "name",
           placeholder: t("placeholders:enterNickname"),
-          rules: { validate: validateUniqueSiteNickname(t) },
+          rules: {
+            required: t("validation:required"),
+            minLength: { value: 5, message: t("validation:minLength", { count: 5 }) },
+            maxLength: { value: 32, message: t("validation:maxLength", { count: 32 }) },
+            pattern: { value: /^[a-z0-9_]+$/, message: t("validation:onlyLowercaseLatinNumbersAndUnderscores") },
+            validate: validateUniqueSiteNickname(t),
+          },
         },
       ],
     },

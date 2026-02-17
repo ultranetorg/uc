@@ -493,6 +493,7 @@ export const enUS = {
     nicknameAlreadyInUse: "Nickname is already in use",
     nicknameAvailable: "Nickname is available",
     onlyLowercaseLatinAndNumbers: "Only lowercase Latin letters and numbers are allowed",
+    onlyLowercaseLatinNumbersAndUnderscores: "Only lowercase Latin letters, numbers, and underscores are allowed",
     required: "This field is required",
     requiredAddOrRemoveMembers: "Add or remove members is required",
     requiredCategory: "Category is required",

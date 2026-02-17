@@ -51,6 +51,7 @@ public class SiteCreation : FairOperation
 																																								
 						new (FairOperationClass.CategoryCreation,				Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.CategoryDeletion,				Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.CategoryMovement,				Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.CategoryTypeChange,				Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.CategoryAvatarChange,			Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 																																								

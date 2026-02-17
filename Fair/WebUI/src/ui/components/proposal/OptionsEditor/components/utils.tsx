@@ -6,9 +6,9 @@ import { buildFileUrl } from "utils"
 
 export const renderAccountOptionLabel = (option: DropdownItem) => (
   <div className="flex gap-2">
-    <div className="h-8 w-8 overflow-hidden">
+    <div className="size-8 overflow-hidden">
       <img
-        className="h-full w-full object-cover object-center"
+        className="size-full object-cover object-center"
         src={buildFileUrl(option.value)}
         title={option.value}
         loading="lazy"
@@ -26,12 +26,20 @@ export const categoriesToDropdownItems = (
   categories?: CategoryParentBaseWithChildren[],
   depth = 0,
   indent = "  ",
+  hasRoot = false,
 ): DropdownItem[] | undefined => {
   if (!categories) {
     return
   }
 
   const result: DropdownItem[] = []
+
+  if (hasRoot === true) {
+    result.push({
+      label: "Root", // TODO: add translation
+      value: null,
+    })
+  }
 
   for (const category of categories) {
     result.push({

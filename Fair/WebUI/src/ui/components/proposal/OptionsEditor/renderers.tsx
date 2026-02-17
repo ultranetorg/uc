@@ -77,7 +77,19 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   category: ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <DropdownSearchCategory
-        className="placeholder-gray-500"
+        className="placeholder:text-gray-500"
+        error={!!errorMessage}
+        placeholder={field.placeholder}
+        value={value as string}
+        onChange={item => onChange(item.value)}
+      />
+    </ValidationWrapper>
+  ),
+  "category-root": ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <DropdownSearchCategory
+        className="placeholder:text-gray-500"
+        hasRoot={true}
         error={!!errorMessage}
         placeholder={field.placeholder}
         value={value as string}
@@ -127,7 +139,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
     <ValidationWrapper message={errorMessage}>
       <Input
         id={field.name}
-        className="h-10 placeholder-gray-500"
+        className="h-10 placeholder:text-gray-500"
         placeholder={field.placeholder}
         value={value as string}
         onChange={value => onChange(value)}
@@ -138,7 +150,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "string-multiline": ({ field, value, onChange }) => (
     <Textarea
       placeholder={field.placeholder}
-      className="text-2sm leading-5 placeholder-gray-500"
+      className="text-2sm leading-5 placeholder:text-gray-500"
       value={value as string}
       onChange={value => onChange(value)}
     />

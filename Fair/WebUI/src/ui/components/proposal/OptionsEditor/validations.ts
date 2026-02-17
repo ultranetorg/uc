@@ -4,7 +4,7 @@ import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
 import { AccountBase, CreateProposalData, CreateProposalDataOption, MembersChangeType } from "types"
 
-export const validateUniqueCategoryTitle = (t: TFunction) => (value: string, data: CreateProposalData) => {
+export const validateUniqueCategoryTitle = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
   return duplicates.length <= 1 || t("validation:uniqueCategoryTitle")
 }
@@ -19,7 +19,11 @@ export const validateUniqueFileId = (t: TFunction) => (value: string, data: Crea
   return duplicates.length <= 1 || t("validation:uniqueFile")
 }
 
-export const validateUniqueParentCategory = (t: TFunction) => (value: string, data: CreateProposalData) => {
+export const validateUniqueParentCategory = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
+  if (value === undefined) {
+    return t("validation:requiredCategory")
+  }
+
   const duplicates = data.options.filter(opt => opt.parentCategoryId === value)
   if (duplicates.length > 1) {
     return t("validation:uniqueParentCategory")
@@ -29,7 +33,7 @@ export const validateUniqueParentCategory = (t: TFunction) => (value: string, da
   return sameAsCategory.length == 0 || t("validation:differentParentCategory")
 }
 
-export const validateUniqueSiteNickname = (t: TFunction) => (value: string, data: CreateProposalData) => {
+export const validateUniqueSiteNickname = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.name === value)
   return duplicates.length <= 1 || t("validation:uniqueSiteNickname")
 }
@@ -129,6 +133,19 @@ export const validateSiteTextChange = (
   lastEditedIndex: number,
 ) => {
   if (!options || lastEditedIndex >= options.length) return
+
+  const edited = options[lastEditedIndex]
+  const hasAnyField =
+    ((edited.siteTitle ?? "") as string).trim().length > 0 ||
+    ((edited.slogan ?? "") as string).trim().length > 0 ||
+    ((edited.description ?? "") as string).trim().length > 0
+
+  console.log(hasAnyField)
+
+  if (!hasAnyField) {
+    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:requiredAtLeastOneField") })
+    return
+  }
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(

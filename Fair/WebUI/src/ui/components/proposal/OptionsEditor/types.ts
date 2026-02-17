@@ -6,6 +6,7 @@ export type FieldValueType =
   | "authors-additions"
   | "authors-removals"
   | "category"
+  | "category-root"
   | "category-type"
   | "file"
   | "moderators-additions"

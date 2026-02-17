@@ -11,7 +11,7 @@ import { ButtonOutline, ButtonPrimary, DebugPanel, Input, PageHeader, Textarea, 
 import { OptionsEditor } from "ui/components/proposal"
 import { showToast } from "utils"
 
-import { prepareRequest } from "./utils"
+import { prepareProposalOptions } from "./utils"
 
 const LABEL_CLASSNAME = "first-letter:uppercase font-medium leading-4 text-2xs"
 
@@ -39,11 +39,11 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const parentPath = proposalType === "discussion" ? `/${siteId}/m` : `/${siteId}/g/r`
 
   const handleFormSubmit = (data: CreateProposalData) => {
-    const prepared = prepareRequest(data)
+    const options = prepareProposalOptions(data)
 
     const by = proposalType === "discussion" ? user!.id : user!.authorsIds[0]
     const role = proposalType === "discussion" ? Role.Moderator : Role.Publisher
-    const operation = new ProposalCreation(siteId!, by, role, data.title, data.description!, prepared.options)
+    const operation = new ProposalCreation(siteId!, by, role, data.title, options, data.description)
     mutate(operation, {
       onSuccess: () => {
         showToast(t("toast:proposalCreated", { proposal: t(`operations:${data.type}`) }), "success")

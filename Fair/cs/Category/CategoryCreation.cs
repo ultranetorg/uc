@@ -5,7 +5,7 @@ public class CategoryCreation : VotableOperation
 	public AutoId				Parent { get; set; }
 	public string				Title { get; set; }
 
-	public override bool		IsValid(McvNet net) => Title.Length <= Fair.TitleLengthMaximum;
+	public override bool		IsValid(McvNet net) => Title != null && Title.Length > 0 && Title.Length <= Fair.TitleLengthMaximum;
 	public override string		Explanation => $"Title={Title} Parent={Parent}";
 
 	public override void Read(BinaryReader reader)
