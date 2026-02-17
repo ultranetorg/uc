@@ -7,6 +7,7 @@ export type OperationType =
   | "publication-creation"
   | "publication-deletion"
   | "publication-publish"
+  | "publication-unpublish"
   | "publication-updation"
   | "review-creation"
   | "review-edit"

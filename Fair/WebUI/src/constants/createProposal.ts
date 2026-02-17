@@ -6,6 +6,7 @@ export const CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES: OperationType[] = [
   "publication-creation",
   "publication-deletion",
   "publication-publish",
+  "publication-unpublish",
   "publication-updation",
   "review-status-change",
   "user-deletion",

@@ -140,8 +140,6 @@ export const validateSiteTextChange = (
     ((edited.slogan ?? "") as string).trim().length > 0 ||
     ((edited.description ?? "") as string).trim().length > 0
 
-  console.log(hasAnyField)
-
   if (!hasAnyField) {
     setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:requiredAtLeastOneField") })
     return

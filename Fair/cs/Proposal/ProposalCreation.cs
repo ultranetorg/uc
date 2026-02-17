@@ -72,7 +72,7 @@ public class ProposalCreation : FairOperation
 	public override bool IsValid(McvNet net)
 	{
 		var e =	Title.Length <= Fair.TitleLengthMaximum &&
-				Text.Length <= Fair.PostLengthMaximum &&
+				(Text == null || Text.Length <= Fair.PostLengthMaximum) &&
 				Options.Length > 0 &&
 				Enum.IsDefined<Role>(As) &&
 				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Title.Length <= Fair.TitleLengthMaximum);

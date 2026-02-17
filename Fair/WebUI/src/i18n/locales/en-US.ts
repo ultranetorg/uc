@@ -508,6 +508,7 @@ export const enUS = {
     uniqueParentCategory: "Parent category must be unique",
     uniqueSiteNickname: "Site nickname must be unique",
     uniqueTitle: "Title must be unique",
+    requiredAtLeastOneField: "At least one field must be filled in",
     uniqueOptions: "Some options are identical. Each must differ by at least one field.",
     userNotFound: "User not found",
   },
