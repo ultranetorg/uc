@@ -179,7 +179,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		
 				var t = new TransactApc
 						{
-							Application = Assembly.GetEntryAssembly().Location,
+							Application = Node.Name,
 							User = fu.Name,
 							Tag = Guid.CreateVersion7().ToByteArray(),
 							Operations = [new UtilityTransfer

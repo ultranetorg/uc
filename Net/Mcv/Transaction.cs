@@ -48,13 +48,15 @@ public class Transaction : IBinarySerializable
 	public long						EnergyConsumed;
 
 	AccountAddress					_Signer;
-	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); protected set => _Signer = value; }
+	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
+	public bool						IsSignerSet => _Signer != null;
 	public bool						Successful => Error == null && Operations.Any() && Operations.All(i => i.Error == null);
 	public TransactionStatus		Status;
 	public IHomoPeer				Ppi;
 	public Flow						Flow;
 	public DateTime					Inquired;
 	public string					Error;
+	public byte[]					Session;
 	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;
 
 

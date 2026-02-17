@@ -61,6 +61,7 @@ public enum RequestError : uint
 
 public enum VaultError : uint
 {
+	None,
 	AlreadyExists,
 	AlreadyLocked,
 	AlreadyUnlocked,
