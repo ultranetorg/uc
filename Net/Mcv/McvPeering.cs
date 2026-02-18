@@ -11,7 +11,7 @@ public enum McvPpcClass : uint
 	SharePeers = PpcClass._Last + 1, 
 	Info,
 	Vote, Time, Members, Funds, Pretransacting, PlaceTransactions, TransactionStatus, User, 
-	Stamp, TableStamp, DownloadTable, DownloadRounds,
+	Stamp, TableStamp, DownloadCluster, DownloadBucket, DownloadRounds,
 	Cost,
 	_Last = 199
 }
@@ -48,6 +48,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
 	Thread									SynchronizingThread;
+	public string							SynchronizationInfo;
 	public Dictionary<int, List<Vote>>		SyncTail = [];
 
 	public static List<McvPeering>			All = [];
@@ -195,50 +196,78 @@ public abstract class McvPeering : HomoTcpPeering
 					stamp = Call(peer, new StampPpc());
 	
 					void download(TableBase t)	{
-													var ts = Call(peer, new TableStampPpc
-																		{
-																			Table = t.Id, 
-																			Clusters = stamp.Tables[t.Id].Clusters.Where(i => !t.FindCluster(i.Id)?.Hash?.SequenceEqual(i.Hash) ?? true) 
-																																.Select(i => i.Id)
-																																.ToArray()
-																		});
-													using(var w = new WriteBatch())
+													using var w = new WriteBatch();
+												
+													if(t.Clusters.Count() == 0)
 													{
-														foreach(var i in ts.Clusters)
+														foreach(var i in stamp.Tables[t.Id].Clusters)
 														{
-															///lock(Mcv.Lock)	
-															{
+															var d = Call(peer,  new DownloadClusterPpc
+																				{
+																					Table	= t.Id,
+																					Cluster	= i.Id, 
+																					Hash	= i.Hash
+																				});
+															lock(Mcv.Lock)	
+															{	
 																var c = t.GetCluster(i.Id);
-
-																foreach(var j in i.Buckets)
-																{
-																	var b = c.GetBucket(j.Id);
-			
-																	if(b.Hash == null || !b.Hash.SequenceEqual(j.Hash))
-																	{
-																		var d = Call(peer, new DownloadTablePpc {Table		= t.Id,
-																												 BucketId	= j.Id, 
-																												 Hash		= j.Hash});
-																		lock(Mcv.Lock)	
-																			b.Import(w, d.Main);
-				
-																		if(!b.Hash.SequenceEqual(j.Hash))
-																			throw new SynchronizationException("Cluster hash mismatch");
-			
-																		Flow.Log?.Report(this, $"Bucket downloaded {t.GetType().Name}, {b.Id}");
-																	}
-																}
-
+																
+																c.Import(w, d.Main);
 																c.Commit(w);
+
+																if(!c.Hash.SequenceEqual(i.Hash))
+																	throw new SynchronizationException("Same cluster data - different hashes");
 															}
 														}
-							
-														Mcv.Rocks.Write(w);
+													} 
+													else
+													{
+														var ts = Call(peer, new TableStampPpc
+																			{
+																				Table = t.Id, 
+																				Clusters = stamp.Tables[t.Id].Clusters.Where(i => !t.FindCluster(i.Id)?.Hash?.SequenceEqual(i.Hash) ?? true) 
+																																	.Select(i => i.Id)
+																																	.ToArray()
+																			});
+	
+														foreach(var i in ts.Clusters)
+														{
+															var c = t.GetCluster(i.Id);
+	
+															foreach(var j in i.Buckets)
+															{
+																var b = c.GetBucket(j.Id);
+					
+																if(b.Hash == null || !b.Hash.SequenceEqual(j.Hash))
+																{
+																	var d = Call(peer,	new DownloadBucketPpc
+																						{
+																							Table	= t.Id,
+																							Bucket	= j.Id, 
+																							Hash	= j.Hash
+																						});
+																	lock(Mcv.Lock)	
+																		b.Import(w, d.Main);
+						
+																	if(!b.Hash.SequenceEqual(j.Hash))
+																		throw new SynchronizationException("Same bucket data - different hashes");
+					
+																	Flow.Log?.Report(this, $"Bucket downloaded {t.GetType().Name}, {b.Id}");
+																}
+															}
+	
+															c.Commit(w);
+														}
+								
 													}
+
+													Mcv.Rocks.Write(w);
 												}
 	
 					while(Flow.Active)
 					{
+						SynchronizationInfo = null;
+
 						foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
 						{
 							download(i);
@@ -345,6 +374,7 @@ public abstract class McvPeering : HomoTcpPeering
 									}
 									
 									Synchronization = Synchronization.Synchronized;
+									SynchronizationInfo = null;
 									SyncTail.Clear();
 									SynchronizingThread = null;
 					

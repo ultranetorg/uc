@@ -21,7 +21,7 @@ public class StampPpc : McvPpc<StampPpr>
 						Tables					= Mcv.Tables.Select(i => new StampPpr.Table
 																		 {
 																			Id = i.Id, 
-																			Clusters = i.Clusters.Select(i =>	new StampPpr.SuperCluster
+																			Clusters = i.Clusters.Select(i =>	new StampPpr.Cluster
 																												{
 																													Id = i.Id, 
 																													Hash = i.Hash
@@ -35,7 +35,7 @@ public class StampPpc : McvPpc<StampPpr>
 
 public class StampPpr : Result
 {
-	public class SuperCluster
+	public class Cluster
 	{
 		public short	Id { get; set; }
 		public byte[]	Hash { get; set; }
@@ -43,8 +43,8 @@ public class StampPpr : Result
 
 	public class Table
 	{
-		public int				Id { get; set; }
-		public SuperCluster[]	Clusters { get; set; }
+		public int			Id { get; set; }
+		public Cluster[]	Clusters { get; set; }
 	}
 
 	public byte[]		GraphState { get; set; }

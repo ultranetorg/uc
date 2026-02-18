@@ -68,6 +68,37 @@ public abstract class TableBase
 
 		public abstract BucketBase					GetBucket(int id);
 		public abstract void						Commit(WriteBatch batch);
+
+		public byte[] Export()
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write7BitEncodedInt(Buckets.Count());
+
+			foreach(var i in Buckets)
+			{	
+				var b = i.Export();
+				w.Write7BitEncodedInt(i.Id);
+				w.WriteBytes(b);
+			}
+
+			return s.ToArray();
+		}
+
+		public void Import(WriteBatch batch, byte[] data)
+		{
+			var s = new MemoryStream(data);
+			var r = new BinaryReader(s);
+			
+			var n = r.Read7BitEncodedInt();
+
+			for(int i = 0; i < n; i++)
+			{
+				var b = GetBucket(r.Read7BitEncodedInt());
+				b.Import(batch, r.ReadBytes());
+			}
+		}
 	}
 }
 
