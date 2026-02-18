@@ -34,7 +34,7 @@ public class PublicationTable : Table<AutoId, Publication>
 		}
 			
 		Mcv.PublicationTitles.Commit(batch, e.PublicationTitles.Affected.Values, e.PublicationTitles, null);
-		(lastincommit as FairRound).PublicationTitles = new (Mcv.PublicationTitles) { EntryPoints = e.PublicationTitles.EntryPoints};
+		//(lastincommit as FairRound).PublicationTitles = new (Mcv.PublicationTitles) { EntryPoints = e.PublicationTitles.EntryPoints};
 	}
 
 	public SearchResult[] Search(AutoId site, string query, int skip, int take)
@@ -44,7 +44,7 @@ public class PublicationTable : Table<AutoId, Publication>
 													take, 
 													i => i.References.ContainsKey(site),
 													Mcv.PublicationTitles.Latest, 
-													(Mcv.LastConfirmedRound as FairRound).PublicationTitles.EntryPoints);
+													Mcv.PublicationTitles.Latest(HnswId.Entry)?.Connections[-1].Select(i => Mcv.PublicationTitles.Latest(i)).ToArray());
 
 		return result.Select(i =>	{
 										return new SearchResult {Entity = i.References[site], Text = i.Text};

@@ -562,7 +562,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		}
 	}
 
-	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase executed,  Round lastInCommit)
+	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase assosiated,  Round lastInCommit)
 	{
 		if(!entities.Any())
 			return;
@@ -597,9 +597,9 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		foreach(var i in cs)
 			i.Commit(batch);
 
-		if(executed != null) /// null == Account
+		if(assosiated != null) /// null == Account
 		{
-			Assosiated = executed;
+			Assosiated = assosiated;
 	
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -612,6 +612,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 	public override void Clear()
 	{
+		Assosiated = CreateAssosiated();
+
 		Clusters.Clear();
 
 		Rocks.DropColumnFamily(MetaColumnName);

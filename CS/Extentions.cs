@@ -144,18 +144,6 @@ public static class Extentions
 
 	public static string ReadUtf8(this BinaryReader r)
 	{
-		return Encoding.UTF8.GetString(r.ReadBytes(r.Read7BitEncodedInt()));
-	}
-
-	public static void WriteUtf8(this BinaryWriter w, string s)
-	{
-		var a = Encoding.UTF8.GetBytes(s);
-		w.Write7BitEncodedInt(a.Length);
-		w.Write(a);
-	}
-
-	public static string ReadUtf8Nullable(this BinaryReader r)
-	{
 		var n = r.Read7BitEncodedInt();
 
 		if(n == 0)
@@ -164,7 +152,7 @@ public static class Extentions
 			return Encoding.UTF8.GetString(r.ReadBytes(n));
 	}
 
-	public static void WriteUtf8Nullable(this BinaryWriter w, string s)
+	public static void WriteUtf8(this BinaryWriter w, string s)
 	{
 		if(s == null)
 		{
@@ -178,7 +166,7 @@ public static class Extentions
 		}
 	}
 
-	public static string ReadASCIINullable(this BinaryReader r)
+	public static string ReadASCII(this BinaryReader r)
 	{
 		var n = r.Read7BitEncodedInt();
 
@@ -188,7 +176,7 @@ public static class Extentions
 			return Encoding.ASCII.GetString(r.ReadBytes(n));
 	}
 
-	public static void WriteASCIINullable(this BinaryWriter w, string s)
+	public static void WriteASCII(this BinaryWriter w, string s)
 	{
 		if(s == null)
 		{
@@ -200,18 +188,6 @@ public static class Extentions
 			w.Write7BitEncodedInt(a.Length);
 			w.Write(a);
 		}
-	}
-
-	public static string ReadASCII(this BinaryReader r)
-	{
-		return Encoding.ASCII.GetString(r.ReadBytes(r.Read7BitEncodedInt()));
-	}
-
-	public static void WriteASCII(this BinaryWriter w, string s)
-	{
-		var a = Encoding.ASCII.GetBytes(s);
-		w.Write7BitEncodedInt(a.Length);
-		w.Write(a);
 	}
 
 	public static BigInteger ReadBigInteger(this BinaryReader r)

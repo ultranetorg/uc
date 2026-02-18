@@ -71,11 +71,11 @@ public class ProposalCreation : FairOperation
 	
 	public override bool IsValid(McvNet net)
 	{
-		var e =	Title.Length <= Fair.TitleLengthMaximum &&
-				Text.Length <= Fair.PostLengthMaximum &&
+		var e =	(Title == null || Title.Length <= Fair.TitleLengthMaximum) &&
+				(Text == null || Text.Length <= Fair.PostLengthMaximum) &&
 				Options.Length > 0 &&
 				Enum.IsDefined<Role>(As) &&
-				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && i.Title.Length <= Fair.TitleLengthMaximum);
+				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && (i.Title == null || i.Title.Length <= Fair.TitleLengthMaximum));
 
 		return e;
 	}
@@ -234,7 +234,7 @@ public class ProposalCreation : FairOperation
   
 			s.Proposals = [..s.Proposals, z.Id];
 
-			var l = execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text) + Options.Sum(i => Encoding.UTF8.GetByteCount(i.Title));
+			var l = execution.Net.EntityLength + (Text == null ? 0 : Encoding.UTF8.GetByteCount(Text)) + Options.Where(i => i.Title != null).Sum(i => Encoding.UTF8.GetByteCount(i.Title));
 
 			if(As == Role.Moderator || As == Role.User)
  			{

@@ -15,16 +15,16 @@ public class SiteTextChange : VotableOperation
 	
 	public override void Read(BinaryReader reader)
 	{
-		Title		= reader.ReadUtf8Nullable();
-		Slogan		= reader.ReadUtf8Nullable();
-		Description	= reader.ReadUtf8Nullable();
+		Title		= reader.ReadUtf8();
+		Slogan		= reader.ReadUtf8();
+		Description	= reader.ReadUtf8();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.WriteUtf8Nullable(Title);
-		writer.WriteUtf8Nullable(Slogan);
-		writer.WriteUtf8Nullable(Description);
+		writer.WriteUtf8(Title);
+		writer.WriteUtf8(Slogan);
+		writer.WriteUtf8(Description);
 	}
 
 	public override bool Overlaps(VotableOperation other)

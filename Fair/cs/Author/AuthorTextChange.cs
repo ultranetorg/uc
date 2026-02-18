@@ -15,15 +15,15 @@ public class AuthorTextChange : FairOperation
 	public override void Read(BinaryReader reader)
 	{
 		Author		= reader.Read<AutoId>();
-		Title		= reader.ReadUtf8Nullable();
-		Description	= reader.ReadUtf8Nullable();
+		Title		= reader.ReadUtf8();
+		Description	= reader.ReadUtf8();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.Write(Author);
-		writer.WriteUtf8Nullable(Title);
-		writer.WriteUtf8Nullable(Description);
+		writer.WriteUtf8(Title);
+		writer.WriteUtf8(Description);
 	}
 
 	public override void Execute(FairExecution execution)

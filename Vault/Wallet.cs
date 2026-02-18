@@ -139,14 +139,14 @@ public class WalletAccount : IBinarySerializable
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.WriteUtf8Nullable(Name);
+		writer.WriteUtf8(Name);
 		writer.Write(Key.PrivateKey);
 		writer.Write(Authentications);
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Name			= reader.ReadUtf8Nullable();
+		Name			= reader.ReadUtf8();
 		Key				= new AccountKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
 		Authentications	= reader.ReadList<Authentication>();
 	}

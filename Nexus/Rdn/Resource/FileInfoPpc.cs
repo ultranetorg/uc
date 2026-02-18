@@ -17,7 +17,7 @@ public class FileInfoPpc : RdnPpc<FileInfoPpr>
 			if(r == null || !r.IsReady(File)) 
 				throw new EntityException(EntityError.NotFound);
 
-			return new FileInfoPpr{Length = r.Find(File).Length};
+			return new FileInfoPpr {Length = r.Find(File ?? "").Length};
 		}
 	}
 }

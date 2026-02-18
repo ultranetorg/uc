@@ -31,9 +31,7 @@ public class StringToOneHnswEntity : StringHnswEntity
 
 	public override object Clone()
 	{
-		var a = new StringToOneHnswEntity{
-												References = References
-											};
+		var a = new StringToOneHnswEntity {References = References};
 		
 		Copy(a);
 
@@ -64,9 +62,7 @@ public class StringToDictionaryHnswEntity : StringHnswEntity
 
 	public override object Clone()
 	{
-		var a = new StringToDictionaryHnswEntity{
-													References = References
-												};
+		var a = new StringToDictionaryHnswEntity {References = References};
 		
 		Copy(a);
 

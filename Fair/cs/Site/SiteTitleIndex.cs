@@ -14,7 +14,7 @@ public class SiteTitleIndex : HnswTable<string, StringToOneHnswEntity>
 
 	public override StringToOneHnswEntity Create()
 	{
-		return new StringToOneHnswEntity() {References = []};
+		return new StringToOneHnswEntity() {References = [], Text = string.Empty};
 	}
 
 	public SiteTitleExecution CreateExecuting(Execution execution)

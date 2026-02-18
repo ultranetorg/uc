@@ -138,7 +138,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		writer.Write(Id);
 		writer.WriteUtf8(Nickname);
 		writer.WriteUtf8(Title);
-		writer.WriteUtf8Nullable(Description);
+		writer.WriteUtf8(Description);
 		writer.Write(Owners);
 		writer.Write7BitEncodedInt64(ModerationReward);
 		writer.WriteNullable(Avatar);
@@ -157,7 +157,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		Id					= reader.Read<AutoId>();
 		Nickname			= reader.ReadUtf8();
 		Title				= reader.ReadUtf8();
-		Description			= reader.ReadUtf8Nullable();
+		Description			= reader.ReadUtf8();
 		Owners				= reader.ReadArray<AutoId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();
 		Avatar				= reader.ReadNullable<AutoId>();

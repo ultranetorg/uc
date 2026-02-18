@@ -22,7 +22,7 @@ public class AuthorTable : Table<AutoId, Author>
 
 		foreach(var cl in Clusters)
 			foreach(var b in cl.Buckets)
-				foreach(var i in b.Entries.Where(i => i.Nickname != ""))
+				foreach(var i in b.Entries.Where(i => i.Nickname != null))
 				{
 					var w = e.Words.Affect(Word.GetId(i.Nickname));
 
@@ -51,7 +51,6 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 		a.Sites = [];
 		a.Links = [];
 		a.Files = [];
-		a.Nickname = "";			
 
 		Execution.IncrementCount((int)FairMetaEntityType.AuthorsCount);
 

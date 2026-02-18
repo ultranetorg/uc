@@ -285,7 +285,7 @@ public abstract class McvPeering : HomoTcpPeering
 									lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
 										All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
 								
-									Debugger.Break();
+								///	Debugger.Break();
 								#endif
 							}
 						}
