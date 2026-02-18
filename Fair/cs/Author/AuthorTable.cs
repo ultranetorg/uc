@@ -22,11 +22,11 @@ public class AuthorTable : Table<AutoId, Author>
 
 		foreach(var cl in Clusters)
 			foreach(var b in cl.Buckets)
-				foreach(var i in b.Entries.Where(i => i.Nickname != null))
+				foreach(var i in b.Entries.Where(i => i.Name != null))
 				{
-					var w = e.Words.Affect(Word.GetId(i.Nickname));
+					var w = e.Words.Affect(Word.GetId(i.Name));
 
-					w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AuthorNickname};
+					w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.AuthorName};
 				}
 	
 		Mcv.Words.Commit(batch, e.Words.Affected.Values, e.Words, null);

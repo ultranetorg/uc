@@ -8,7 +8,7 @@ internal class SearchUtils
 	{
 		return string.IsNullOrEmpty(title)
 			|| site.Title.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1
-			|| site.Nickname.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
+			|| site.Name.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
 	}
 
 	internal static bool IsMatch(Proposal proposal, string? search)

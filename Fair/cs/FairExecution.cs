@@ -179,6 +179,8 @@ public class FairExecution : Execution
 		a.Sites = [];
 		a.FavoriteSites = [];
 
+		Words.Register(name, EntityTextField.UserName, a.Id);
+
 		return a;
 	}
 

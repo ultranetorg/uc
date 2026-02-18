@@ -162,7 +162,7 @@ public class SearchService
 
 			string lowercase = query.ToLower();
 
-			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AccountNickname, lowercase, limit);
+			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
 			AutoId[] accountsIds = searchResult.ToArray();
 
 			return LoadAccounts(mcv, accountsIds, cancellationToken);
@@ -202,7 +202,7 @@ public class SearchService
 		{
 			string lowercase = query.ToLower();
 
-			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AccountNickname, lowercase, limit);
+			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
 
 			var result = new List<AccountSearchLiteModel>(limit);
 			return LoadAccounts(searchResult, result, cancellationToken);

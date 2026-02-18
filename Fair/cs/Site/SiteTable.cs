@@ -21,11 +21,11 @@ public class SiteTable : Table<AutoId, Site>
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
-		foreach(var i in GraphEntities.Where(i => i.Nickname != null))
+		foreach(var i in GraphEntities.Where(i => i.Name != null))
 		{
-			var w = e.Words.Affect(Word.GetId(i.Nickname));
+			var w = e.Words.Affect(Word.GetId(i.Name));
 
-			w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteNickname};
+			w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteName};
 		}
 
 		Mcv.Words.Commit(batch, e.Words.Affected.Values, e.Words, null);

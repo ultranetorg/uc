@@ -27,19 +27,16 @@ public class WordTable : Table<RawId, Word>
 
 		var found = new HashSet<AutoId>();
 
-		foreach(var i in Tail)
+		foreach(var r in (Mcv.LastConfirmedRound as FairRound).Words.Affected.Where(i => i.Value.Reference.Field == field && i.Key.Bytes.Take(pre.Bytes.Length).SequenceEqual(pre.Bytes)).Select(i => i.Value.Reference))
 		{
-			foreach(var r in i.Words.Affected.Where(i => i.Value.Reference.Field == field && i.Key.Bytes.Take(pre.Bytes.Length).SequenceEqual(pre.Bytes)).Select(i => i.Value.Reference))
+			if(found.Add(r.Entity))
 			{
-				if(found.Add(r.Entity))
-				{
-					yield return r.Entity;
+				yield return r.Entity;
 
-					n++;
+				n++;
 
-					if(n > count)
-						yield break;
-				}
+				if(n == count)
+					yield break;
 			}
 		}
 						
@@ -55,7 +52,7 @@ public class WordTable : Table<RawId, Word>
 	
 					n++;
 		
-					if(n > count)
+					if(n == count)
 						yield break;
 				}
 			}
