@@ -171,6 +171,8 @@ export const enUS = {
   toast: {
     favoriteAdded: `Site "{{site}}" added to favorites`,
     favoriteRemoved: `Site "{{site}}" removed from favorites`,
+    fileDeleted: `File {{fileId}} successfully deleted`,
+    fileUploaded: `File {{fileName}} successfully uploaded`,
     nicknameChanged: "Nickname changed successfully",
     perpetualVoted: `Publisher "{{publisher}}" successfully voted`,
     proposalCreated: `Proposal "{{proposal}}" created successfully`,

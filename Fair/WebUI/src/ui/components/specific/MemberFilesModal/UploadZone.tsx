@@ -7,17 +7,12 @@ import { ButtonPrimary } from "ui/components"
 export type UploadZoneProps = {
   t: TFunction
   showEmptyState?: boolean
-  onUploadClick: () => void
+  onUpload: (file: File) => void
 }
 
-export const UploadZone = memo(({ t, showEmptyState = true, onUploadClick }: UploadZoneProps) => {
+export const UploadZone = memo(({ t, showEmptyState = true, onUpload }: UploadZoneProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
-
-  const handleFile = (file: File) => {
-    //uploadFile(file).then(console.log)
-    console.log(file)
-  }
 
   return (
     <>
@@ -32,7 +27,7 @@ export const UploadZone = memo(({ t, showEmptyState = true, onUploadClick }: Upl
           e.preventDefault()
           setDragging(false)
           const file = e.dataTransfer.files[0]
-          if (file) handleFile(file)
+          if (file) onUpload(file)
         }}
       >
         {showEmptyState && <span>{t("noImages")}</span>}
@@ -45,7 +40,7 @@ export const UploadZone = memo(({ t, showEmptyState = true, onUploadClick }: Upl
           hidden
           onChange={e => {
             const file = e.target.files?.[0]
-            if (file) handleFile(file)
+            if (file) onUpload(file)
           }}
         />
       </div>

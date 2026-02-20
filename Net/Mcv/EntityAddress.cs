@@ -1,4 +1,7 @@
-﻿namespace Uccs.Net;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Uccs.Net;
 
 public class EntityAddress : IBinarySerializable
 {
@@ -21,6 +24,12 @@ public class EntityAddress : IBinarySerializable
 	public override string ToString()
 	{
 		return $"{Table}/{Id}";
+	}
+
+	public static EntityAddress Parse(string text)
+	{
+		var i = text.IndexOf('/');
+		return new EntityAddress(byte.Parse(text[..i]), AutoId.Parse(text.AsSpan(i + 1)));
 	}
 
 	public static EntityAddress Parse<T>(string text) where T : unmanaged, Enum
@@ -59,5 +68,18 @@ public class EntityAddress : IBinarySerializable
 	{
 		writer.Write(Id);
 		writer.Write(Table);
+	}
+}
+
+public class EntityAddressJsonConverter : JsonConverter<EntityAddress>
+{
+	public override EntityAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		return EntityAddress.Parse(reader.GetString());
+	}
+
+	public override void Write(Utf8JsonWriter writer, EntityAddress value, JsonSerializerOptions options)
+	{
+		writer.WriteStringValue(value.ToString());
 	}
 }

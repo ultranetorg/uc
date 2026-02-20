@@ -5,10 +5,12 @@ import { useParams } from "react-router-dom"
 import { TabsProvider, useUserContext } from "app"
 import { SvgSpinnerXl } from "assets"
 import { useGetFilesInfinite } from "entities"
-import { useEscapeKey, useInfiniteScrollWithPosition } from "hooks"
-import { File } from "types"
+import { useTransactMutationWithStatus } from "entities/node"
+import { useInfiniteScrollWithPosition } from "hooks"
+import { File as FileType, FileDeletion, FileCreation, MimeType } from "types"
 import { Modal, ModalProps, TabContent, TabsList, TabsListItem, TextModal } from "ui/components"
 import { FilesGrid } from "ui/components/specific"
+import { fileToBase64, showToast } from "utils"
 
 import { ModalFooter } from "./ModalFooter"
 import { UploadZone } from "./UploadZone"
@@ -23,13 +25,16 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
   const { siteId } = useParams()
   const { t } = useTranslation("memberFilesModal")
   const { user } = useUserContext()
+  const { mutate } = useTransactMutationWithStatus()
 
-  const [selectedFile, setSelectedFile] = useState<File | undefined>()
+  const [selectedFile, setSelectedFile] = useState<FileType | undefined>()
   const [removeModalOpen, setRemoveModalOpen] = useState(false)
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } = useGetFilesInfinite(
+  const authorId = user?.authorsIds[0]!
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error, refetch } = useGetFilesInfinite(
     siteId,
-    user?.authorsIds[0],
+    authorId,
   )
   const allFiles = data?.pages.flatMap(p => p.items) || []
 
@@ -43,7 +48,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
 
   const handleTabSelect = useCallback(() => setSelectedFile(undefined), [])
 
-  const handleFileSelect = useCallback((file: File) => setSelectedFile(file), [])
+  const handleFileSelect = useCallback((file: FileType) => setSelectedFile(file), [])
 
   const handleSelectClick = useCallback(() => {
     onSelect(selectedFile!.id)
@@ -53,8 +58,38 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
   const handleRemoveClick = useCallback(() => setRemoveModalOpen(true), [])
 
   const handleRemoveConfirmClick = useCallback(() => {
-    console.log("as")
-  }, [])
+    const fileId = selectedFile!.id
+    const operation = new FileDeletion(fileId)
+    mutate(operation, {
+      onSuccess: () => {
+        showToast(t("toast:fileDeleted", { fileId }), "success")
+        setRemoveModalOpen(false)
+        refetch()
+      },
+      onError: err => {
+        showToast(err.toString(), "error")
+      },
+    })
+  }, [mutate, refetch, selectedFile, t])
+
+  const handleUpload = useCallback(
+    async (file: File) => {
+      const data = await fileToBase64(file)
+      const mimeType: MimeType = file.type === "image/png" ? "ImagePng" : "ImageJpg"
+
+      const operation = new FileCreation(authorId, data, mimeType)
+      mutate(operation, {
+        onSuccess: () => {
+          showToast(t("toast:fileUploaded", { fileName: file.name }), "success")
+          refetch()
+        },
+        onError: err => {
+          showToast(err.toString(), "error")
+        },
+      })
+    },
+    [authorId, mutate, refetch, t],
+  )
 
   const { scrollRef, loaderRef } = useInfiniteScrollWithPosition(
     fetchNextPage,
@@ -105,7 +140,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
             ) : error ? (
               error.message
             ) : (
-              <UploadZone showEmptyState={true} onUploadClick={() => alert("Upload clicked")} t={t} />
+              <UploadZone showEmptyState={true} onUpload={handleUpload} t={t} />
             )}
           </div>
         ) : (
@@ -133,7 +168,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
                 </div>
               </TabContent>
               <TabContent when="uploading">
-                <UploadZone showEmptyState={false} onUploadClick={() => alert("Upload clicked")} t={t} />
+                <UploadZone showEmptyState={false} onUpload={handleUpload} t={t} />
               </TabContent>
             </div>
           </TabsProvider>

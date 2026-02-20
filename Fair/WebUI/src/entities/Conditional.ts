@@ -36,17 +36,28 @@ export const useGetFilesInfinite = (siteId?: string, authorId?: string, page?: n
   const queryFn = (page: number) =>
     !authorId ? api.getSiteFiles(siteId!, page, pageSize) : api.getAuthorFiles(siteId!, authorId, page, pageSize)
 
-  const { data, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    initialPageParam: 0,
-    queryKey: !authorId
-      ? ["sites", siteId, "files", { page, pageSize }]
-      : ["sites", siteId, "authors", authorId, "files", { page, pageSize }],
-    queryFn: ({ pageParam = 0 }) => queryFn(pageParam),
-    getNextPageParam: (lastPage, allPages) => {
-      const loadedItems = allPages.flatMap(p => p.items).length
-      return loadedItems < lastPage.totalItems ? allPages.length : undefined
+  const { data, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useInfiniteQuery(
+    {
+      initialPageParam: 0,
+      queryKey: !authorId
+        ? ["sites", siteId, "files", { page, pageSize }]
+        : ["sites", siteId, "authors", authorId, "files", { page, pageSize }],
+      queryFn: ({ pageParam = 0 }) => queryFn(pageParam),
+      getNextPageParam: (lastPage, allPages) => {
+        const loadedItems = allPages.flatMap(p => p.items).length
+        return loadedItems < lastPage.totalItems ? allPages.length : undefined
+      },
     },
-  })
+  )
 
-  return { data, isError, error: error ?? undefined, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading }
+  return {
+    data,
+    isError,
+    error: error ?? undefined,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  }
 }
