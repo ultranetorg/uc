@@ -68,6 +68,37 @@ public abstract class TableBase
 
 		public abstract BucketBase					GetBucket(int id);
 		public abstract void						Commit(WriteBatch batch);
+
+		public byte[] Export()
+		{
+			var s = new MemoryStream();
+			var w = new BinaryWriter(s);
+
+			w.Write7BitEncodedInt(Buckets.Count());
+
+			foreach(var i in Buckets)
+			{	
+				var b = i.Export();
+				w.Write7BitEncodedInt(i.Id);
+				w.WriteBytes(b);
+			}
+
+			return s.ToArray();
+		}
+
+		public void Import(WriteBatch batch, byte[] data)
+		{
+			var s = new MemoryStream(data);
+			var r = new BinaryReader(s);
+			
+			var n = r.Read7BitEncodedInt();
+
+			for(int i = 0; i < n; i++)
+			{
+				var b = GetBucket(r.Read7BitEncodedInt());
+				b.Import(batch, r.ReadBytes());
+			}
+		}
 	}
 }
 
@@ -562,7 +593,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		}
 	}
 
-	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase executed,  Round lastInCommit)
+	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase assosiated,  Round lastInCommit)
 	{
 		if(!entities.Any())
 			return;
@@ -597,9 +628,9 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		foreach(var i in cs)
 			i.Commit(batch);
 
-		if(executed != null) /// null == Account
+		if(assosiated != null) /// null == Account
 		{
-			Assosiated = executed;
+			Assosiated = assosiated;
 	
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);
@@ -612,6 +643,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 	public override void Clear()
 	{
+		Assosiated = CreateAssosiated();
+
 		Clusters.Clear();
 
 		Rocks.DropColumnFamily(MetaColumnName);

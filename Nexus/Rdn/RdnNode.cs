@@ -129,7 +129,7 @@ public class RdnNode : McvNode
 													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.VotersRound.Members.Any(i => Settings.Mcv.Generators.Any(g => g.Signer == i.Address)) ? "M" : null) +
 													(Settings.Seed != null  ? "S" : null),
 													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
-													Mcv != null ? $"{Peering.Synchronization}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
+													Mcv != null ? $"{Peering.Synchronization}{(Peering.SynchronizationInfo != null ? $"-{Peering.SynchronizationInfo}" : null)}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
 													$"T(i/o)={Peering.CandidateTransactions.Count}/{Peering.OutgoingTransactions.Count}"}
 						.Where(i => !string.IsNullOrWhiteSpace(i)));
 

@@ -14,7 +14,7 @@ public class PublicationTitleIndex : HnswTable<string, StringToDictionaryHnswEnt
 
 	public override StringToDictionaryHnswEntity Create()
 	{
-		return new StringToDictionaryHnswEntity() {References = []};
+		return new StringToDictionaryHnswEntity() {References = [], Text = string.Empty};
 	}
 
 	public PublicationTitleExecution CreateExecuting(Execution execution)

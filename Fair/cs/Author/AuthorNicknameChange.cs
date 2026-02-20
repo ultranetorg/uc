@@ -39,19 +39,19 @@ public class AuthorNicknameChange : FairOperation
 			return;
 		}
 
-		if(a.Nickname != "")
+		if(a.Name != null)
 		{
-			execution.Words.Unregister(a.Nickname);
+			execution.Words.Unregister(a.Name);
 		}
 
-		if(Name != "")
+		if(Name != null)
 		{
-			execution.Words.Register(Name, EntityTextField.AuthorNickname, a.Id);
+			execution.Words.Register(Name, EntityTextField.AuthorName, a.Id);
 		}
 
 		a = execution.Authors.Affect(Author);
 		
-		a.Nickname = Name;	
+		a.Name = Name;	
 		
 		execution.PayOperationEnergy(a);
 	}

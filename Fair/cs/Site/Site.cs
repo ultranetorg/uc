@@ -122,7 +122,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public const int					PoWLength = 32;
 
 	public AutoId						Id { get; set; }
-	public string						Nickname { get; set; }
+	public string						Name { get; set; }
 	public string						Title { get; set; }
 	public string						Slogan { get; set; }
 	public string						Description { get; set; }
@@ -222,7 +222,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Title					= Title,
 					Slogan					= Slogan,
 					Description				= Description,
-					Nickname				= Nickname,
+					Name				= Name,
 					ModerationReward		= ModerationReward,
 					CandidateRequestFee		= CandidateRequestFee,
 					Avatar					= Avatar,
@@ -271,10 +271,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public void Read(BinaryReader reader)
 	{
 		Id							= reader.Read<AutoId>();
-		Nickname					= reader.ReadUtf8();
+		Name					= reader.ReadUtf8();
 		Title						= reader.ReadUtf8();
-		Slogan						= reader.ReadUtf8Nullable();
-		Description					= reader.ReadUtf8Nullable();
+		Slogan						= reader.ReadUtf8();
+		Description					= reader.ReadUtf8();
 		ModerationReward			= reader.Read7BitEncodedInt();
 		CandidateRequestFee			= reader.Read7BitEncodedInt();
 		PoWComplexity				= reader.Read7BitEncodedInt();
@@ -304,10 +304,10 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.WriteUtf8(Nickname);
+		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Title);
-		writer.WriteUtf8Nullable(Slogan);
-		writer.WriteUtf8Nullable(Description);
+		writer.WriteUtf8(Slogan);
+		writer.WriteUtf8(Description);
 		writer.Write7BitEncodedInt(ModerationReward);
 		writer.Write7BitEncodedInt(CandidateRequestFee);
 		writer.Write7BitEncodedInt(PoWComplexity);

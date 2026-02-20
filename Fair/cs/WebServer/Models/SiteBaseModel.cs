@@ -8,7 +8,7 @@ public class SiteBaseModel(Site site)
 	public string Id { get; } = site.Id.ToString();
 
 	[JsonPropertyOrder(-4)]
-	public string Nickname { get; } = site.Nickname;
+	public string Nickname { get; } = site.Name;
 
 	[JsonPropertyOrder(-3)]
 	public string Title { get; } = site.Title;

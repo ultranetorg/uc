@@ -22,7 +22,7 @@ public class DownloadReleasePpc : RdnPpc<DownloadReleasePpr>
 			if(r == null || !r.IsReady(File)) 
 				throw new EntityException(EntityError.NotFound);
 
-			return new DownloadReleasePpr {Data = r.Find(File).Read(Offset, Length)};
+			return new DownloadReleasePpr {Data = r.Find(File ?? "").Read(Offset, Length)};
 		}
 	}
 }

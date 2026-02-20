@@ -1,10 +1,10 @@
 ﻿namespace Uccs.Net;
 
-public class DownloadTablePpc : McvPpc<DownloadTablePpr>
+public class DownloadBucketPpc : McvPpc<DownloadBucketPpr>
 {
 	public int		Table { get; set; }
 	public byte[]	Hash { get; set; }
-	public int		BucketId { get; set; }
+	public int		Bucket { get; set; }
 
 	public override Result Execute()
 	{
@@ -15,7 +15,7 @@ public class DownloadTablePpc : McvPpc<DownloadTablePpr>
 			if(Mcv.Tables[Table].IsIndex)
 				throw new RequestException(RequestError.IncorrectRequest);
 
-			var b = Mcv.Tables[Table].FindBucket(BucketId);
+			var b = Mcv.Tables[Table].FindBucket(Bucket);
 
 			if(b == null)
 				throw new EntityException(EntityError.NotFound);
@@ -23,12 +23,12 @@ public class DownloadTablePpc : McvPpc<DownloadTablePpr>
 			if(!b.Hash.SequenceEqual(Hash))
 				throw new EntityException(EntityError.HashMismatach);
 
-			return new DownloadTablePpr {Main = b.Export()};
+			return new DownloadBucketPpr {Main = b.Export()};
 		}
 	}
 }
 	
-public class DownloadTablePpr : Result
+public class DownloadBucketPpr : Result
 {
 	public byte[] Main { get; set; }
 }

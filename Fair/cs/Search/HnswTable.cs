@@ -20,6 +20,8 @@ public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
 	public EntityId									Key => Id;
 	public bool										Deleted { get;  set; }
 
+	bool											ConnectionsCloned = false;
+	
 	public abstract object							Clone();
 
 	public override string ToString()
@@ -43,7 +45,11 @@ public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
 
 	public void AddConnection(int level, HnswNode<D> node)
 	{
-		Connections = new(Connections);
+		if(!ConnectionsCloned)
+		{	
+			Connections = new(Connections);
+			ConnectionsCloned = true;
+		}
 
 		if(Connections.ContainsKey(level))
 			Connections[level] = [..Connections[level], node.Id];
@@ -218,11 +224,11 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		//EntryPoints = (Meta as HnswTableState<D, E>).EntryPoints;
 	}
 
-	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase state, Round lastInCommit)
+	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase assosiated, Round lastInCommit)
 	{
-		base.Commit(batch, entities, state, lastInCommit);
+		base.Commit(batch, entities, assosiated, lastInCommit);
 
-		Assosiated.EntryPoints = (state as HnswTableState<D, E>).EntryPoints;
+		/// ????? Assosiated.EntryPoints = (state as HnswTableState<D, E>).EntryPoints;
 
 		//var s = new MemoryStream();
 		//var w = new BinaryWriter(s);
@@ -237,10 +243,10 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		//}
 	}
 
-	public override TableStateBase CreateAssosiated()
-	{
-		return new HnswTableState<D, E>(this) {EntryPoints = []};
-	}
+	///public override TableStateBase CreateAssosiated()
+	///{
+	///	return new HnswTableState<D, E>(this) {EntryPoints = []};
+	///}
 
 	/// 	public void Remove(string data)
 	/// 	{
@@ -298,9 +304,9 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	/// 		Console.WriteLine($"[HNSW] Rebuild complete. Total nodes: {allData.Count}");
 	/// 	}
 
-	public IEnumerable<E> Search(D query, int skip, int take, Func<E, bool> criteria, Func<HnswId, E> find, List<E> entrypoints)
+	public IEnumerable<E> Search(D query, int skip, int take, Func<E, bool> criteria, Func<HnswId, E> find, E[] entrypoints)
 	{
-		if(entrypoints.Count == 0)
+		if(entrypoints == null)
 			return [];
 
 		//var queryHash = Metric.Hashify(query);
@@ -405,7 +411,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 
 public class HnswTableState<D, E> : TableState<HnswId, E> where E : HnswNode<D>
 {
-	public List<E>							EntryPoints;
+	//public List<E>							EntryPoints;
 	public new HnswTable<D, E>				Table => base.Table as HnswTable<D, E>;
 
 	public HnswTableState(HnswTable<D, E> table) : base(table)
@@ -416,33 +422,33 @@ public class HnswTableState<D, E> : TableState<HnswId, E> where E : HnswNode<D>
 	{
 		base.StartRoundExecution(round);
 
-		EntryPoints = round.Id == 0 ? [] : round.Previous.FindState<HnswTableState<D, E>>(Table).EntryPoints;
+		//EntryPoints = round.Id == 0 ? [] : round.Previous.FindState<HnswTableState<D, E>>(Table).EntryPoints;
 	}
 
 	public override void Absorb(TableStateBase execution)
 	{
 		base.Absorb(execution);
 
-		var e = execution as HnswTableState<D, E>;
+		//var e = execution as HnswTableState<D, E>;
 
-		EntryPoints = e.EntryPoints;
+		//EntryPoints = e.EntryPoints;
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
 
-		writer.Write(EntryPoints);
+		//writer.Write(EntryPoints);
 	}
 
 	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
 
-		EntryPoints = reader.ReadList(() => {
-												var e = Table.Create(); 
-												e.Read(reader); 
-												return e;
-											});
-	}
+		//EntryPoints = reader.ReadList(() => {
+		//										var e = Table.Create(); 
+		//										e.Read(reader); 
+		//										return e;
+		//									});
+	}	//
 }

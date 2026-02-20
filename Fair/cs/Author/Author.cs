@@ -17,7 +17,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	//public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 
 	public AutoId					Id { get; set; }
-	public string					Nickname { get; set; }
+	public string					Name { get; set; }
 	public string					Title { get; set; }
 	public string					Description { get; set; }
 	public AutoId[]					Owners { get; set; }
@@ -58,7 +58,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public override string ToString()
 	{
-		return $"{Id}, {Title}{(Nickname != "" ? $"({Nickname})" : null)}, Owners={Owners.Length}, Expiration={Expiration}";
+		return $"{Id}, {Title}{(Name != "" ? $"({Name})" : null)}, Owners={Owners.Length}, Expiration={Expiration}";
 	}
 
 	public object Clone()
@@ -66,7 +66,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		var a = new Author(Mcv)
 				{				
 					Id					= Id,
-					Nickname			= Nickname,
+					Name				= Name,
 					Title				= Title,
 					Description			= Description,
 					Owners				= Owners,
@@ -136,9 +136,9 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.WriteUtf8(Nickname);
+		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Title);
-		writer.WriteUtf8Nullable(Description);
+		writer.WriteUtf8(Description);
 		writer.Write(Owners);
 		writer.Write7BitEncodedInt64(ModerationReward);
 		writer.WriteNullable(Avatar);
@@ -155,9 +155,9 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public void Read(BinaryReader reader)
 	{
 		Id					= reader.Read<AutoId>();
-		Nickname			= reader.ReadUtf8();
+		Name			= reader.ReadUtf8();
 		Title				= reader.ReadUtf8();
-		Description			= reader.ReadUtf8Nullable();
+		Description			= reader.ReadUtf8();
 		Owners				= reader.ReadArray<AutoId>();
 		ModerationReward	= reader.Read7BitEncodedInt64();
 		Avatar				= reader.ReadNullable<AutoId>();

@@ -44,16 +44,16 @@ public class SiteNicknameChange : VotableOperation
 			return;
 		}
 
-		if(Site.Nickname != "")
+		if(Site.Name != null)
 		{
-			execution.Words.Unregister(Site.Nickname);
+			execution.Words.Unregister(Site.Name);
 		}
 
-		if(Name != "")
+		if(Name != null)
 		{
-			execution.Words.Register(Name, EntityTextField.SiteNickname, Site.Id);
+			execution.Words.Register(Name, EntityTextField.SiteName, Site.Id);
 		}
 
-		Site.Nickname = Name;	
+		Site.Name = Name;	
 	}
 }

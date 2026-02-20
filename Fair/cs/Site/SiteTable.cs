@@ -21,14 +21,16 @@ public class SiteTable : Table<AutoId, Site>
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
-		foreach(var i in GraphEntities.Where(i => i.Nickname != ""))
+		foreach(var i in GraphEntities.Where(i => i.Name != null))
 		{
-			var w = e.Words.Affect(Word.GetId(i.Nickname));
+			var w = e.Words.Affect(Word.GetId(i.Name));
 
-			w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteNickname};
+			w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.SiteName};
 		}
 
 		Mcv.Words.Commit(batch, e.Words.Affected.Values, e.Words, null);
+
+		Mcv.SiteTitles.Clear();
 
 		e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
@@ -38,9 +40,10 @@ public class SiteTable : Table<AutoId, Site>
 		}
 	
 		Mcv.SiteTitles.Commit(batch, e.SiteTitles.Affected.Values, e.SiteTitles, lastincommit);
-		(lastincommit as FairRound).SiteTitles = new (Mcv.SiteTitles){
-																		EntryPoints = e.SiteTitles.EntryPoints
-																	 };
+		//(lastincommit as FairRound).SiteTitles = new (Mcv.SiteTitles)
+		//										 {
+		//											EntryPoints = e.SiteTitles.EntryPoints
+		//										 };
 	}
 
 	public SearchResult[] Search(string query, int skip, int take)
@@ -50,7 +53,7 @@ public class SiteTable : Table<AutoId, Site>
 											take, 
 											null,
 											Mcv.SiteTitles.Latest, 
-											(Mcv.LastConfirmedRound as FairRound).SiteTitles.EntryPoints);
+											Mcv.SiteTitles.Latest(HnswId.Entry)?.Connections[-1].Select(i => Mcv.SiteTitles.Latest(i)).ToArray());
 
 		return result.SelectMany(i =>	{
 											return i.References.Select(j => new SearchResult {Entity = j, Text = i.Text});
@@ -81,9 +84,7 @@ public class SiteExecution : TableExecution<AutoId, Site>
 		s.Proposals = [];
 		s.UnpublishedPublications = [];
 		s.ChangedPublications = [];
-		s.Nickname = "";
 		s.Files = [];
-		s.Description = "";
 		
 		return Affected[s.Id] = s;
 	}

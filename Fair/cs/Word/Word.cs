@@ -4,9 +4,9 @@ namespace Uccs.Fair;
 
 public enum EntityTextField : byte
 {
-	AccountNickname, 
-	AuthorNickname, 
-	SiteNickname, 
+	UserName, 
+	AuthorName, 
+	SiteName, 
 //
 //	AuthorTitle,
 //	SiteTitle,

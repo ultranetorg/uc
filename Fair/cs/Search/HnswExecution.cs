@@ -74,15 +74,15 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
 	protected HnswExecution(FairExecution execution, HnswTable<D, E> table) : base(table)
 	{
 		Execution = execution;
-		EntryPoints = execution.Round.FindState<HnswTableState<D, E>>(Table).EntryPoints ?? Table.Assosiated.EntryPoints;
+		//EntryPoints = execution.Round.FindState<HnswTableState<D, E>>(Table).EntryPoints ?? Table.Assosiated.EntryPoints;
 	}
 	
-	public List<E> AffectEntryPoints()
-	{
-		EntryPoints = new(EntryPoints);
-
-		return EntryPoints;
-	}
+	//public List<E> AffectEntryPoints()
+	//{
+	//	EntryPoints = new(EntryPoints);
+	//
+	//	return EntryPoints;
+	//}
 
 	public byte RandomLevel(byte[] start)
 	{
@@ -108,9 +108,11 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
 
 	public void Add(E node)
 	{
+		var eps = Find(HnswId.Entry)?.Connections[-1];
+
 		for(byte l = 0; l <= node.Level; l++)
 		{
-			var neighbors = EntryPoints.Count > 0 ? Table.EfSearch(node.Data, EntryPoints[0], l, Table.EfConstruction, null, Find) : [];
+			var neighbors = eps != null ? Table.EfSearch(node.Data, Find(eps[0]), l, Table.EfConstruction, null, Find) : [];
 
 			if(neighbors.Count() == 0)
 			{
@@ -131,15 +133,20 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
 			}
 		}
 
-		if(EntryPoints.Count == 0 || node.Level > EntryPoints[0].Level)
+		if(eps == null || node.Level > eps[0].Level)
 		{
-			AffectEntryPoints();
-			EntryPoints.Clear();
-			EntryPoints.Add(node);
+			E e;
+
+			if(eps == null)
+				e = Create(HnswId.Entry);
+			else
+				e = Affect(HnswId.Entry);
+
+			e.AddConnection(-1, node);
 		}
 	}
 	
-	private E? GlobalBestNeighbor(HnswNode<D> node, byte level)
+	E GlobalBestNeighbor(HnswNode<D> node, byte level)
 	{
 // 		if(!Layers.ContainsKey(level))
 // 			return null;
@@ -249,14 +256,14 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
  
 		a = a.Clone() as E;
 
-		var e = EntryPoints.Find(i => i.Id == a.Id);
-			
-		if(e != null)
-		{
-			AffectEntryPoints();
-			EntryPoints.Remove(e);
-			EntryPoints.Add(a);
-		}
+//		var ep = EntryPoints.Find(i => i.Id == a.Id);
+//			
+//		if(ep != null)
+//		{
+//			AffectEntryPoints();
+//			EntryPoints.Remove(ep);
+//			EntryPoints.Add(a);
+//		}
 
  		return Affected[id] = a;
 	}
