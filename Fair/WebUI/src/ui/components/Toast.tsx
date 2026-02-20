@@ -15,7 +15,7 @@ export type ToastProps = Pick<ToastContentProps, "closeToast"> & ToastBaseProps
 export const Toast = ({ type = "default", text, closeToast }: ToastProps) => (
   <div
     className={twMerge(
-      "max-w-115 flex w-full items-start gap-4 rounded-lg bg-gray-800 p-4 text-white shadow-[0_13px_18px_0_rgba(0,0,0,0.1)]",
+      "flex w-full max-w-115 items-start gap-4 rounded-lg bg-gray-800 p-4 text-white shadow-[0_13px_18px_0_rgba(0,0,0,0.1)]",
       type === "warning" && "bg-[#F88545]",
       type === "error" && "bg-[#CD3841]",
     )}

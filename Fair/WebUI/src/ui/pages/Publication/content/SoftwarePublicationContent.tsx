@@ -232,7 +232,6 @@ export const SoftwarePublicationContent = memo(
           )}
           {isEulaOpen && eulaText && (
             <TextModal
-              buttonLayout="compact"
               title={t("eula")}
               text={eulaText}
               confirmLabel={t("common:ok")}

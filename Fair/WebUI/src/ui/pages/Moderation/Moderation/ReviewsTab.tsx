@@ -105,7 +105,7 @@ export const ReviewsTab = () => {
       </div>
       {selectedReviewId && selectedReviewText && (
         <TextModal
-          buttonLayout="compact"
+          size="compact"
           title={t("reviewModalTitle")}
           text={selectedReviewText}
           onCancel={handleRejectClick}

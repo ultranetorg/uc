@@ -1,4 +1,4 @@
 export type AuthenticationResult = {
-  account: string
+  signer: string
   session: string
 }

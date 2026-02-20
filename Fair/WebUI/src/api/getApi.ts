@@ -10,6 +10,7 @@ import {
   CategoryPublications,
   ChangedPublication,
   ChangedPublicationDetails,
+  File,
   PerpetualSurvey,
   PerpetualSurveyDetails,
   ProductField,
@@ -55,9 +56,10 @@ const getSiteAuthors = (siteId: string): Promise<AccountBase[]> =>
 const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
 
-const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>> => {
+const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/files` + params)
+  if (!res.ok) throw new Error(`Failed to fetch site files`)
   return await toTotalItemsResult(res)
 }
 
@@ -194,9 +196,10 @@ const getAuthorFiles = async (
   authorId?: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<string>> => {
+): Promise<TotalItemsResult<File>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}/files` + params)
+  if (!res.ok) throw new Error(`Failed to fetch author files`)
   return await toTotalItemsResult(res)
 }
 

@@ -6,6 +6,7 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
+  File,
   PerpetualSurvey,
   PerpetualSurveyDetails,
   ProductField,
@@ -42,7 +43,7 @@ export type Api = {
   getSite(siteId: string): Promise<Site>
   getSiteAuthors(siteId: string): Promise<AccountBase[]>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
-  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
   searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
@@ -88,7 +89,7 @@ export type Api = {
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>>
 
   // Author
-  getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+  getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
   getAuthorPerpetualSurveys(siteId: string): Promise<PerpetualSurvey[]>
   getAuthorPerpetualSurveyDetails(siteId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails>

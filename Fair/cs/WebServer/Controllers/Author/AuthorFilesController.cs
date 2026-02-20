@@ -13,7 +13,7 @@ public class AuthorFilesController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<string> Get(string siteId, string authorId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<FileModel> Get(string siteId, string authorId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {AuthorId}", nameof(AuthorFilesController), nameof(Get), siteId, authorId);
 
@@ -22,7 +22,7 @@ public class AuthorFilesController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<string> referendums = filesService.GetAuthorFiles(siteId, authorId, page, pageSize, cancellationToken);
+		TotalItemsResult<FileModel> referendums = filesService.GetAuthorFiles(siteId, authorId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(referendums.Items, page, pageSize, referendums.TotalItems);
 	}

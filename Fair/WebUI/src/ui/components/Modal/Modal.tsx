@@ -9,6 +9,7 @@ import { getClass } from "utils"
 import { Backdrop } from "./Backdrop"
 
 type ModalBaseProps = {
+  headerClassName?: string
   title?: string
   isBackdropStatic?: boolean
   footer?: ReactNode
@@ -18,7 +19,7 @@ type ModalBaseProps = {
 export type ModalProps = PropsWithClassName & PropsWithChildren & ModalBaseProps
 
 export const Modal = memo((props: ModalProps) => {
-  const { className, children, title, isBackdropStatic, footer, onClose, ...rest } = props
+  const { className, children, headerClassName, title, isBackdropStatic, footer, onClose, ...rest } = props
 
   const gapClass = getClass(className, "gap")
 
@@ -40,13 +41,13 @@ export const Modal = memo((props: ModalProps) => {
         {...rest}
       >
         {(title || onClose) && (
-          <div className="flex items-center justify-between gap-2.5">
+          <div className={twMerge("flex items-center justify-between gap-2.5", headerClassName)}>
             <div className="cursor-default select-none text-2xl font-semibold leading-7 text-gray-800">{title}</div>
             {onClose && <SvgX onClick={onClose} className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" />}
           </div>
         )}
-        <div className={twMerge("flex flex-col overflow-hidden", gapClass)}>{children}</div>
-        {footer && <div>{footer}</div>}
+        <div className={twMerge("flex-1 flex-col overflow-hidden", gapClass)}>{children}</div>
+        {footer}
       </div>
     </Backdrop>,
     document.body,

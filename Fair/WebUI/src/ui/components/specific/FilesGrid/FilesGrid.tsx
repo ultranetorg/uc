@@ -2,35 +2,41 @@ import { forwardRef, memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { SvgSpinnerXl } from "assets"
-import { PropsWithClassName } from "types"
+import { File, PropsWithClassName } from "types"
 
 import { FileCard } from "./FileCard"
 
 type FilesGridProps = PropsWithClassName & {
-  filesIds: string[]
+  files: File[]
   hasNextPage?: boolean
-  onSelect?: (id: string) => void
-  noFilesLabel: string
+  selectedFileId?: string
+  onSelect?: (file: File) => void
+  notUsedLabel: string
+  usedLabel: string
 }
 
 export const FilesGrid = memo(
-  forwardRef<HTMLDivElement, FilesGridProps>(({ className, filesIds, hasNextPage, onSelect, noFilesLabel }, ref) => (
-    <div className={twMerge("grid w-full grid-cols-5 gap-4 pb-4", className)}>
-      {filesIds.length === 0 ? (
-        <div className="col-span-5 text-center">{noFilesLabel}</div>
-      ) : (
-        <>
-          {filesIds.map(id => (
-            <FileCard key={id} fileId={id} onClick={() => onSelect?.(id)} />
-          ))}
+  forwardRef<HTMLDivElement, FilesGridProps>(
+    ({ className, files, hasNextPage, selectedFileId, onSelect, notUsedLabel, usedLabel }, ref) => (
+      <div className={twMerge("grid w-full auto-rows-min grid-cols-5 gap-4 pb-4", className)}>
+        {files.map(x => (
+          <FileCard
+            key={x.id}
+            fileId={x.id}
+            refs={x.refs}
+            selected={x.id === selectedFileId}
+            onClick={() => onSelect?.(x)}
+            notUsedLabel={notUsedLabel}
+            usedLabel={usedLabel}
+          />
+        ))}
 
-          {hasNextPage === true && (
-            <div ref={ref} className="col-span-5 flex items-center justify-center">
-              <SvgSpinnerXl className="animate-spin fill-gray-300" />
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  )),
+        {hasNextPage === true && (
+          <div ref={ref} className="col-span-5 flex items-center justify-center">
+            <SvgSpinnerXl className="animate-spin fill-gray-300" />
+          </div>
+        )}
+      </div>
+    ),
+  ),
 )

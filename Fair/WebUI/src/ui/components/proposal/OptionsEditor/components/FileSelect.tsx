@@ -30,9 +30,9 @@ export const FileSelect = memo(({ value, onChange }: FileSelectProps) => {
         {value && (
           <div className="flex h-20 w-full items-center justify-between rounded border border-gray-200 p-2">
             <div className="flex items-center gap-3">
-              <div className="h-16 w-16 overflow-hidden rounded">
+              <div className="size-16 overflow-hidden rounded">
                 <img
-                  className="h-full w-full object-cover object-center"
+                  className="size-full object-cover object-center"
                   src={value ? `${BASE_URL}/files/${value}` : undefined}
                   title={value}
                 />

@@ -1,4 +1,4 @@
-import { AuthenticationResult, Wallet, WalletAccount } from "types/vault"
+import { AuthenticationResult, Wallet } from "types/vault"
 
 export type VaultApi = {
   authenticate(baseUrl: string, userName: string, address: string): Promise<AuthenticationResult | null>
@@ -6,5 +6,4 @@ export type VaultApi = {
   register(baseUrl: string, userName: string): Promise<AuthenticationResult | null>
 
   getWallets(baseUrl: string): Promise<Wallet[]>
-  getWalletAccounts(baseUrl: string, name?: string): Promise<WalletAccount[]>
 }

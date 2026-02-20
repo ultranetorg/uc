@@ -22,7 +22,7 @@ const authenticate = async (
   if (data === null) return null
 
   const res = keysToCamelCase(data) as AuthenticationResult
-  if (res.account !== address) throw new Error("You don't have permission to selected account")
+  if (res.signer !== address) throw new Error("You don't have permission to selected account")
   return res
 }
 
@@ -54,15 +54,11 @@ const register = async (baseUrl: string, userName: string): Promise<Authenticati
 
 const getWallets = (baseUrl: string): Promise<Wallet[]> => fetch(`${baseUrl}/Wallets`).then(res => res.json())
 
-const getWalletAccounts = (baseUrl: string, name?: string): Promise<WalletAccount[]> =>
-  fetch(`${baseUrl}/WalletAccounts`, { body: JSON.stringify({ Name: name }) }).then(res => res.json())
-
 const api: VaultApi = {
   authenticate,
   isAuthenticated,
   register,
   getWallets,
-  getWalletAccounts,
 }
 
 export const getVaultApi = () => api

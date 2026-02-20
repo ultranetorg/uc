@@ -1,3 +1,5 @@
+import { use } from "i18next"
+
 export const enUS = {
   /* Common */
   common: {
@@ -42,6 +44,7 @@ export const enUS = {
     review: "review",
     reviewer: "Reviewer",
     saveChanges: "Save changes",
+    select: "select",
     signIn: "sign in",
     signUp: "sign up",
     text: "Text",
@@ -53,6 +56,7 @@ export const enUS = {
     yes: "Yes",
     yesVotes: "Yes votes",
     unsupportedTag: "Your browser does not support the tag.",
+    upload: "upload",
     invalidUrl: "Invalid URL",
   },
   productToken: {
@@ -358,8 +362,16 @@ export const enUS = {
     currentMembersTitle: "Currently {{memberType}}s ({{count}})",
   },
   memberFilesModal: {
+    dragImage: "or drag the image here",
     title: "Select image",
     noFiles: "You don't have any image",
+    noImages: "No uploaded images",
+    removeImage: "Remove image from server",
+    removeMessage: "Are you sure you want to remove image?",
+    notUsed: "Not used",
+    uploaded: "Uploaded",
+    uploading: "Uploading",
+    used: "Used: ",
   },
   signInModal: {
     alreadyHaveAccount: "Already have an account?",

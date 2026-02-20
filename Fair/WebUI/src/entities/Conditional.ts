@@ -17,26 +17,26 @@ export const useGetSiteMembers = (memberType: MembersChangeType, siteId?: string
   return { isFetching, error: error ?? undefined, data }
 }
 
-export const useGetFiles = (siteId?: string, authorId?: string, page?: number, pageSize?: number) => {
-  const queryFn = () =>
-    !authorId ? api.getSiteFiles(siteId!, page, pageSize) : api.getAuthorFiles(siteId!, authorId, page, pageSize)
+// export const useGetFiles = (siteId?: string, authorId?: string, page?: number, pageSize?: number) => {
+//   const queryFn = () =>
+//     !authorId ? api.getSiteFiles(siteId!, page, pageSize) : api.getAuthorFiles(siteId!, authorId, page, pageSize)
 
-  const { isPending, error, data, isFetching, refetch } = useQuery({
-    queryKey: !authorId
-      ? ["sites", siteId, "files", { page, pageSize }]
-      : ["sites", siteId, "authors", authorId, "files", { page, pageSize }],
-    queryFn: queryFn,
-    enabled: !!siteId && !!authorId,
-  })
+//   const { isPending, error, data, isFetching, refetch } = useQuery({
+//     queryKey: !authorId
+//       ? ["sites", siteId, "files", { page, pageSize }]
+//       : ["sites", siteId, "authors", authorId, "files", { page, pageSize }],
+//     queryFn: queryFn,
+//     enabled: !!siteId && !!authorId,
+//   })
 
-  return { isPending, error: error ?? undefined, data, isFetching, refetch }
-}
+//   return { isPending, error: error ?? undefined, data, isFetching, refetch }
+// }
 
 export const useGetFilesInfinite = (siteId?: string, authorId?: string, page?: number, pageSize?: number) => {
   const queryFn = (page: number) =>
     !authorId ? api.getSiteFiles(siteId!, page, pageSize) : api.getAuthorFiles(siteId!, authorId, page, pageSize)
 
-  const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
     initialPageParam: 0,
     queryKey: !authorId
       ? ["sites", siteId, "files", { page, pageSize }]
@@ -48,5 +48,5 @@ export const useGetFilesInfinite = (siteId?: string, authorId?: string, page?: n
     },
   })
 
-  return { data, error: error ?? undefined, fetchNextPage, hasNextPage, isFetchingNextPage }
+  return { data, isError, error: error ?? undefined, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading }
 }
