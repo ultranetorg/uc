@@ -124,7 +124,8 @@ export default {
       },
       zIndex: {
         60: "60",
-        61: "61",
+        61: "61", // Modal
+        62: "62", // Tooltip
       },
     },
   },

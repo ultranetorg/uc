@@ -367,6 +367,7 @@ export const enUS = {
     noFiles: "You don't have any image",
     noImages: "No uploaded images",
     removeImage: "Remove image from server",
+    removeImageTooltip: "Only unused images can be removed",
     removeMessage: "Are you sure you want to remove image?",
     notUsed: "Not used",
     uploaded: "Uploaded",
