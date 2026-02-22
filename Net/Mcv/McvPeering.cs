@@ -193,12 +193,6 @@ public abstract class McvPeering : HomoTcpPeering
 
 				if(Mcv.Settings.Chain == null)
 				{
-					stamp = Call(peer, new StampPpc());
-	
-					foreach(var i in SynchronizationTail.Keys)
-						if(i <= stamp.LastCommitedRound - Mcv.JoinToVote)
-							SynchronizationTail.Remove(i);
-
 					void download(TableBase t)	{
 													using var w = new WriteBatch();
 												
@@ -268,7 +262,15 @@ public abstract class McvPeering : HomoTcpPeering
 													Mcv.Rocks.Write(w);
 												}
 
+				resync:
 					SynchronizationInfo = null;
+
+					stamp = Call(peer, new StampPpc());
+	
+					foreach(var i in SynchronizationTail.Keys)
+						if(i <= stamp.LastCommitedRound)
+							SynchronizationTail.Remove(i);
+
 
 					foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
 					{
@@ -308,7 +310,10 @@ public abstract class McvPeering : HomoTcpPeering
 
 							for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastConfirmedRound.Id + Mcv.P; i++)
 							{
-								foreach(var v in SynchronizationTail[i].Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.Address == i.Generator)).GroupBy(i => i.Try).MaxBy(i => i.Key))
+								if(!SynchronizationTail.TryGetValue(i, out var vs))
+									goto resync;
+
+								foreach(var v in vs.Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.Address == i.Generator)).GroupBy(i => i.Try).MaxBy(i => i.Key))
 								{	
 									v.Restore();
 									Mcv.AddOnly(v);
