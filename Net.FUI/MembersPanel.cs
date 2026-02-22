@@ -34,7 +34,7 @@ public partial class MembersPanel : MainPanel
 				}
 	
 				li.Tag = i;
-				li.SubItems.Add(i.CastingSince.ToString());
+				li.SubItems.Add(i.Since.ToString());
 				//li.SubItems.Add(i.Pledge.ToString());
 				//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
 			}

@@ -14,9 +14,6 @@ public enum FairMetaEntityType : int
 	ProposalCount,
 	ProposalCommentsCount,
 	WordsCount,
-
-	SiteTitleEntryPoint,
-	PublicationTitleEntryPoint,
 }
 
 public enum FairTable : byte
@@ -54,10 +51,6 @@ public class FairMcv : Mcv
 
 	protected override void GenesisInitilize(Round round)
 	{
-		#if IMMISSION
-		if(round.Id == 1)
-			(round as FairRound).ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
-		#endif
 	}
 
 	protected override void CreateTables(string databasepath)

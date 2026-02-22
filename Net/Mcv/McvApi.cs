@@ -162,7 +162,7 @@ public class McvSummaryApc : McvApc
 					new ("    Pending",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
 					new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
 					new ("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
-					new ("SyncCache Blocks",		$"{node.Peering.SyncTail.Sum(i => i.Value.Count)}")
+					new ("SyncCache Blocks",		$"{node.Peering.SynchronizationTail.Sum(i => i.Value.Count)}")
 					//new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")
 					];
 		}
