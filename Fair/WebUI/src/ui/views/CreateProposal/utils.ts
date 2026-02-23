@@ -17,7 +17,7 @@ const mapOptionOperation = (type: FormOperationType, data: CreateProposalData, o
   switch (type) {
     // Category
     case "category-avatar-change":
-      return { categoryId: data.categoryId, fileId: option.fileId }
+      return { category: data.categoryId, file: option.fileId }
     case "category-creation":
       return { parent: data.categoryId, title: option.categoryTitle }
     case "category-deletion":
@@ -47,7 +47,7 @@ const mapOptionOperation = (type: FormOperationType, data: CreateProposalData, o
     case "site-author-removal":
       return { additionsIds: [], removalsIds: option.authorsIds }
     case "site-avatar-change":
-      return { fileId: option.fileId }
+      return { file: option.fileId }
     case "site-moderator-addition":
       return { candidatesIds: mapAccountsToIds(option.candidatesAccounts) }
     case "site-moderator-removal":

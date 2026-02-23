@@ -9,7 +9,7 @@ export class FileCreation extends BaseFairOperation {
 
   constructor(owner: string, data: string, mime: MimeType) {
     super("FileCreation")
-    this.owner = `2/${owner}` // 2 - author, 3 - site
+    this.owner = `4/${owner}` // 2 - author, (4 - site, owner = siteId)
     this.data = data
     this.mime = mime
   }

@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 
 import { TabsProvider, useUserContext } from "app"
 import { SvgSpinnerXl } from "assets"
-import { useGetFilesInfinite } from "entities"
+import { useGetSiteFilesInfinite } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { useInfiniteScrollWithPosition } from "hooks"
 import { File as FileType, FileDeletion, FileCreation, MimeType } from "types"
@@ -31,12 +31,8 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
   const [selectedFile, setSelectedFile] = useState<FileType | undefined>()
   const [removeModalOpen, setRemoveModalOpen] = useState(false)
 
-  const authorId = user?.authorsIds[0]
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error, refetch } = useGetFilesInfinite(
-    siteId,
-    authorId,
-  )
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error, refetch } =
+    useGetSiteFilesInfinite(siteId)
   const allFiles = data?.pages.flatMap(p => p.items) || []
 
   const tabsItems: TabsListItem[] = useMemo(
@@ -78,7 +74,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
       const data = await fileToBase64(file)
       const mimeType: MimeType = file.type === "image/png" ? "ImagePng" : "ImageJpg"
 
-      const operation = new FileCreation(authorId!, data, mimeType)
+      const operation = new FileCreation(siteId!, data, mimeType)
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:fileUploaded", { fileName: file.name }), "success")
@@ -90,7 +86,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
         },
       })
     },
-    [authorId, mutate, refetch, t],
+    [siteId, mutate, t, refetch],
   )
 
   const { scrollRef, loaderRef } = useInfiniteScrollWithPosition(
