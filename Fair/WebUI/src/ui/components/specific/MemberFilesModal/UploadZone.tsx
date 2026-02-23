@@ -1,4 +1,4 @@
-import { memo, useRef, useState } from "react"
+import { memo, useRef } from "react"
 
 import { TFunction } from "i18next"
 
@@ -12,7 +12,7 @@ export type UploadZoneProps = {
 
 export const UploadZone = memo(({ t, showEmptyState = true, onUpload }: UploadZoneProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
-  const [dragging, setDragging] = useState(false)
+  //const [dragging, setDragging] = useState(false)
 
   return (
     <>
@@ -20,12 +20,12 @@ export const UploadZone = memo(({ t, showEmptyState = true, onUpload }: UploadZo
         className="flex h-full flex-col items-center justify-center gap-4 text-2sm leading-5"
         onDragOver={e => {
           e.preventDefault()
-          setDragging(true)
+          //setDragging(true)
         }}
-        onDragLeave={() => setDragging(false)}
+        //onDragLeave={() => setDragging(false)}
         onDrop={e => {
           e.preventDefault()
-          setDragging(false)
+          //setDragging(false)
           const file = e.dataTransfer.files[0]
           if (file) onUpload(file)
         }}

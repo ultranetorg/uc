@@ -1,5 +1,5 @@
 import { VAULT } from "constants/"
-import { AuthenticationResult, Wallet, WalletAccount } from "types/vault"
+import { AuthenticationResult, Wallet } from "types/vault"
 
 import { VaultApi } from "./VaultApi"
 import { keysToCamelCase } from "./utils"

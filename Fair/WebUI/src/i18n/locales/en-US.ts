@@ -1,5 +1,3 @@
-import { use } from "i18next"
-
 export const enUS = {
   /* Common */
   common: {

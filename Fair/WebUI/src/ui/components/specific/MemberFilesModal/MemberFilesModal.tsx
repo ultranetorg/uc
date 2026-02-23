@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
-import { TabsProvider, useUserContext } from "app"
+import { TabsProvider } from "app"
 import { SvgSpinnerXl } from "assets"
 import { useGetSiteFilesInfinite } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
@@ -24,7 +24,6 @@ export type MemberFilesModalProps = MemberFilesModalBaseProps & ModalProps
 export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalProps) => {
   const { siteId } = useParams()
   const { t } = useTranslation("memberFilesModal")
-  const { user } = useUserContext()
   const { mutate } = useTransactMutationWithStatus()
 
   const [activeTab, setActiveTab] = useState("uploaded")
