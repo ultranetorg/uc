@@ -49,7 +49,7 @@ public abstract class McvPeering : HomoTcpPeering
 	public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
 	Thread									SynchronizingThread;
 	public string							SynchronizationInfo;
-	public Dictionary<int, List<Vote>>		SyncTail = [];
+	public Dictionary<int, List<Vote>>		SynchronizationTail = [];
 
 	public static List<McvPeering>			All = [];
 
@@ -163,7 +163,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 		if(Synchronization != Synchronization.Downloading)
 		{
-			SyncTail.Clear();
+			SynchronizationTail.Clear();
 			CandidateTransactions.Clear();
 
 			Flow.Log?.Report(this, $"Synchronization Started");
@@ -185,16 +185,14 @@ public abstract class McvPeering : HomoTcpPeering
 
 		while(Flow.Active)
 		{
+			WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 100);
+
 			try
 			{
-				WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
-
 				peer = Connect(Mcv.Settings.Roles, used, Flow);
 
 				if(Mcv.Settings.Chain == null)
 				{
-					stamp = Call(peer, new StampPpc());
-	
 					void download(TableBase t)	{
 													using var w = new WriteBatch();
 												
@@ -263,162 +261,204 @@ public abstract class McvPeering : HomoTcpPeering
 
 													Mcv.Rocks.Write(w);
 												}
+
+				resync:
+					SynchronizationInfo = null;
+
+					stamp = Call(peer, new StampPpc());
 	
-					while(Flow.Active)
+					foreach(var i in SynchronizationTail.Keys)
+						if(i <= stamp.LastCommitedRound)
+							SynchronizationTail.Remove(i);
+
+
+					foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
 					{
-						SynchronizationInfo = null;
-
-						foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
-						{
-							download(i);
-						}
+						download(i);
+					}
 		
-						var r = Mcv.CreateRound();
-						r.Confirmed = true;
-						r.ReadGraphState(new BinaryReader(new MemoryStream(stamp.GraphState)));
+					var r = Mcv.CreateRound();
+					r.Confirmed = true;
+					r.ReadGraphState(new BinaryReader(new MemoryStream(stamp.GraphState)));
 		
-						var s = Call(peer, new StampPpc());
+					var s = Call(peer, new StampPpc());
 	
-						lock(Mcv.Lock)
-						{
-							Mcv.GraphState = stamp.GraphState;
-							Mcv.LastConfirmedRound = r;
-							Mcv.LastCommitedRound = r;
+					lock(Mcv.Lock)
+					{
+						Mcv.GraphState = stamp.GraphState;
+						Mcv.LastConfirmedRound = r;
+						Mcv.LastCommitedRound = r;
 			
-							Mcv.Hashify();
+						Mcv.OldRounds[r.Id] = r;
+
+						Mcv.Hashify();
 			
-							if(s.GraphHash.SequenceEqual(Mcv.GraphHash))
-	 						{	
-								Mcv.OldRounds[r.Id] = r;
+						if(s.GraphHash.SequenceEqual(Mcv.GraphHash))
+	 					{	
+							Mcv.OldRounds[r.Id] = r;
 
-								using(var w = new WriteBatch())
-								{
-									foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
-										i.Index(w, r);
-
-									//foreach(var i in Mcv.Tables)
-									//	i.Commit();
-						
-									Mcv.Rocks.Write(w);
-								}
-
-								break;
-							}
-							else
+							using(var w = new WriteBatch())
 							{
-								#if DEBUG
-									//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
-									lock(Mcv.Lock)
-										Mcv.Dump();
-									
-									lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
-										All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
-								
-								///	Debugger.Break();
-								#endif
+								foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
+									i.Index(w, r);
+
+								//foreach(var i in Mcv.Tables)
+								//	i.Commit();
+						
+								Mcv.Rocks.Write(w);
 							}
+
+							for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastConfirmedRound.Id + Mcv.P; i++)
+							{
+								if(!SynchronizationTail.TryGetValue(i, out var vs))
+									goto resync;
+
+								foreach(var v in vs.Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.Address == i.Generator)).GroupBy(i => i.Try).MaxBy(i => i.Key))
+								{	
+									v.Restore();
+									Mcv.AddOnly(v);
+								}
+							}
+
+							r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1);
+							var a = SynchronizationTail.Where(i => i.Key >= Mcv.LastConfirmedRound.Id + 1 + Mcv.P).OrderBy(i => i.Key).ToArray();
+	
+							foreach(var i in a)
+							{
+								foreach(var v in i.Value.OrderBy(i => i.Try))
+									ProcessIncoming(v, true);
+		
+							}
+
+							if(r.Confirmed)
+							{
+								Synchronization = Synchronization.Synchronized;
+								SynchronizationInfo = null;
+								SynchronizingThread = null;
+								SynchronizationTail.Clear();
+								
+								MainWakeup.Set();
+			
+								Flow.Log?.Report(this, $"Synchronization Finished");
+								return;
+							}
+
+							break;
+						}
+						else
+						{
+							#if DEBUG
+								//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
+								lock(Mcv.Lock)
+									Mcv.Dump();
+									
+								lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
+									All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
+								
+							///	Debugger.Break();
+							#endif
 						}
 					}
 				}
-	
-				int from = -1;
-				int to = -1;
-
-				while(Flow.Active)
+				else
 				{
-					lock(Mcv.Lock)
-						if(Mcv.Settings.Chain != null)
-							from = Mcv.LastConfirmedRound.Id + 1;
-						else
-							from = Math.Max(stamp.FirstTailRound, Mcv.LastConfirmedRound == null ? -1 : (Mcv.LastConfirmedRound.Id + 1));
-	
-					to = from + Mcv.P;
-	
-					var rp = Call(peer, new DownloadRoundsPpc {From = from, To = to});
+					int from = -1;
+					int to = -1;
 
+					lock(Mcv.Lock)
+						from = Mcv.LastConfirmedRound.Id + 1;
+		
+					to = from + Mcv.P;
+		
+					var rp = Call(peer, new DownloadRoundsPpc {From = from, To = to});
+	
 					lock(Mcv.Lock)
 					{
 						var rounds = rp.Read(Mcv);
-													
+														
 						foreach(var r in rounds)
 						{
-			
+				
 							Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.EP}");
-								
+									
 							if(Mcv.LastConfirmedRound.Id + 1 != r.Id)
-							 	throw new SynchronizationException();
-
-							if(Enumerable.Range(r.Id, Mcv.P + 1).All(SyncTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
+								throw new SynchronizationException();
+	
+							if(Enumerable.Range(r.Id, Mcv.P + 1).All(SynchronizationTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
 							{
-								var p =	SyncTail[r.Id];
-								var c =	SyncTail[r.Id + Mcv.P];
-
+								var p =	SynchronizationTail[r.Id];
+								var c =	SynchronizationTail[r.Id + Mcv.P];
+	
 								try
 								{
 									foreach(var v in p)
 										ProcessIncoming(v, true);
-	
+		
 									foreach(var v in c)
 										ProcessIncoming(v, true);
 								}
 								catch(ConfirmationException)
 								{
 								}
-
+	
 								if(Mcv.LastConfirmedRound.Id == r.Id && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
 								{
-									foreach(var i in SyncTail.OrderBy(i => i.Key).Where(i => i.Key > r.Id))
+									foreach(var i in SynchronizationTail.OrderBy(i => i.Key).Where(i => i.Key > r.Id))
 									{
 										foreach(var v in i.Value)
 											ProcessIncoming(v, true);
 									}
-									
+										
 									Synchronization = Synchronization.Synchronized;
 									SynchronizationInfo = null;
-									SyncTail.Clear();
 									SynchronizingThread = null;
-					
+									SynchronizationTail.Clear();
+						
 									MainWakeup.Set();
-
+	
 									Flow.Log?.Report(this, $"Synchronization Finished");
 									return;
 								}
 							}
-
-							Mcv.Tail.RemoveAll(i => i.Id >= r.Id);
-							Mcv.Tail.Insert(0, r);
-
+	
+							var x = Mcv.FindRound(r.Id);
+	
+							if(x != null)
+							{
+								Mcv.Tail.Remove(x);
+								Mcv.Tail.Insert(0, r);
+								Mcv.Tail.Sort((a, b) => -a.Id.CompareTo(b.Id));
+							}
+							else
+								Mcv.Tail.Insert(0, r);
+	
 							var h = r.Hash;
-
+	
 							r.Hashify();
-
+	
 							if(!r.Hash.SequenceEqual(h))
 							{
 								#if DEBUG
 									//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
 									lock(Mcv.Lock)
 										Mcv.Dump();
-									
+										
 									lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
 										All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
-								
+									
 									Debugger.Break();
 								#endif
-																
+																	
 								throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
 							}
-
+	
 							r.Confirmed = false;
 							r.Confirm();
 							Mcv.Save(r);
-							
-							foreach(var i in SyncTail.Keys)
-								if(i <= r.Id)
-									SyncTail.Remove(i);
 						}
-
-						Thread.Sleep(1);
 					}
+
+					Thread.Sleep(1);
 				}
 			}
 			catch(ConfirmationException ex)
@@ -477,13 +517,11 @@ public abstract class McvPeering : HomoTcpPeering
 
 		if(!fromsynchronization && Synchronization == Synchronization.Downloading)
 		{
-			if(SyncTail.TryGetValue(vote.RoundId, out var r) && r.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
+			if(SynchronizationTail.TryGetValue(vote.RoundId, out var r) && r.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
 				return false;
 
-			if(!SyncTail.TryGetValue(vote.RoundId, out r))
-			{
-				r = SyncTail[vote.RoundId] = new();
-			}
+			if(!SynchronizationTail.TryGetValue(vote.RoundId, out r))
+				r = SynchronizationTail[vote.RoundId] = new();
 
 			vote.Created = DateTime.UtcNow;
 			r.Add(vote);
@@ -501,7 +539,7 @@ public abstract class McvPeering : HomoTcpPeering
 			if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
 				return false;
 								
-			if(r.VotersRound.Members.Any() && !r.VotersRound.Members.Any(i => i.Address == vote.Generator))
+			if(r.Voters.Any() && !r.Voters.Any(i => i.Address == vote.Generator))
 				return false;
 
 			if(r.Forkers.Contains(vote.User))
@@ -520,8 +558,8 @@ public abstract class McvPeering : HomoTcpPeering
 			}
 
 			vote.Restore();
-							
-			if(r.VotersRound.Confirmed)
+			
+			if(r.ParentId <= Mcv.LastConfirmedRound.Id)
 			{
 				//if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
 				//{	
@@ -529,13 +567,13 @@ public abstract class McvPeering : HomoTcpPeering
 				//	return false;
 				//}
 
-				if(vote.Transactions.Sum(i => i.Operations.Length) > r.VotersRound.PerVoteOperationsMaximum)
+				if(vote.Transactions.Sum(i => i.Operations.Length) > Mcv.Net.OperationsPerRoundMaximum / r.Voters.Count()) //r.VotersRound.PerVoteOperationsMaximum)
 				{	
 					//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit : {v}");
 					return false;
 				}
 
-				if(vote.Transactions.Any(t => r.VotersRound.Members.NearestBy(i => i.Address, t.Signer, t.Nonce).Address != vote.Generator))
+				if(vote.Transactions.Any(t => r.Voters.NearestBy(i => i.Address, t.Signer, t.Nonce).Address != vote.Generator))
 				{	
 					//Flow.Log.ReportWarning(this, $"{nameof(Vote)} rejected NOT NEAREST : {v}");
 					return false;
@@ -574,7 +612,7 @@ public abstract class McvPeering : HomoTcpPeering
 				continue;;
 			}
 					
-			var m = Mcv.NextVotingRound.VotersRound.Members.Find(i => i.Address == g);
+			var m = Mcv.NextVotingRound.Voters.FirstOrDefault(i => i.Address == g);
 	
 			if(m == null)
 			{
@@ -692,7 +730,7 @@ public abstract class McvPeering : HomoTcpPeering
 							return true;
 						}
 	
-						var nearest = r.VotersRound.Members.NearestBy(i => i.Address, t.Signer, t.Nonce).Address;
+						var nearest = r.Voters.NearestBy(i => i.Address, t.Signer, t.Nonce).Address;
 	
 						if(nearest != g)
 						{
@@ -898,6 +936,9 @@ public abstract class McvPeering : HomoTcpPeering
 				WaitHandle.WaitAny([TransactingWakeup, Flow.Cancellation.WaitHandle]);
 
 			var cr = Call(new MembersPpc(), Flow);
+
+			if(cr == null)
+				Debugger.Break();
 
 			if(!cr.Members.Any() || cr.Members.Any(i => !i.GraphPpcIPs.Any()))
 				continue;

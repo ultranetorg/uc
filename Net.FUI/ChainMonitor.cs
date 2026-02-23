@@ -159,7 +159,7 @@ public partial class ChainMonitor : UserControl
 						ndate	= IntLength(ndate);
 	
 						var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.Generator));
-						var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => b.Transaction.Signer));
+						var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => Mcv.Users.Latest(b.Transaction.User).Owner));
 						generators = mems.Union(joins).Order();
 
 						f  = $"{{0,{nid}}} {{1,{ntry}}} {{2}} {{3,{nv}}} {{4,{nm}}} {{5,{nl}}} {{6,{ndate}}} {{7,8}}";
@@ -228,13 +228,13 @@ public partial class ChainMonitor : UserControl
 	
 									if(v != null)
 									{
-										if(v.Transactions.Any())	
+										if(v.Transactions.Any())
 											e.Graphics.FillRectangle(Brushes[m], x, y, s, s); 
 										else
 											e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3);
 									}
 
-									var jr = r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().FirstOrDefault(i => i.Transaction.Signer == m);
+									var jr = r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().FirstOrDefault(i => Mcv.Users.Latest(i.Transaction.User).Owner == m);
 
 									if(jr != null)
 									{

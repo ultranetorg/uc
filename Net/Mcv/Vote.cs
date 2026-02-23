@@ -15,7 +15,7 @@ public class Vote : IBinarySerializable
 
 	public AutoId				User;
 	public int					RoundId;
-	public int					Try; /// TODO: revote if consensus not reached
+	public int					Try; /// revote if consensus not reached
 	public Time					Time;
 	public byte[]				ParentHash;
 	public AutoId[]				MemberLeavers = [];
@@ -204,13 +204,13 @@ public class Vote : IBinarySerializable
 
 	public void Dump(Round round, Log log)
 	{
-		foreach(var m in round.VotersRound.Members)
+		foreach(var m in round.Voters)
 			log.ReportWarning(this, $"Member {m}");
 
 		foreach(var t in Transactions)
 		{	
 			log.ReportWarning(this, $"----Transaction {t}" );
-			log.ReportWarning(this, $"----NearestBy {round.VotersRound.Members.NearestBy(i => i.Address, t.Signer, t.Nonce).Address}");
+			log.ReportWarning(this, $"----NearestBy {round.Voters.NearestBy(i => i.Address, t.Signer, t.Nonce).Address}");
 			log.ReportWarning(this, $"----Signature {t.Signature.ToHex()}" );
 			log.ReportWarning(this, $"----Hash {t.Hashify().ToHex()}" );
 			log.ReportWarning(this, $"----Zone {t.Net.Zone}");

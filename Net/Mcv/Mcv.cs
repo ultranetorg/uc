@@ -262,7 +262,26 @@ public abstract class Mcv /// Mutual chain voting
 		Rocks.Dispose();
 	}
 
-	public bool Add(Vote vote)
+	public void AddOnly(Vote vote)
+	{
+		var r = GetRound(vote.RoundId);
+
+		vote.Round = r;
+
+		r.Votes.Add(vote);
+		r.Update();
+	
+		if(vote.Transactions.Any())
+		{
+			foreach(var t in vote.Transactions)
+			{
+				t.Round = r;
+				t.Status = TransactionStatus.Placed;
+			}
+		}
+	}
+
+	public void Add(Vote vote)
 	{
 		var r = GetRound(vote.RoundId);
 
@@ -287,12 +306,12 @@ public abstract class Mcv /// Mutual chain voting
 
 		VoteAdded?.Invoke(vote);
 
-		var p = r.Parent;
 
-		if(vote.RoundId > LastGenesisRound && p.Previous.Confirmed && !p.Confirmed)
+		if(vote.RoundId > LastGenesisRound && r.ParentId == LastConfirmedRound.Id + 1)
 		{
 			if(r.ConsensusReached)
 			{
+				var p = r.Parent;
 
 				var mh = r.MajorityOfRequiredByParentHash.Key;
  		
@@ -324,17 +343,12 @@ public abstract class Mcv /// Mutual chain voting
 
 				p.Confirm();
 				Save(p);
-
-				return true;
-
 			}
 			else if(r.ConsensusFailed)
 			{
 				ConsensusFailed(r);
 			}
 		}
-
-		return false;
 	}
 
 	public Round GetRound(int rid)

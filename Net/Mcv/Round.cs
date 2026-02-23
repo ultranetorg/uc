@@ -6,8 +6,9 @@ public abstract class Round : IBinarySerializable
 {
 	public int											Id;
 	public int											ParentId	=> Id - Mcv.P;
+	public int											ChildId		=> Id + Mcv.P;
 	public int											VotersId	=> Id - Mcv.JoinToVote;
-	public Round										VotersRound	=> Mcv.FindRound(VotersId);
+	//public Round										VotersRound	=> Mcv.FindRound(VotersId);
 	public Round										Previous	=> Mcv.FindRound(Id - 1);
 	public Round										Next		=> Mcv.FindRound(Id + 1);
 	public Round										Parent		=> Mcv.FindRound(ParentId);
@@ -23,8 +24,10 @@ public abstract class Round : IBinarySerializable
 	public int											Try;
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
-	public IEnumerable<Generator>						Voters => VotersRound.Members;
-	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God.Address}] : (Voters ?? []).OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..VotersRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+	public IEnumerable<Generator>						Voters => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id) ?? []; //VotersRound.Members;
+	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God.Address}] 
+																								: 
+																								Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = [];
 	public List<AutoId>									Forkers = [];
@@ -455,7 +458,7 @@ public abstract class Round : IBinarySerializable
 		{
 			var a = e.AffectUser(i.Id);
 			
-			a.AverageUptime = (a.AverageUptime + Id - i.CastingSince)/(a.AverageUptime == 0 ? 1 : 2);
+			a.AverageUptime = (a.AverageUptime + Id - i.Since)/(a.AverageUptime == 0 ? 1 : 2);
 			Members.Remove(i);
 		}
 
@@ -463,7 +466,7 @@ public abstract class Round : IBinarySerializable
 		{
 			var c = e.AffectCandidate(i.Id);
 			
-			c.CastingSince = Id + Mcv.JoinToVote;
+			c.Since = Id + Mcv.JoinToVote;
 			
 			e.Candidates.Remove(i);
 			Members.Add(c);
@@ -504,7 +507,7 @@ public abstract class Round : IBinarySerializable
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
-		Mcv.Tail.RemoveAll(i => i.Id < VotersId);
+		Mcv.Tail.RemoveAll(i => i.Id < Id);
 		Mcv.Confirmed?.Invoke(this);
 	}
 

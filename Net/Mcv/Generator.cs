@@ -8,13 +8,13 @@ public class Generator
 	public AutoId			Id { get; set; }
 	public int				Registered { get; set; }
 	public Endpoint[]		GraphPpcIPs { get; set; } = [];
-	public int				CastingSince { get; set; }
+	public int				Since { get; set; }
 	
 	public Peer         	Proxy;
 
 	public override string ToString()
 	{
-		return $"Address={Address}, CastingSince={CastingSince}, BaseRdcIPs={{{GraphPpcIPs.Length}}}";
+		return $"Address={Address}, CastingSince={Since}, BaseRdcIPs={{{GraphPpcIPs.Length}}}";
 	}
 
   	public virtual void WriteMember(BinaryWriter writer)
@@ -22,7 +22,7 @@ public class Generator
  		writer.Write(Id);
  		writer.Write(Address);
 		writer.Write(GraphPpcIPs, i => writer.Write(i));
-		writer.Write7BitEncodedInt(CastingSince);
+		writer.Write7BitEncodedInt(Since);
  	}
  
  	public virtual void ReadMember(BinaryReader reader)
@@ -30,7 +30,7 @@ public class Generator
 		Id				= reader.Read<AutoId>();
 		Address			= reader.Read<AccountAddress>();
 		GraphPpcIPs		= reader.ReadArray<Endpoint>();
- 		CastingSince	= reader.Read7BitEncodedInt();
+ 		Since	= reader.Read7BitEncodedInt();
 	}
 
   	public virtual void WriteCandidate(BinaryWriter writer)
@@ -62,6 +62,6 @@ public class Generator
 		generator.Id			= Id;
 		generator.Registered	= Registered;
 		generator.GraphPpcIPs	= GraphPpcIPs;
-		generator.CastingSince	= CastingSince;
+		generator.Since	= Since;
 	}
 }
