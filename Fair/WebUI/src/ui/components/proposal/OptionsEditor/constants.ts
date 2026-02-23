@@ -1,6 +1,6 @@
 import { TFunction } from "i18next"
 
-import { ProductType, ReviewStatus } from "types"
+import { CreateProposalData, ProductType, ReviewStatus } from "types"
 
 import { EditorOperationFields } from "./types"
 import {
@@ -10,6 +10,14 @@ import {
   validateUniqueParentCategory,
   validateUniqueSiteNickname,
 } from "./validations"
+
+const atLeastOneSiteTextField = (_: unknown, formValues: CreateProposalData) =>
+  (formValues.options || []).every(
+    opt =>
+      ((opt.siteTitle ?? "") as string).trim().length > 0 ||
+      ((opt.slogan ?? "") as string).trim().length > 0 ||
+      ((opt.description ?? "") as string).trim().length > 0,
+  )
 
 export const CATEGORY_TYPES: ProductType[] = ["book", "game", "movie", "music", "software"] as const
 
@@ -227,19 +235,19 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "siteTitle",
           placeholder: t("placeholders:enterTitle"),
-          rules: { required: false, minLength: { value: 5, message: t("validation:minLength", { count: 5 }) } },
+          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
         },
         {
           valueType: "string",
           name: "slogan",
           placeholder: t("placeholders:enterSlogan"),
-          rules: { required: false, minLength: { value: 5, message: t("validation:minLength", { count: 5 }) } },
+          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
         },
         {
           valueType: "string-multiline",
           name: "description",
           placeholder: t("placeholders:enterDescription"),
-          rules: { required: false, minLength: { value: 5, message: t("validation:minLength", { count: 5 }) } },
+          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
         },
       ],
     },
