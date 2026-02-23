@@ -27,10 +27,11 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
   const { user } = useUserContext()
   const { mutate } = useTransactMutationWithStatus()
 
+  const [activeTab, setActiveTab] = useState("uploaded")
   const [selectedFile, setSelectedFile] = useState<FileType | undefined>()
   const [removeModalOpen, setRemoveModalOpen] = useState(false)
 
-  const authorId = user?.authorsIds[0]!
+  const authorId = user?.authorsIds[0]
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error, refetch } = useGetFilesInfinite(
     siteId,
@@ -77,10 +78,11 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
       const data = await fileToBase64(file)
       const mimeType: MimeType = file.type === "image/png" ? "ImagePng" : "ImageJpg"
 
-      const operation = new FileCreation(authorId, data, mimeType)
+      const operation = new FileCreation(authorId!, data, mimeType)
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:fileUploaded", { fileName: file.name }), "success")
+          setActiveTab("uploaded")
           refetch()
         },
         onError: err => {
@@ -144,7 +146,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
             )}
           </div>
         ) : (
-          <TabsProvider defaultKey={"uploaded"}>
+          <TabsProvider defaultKey="uploaded" activeKey={activeTab} onActiveKeyChange={setActiveTab}>
             <div className="mt-6 flex h-full flex-col">
               <TabsList
                 className="flex border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
