@@ -378,7 +378,6 @@ public abstract class McvPeering : HomoTcpPeering
 														
 						foreach(var r in rounds)
 						{
-				
 							Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.EP}");
 									
 							if(Mcv.LastConfirmedRound.Id + 1 != r.Id)
@@ -386,15 +385,12 @@ public abstract class McvPeering : HomoTcpPeering
 	
 							if(Enumerable.Range(r.Id, Mcv.P + 1).All(SynchronizationTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
 							{
-								var p =	SynchronizationTail[r.Id];
-								var c =	SynchronizationTail[r.Id + Mcv.P];
-	
 								try
 								{
-									foreach(var v in p)
+									foreach(var v in SynchronizationTail[r.Id])
 										ProcessIncoming(v, true);
 		
-									foreach(var v in c)
+									foreach(var v in SynchronizationTail[r.Id + Mcv.P])
 										ProcessIncoming(v, true);
 								}
 								catch(ConfirmationException)

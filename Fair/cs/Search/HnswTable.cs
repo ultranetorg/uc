@@ -200,7 +200,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		}
 	}
 
-	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 5, int maxConnections = 5, int efConstruction = 64, int threshold = 10, int minDiversity = 10) : base(mcv)
+	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 16, int maxConnections = 5, int efConstruction = 64, int threshold = 100, int minDiversity = 100) : base(mcv)
 	{
 		Metric = metric;
 		MaxLevel = maxLevel;
