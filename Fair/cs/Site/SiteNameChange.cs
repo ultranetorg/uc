@@ -2,14 +2,14 @@ using System.Text.RegularExpressions;
 
 namespace Uccs.Fair;
 
-public class SiteNicknameChange : VotableOperation
+public class SiteNameChange : VotableOperation
 {
 	public string				Name { get; set; }
 
 	public override bool		IsValid(McvNet net) => IsFreeNameValid(Name);
 	public override string		Explanation => $"{Name}";
 
-	public SiteNicknameChange()
+	public SiteNameChange()
 	{
 	}
 

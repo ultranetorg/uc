@@ -35,7 +35,7 @@ public static class ProposalUtils
 			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
 			SiteModeratorAddition operation => new SiteModeratorAdditionModel(operation),
 			SiteModeratorRemoval operation => new SiteModeratorRemovalModel(operation),
-			SiteNicknameChange operation => new SiteNicknameChangeModel(operation),
+			SiteNameChange operation => new SiteNicknameChangeModel(operation),
 			SiteTextChange operation => new SiteTextChangeModel(operation),
 			UserUnregistration operation => new UserDeletionModel(operation),
 			UserRegistration operation => new UserRegistrationModel(operation),

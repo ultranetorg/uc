@@ -141,8 +141,7 @@ public abstract class McvPeering : HomoTcpPeering
 												 Peers = [new HomoPeer(EP) {Roles = Roles}]});
 				}
 
-				lock(Mcv.Lock)
-					Synchronize();
+				Synchronize();
 			}
 
 			if(MinimalPeersReached)
@@ -155,16 +154,19 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public void Synchronize()
 	{
-		if(Settings.EP != null && Settings.EP.Equals(Net.Father0IP) && Mcv.Settings.Generators.Any(g => g.Signer == Net.Father0Signer) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
-		{
-			Synchronization = Synchronization.Synchronized;
-			return;
-		}
+		lock(Mcv.Lock)
+			if(Settings.EP != null && Settings.EP.Equals(Net.Father0IP) && Mcv.Settings.Generators.Any(g => g.Signer == Net.Father0Signer) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
+			{
+				Synchronization = Synchronization.Synchronized;
+				return;
+			}
 
-		if(Synchronization != Synchronization.Downloading)
+		if(SynchronizingThread == null)
 		{
 			SynchronizationTail.Clear();
 			CandidateTransactions.Clear();
+			
+			Synchronization = Synchronization.Downloading;
 
 			Flow.Log?.Report(this, $"Synchronization Started");
 
@@ -172,7 +174,6 @@ public abstract class McvPeering : HomoTcpPeering
 			SynchronizingThread.Name = $"{Node.Name} Synchronizing";
 			SynchronizingThread.Start();
 	
-			Synchronization = Synchronization.Downloading;
 		}
 	}
 
@@ -267,10 +268,10 @@ public abstract class McvPeering : HomoTcpPeering
 
 					stamp = Call(peer, new StampPpc());
 	
-					foreach(var i in SynchronizationTail.Keys)
-						if(i <= stamp.LastCommitedRound)
-							SynchronizationTail.Remove(i);
-
+					lock(Lock)
+						foreach(var i in SynchronizationTail.Keys)
+							if(i <= stamp.LastCommitedRound)
+								SynchronizationTail.Remove(i);
 
 					foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
 					{
@@ -283,6 +284,7 @@ public abstract class McvPeering : HomoTcpPeering
 		
 					var s = Call(peer, new StampPpc());
 	
+					lock(Lock)
 					lock(Mcv.Lock)
 					{
 						Mcv.GraphState = stamp.GraphState;
@@ -334,12 +336,13 @@ public abstract class McvPeering : HomoTcpPeering
 							{
 								Synchronization = Synchronization.Synchronized;
 								SynchronizationInfo = null;
-								SynchronizingThread = null;
 								SynchronizationTail.Clear();
 								
 								MainWakeup.Set();
 			
 								Flow.Log?.Report(this, $"Synchronization Finished");
+								
+								SynchronizingThread = null;
 								return;
 							}
 
@@ -407,12 +410,13 @@ public abstract class McvPeering : HomoTcpPeering
 										
 									Synchronization = Synchronization.Synchronized;
 									SynchronizationInfo = null;
-									SynchronizingThread = null;
 									SynchronizationTail.Clear();
 						
 									MainWakeup.Set();
 	
 									Flow.Log?.Report(this, $"Synchronization Finished");
+
+									SynchronizingThread = null;
 									return;
 								}
 							}
