@@ -11,7 +11,7 @@ public class SitesController
 	ISiteSearchQueryValidator siteSearchQueryValidator,
 	ISearchQueryValidator searchQueryValidator,
 	SitesService sitesService,
-	ISearchService searchService
+	SearchService searchService
 ) : BaseController
 {
 	[HttpGet("default")]
@@ -22,10 +22,10 @@ public class SitesController
 		return sitesService.GetDefaultSites(cancellationToken);
 	}
 
-	[HttpGet("{siteId}/authors")]
-	public IEnumerable<AccountBaseModel> GetAuthors(string siteId, CancellationToken cancellationToken)
+	[HttpGet("{siteId}/publishers")]
+	public IEnumerable<AccountBaseModel> GetPublishers(string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetAuthors), siteId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPublishers), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 

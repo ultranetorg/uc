@@ -1,11 +1,13 @@
 import { memo } from "react"
-import { SingleValue } from "react-select"
+import { InputActionMeta, SingleValue } from "react-select"
 
 import { SearchDropdownProps } from "ui/components"
 
 import { Control, CustomSelect, IndicatorsContainer, NoOptionsMessage, Option } from "./components"
 import { dropdownStyle } from "./styles"
 import { DropdownItem } from "./types"
+
+const COMPONENTS = { Control, DropdownIndicator: null, IndicatorsContainer, Option }
 
 export type DropdownSearchAccountBaseProps = {
   items: DropdownItem[]
@@ -31,17 +33,22 @@ export const DropdownSearchAccount = memo(
       onSelect?.(selectedItem!)
     }
 
+    const handleInputChange = (newValue: string, { action }: InputActionMeta) => {
+      if (action === "input-change") onInputChange?.(newValue)
+    }
+
     return (
       <CustomSelect<false>
         className={className}
-        components={{ Control, DropdownIndicator: null, IndicatorsContainer, Option }}
+        components={COMPONENTS}
+        filterOption={() => true}
         inputValue={inputValue}
         options={items}
         placeholder={placeholder}
         styles={dropdownStyle}
         value={null}
         onChange={handleChange}
-        onInputChange={onInputChange}
+        onInputChange={handleInputChange}
         noOptionsMessage={() =>
           inputValue && inputValue.length >= 3 ? <NoOptionsMessage noOptionsLabel={noOptionsLabel} /> : null
         }

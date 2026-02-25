@@ -2,6 +2,7 @@ import {
   Account,
   AccountBase,
   AccountSearchLite,
+  AuthorBaseAvatar,
   AuthorDetails,
   Category,
   CategoryParentBase,
@@ -41,11 +42,12 @@ export type Api = {
 
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
-  getSiteAuthors(siteId: string): Promise<AccountBase[]>
+  getSitePublishers(siteId: string): Promise<AccountBase[]>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
   getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
+  searchAuthors(query?: string, limit?: number): Promise<AuthorBaseAvatar[]>
   searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
   searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
   searchPublications(siteId: string, query?: string, page?: number): Promise<TotalItemsResult<PublicationExtended>>

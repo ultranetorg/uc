@@ -11,7 +11,7 @@ public class PublicationsController
 	ISearchQueryValidator searchQueryValidator,
 	PublicationsService publicationsService,
 	ProductsService productsService,
-	ISearchService searchService,
+	SearchService searchService,
 	VersionValidator versionValidator
 ) : BaseController
 {

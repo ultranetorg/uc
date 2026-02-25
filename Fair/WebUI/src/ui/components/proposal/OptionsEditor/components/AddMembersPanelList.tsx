@@ -3,34 +3,38 @@ import { useTranslation } from "react-i18next"
 import { capitalize } from "lodash"
 import { useDebounceValue } from "usehooks-ts"
 
+import { useSiteContext } from "app"
 import { SEARCH_DELAY } from "config"
-import { useSearchAccounts } from "entities"
-import { AccountBase, MembersChangeType } from "types"
+import { useSearchAuthors } from "entities"
+import { MembersChangeType } from "types"
 import { AccountsList } from "ui/components"
 import { DropdownSearchAccount } from "ui/components/proposal"
 import { DropdownItem } from "ui/components/proposal/DropdownSearchAccount"
 
+import { AuthorAvatar } from "../types"
+
 export type AddMembersPanelListProps = {
   memberType: MembersChangeType
-  value: AccountBase[]
-  onChange: (value: AccountBase[]) => void
+  value: AuthorAvatar[]
+  onChange: (value: AuthorAvatar[]) => void
 }
 
 export const AddMembersPanelList = memo(
   ({ memberType, value: selectedAccounts = [], onChange }: AddMembersPanelListProps) => {
     const { t } = useTranslation("createProposal")
+    const { site } = useSiteContext()
 
     const [search, setSearch] = useState("")
     const [debouncedSearch] = useDebounceValue(search, SEARCH_DELAY)
 
-    const { data: searchResult } = useSearchAccounts(debouncedSearch)
+    const { data: searchResult = [] } = useSearchAuthors(debouncedSearch)
 
     const accountsListItems = useMemo(
       () =>
-        selectedAccounts.map(({ id, nickname }) => ({
+        selectedAccounts.map(({ id, name, avatarId }) => ({
           id,
-          title: nickname ?? id,
-          avatarId: id,
+          title: name ?? id,
+          avatarId,
         })),
       [selectedAccounts],
     )
@@ -38,19 +42,21 @@ export const AddMembersPanelList = memo(
     const dropdownSearchItems = useMemo<DropdownItem[]>(
       () =>
         searchResult
-          ?.filter(x => selectedAccounts.every(a => a.id !== x.id))
-          .map(x => ({ label: x.nickname ?? x.id, value: x.id, address: x.address })) || [],
-      [searchResult, selectedAccounts],
+          .filter(x => selectedAccounts.every(a => a.id !== x.id)) // Do not display authors that have already been selected
+          .filter(x => site?.authorsIds.every(m => m !== x.id)) // Do not display authors who are already authors
+          .map(x => ({ label: x.name ?? x.id, value: x.id, avatarId: x.avatarId })) || [],
+      [searchResult, selectedAccounts, site?.authorsIds],
     )
 
     const handleAccountSelect = useCallback(
       (item: DropdownItem) => {
-        const accountToAdd: AccountBase = {
+        const accountToAdd: AuthorAvatar = {
           id: item.value,
-          nickname: item.label,
-          address: item.address,
+          name: item.label,
+          avatarId: item.avatarId,
         }
         onChange([...selectedAccounts, accountToAdd])
+        setSearch("")
       },
       [onChange, selectedAccounts],
     )

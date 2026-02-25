@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 
 import { useUserContext } from "app"
+import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES } from "constants/"
 import { useTransactMutationWithStatus } from "entities/node"
-import { CreateProposalData, ProposalType, Role } from "types"
+import { CreateProposalData, ExtendedOperationType, ProposalType, Role } from "types"
 import { ProposalCreation } from "types/fairOperations"
 import { ButtonOutline, ButtonPrimary, DebugPanel, Input, PageHeader, Textarea, ValidationWrapper } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
@@ -46,7 +47,14 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     const operation = new ProposalCreation(siteId!, by, role, data.title, options, data.description)
     mutate(operation, {
       onSuccess: () => {
-        showToast(t("toast:proposalCreated", { proposal: t(`operations:${data.type}`) }), "success")
+        showToast(
+          t("toast:proposalCreated", {
+            proposal: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(data.type as ExtendedOperationType)
+              ? t(`operations:${data.type}`)
+              : t(`extraOperations:${data.type}`),
+          }),
+          "success",
+        )
         navigate(parentPath)
       },
       onError: err => {

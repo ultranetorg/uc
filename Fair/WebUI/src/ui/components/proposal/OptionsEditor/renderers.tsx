@@ -1,4 +1,4 @@
-import { AccountBase } from "types"
+import { AccountBase, AuthorBaseAvatar } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
@@ -10,7 +10,7 @@ import {
   RemoveMembersPanelList,
 } from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
-import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
+import { AuthorAvatar, EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
 export const renderByParameterValueType: Record<
   ParameterValueType,
@@ -66,7 +66,7 @@ export const renderByParameterValueType: Record<
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "authors-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddMembersPanelList memberType="author" value={value as AccountBase[]} onChange={onChange} />
+      <AddMembersPanelList memberType="author" value={value as AuthorAvatar[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "authors-removals": ({ errorMessage, value, onChange }) => (

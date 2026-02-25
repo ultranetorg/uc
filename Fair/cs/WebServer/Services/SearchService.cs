@@ -8,7 +8,7 @@ public class SearchService
 (
 	ILogger<SearchService> logger,
 	FairMcv mcv
-) : ISearchService
+)
 {
 	public TotalItemsResult<PublicationExtendedModel> SearchPublications(string siteId, string query, int page, int pageSize, CancellationToken cancellationToken)
 	{
@@ -64,10 +64,10 @@ public class SearchService
 
 	public IEnumerable<PublicationBaseModel> SearchLitePublications(string siteId, string query, int page, int pageSize, CancellationToken cancellationToken)
 	{
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLitePublications)} method called with {{SiteId}}, {{Query}}, {{Page}}, {{PageSize}}", siteId, query, page, pageSize);
+
 		if (cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<PublicationBaseModel>();
-
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLitePublications)} method called with {{SiteId}}, {{Query}}, {{Page}}, {{PageSize}}", siteId, query, page, pageSize);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(query);
@@ -85,10 +85,10 @@ public class SearchService
 
 	public TotalItemsResult<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchSites)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
+
 		if(cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<SiteBaseModel>.Empty;
-
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchSites)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
 
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
@@ -127,10 +127,10 @@ public class SearchService
 
 	public IEnumerable<SiteSearchLiteModel> SearchLiteSites([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteSites)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
+
 		if(cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<SiteSearchLiteModel>();
-
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteSites)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
 
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.Negative(page);
@@ -145,10 +145,10 @@ public class SearchService
 
 	public IEnumerable<AccountBaseAvatarModel> SearchAccount([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchAccount), query, limit);
+
 		if(cancellationToken.IsCancellationRequested)
 			return [];
-
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchAccount), query, limit);
 
 		Guard.Against.NullOrEmpty(query);
 
@@ -176,13 +176,63 @@ public class SearchService
 
 		List<AccountBaseAvatarModel> result = new(accountsIds.Length);
 
-		foreach(AutoId moderatorsId in accountsIds)
+		foreach(AutoId id in accountsIds)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				return result;
 
-			FairUser account = (FairUser) mcv.Users.Latest(moderatorsId);
+			FairUser account = (FairUser) mcv.Users.Latest(id);
 			AccountBaseAvatarModel model = new(account);
+			result.Add(model);
+		}
+
+		return result;
+	}
+
+	public IEnumerable<AuthorBaseAvatarModel> SearchAuthors([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchAuthors), query, limit);
+
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		Guard.Against.NullOrEmpty(query);
+		Guard.Against.NegativeOrZero(limit);
+
+		lock(mcv.Lock)
+		{
+			if(AutoId.TryParse(query, out AutoId entityId))
+			{
+				Author author = (Author) mcv.Authors.Latest(entityId);
+				if (author != null)
+				{
+					return [new AuthorBaseAvatarModel(author)];
+				}
+			}
+
+			string lowercase = query.ToLower();
+
+			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AuthorName, lowercase, limit);
+			AutoId[] authorsIds = searchResult.ToArray();
+
+			return LoadAuthors(mcv, authorsIds, cancellationToken);
+		}
+	}
+
+	static IEnumerable<AuthorBaseAvatarModel> LoadAuthors(FairMcv mcv, AutoId[] authordsIds, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		List<AuthorBaseAvatarModel> result = new(authordsIds.Length);
+
+		foreach(AutoId id in authordsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return result;
+
+			Author author = mcv.Authors.Latest(id);
+			AuthorBaseAvatarModel model = new(author);
 			result.Add(model);
 		}
 
@@ -191,10 +241,10 @@ public class SearchService
 
 	public IEnumerable<AccountSearchLiteModel> SearchLiteAccounts(string query, int limit, CancellationToken cancellationToken)
 	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchLiteAccounts), query, limit);
+
 		if(cancellationToken.IsCancellationRequested)
 			return [];
-
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchLiteAccounts), query, limit);
 
 		Guard.Against.NullOrEmpty(query);
 

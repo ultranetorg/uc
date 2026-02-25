@@ -6,7 +6,7 @@ import { MembersChangeType } from "types"
 const api = getApi()
 
 export const useGetSiteMembers = (memberType: MembersChangeType, siteId?: string) => {
-  const queryFn = () => (memberType === "author" ? api.getSiteAuthors(siteId!) : api.getSiteModerators(siteId!))
+  const queryFn = () => (memberType === "author" ? api.getSitePublishers(siteId!) : api.getSiteModerators(siteId!))
 
   const { isFetching, error, data } = useQuery({
     queryKey: ["sites", siteId, `${memberType}s`],

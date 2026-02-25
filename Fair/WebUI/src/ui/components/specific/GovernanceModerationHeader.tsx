@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useSiteContext, useUserContext } from "app"
+import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES } from "constants/"
 import { ProposalType } from "types"
 import {
   Breadcrumbs,
@@ -12,7 +13,7 @@ import {
   DropdownButton,
   SimpleMenuItem,
 } from "ui/components"
-import { getVisibleOperations, groupOperations } from "utils"
+import { getVisibleProposalOperations, groupOperations } from "utils"
 
 export type GovernanceModerationHeaderProps = {
   proposalType: ProposalType
@@ -49,11 +50,17 @@ export const GovernanceModerationHeader = memo(
     const dropdownItems = useMemo<SimpleMenuItem[] | undefined>(() => {
       if (!site) return
 
-      const operations = getVisibleOperations(proposalType, site.discussionOperations, site.referendumOperations)
+      const operations = getVisibleProposalOperations(
+        proposalType,
+        site.discussionOperations,
+        site.referendumOperations,
+      )
       const grouped = groupOperations(operations)
       return grouped.flatMap<SimpleMenuItem>(({ items }, i) => {
         const mapped = items.map<SimpleMenuItem>(x => ({
-          label: t(`operations:${x}`),
+          label: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x)
+            ? t(`operations:${x}`)
+            : t(`extraOperations:${x}`),
           onClick: () =>
             navigate(`/${site.id}/${proposalType === "discussion" ? "m" : "g"}/new`, { state: { type: x } }),
         }))

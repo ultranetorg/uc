@@ -18,6 +18,7 @@ import {
 import { CreateProposalData, CreateProposalDataOption, OperationType, ProposalType } from "types"
 import { Dropdown, DropdownItem, MessageBox, ValidationWrapper } from "ui/components"
 
+import { getVisibleProposalOperations } from "utils"
 import { getEditorOperationsFields } from "./constants"
 import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
@@ -68,11 +69,12 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName }: OptionsE
     proposalType === "discussion" && CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES.includes(type as OperationType)
 
   const typesItems = useMemo<DropdownItem[]>(() => {
-    if (!site) return []
-
-    const types = proposalType === "discussion" ? site.discussionOperations : site?.referendumOperations
-    return types.map(x => ({
-      // @ts-expect-error fix
+    const operations = getVisibleProposalOperations(
+      proposalType,
+      site?.discussionOperations,
+      site?.referendumOperations,
+    )
+    return operations.map(x => ({
       label: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x) ? t(`operations:${x}`) : t(`extraOperations:${x}`),
       value: x as string,
     }))

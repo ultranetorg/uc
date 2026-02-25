@@ -6,7 +6,7 @@ public class AccountsController
 (
 	ILogger<AccountsController> logger,
 	AccountsService accountsService,
-	ISearchService searchService,
+	SearchService searchService,
 	IAutoIdValidator autoIdValidator,
 	ISearchQueryValidator searchQueryValidator,
 	LimitValidator limitValidator,

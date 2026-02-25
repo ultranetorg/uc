@@ -28,18 +28,6 @@ export const useGetSite = (siteId?: string) => {
   return { isPending, error: error ?? undefined, data }
 }
 
-export const useGetSiteAuthors = (siteId?: string) => {
-  const queryFn = () => api.getSiteAuthors(siteId!)
-
-  const { isFetching, error, data } = useQuery({
-    queryKey: ["sites", siteId, "authors"],
-    queryFn: queryFn,
-    enabled: !!siteId,
-  })
-
-  return { isFetching, error: error ?? undefined, data }
-}
-
 export const useGetSiteModerators = (siteId?: string) => {
   const queryFn = () => api.getSiteModerators(siteId!)
 

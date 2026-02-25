@@ -1,19 +1,21 @@
 import { CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
-import { AccountBase, CreateProposalData, CreateProposalDataOption, OperationType, ProposalOption } from "types"
+import {
+  AccountBase,
+  CreateProposalData,
+  CreateProposalDataOption,
+  ExtendedOperationType,
+  OperationType,
+  ProposalOption,
+} from "types"
 import { getFairOperationType } from "utils"
-
-type FormOperationType = OperationType | "site-author-addition" | "site-author-removal"
-
-const getOperationType = (type: FormOperationType): string => {
-  if (type === "site-author-addition" || type === "site-author-removal") {
-    return getFairOperationType("site-authors-change")!
-  }
-  return getFairOperationType(type as OperationType)!
-}
 
 const mapAccountsToIds = (accounts?: AccountBase[]): string[] => accounts?.map(account => account.id) ?? []
 
-const mapOptionOperation = (type: FormOperationType, data: CreateProposalData, option: CreateProposalDataOption) => {
+const mapOptionOperation = (
+  type: ExtendedOperationType,
+  data: CreateProposalData,
+  option: CreateProposalDataOption,
+) => {
   switch (type) {
     // Category
     case "category-avatar-change":
@@ -33,7 +35,7 @@ const mapOptionOperation = (type: FormOperationType, data: CreateProposalData, o
     case "publication-deletion":
       return { publicationId: data.publicationId }
     case "publication-publish":
-      return { publicationId: data.publicationId, categoryId: option.categoryId }
+      return { publicationId: data.publicationId, categoryId: data.categoryId }
     case "publication-updation":
       return { publicationId: data.publicationId, version: option.version }
 
@@ -43,9 +45,9 @@ const mapOptionOperation = (type: FormOperationType, data: CreateProposalData, o
 
     // Site
     case "site-author-addition":
-      return { additionsIds: mapAccountsToIds(option.candidatesAccounts), removalsIds: [] }
+      return { additions: mapAccountsToIds(option.candidatesAccounts), removals: [] }
     case "site-author-removal":
-      return { additionsIds: [], removalsIds: option.authorsIds }
+      return { additions: [], removals: option.authorsIds }
     case "site-avatar-change":
       return { file: option.fileId }
     case "site-moderator-addition":
@@ -58,8 +60,8 @@ const mapOptionOperation = (type: FormOperationType, data: CreateProposalData, o
       return { title: option.siteTitle, slogan: option.slogan, description: option.description }
 
     // User
-    case "user-deletion":
-      return { userId: data.userId }
+    case "user-unregistration":
+      return { user: data.userId }
 
     default:
       return {}
@@ -67,18 +69,20 @@ const mapOptionOperation = (type: FormOperationType, data: CreateProposalData, o
 }
 
 export const prepareProposalOptions = (data: CreateProposalData): ProposalOption[] => {
-  const type = data.type! as FormOperationType
-  const $type = getOperationType(type) as OperationType
+  const type = data.type! as ExtendedOperationType
+  const $type = getFairOperationType(type)
 
   if (CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType)) {
     return [
       {
         title: "",
+        // @ts-expect-error fix
         operation: { $type, ...mapOptionOperation(type, data, data.options[0] ?? {}) },
       },
     ]
   }
 
+  // @ts-expect-error fix
   return data.options.map(option => ({
     title: option.title,
     operation: { $type, ...mapOptionOperation(type, data, option) },
