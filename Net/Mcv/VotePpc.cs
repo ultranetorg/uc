@@ -15,13 +15,14 @@ public class VotePpc : PeerRequest
 		if(p.Node.Mcv == null)
 			throw new NodeException(NodeError.NotGraph);
 
-		lock(p.Lock)
+		//lock(p.Lock)
 		{
+			var accepted = false;
+		
 			lock(p.Mcv.Lock)
 			{
 				Peering.Statistics.Consensing.Begin();
 				
-				var accepted = false;
 
 				try
 				{
@@ -57,7 +58,9 @@ public class VotePpc : PeerRequest
 				//			_v.BroadcastConfirmed = true;
 				//	}
 				//}
+			}
 
+			lock(p.Lock)
 				if(accepted)
 				{
 					p.Broadcast(Vote, Peer);
@@ -65,8 +68,6 @@ public class VotePpc : PeerRequest
 				}
 				else
 					p.Statistics.RejectedVotes++;
-
-			}
 		}
 
 		return null;

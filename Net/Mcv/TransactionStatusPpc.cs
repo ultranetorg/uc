@@ -24,33 +24,30 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 
 	public override Result Execute()
 	{
-		lock(Peering.Lock)
+		RequireGraph();
+		
+		lock(Peering.TransactingLock)
 		{
-			lock(Mcv.Lock)
-			{
-				RequireGraph();
-	
-				var r = new TransactionStatusPpr
-						{								
-							Transactions = Signatures.Select(s =>	{ 
-																		var  t = (Peering.CandidateTransactions.Find(i => i.Signature.SequenceEqual(s))
-																				 ?? 
-																				 Peering.ConfirmedTransactions.Find(i => i.Signature.SequenceEqual(s)));
+			var r = new TransactionStatusPpr
+					{								
+						Transactions = Signatures.Select(s =>	{ 
+																	var  t = (Peering.CandidateTransactions.Find(i => i.Signature.SequenceEqual(s))
+																				?? 
+																				Peering.ConfirmedTransactions.Find(i => i.Signature.SequenceEqual(s)));
 
-																		if(t != null)
-																			t.Inquired = DateTime.UtcNow;
+																	if(t != null)
+																		t.Inquired = DateTime.UtcNow;
 
-																		return	new TransactionStatusPpr.Item
-																				{
-																					Signature	= s,
-																					Status		= t?.Status ?? TransactionStatus.FailedOrNotFound
-																				};
-																	})
-														.ToArray()
-						};
+																	return	new TransactionStatusPpr.Item
+																			{
+																				Signature	= s,
+																				Status		= t?.Status ?? TransactionStatus.FailedOrNotFound
+																			};
+																})
+													.ToArray()
+					};
 
-				return r;
-			}
+			return r;
 		}
 	}
 }

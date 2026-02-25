@@ -113,10 +113,10 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 											 		{
 											 			var r = WaitHandle.WaitAny([MainWakeup, Flow.Cancellation.WaitHandle], 500);
 											 
-											 			lock(Lock)
-											 			{
+											 			//lock(Lock)
+											 			//{
 											 				ProcessMain();
-											 			}
+											 			//}
 											 		}
 												});
 

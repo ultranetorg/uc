@@ -149,53 +149,43 @@ public class McvSummaryApc : McvApc
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		List<KeyValuePair<string, string>> f;
+		OrderedDictionary<string, string> f;
 
 		lock(node.Peering.Lock)
 		{
-			f = [	new ("Peers all/in/out",		$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound )}/{node.Peering.Connections.Count(i => !i.Inbound)} {(node.Peering.MinimalPeersReached ? " MinimalPeersReached" : null)}"),
-					new ("IP(Reported):Port",		$"{node.Peering.Settings.EP} ({node.Peering})"),
-					new ("Votes Acceped/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"),
+			f = new () {{"Peers all/in/out",		$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound )}/{node.Peering.Connections.Count(i => !i.Inbound)} {(node.Peering.MinimalPeersReached ? " MinimalPeersReached" : null)}"},
+						{"IP(Reported):Port",		$"{node.Peering.Settings.EP} ({node.Peering})"},
+						{"Votes Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"}};
+		}
 
-					new ("Incoming Transactions",	$"{node.Peering.CandidateTransactions.Count}"),
-					new ("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}"),
-					new ("    Pending",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}"),
-					new ("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}"),
-					new ("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}"),
-					new ("SyncCache Blocks",		$"{node.Peering.SynchronizationTail.Sum(i => i.Value.Count)}")
-					//new ("    Confirmed",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Confirmed)}")
-					];
+		lock(node.Peering.SyncLock)
+		{
+			f.Add("SyncTail", $"{node.Peering.SynchronizationTail.Sum(i => i.Value.Count)}");
+		}
+
+		lock(node.Peering.TransactingLock)
+		{
+			f.Add("Incoming Transactions",	$"{node.Peering.CandidateTransactions.Count}");
+			f.Add("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}");
+			f.Add("    Pending",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}");
+			f.Add("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}");
+			f.Add("    Placed",				$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Placed)}");
 		}
 
 		if(node.Mcv != null)
 		{
 			lock(node.Mcv.Lock)
 			{ 
-				f.Add(new ("Generators",			$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}"));
-				f.Add(new ("Synchronization",		$"{node.Peering.Synchronization}"));
-				f.Add(new ("Size",					$"{node.Mcv.Size}"));
-				f.Add(new ("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}"));
-				f.Add(new ("Base Hash",				node.Mcv.GraphHash.ToHex()));
-				//f.Add(new ("Emission",			$"{mcv.Mcv.LastConfirmedRound?.Emission.ToDecimalString()}"));
-				f.Add(new ("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}"));
-				f.Add(new ("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}"));
-				f.Add(new ("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}"));
-				f.Add(new ("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}"));
-				f.Add(new ("Loaded Rounds",			$"{node.Mcv.OldRounds.Count}"));
-
-/// 				foreach(var i in node.UosApi.Request())
-/// 				{
-/// 					var a = i.Address.ToString();
-/// 
-/// 					f.Add(new ($"{a.Substring(0, 8)}...{a.Substring(a.Length - 8, 8)} {(node.Vault.IsUnlocked(i.Address) ? "Unlocked" : "Locked")}", null));
-/// 
-/// 					if(node.Peering.Synchronization == Synchronization.Synchronized)
-/// 					{
-/// 						f.Add(new ("   BD",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Spacetime:N}"));
-/// 						f.Add(new ("   EC",			$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.Energy:N}"));
-/// 						f.Add(new ("   EC (next)",	$"{node.Mcv.Accounts.Find(i.Key, node.Mcv.LastConfirmedRound.Id)?.EnergyNext:N}"));
-/// 					}
-/// 				}
+				f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
+				f.Add("Synchronization",		$"{node.Peering.Synchronization}");
+				f.Add("Size",					$"{node.Mcv.Size}");
+				f.Add("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}");
+				f.Add("Base Hash",				node.Mcv.GraphHash.ToHex());
+				f.Add("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}");
+				f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
+				f.Add("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}");
+				f.Add("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
+				f.Add("Loaded Rounds",			$"{node.Mcv.OldRounds.Count}");
 			}
 		}
 
@@ -315,7 +305,7 @@ public class OutgoingTransactionApc : McvApc
 
 	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(mcv.Peering.Lock)
+		lock(mcv.Peering.TransactingLock)
 		{
 			var t = mcv.Peering.OutgoingTransactions.Find(i => i.Tag != null && i.Tag.SequenceEqual(Tag));
 
@@ -334,7 +324,7 @@ public class OutgoingTransactionsApc : McvApc
 {
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(node.Peering.Lock)
+		lock(node.Peering.TransactingLock)
 			return node.Peering.OutgoingTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }
@@ -399,7 +389,7 @@ public class IncomingTransactionsApc : McvApc
 		if(node.Peering == null)
 			throw new NodeException(NodeError.NoPeering);
 
-		lock(node.Peering.Lock)
+		lock(node.Peering.TransactingLock)
 			return node.Peering.CandidateTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }

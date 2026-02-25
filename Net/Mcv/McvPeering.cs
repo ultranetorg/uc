@@ -41,6 +41,7 @@ public abstract class McvPeering : HomoTcpPeering
 	public bool								MinimalPeersReached;
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
 	Thread									TransactingThread;
+	public object							TransactingLock = new object();
 	public List<Transaction>				OutgoingTransactions = [];
 	public List<Transaction>				CandidateTransactions = [];
 	public List<Transaction>				ConfirmedTransactions = [];
@@ -50,6 +51,7 @@ public abstract class McvPeering : HomoTcpPeering
 	Thread									SynchronizingThread;
 	public string							SynchronizationInfo;
 	public Dictionary<int, List<Vote>>		SynchronizationTail = [];
+	public object							SyncLock = new();
 
 	public static List<McvPeering>			All = [];
 
@@ -114,36 +116,42 @@ public abstract class McvPeering : HomoTcpPeering
 
 	protected override void ProcessMain()
 	{
-		base.ProcessMain();
+		lock(Lock)
+		{
+			base.ProcessMain();
+	
+			if(Mcv != null)
+			{
+				var needed = Settings.PermanentMin - Graphs.Count();
+		
+				foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
+										.OrderBy(i => i.Retries)
+										.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
+										.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
+										.Take(needed))
+				{
+					OutboundConnect(p, true);
+				}
+	
+				if(!MinimalPeersReached && Connections.Count(i => i.Permanent) >= Settings.PermanentMin)
+				{
+					MinimalPeersReached = true;
+					Flow.Log?.Report(this, $"PermanentMin reached");
+	
+					if(IsListener)
+					{
+						foreach(var c in Connections)
+							c.Send(new SharePeersPpc{Broadcast = true, 
+													 Peers = [new HomoPeer(EP) {Roles = Roles}]});
+					}
+	
+					Synchronize();
+				}
+			}
+		}
 
 		if(Mcv != null)
 		{
-			var needed = Settings.PermanentMin - Graphs.Count();
-	
-			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
-									.OrderBy(i => i.Retries)
-									.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
-									.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
-									.Take(needed))
-			{
-				OutboundConnect(p, true);
-			}
-
-			if(!MinimalPeersReached && Connections.Count(i => i.Permanent) >= Settings.PermanentMin)
-			{
-				MinimalPeersReached = true;
-				Flow.Log?.Report(this, $"PermanentMin reached");
-
-				if(IsListener)
-				{
-					foreach(var c in Connections)
-						c.Send(new SharePeersPpc{Broadcast = true, 
-												 Peers = [new HomoPeer(EP) {Roles = Roles}]});
-				}
-
-				Synchronize();
-			}
-
 			if(MinimalPeersReached)
 			{
 				lock(Mcv.Lock)
@@ -161,19 +169,20 @@ public abstract class McvPeering : HomoTcpPeering
 				return;
 			}
 
-		if(SynchronizingThread == null)
+		lock(SyncLock)
 		{
-			SynchronizationTail.Clear();
-			CandidateTransactions.Clear();
-			
-			Synchronization = Synchronization.Downloading;
-
-			Flow.Log?.Report(this, $"Synchronization Started");
-
-			SynchronizingThread = Node.CreateThread(Synchronizing);
-			SynchronizingThread.Name = $"{Node.Name} Synchronizing";
-			SynchronizingThread.Start();
+			if(Synchronization != Synchronization.Downloading)
+			{
+				SynchronizationTail.Clear();
+				CandidateTransactions.Clear();
+				Synchronization = Synchronization.Downloading;
 	
+				SynchronizingThread = Node.CreateThread(Synchronizing);
+				SynchronizingThread.Name = $"{Node.Name} Synchronizing";
+				SynchronizingThread.Start();
+		
+				Flow.Log?.Report(this, $"Synchronization Started");
+			}
 		}
 	}
 
@@ -257,7 +266,6 @@ public abstract class McvPeering : HomoTcpPeering
 	
 															c.Commit(w);
 														}
-								
 													}
 
 													Mcv.Rocks.Write(w);
@@ -268,7 +276,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 					stamp = Call(peer, new StampPpc());
 	
-					lock(Lock)
+					lock(SyncLock)
 						foreach(var i in SynchronizationTail.Keys)
 							if(i <= stamp.LastCommitedRound)
 								SynchronizationTail.Remove(i);
@@ -284,15 +292,12 @@ public abstract class McvPeering : HomoTcpPeering
 		
 					var s = Call(peer, new StampPpc());
 	
-					lock(Lock)
 					lock(Mcv.Lock)
 					{
 						Mcv.GraphState = stamp.GraphState;
 						Mcv.LastConfirmedRound = r;
 						Mcv.LastCommitedRound = r;
-			
 						Mcv.OldRounds[r.Id] = r;
-
 						Mcv.Hashify();
 			
 						if(s.GraphHash.SequenceEqual(Mcv.GraphHash))
@@ -303,50 +308,48 @@ public abstract class McvPeering : HomoTcpPeering
 							{
 								foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
 									i.Index(w, r);
-
-								//foreach(var i in Mcv.Tables)
-								//	i.Commit();
 						
 								Mcv.Rocks.Write(w);
 							}
 
-							for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastConfirmedRound.Id + Mcv.P; i++)
+							lock(SyncLock)
 							{
-								if(!SynchronizationTail.TryGetValue(i, out var vs))
-									goto resync;
+								for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastConfirmedRound.Id + Mcv.P; i++)
+								{
+									if(!SynchronizationTail.TryGetValue(i, out var vs))
+										goto resync;
 
-								foreach(var v in vs.Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.Address == i.Generator)).GroupBy(i => i.Try).MaxBy(i => i.Key))
-								{	
-									v.Restore();
-									Mcv.AddOnly(v);
+									foreach(var v in vs.Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.Address == i.Generator)).GroupBy(i => i.Try).MaxBy(i => i.Key))
+									{	
+										v.Restore();
+										Mcv.AddOnly(v);
+									}
+								}
+
+								r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1);
+								var a = SynchronizationTail.Where(i => i.Key >= Mcv.LastConfirmedRound.Id + 1 + Mcv.P).OrderBy(i => i.Key).ToArray();
+	
+								foreach(var i in a)
+								{
+									foreach(var v in i.Value.OrderBy(i => i.Try))
+										ProcessIncoming(v, true);
+		
+								}
+
+								if(r.Confirmed)
+								{
+									SynchronizingThread = null;
+									SynchronizationInfo = null;
+									SynchronizationTail.Clear();
+								
+									MainWakeup.Set();
+			
+									Flow.Log?.Report(this, $"Synchronization Finished");
+								
+									Synchronization = Synchronization.Synchronized;
+									return;
 								}
 							}
-
-							r = Mcv.GetRound(Mcv.LastConfirmedRound.Id + 1);
-							var a = SynchronizationTail.Where(i => i.Key >= Mcv.LastConfirmedRound.Id + 1 + Mcv.P).OrderBy(i => i.Key).ToArray();
-	
-							foreach(var i in a)
-							{
-								foreach(var v in i.Value.OrderBy(i => i.Try))
-									ProcessIncoming(v, true);
-		
-							}
-
-							if(r.Confirmed)
-							{
-								Synchronization = Synchronization.Synchronized;
-								SynchronizationInfo = null;
-								SynchronizationTail.Clear();
-								
-								MainWakeup.Set();
-			
-								Flow.Log?.Report(this, $"Synchronization Finished");
-								
-								SynchronizingThread = null;
-								return;
-							}
-
-							break;
 						}
 						else
 						{
@@ -375,6 +378,7 @@ public abstract class McvPeering : HomoTcpPeering
 		
 					var rp = Call(peer, new DownloadRoundsPpc {From = from, To = to});
 	
+					lock(SyncLock)
 					lock(Mcv.Lock)
 					{
 						var rounds = rp.Read(Mcv);
@@ -408,7 +412,7 @@ public abstract class McvPeering : HomoTcpPeering
 											ProcessIncoming(v, true);
 									}
 										
-									Synchronization = Synchronization.Synchronized;
+									SynchronizingThread = null;
 									SynchronizationInfo = null;
 									SynchronizationTail.Clear();
 						
@@ -416,7 +420,7 @@ public abstract class McvPeering : HomoTcpPeering
 	
 									Flow.Log?.Report(this, $"Synchronization Finished");
 
-									SynchronizingThread = null;
+									Synchronization = Synchronization.Synchronized;
 									return;
 								}
 							}
@@ -517,14 +521,17 @@ public abstract class McvPeering : HomoTcpPeering
 
 		if(!fromsynchronization && Synchronization == Synchronization.Downloading)
 		{
-			if(SynchronizationTail.TryGetValue(vote.RoundId, out var r) && r.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
-				return false;
-
-			if(!SynchronizationTail.TryGetValue(vote.RoundId, out r))
-				r = SynchronizationTail[vote.RoundId] = new();
-
-			vote.Created = DateTime.UtcNow;
-			r.Add(vote);
+			lock(SyncLock)
+			{
+				if(SynchronizationTail.TryGetValue(vote.RoundId, out var r) && r.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
+					return false;
+	
+				if(!SynchronizationTail.TryGetValue(vote.RoundId, out r))
+					r = SynchronizationTail[vote.RoundId] = new();
+	
+				vote.Created = DateTime.UtcNow;
+				r.Add(vote);
+			}
 		}
 		else if(fromsynchronization || Synchronization == Synchronization.Synchronized)
 		{
@@ -929,7 +936,7 @@ public abstract class McvPeering : HomoTcpPeering
 		{
 			bool nothing;
 
-			lock(Lock)
+			lock(TransactingLock)
 				nothing = OutgoingTransactions.All(i => i.Status == TransactionStatus.Confirmed);
 			
 			if(nothing)		
@@ -962,7 +969,7 @@ public abstract class McvPeering : HomoTcpPeering
 			
 			IEnumerable<IGrouping<string, Transaction>> nones;
 
-			lock(Lock)
+			lock(TransactingLock)
 				nones = OutgoingTransactions.GroupBy(i => i.User).Where(g => !g.Any(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed) && g.Any(i => i.Status == TransactionStatus.None)).ToArray();
 
 			foreach(var g in nones)
@@ -1041,7 +1048,7 @@ public abstract class McvPeering : HomoTcpPeering
 					{
 						if(t.ActionOnResult != ActionOnResult.RetryUntilConfirmed)
 						{
-							lock(Lock)
+							lock(TransactingLock)
 								//t.Status = TransactionStatus.FailedOrNotFound;
 								OutgoingTransactions.Remove(t);
 						} 
@@ -1075,7 +1082,7 @@ public abstract class McvPeering : HomoTcpPeering
 						continue;
 					}
 
-					lock(Lock)
+					lock(TransactingLock)
 						foreach(var t in i.Value)
 						{ 
 							if(atxs.Any(s => s.SequenceEqual(t.Signature)))
@@ -1098,7 +1105,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 			Transaction[] accepted;
 			
-			lock(Lock)
+			lock(TransactingLock)
 				accepted = OutgoingTransactions.Where(i => i.Status == TransactionStatus.Accepted || i.Status == TransactionStatus.Placed).ToArray();
 
 			///Flow.Log?.Report(this, $"accepted : {accepted.Count()}" );
@@ -1207,7 +1214,7 @@ public abstract class McvPeering : HomoTcpPeering
 			t.AddOperation(i);
 		}
 
- 		lock(Lock)
+ 		lock(TransactingLock)
 		{	
 		 	Transact(t);
 		}
