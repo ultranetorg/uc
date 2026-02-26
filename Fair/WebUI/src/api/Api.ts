@@ -42,7 +42,7 @@ export type Api = {
 
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
-  getSitePublishers(siteId: string): Promise<AccountBase[]>
+  getSitePublishers(siteId: string): Promise<AuthorBaseAvatar[]>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
   getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 

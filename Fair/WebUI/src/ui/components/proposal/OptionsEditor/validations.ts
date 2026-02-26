@@ -1,8 +1,8 @@
 import { TFunction } from "i18next"
-import { capitalize } from "lodash"
+import { capitalize, has } from "lodash"
 import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
-import { AccountBase, CreateProposalData, CreateProposalDataOption, MembersChangeType } from "types"
+import { AuthorBaseAvatar, CreateProposalData, CreateProposalDataOption, MembersChangeType } from "types"
 
 export const validateUniqueCategoryTitle = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
@@ -43,7 +43,7 @@ export const validateUniqueTitle = (t: TFunction) => (value: string, data: Creat
   return duplicates.length <= 1 || t("validation:uniqueTitle")
 }
 
-const normalizeCandidatesAccounts = (accounts?: AccountBase[]) =>
+const normalizeCandidatesAccounts = (accounts?: AuthorBaseAvatar[]) =>
   Array.isArray(accounts)
     ? [...accounts]
         .map(x => x.id)
@@ -65,8 +65,7 @@ export const getValidateSiteMembersAddition =
     const hasDuplicates = options.some((opt, i) =>
       options.some(
         (other, j) =>
-          i !== j &&
-          normalizeCandidatesAccounts(opt.candidatesAccounts) === normalizeCandidatesAccounts(other.candidatesAccounts),
+          i !== j && normalizeCandidatesAccounts(opt.authors) === normalizeCandidatesAccounts(other.authors),
       ),
     )
 
@@ -80,7 +79,13 @@ export const getValidateSiteMembersAddition =
     }
   }
 
-export const validateSiteAuthorRemoval = (
+const normalizeAuthors = (authors?: AuthorBaseAvatar[]) =>
+  (authors ?? [])
+    .map(x => x.id)
+    .sort()
+    .join("")
+
+export const validateSiteAuthorChange = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
@@ -90,10 +95,9 @@ export const validateSiteAuthorRemoval = (
   if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
-    options.some(
-      (other, j) => i !== j && (other.authorsIds ?? []).sort().join("") === (opt.authorsIds ?? []).sort().join(""),
-    ),
+    options.some((other, j) => i !== j && normalizeAuthors(other.authors) === normalizeAuthors(opt.authors)),
   )
+  console.log(hasDuplicates)
 
   if (hasDuplicates) {
     setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:uniqueOptions") })
@@ -113,8 +117,7 @@ export const validateSiteModeratorRemoval = (
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(
-      (other, j) =>
-        i !== j && (other.moderatorsIds ?? []).sort().join("") === (opt.moderatorsIds ?? []).sort().join(""),
+      (other, j) => i !== j && (other.moderators ?? []).sort().join("") === (opt.moderators ?? []).sort().join(""),
     ),
   )
 

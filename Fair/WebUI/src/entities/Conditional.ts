@@ -1,21 +1,20 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
+import { useInfiniteQuery } from "@tanstack/react-query"
 
 import { getApi } from "api"
-import { MembersChangeType } from "types"
 
 const api = getApi()
 
-export const useGetSiteMembers = (memberType: MembersChangeType, siteId?: string) => {
-  const queryFn = () => (memberType === "author" ? api.getSitePublishers(siteId!) : api.getSiteModerators(siteId!))
+// export const useGetSiteMembers = (memberType: MembersChangeType, siteId?: string) => {
+//   const queryFn = () => (memberType === "author" ? api.getSitePublishers(siteId!) : api.getSiteModerators(siteId!))
 
-  const { isFetching, error, data } = useQuery({
-    queryKey: ["sites", siteId, `${memberType}s`],
-    queryFn: queryFn,
-    enabled: !!siteId,
-  })
+//   const { isFetching, error, data } = useQuery({
+//     queryKey: ["sites", siteId, `${memberType}s`],
+//     queryFn: queryFn,
+//     enabled: !!siteId,
+//   })
 
-  return { isFetching, error: error ?? undefined, data }
-}
+//   return { isFetching, error: error ?? undefined, data }
+// }
 
 // export const useGetFiles = (siteId?: string, authorId?: string, page?: number, pageSize?: number) => {
 //   const queryFn = () =>

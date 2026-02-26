@@ -51,7 +51,7 @@ const getDefaultSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites/defa
 
 const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
 
-const getSitePublishers = (siteId: string): Promise<AccountBase[]> =>
+const getSitePublishers = (siteId: string): Promise<AuthorBaseAvatar[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/publishers`).then(res => res.json())
 
 const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>

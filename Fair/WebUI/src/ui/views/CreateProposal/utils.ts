@@ -1,6 +1,6 @@
 import { CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
 import {
-  AccountBase,
+  AuthorBaseAvatar,
   CreateProposalData,
   CreateProposalDataOption,
   ExtendedOperationType,
@@ -9,7 +9,7 @@ import {
 } from "types"
 import { getFairOperationType } from "utils"
 
-const mapAccountsToIds = (accounts?: AccountBase[]): string[] => accounts?.map(account => account.id) ?? []
+const mapAuthorsToIds = (accounts?: AuthorBaseAvatar[]): string[] => accounts?.map(account => account.id) ?? []
 
 const mapOptionOperation = (
   type: ExtendedOperationType,
@@ -45,15 +45,15 @@ const mapOptionOperation = (
 
     // Site
     case "site-author-addition":
-      return { additions: mapAccountsToIds(option.candidatesAccounts), removals: [] }
+      return { additions: mapAuthorsToIds(option.authors), removals: [] }
     case "site-author-removal":
-      return { additions: [], removals: option.authorsIds }
+      return { additions: [], removals: mapAuthorsToIds(option.authors) }
     case "site-avatar-change":
       return { file: option.fileId }
     case "site-moderator-addition":
-      return { candidatesIds: mapAccountsToIds(option.candidatesAccounts) }
+      return { candidatesIds: mapAuthorsToIds(option.moderators) }
     case "site-moderator-removal":
-      return { moderatorId: option.moderatorsIds }
+      return { moderatorId: option.moderators }
     case "site-nickname-change":
       return { name: option.name }
     case "site-text-change":

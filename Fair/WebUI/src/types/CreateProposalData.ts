@@ -1,4 +1,4 @@
-import { AccountBase } from "./AccountBase"
+import { AuthorBaseAvatar } from "./AuthorBaseAvatar"
 import { OperationType } from "./OperationType"
 import { ProductType } from "./ProductType"
 
@@ -16,12 +16,11 @@ export type CreateProposalData = {
 
 export type CreateProposalDataOption = {
   title: string
-  authorsIds?: string[]
-  candidatesAccounts?: AccountBase[]
+  authors?: AuthorBaseAvatar[]
   categoryTitle?: string
   description?: string
   fileId?: string
-  moderatorsIds?: string[]
+  moderators?: string[]
   name?: string
   parentCategoryId?: string
   siteTitle?: string

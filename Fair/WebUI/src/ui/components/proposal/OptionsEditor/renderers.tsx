@@ -10,7 +10,7 @@ import {
   RemoveMembersPanelList,
 } from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
-import { AuthorAvatar, EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
+import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
 export const renderByParameterValueType: Record<
   ParameterValueType,
@@ -66,12 +66,12 @@ export const renderByParameterValueType: Record<
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "authors-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddMembersPanelList memberType="author" value={value as AuthorAvatar[]} onChange={onChange} />
+      <AddMembersPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "authors-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <RemoveMembersPanelList memberType="author" value={value as string[]} onChange={onChange} />
+      <RemoveMembersPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   category: ({ errorMessage, field, value, onChange }) => (

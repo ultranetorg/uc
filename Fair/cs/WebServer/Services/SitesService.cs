@@ -110,7 +110,7 @@ public class SitesService
 		}).ToArray();
 	}
 
-	public IEnumerable<AccountBaseModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
+	public IEnumerable<AuthorBaseAvatarModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetPublishers), siteId);
 
@@ -126,8 +126,8 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			AutoId[] authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(p => p.Author).ToArray();
-			return McvUtils.LoadAccounts(mcv, authorsIds, cancellationToken);
+			AutoId[] publishersIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(p => p.Author).ToArray();
+			return McvUtils.LoadAuthors(mcv, publishersIds, cancellationToken);
 		}
 	}
 

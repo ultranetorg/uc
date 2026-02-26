@@ -215,28 +215,8 @@ public class SearchService
 			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AuthorName, lowercase, limit);
 			AutoId[] authorsIds = searchResult.ToArray();
 
-			return LoadAuthors(mcv, authorsIds, cancellationToken);
+			return McvUtils.LoadAuthors(mcv, authorsIds, cancellationToken);
 		}
-	}
-
-	static IEnumerable<AuthorBaseAvatarModel> LoadAuthors(FairMcv mcv, AutoId[] authordsIds, CancellationToken cancellationToken)
-	{
-		if(cancellationToken.IsCancellationRequested)
-			return [];
-
-		List<AuthorBaseAvatarModel> result = new(authordsIds.Length);
-
-		foreach(AutoId id in authordsIds)
-		{
-			if(cancellationToken.IsCancellationRequested)
-				return result;
-
-			Author author = mcv.Authors.Latest(id);
-			AuthorBaseAvatarModel model = new(author);
-			result.Add(model);
-		}
-
-		return result;
 	}
 
 	public IEnumerable<AccountSearchLiteModel> SearchLiteAccounts(string query, int limit, CancellationToken cancellationToken)

@@ -23,7 +23,7 @@ public class SitesController
 	}
 
 	[HttpGet("{siteId}/publishers")]
-	public IEnumerable<AccountBaseModel> GetPublishers(string siteId, CancellationToken cancellationToken)
+	public IEnumerable<AuthorBaseAvatarModel> GetPublishers(string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPublishers), siteId);
 

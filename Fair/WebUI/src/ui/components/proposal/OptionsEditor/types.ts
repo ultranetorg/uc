@@ -17,13 +17,12 @@ export type FieldValueType =
   | "version"
 
 export type FieldNameType =
-  | "authorsIds"
-  | "candidatesAccounts"
+  | "authors"
   | "categoryId"
   | "categoryTitle"
   | "description"
   | "fileId"
-  | "moderatorsIds"
+  | "moderators"
   | "name"
   | "parentCategoryId"
   | "siteTitle"
@@ -31,8 +30,6 @@ export type FieldNameType =
   | "status"
   | "type"
   | "version"
-
-export type AuthorAvatar = Omit<AuthorBaseAvatar, "owners">
 
 export type EditorField = {
   valueType?: FieldValueType
@@ -44,8 +41,8 @@ export type EditorField = {
 export type EditorFieldRendererParams = {
   errorMessage?: string
   field: EditorField
-  value: string | string[] | AccountBase[] | AuthorAvatar[]
-  onChange: (value?: string | string[] | AccountBase[] | AuthorAvatar) => void
+  value: string | string[] | AccountBase[] | AuthorBaseAvatar[]
+  onChange: (value?: string | string[] | AccountBase[] | AuthorBaseAvatar[] | null) => void
 }
 
 export type EditorFieldRenderer = (params: EditorFieldRendererParams) => JSX.Element

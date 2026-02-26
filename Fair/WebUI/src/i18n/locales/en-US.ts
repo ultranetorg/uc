@@ -345,6 +345,8 @@ export const enUS = {
     createReferendum: "Create Referendum",
     description: "Description (optional)",
     enterNickname: "Enter nickname",
+    enterAuthorName: "Enter author name",
+    enterModeratorName: "Enter moderator name",
     optionEditorTitle: "Option #{{number}}",
     removeFile: "Remove file",
     selected: "Selected",

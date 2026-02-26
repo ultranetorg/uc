@@ -167,7 +167,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "authors-additions",
-          name: "candidatesAccounts",
+          name: "authors",
         },
       ],
     },
@@ -176,7 +176,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "authors-removals",
-          name: "authorsIds",
+          name: "authors",
         },
       ],
     },
@@ -196,7 +196,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "moderators-additions",
-          name: "candidatesAccounts",
+          name: "moderators",
           placeholder: t("selectModeratorsToAdd"),
         },
       ],
@@ -206,7 +206,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "moderators-removals",
-          name: "moderatorsIds",
+          name: "moderators",
           placeholder: t("selectModeratorsToRemove"),
         },
       ],
@@ -254,7 +254,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
 
     // User
     {
-      operationType: "user-deletion",
+      operationType: "user-unregistration",
       parameterValueType: "user",
       parameterName: "userId",
       parameterLabel: t("common:user"),

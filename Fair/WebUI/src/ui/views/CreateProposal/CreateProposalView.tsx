@@ -29,7 +29,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
   const {
     control,
-    formState: { isValid },
+    formState: { isValid, errors },
     handleSubmit,
     watch,
   } = useFormContext<CreateProposalData>()
@@ -115,7 +115,12 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
         <div className="flex items-center justify-end gap-6">
           <ButtonOutline label={t("common:cancel")} className="h-11 w-25" />
-          <ButtonPrimary label={title} className={"h-11 w-42.5"} disabled={!isValid || isPending} type="submit" />
+          <ButtonPrimary
+            label={title}
+            className={"h-11 w-42.5"}
+            disabled={!isValid || Object.keys(errors).length > 0 || isPending}
+            type="submit"
+          />
         </div>
       </form>
     </div>
