@@ -2,21 +2,6 @@ import { FormatOptionLabelMeta } from "react-select"
 
 import { CategoryParentBaseWithChildren } from "types"
 import { DropdownItem } from "ui/components"
-import { buildFileUrl } from "utils"
-
-export const renderAccountOptionLabel = (option: DropdownItem) => (
-  <div className="flex gap-2">
-    <div className="size-8 overflow-hidden">
-      <img
-        className="size-full object-cover object-center"
-        src={buildFileUrl(option.value)}
-        title={option.value}
-        loading="lazy"
-      />
-    </div>
-    <span className="text-2sm font-medium leading-5">{option.label}</span>
-  </div>
-)
 
 export const keepSpacesFormatOptionLabel = (option: DropdownItem, meta: FormatOptionLabelMeta<DropdownItem>) => (
   <span style={{ whiteSpace: meta.context === "menu" && !meta.inputValue ? "pre" : "normal" }}>{option.label}</span>

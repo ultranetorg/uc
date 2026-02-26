@@ -87,6 +87,9 @@ public class SitesService
 
 		foreach (Policy policy in policies)
 		{
+			if(policy.OperationClass == FairOperationClass.SiteModeratorRemoval)
+				continue;
+
 			if (policy.Approval == ApprovalRequirement.PublishersMajority)
 			{
 				referendumsResult.Add(policy.OperationClass);
