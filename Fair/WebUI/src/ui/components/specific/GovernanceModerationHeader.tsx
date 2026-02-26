@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 
 import { useSiteContext, useUserContext } from "app"
 import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES } from "constants/"
+import { useGetSitePolicies } from "entities"
 import { ProposalType } from "types"
 import {
   Breadcrumbs,
@@ -45,16 +46,13 @@ export const GovernanceModerationHeader = memo(
     const { site } = useSiteContext()
     const navigate = useNavigate()
 
+    const { data: policies } = useGetSitePolicies(siteId)
     const { isModerator, isPublisher } = useUserContext()
 
     const dropdownItems = useMemo<SimpleMenuItem[] | undefined>(() => {
       if (!site) return
 
-      const operations = getVisibleProposalOperations(
-        proposalType,
-        site.discussionOperations,
-        site.referendumOperations,
-      )
+      const operations = getVisibleProposalOperations(proposalType, policies)
       const grouped = groupOperations(operations)
       return grouped.flatMap<SimpleMenuItem>(({ items }, i) => {
         const mapped = items.map<SimpleMenuItem>(x => ({
@@ -69,7 +67,7 @@ export const GovernanceModerationHeader = memo(
 
         return mapped
       })
-    }, [navigate, proposalType, site, t])
+    }, [navigate, policies, proposalType, site, t])
 
     return (
       <div className="flex flex-col gap-2">

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading;
+using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -40,6 +41,16 @@ public class SitesController
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
 		return sitesService.GetModerators(siteId, cancellationToken);
+	}
+
+	[HttpGet("{siteId}/policies")]
+	public IEnumerable<PolicyModel> GetPolicies(string siteId)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPolicies), siteId);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+
+		return sitesService.GetPolicies(siteId);
 	}
 
 	[HttpGet]

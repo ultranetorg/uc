@@ -2,8 +2,8 @@ import { createContext, PropsWithChildren, useContext, useMemo, useState } from 
 import { useLocation, useParams, useSearchParams } from "react-router-dom"
 import { FormProvider, useForm } from "react-hook-form"
 
-import { useGetCategories } from "entities"
-import { CategoryParentBaseWithChildren, CreateProposalData, OperationType } from "types"
+import { useGetCategories, useGetSitePolicies } from "entities"
+import { CategoryParentBaseWithChildren, CreateProposalData, OperationType, Policy } from "types"
 import { buildCategoryTree } from "utils"
 
 type ModerationContextType = {
@@ -12,6 +12,7 @@ type ModerationContextType = {
   isCategoriesPending: boolean
   refetchCategories: () => void
   categories?: CategoryParentBaseWithChildren[]
+  policies?: Policy[]
 }
 
 // @ts-expect-error createContext with default value
@@ -42,6 +43,7 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
 
   const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
+  const { data: policies } = useGetSitePolicies(siteId)
   const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)
 
   const value = useMemo(
@@ -51,8 +53,9 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
       isCategoriesPending,
       refetchCategories,
       categories: categories && buildCategoryTree(categories),
+      policies,
     }),
-    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories],
+    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories, policies],
   )
 
   return (

@@ -10,6 +10,7 @@ import {
   File,
   PerpetualSurvey,
   PerpetualSurveyDetails,
+  Policy,
   ProductField,
   ProductFieldDiff,
   Proposal,
@@ -42,6 +43,7 @@ export type Api = {
 
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
+  getSitePolicies(siteId: string): Promise<Policy[]>
   getSitePublishers(siteId: string): Promise<AuthorBaseAvatar[]>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
   getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>

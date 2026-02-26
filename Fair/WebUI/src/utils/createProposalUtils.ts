@@ -1,14 +1,11 @@
 import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES, CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES } from "constants/"
-import { ExtendedOperationType, OperationType, ProposalType } from "types"
+import { ExtendedOperationType, Policy, ProposalType } from "types"
 
-export const getProposalOperations = (
-  proposalType: ProposalType,
-  discussions?: OperationType[],
-  referendums?: OperationType[],
-): ExtendedOperationType[] => {
-  if (discussions === undefined || referendums === undefined) return []
-
-  const operations = proposalType === "discussion" ? discussions : referendums
+const getProposalOperations = (proposalType: ProposalType, policies: Policy[]): ExtendedOperationType[] => {
+  const operations =
+    proposalType === "discussion"
+      ? policies.filter(x => x.approval !== "publishers-majority").map(x => x.operationClass)
+      : policies.filter(x => x.approval === "publishers-majority").map(x => x.operationClass)
   const index = operations.indexOf("site-authors-change")
   if (index !== -1) {
     return [
@@ -23,10 +20,9 @@ export const getProposalOperations = (
 
 export const getVisibleProposalOperations = (
   proposalType: ProposalType,
-  discussions?: OperationType[],
-  referendums?: OperationType[],
+  policies: Policy[] | undefined = [],
 ): ExtendedOperationType[] => {
-  const allOperations = getProposalOperations(proposalType, discussions, referendums)
+  const allOperations = getProposalOperations(proposalType, policies)
   return allOperations.filter(x => !(CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES as ExtendedOperationType[]).includes(x))
 }
 

@@ -28,6 +28,21 @@ export const useGetSite = (siteId?: string) => {
   return { isPending, error: error ?? undefined, data }
 }
 
+export const useGetSitePolicies = (siteId?: string) => {
+  const { isFetching, error, data, refetch } = useQuery({
+    queryKey: ["sites", siteId, "policies"],
+    queryFn: () => api.getSitePolicies(siteId!),
+    enabled: !!siteId,
+    // Auto refetch disable
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  })
+
+  return { isFetching, error: error ?? undefined, data, refetch }
+}
+
 export const useGetSiteModerators = (siteId?: string) => {
   const queryFn = () => api.getSiteModerators(siteId!)
 

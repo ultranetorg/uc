@@ -49,8 +49,7 @@ export type OptionsEditorProps = {
 }
 
 export const OptionsEditor = memo(({ t, proposalType, labelClassName }: OptionsEditorProps) => {
-  const { site } = useSiteContext()
-  const { lastEditedOptionIndex } = useModerationContext()
+  const { lastEditedOptionIndex, policies } = useModerationContext()
   const { control, clearErrors, setError, unregister } = useFormContext<CreateProposalData>()
   const { fields, append, remove, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
   const type = useWatch({ control, name: "type" })
@@ -64,16 +63,12 @@ export const OptionsEditor = memo(({ t, proposalType, labelClassName }: OptionsE
     proposalType === "discussion" && CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES.includes(type as OperationType)
 
   const typesItems = useMemo<DropdownItem[]>(() => {
-    const operations = getVisibleProposalOperations(
-      proposalType,
-      site?.discussionOperations,
-      site?.referendumOperations,
-    )
+    const operations = getVisibleProposalOperations(proposalType, policies)
     return operations.map(x => ({
       label: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x) ? t(`operations:${x}`) : t(`extraOperations:${x}`),
       value: x as string,
     }))
-  }, [proposalType, site, t])
+  }, [policies, proposalType, t])
 
   const hiddenTypeItem = useMemo<DropdownItem[] | undefined>(
     () => (discussionHiddenType ? [{ label: t(`operations:${type}`), value: type! }] : undefined),
