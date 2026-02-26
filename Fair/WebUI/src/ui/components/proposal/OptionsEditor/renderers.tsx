@@ -2,12 +2,14 @@ import { AccountBase, AuthorBaseAvatar } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
-  AddMembersPanelList,
+  AddAuthorPanelList,
+  AddModeratorPanelList,
   DropdownSearchCategory,
   DropdownWithTranslation,
   FileSelect,
   ProductVersionSelector,
-  RemoveMembersPanelList,
+  RemoveAuthorPanelList,
+  RemoveModeratorPanelList,
 } from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
@@ -66,12 +68,12 @@ export const renderByParameterValueType: Record<
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "authors-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddMembersPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
+      <AddAuthorPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "authors-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <RemoveMembersPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
+      <RemoveAuthorPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   category: ({ errorMessage, field, value, onChange }) => (
@@ -117,12 +119,12 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   ),
   "moderators-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddMembersPanelList memberType="moderator" value={value as AccountBase[]} onChange={onChange} />
+      <AddModeratorPanelList value={value as AccountBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "moderators-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <RemoveMembersPanelList memberType="moderator" value={value as string[]} onChange={onChange} />
+      <RemoveModeratorPanelList value={value as AccountBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "review-status": ({ field, value, onChange }) => (

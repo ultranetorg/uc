@@ -10,12 +10,12 @@ import { DropdownItem } from "ui/components/proposal/DropdownSearchAccount"
 
 import { MembersPanelList } from "./MembersPanelList"
 
-export type AddMembersPanelListProps = {
+export type AddAuthorPanelListProps = {
   value: AuthorBaseAvatar[]
   onChange: (value: AuthorBaseAvatar[]) => void
 }
 
-export const AddMembersPanelList = memo(({ value: selectedAuthors = [], onChange }: AddMembersPanelListProps) => {
+export const AddAuthorPanelList = memo(({ value: selectedAuthors = [], onChange }: AddAuthorPanelListProps) => {
   const { site } = useSiteContext()
   const { t } = useTranslation("createProposal")
 
@@ -57,9 +57,7 @@ export const AddMembersPanelList = memo(({ value: selectedAuthors = [], onChange
   )
 
   const handleItemRemove = useCallback(
-    (id: string) => {
-      onChange(selectedAuthors.filter(x => x.id !== id))
-    },
+    (id: string) => onChange(selectedAuthors.filter(x => x.id !== id)),
     [onChange, selectedAuthors],
   )
 

@@ -1,8 +1,7 @@
 import { TFunction } from "i18next"
-import { capitalize, has } from "lodash"
 import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
-import { AuthorBaseAvatar, CreateProposalData, CreateProposalDataOption, MembersChangeType } from "types"
+import { AccountBase, AuthorBaseAvatar, CreateProposalData, CreateProposalDataOption } from "types"
 
 export const validateUniqueCategoryTitle = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
@@ -43,42 +42,6 @@ export const validateUniqueTitle = (t: TFunction) => (value: string, data: Creat
   return duplicates.length <= 1 || t("validation:uniqueTitle")
 }
 
-const normalizeCandidatesAccounts = (accounts?: AuthorBaseAvatar[]) =>
-  Array.isArray(accounts)
-    ? [...accounts]
-        .map(x => x.id)
-        .sort()
-        .join(",")
-    : ""
-
-export const getValidateSiteMembersAddition =
-  (memberType: MembersChangeType) =>
-  (
-    t: TFunction,
-    options: CreateProposalDataOption[],
-    clearErrors: UseFormClearErrors<CreateProposalData>,
-    setError: UseFormSetError<CreateProposalData>,
-    lastEditedIndex: number,
-  ) => {
-    if (!options || lastEditedIndex >= options.length) return
-
-    const hasDuplicates = options.some((opt, i) =>
-      options.some(
-        (other, j) =>
-          i !== j && normalizeCandidatesAccounts(opt.authors) === normalizeCandidatesAccounts(other.authors),
-      ),
-    )
-
-    if (hasDuplicates) {
-      setError(`options.${lastEditedIndex}`, {
-        type: "manual",
-        message: t("validation:uniqueMembers", { memberType: capitalize(memberType) }),
-      })
-    } else {
-      clearErrors(`options.${lastEditedIndex}`)
-    }
-  }
-
 const normalizeAuthors = (authors?: AuthorBaseAvatar[]) =>
   (authors ?? [])
     .map(x => x.id)
@@ -106,7 +69,13 @@ export const validateSiteAuthorChange = (
   }
 }
 
-export const validateSiteModeratorRemoval = (
+const normalizeAccounts = (accounts?: AccountBase[]) =>
+  (accounts ?? [])
+    .map(x => x.id)
+    .sort()
+    .join("")
+
+export const validateSiteModeratorChange = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
@@ -116,9 +85,7 @@ export const validateSiteModeratorRemoval = (
   if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
-    options.some(
-      (other, j) => i !== j && (other.moderators ?? []).sort().join("") === (opt.moderators ?? []).sort().join(""),
-    ),
+    options.some((other, j) => i !== j && normalizeAccounts(other.moderators) === normalizeAccounts(opt.moderators)),
   )
 
   if (hasDuplicates) {
