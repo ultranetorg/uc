@@ -3,6 +3,7 @@ export const enUS = {
   common: {
     any: "Any",
     action: "Action",
+    actions: "actions",
     add: "add",
     anbb: "A / N / B / B",
     anbbFull: "Any / Neither / Ban / Banish",

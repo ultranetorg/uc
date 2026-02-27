@@ -1,12 +1,12 @@
 import { AccountBase } from "./AccountBase"
 import { AuthorBaseAvatar } from "./AuthorBaseAvatar"
-import { OperationType } from "./OperationType"
+import { ExtendedOperationType } from "./OperationType"
 import { ProductType } from "./ProductType"
 
 export type CreateProposalData = {
   title: string
   description?: string
-  type?: OperationType
+  type?: ExtendedOperationType
   options: CreateProposalDataOption[]
   categoryId?: string
   productId?: string

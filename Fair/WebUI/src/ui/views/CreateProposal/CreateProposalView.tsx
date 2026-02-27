@@ -1,9 +1,9 @@
-import { memo } from "react"
+import { memo, useCallback, useState } from "react"
 import { Navigate, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 
-import { useUserContext } from "app"
+import { useModerationContext, useSiteContext, useUserContext } from "app"
 import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES } from "constants/"
 import { useTransactMutationWithStatus } from "entities/node"
 import { CreateProposalData, ExtendedOperationType, ProposalType, Role } from "types"
@@ -12,7 +12,7 @@ import { ButtonOutline, ButtonPrimary, DebugPanel, Input, PageHeader, Textarea, 
 import { OptionsEditor } from "ui/components/proposal"
 import { showToast } from "utils"
 
-import { prepareProposalOptions } from "./utils"
+import { isVotingRequired, prepareProposalOptions } from "./utils"
 
 const LABEL_CLASSNAME = "first-letter:uppercase font-medium leading-4 text-2xs"
 
@@ -25,6 +25,8 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const { siteId } = useParams()
   const navigate = useNavigate()
 
+  const { policies } = useModerationContext()
+  const { site } = useSiteContext()
   const { user, isModerator, isPublisher } = useUserContext()
 
   const {
@@ -34,6 +36,8 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     watch,
   } = useFormContext<CreateProposalData>()
   const formData: CreateProposalData = watch() // TODO: should be removed.
+
+  const [type, setType] = useState<ExtendedOperationType | undefined>()
 
   const { mutate, isPending } = useTransactMutationWithStatus()
 
@@ -62,6 +66,10 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
       },
     })
   }
+
+  const isRequired = isVotingRequired(proposalType, site, type, policies)
+
+  const handleProposalTypeChange = useCallback((type?: ExtendedOperationType) => setType(type), [])
 
   const validRole = (proposalType === "discussion" && isModerator) || (proposalType === "referendum" && isPublisher)
   if (!user || !validRole) {
@@ -110,7 +118,13 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
           />
         </div>
 
-        <OptionsEditor t={t} proposalType={proposalType} labelClassName={LABEL_CLASSNAME} />
+        <OptionsEditor
+          t={t}
+          proposalType={proposalType}
+          labelClassName={LABEL_CLASSNAME}
+          isVotingRequired={isRequired}
+          onProposalTypeChange={handleProposalTypeChange}
+        />
         <DebugPanel data={formData} />
 
         <div className="flex items-center justify-end gap-6">

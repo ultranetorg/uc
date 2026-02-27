@@ -6,9 +6,12 @@ import {
   CreateProposalDataOption,
   ExtendedOperationType,
   OperationType,
+  Policy,
   ProposalOption,
+  ProposalType,
+  Site,
 } from "types"
-import { getFairOperationType } from "utils"
+import { getFairOperationType, toOperationType } from "utils"
 
 const mapAuthorsToIds = (accounts?: AuthorBaseAvatar[]): string[] => accounts?.map(x => x.id) ?? []
 
@@ -90,4 +93,31 @@ export const prepareProposalOptions = (data: CreateProposalData): ProposalOption
     title: option.title,
     operation: { $type, ...mapOptionOperation(type, data, option) },
   }))
+}
+
+export const isVotingRequired = (
+  proposalType: ProposalType,
+  site?: Site,
+  type?: ExtendedOperationType,
+  policies?: Policy[],
+): boolean => {
+  if (!site || !type || !policies) return true
+
+  const votersCount = proposalType === "discussion" ? site.moderatorsIds.length : site.authorsIds.length
+  const operation = toOperationType(type)
+  const policy = policies.find(x => x.operationClass === operation)
+
+  if (policy) {
+    switch (policy.approval) {
+      case "any-moderator":
+        return false
+      case "moderators-majority":
+      case "publishers-majority":
+        return votersCount > 2
+      case "all-moderators":
+        return votersCount > 1
+    }
+  }
+
+  return true
 }

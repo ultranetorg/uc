@@ -91,7 +91,8 @@ export const GovernanceModerationHeader = memo(
               )}
               {dropdownItems && dropdownItems.length > 0 && onCreateButtonClick && createButtonLabel && (
                 <DropdownButton
-                  label="Create referendum"
+                  className="capitalize"
+                  label={t("common:actions")}
                   items={dropdownItems!}
                   multiColumnMenu={false}
                   menuClassName="overflow-y-auto max-w-60 max-h-85"

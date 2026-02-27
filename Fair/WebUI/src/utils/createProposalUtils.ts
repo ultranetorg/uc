@@ -1,22 +1,25 @@
 import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES, CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES } from "constants/"
-import { ExtendedOperationType, Policy, ProposalType } from "types"
+import { ExtendedOperationType, OperationType, Policy, ProposalType } from "types"
 
 const getProposalOperations = (proposalType: ProposalType, policies: Policy[]): ExtendedOperationType[] => {
   const operations =
     proposalType === "discussion"
       ? policies.filter(x => x.approval !== "publishers-majority").map(x => x.operationClass)
       : policies.filter(x => x.approval === "publishers-majority").map(x => x.operationClass)
-  const index = operations.indexOf("site-authors-change")
-  if (index !== -1) {
-    return [
-      ...operations.slice(0, index),
-      ...CREATE_DISCUSSION_EXTRA_OPERATION_TYPES,
-      ...operations.slice(index + 1),
-    ] as ExtendedOperationType[]
-  }
-
-  return operations as ExtendedOperationType[]
+  return toExtendedOperationTypes(operations)
 }
+
+export const toOperationTypes = (operations: ExtendedOperationType[]): OperationType[] => {
+  const hasExtra = operations.some(x => CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x))
+  const filtered = operations.filter(x => !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x))
+  return (hasExtra ? [...filtered, "site-authors-change"] : filtered) as OperationType[]
+}
+
+export const toExtendedOperationTypes = (operations: OperationType[]): ExtendedOperationType[] =>
+  operations.flatMap(x => (x === "site-authors-change" ? CREATE_DISCUSSION_EXTRA_OPERATION_TYPES : x))
+
+export const toOperationType = (operation: ExtendedOperationType): OperationType =>
+  CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(operation) ? "site-authors-change" : (operation as OperationType)
 
 export const getVisibleProposalOperations = (
   proposalType: ProposalType,

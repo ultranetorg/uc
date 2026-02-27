@@ -1,7 +1,7 @@
 import { ApprovalRequirement } from "./ApprovalRequirement"
-import { FairOperationClass } from "./FairOperationClass"
+import { OperationType } from "./OperationType"
 
 export type Policy = {
-  operationClass: FairOperationClass
+  operationClass: OperationType
   approval: ApprovalRequirement
 }
