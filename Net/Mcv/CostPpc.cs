@@ -4,10 +4,10 @@ public class CostPpc : McvPpc<CostPpr>
 {
 	public override Result Execute()
 	{
-		lock(Peering.Lock)
+		RequireGraph();
+		
+		lock(Mcv.Lock)
 		{
-			RequireGraph();
-
 			return new CostPpr{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
 									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusEnergyCost};
 		}

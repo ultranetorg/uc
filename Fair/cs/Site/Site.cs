@@ -181,7 +181,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	{
 		Restrictions = [new (FairOperationClass.SiteModeratorAddition,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 ),	
 						new (FairOperationClass.SiteModeratorRemoval,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 |PolicyFlag.Infinite),
-						new (FairOperationClass.SiteNicknameChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
+						new (FairOperationClass.SiteNameChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
 						new (FairOperationClass.SiteTextChange,					Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
 						new (FairOperationClass.SiteAvatarChange,				Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
 						new (FairOperationClass.SiteAuthorsChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),

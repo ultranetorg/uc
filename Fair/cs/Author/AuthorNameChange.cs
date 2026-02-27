@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Uccs.Fair;
 
-public class AuthorNicknameChange : FairOperation
+public class AuthorNameChange : FairOperation
 {
 	public AutoId				Author { get; set; }
 	public string				Name { get; set; }
@@ -10,7 +10,7 @@ public class AuthorNicknameChange : FairOperation
 	public override bool		IsValid(McvNet net) => IsFreeNameValid(Name);
 	public override string		Explanation => $"{Author}, {Name}";
 
-	public AuthorNicknameChange()
+	public AuthorNameChange()
 	{
 	}
 

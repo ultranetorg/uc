@@ -4,10 +4,10 @@ public class TimePpc : McvPpc<TimePpr>
 {
 	public override Result Execute()
 	{
-		lock(Peering.Lock)
+		RequireGraph();
+		
+		lock(Mcv.Lock)
 		{
-			RequireGraph();
-			
 			return new TimePpr {Time = Mcv.LastConfirmedRound.ConsensusTime};
 		}
 	}

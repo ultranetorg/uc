@@ -264,6 +264,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void AddOnly(Vote vote)
 	{
+		if(!Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		var r = GetRound(vote.RoundId);
 
 		vote.Round = r;
@@ -283,6 +286,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void Add(Vote vote)
 	{
+		if(!Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		var r = GetRound(vote.RoundId);
 
 		vote.Round = r;

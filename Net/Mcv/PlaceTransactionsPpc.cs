@@ -9,7 +9,7 @@ public class PlaceTransactionsPpc : McvPpc<PlaceTransactionsPpr>
 		lock(Mcv.Lock)
 			RequireMember();
 
-		lock(Peering.Lock)
+		lock(Peering.TransactingLock)
 		{	
 			var acc = Peering.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
 
