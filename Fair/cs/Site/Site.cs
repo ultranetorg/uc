@@ -65,6 +65,7 @@ public enum PolicyFlag : byte
 	ChangableCreators	= 0b0000_0001,
 	ChangableApproval	= 0b0000_0010,
 	Infinite			= 0b0000_0100,
+	Options				= 0b0000_1000,
 }
 
 public class Policy : IBinarySerializable
@@ -179,27 +180,27 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	static Site()
 	{
-		Restrictions = [new (FairOperationClass.SiteModeratorAddition,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 ),	
-						new (FairOperationClass.SiteModeratorRemoval,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 |PolicyFlag.Infinite),
-						new (FairOperationClass.SiteNameChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						new (FairOperationClass.SiteTextChange,					Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						new (FairOperationClass.SiteAvatarChange,				Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						new (FairOperationClass.SiteAuthorsChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						//																																								 
+		Restrictions = [new (FairOperationClass.SiteModeratorAddition,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 |PolicyFlag.Options),	
+						new (FairOperationClass.SiteModeratorRemoval,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 					|PolicyFlag.Infinite),
+						new (FairOperationClass.SiteNameChange,					Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
+						new (FairOperationClass.SiteTextChange,					Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
+						new (FairOperationClass.SiteAvatarChange,				Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
+						new (FairOperationClass.SiteAuthorsChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
+																																														 
 						new (FairOperationClass.CategoryCreation,				Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
 						new (FairOperationClass.CategoryDeletion,				Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
 						new (FairOperationClass.CategoryTypeChange,				Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						new (FairOperationClass.CategoryAvatarChange,			Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						//																																								 
+						new (FairOperationClass.CategoryAvatarChange,			Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
+																																														 
 						new (FairOperationClass.PublicationCreation,			Role.Moderator|Role.Publisher|Role.Candidate, 	PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
 						new (FairOperationClass.PublicationDeletion,			Role.Moderator|Role.Publisher,												 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.PublicationUpdation,			Role.Moderator, 															 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.PublicationPublish,				Role.Moderator, 															 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.PublicationUnpublish,			Role.Moderator, 															 PolicyFlag.ChangableApproval),
-						//																																								 
+																																														 
 						new (FairOperationClass.UserRegistration,				Role.User, 																	 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.UserUnregistration,				Role.Moderator, 															 PolicyFlag.ChangableApproval),
-						//																																	  							
+																																							  							 
 						new (FairOperationClass.ReviewCreation,					Role.User, 																	 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.ReviewEdit,						Role.User, 																	 PolicyFlag.ChangableApproval),
 						new (FairOperationClass.ReviewStatusChange,				Role.Moderator, 															 PolicyFlag.ChangableApproval)];
@@ -222,7 +223,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					Title					= Title,
 					Slogan					= Slogan,
 					Description				= Description,
-					Name				= Name,
+					Name					= Name,
 					ModerationReward		= ModerationReward,
 					CandidateRequestFee		= CandidateRequestFee,
 					Avatar					= Avatar,

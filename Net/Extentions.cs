@@ -68,24 +68,24 @@ public static class Extentions
 
 	public static T[] RemoveAt<T>(this T[] s, int index)
 	{
-		//T[] dest = new T[source.Length - 1];
-		//
-		//if(index > 0 )
-		//	Array.Copy(source, 0, dest, 0, index);
-		//
-		//if( index < source.Length - 1 )
-		//	Array.Copy(source, index + 1, dest, index, source.Length - index - 1);
-		//
-		//return dest;
-
-		var d = new T[s.Length - 1];
+		T[] dest = new T[s.Length - 1];
 		
-		Array.Copy(s, d, d.Length);
+		if(index > 0 )
+			Array.Copy(s, 0, dest, 0, index);
+		
+		if( index < s.Length - 1 )
+			Array.Copy(s, index + 1, dest, index, s.Length - index - 1);
+		
+		return dest;
 
-		if(index != s.Length-1)
-			d[index] = s[s.Length-1];
-
-		return d;
+		//var d = new T[s.Length - 1];
+		//
+		//Array.Copy(s, d, d.Length);
+		//
+		//if(index != s.Length-1)
+		//	d[index] = s[s.Length-1];
+		//
+		//return d;
 	}
 
 	public static T[] Remove<T>(this T[] arr, T e)

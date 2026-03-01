@@ -99,6 +99,7 @@ public abstract class FairOperation : Operation
 	public const string			DoesNotBelogToSite = "Does not belong to site";
 	public const string			NotEmptyReferencies = "Not Empty References";
 	public const string			TypeAlreadyDefined = "Type already defined";
+	public const string			NotPublished = "Not published";
 
 	public new FairUser			User { get => base.User as FairUser; set => base.User = value; }
 

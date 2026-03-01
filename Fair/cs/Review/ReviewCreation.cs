@@ -37,6 +37,12 @@ public class ReviewCreation : VotableOperation
 		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
 
+		if(p.Category == null)
+		{
+			error = NotPublished;
+			return false;
+		}
+
 		return true;
 	}
 
