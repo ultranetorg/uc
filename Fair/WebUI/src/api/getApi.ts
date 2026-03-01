@@ -4,14 +4,17 @@ import {
   Account,
   AccountBase,
   AccountSearchLite,
+  AuthorBaseAvatar,
   AuthorDetails,
   Category,
   CategoryParentBase,
   CategoryPublications,
   ChangedPublication,
   ChangedPublicationDetails,
+  File,
   PerpetualSurvey,
   PerpetualSurveyDetails,
+  Policy,
   ProductField,
   ProductFieldDiff,
   Proposal,
@@ -49,20 +52,27 @@ const getDefaultSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites/defa
 
 const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
 
-const getSiteAuthors = (siteId: string): Promise<AccountBase[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/authors`).then(res => res.json())
+const getSitePolicies = (siteId: string): Promise<Policy[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/policies`).then(res => res.json())
+
+const getSitePublishers = (siteId: string): Promise<AuthorBaseAvatar[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/publishers`).then(res => res.json())
 
 const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
 
-const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>> => {
+const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/files` + params)
+  if (!res.ok) throw new Error(`Failed to fetch site files`)
   return await toTotalItemsResult(res)
 }
 
 const searchAccounts = (query?: string, limit?: number): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/accounts?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
+
+const searchAuthors = (query?: string, limit?: number): Promise<AuthorBaseAvatar[]> =>
+  fetch(`${BASE_URL}/authors?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
 
 const searchSites = async (query?: string, page?: number): Promise<TotalItemsResult<SiteBase>> => {
   const params = buildUrlParams({ query, page })
@@ -194,9 +204,10 @@ const getAuthorFiles = async (
   authorId?: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<string>> => {
+): Promise<TotalItemsResult<File>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}/files` + params)
+  if (!res.ok) throw new Error(`Failed to fetch author files`)
   return await toTotalItemsResult(res)
 }
 
@@ -342,13 +353,15 @@ const api: Api = {
 
   getReviews,
   getSite,
-  getSiteAuthors,
+  getSitePolicies,
+  getSitePublishers,
   getSiteFiles,
   getSiteModerators,
   searchLitePublication,
   searchLiteSites,
   searchPublications,
   searchAccounts,
+  searchAuthors,
   searchSites,
   searchLiteAccounts,
 

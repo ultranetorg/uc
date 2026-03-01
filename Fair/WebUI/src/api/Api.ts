@@ -2,12 +2,15 @@ import {
   Account,
   AccountBase,
   AccountSearchLite,
+  AuthorBaseAvatar,
   AuthorDetails,
   Category,
   CategoryParentBase,
   CategoryPublications,
+  File,
   PerpetualSurvey,
   PerpetualSurveyDetails,
+  Policy,
   ProductField,
   ProductFieldDiff,
   Proposal,
@@ -40,11 +43,13 @@ export type Api = {
 
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
-  getSiteAuthors(siteId: string): Promise<AccountBase[]>
+  getSitePolicies(siteId: string): Promise<Policy[]>
+  getSitePublishers(siteId: string): Promise<AuthorBaseAvatar[]>
   getSiteModerators(siteId: string): Promise<AccountBase[]>
-  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
+  searchAuthors(query?: string, limit?: number): Promise<AuthorBaseAvatar[]>
   searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
   searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
   searchPublications(siteId: string, query?: string, page?: number): Promise<TotalItemsResult<PublicationExtended>>
@@ -88,7 +93,7 @@ export type Api = {
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>>
 
   // Author
-  getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<string>>
+  getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
   getAuthorPerpetualSurveys(siteId: string): Promise<PerpetualSurvey[]>
   getAuthorPerpetualSurveyDetails(siteId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails>

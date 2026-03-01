@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading;
+using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -11,7 +12,7 @@ public class SitesController
 	ISiteSearchQueryValidator siteSearchQueryValidator,
 	ISearchQueryValidator searchQueryValidator,
 	SitesService sitesService,
-	ISearchService searchService
+	SearchService searchService
 ) : BaseController
 {
 	[HttpGet("default")]
@@ -22,10 +23,10 @@ public class SitesController
 		return sitesService.GetDefaultSites(cancellationToken);
 	}
 
-	[HttpGet("{siteId}/authors")]
-	public IEnumerable<AccountBaseModel> GetAuthors(string siteId, CancellationToken cancellationToken)
+	[HttpGet("{siteId}/publishers")]
+	public IEnumerable<AuthorBaseAvatarModel> GetPublishers(string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetAuthors), siteId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPublishers), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
@@ -40,6 +41,16 @@ public class SitesController
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
 		return sitesService.GetModerators(siteId, cancellationToken);
+	}
+
+	[HttpGet("{siteId}/policies")]
+	public IEnumerable<PolicyModel> GetPolicies(string siteId)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPolicies), siteId);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+
+		return sitesService.GetPolicies(siteId);
 	}
 
 	[HttpGet]

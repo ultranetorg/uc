@@ -47,7 +47,7 @@ export const LogoDropdownButton = memo(({ title, imageFileId }: LogoDropdownButt
         </div>
         <span className="w-21.5 truncate text-2base font-medium leading-5.25 text-gray-800">{title}</span>
       </div>
-      {/* <DropdownButton expanded={isExpanded} />
+      {/* <ChevronDownButton expanded={isExpanded} />
       {isExpanded && (
         <FloatingPortal>
           <SimpleMenu

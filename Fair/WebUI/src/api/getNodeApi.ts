@@ -31,6 +31,8 @@ const transact = async (
   baseUrl: string,
   operations: BaseFairOperation[],
   userName: string,
+  session: string,
+  signerAddress: string,
 ): Promise<TransactionApe> => {
   const mapped = operations.map(x => keysToPascalCase(x))
 
@@ -40,6 +42,8 @@ const transact = async (
       Application: VAULT.APPLICATION,
       Operations: mapped,
       User: userName,
+      Session: session,
+      Signer: signerAddress,
     }),
   })
   const data = await response.json()

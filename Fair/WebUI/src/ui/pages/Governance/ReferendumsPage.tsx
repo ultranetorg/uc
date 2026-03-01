@@ -38,6 +38,7 @@ export const ReferendumsPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <GovernanceModerationHeader
+        proposalType="referendum"
         siteId={siteId!}
         title={t("title")}
         onCreateButtonClick={handleCreateButtonClick}

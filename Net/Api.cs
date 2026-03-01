@@ -171,6 +171,7 @@ public class ApiClient : JsonClient
 		o.Converters.Add(new VersionJsonConverter());
 		o.Converters.Add(new XonJsonConverter());
 		o.Converters.Add(new BigIntegerJsonConverter());
+		o.Converters.Add(new EntityAddressJsonConverter());
 
 #if ETHEREUM
 		DefaultOptions.Converters.Add(new HexBigIntegerJsonConverter());

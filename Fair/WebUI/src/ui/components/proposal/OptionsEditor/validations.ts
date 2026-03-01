@@ -1,10 +1,9 @@
 import { TFunction } from "i18next"
-import { capitalize } from "lodash"
 import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
-import { AccountBase, CreateProposalData, CreateProposalDataOption, MembersChangeType } from "types"
+import { AccountBase, AuthorBaseAvatar, CreateProposalData, CreateProposalDataOption } from "types"
 
-export const validateUniqueCategoryTitle = (t: TFunction) => (value: string, data: CreateProposalData) => {
+export const validateUniqueCategoryTitle = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
   return duplicates.length <= 1 || t("validation:uniqueCategoryTitle")
 }
@@ -19,7 +18,11 @@ export const validateUniqueFileId = (t: TFunction) => (value: string, data: Crea
   return duplicates.length <= 1 || t("validation:uniqueFile")
 }
 
-export const validateUniqueParentCategory = (t: TFunction) => (value: string, data: CreateProposalData) => {
+export const validateUniqueParentCategory = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
+  if (value === undefined) {
+    return t("validation:requiredCategory")
+  }
+
   const duplicates = data.options.filter(opt => opt.parentCategoryId === value)
   if (duplicates.length > 1) {
     return t("validation:uniqueParentCategory")
@@ -29,8 +32,8 @@ export const validateUniqueParentCategory = (t: TFunction) => (value: string, da
   return sameAsCategory.length == 0 || t("validation:differentParentCategory")
 }
 
-export const validateUniqueSiteNickname = (t: TFunction) => (value: string, data: CreateProposalData) => {
-  const duplicates = data.options.filter(opt => opt.nickname === value)
+export const validateUniqueSiteNickname = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
+  const duplicates = data.options.filter(opt => opt.name === value)
   return duplicates.length <= 1 || t("validation:uniqueSiteNickname")
 }
 
@@ -39,44 +42,13 @@ export const validateUniqueTitle = (t: TFunction) => (value: string, data: Creat
   return duplicates.length <= 1 || t("validation:uniqueTitle")
 }
 
-const normalizeCandidatesAccounts = (accounts?: AccountBase[]) =>
-  Array.isArray(accounts)
-    ? [...accounts]
-        .map(x => x.id)
-        .sort()
-        .join(",")
-    : ""
+const normalizeAuthors = (authors?: AuthorBaseAvatar[]) =>
+  (authors ?? [])
+    .map(x => x.id)
+    .sort()
+    .join("")
 
-export const getValidateSiteMembersAddition =
-  (memberType: MembersChangeType) =>
-  (
-    t: TFunction,
-    options: CreateProposalDataOption[],
-    clearErrors: UseFormClearErrors<CreateProposalData>,
-    setError: UseFormSetError<CreateProposalData>,
-    lastEditedIndex: number,
-  ) => {
-    if (!options || lastEditedIndex >= options.length) return
-
-    const hasDuplicates = options.some((opt, i) =>
-      options.some(
-        (other, j) =>
-          i !== j &&
-          normalizeCandidatesAccounts(opt.candidatesAccounts) === normalizeCandidatesAccounts(other.candidatesAccounts),
-      ),
-    )
-
-    if (hasDuplicates) {
-      setError(`options.${lastEditedIndex}`, {
-        type: "manual",
-        message: t("validation:uniqueMembers", { memberType: capitalize(memberType) }),
-      })
-    } else {
-      clearErrors(`options.${lastEditedIndex}`)
-    }
-  }
-
-export const validateSiteAuthorRemoval = (
+export const validateSiteAuthorChange = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
@@ -86,10 +58,9 @@ export const validateSiteAuthorRemoval = (
   if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
-    options.some(
-      (other, j) => i !== j && (other.authorsIds ?? []).sort().join("") === (opt.authorsIds ?? []).sort().join(""),
-    ),
+    options.some((other, j) => i !== j && normalizeAuthors(other.authors) === normalizeAuthors(opt.authors)),
   )
+  console.log(hasDuplicates)
 
   if (hasDuplicates) {
     setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:uniqueOptions") })
@@ -98,7 +69,13 @@ export const validateSiteAuthorRemoval = (
   }
 }
 
-export const validateSiteModeratorRemoval = (
+const normalizeAccounts = (accounts?: AccountBase[]) =>
+  (accounts ?? [])
+    .map(x => x.id)
+    .sort()
+    .join("")
+
+export const validateSiteModeratorChange = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
@@ -108,10 +85,7 @@ export const validateSiteModeratorRemoval = (
   if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
-    options.some(
-      (other, j) =>
-        i !== j && (other.moderatorsIds ?? []).sort().join("") === (opt.moderatorsIds ?? []).sort().join(""),
-    ),
+    options.some((other, j) => i !== j && normalizeAccounts(other.moderators) === normalizeAccounts(opt.moderators)),
   )
 
   if (hasDuplicates) {
@@ -129,6 +103,17 @@ export const validateSiteTextChange = (
   lastEditedIndex: number,
 ) => {
   if (!options || lastEditedIndex >= options.length) return
+
+  const edited = options[lastEditedIndex]
+  const hasAnyField =
+    ((edited.siteTitle ?? "") as string).trim().length > 0 ||
+    ((edited.slogan ?? "") as string).trim().length > 0 ||
+    ((edited.description ?? "") as string).trim().length > 0
+
+  if (!hasAnyField) {
+    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:requiredAtLeastOneField") })
+    return
+  }
 
   const hasDuplicates = options.some((opt, i) =>
     options.some(

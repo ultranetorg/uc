@@ -1,5 +1,4 @@
 export * from "./useAuthenticateMutation"
-export * from "./useGetWalletAccounts"
 export * from "./useGetWallets"
 export * from "./useIsAuthenticatedMutation"
 export * from "./useRegisterMutation"

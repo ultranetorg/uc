@@ -48,7 +48,7 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
               <Input
                 onChange={field.onChange}
                 value={field.value}
-                className="h-10 placeholder-gray-500"
+                className="h-10 placeholder:text-gray-500"
                 placeholder={t("placeholders:enterOptionTitle")}
                 error={!!fieldState.error?.message}
               />

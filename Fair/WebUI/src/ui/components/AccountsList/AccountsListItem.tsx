@@ -7,7 +7,7 @@ import { buildAccountAvatarUrl } from "utils"
 export type AccountsListItemProps = {
   id: string
   title: string
-  avatarId: string
+  avatarId?: string
   onRemove?: () => void
 }
 

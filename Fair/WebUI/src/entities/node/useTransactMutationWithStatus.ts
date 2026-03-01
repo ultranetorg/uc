@@ -24,15 +24,23 @@ type TransactMutationCallbacks = {
 export const useTransactMutationWithStatus = () => {
   const nexus = useGetNexusUrl()
   const node = useGetNodeUrl(nexus.data)
-  const { selectedUserName } = useManageUsersContext()
+  const { selectedUserName, users } = useManageUsersContext()
 
   const [tag, setTag] = useState<string | undefined>()
   const callbacksRef = useRef<TransactMutationCallbacks | null>(null)
   const isPendingRef = useRef(false)
 
+  const currentUser = users.find(x => x.user.name === selectedUserName)
+
   const mutation = useMutation({
     mutationFn: ({ operations, userName = undefined }: TransactMutationArgs) =>
-      api.transact(node.data!, operations, userName || selectedUserName!),
+      api.transact(
+        node.data!,
+        operations,
+        userName || selectedUserName!,
+        currentUser?.session ?? "",
+        currentUser?.user.owner ?? "",
+      ),
 
     onSuccess: tx => {
       setTag(tx.tag)

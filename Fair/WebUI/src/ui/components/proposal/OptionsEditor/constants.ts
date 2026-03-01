@@ -1,6 +1,6 @@
 import { TFunction } from "i18next"
 
-import { ProductType, ReviewStatus } from "types"
+import { CreateProposalData, ProductType, ReviewStatus } from "types"
 
 import { EditorOperationFields } from "./types"
 import {
@@ -10,6 +10,14 @@ import {
   validateUniqueParentCategory,
   validateUniqueSiteNickname,
 } from "./validations"
+
+const atLeastOneSiteTextField = (_: unknown, formValues: CreateProposalData) =>
+  (formValues.options || []).every(
+    opt =>
+      ((opt.siteTitle ?? "") as string).trim().length > 0 ||
+      ((opt.slogan ?? "") as string).trim().length > 0 ||
+      ((opt.description ?? "") as string).trim().length > 0,
+  )
 
 export const CATEGORY_TYPES: ProductType[] = ["book", "game", "movie", "music", "software"] as const
 
@@ -45,8 +53,11 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "categoryTitle",
           placeholder: t("placeholders:enterCategoryTitle"),
-          // @ts-expect-error incompatible param.
-          rules: { required: t("validation:requiredCategoryTitle"), validate: validateUniqueCategoryTitle(t) },
+          rules: {
+            required: t("validation:requiredCategoryTitle"),
+            maxLength: { value: 64, message: t("validation:maxLength", { count: 64 }) },
+            validate: validateUniqueCategoryTitle(t),
+          },
         },
       ],
     },
@@ -56,15 +67,13 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       parameterName: "categoryId",
       parameterLabel: t("common:category"),
       parameterPlaceholder: t("placeholders:selectCategory"),
-      // @ts-expect-error incompatible param.
       parameterRules: { validate: validateUniqueParentCategory(t) },
       fields: [
         {
-          valueType: "category",
+          valueType: "category-root",
           name: "parentCategoryId",
           placeholder: t("placeholders:selectParentCategory"),
-          // @ts-expect-error incompatible param.
-          rules: { required: t("validation:requiredCategoryTitle"), validate: validateUniqueParentCategory(t) },
+          rules: { required: false, validate: validateUniqueParentCategory(t) },
         },
       ],
     },
@@ -158,7 +167,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "authors-additions",
-          name: "candidatesAccounts",
+          name: "authors",
         },
       ],
     },
@@ -167,7 +176,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "authors-removals",
-          name: "authorsIds",
+          name: "authors",
         },
       ],
     },
@@ -187,7 +196,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "moderators-additions",
-          name: "candidatesAccounts",
+          name: "moderators",
           placeholder: t("selectModeratorsToAdd"),
         },
       ],
@@ -197,7 +206,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "moderators-removals",
-          name: "moderatorsIds",
+          name: "moderators",
           placeholder: t("selectModeratorsToRemove"),
         },
       ],
@@ -207,10 +216,15 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       fields: [
         {
           valueType: "string",
-          name: "nickname",
+          name: "name",
           placeholder: t("placeholders:enterNickname"),
-          // @ts-expect-error incompatible param.
-          rules: { validate: validateUniqueSiteNickname(t) },
+          rules: {
+            required: t("validation:required"),
+            minLength: { value: 5, message: t("validation:minLength", { count: 5 }) },
+            maxLength: { value: 32, message: t("validation:maxLength", { count: 32 }) },
+            pattern: { value: /^[a-z0-9_]+$/, message: t("validation:onlyLowercaseLatinNumbersAndUnderscores") },
+            validate: validateUniqueSiteNickname(t),
+          },
         },
       ],
     },
@@ -221,23 +235,26 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
           valueType: "string",
           name: "siteTitle",
           placeholder: t("placeholders:enterTitle"),
+          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
         },
         {
           valueType: "string",
           name: "slogan",
           placeholder: t("placeholders:enterSlogan"),
+          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
         },
         {
           valueType: "string-multiline",
           name: "description",
           placeholder: t("placeholders:enterDescription"),
+          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
         },
       ],
     },
 
     // User
     {
-      operationType: "user-deletion",
+      operationType: "user-unregistration",
       parameterValueType: "user",
       parameterName: "userId",
       parameterLabel: t("common:user"),

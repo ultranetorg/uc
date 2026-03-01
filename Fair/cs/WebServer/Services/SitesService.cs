@@ -66,38 +66,14 @@ public class SitesService
 
 			IEnumerable<string> moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.User.ToString());
 			IEnumerable<string> authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(x => x.Author.ToString());
-			(IEnumerable<FairOperationClass> referendumOperations, IEnumerable<FairOperationClass> discussionOperations) =
-				GetReferendumDiscussionOperations(site.Policies);
 
 			return new SiteModel(site)
 			{
 				Categories = categories,
 				ModeratorsIds = moderatorsIds,
 				AuthorsIds = authorsIds,
-				DiscussionOperations = discussionOperations,
-				ReferendumOperations = referendumOperations
 			};
 		}
-	}
-
-	(IEnumerable<FairOperationClass> referendumOperations, IEnumerable<FairOperationClass> discussionOperations) GetReferendumDiscussionOperations(Policy[] policies)
-	{
-		List<FairOperationClass> referendumsResult = new (policies.Length);
-		List<FairOperationClass> discussionsResult = new (policies.Length);
-
-		foreach (Policy policy in policies)
-		{
-			if (policy.Approval == ApprovalRequirement.PublishersMajority)
-			{
-				referendumsResult.Add(policy.OperationClass);
-			}
-			else
-			{
-				discussionsResult.Add(policy.OperationClass);
-			}
-		}
-
-		return (referendumsResult, discussionsResult);
 	}
 
 	IEnumerable<SiteCategoryModel> LoadCategories(AutoId[] categoriesIds)
@@ -110,7 +86,7 @@ public class SitesService
 		}).ToArray();
 	}
 
-	public IEnumerable<AccountBaseModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
+	public IEnumerable<AuthorBaseAvatarModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetPublishers), siteId);
 
@@ -126,8 +102,8 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			AutoId[] authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(p => p.Author).ToArray();
-			return McvUtils.LoadAccounts(mcv, authorsIds, cancellationToken);
+			AutoId[] publishersIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(p => p.Author).ToArray();
+			return McvUtils.LoadAuthors(mcv, publishersIds, cancellationToken);
 		}
 	}
 
@@ -149,6 +125,36 @@ public class SitesService
 
 			AutoId[] moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(p => p.User).ToArray();
 			return McvUtils.LoadAccounts(mcv, moderatorsIds, cancellationToken);
+		}
+	}
+
+	public IEnumerable<PolicyModel> GetPolicies(string siteId)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetPolicies), siteId);
+
+		Guard.Against.NullOrEmpty(siteId);
+
+		AutoId id = AutoId.Parse(siteId);
+
+		lock(mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(id);
+			if(site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+
+			List<PolicyModel> result = new List<PolicyModel>(site.Policies.Length);
+			foreach(Policy policy in site.Policies)
+			{
+				if(policy.OperationClass == FairOperationClass.SiteModeratorRemoval)
+					continue;
+
+				var model = new PolicyModel(policy);
+				result.Add(model);
+			}
+
+			return result;
 		}
 	}
 }

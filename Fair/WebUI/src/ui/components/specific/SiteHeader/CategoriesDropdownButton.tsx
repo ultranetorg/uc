@@ -11,7 +11,7 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { DropdownButton, SimpleMenu, SimpleMenuItem } from "ui/components"
+import { ChevronDownButton, SimpleMenu, SimpleMenuItem } from "ui/components"
 import { PropsWithClassName } from "types"
 
 type CategoriesDropdownButtonBaseProps = {
@@ -59,7 +59,7 @@ export const CategoriesDropdownButton = memo(({ className, label, items }: Categ
         )}
         {...getReferenceProps()}
       >
-        {label} <DropdownButton />
+        {label} <ChevronDownButton />
       </div>
       {isExpanded && items && (
         <FloatingPortal>

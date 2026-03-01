@@ -12,7 +12,7 @@ public class FilesService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<string> GetAuthorFiles([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<FileModel> GetAuthorFiles([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {AuthorId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetAuthorFiles), siteId, authorId, page, pageSize);
 
@@ -42,7 +42,7 @@ public class FilesService
 		}
 	}
 
-	public TotalItemsResult<string> GetSiteFiles([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<FileModel> GetSiteFiles([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetSiteFiles), siteId, page, pageSize);
 
@@ -64,17 +64,17 @@ public class FilesService
 		}
 	}
 
-	TotalItemsResult<string> LoadFilesNotOptimized(IEnumerable<AutoId> filesIds, int page, int pageSize, CancellationToken cancellationToken)
+	TotalItemsResult<FileModel> LoadFilesNotOptimized(IEnumerable<AutoId> filesIds, int page, int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
-			return TotalItemsResult<string>.Empty;
+			return TotalItemsResult<FileModel>.Empty;
 
 		int totalItems = 0;
-		var result = new List<string>(pageSize);
+		var result = new List<FileModel>(pageSize);
 		foreach(AutoId fileId in filesIds)
 		{
 			if(cancellationToken.IsCancellationRequested)
-				return new TotalItemsResult<string>() { Items = result, TotalItems = totalItems };
+				return new TotalItemsResult<FileModel>() { Items = result, TotalItems = totalItems };
 
 			File file = mcv.Files.Latest(fileId);
 			if(file.Deleted)
@@ -84,13 +84,18 @@ public class FilesService
 
 			if(totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
 			{
-				result.Add(file.Id.ToString());
+				var model = new FileModel
+				{
+					Id = file.Id.ToString(),
+					Refs = file.Refs
+				};
+				result.Add(model);
 			}
 
 			++totalItems;
 		}
 
-		return new TotalItemsResult<string>
+		return new TotalItemsResult<FileModel>
 		{
 			Items = result,
 			TotalItems = totalItems

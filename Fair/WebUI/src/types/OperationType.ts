@@ -7,6 +7,7 @@ export type OperationType =
   | "publication-creation"
   | "publication-deletion"
   | "publication-publish"
+  | "publication-unpublish"
   | "publication-updation"
   | "review-creation"
   | "review-edit"
@@ -17,5 +18,10 @@ export type OperationType =
   | "site-moderator-removal"
   | "site-nickname-change"
   | "site-text-change"
-  | "user-deletion"
   | "user-registration"
+  | "user-unregistration"
+
+export type ExtendedOperationType =
+  | Exclude<OperationType, "site-authors-change">
+  | "site-author-addition"
+  | "site-author-removal"

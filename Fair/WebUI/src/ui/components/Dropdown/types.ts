@@ -9,8 +9,8 @@ export type DropdownSize =
   | "large" // 46px
 
 export type DropdownItem = {
-  value: string
   label: string
+  value: string | null
 }
 
 type DropdownBaseProps<IsMulti extends boolean> = {

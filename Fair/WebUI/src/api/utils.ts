@@ -1,4 +1,4 @@
-import { camelCase, mapKeys, upperFirst } from "lodash"
+import { camelCase, isArray, isObject, mapKeys, upperFirst } from "lodash"
 
 import { TotalItemsResult, PaginationResult } from "types"
 
@@ -59,5 +59,14 @@ export const toPaginationResult = async <T>(response: Response): Promise<Paginat
 export const keysToCamelCase = (obj: object): object =>
   mapKeys(obj, (_, key) => (key !== "$type" ? camelCase(key) : key))
 
-export const keysToPascalCase = (obj: object): object =>
-  mapKeys(obj, (_, key) => (key !== "$type" ? upperFirst(camelCase(key)) : key))
+const convertValue = (val: unknown): unknown => (isArray(val) || isObject(val) ? keysToPascalCase(val as object) : val)
+
+export const keysToPascalCase = (value: object): object => {
+  if (isArray(value)) {
+    return value.map(convertValue)
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, val]) => [key === "$type" ? key : upperFirst(camelCase(key)), convertValue(val)]),
+  )
+}

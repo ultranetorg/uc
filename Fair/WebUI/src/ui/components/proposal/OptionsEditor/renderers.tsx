@@ -1,13 +1,15 @@
-import { AccountBase } from "types"
+import { AccountBase, AuthorBaseAvatar } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
-  AddMembersPanelList,
+  AddAuthorPanelList,
+  AddModeratorPanelList,
   DropdownSearchCategory,
   DropdownWithTranslation,
   FileSelect,
   ProductVersionSelector,
-  RemoveMembersPanelList,
+  RemoveAuthorPanelList,
+  RemoveModeratorPanelList,
 } from "./components"
 import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
@@ -66,18 +68,30 @@ export const renderByParameterValueType: Record<
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "authors-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddMembersPanelList memberType="author" value={value as AccountBase[]} onChange={onChange} />
+      <AddAuthorPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "authors-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <RemoveMembersPanelList memberType="author" value={value as string[]} onChange={onChange} />
+      <RemoveAuthorPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   category: ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <DropdownSearchCategory
-        className="placeholder-gray-500"
+        className="placeholder:text-gray-500"
+        error={!!errorMessage}
+        placeholder={field.placeholder}
+        value={value as string}
+        onChange={item => onChange(item.value)}
+      />
+    </ValidationWrapper>
+  ),
+  "category-root": ({ errorMessage, field, value, onChange }) => (
+    <ValidationWrapper message={errorMessage}>
+      <DropdownSearchCategory
+        className="placeholder:text-gray-500"
+        hasRoot={true}
         error={!!errorMessage}
         placeholder={field.placeholder}
         value={value as string}
@@ -105,12 +119,12 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   ),
   "moderators-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddMembersPanelList memberType="moderator" value={value as AccountBase[]} onChange={onChange} />
+      <AddModeratorPanelList value={value as AccountBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "moderators-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <RemoveMembersPanelList memberType="moderator" value={value as string[]} onChange={onChange} />
+      <RemoveModeratorPanelList value={value as AccountBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "review-status": ({ field, value, onChange }) => (
@@ -127,7 +141,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
     <ValidationWrapper message={errorMessage}>
       <Input
         id={field.name}
-        className="h-10 placeholder-gray-500"
+        className="h-10 placeholder:text-gray-500"
         placeholder={field.placeholder}
         value={value as string}
         onChange={value => onChange(value)}
@@ -138,7 +152,7 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "string-multiline": ({ field, value, onChange }) => (
     <Textarea
       placeholder={field.placeholder}
-      className="text-2sm leading-5 placeholder-gray-500"
+      className="text-2sm leading-5 placeholder:text-gray-500"
       value={value as string}
       onChange={value => onChange(value)}
     />

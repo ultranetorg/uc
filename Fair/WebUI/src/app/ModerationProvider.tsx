@@ -1,10 +1,9 @@
 import { createContext, PropsWithChildren, useContext, useMemo, useState } from "react"
-import { useParams, useSearchParams } from "react-router-dom"
+import { useLocation, useParams, useSearchParams } from "react-router-dom"
 import { FormProvider, useForm } from "react-hook-form"
 
-import { CREATE_PROPOSAL_DURATION_DEFAULT } from "constants/"
-import { useGetCategories } from "entities"
-import { CategoryParentBaseWithChildren, CreateProposalData, OperationType } from "types"
+import { useGetCategories, useGetSitePolicies } from "entities"
+import { CategoryParentBaseWithChildren, CreateProposalData, OperationType, Policy } from "types"
 import { buildCategoryTree } from "utils"
 
 type ModerationContextType = {
@@ -13,6 +12,7 @@ type ModerationContextType = {
   isCategoriesPending: boolean
   refetchCategories: () => void
   categories?: CategoryParentBaseWithChildren[]
+  policies?: Policy[]
 }
 
 // @ts-expect-error createContext with default value
@@ -23,14 +23,16 @@ const ModerationContext = createContext<ModerationContextType>({
 export const ModerationProvider = ({ children }: PropsWithChildren) => {
   const { siteId } = useParams()
   const [searchParams] = useSearchParams()
+  const location = useLocation()
 
   const methods = useForm<CreateProposalData>({
     mode: "onChange",
     defaultValues: {
       title: "",
       options: [],
-      duration: CREATE_PROPOSAL_DURATION_DEFAULT,
       ...(searchParams.get("type") && { type: searchParams.get("type")! as OperationType }),
+      ...(location.state?.type && { type: location.state.type as OperationType }),
+
       ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
       ...(searchParams.get("publicationId") && { publicationId: searchParams.get("publicationId")! }),
       ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),
@@ -41,6 +43,7 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
 
   const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
+  const { data: policies } = useGetSitePolicies(siteId)
   const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)
 
   const value = useMemo(
@@ -50,8 +53,9 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
       isCategoriesPending,
       refetchCategories,
       categories: categories && buildCategoryTree(categories),
+      policies,
     }),
-    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories],
+    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories, policies],
   )
 
   return (

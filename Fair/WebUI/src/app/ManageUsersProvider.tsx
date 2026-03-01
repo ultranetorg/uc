@@ -98,7 +98,7 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
                   setStorage(p => {
                     const newUsers = [
                       ...p.users,
-                      { session: data.session, user: { owner: data.account, name: userName } },
+                      { session: data.session, user: { owner: data.signer, name: userName } },
                     ]
                     return {
                       ...p,
@@ -141,7 +141,7 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
                 }
               }
 
-              const newUsers = [...prev.users, { session: data.session, user: { owner: data.account, name: userName } }]
+              const newUsers = [...prev.users, { session: data.session, user: { owner: data.signer, name: userName } }]
               return {
                 ...prev,
                 users: newUsers,

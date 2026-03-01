@@ -1,12 +1,12 @@
 import { AccountBase } from "./AccountBase"
-import { OperationType } from "./OperationType"
+import { AuthorBaseAvatar } from "./AuthorBaseAvatar"
+import { ExtendedOperationType } from "./OperationType"
 import { ProductType } from "./ProductType"
 
 export type CreateProposalData = {
   title: string
   description?: string
-  duration: string
-  type?: OperationType
+  type?: ExtendedOperationType
   options: CreateProposalDataOption[]
   categoryId?: string
   productId?: string
@@ -17,13 +17,12 @@ export type CreateProposalData = {
 
 export type CreateProposalDataOption = {
   title: string
-  authorsIds?: string[]
-  candidatesAccounts?: AccountBase[]
+  authors?: AuthorBaseAvatar[]
   categoryTitle?: string
   description?: string
   fileId?: string
-  moderatorsIds?: string[]
-  nickname?: string
+  moderators?: AccountBase[]
+  name?: string
   parentCategoryId?: string
   siteTitle?: string
   slogan?: string

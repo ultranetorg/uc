@@ -1,11 +1,12 @@
 import { UseControllerProps } from "react-hook-form"
 
-import { AccountBase, CreateProposalData, OperationType } from "types"
+import { AccountBase, AuthorBaseAvatar, CreateProposalData, ExtendedOperationType } from "types"
 
 export type FieldValueType =
   | "authors-additions"
   | "authors-removals"
   | "category"
+  | "category-root"
   | "category-type"
   | "file"
   | "moderators-additions"
@@ -16,14 +17,13 @@ export type FieldValueType =
   | "version"
 
 export type FieldNameType =
-  | "authorsIds"
-  | "candidatesAccounts"
+  | "authors"
   | "categoryId"
   | "categoryTitle"
   | "description"
   | "fileId"
-  | "moderatorsIds"
-  | "nickname"
+  | "moderators"
+  | "name"
   | "parentCategoryId"
   | "siteTitle"
   | "slogan"
@@ -41,8 +41,8 @@ export type EditorField = {
 export type EditorFieldRendererParams = {
   errorMessage?: string
   field: EditorField
-  value: string | string[] | AccountBase[]
-  onChange: (value?: string | string[] | AccountBase[]) => void
+  value: string | string[] | AccountBase[] | AuthorBaseAvatar[]
+  onChange: (value?: string | string[] | AccountBase[] | AuthorBaseAvatar[] | null) => void
 }
 
 export type EditorFieldRenderer = (params: EditorFieldRendererParams) => JSX.Element
@@ -52,7 +52,7 @@ export type ParameterValueType = "category" | "product" | "publication" | "revie
 export type ParameterNameType = "categoryId" | "productId" | "publicationId" | "reviewId" | "userId"
 
 export type EditorOperationFields = {
-  operationType: Exclude<OperationType, "site-authors-change"> | "site-author-addition" | "site-author-removal"
+  operationType: ExtendedOperationType
   parameterValueType?: ParameterValueType
   parameterName?: ParameterNameType
   parameterLabel?: string
