@@ -10,13 +10,13 @@ import {
   useRole,
 } from "@floating-ui/react"
 import { useTranslation } from "react-i18next"
-
 import { twMerge } from "tailwind-merge"
+
 import { useUserContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
-import { SimpleMenu } from "ui/components"
 import { PropsWithClassName } from "types"
+import { SimpleMenu } from "ui/components"
 
 type ContextMenuButtonSize = "medium" | "large"
 
