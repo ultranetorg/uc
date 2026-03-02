@@ -33,7 +33,7 @@ export const CategoryHeader = memo(({ category, siteId, view, onViewChange }: Ca
           {/* <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={3} /> */}
           <FiltersDropdownButton label={t("filters")} resetAllLabel={t("resetAll")} />
           <ToggleViewButton onChange={onViewChange} view={view} gridTitle={t("grid")} listTitle={t("list")} />
-          <ModeratorCategoryMenu />
+          <ModeratorCategoryMenu categoryId={category.id} />
         </div>
       </div>
     </div>

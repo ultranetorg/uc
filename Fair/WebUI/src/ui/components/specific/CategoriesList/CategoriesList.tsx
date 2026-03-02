@@ -36,7 +36,7 @@ export const CategoriesList = memo(({ siteId, categories }: CategoriesListProps)
 
   return (
     <div className="flex w-full">
-      <div className="relative flex flex-grow gap-3 overflow-hidden" ref={containerRef}>
+      <div className="relative flex grow gap-3 overflow-hidden" ref={containerRef}>
         <>
           {categories.map((x, i) => (
             <Link
@@ -45,7 +45,7 @@ export const CategoriesList = memo(({ siteId, categories }: CategoriesListProps)
               ref={el => (itemRefs.current[i] = el)}
               className={twMerge(i >= visibleCount && "invisible")}
             >
-              <CategoryCard key={x.id} title={x.title} />
+              <CategoryCard key={x.id} id={x.id} title={x.title} />
             </Link>
           ))}
 

@@ -1,29 +1,24 @@
-import { useCallback, useMemo } from "react"
+import { memo, useCallback } from "react"
 import { FloatingPortal } from "@floating-ui/react"
-import { useTranslation } from "react-i18next"
-
 import { twMerge } from "tailwind-merge"
+
 import { useUserContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { SimpleMenu } from "ui/components"
 
-export const ModeratorCategoryMenu = () => {
-  const { t } = useTranslation("moderatorCategoryMenu")
+import { useModeratorCategoryMenuItems } from "./useModeratorCategoryMenuItems"
+
+export type ModeratorCategoryMenu = {
+  categoryId: string
+}
+
+export const ModeratorCategoryMenu = memo(({ categoryId }: ModeratorCategoryMenu) => {
+  const { menuItems } = useModeratorCategoryMenuItems(categoryId)
   const { isModerator } = useUserContext()
 
   const menu = useSubmenu({ placement: "bottom-end" })
   useScrollOrResize(() => menu.setOpen(false), menu.isOpen)
-
-  const menuItems = useMemo(
-    () => [
-      {
-        onClick: () => alert("Create category"),
-        label: t("createCategory"),
-      },
-    ],
-    [t],
-  )
 
   const handleMenuClick = useCallback(() => menu.setOpen(false), [menu])
 
@@ -58,4 +53,4 @@ export const ModeratorCategoryMenu = () => {
       )}
     </>
   )
-}
+})

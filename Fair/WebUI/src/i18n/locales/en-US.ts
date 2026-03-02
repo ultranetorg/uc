@@ -21,6 +21,7 @@ export const enUS = {
     currentVersion: "current version",
     delete: "delete",
     date: "Date",
+    edit: "edit",
     governance: "governance",
     home: "Home",
     language: "language",
@@ -117,9 +118,13 @@ export const enUS = {
     removePublication: "Remove publication",
   },
   moderatorCategoryMenu: {
-    createCategory: "Create category",
+    avatarChange: "Change avatar",
+    categoryCreate: "Create category",
+    move: "Move category",
+    typeChange: "Change type",
+    remove: "Remove category",
   },
-  moderatorPublicationMenu: {
+  moderatorPublicationContextMenu: {
     removePublication: "Remove publication",
   },
   pageBanner: {

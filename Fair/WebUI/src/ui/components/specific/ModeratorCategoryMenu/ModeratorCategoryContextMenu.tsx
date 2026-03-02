@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import {
   FloatingPortal,
   offset,
@@ -9,7 +9,6 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
-import { useTranslation } from "react-i18next"
 
 import { useUserContext } from "app"
 import { SvgThreeDotsSm } from "assets"
@@ -17,15 +16,17 @@ import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
 import { PropsWithClassName } from "types"
 
-type ModeratorPublicationMenuBaseProps = {
-  publicationId: string
+import { useModeratorCategoryMenuItems } from "./useModeratorCategoryMenuItems"
+
+type ModeratorCategoryContextMenuBaseProps = {
+  categoryId: string
 }
 
-export type ModeratorPublicationMenuProps = PropsWithClassName & ModeratorPublicationMenuBaseProps
+export type ModeratorCategoryContextMenuProps = PropsWithClassName & ModeratorCategoryContextMenuBaseProps
 
-export const ModeratorPublicationMenu = memo(({ className, publicationId }: ModeratorPublicationMenuProps) => {
-  const { t } = useTranslation("moderatorPublicationMenu")
+export const ModeratorCategoryContextMenu = memo(({ className, categoryId }: ModeratorCategoryContextMenuProps) => {
   const { isModerator } = useUserContext()
+  const { menuItems } = useModeratorCategoryMenuItems(categoryId)
 
   const [isExpanded, setExpanded] = useState(false)
 
@@ -42,18 +43,6 @@ export const ModeratorPublicationMenu = memo(({ className, publicationId }: Mode
   const role = useRole(context)
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
-  const handleRemovePublication = useCallback(() => alert("Remove publication" + publicationId), [publicationId])
-
-  const menuItems = useMemo(
-    () => [
-      {
-        onClick: handleRemovePublication,
-        label: t("removePublication"),
-      },
-    ],
-    [handleRemovePublication, t],
-  )
-
   const handleMenuClick = useCallback(() => setExpanded(false), [])
 
   if (!isModerator) {
@@ -69,6 +58,7 @@ export const ModeratorPublicationMenu = memo(({ className, publicationId }: Mode
         <FloatingPortal>
           <SimpleMenu
             ref={refs.setFloating}
+            menuItemClassName="w-auto"
             items={menuItems}
             style={floatingStyles}
             onClick={handleMenuClick}

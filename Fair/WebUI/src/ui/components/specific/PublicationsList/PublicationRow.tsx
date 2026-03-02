@@ -1,7 +1,7 @@
 import { TEST_PUBLICATION_SMALL_SRC } from "testConfig"
 import { Publication, PublicationExtended } from "types"
 import { buildSrc } from "utils"
-import { ModeratorPublicationMenu } from "../ModeratorPublicationMenu"
+import { ModeratorPublicationContextMenu } from "../ModeratorPublicationContextMenu"
 
 export type PublicationRowProps = Publication & Partial<Pick<PublicationExtended, "authorTitle">>
 
@@ -20,7 +20,7 @@ export const PublicationRow = ({ id, title, logo, authorTitle, categoryTitle }: 
       {authorTitle && <span className="w-1/4 max-w-60 truncate">{authorTitle}</span>}
       <span className="w-1/4 max-w-60 truncate">{categoryTitle}</span>
 
-      <ModeratorPublicationMenu publicationId={id} />
+      <ModeratorPublicationContextMenu publicationId={id} size="large" />
     </div>
   )
 }
