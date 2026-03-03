@@ -29,7 +29,6 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
   const isModerator = Boolean(site?.moderatorsIds?.some(x => user?.id === x))
 
   const { data: policies } = useGetSitePolicies(isPublisher || isModerator, site?.id)
-  console.log(policies, isModerator, isPublisher, site)
 
   const isOperationAllowed = useCallback(
     (operation: ExtendedOperationType) => {

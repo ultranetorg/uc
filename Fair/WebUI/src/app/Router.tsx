@@ -61,7 +61,7 @@ const routes: RouteObject[] = [
       },
 
       {
-        path: "/:siteId",
+        path: ":siteId",
         element: (
           <SiteProvider>
             <ModerationProvider>
@@ -75,24 +75,24 @@ const routes: RouteObject[] = [
             element: <SitePage />,
           },
           {
-            path: "/:siteId/c/:categoryId",
+            path: "c/:categoryId",
             element: <CategoryPage />,
           },
           {
-            path: "/:siteId/p/:publicationId",
+            path: "p/:publicationId",
             element: <PublicationPage />,
           },
           {
-            path: "/:siteId/s",
+            path: "s",
             element: <SearchPage />,
           },
           {
-            path: "/:siteId/i",
+            path: "i",
             element: <AboutPage />,
           },
 
           {
-            path: "/:siteId/g/new",
+            path: "g/new",
             element: (
               <CreateProposalProvider>
                 <CreateReferendumPage />
@@ -100,20 +100,20 @@ const routes: RouteObject[] = [
             ),
           },
           {
-            path: "/:siteId/g/:tabKey?",
+            path: "g/:tabKey?",
             element: <ReferendumsPage />,
           },
           {
-            path: "/:siteId/g/p/:perpetualSurveyId",
+            path: "g/p/:perpetualSurveyId",
             element: <PerpetualSurveyPage />,
           },
           {
-            path: "/:siteId/g/r/:referendumId",
+            path: "g/r/:referendumId",
             element: <ReferendumPage />,
           },
 
           {
-            path: "/:siteId/m/new",
+            path: "m/new",
             element: (
               <CreateProposalProvider>
                 <CreateDiscussionPage />
@@ -121,38 +121,38 @@ const routes: RouteObject[] = [
             ),
           },
           {
-            path: "/:siteId/m/new-publication",
+            path: "m/new-publication",
             element: <ModeratorCreatePublicationPage />,
           },
           {
-            path: "/:siteId/m/:tabKey?",
+            path: "m/:tabKey?",
             element: <ModerationPage />,
           },
           {
-            path: "/:siteId/m/d/:discussionId",
+            path: "m/d/:discussionId",
             element: <ModeratorDiscussionPage />,
           },
           {
-            path: "/:siteId/m/c/:publicationId",
+            path: "m/c/:publicationId",
             element: <ModeratorChangedPublicationPage />,
           },
           {
-            path: "/:siteId/m/n/:productId",
+            path: "m/n/:productId",
             element: <ModeratorUnpublishedProductPage />,
           },
           {
-            path: "/:siteId/m/p/:discussionId",
+            path: "m/p/:discussionId",
             element: <ModeratorPublicationPage />,
           },
           {
-            path: "/:siteId/m/u/:discussionId",
+            path: "m/u/:discussionId",
             element: <ModeratorUserRegistrationPage />,
           },
 
           ...(import.meta.env.DEV
             ? [
                 {
-                  path: "/:siteId/dev",
+                  path: "dev",
                   element: <DevelopPage />,
                 },
               ]
@@ -161,11 +161,11 @@ const routes: RouteObject[] = [
       },
 
       {
-        path: "/:siteId/a/:authorId",
+        path: ":siteId/a/:authorId",
         element: <AuthorPage />,
       },
       {
-        path: "/p/:address",
+        path: "p/:address",
         element: <ProfilePage />,
       },
     ],
