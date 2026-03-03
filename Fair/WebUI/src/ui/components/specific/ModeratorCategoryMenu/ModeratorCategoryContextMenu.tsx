@@ -10,7 +10,7 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { useUserContext } from "app"
+import { useModerationContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
@@ -25,7 +25,7 @@ type ModeratorCategoryContextMenuBaseProps = {
 export type ModeratorCategoryContextMenuProps = PropsWithClassName & ModeratorCategoryContextMenuBaseProps
 
 export const ModeratorCategoryContextMenu = memo(({ className, categoryId }: ModeratorCategoryContextMenuProps) => {
-  const { isModerator } = useUserContext()
+  const { isModerator } = useModerationContext()
   const { menuItems } = useModeratorCategoryMenuItems(categoryId)
 
   const [isExpanded, setExpanded] = useState(false)

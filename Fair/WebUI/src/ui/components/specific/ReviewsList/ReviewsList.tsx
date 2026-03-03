@@ -45,7 +45,14 @@ export const ReviewsList = memo(
       ) : (
         <>
           {reviews.items.map(r => (
-            <Comment key={r.id} text={r.text} rating={r.rating} account={r.creatorAccount} created={r.created} />
+            <Comment
+              key={r.id}
+              id={r.id}
+              text={r.text}
+              rating={r.rating}
+              account={r.creatorAccount}
+              created={r.created}
+            />
           ))}
           <ButtonOutline className="mx-auto" label={showMoreReviewsLabel} />
         </>

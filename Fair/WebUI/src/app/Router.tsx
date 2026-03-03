@@ -26,7 +26,8 @@ import {
   SitesPage,
 } from "ui/pages"
 
-import { ManageUsersProvider } from "./ManageUsersProvider"
+import { AuthenticationProvider } from "./AuthenticationProvider"
+import { CreateProposalProvider } from "./CreateProposalProvider"
 import { ModerationProvider } from "./ModerationProvider"
 import { NodeCheckerProvider } from "./NodeCheckerProvider"
 import { SiteProvider } from "./SiteProvider"
@@ -39,13 +40,11 @@ const routes: RouteObject[] = [
     path: "/",
     element: (
       <NodeCheckerProvider>
-        <ManageUsersProvider>
-          <SiteProvider>
-            <UserProvider>
-              <BaseLayout />
-            </UserProvider>
-          </SiteProvider>
-        </ManageUsersProvider>
+        <AuthenticationProvider>
+          <UserProvider>
+            <BaseLayout />
+          </UserProvider>
+        </AuthenticationProvider>
       </NodeCheckerProvider>
     ),
     errorElement: (
@@ -63,7 +62,13 @@ const routes: RouteObject[] = [
 
       {
         path: "/:siteId",
-        element: <SiteLayout />,
+        element: (
+          <SiteProvider>
+            <ModerationProvider>
+              <SiteLayout />
+            </ModerationProvider>
+          </SiteProvider>
+        ),
         children: [
           {
             index: true,
@@ -89,9 +94,9 @@ const routes: RouteObject[] = [
           {
             path: "/:siteId/g/new",
             element: (
-              <ModerationProvider>
+              <CreateProposalProvider>
                 <CreateReferendumPage />
-              </ModerationProvider>
+              </CreateProposalProvider>
             ),
           },
           {
@@ -110,9 +115,9 @@ const routes: RouteObject[] = [
           {
             path: "/:siteId/m/new",
             element: (
-              <ModerationProvider>
+              <CreateProposalProvider>
                 <CreateDiscussionPage />
-              </ModerationProvider>
+              </CreateProposalProvider>
             ),
           },
           {

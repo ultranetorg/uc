@@ -2,9 +2,8 @@ import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { useSiteContext, useUserContext } from "app"
+import { useModerationContext, useSiteContext } from "app"
 import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES } from "constants/"
-import { useGetSitePolicies } from "entities"
 import { ProposalType } from "types"
 import {
   Breadcrumbs,
@@ -46,8 +45,7 @@ export const GovernanceModerationHeader = memo(
     const { site } = useSiteContext()
     const navigate = useNavigate()
 
-    const { data: policies } = useGetSitePolicies(siteId)
-    const { isModerator, isPublisher } = useUserContext()
+    const { isModerator, isPublisher, policies } = useModerationContext()
 
     const dropdownItems = useMemo<SimpleMenuItem[] | undefined>(() => {
       if (!site) return

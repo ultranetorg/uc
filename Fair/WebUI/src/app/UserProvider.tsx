@@ -3,13 +3,9 @@ import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useSt
 import { useGetUserDetails } from "entities"
 import { Account } from "types"
 
-import { useManageUsersContext } from "./ManageUsersProvider"
-import { useSiteContext } from "./SiteProvider"
+import { useAuthenticationContext } from "./AuthenticationProvider"
 
 type UserContextType = {
-  isPublisher?: boolean
-  isModerator?: boolean
-  publishersIds?: string[]
   isFetching: boolean
   user?: Account
   refetch: () => void
@@ -23,8 +19,7 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider = ({ children }: PropsWithChildren) => {
   const [currentUser, setCurrentUser] = useState<Account | undefined>()
 
-  const { site } = useSiteContext()
-  const { selectedUserName } = useManageUsersContext()
+  const { selectedUserName } = useAuthenticationContext()
 
   const { isFetching, data: user, refetch } = useGetUserDetails(selectedUserName)
 
@@ -32,14 +27,11 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
 
   const value = useMemo(
     () => ({
-      isPublisher: Boolean(site?.authorsIds?.some(x => user?.authorsIds?.includes(x))),
-      isModerator: Boolean(site?.moderatorsIds?.some(x => user?.id === x)),
-      publishersIds: site && user ? user.authorsIds.filter(x => site.authorsIds.includes(x)) : undefined,
       isFetching,
       user: currentUser,
       refetch,
     }),
-    [currentUser, isFetching, refetch, site, user],
+    [currentUser, isFetching, refetch],
   )
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>

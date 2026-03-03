@@ -2,7 +2,7 @@ import { memo, useCallback } from "react"
 import { FloatingPortal } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
-import { useUserContext } from "app"
+import { useModerationContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { SimpleMenu } from "ui/components"
@@ -15,7 +15,7 @@ export type ModeratorCategoryMenu = {
 
 export const ModeratorCategoryMenu = memo(({ categoryId }: ModeratorCategoryMenu) => {
   const { menuItems } = useModeratorCategoryMenuItems(categoryId)
-  const { isModerator } = useUserContext()
+  const { isModerator } = useModerationContext()
 
   const menu = useSubmenu({ placement: "bottom-end" })
   useScrollOrResize(() => menu.setOpen(false), menu.isOpen)

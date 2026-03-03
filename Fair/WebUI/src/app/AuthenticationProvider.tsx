@@ -28,7 +28,7 @@ type UsersStorageState = {
   selectedUserName?: string
 }
 
-type ManageUsersContextType = {
+type AuthenticationContextType = {
   users: StoredUserSession[]
   selectedUserName?: string
   isPending: boolean
@@ -38,7 +38,7 @@ type ManageUsersContextType = {
   selectUser(userName: string): void
 }
 
-const ManageUsersContext = createContext<ManageUsersContextType>({
+const AuthenticationContext = createContext<AuthenticationContextType>({
   isPending: false,
   users: [],
   authenticate: () => {},
@@ -47,7 +47,7 @@ const ManageUsersContext = createContext<ManageUsersContextType>({
   selectUser: () => {},
 })
 
-export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
+export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
   const [storage, setStorage, removeStorage] = useLocalStorage<UsersStorageState>(LOCAL_STORAGE_KEYS.STORED_USERS, {
     users: [],
   })
@@ -222,8 +222,8 @@ export const ManageUsersProvider = ({ children }: PropsWithChildren) => {
     ],
   )
 
-  return <ManageUsersContext.Provider value={value}>{children}</ManageUsersContext.Provider>
+  return <AuthenticationContext.Provider value={value}>{children}</AuthenticationContext.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useManageUsersContext = () => useContext(ManageUsersContext)
+export const useAuthenticationContext = () => useContext(AuthenticationContext)

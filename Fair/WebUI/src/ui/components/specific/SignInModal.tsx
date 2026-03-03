@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useDebounceValue } from "usehooks-ts"
 import { useTranslation } from "react-i18next"
 
-import { useManageUsersContext } from "app"
+import { useAuthenticationContext } from "app"
 import { SvgCheckCircle, SvgSpinner, SvgXCircleSm } from "assets"
 import { SEARCH_DELAY } from "config"
 import { USER_NAME_MAX_LENGTH, USER_NAME_MIN_LENGTH } from "constants/validation"
@@ -26,7 +26,7 @@ export const SignInModal = (props: SignInModalProps) => {
   const [userName, setUserName] = useState("")
   const [debouncedUserName] = useDebounceValue(userName, SEARCH_DELAY)
 
-  const { isPending, authenticate, register } = useManageUsersContext()
+  const { isPending, authenticate, register } = useAuthenticationContext()
 
   const { data: user, isFetching } = useGetUser(debouncedUserName)
 

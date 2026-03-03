@@ -25,9 +25,9 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const { siteId } = useParams()
   const navigate = useNavigate()
 
-  const { policies } = useModerationContext()
   const { site } = useSiteContext()
-  const { user, isModerator, isPublisher } = useUserContext()
+  const { isModerator, isPublisher, policies } = useModerationContext()
+  const { user } = useUserContext()
 
   const {
     control,
