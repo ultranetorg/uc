@@ -60,7 +60,7 @@ const mapOptionOperation = (
       return { candidates: mapAccountsToIds(option.moderators) }
     case "site-moderator-removal":
       return { moderator: mapAccountsToIds(option.moderators)[0] }
-    case "site-nickname-change":
+    case "site-name-change":
       return { name: option.name }
     case "site-text-change":
       return { title: option.siteTitle, slogan: option.slogan, description: option.description }

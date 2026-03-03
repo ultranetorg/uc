@@ -6,6 +6,11 @@ export const CREATE_DISCUSSION_EXTRA_OPERATION_TYPES = [
 ] as ExtendedOperationType[]
 
 export const CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES: OperationType[] = [
+  "category-avatar-change",
+  "category-creation",
+  "category-deletion",
+  "category-movement",
+  "category-type-change",
   "publication-creation",
   "publication-deletion",
   "publication-publish",
@@ -14,6 +19,9 @@ export const CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES: OperationType[] = [
   "review-creation",
   "review-edit",
   "review-status-change",
+  "site-avatar-change",
+  "site-name-change",
+  "site-text-change",
   "user-registration",
   "user-unregistration",
 ]

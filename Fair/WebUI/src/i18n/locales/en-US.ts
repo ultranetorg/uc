@@ -457,7 +457,7 @@ export const enUS = {
     "site-avatar-change": "Site avatar change",
     "site-moderator-addition": "Site moderators addition",
     "site-moderator-removal": "Site moderator removal",
-    "site-nickname-change": "Site nickname change",
+    "site-name-change": "Change site name",
     "site-text-change": "Site text change",
     "user-deletion": "User deletion",
     "user-registration": "User registration",
