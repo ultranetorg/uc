@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import {
   FloatingPortal,
   offset,
@@ -9,7 +9,6 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
-import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
 import { useModerationContext } from "app"
@@ -17,6 +16,8 @@ import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
+
+import { useModeratorPublicationMenuItems } from "./useModeratorPublicationMenuItems"
 
 type ContextMenuButtonSize = "medium" | "large"
 
@@ -29,8 +30,8 @@ export type ModeratorPublicationContextMenuProps = PropsWithClassName & Moderato
 
 export const ModeratorPublicationContextMenu = memo(
   ({ className, publicationId, size = "medium" }: ModeratorPublicationContextMenuProps) => {
-    const { t } = useTranslation("moderatorPublicationContextMenu")
     const { isModerator } = useModerationContext()
+    const { menuItems } = useModeratorPublicationMenuItems(publicationId)
 
     const [isExpanded, setExpanded] = useState(false)
 
@@ -46,18 +47,6 @@ export const ModeratorPublicationContextMenu = memo(
     const hover = useHover(context, { handleClose: safePolygon() })
     const role = useRole(context)
     const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
-
-    const handleRemovePublication = useCallback(() => alert("Remove publication" + publicationId), [publicationId])
-
-    const menuItems = useMemo(
-      () => [
-        {
-          onClick: handleRemovePublication,
-          label: t("removePublication"),
-        },
-      ],
-      [handleRemovePublication, t],
-    )
 
     const handleMenuClick = useCallback(() => setExpanded(false), [])
 

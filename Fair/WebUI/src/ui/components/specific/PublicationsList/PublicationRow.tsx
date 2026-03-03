@@ -1,7 +1,7 @@
 import { TEST_PUBLICATION_SMALL_SRC } from "testConfig"
 import { Publication, PublicationExtended } from "types"
+import { ModeratorPublicationContextMenu } from "ui/components/specific"
 import { buildSrc } from "utils"
-import { ModeratorPublicationContextMenu } from "../ModeratorPublicationContextMenu"
 
 export type PublicationRowProps = Publication & Partial<Pick<PublicationExtended, "authorTitle">>
 

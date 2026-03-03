@@ -113,6 +113,11 @@ export const enUS = {
     profile: "Profile",
     switchAccounts: "Switch Accounts",
   },
+  logoDropdownMenu: {
+    avatarChange: "Change avatar",
+    nameChange: "Change name",
+    textChange: "Change text",
+  },
   moderatorOptionsMenu: {
     label: "Moderation options",
     removePublication: "Remove publication",
@@ -124,7 +129,7 @@ export const enUS = {
     typeChange: "Change type",
     remove: "Remove category",
   },
-  moderatorPublicationContextMenu: {
+  moderatorPublicationMenu: {
     removePublication: "Remove publication",
   },
   pageBanner: {
