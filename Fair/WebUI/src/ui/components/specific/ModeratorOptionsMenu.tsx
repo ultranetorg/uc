@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { useUserContext } from "app"
+import { useModerationContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
@@ -26,7 +26,7 @@ export type ModeratorOptionsMenuProps = PropsWithClassName & ModeratorOptionsMen
 
 export const ModeratorOptionsMenu = memo(({ className, publicationId }: ModeratorOptionsMenuProps) => {
   const { t } = useTranslation("moderatorOptionsMenu")
-  const { isModerator } = useUserContext()
+  const { isModerator } = useModerationContext()
 
   const [isExpanded, setExpanded] = useState(false)
 

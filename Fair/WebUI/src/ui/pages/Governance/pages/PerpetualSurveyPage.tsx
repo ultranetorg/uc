@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
-import { useUserContext } from "app"
+import { useModerationContext } from "app"
 import { useGetPerpetualSurveyDetails } from "entities/PerpetualSurveys"
 import { useTransactMutationWithStatus } from "entities/node"
 import { PerpetualVoting, SiteApprovalPolicyChange } from "types"
@@ -16,7 +16,7 @@ export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurvey")
   const { siteId, perpetualSurveyId } = useParams()
 
-  const { isPublisher, publishersIds } = useUserContext()
+  const { isPublisher, publishersIds } = useModerationContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()

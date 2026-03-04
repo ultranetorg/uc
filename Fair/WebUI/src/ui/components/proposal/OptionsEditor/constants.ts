@@ -212,7 +212,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "site-nickname-change",
+      operationType: "site-name-change",
       fields: [
         {
           valueType: "string",

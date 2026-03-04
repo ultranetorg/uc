@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { TabsProvider, useUserContext } from "app"
+import { TabsProvider, useModerationContext, useUserContext } from "app"
 
 import { EditProfileInfo } from "./EditProfileInfo"
 // import { ModeratedSites } from "./ModeratedSites"
@@ -19,8 +19,8 @@ export type ProfileTabsProps = {
 export const ProfileTabs = memo(({ defaultTabKey, tabsListClassName, onTabSelect }: ProfileTabsProps) => {
   const { t } = useTranslation("profile")
 
+  const { isPublisher, isModerator } = useModerationContext()
   const { user } = useUserContext()
-  const { isPublisher, isModerator } = useUserContext()
 
   const roles = useMemo(() => {
     const roleList = []

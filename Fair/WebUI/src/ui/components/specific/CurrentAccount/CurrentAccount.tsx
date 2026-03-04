@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useManageUsersContext, useUserContext } from "app"
+import { useAuthenticationContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { SignInModal } from "ui/components/specific"
@@ -23,7 +23,7 @@ export const CurrentAccount = () => {
   const [showSignInModal, setShowUserModal] = useState(false)
 
   const { user } = useUserContext()
-  const { selectedUserName, users, logout, selectUser } = useManageUsersContext()
+  const { selectedUserName, users, logout, selectUser } = useAuthenticationContext()
 
   const userItems = useMemo(
     () =>

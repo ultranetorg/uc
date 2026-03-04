@@ -5,19 +5,18 @@ import { ProductType } from "types"
 import {
   BookPublicationContent,
   DefaultPublicationContent,
-  GamePublicationContent,
+  GameSoftwarePublicationContent,
   MoviePublicationContent,
   MusicPublicationContent,
-  SoftwarePublicationContent,
 } from "./content"
 import { ContentProps } from "./types"
 
 const publicationContentMap: Partial<Record<ProductType, ComponentType<ContentProps>>> = {
   book: BookPublicationContent,
-  game: GamePublicationContent,
+  game: GameSoftwarePublicationContent,
   movie: MoviePublicationContent,
   music: MusicPublicationContent,
-  software: SoftwarePublicationContent,
+  software: GameSoftwarePublicationContent,
 }
 
 export const getPublicationContentByType = (productType: ProductType): ComponentType<ContentProps> => {

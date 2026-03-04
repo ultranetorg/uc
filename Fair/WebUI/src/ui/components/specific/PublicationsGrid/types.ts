@@ -6,4 +6,4 @@ type PublicationBaseProps = {
 
 export type PublicationCardProps = PublicationBaseProps &
   Publication &
-  Partial<Pick<PublicationExtended, "authorId" | "authorTitle" | "categoryId" | "categoryTitle">>
+  Partial<Pick<PublicationExtended, "id" | "authorId" | "authorTitle" | "categoryId" | "categoryTitle">>

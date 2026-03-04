@@ -78,7 +78,7 @@ const operationTypeToFairOperationTypeMap: Record<ExtendedOperationType, string>
   "site-avatar-change": "SiteAvatarChange",
   "site-moderator-addition": "SiteModeratorAddition",
   "site-moderator-removal": "SiteModeratorRemoval",
-  "site-nickname-change": "SiteNicknameChange",
+  "site-name-change": "SiteNameChange",
   "site-text-change": "SiteTextChange",
   "user-registration": "UserRegistration",
   "user-unregistration": "UserUnregistration",

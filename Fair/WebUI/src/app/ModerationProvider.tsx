@@ -1,68 +1,61 @@
-import { createContext, PropsWithChildren, useContext, useMemo, useState } from "react"
-import { useLocation, useParams, useSearchParams } from "react-router-dom"
-import { FormProvider, useForm } from "react-hook-form"
+import { createContext, PropsWithChildren, useCallback, useContext, useMemo } from "react"
 
-import { useGetCategories, useGetSitePolicies } from "entities"
-import { CategoryParentBaseWithChildren, CreateProposalData, OperationType, Policy } from "types"
-import { buildCategoryTree } from "utils"
+import { useGetSitePolicies } from "entities"
+import { ExtendedOperationType, Policy } from "types"
+import { toOperationType } from "utils"
+
+import { useSiteContext } from "./SiteProvider"
+import { useUserContext } from "./UserProvider"
 
 type ModerationContextType = {
-  lastEditedOptionIndex?: number
-  setLastEditedOptionIndex: (index: number) => void
-  isCategoriesPending: boolean
-  refetchCategories: () => void
-  categories?: CategoryParentBaseWithChildren[]
+  isPublisher?: boolean
+  isModerator?: boolean
   policies?: Policy[]
+  publishersIds?: string[]
+  isOperationAllowed(operation: ExtendedOperationType): boolean
 }
 
-// @ts-expect-error createContext with default value
 const ModerationContext = createContext<ModerationContextType>({
-  isCategoriesPending: false,
+  isOperationAllowed: () => {
+    return false
+  },
 })
 
 export const ModerationProvider = ({ children }: PropsWithChildren) => {
-  const { siteId } = useParams()
-  const [searchParams] = useSearchParams()
-  const location = useLocation()
+  const { site } = useSiteContext()
+  const { user } = useUserContext()
 
-  const methods = useForm<CreateProposalData>({
-    mode: "onChange",
-    defaultValues: {
-      title: "",
-      options: [],
-      ...(searchParams.get("type") && { type: searchParams.get("type")! as OperationType }),
-      ...(location.state?.type && { type: location.state.type as OperationType }),
+  const isPublisher = Boolean(site?.authorsIds?.some(x => user?.authorsIds?.includes(x)))
+  const isModerator = Boolean(site?.moderatorsIds?.some(x => user?.id === x))
 
-      ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
-      ...(searchParams.get("publicationId") && { publicationId: searchParams.get("publicationId")! }),
-      ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),
-      ...(searchParams.get("userId") && { userId: searchParams.get("userId")! }),
+  const { data: policies } = useGetSitePolicies(isPublisher || isModerator, site?.id)
+
+  const isOperationAllowed = useCallback(
+    (operation: ExtendedOperationType) => {
+      const operationClass = toOperationType(operation)
+      return (
+        !!policies &&
+        ((isModerator &&
+          policies.some(x => x.operationClass === operationClass && x.approval !== "publishers-majority")) ||
+          (isPublisher &&
+            policies.some(x => x.operationClass == operationClass && x.approval === "publishers-majority")))
+      )
     },
-    shouldUnregister: false,
-  })
-
-  const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
-
-  const { data: policies } = useGetSitePolicies(siteId)
-  const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)
+    [isModerator, isPublisher, policies],
+  )
 
   const value = useMemo(
     () => ({
-      lastEditedOptionIndex,
-      setLastEditedOptionIndex,
-      isCategoriesPending,
-      refetchCategories,
-      categories: categories && buildCategoryTree(categories),
+      isPublisher,
+      isModerator,
       policies,
+      publishersIds: site && user ? user.authorsIds.filter(x => site.authorsIds.includes(x)) : undefined,
+      isOperationAllowed,
     }),
-    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories, policies],
+    [isModerator, isOperationAllowed, isPublisher, policies, site, user],
   )
 
-  return (
-    <ModerationContext.Provider value={value}>
-      <FormProvider {...methods}>{children}</FormProvider>
-    </ModerationContext.Provider>
-  )
+  return <ModerationContext.Provider value={value}>{children}</ModerationContext.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

@@ -16,7 +16,7 @@ export type OperationType =
   | "site-avatar-change"
   | "site-moderator-addition"
   | "site-moderator-removal"
-  | "site-nickname-change"
+  | "site-name-change"
   | "site-text-change"
   | "user-registration"
   | "user-unregistration"

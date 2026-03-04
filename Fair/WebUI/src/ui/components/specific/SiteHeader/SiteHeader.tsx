@@ -3,14 +3,14 @@ import { Link, useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSiteContext, useSearchQueryContext, useUserContext } from "app"
+import { useSiteContext, useSearchQueryContext, useModerationContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 
 import { CategoriesDropdownButton } from "./CategoriesDropdownButton"
 import { LinkCounter } from "./LinkCounter"
-import { LogoDropdownButton } from "./LogoDropdownButton"
+import { LogoDropdownButton } from "./LogoDropdown"
 import { toSimpleMenuItems } from "./utils"
 
 export const SiteHeader = () => {
@@ -20,9 +20,10 @@ export const SiteHeader = () => {
 
   const { t } = useTranslation("site")
 
-  const { site } = useSiteContext()
-  const { isModerator } = useUserContext()
+  const { isModerator } = useModerationContext()
   const { setQuery: setSiteQuery } = useSearchQueryContext()
+  const { site } = useSiteContext()
+
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
     () => (site?.categories && siteId ? toSimpleMenuItems(site?.categories, siteId) : undefined),
@@ -80,7 +81,7 @@ export const SiteHeader = () => {
   return (
     <div className="flex items-center justify-between gap-8 pb-8">
       <Link to={`/${siteId}`}>
-        <LogoDropdownButton title={site.title} imageFileId={site.imageFileId} />
+        <LogoDropdownButton siteId={siteId} title={site.title} imageFileId={site.imageFileId} />
       </Link>
       {categoriesItems && categoriesItems.length > 0 && (
         <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />

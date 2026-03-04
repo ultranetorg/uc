@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
 import { getNodeApi } from "api"
-import { useManageUsersContext } from "app"
+import { useAuthenticationContext } from "app"
 import { useGetNodeUrl } from "entities/nexus"
 import { useGetNexusUrl } from "entities/node"
 import { BaseFairOperation, TransactionStatus } from "types"
@@ -24,7 +24,7 @@ type TransactMutationCallbacks = {
 export const useTransactMutationWithStatus = () => {
   const nexus = useGetNexusUrl()
   const node = useGetNodeUrl(nexus.data)
-  const { selectedUserName, users } = useManageUsersContext()
+  const { selectedUserName, users } = useAuthenticationContext()
 
   const [tag, setTag] = useState<string | undefined>()
   const callbacksRef = useRef<TransactMutationCallbacks | null>(null)

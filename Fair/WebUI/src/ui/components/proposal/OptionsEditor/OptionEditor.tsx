@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { TFunction } from "i18next"
 import { Controller, useFormContext } from "react-hook-form"
 
-import { useModerationContext } from "app"
+import { useCreateProposalContext } from "app"
 import { SvgX } from "assets"
 import { CreateProposalData } from "types"
 import { Input, ValidationWrapper } from "ui/components"
@@ -25,7 +25,7 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
     control,
     formState: { errors },
   } = useFormContext<CreateProposalData>()
-  const { setLastEditedOptionIndex } = useModerationContext()
+  const { setLastEditedOptionIndex } = useCreateProposalContext()
 
   return (
     <div className={twMerge("flex flex-col gap-4 rounded-lg border border-gray-300 p-4")}>

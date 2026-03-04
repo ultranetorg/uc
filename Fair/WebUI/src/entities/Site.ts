@@ -28,11 +28,11 @@ export const useGetSite = (siteId?: string) => {
   return { isPending, error: error ?? undefined, data }
 }
 
-export const useGetSitePolicies = (siteId?: string) => {
+export const useGetSitePolicies = (enabled: boolean, siteId?: string) => {
   const { isFetching, error, data, refetch } = useQuery({
     queryKey: ["sites", siteId, "policies"],
     queryFn: () => api.getSitePolicies(siteId!),
-    enabled: !!siteId,
+    enabled: !!siteId && enabled === true,
     // Auto refetch disable
     staleTime: Infinity,
     refetchOnMount: false,

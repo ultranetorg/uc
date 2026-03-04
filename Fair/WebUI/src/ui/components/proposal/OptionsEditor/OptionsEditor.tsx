@@ -9,7 +9,7 @@ import {
   useWatch,
 } from "react-hook-form"
 
-import { useModerationContext } from "app"
+import { useCreateProposalContext, useModerationContext } from "app"
 import {
   CREATE_DISCUSSION_EXTRA_OPERATION_TYPES,
   CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES,
@@ -52,7 +52,8 @@ export type OptionsEditorProps = {
 
 export const OptionsEditor = memo(
   ({ t, proposalType, labelClassName, isVotingRequired, onProposalTypeChange }: OptionsEditorProps) => {
-    const { lastEditedOptionIndex, policies } = useModerationContext()
+    const { lastEditedOptionIndex } = useCreateProposalContext()
+    const { policies } = useModerationContext()
     const { control, clearErrors, setError, unregister } = useFormContext<CreateProposalData>()
     const { fields, append, remove, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
     const type = useWatch({ control, name: "type" })

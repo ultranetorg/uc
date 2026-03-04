@@ -141,7 +141,7 @@ function buildSystemRequirementsTabs(fields: ProductField[] | undefined): System
   return tabs
 }
 
-export const SoftwarePublicationContent = memo(
+export const GameSoftwarePublicationContent = memo(
   ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
     const [isEulaOpen, setIsEulaOpen] = useState(false)
     const mediaItems = useMemo(() => buildMediaItems(publication.productFields), [publication.productFields])

@@ -1,57 +1,22 @@
-import { memo, useCallback, useMemo, useState } from "react"
-import {
-  FloatingPortal,
-  offset,
-  safePolygon,
-  useDismiss,
-  useFloating,
-  useHover,
-  useInteractions,
-  useRole,
-} from "@floating-ui/react"
+import { memo } from "react"
 
-import { SvgThreeDotsVertical } from "assets"
-import { useScrollOrResize } from "hooks"
+import { useUserContext } from "app"
 import { TEST_REVIEW_SRC } from "testConfig"
 import { AccountBaseAvatar } from "types"
-import { RatingBar, SimpleMenu } from "ui/components"
+import { RatingBar } from "ui/components"
+import { UserCommentContextMenu } from "ui/components/specific"
 import { buildSrc, formatDate } from "utils"
 
 export type CommentProps = {
   account: AccountBaseAvatar
+  id: string
   created: number
   rating?: number
   text: string
 }
 
-export const Comment = memo(({ account, created, rating, text }: CommentProps) => {
-  const [isExpanded, setExpanded] = useState(false)
-
-  useScrollOrResize(() => setExpanded(false), isExpanded)
-
-  const { context, floatingStyles, refs } = useFloating({
-    middleware: [offset(8)],
-    open: isExpanded,
-    placement: "bottom-end",
-    onOpenChange: setExpanded,
-  })
-  const dismiss = useDismiss(context)
-  const hover = useHover(context, { handleClose: safePolygon() })
-  const role = useRole(context)
-  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
-
-  const menuItems = useMemo(
-    () => [
-      {
-        onClick: () => alert("Banish user"),
-        label: "Banish user",
-      },
-      { onClick: () => alert("Reject the review"), label: "Reject the review" },
-    ],
-    [],
-  )
-
-  const handleMenuClick = useCallback(() => setExpanded(false), [])
+export const Comment = memo(({ account, id, created, rating, text }: CommentProps) => {
+  const { user } = useUserContext()
 
   const displayName = account.nickname ?? account.id
 
@@ -68,9 +33,7 @@ export const Comment = memo(({ account, created, rating, text }: CommentProps) =
                 <span className="text-2sm font-semibold leading-4.5 text-gray-800" title={displayName}>
                   {displayName}
                 </span>
-                <div ref={refs.setReference} {...getReferenceProps()}>
-                  <SvgThreeDotsVertical className="cursor-pointer fill-gray-500 hover:fill-gray-800" />
-                </div>
+                {user && user.id === account.id && <UserCommentContextMenu commentId={id} />}
               </div>
               <span className="text-2xs font-medium leading-4 text-gray-500">{formatDate(created)}</span>
             </div>
@@ -79,17 +42,6 @@ export const Comment = memo(({ account, created, rating, text }: CommentProps) =
         </div>
         <div className="text-2sm leading-5 text-gray-800">{text}</div>
       </div>
-      {isExpanded && (
-        <FloatingPortal>
-          <SimpleMenu
-            ref={refs.setFloating}
-            items={menuItems}
-            style={floatingStyles}
-            onClick={handleMenuClick}
-            {...getFloatingProps()}
-          />
-        </FloatingPortal>
-      )}
     </>
   )
 })
