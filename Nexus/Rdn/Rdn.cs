@@ -74,7 +74,8 @@ public class RdnTA : Rdn
 	
 	public RdnTA()
 	{
-		Father0IP		= new(DefaultHost, PpiPort);
-		Initials		= LocalInitials;
+		Father0IP						= new(DefaultHost, PpiPort);
+		Initials						= LocalInitials;
+		UserFreeCreationPoWDifficulity	= 0;
 	}
 }

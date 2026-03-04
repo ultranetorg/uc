@@ -91,7 +91,8 @@ public class FairTA : Fair
 	
 	public FairTA()
 	{
-		Father0IP		= new (DefaultHost, PpiPort);
-		Initials		= LocalInitials;
+		Father0IP						= new (DefaultHost, PpiPort);
+		Initials						= LocalInitials;
+		UserFreeCreationPoWDifficulity	= 0;
 	}
 }
