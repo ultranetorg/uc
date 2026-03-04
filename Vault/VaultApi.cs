@@ -202,7 +202,7 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 {
 	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		if(string.IsNullOrWhiteSpace(Application) || string.IsNullOrWhiteSpace(Net) || Session.Length != Uccs.Net.Cryptography.HashSize)
+		if(string.IsNullOrWhiteSpace(Application) || string.IsNullOrWhiteSpace(Net) || Session.Length != Uccs.Net.Cryptography.HashLength)
 			throw new VaultException(VaultError.IncorrectArgumets);
 
 		var h = new	Authentication {Application = Application, Net = Net, Session = Session, User = User}.Hashify();

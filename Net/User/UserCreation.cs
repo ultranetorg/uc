@@ -1,50 +1,78 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Numerics;
 
 namespace Uccs.Net;
 
 public class UserCreation : Operation
 {
-	public string				Name { get; set; }
-	public AccountAddress		Owner { get; set; }
-
-	public override string		Explanation => $"Name={Name} Owner={Owner}";
-	
-	public UserCreation()
-	{
-	}
+	public byte[]				Pow { get; set; }
+	public override string		Explanation => $"Pow={Pow?.ToHex()}";
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return IsFreeNameValid(Name);
+		return Pow == null || Pow.Length <= 32;
 	}
 
 	public override void Read(BinaryReader reader)
 	{
-		Name = reader.ReadASCII();
-		Owner = reader.Read<AccountAddress>();
+		Pow = reader.ReadBytes();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.WriteASCII(Name);
-		writer.Write(Owner);
+		writer.WriteBytes(Pow);
+	}
+
+	public override void PreTransact(McvNode node, Flow flow)
+	{
+		Pow = null;
+			
+		if(node.Net.UserFreeCreationPoWDifficulity > 0)
+		{
+			var s = node.Peering.Call(new StampPpc {}, flow);
+			
+			var ts = Enumerable.Range(0, Environment.ProcessorCount)
+							   .Select(i => node.CreateThread(() => { 
+																	 	var b = new byte[32];
+																	 	var a = Blake2Fast.Blake2b.CreateHashAlgorithm(32);
+																		var r = new Random();
+																	 
+																	 	while(flow.Active && Pow == null)
+																	 	{
+																	 		r.NextBytes(b);
+																	 		var h = a.ComputeHash([..s.GraphHash, ..b]);
+																	 
+																	 		var f = h.Sum(i => BitOperations.PopCount(i));
+																	 
+																	 		if(f >= node.Net.UserFreeCreationPoWDifficulity)
+																	 		{
+																	 			Pow = b;
+																	 		}
+																	 	}
+																	 })).ToArray();
+			foreach(var i in ts)
+				i.Start();
+			
+			while(Pow == null)
+				Thread.Sleep(100);
+		} 
+		else /// simulation
+		{
+			Pow = new byte[32];
+		}
 	}
 
 	public override void Execute(Execution execution)
 	{
-		if(execution.FindUser(Name) != null)
+		if(execution.Transaction.Nonce != 0)
 		{
 			Error = AlreadyExists;
 			return;
 		}
 
-		var a = execution.CreateUser(Name, Owner);
-
-		if(execution.Round.Id > 0)
+		if(Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < execution.Net.UserFreeCreationPoWDifficulity)
 		{
-			User.Spacetime -= execution.Round.UserAllocationFee();
-
-			execution.SpacetimeSpenders.Add(User);
+			Error = DoesNotSatisfy;
+			return;
 		}
 	}
 }

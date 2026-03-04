@@ -33,6 +33,12 @@ public class AuthorCreation : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
+		if(execution.Transaction.Nonce == 0)
+		{
+			Error = NotAllowedForNewUser;
+			return;
+		}
+
 		var e = execution.Authors.Create(User.Name);
 
 		User.Authors = [..User.Authors, e.Id];

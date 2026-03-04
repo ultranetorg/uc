@@ -121,8 +121,8 @@ public class Transaction : IBinarySerializable
 									 });
 		writer.Write(Member); /// Need  for migrations
 		
-		if(Operations.Any(i => i is UserFreeCreation))
-			writer.Write(Signer);
+		///if(Operations.Any(i => i is UserFreeCreation))
+			writer.Write(Signer); /// and for DomainMigratation
  	}
  		
  	public void	ReadConfirmed(BinaryReader reader)
@@ -140,8 +140,8 @@ public class Transaction : IBinarySerializable
  											});
 		Member		= reader.Read<AutoId>(); /// Need  for migrations
 
-		if(Operations.Any(i => i is UserFreeCreation))
-			Signer = reader.Read<AccountAddress>();
+		///if(Operations.Any(i => i is UserFreeCreation)) 
+			Signer = reader.Read<AccountAddress>(); /// and for DomainMigratation
  	}
 
 	public void	WriteForVote(BinaryWriter writer)

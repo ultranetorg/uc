@@ -179,6 +179,6 @@ public class RdnRound : Round
 		base.ReadConfirmed(reader);
 		
 		ConsensusMigrations	= reader.ReadArray<ForeignResult>();
-		ConsensusNnStates = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashSize));
+		ConsensusNnStates = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashLength));
 	}
 }

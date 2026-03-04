@@ -30,6 +30,12 @@ public class UserAvatarChange : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
+		if(execution.Transaction.Nonce == 0)
+		{
+			Error = NotAllowedForNewUser;
+			return;
+		}
+
 		if(!CanAccessAccount(execution, User.Id, out var a, out Error))
 			return;
 

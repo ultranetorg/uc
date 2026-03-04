@@ -17,10 +17,9 @@ public enum OperationClass : uint
 	
 	User						= 001,
 		UserCreation			= 001_000_001, 
-		UserFreeCreation		= 001_000_002,
-		UserOwnerChange			= 001_000_003, 
-		UserNameChange			= 001_000_004, 
-		UserBandwidthAllocation	= 001_000_005,
+		UserOwnerChange			= 001_000_002, 
+		UserNameChange			= 001_000_003, 
+		UserBandwidthAllocation	= 001_000_004,
 
 	ChildNet					= 002, 
 		ChildNetInitialization	= 002_000_001,
@@ -46,6 +45,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			LimitExceeded = "Limit exceeded";
 	public const string			OutOfBounds = "Out Of Bounds";
 	public const string			Mismatch = "Mismatch";
+	public const string			NotAllowedForNewUser = "Not allowed for a new user";
 	public const string			NotAvailable = "Not Available";
 	public const string			NotFound = "Not found";
 	public const string			NotSequential = "Not sequential";
@@ -88,9 +88,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
 	}
 
-	public static bool	IsFreeNameValid(string name) =>	name.Length <= 32 
-														&& name.Length >= 5 
-														&& Regex.Match(name, "^[a-z0-9_]+$").Success;
+	public static bool	IsNameValid(string name) =>	name.Length <= 32 
+													&& name.Length >= 5 
+													&& Regex.Match(name, "^[a-z0-9_]+$").Success;
 	
 	public virtual void PreTransact(McvNode node, Flow flow)
 	{

@@ -19,7 +19,7 @@ public class VotePpc : PeerRequest
 		{
 			var accepted = false;
 		
-			lock(p.Mcv.Lock)
+			//lock(p.Mcv.Lock)
 			{
 				Peering.Statistics.Consensing.Begin();
 				
@@ -30,7 +30,9 @@ public class VotePpc : PeerRequest
 				}
 				catch(ConfirmationException ex)
 				{
-					p.ProcessConfirmationException(ex);
+					lock(p.Mcv.Lock)
+						p.ProcessConfirmationException(ex);
+					
 					accepted = true; /// consensus failed but the vote looks valid
 				}
 								

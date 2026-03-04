@@ -154,7 +154,7 @@ public class Vote : IBinarySerializable
 		User				= reader.Read<AutoId>();
 		Try					= reader.Read7BitEncodedInt();
 		Time				= reader.Read<Time>();
-		ParentHash			= reader.ReadBytes(Cryptography.HashSize);
+		ParentHash			= reader.ReadBytes(Cryptography.HashLength);
 
 		MemberLeavers		= reader.ReadArray<AutoId>();
 		///FundJoiners		= reader.ReadArray<AccountAddress>();

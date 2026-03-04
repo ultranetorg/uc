@@ -378,7 +378,6 @@ public abstract class McvPeering : HomoTcpPeering
 		
 					var rp = Call(peer, new DownloadRoundsPpc {From = from, To = to});
 	
-					lock(SyncLock)
 					lock(Mcv.Lock)
 					{
 						var rounds = rp.Read(Mcv);
@@ -390,39 +389,42 @@ public abstract class McvPeering : HomoTcpPeering
 							if(Mcv.LastConfirmedRound.Id + 1 != r.Id)
 								throw new SynchronizationException();
 	
-							if(Enumerable.Range(r.Id, Mcv.P + 1).All(SynchronizationTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
+							lock(SyncLock)
 							{
-								try
+								if(Enumerable.Range(r.Id, Mcv.P + 1).All(SynchronizationTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
 								{
-									foreach(var v in SynchronizationTail[r.Id])
-										ProcessIncoming(v, true);
-		
-									foreach(var v in SynchronizationTail[r.Id + Mcv.P])
-										ProcessIncoming(v, true);
-								}
-								catch(ConfirmationException)
-								{
-								}
-	
-								if(Mcv.LastConfirmedRound.Id == r.Id && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
-								{
-									foreach(var i in SynchronizationTail.OrderBy(i => i.Key).Where(i => i.Key > r.Id))
+									try
 									{
-										foreach(var v in i.Value)
+										foreach(var v in SynchronizationTail[r.Id])
+											ProcessIncoming(v, true);
+			
+										foreach(var v in SynchronizationTail[r.Id + Mcv.P])
 											ProcessIncoming(v, true);
 									}
-										
-									SynchronizingThread = null;
-									SynchronizationInfo = null;
-									SynchronizationTail.Clear();
-						
-									MainWakeup.Set();
+									catch(ConfirmationException)
+									{
+									}
+		
+									if(Mcv.LastConfirmedRound.Id == r.Id && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
+									{
+										foreach(var i in SynchronizationTail.OrderBy(i => i.Key).Where(i => i.Key > r.Id))
+										{
+											foreach(var v in i.Value)
+												ProcessIncoming(v, true);
+										}
+											
+										SynchronizingThread = null;
+										SynchronizationInfo = null;
+										SynchronizationTail.Clear();
+							
+										MainWakeup.Set();
+		
+										Flow.Log?.Report(this, $"Synchronization Finished");
 	
-									Flow.Log?.Report(this, $"Synchronization Finished");
-
-									Synchronization = Synchronization.Synchronized;
-									return;
-								}
+										Synchronization = Synchronization.Synchronized;
+										return;
+									}
+								}	
 							}
 	
 							var x = Mcv.FindRound(r.Id);
@@ -535,65 +537,68 @@ public abstract class McvPeering : HomoTcpPeering
 		}
 		else if(fromsynchronization || Synchronization == Synchronization.Synchronized)
 		{
-			if(vote.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P*2 < vote.RoundId)
-			{	
-				//Flow.Log.ReportWarning(this, $"Vote rejected v.RoundId={v.RoundId} LastConfirmedRound={Mcv.LastConfirmedRound.Id}");
-				return false;
-			}
-			
-			var r = Mcv.GetRound(vote.RoundId);
-
-			if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
-				return false;
-								
-			if(r.Voters.Any() && !r.Voters.Any(i => i.Address == vote.Generator))
-				return false;
-
-			if(r.Forkers.Contains(vote.User))
-				return false;
-
-			var e = r.VotesOfTry.FirstOrDefault(i => i.Generator == vote.Generator);
-			
-			if(e != null) /// FORK
+			lock(Mcv.Lock)
 			{
-				//Flow.Log.ReportWarning(this, $"Vote rejected FORK : {v}");
-
-				r.Votes.Remove(e);
-				r.Forkers.Add(e.User);
-
-				return false;
-			}
-
-			vote.Restore();
-			
-			if(r.ParentId <= Mcv.LastConfirmedRound.Id)
-			{
-				//if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
-				//{	
-				//	//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
+				if(vote.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P*2 < vote.RoundId)
+				{	
+					//Flow.Log.ReportWarning(this, $"Vote rejected v.RoundId={v.RoundId} LastConfirmedRound={Mcv.LastConfirmedRound.Id}");
+					return false;
+				}
+				
+				var r = Mcv.GetRound(vote.RoundId);
+	
+				if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
+					return false;
+									
+				if(r.Voters.Any() && !r.Voters.Any(i => i.Address == vote.Generator))
+					return false;
+	
+				if(r.Forkers.Contains(vote.User))
+					return false;
+	
+				var e = r.VotesOfTry.FirstOrDefault(i => i.Generator == vote.Generator);
+				
+				if(e != null) /// FORK
+				{
+					//Flow.Log.ReportWarning(this, $"Vote rejected FORK : {v}");
+	
+					r.Votes.Remove(e);
+					r.Forkers.Add(e.User);
+	
+					return false;
+				}
+	
+				vote.Restore();
+				
+				if(r.ParentId <= Mcv.LastConfirmedRound.Id)
+				{
+					//if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
+					//{	
+					//	//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
+					//	return false;
+					//}
+	
+					if(vote.Transactions.Sum(i => i.Operations.Length) > Mcv.Net.OperationsPerRoundMaximum / r.Voters.Count()) //r.VotersRound.PerVoteOperationsMaximum)
+					{	
+						//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit : {v}");
+						return false;
+					}
+	
+					if(vote.Transactions.Any(t => r.Voters.NearestBy(i => i.Address, t.Signer, t.Nonce).Address != vote.Generator))
+					{	
+						//Flow.Log.ReportWarning(this, $"{nameof(Vote)} rejected NOT NEAREST : {v}");
+						return false;
+					}
+				}
+	
+				//if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
+				//{
+				//	Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Any(i => !i.Valid(Mcv)): {v}");
 				//	return false;
 				//}
-
-				if(vote.Transactions.Sum(i => i.Operations.Length) > Mcv.Net.OperationsPerRoundMaximum / r.Voters.Count()) //r.VotersRound.PerVoteOperationsMaximum)
-				{	
-					//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit : {v}");
-					return false;
-				}
-
-				if(vote.Transactions.Any(t => r.Voters.NearestBy(i => i.Address, t.Signer, t.Nonce).Address != vote.Generator))
-				{	
-					//Flow.Log.ReportWarning(this, $"{nameof(Vote)} rejected NOT NEAREST : {v}");
-					return false;
-				}
+	
+				Mcv.Add(vote);
 			}
-
-			//if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
-			//{
-			//	Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Any(i => !i.Valid(Mcv)): {v}");
-			//	return false;
-			//}
-
-			Mcv.Add(vote);
 		}
 
 		return true;
@@ -624,6 +629,11 @@ public abstract class McvPeering : HomoTcpPeering
 			if(m == null)
 			{
 				if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Address == g))
+					continue;
+				
+				var u = Mcv.Users.Latest(gs.User);
+				
+				if(u == null || u.Energy < Net.DeclarationCost)
 					continue;
 
 				try
@@ -1168,7 +1178,7 @@ public abstract class McvPeering : HomoTcpPeering
 			OutgoingTransactions.RemoveAll(i => DateTime.UtcNow - i.Inquired > TimeSpan.FromSeconds(Node.Settings.TransactionNoInquireKeepPeriod));
 		}
 		
-		if(OutgoingTransactions.Count <= Mcv.TransactionQueueLimit)
+		if(OutgoingTransactions.Count(i => i.Status != TransactionStatus.Confirmed) <= Mcv.TransactionQueueLimit)
 		{
 			if(TransactingThread == null)
 			{

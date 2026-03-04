@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using RocksDbSharp;
 
 namespace Uccs.Rdn;
@@ -340,6 +341,9 @@ public class ResourceHub
 												{
 													var cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
 													
+													if(cr == null) 
+														Debugger.Break();
+
 													lock(Lock)
 													{
 														r.Id = cr.Resource.Id;

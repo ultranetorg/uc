@@ -7,7 +7,7 @@ public class AuthorNameChange : FairOperation
 	public AutoId				Author { get; set; }
 	public string				Name { get; set; }
 
-	public override bool		IsValid(McvNet net) => IsFreeNameValid(Name);
+	public override bool		IsValid(McvNet net) => IsNameValid(Name);
 	public override string		Explanation => $"{Author}, {Name}";
 
 	public AuthorNameChange()

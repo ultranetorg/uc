@@ -35,6 +35,12 @@ public class SiteCreation : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
+		if(execution.Transaction.Nonce == 0)
+		{
+			Error = NotAllowedForNewUser;
+			return;
+		}
+
 		var s = execution.Sites.Create(User);
 
 		s.Title			= Title;
@@ -44,7 +50,7 @@ public class SiteCreation : FairOperation
 
 		s.Policies =   [new (FairOperationClass.SiteModeratorAddition,			Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),	
 						new (FairOperationClass.SiteModeratorRemoval,			Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),
-						new (FairOperationClass.SiteNameChange,				Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.SiteNameChange,					Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.SiteTextChange,					Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.SiteAvatarChange,				Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.SiteAuthorsChange,				Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
@@ -86,8 +92,9 @@ public class SiteCreation : FairOperation
 
 		User.ModeratedSites = [..User.ModeratedSites, s.Id];
 
-		execution.Prolong(User, s, Time.FromYears(Years));
-
 		execution.SiteTitles.Index(s.Id, Title);
+
+		execution.Prolong(User, s, Time.FromYears(Years));
+		execution.PayOperationEnergy(User);
 	}
 }

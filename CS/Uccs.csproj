@@ -10,19 +10,16 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <AssemblyVersion>1.0.600.0</AssemblyVersion>
-    <FileVersion>1.0.600.0</FileVersion>
-    <Version>1.0.600.0</Version>
+    <AssemblyVersion>1.0.642.0</AssemblyVersion>
+    <FileVersion>1.0.642.0</FileVersion>
+    <Version>1.0.642.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\_Debug\dotnet\</OutputPath>
     <NoWarn>1701;1702;</NoWarn>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\_Release\dotnet\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <Optimize>false</Optimize>
   </PropertyGroup>
 </Project>

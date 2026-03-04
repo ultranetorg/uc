@@ -89,7 +89,6 @@ public abstract class VotableOperation : SiteOperation
 
 public abstract class FairOperation : Operation
 {
-	public const string			NotAllowedForNewUser = "Not allowed for a new account";
 	//public const string			InvalidProposal = "Invalid proposal";
 	public const string			CategoryNotSet = "Category not set";
 	public const string			NotEmpty = "Not empty";

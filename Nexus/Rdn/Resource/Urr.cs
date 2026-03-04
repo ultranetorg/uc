@@ -179,7 +179,7 @@ public class Urrh : Urr
 
 	protected override void ReadMore(BinaryReader reader)
 	{
- 		Hash = reader.ReadBytes(Cryptography.HashSize);
+ 		Hash = reader.ReadBytes(Cryptography.HashLength);
 	}
   }
 

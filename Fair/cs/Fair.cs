@@ -55,7 +55,7 @@ public class FairLocal : Fair
 		Cryptography					= Cryptography.No;
 		AffectedCountMaximum			= 10;
 		ECLifetime						= Time.FromYears(100);
-		UserFreeCreationPoWDifficulity	= 150;
+		UserFreeCreationPoWDifficulity	= 0;
 
 		Initials						= LocalInitials;
 	}

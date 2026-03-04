@@ -262,7 +262,7 @@ public class Execution : ITableExecution
 
 		if(s == null)
 		{	
-			if(!Operation.IsFreeNameValid(u))
+			if(!Operation.IsNameValid(u))
 			{
 				Transaction.Error = Operation.InvalidName;
 				return null;
