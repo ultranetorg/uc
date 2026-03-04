@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Text;
+
+namespace Uccs.Net;
 
 public static class Extentions
 {
@@ -22,6 +24,16 @@ public static class Extentions
 	public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AccountAddress> by, AccountAddress account, int nonce)
 	{
 		return e.MinBy(m => Cryptography.Hash(by(m).Bytes, [..account.Bytes, (byte)(nonce>>24), (byte)(nonce>>16), (byte)(nonce>>8), (byte)nonce]), Bytes.Comparer);
+	}
+
+	public static T NearestBy<T>(this IEnumerable<T> e, byte[] x, byte[] y, int nonce)
+	{
+		return e.MinBy(m => Cryptography.Hash([..x, ..y, (byte)(nonce>>24), (byte)(nonce>>16), (byte)(nonce>>8), (byte)nonce]), Bytes.Comparer);
+	}
+
+	public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AutoId> by, string y, int nonce)
+	{
+		return e.MinBy(m => Cryptography.Hash([..by(m).Raw, ..Encoding.ASCII.GetBytes(y), (byte)(nonce>>24), (byte)(nonce>>16), (byte)(nonce>>8), (byte)nonce]), Bytes.Comparer);
 	}
 
 	//public static T NearestBy<T>(this T[] e, int x)

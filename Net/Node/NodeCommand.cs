@@ -238,7 +238,7 @@ public class NodeCommand : McvCommand
 
 								var rp = Ppc(new MembersPpc());
 	
-								var m = rp.Members.FirstOrDefault(i => i.Id == AutoId.Parse(Args[0].Name));
+								var m = rp.Members.FirstOrDefault(i => i.User == AutoId.Parse(Args[0].Name));
 
 								if(m == null)
 									throw new EntityException(EntityError.NotFound);

@@ -209,7 +209,7 @@ public class ChainReportApc : McvApc
 																	Confirmed = i.Confirmed,
 																	Time = i.ConsensusTime,
 																	Hash = i.Hash,
-																	Votes = i.Votes.Select(b => new Return.Vote{Generator = b.Generator, 
+																	Votes = i.Votes.Select(b => new Return.Vote{Generator = b.Signer, 
 																															IsPayload = b.Transactions.Any(), 
 																															/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
 																	JoinRequests = i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(i => i.Transaction.Signer),
@@ -252,14 +252,14 @@ public class VotesReportApc : McvApc
 	{
 		lock(node.Mcv.Lock)
 			return new VotesReportResponse{Votes = node.Mcv	.FindRound(RoundId)?.Votes
-															.OrderBy(i => i.Generator)
+															.OrderBy(i => i.Signer)
 															.Take(Limit)
 															.Select(i => new VotesReportResponse.Vote
 															{
 																Try = i.Try,
 																ParentSummary = i.ParentHash,
 																Signature = i.Signature,
-																Generator = i.Generator
+																Generator = i.Signer
 															})
 															.ToArray()}; 
 	}

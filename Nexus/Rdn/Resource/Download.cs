@@ -456,7 +456,7 @@ public class ReleaseDownloadProgress : ResourceActivityProgress
 {
 	public class Hub
 	{
-		public AccountAddress	Member { get; set; }
+		public AutoId			Member { get; set; }
 		public HubStatus		Status { get; set; }
 	}
 

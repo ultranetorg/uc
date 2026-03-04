@@ -26,13 +26,13 @@ public class CandidacyDeclaration : Operation
 
 	public override void Execute(Execution execution)
 	{
-		if(execution.Round.Members.Any(i => i.Id == User.Id))
+		if(execution.Round.Members.Any(i => i.User == User.Id))
 		{
 			Error = "Already member";
 			return;
 		}
 
-		var c = execution.Candidates.Find(i => i.Id == User.Id);
+		var c = execution.Candidates.Find(i => i.User == User.Id);
 
 		if(c != null)
 		{
@@ -44,10 +44,8 @@ public class CandidacyDeclaration : Operation
 
 		c = execution.AffectCandidate(User.Id);
 		
-		c.Id			= User.Id;
-		c.Address		= User.Owner;
+		c.User			= User.Id;
 		c.GraphPpcIPs	= GraphIPs;
-		c.Registered	= execution.Round.Id;
 
 		execution.EnergySpenders.Add(User);
 	}

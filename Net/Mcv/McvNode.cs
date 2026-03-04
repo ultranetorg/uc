@@ -19,7 +19,7 @@ public abstract class McvPpc<R> : Ppc<R> where R : Result
 	{
 		RequireGraph();
 
-		if(!Node.Mcv.NextVotingRound.Voters.Any(i => Node.Mcv.Settings.Generators.Any(j => j.Signer == i.Address))) 
+		if(!Node.Mcv.NextVotingRound.Voters.Any(i => Node.Mcv.Settings.Generators.Any(j => j.Id == i.User))) 
 			throw new NodeException(NodeError.NotMember);
 	}
 

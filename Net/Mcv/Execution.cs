@@ -370,7 +370,7 @@ public class Execution : ITableExecution
 
 		_Candidates ??= [..Round.Candidates];
 
-		var c = Candidates.Find(i => i.Id == id);
+		var c = Candidates.Find(i => i.User == id);
 
 		if(c == null)
 		{
