@@ -14,7 +14,7 @@ public abstract class Round : IBinarySerializable
 	public Round										Parent		=> Mcv.FindRound(ParentId);
 	public Round										Child		=> Mcv.FindRound(Id + Mcv.P);
 	//public long											PerVoteTransactionsLimit		=> Mcv.Net.TransactionsPerRoundMaximum / Members.Count;
-	public long											PerVoteOperationsMaximum			=> Mcv.Net.OperationsPerRoundMaximum / Members.Count;
+	public long											PerVoteOperationsMaximum			=> Mcv.Net.OperationsPerRoundMaximum / (Id == 0 ? 1 : Voters.Count());
 	//public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
 	//public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 

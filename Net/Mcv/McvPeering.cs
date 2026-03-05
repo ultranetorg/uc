@@ -583,7 +583,8 @@ public abstract class McvPeering : HomoTcpPeering
 					//	return false;
 					//}
 	
-					if(vote.Transactions.Sum(i => i.Operations.Length) > Mcv.Net.OperationsPerRoundMaximum / r.Voters.Count()) //r.VotersRound.PerVoteOperationsMaximum)
+					//if(vote.Transactions.Sum(i => i.Operations.Length) > Mcv.Net.OperationsPerRoundMaximum / r.Voters.Count()) //r.VotersRound.PerVoteOperationsMaximum)
+					if(vote.Transactions.Sum(i => i.Operations.Length) > r.PerVoteOperationsMaximum)
 					{	
 						//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit : {v}");
 						return false;
