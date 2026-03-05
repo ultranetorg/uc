@@ -17,7 +17,7 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 				throw new NodeException(NodeError.TooEearly);
 
 			if(From > Mcv.LastNonEmptyRound.Id || To - From > Mcv.P)
-				throw new InvalidRequestException("Invalid params");
+				throw new RequestException(RequestError.OutOfRange);
 
 			var s = new MemoryStream();
 			var w = new BinaryWriter(s);

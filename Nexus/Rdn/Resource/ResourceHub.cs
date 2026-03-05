@@ -342,7 +342,10 @@ public class ResourceHub
 													var cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
 													
 													if(cr == null) 
+													{	
 														Debugger.Break();
+														cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
+													}
 
 													lock(Lock)
 													{
