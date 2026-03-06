@@ -1270,40 +1270,37 @@ public abstract class McvPeering : HomoTcpPeering
 		{
 			Thread.Sleep(1);
 
-			lock(Lock)
-			{
-				if(Synchronization == Synchronization.Synchronized)
-				{
-					var c = call;
-					c.Peering = this;
-
-					var r = Call(c);
-
-					if(r == null)
-						Debugger.Break();
-
-					return r;
-				}
-
-				p = ChooseBestPeer((long)Role.Graph, tried);
-
-				if(p == null)
-				{
-					init();
-					continue;
-				}
-			}
-
-			tried.Add(p);
-
 			try
 			{
-				Connect(p, workflow);
+				lock(Lock)
+				{
+					if(Synchronization == Synchronization.Synchronized)
+					{
+						call.Peering = this;
 
-				var c = call;
-				c.Peering = this;
+						var r = Call(call);
 
-				return p.Call(c);
+						if(r == null)
+							Debugger.Break();
+
+						return r;
+					}
+
+					p = ChooseBestPeer((long)Role.Graph, tried);
+
+					if(p == null)
+					{
+						init();
+						continue;
+					}
+				}
+
+				tried.Add(p);
+					Connect(p, workflow);
+
+				call.Peering = this;
+
+				return p.Call(call);
 			}
 			catch(NodeException ex)
 			{
