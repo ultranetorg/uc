@@ -27,7 +27,7 @@ export const ModeratorChangedPublicationPage = () => {
     <div className="flex flex-col gap-6">
       <ModeratorPublicationHeader
         siteId={siteId!}
-        parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m/n/` }}
+        parentBreadcrumbs={{ title: t("common:moderation"), path: `/${siteId}/m/n/` }}
         title={publication.publication.title}
         logoFileId={publication.publication.imageId}
         onApprove={handleApprove}

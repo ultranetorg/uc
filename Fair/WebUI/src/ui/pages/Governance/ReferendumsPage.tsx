@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { TabsProvider } from "app"
 import { TabContent, TabsList, TabsListItem } from "ui/components"
-import { GovernanceModerationHeader } from "ui/components/specific"
+import { GovernanceHeader } from "ui/components/specific"
 
 import { PerpetualSurveysTab } from "./PerpetualSurveysTab"
 import { ReferendumsTab } from "./ReferendumsTab"
@@ -37,7 +37,7 @@ export const ReferendumsPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <GovernanceModerationHeader
+      <GovernanceHeader
         proposalType="referendum"
         siteId={siteId!}
         title={t("title")}

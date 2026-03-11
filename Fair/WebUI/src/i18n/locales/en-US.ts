@@ -2,6 +2,7 @@ export const enUS = {
   /* Common */
   common: {
     any: "Any",
+    about: "about",
     action: "Action",
     actions: "actions",
     add: "add",
@@ -29,6 +30,9 @@ export const enUS = {
     latestVersion: "latest version",
     login: "login",
     moderator: "moderator",
+    moderators: "moderators",
+    nabb: "N / A / B / B",
+    nabbFull: "Neither / Any / Ban / Banish",
     neither: "Neither",
     next: "Next",
     nickname: "nickname",
@@ -37,21 +41,28 @@ export const enUS = {
     operation: "operation",
     options: "Options",
     product: "Product",
+    proposals: "proposals",
     publication: "Publication",
+    publications: "publications",
+    publishers: "publishers",
     rating: "Rating",
     remove: "remove",
     reject: "reject",
     review: "review",
+    reviews: "reviews",
     reviewer: "Reviewer",
     saveChanges: "Save changes",
     select: "select",
+    settings: "settings",
     signIn: "sign in",
     signUp: "sign up",
+    store: "store",
     text: "Text",
     title: "Title",
     type: "type",
     updationTime: "Updation Time",
     user: "User",
+    users: "users",
     votes: "votes",
     yes: "Yes",
     yesVotes: "Yes votes",
@@ -113,7 +124,7 @@ export const enUS = {
     profile: "Profile",
     switchAccounts: "Switch Accounts",
   },
-  logoDropdownMenu: {
+  storeDropdownMenu: {
     avatarChange: "Change avatar",
     nameChange: "Change name",
     textChange: "Change text",
@@ -180,11 +191,15 @@ export const enUS = {
   toast: {
     favoriteAdded: `Site "{{site}}" added to favorites`,
     favoriteRemoved: `Site "{{site}}" removed from favorites`,
-    fileDeleted: `File {{fileId}} successfully deleted`,
-    fileUploaded: `File {{fileName}} successfully uploaded`,
+    fileDeleted: `File "{{fileId}}" successfully deleted`,
+    fileUploaded: `File "{{fileName}}" successfully uploaded`,
     nicknameChanged: "Nickname changed successfully",
     perpetualVoted: `Publisher "{{publisher}}" successfully voted`,
     proposalCreated: `Proposal "{{proposal}}" created successfully`,
+    reviewApproved: "Review approved",
+    reviewRejected: "Review rejected",
+    userRegistrationApproved: `User "{{name}}" registration approved`,
+    userRegistrationRejected: `User "{{name}}" registration rejected`,
   },
 
   /* Pages */
@@ -215,7 +230,7 @@ export const enUS = {
     refreshPage: "Refresh page",
   },
   governance: {
-    createReferendum: "Create referendum",
+    createReferendum: "Hold a referendum",
     searchProposal: "Search referendum",
     noPerpetualSurveys: "No open perpetual surveys",
     noProposals: "No open referendums",
@@ -229,15 +244,15 @@ export const enUS = {
     winPercentage: "Win percentage",
   },
   moderation: {
-    changedPublications: "Changed publications",
     createDiscussion: "Create discussion",
     discussions: "Discussions",
-    publications: "Publications",
     reviews: "Reviews",
-    searchProduct: "Search products by ID",
     title: "Moderation",
-    unpublishedProducts: "Unpublished products",
     userRegistrations: "User registrations",
+  },
+  moderatorsPage: {
+    title: "Moderators",
+    noModerators: "No moderators",
   },
   perpetualSurvey: {
     title: "Change approval policy for {{operation}}",
@@ -304,6 +319,15 @@ export const enUS = {
     quality: "Quality",
     translation: "Translation",
   },
+  publicationsPage: {
+    title: "Publications",
+    changed: "Changed",
+    searchProduct: "Search products by ID",
+    unpublished: "Unpublished",
+  },
+  publishersPage: {
+    title: "Publishers",
+  },
   referendum: {
     createdAt: "Created At:",
     createdBy: "Created By:",
@@ -311,6 +335,13 @@ export const enUS = {
     notVotedYet: "No participant has voted yet.",
     title: "Referendum {{referendumId}}",
     votingTitle: "Current voting results",
+  },
+  reviewsPage: {
+    title: "Reviews",
+    noReviews: "No reviews",
+    reviewer: "Review user",
+    text: "Text",
+    reviewModalTitle: "Review text",
   },
   search: {
     allAuthors: "All authors",
@@ -335,6 +366,12 @@ export const enUS = {
     placeholder: "Enter store name or description...",
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
+  },
+  usersPage: {
+    title: "Users",
+    newUsersTitle: "New users",
+    noUsers: "No user registrations",
+    noUsersFound: "No users found",
   },
 
   /* Views */
@@ -410,17 +447,8 @@ export const enUS = {
   tabPublications: {
     noPublications: "No publications",
   },
-  tabReviews: {
-    noReviews: "No reviews",
-    reviewer: "Review user",
-    text: "Text",
-    reviewModalTitle: "Review text",
-  },
   tabUnpublishedProducts: {
     noProducts: "No unpublished products",
-  },
-  tabUsers: {
-    noUsers: "No user registrations",
   },
 
   /* Type literals names */
@@ -491,6 +519,7 @@ export const enUS = {
     enterProductId: "Enter product ID",
     enterSlogan: "Enter slogan",
     enterTitle: "Enter title",
+    enterUserNameOrId: "Enter user name or id",
     selectApprovalPolicy: "Select approval policy",
     selectCategory: "Select category",
     selectImage: "Select image",

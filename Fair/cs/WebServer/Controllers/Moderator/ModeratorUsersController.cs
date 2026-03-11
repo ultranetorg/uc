@@ -9,9 +9,12 @@ public class ModeratorUsersController
 	ILogger<ModeratorUsersController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	ModeratorProposalsService moderatorProposalsService
+	ModeratorProposalsService moderatorProposalsService,
+	AccountsService accountsService,
+	UserNameValidator userNameValidator
 ) : BaseController
 {
+	// TODO: move to moderator proposals controller and make it more generic (for reviews, users, etc.)
 	[HttpGet]
 	public IEnumerable<UserProposalModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
@@ -26,14 +29,13 @@ public class ModeratorUsersController
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}
 
-	//[HttpGet("~/api/moderator/sites/{siteId}/users/{proposalId}")]
-	//public UserProposalModel Get(string siteId, string proposalId)
-	//{
-	//	logger.LogInformation($"GET {nameof(ModeratorReviewsController)}.{nameof(ModeratorReviewsController.Get)} method called with {{SiteId}}, {{ProposalId}}", siteId, proposalId);
+	[HttpGet("/api/moderator/users/{name}")]
+	public AccountBaseModel Get(string name)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(ModeratorUsersController), nameof(Get), name);
 
-	//	autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-	//	autoIdValidator.Validate(proposalId, nameof(User).ToLower());
+		userNameValidator.Validate(name);
 
-	//	return moderatorProposalsService.GetUserProposal(siteId, proposalId);
-	//}
+		return accountsService.Get(name);
+	}
 }

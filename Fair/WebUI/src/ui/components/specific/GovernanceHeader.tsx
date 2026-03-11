@@ -15,7 +15,7 @@ import {
 } from "ui/components"
 import { getVisibleProposalOperations, groupOperations } from "utils"
 
-export type GovernanceModerationHeaderProps = {
+export type GovernanceHeaderProps = {
   proposalType: ProposalType
   siteId: string
   title: string
@@ -28,7 +28,7 @@ export type GovernanceModerationHeaderProps = {
   searchProductLabel?: string
 }
 
-export const GovernanceModerationHeader = memo(
+export const GovernanceHeader = memo(
   ({
     proposalType,
     siteId,
@@ -40,7 +40,7 @@ export const GovernanceModerationHeader = memo(
     createButtonLabel,
     homeLabel,
     searchProductLabel,
-  }: GovernanceModerationHeaderProps) => {
+  }: GovernanceHeaderProps) => {
     const { t } = useTranslation()
     const { site } = useSiteContext()
     const navigate = useNavigate()
@@ -89,8 +89,8 @@ export const GovernanceModerationHeader = memo(
               )}
               {dropdownItems && dropdownItems.length > 0 && onCreateButtonClick && createButtonLabel && (
                 <DropdownButton
-                  className="capitalize"
-                  label={t("common:actions")}
+                  className="first-letter:uppercase"
+                  label={createButtonLabel}
                   items={dropdownItems!}
                   multiColumnMenu={false}
                   menuClassName="overflow-y-auto max-w-60 max-h-85"

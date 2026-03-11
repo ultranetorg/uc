@@ -293,6 +293,9 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
+const getModeratorUser = (name: string): Promise<AccountBase> =>
+  fetch(`${BASE_URL}/moderator/users/${name}`).then(res => res.json())
+
 const getProductFields = (productId: string): Promise<ProductField[]> =>
   fetch(`${BASE_URL}/products/${productId}/fields`).then(res => res.json())
 
@@ -378,6 +381,7 @@ const api: Api = {
   getModeratorDiscussions,
   getModeratorDiscussionComments,
   getPublicationProposals,
+  getModeratorUser,
   getProductFields,
   getProductCompareFields,
   getReviewProposals,

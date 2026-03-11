@@ -1,11 +1,11 @@
+import { ReactNode, MouseEvent } from "react"
 import { TFunction } from "i18next"
-import { ReactNode } from "react"
 
 import { AccountBaseAvatar, BaseProposal, OperationType, PublicationImageBase } from "types"
-import { AccountInfo, PublicationInfo, TableColumn } from "ui/components"
+import { AccountInfo, ButtonOutline, ButtonPrimary, PublicationInfo, TableColumn } from "ui/components"
 import {
-  formatAnbb,
-  formatAnbbShort,
+  formatNabb,
+  formatNabbShort,
   formatDate,
   formatDuration,
   formatVotes,
@@ -36,9 +36,9 @@ export const renderActionShort = (t: TFunction, operationType: OperationType) =>
   <span title={t(`operations:${operationType}`)}>{t(`operationsShort:${operationType}`)}</span>
 )
 
-export const renderAnbb = (t: TFunction, proposal: BaseProposal) => {
-  const title = formatAnbb(t, proposal.anyCount, proposal.neitherCount, proposal.banCount, proposal.banishCount)
-  const value = formatAnbbShort(proposal.anyCount, proposal.neitherCount, proposal.banCount, proposal.banishCount)
+export const renderNabb = (t: TFunction, proposal: BaseProposal) => {
+  const title = formatNabb(t, proposal.neitherCount, proposal.anyCount, proposal.banCount, proposal.banishCount)
+  const value = formatNabbShort(proposal.neitherCount, proposal.anyCount, proposal.banCount, proposal.banishCount)
   return (
     <div className="truncate" title={title}>
       {value}
@@ -93,8 +93,8 @@ export const renderVotes = (votes: number[]) => {
 
 export const renderCommon = (t: TFunction, column: TableColumn, proposal: BaseProposal): ReactNode => {
   switch (column.type) {
-    case "anbb":
-      return renderAnbb(t, proposal)
+    case "nabb":
+      return renderNabb(t, proposal)
     case "lasts-for":
       return renderLastsFor(t, proposal.creationTime)
     case "votes":
@@ -103,3 +103,36 @@ export const renderCommon = (t: TFunction, column: TableColumn, proposal: BasePr
 
   return undefined
 }
+
+export const renderActions = (
+  t: TFunction,
+  onApprove: () => void,
+  onReject: () => void,
+  loadingAction?: "approve" | "reject",
+  locked?: boolean,
+) => (
+  <div className="flex gap-5">
+    <ButtonPrimary
+      className="h-9 w-20 capitalize"
+      label={t("common:approve")}
+      loading={loadingAction === "approve"}
+      disabled={loadingAction === "reject" || locked}
+      onClick={e => {
+        onApprove()
+        e.stopPropagation()
+        e.preventDefault()
+      }}
+    />
+    <ButtonOutline
+      className="h-9 w-20 capitalize"
+      label={t("common:reject")}
+      loading={loadingAction === "reject"}
+      disabled={loadingAction === "approve" || locked}
+      onClick={e => {
+        onReject()
+        e.stopPropagation()
+        e.preventDefault()
+      }}
+    />
+  </div>
+)

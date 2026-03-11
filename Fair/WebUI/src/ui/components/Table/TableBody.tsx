@@ -15,7 +15,7 @@ export const TableBody = memo(
     <tbody className={tableBodyClassName}>
       {items && items.length > 0 ? (
         items.map(item => (
-          <TableRow key={item.id} onClick={() => onRowClick?.(item.id)}>
+          <TableRow key={item.id} onClick={onRowClick ? () => onRowClick?.(item.id) : undefined}>
             {columns.map(column => {
               const value = get(item, column.accessor)
               const renderedValue = itemRenderer && itemRenderer(item, column)

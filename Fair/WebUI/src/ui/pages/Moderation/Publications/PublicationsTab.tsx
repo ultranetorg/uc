@@ -10,7 +10,7 @@ import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getPublicationsItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
 
-import { getVotingColumns } from "./constants"
+import { getVotingColumns } from "../constants"
 
 export const PublicationsTab = () => {
   const { t } = useTranslation("tabPublications")

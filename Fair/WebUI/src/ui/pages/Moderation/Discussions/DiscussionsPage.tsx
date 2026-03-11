@@ -1,15 +1,16 @@
-import { useCallback, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useState, useCallback } from "react"
 import { useTranslation } from "react-i18next"
+import { useNavigate, useParams } from "react-router-dom"
 import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorDiscussions } from "entities"
 import { useUrlParamsState } from "hooks"
+import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
 import { parseInteger } from "utils"
 
-export const DiscussionsTab = () => {
+export const DiscussionsPage = () => {
   const { t } = useTranslation("tabDiscussions")
   const navigate = useNavigate()
   const { siteId } = useParams()
@@ -50,7 +51,8 @@ export const DiscussionsTab = () => {
   )
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
+      <ModerationHeader title="Proposals" />
       <ProposalsView
         t={t}
         proposals={discussions}
@@ -61,6 +63,6 @@ export const DiscussionsTab = () => {
         onSearchChange={handleSearchChange}
         onTableRowClick={handleTableRowClick}
       />
-    </div>
+    </>
   )
 }

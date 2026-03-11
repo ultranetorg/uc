@@ -30,7 +30,10 @@ export const ModeratorCreatePublicationPage = () => {
       <ModeratorPublicationHeader
         className="gap-2"
         siteId={siteId!}
-        parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m/n/` }}
+        parentBreadcrumbs={[
+          { title: t("common:proposals"), path: `/${siteId}/m` },
+          { title: t("common:publications"), path: `/${siteId}/m/p` },
+        ]}
         title={t("searchProduct")}
         showLogo={false}
         onApprove={product ? handleApprove : undefined}

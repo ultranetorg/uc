@@ -7,11 +7,11 @@ const api = getApi()
 export const useGetUserProposals = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
   const queryFn = () => api.getUserProposals(siteId!, page, pageSize, search)
 
-  const { isPending, isError, data } = useQuery({
+  const { isPending, isError, data, refetch } = useQuery({
     queryKey: ["moderator", "sites", siteId, "users", { page, pageSize, search }],
     queryFn: queryFn,
     enabled: !!siteId,
   })
 
-  return { isPending, isError, data }
+  return { isPending, isError, data, refetch }
 }

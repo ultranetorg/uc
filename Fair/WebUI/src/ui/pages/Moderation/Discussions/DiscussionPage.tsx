@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useGetModeratorDiscussion, useGetModeratorDiscussionComments } from "entities"
 import { ProposalView } from "ui/views"
 
-export const ModeratorDiscussionPage = () => {
+export const DiscussionPage = () => {
   const { t } = useTranslation()
   const { siteId, discussionId } = useParams()
 

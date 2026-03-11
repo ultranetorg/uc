@@ -11,11 +11,11 @@ const SOFTWARE_DELIMITER = ", "
 const THREE_DOTS = "..."
 const VOTES_DELIMITER = " / "
 
-export const formatAnbb = (t: TFunction, any: number, neither: number, ban: number, banish: number) =>
-  `${t("common:any")}: ${any} / ${t("common:neither")}: ${neither} / ${t("common:ban")}: ${ban} / ${t("common:banish")}: ${banish}`
+export const formatNabb = (t: TFunction, neither: number, any: number, ban: number, banish: number) =>
+  `${t("common:neither")}: ${neither} / ${t("common:any")}: ${any} / ${t("common:ban")}: ${ban} / ${t("common:banish")}: ${banish}`
 
-export const formatAnbbShort = (any: number, neither: number, ban: number, banish: number) =>
-  `${any} / ${neither} / ${ban} / ${banish}`
+export const formatNabbShort = (neither: number, any: number, ban: number, banish: number) =>
+  `${neither} / ${any} / ${ban} / ${banish}`
 
 export const formatAverageRating = (value: number): string => (value / 10).toFixed(1)
 

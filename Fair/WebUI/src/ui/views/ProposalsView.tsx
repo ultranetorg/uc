@@ -3,7 +3,7 @@ import { TFunction } from "i18next"
 
 import { Proposal, TotalItemsResult } from "types"
 import { Input, Pagination, Table, TableEmptyState } from "ui/components"
-import { getVotingColumns } from "ui/pages/Moderation/Moderation/constants"
+import { getVotingColumns } from "ui/pages/Moderation/constants"
 import { getProposalsItemRenderer } from "ui/renderers"
 
 export type ProposalsViewProps = {

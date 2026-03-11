@@ -1,29 +1,30 @@
 import { createBrowserRouter, createHashRouter, RouteObject, RouterProvider } from "react-router-dom"
 
-import { AppLayout, BaseLayout, SiteLayout } from "ui/layouts"
+import { AppLayout, BaseLayout, ModerationLayout, SiteLayout, UsersLayout } from "ui/layouts"
 import {
   AboutPage,
   AuthorPage,
   CategoryPage,
   CreateDiscussionPage,
   CreateReferendumPage,
-  DevelopPage,
+  DiscussionPage,
+  DiscussionsPage,
   ErrorPage,
-  ModerationPage,
-  ModeratorChangedPublicationPage,
   ModeratorCreatePublicationPage,
-  ModeratorDiscussionPage,
-  ModeratorPublicationPage,
-  ModeratorUnpublishedProductPage,
-  ModeratorUserRegistrationPage,
+  ModeratorsPage,
   PerpetualSurveyPage,
   ProfilePage,
   PublicationPage,
+  PublicationsPage,
+  PublishersPage,
   ReferendumPage,
   ReferendumsPage,
+  ReviewsPage,
   SearchPage,
   SitePage,
   SitesPage,
+  UserPage,
+  UsersPage,
 } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
@@ -91,6 +92,7 @@ const routes: RouteObject[] = [
             element: <AboutPage />,
           },
 
+          // Governance
           {
             path: "g/new",
             element: (
@@ -100,10 +102,6 @@ const routes: RouteObject[] = [
             ),
           },
           {
-            path: "g/:tabKey?",
-            element: <ReferendumsPage />,
-          },
-          {
             path: "g/p/:perpetualSurveyId",
             element: <PerpetualSurveyPage />,
           },
@@ -111,7 +109,12 @@ const routes: RouteObject[] = [
             path: "g/r/:referendumId",
             element: <ReferendumPage />,
           },
+          {
+            path: "g/:tabKey?",
+            element: <ReferendumsPage />,
+          },
 
+          // Moderation
           {
             path: "m/new",
             element: (
@@ -125,38 +128,49 @@ const routes: RouteObject[] = [
             element: <ModeratorCreatePublicationPage />,
           },
           {
-            path: "m/:tabKey?",
-            element: <ModerationPage />,
+            path: "m",
+            element: <ModerationLayout />,
+            children: [
+              {
+                index: true,
+                element: <DiscussionsPage />,
+              },
+              {
+                path: "d/:discussionId",
+                element: <DiscussionPage />,
+              },
+              {
+                path: "m",
+                element: <ModeratorsPage />,
+              },
+              {
+                path: "p/:tabKey?",
+                element: <PublicationsPage />,
+              },
+              {
+                path: "a",
+                element: <PublishersPage />,
+              },
+              {
+                path: "r",
+                element: <ReviewsPage />,
+              },
+              {
+                path: "u",
+                element: <UsersLayout />,
+                children: [
+                  {
+                    index: true,
+                    element: <UsersPage />,
+                  },
+                  {
+                    path: ":name",
+                    element: <UserPage />,
+                  },
+                ],
+              },
+            ],
           },
-          {
-            path: "m/d/:discussionId",
-            element: <ModeratorDiscussionPage />,
-          },
-          {
-            path: "m/c/:publicationId",
-            element: <ModeratorChangedPublicationPage />,
-          },
-          {
-            path: "m/n/:productId",
-            element: <ModeratorUnpublishedProductPage />,
-          },
-          {
-            path: "m/p/:discussionId",
-            element: <ModeratorPublicationPage />,
-          },
-          {
-            path: "m/u/:discussionId",
-            element: <ModeratorUserRegistrationPage />,
-          },
-
-          ...(import.meta.env.DEV
-            ? [
-                {
-                  path: "dev",
-                  element: <DevelopPage />,
-                },
-              ]
-            : []),
         ],
       },
 

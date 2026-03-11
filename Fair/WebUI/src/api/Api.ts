@@ -136,6 +136,8 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
+  getModeratorUser(name: string): Promise<AccountBase>
+
   getProductFields(productId: string): Promise<ProductField[]>
 
   getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldDiff>

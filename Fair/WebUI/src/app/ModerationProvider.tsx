@@ -8,17 +8,19 @@ import { useSiteContext } from "./SiteProvider"
 import { useUserContext } from "./UserProvider"
 
 type ModerationContextType = {
-  isPublisher?: boolean
-  isModerator?: boolean
+  isPublisher: boolean
+  isModerator: boolean
   policies?: Policy[]
   publishersIds?: string[]
   isOperationAllowed(operation: ExtendedOperationType): boolean
+  getOperationVoterId(operation: ExtendedOperationType): string | undefined
 }
 
 const ModerationContext = createContext<ModerationContextType>({
-  isOperationAllowed: () => {
-    return false
-  },
+  isPublisher: false,
+  isModerator: false,
+  isOperationAllowed: () => false,
+  getOperationVoterId: () => undefined,
 })
 
 export const ModerationProvider = ({ children }: PropsWithChildren) => {
@@ -44,6 +46,21 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
     [isModerator, isPublisher, policies],
   )
 
+  const getOperationVoterId = useCallback(
+    (operation: ExtendedOperationType) => {
+      const operationClass = toOperationType(operation)
+      const policy = policies?.find(x => x.operationClass === operationClass)
+      if (!policy || !user) return undefined
+
+      return policy.approval !== "publishers-majority" && isModerator
+        ? user.id
+        : policy.approval === "publishers-majority" && isPublisher && user.authorsIds && user.authorsIds.length > 0
+          ? user.authorsIds[0]
+          : undefined
+    },
+    [isModerator, isPublisher, policies, user],
+  )
+
   const value = useMemo(
     () => ({
       isPublisher,
@@ -51,8 +68,9 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
       policies,
       publishersIds: site && user ? user.authorsIds.filter(x => site.authorsIds.includes(x)) : undefined,
       isOperationAllowed,
+      getOperationVoterId,
     }),
-    [isModerator, isOperationAllowed, isPublisher, policies, site, user],
+    [getOperationVoterId, isModerator, isOperationAllowed, isPublisher, policies, site, user],
   )
 
   return <ModerationContext.Provider value={value}>{children}</ModerationContext.Provider>

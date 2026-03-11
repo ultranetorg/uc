@@ -10,7 +10,7 @@ export type ModeratorPublicationHeaderBaseProps = {
   showLogo?: boolean
   logoFileId?: string
   title: string
-  parentBreadcrumb?: BreadcrumbsItemProps
+  parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
   onApprove?: () => void
   onReject?: () => void
   onPreview?: () => void
@@ -25,7 +25,7 @@ export const ModeratorPublicationHeader = ({
   showLogo = true,
   logoFileId,
   title,
-  parentBreadcrumb,
+  parentBreadcrumbs,
   onApprove,
   onReject,
   onPreview,
@@ -36,7 +36,7 @@ export const ModeratorPublicationHeader = ({
       fullPath={true}
       items={[
         { path: `/${siteId}`, title: homeLabel },
-        ...(parentBreadcrumb ? [parentBreadcrumb] : []),
+        ...(parentBreadcrumbs ? (Array.isArray(parentBreadcrumbs) ? parentBreadcrumbs : [parentBreadcrumbs]) : []),
         { title: title },
       ]}
     />

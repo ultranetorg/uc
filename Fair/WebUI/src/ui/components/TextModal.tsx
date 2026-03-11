@@ -15,11 +15,21 @@ type TextModalBaseProps = {
   onConfirm?: () => void
 }
 
-export type TextModalProps = Pick<ModalProps, "className" | "title"> & TextModalBaseProps
+export type TextModalProps = Pick<ModalProps, "className" | "title" | "onClose"> & TextModalBaseProps
 
 export const TextModal = memo(
-  ({ className, title, size = "default", text, onConfirm, onCancel, confirmLabel, cancelLabel }: TextModalProps) => {
-    const handleClose = onCancel ?? onConfirm
+  ({
+    className,
+    title,
+    size = "default",
+    text,
+    onConfirm,
+    onCancel,
+    onClose,
+    confirmLabel,
+    cancelLabel,
+  }: TextModalProps) => {
+    const handleClose = onClose ?? onCancel ?? onConfirm
 
     useEscapeKey(handleClose)
 

@@ -18,13 +18,13 @@ export type ButtonPrimaryProps = Partial<Pick<HTMLButtonElement, "disabled" | "t
 
 export const ButtonPrimary = memo(
   ({
-    disabled = false,
-    type = "button",
     className,
-    iconBefore,
+    disabled = false,
     iconAfter,
+    iconBefore,
     label,
     loading = false,
+    type = "button",
     onClick,
   }: ButtonPrimaryProps) => {
     const handleClick = (e: MouseEvent<HTMLButtonElement>) => {

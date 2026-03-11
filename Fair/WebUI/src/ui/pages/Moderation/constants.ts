@@ -4,5 +4,5 @@ import { TableColumn } from "ui/components"
 export const getVotingColumns = (t: TFunction): TableColumn[] => [
   { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for" },
   { accessor: "votes", label: t("common:votes"), type: "votes" },
-  { accessor: "anbb", label: t("common:anbb"), type: "anbb", title: t("common:anbbFull") },
+  { accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull") },
 ]
