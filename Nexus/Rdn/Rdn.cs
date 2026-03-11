@@ -13,13 +13,14 @@ public abstract class Rdn : McvNet
 	public int						FreeNameLengthMinimum => 8;
 	public int						CircularDependeciesChecksMaximum => 100_000;
 		
- 	public static readonly Rdn		Local = new RdnLocal();
+ 	public static readonly Rdn		Simulated = new RdnSimulated();
+ 	public static readonly Rdn		Virtual = new RdnVirtual();
  	public static readonly Rdn		Test = new RdnTest();
  	public static readonly Rdn		Developer0 = new RdnDeveloper0();
  	public static readonly Rdn		TA = new RdnTA();
 	public static readonly Rdn		Main = null;
 
-	public static Rdn				ByZone(Zone zone) => new Rdn[]{Local, Developer0, Test, TA}.First(i => i.Zone == zone);
+	public static Rdn				ByZone(Zone zone) => new Rdn[]{Simulated, Virtual, Developer0, Test, TA}.First(i => i.Zone == zone);
 	//public bool						IsFree(Domain domain) => domain.Space <= FreeSpaceMaximum && domain.Address.Length >= FreeNameLengthMinimum;
 
 	public Rdn()
@@ -28,11 +29,11 @@ public abstract class Rdn : McvNet
 	}
 }
 
-public class RdnLocal : Rdn
+public class RdnSimulated : Rdn
 {	
-	public override	Zone	Zone => Zone.Local;
+	public override	Zone	Zone => Zone.Simulation;
 	
-	public RdnLocal()
+	public RdnSimulated()
 	{
 		Father0IP						= new(DefaultHost, PpiPort);
 		Cryptography					= Cryptography.No;
@@ -44,6 +45,16 @@ public class RdnLocal : Rdn
 	}
 }
 
+public class RdnVirtual : Rdn
+{
+	public override	Zone	Zone => Zone.Virtual;
+
+	public RdnVirtual()
+	{
+ 		Father0IP	= new(VirtualInitials[0], PpiPort);
+		Initials	= VirtualInitials;
+	}
+}
 public class RdnDeveloper0 : Rdn
 {
 	public override	Zone	Zone => Zone.Developer0;
@@ -67,6 +78,7 @@ public class RdnTest : Rdn
 		Initials	= UOInitials;
 	}
 }
+
 
 public class RdnTA : Rdn
 {	

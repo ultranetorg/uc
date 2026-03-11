@@ -30,7 +30,7 @@ public partial class TransferPage : Page
 //			Wallets.Items.Insert(0, "All");
 //			Wallets.SelectedIndex = 0;
 
-			if(Nexus.Settings.Zone == Zone.Local)
+			if(Nexus.Settings.Zone == Zone.Simulation)
 			{
 				FromEntity.Text = "user/father0000";
 				ToEntity.Text = "user/father0000";

@@ -160,7 +160,7 @@ public class ProductManifest
 		{
 			var s = new MemoryStream();
 
-			ToXon(new NetXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
+			ToXon(new RdnXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
 
 			return s.ToArray();
 		}

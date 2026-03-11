@@ -61,7 +61,7 @@ public abstract class JsonServer
 	HttpListener							Listener;
 	Thread									Thread;
 	ApiSettings								Settings;
-	Flow									Flow;
+	public Flow								Flow;
 	protected JsonSerializerOptions			Options;
 	Dictionary<string, ConstructorInfo>		Calls = [];
 
@@ -101,10 +101,12 @@ public abstract class JsonServer
 										}
 										catch(SocketException ex) when (ex.SocketErrorCode == SocketError.Interrupted)
 										{
+											Flow.Log?.ReportError(this, "Listener Thread Error", ex);
 											Listener = null;
 										}
 										catch(HttpListenerException ex) when (ex.NativeErrorCode == 995 || ex.NativeErrorCode == 500)
 										{
+											Flow.Log?.ReportError(this, "Listener Thread Error", ex);
 											Listener = null;
 										}
 										catch(Exception ex) when (!Debugger.IsAttached)

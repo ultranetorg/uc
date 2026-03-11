@@ -19,13 +19,14 @@ public abstract class Fair : McvNet
 	public static Dictionary<Type, uint>								OCodes = [];
 	public static Dictionary<Type, Dictionary<uint, ConstructorInfo>>	OContructors = [];
 
- 	public static readonly Fair		Local = new FairLocal();
+ 	public static readonly Fair		Simulated = new FairSimulated();
+ 	public static readonly Fair		Virtual = new FairVirtual();
  	public static readonly Fair		Test = new FairTest();
  	public static readonly Fair		Developer0 = new FairDeveloper0();
  	public static readonly Fair		TA = new FairTA();
 	public static readonly Fair		Main = null;
 
-	public static Fair				ByZone(Zone name) => new Fair[]{Local, Developer0, Test, TA}.First(i => i.Zone == name);
+	public static Fair				ByZone(Zone name) => new Fair[]{Simulated, Virtual, Developer0, Test, TA}.First(i => i.Zone == name);
 
 	
 	public Fair()
@@ -45,11 +46,11 @@ public abstract class Fair : McvNet
 	}
 }
 
-public class FairLocal : Fair
+public class FairSimulated : Fair
 {	
-	public override	Zone	Zone => Zone.Local;
+	public override	Zone	Zone => Zone.Simulation;
 	
-	public FairLocal()
+	public FairSimulated()
 	{
 		Father0IP						= new (DefaultHost, PpiPort);
 		Cryptography					= Cryptography.No;
@@ -58,6 +59,17 @@ public class FairLocal : Fair
 		UserFreeCreationPoWDifficulity	= 0;
 
 		Initials						= LocalInitials;
+	}
+}
+
+public class FairVirtual : Fair
+{
+	public override	Zone	Zone => Zone.Virtual;
+
+	public FairVirtual()
+	{
+ 		Father0IP	= new(VirtualInitials[0], PpiPort);
+		Initials	= VirtualInitials;
 	}
 }
 

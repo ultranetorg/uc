@@ -144,14 +144,14 @@ public class PackageHub
 		return true;
 	}
 
-	public void Build(Stream stream, IDictionary<string, string> files, IEnumerable<string> removals, Flow workflow)
+	public void Build(Stream stream, IDictionary<string, string> files, IEnumerable<string> removals, Flow flow)
 	{
 		using(var arch = new ZipArchive(stream, ZipArchiveMode.Create, true))
 		{
 			foreach(var f in files)
 			{
 				arch.CreateEntryFromFile(f.Key, f.Value);
-				workflow.Log?.Report(this, "Packed", f.Value);
+				flow.Log?.Report(this, "Packed", f.Value);
 			}
 
 			if(removals.Any())
@@ -269,7 +269,7 @@ public class PackageHub
 		}
 	}
 
-	public LocalRelease AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura previous, ReleaseAddressCreator addresscreator, Flow workflow)
+	public LocalRelease AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura previous, ReleaseAddressCreator addresscreator, Flow flow)
 	{
 		var cstream = new MemoryStream();
 		var istream = (MemoryStream)null;
@@ -304,12 +304,12 @@ public class PackageHub
 			}
 		}
 
-		Build(cstream, files, [], workflow);
+		Build(cstream, files, [], flow);
 
 		if(previous != null)
 		{
 			istream = new MemoryStream();
-			BuildIncremental(istream, resource, previous, files, workflow);
+			BuildIncremental(istream, resource, previous, files, flow);
 		}
 		
 		var m = File.Exists(dependenciespath) ? PackageManifest.Load(dependenciespath)
@@ -350,7 +350,7 @@ public class PackageHub
 			var p = Get(resource);
 			p.Resource.AddData(new DataType(DataType.File, ContentType.Software_PackageManifest), a);
 
-			workflow.Log?.Report(this, $"Address: {a}");
+			flow.Log?.Report(this, $"Release added: {a}");
 
 			return r;
  		}
