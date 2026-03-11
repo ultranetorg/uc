@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useGetPerpetualSurveys } from "entities/PerpetualSurveys"
 import { Table, TableEmptyState } from "ui/components"
 import { perpetualSurveysItemRenderer } from "ui/renderers"
+import { useGetSitePolicies } from "entities"
 
 export const PerpetualSurveysTab = () => {
   const { siteId } = useParams()
@@ -46,10 +47,11 @@ export const PerpetualSurveysTab = () => {
   )
 
   const { data: surveys } = useGetPerpetualSurveys(siteId)
+  const { data: policies } = useGetSitePolicies(true, siteId)
 
   const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/g/p/${id}`), [navigate, siteId])
 
-  const itemRenderer = useMemo(() => perpetualSurveysItemRenderer(t), [t])
+  const itemRenderer = useMemo(() => perpetualSurveysItemRenderer(t, policies), [policies, t])
 
   return (
     <div className="flex flex-col gap-6">

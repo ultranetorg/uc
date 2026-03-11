@@ -46,13 +46,25 @@ export const useGetSitePolicies = (enabled: boolean, siteId?: string) => {
 export const useGetSiteModerators = (siteId?: string) => {
   const queryFn = () => api.getSiteModerators(siteId!)
 
-  const { isFetching, error, data } = useQuery({
+  const { isFetching, error, data, refetch } = useQuery({
     queryKey: ["sites", siteId, "moderators"],
     queryFn: queryFn,
     enabled: !!siteId,
   })
 
-  return { isFetching, error: error ?? undefined, data }
+  return { isFetching, error: error ?? undefined, data, refetch }
+}
+
+export const useGetSitePublishers = (siteId?: string) => {
+  const queryFn = () => api.getSitePublishers(siteId!)
+
+  const { isFetching, error, data, refetch } = useQuery({
+    queryKey: ["sites", siteId, "publishers"],
+    queryFn: queryFn,
+    enabled: !!siteId,
+  })
+
+  return { isFetching, error: error ?? undefined, data, refetch }
 }
 
 export const useSearchSites = (query?: string, page?: number) => {

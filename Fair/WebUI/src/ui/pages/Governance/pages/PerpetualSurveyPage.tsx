@@ -44,6 +44,7 @@ export const PerpetualSurveyPage = () => {
     },
     [mutate, perpetualSurveyId, publishersIds, refetch, siteId, t],
   )
+
   useEffect(() => {
     if (!survey) return
 
