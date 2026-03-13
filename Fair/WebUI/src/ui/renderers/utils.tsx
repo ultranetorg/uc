@@ -98,7 +98,7 @@ export const renderCommon = (t: TFunction, column: TableColumn, proposal: BasePr
     case "lasts-for":
       return renderLastsFor(t, proposal.creationTime)
     case "votes":
-      return renderVotes(proposal.optionVotesCount)
+      return renderVotes(proposal.optionsVotesCount)
   }
 
   return undefined

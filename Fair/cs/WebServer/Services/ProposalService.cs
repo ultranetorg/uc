@@ -160,8 +160,8 @@ public class ProposalService
 		IList<ProposalModel> result = new List<ProposalModel>(proposals.Count);
 		foreach(Proposal proposal in proposals)
 		{
-			FairUser account = (FairUser) mcv.Users.Latest(proposal.By);
-			ProposalModel model = new ProposalModel(proposal, account)
+			FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+			ProposalModel model = new ProposalModel(proposal, by)
 			{
 				Options = ProposalUtils.MapOptions(proposal.Options)
 			};

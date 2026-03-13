@@ -24,7 +24,7 @@ public class SitesController
 	}
 
 	[HttpGet("{siteId}/publishers")]
-	public IEnumerable<AuthorBaseAvatarModel> GetPublishers(string siteId, CancellationToken cancellationToken)
+	public IEnumerable<PublisherModel> GetPublishers(string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPublishers), siteId);
 
@@ -34,7 +34,7 @@ public class SitesController
 	}
 
 	[HttpGet("{siteId}/moderators")]
-	public IEnumerable<AccountBaseModel> GetModerators(string siteId, CancellationToken cancellationToken)
+	public IEnumerable<ModeratorModel> GetModerators(string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetModerators), siteId);
 

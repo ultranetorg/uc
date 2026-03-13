@@ -12,6 +12,7 @@ import {
   ChangedPublication,
   ChangedPublicationDetails,
   File,
+  Moderator,
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
@@ -27,6 +28,7 @@ import {
   PublicationExtended,
   PublicationProposal,
   PublicationVersionInfo,
+  Publisher,
   Review,
   ReviewProposal,
   Site,
@@ -55,10 +57,10 @@ const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${si
 const getSitePolicies = (siteId: string): Promise<Policy[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/policies`).then(res => res.json())
 
-const getSitePublishers = (siteId: string): Promise<AuthorBaseAvatar[]> =>
+const getSitePublishers = (siteId: string): Promise<Publisher[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/publishers`).then(res => res.json())
 
-const getSiteModerators = (siteId: string): Promise<AccountBase[]> =>
+const getSiteModerators = (siteId: string): Promise<Moderator[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
 
 const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>> => {

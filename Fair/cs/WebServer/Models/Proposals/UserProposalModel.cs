@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class UserProposalModel(Proposal proposal, FairUser signer) : BaseProposal(proposal)
+public class UserProposalModel(Proposal proposal, FairUser by) : BaseOptionsProposalModel(proposal, by)
 {
-	public AccountBaseAvatarModel Signer { get; } = new(signer);
+	public AccountBaseAvatarModel Signer { get; } = new(by);
 }

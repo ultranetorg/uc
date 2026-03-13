@@ -18,7 +18,7 @@ export const getReviewsItemRenderer =
 
     switch (column.type) {
       case "account":
-        return renderAccount(proposal.reviewer)
+        return renderAccount(proposal.by)
       case "publication":
         return renderPublication(proposal.publication)
       case "text":

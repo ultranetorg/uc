@@ -140,7 +140,7 @@ const routes: RouteObject[] = [
                 element: <DiscussionPage />,
               },
               {
-                path: "m",
+                path: "m/:tabKey?",
                 element: <ModeratorsPage />,
               },
               {

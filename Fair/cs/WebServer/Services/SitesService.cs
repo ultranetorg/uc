@@ -86,7 +86,7 @@ public class SitesService
 		}).ToArray();
 	}
 
-	public IEnumerable<AuthorBaseAvatarModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
+	public IEnumerable<PublisherModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetPublishers), siteId);
 
@@ -102,12 +102,31 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			AutoId[] publishersIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(p => p.Author).ToArray();
-			return McvUtils.LoadAuthors(mcv, publishersIds, cancellationToken);
+			return LoadPublishers(site.Publishers, cancellationToken);
 		}
 	}
 
-	public IEnumerable<AccountBaseModel> GetModerators([NotEmpty] string siteId, CancellationToken cancellationToken)
+	public IEnumerable<PublisherModel> LoadPublishers(Publisher[] publishers, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		List<PublisherModel> result = new(publishers.Length);
+
+		foreach(Publisher publisher in publishers)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return result;
+
+			Author author = mcv.Authors.Latest(publisher.Author);
+			var model = new PublisherModel(author, publisher);
+			result.Add(model);
+		}
+
+		return result;
+	}
+
+	public IEnumerable<ModeratorModel> GetModerators([NotEmpty] string siteId, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetModerators), siteId);
 
@@ -123,9 +142,28 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			AutoId[] moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(p => p.User).ToArray();
-			return McvUtils.LoadAccounts(mcv, moderatorsIds, cancellationToken);
+			return LoadModerators(site.Moderators, cancellationToken);
 		}
+	}
+
+	public IEnumerable<ModeratorModel> LoadModerators(Moderator[] moderators, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return [];
+
+		List<ModeratorModel> result = new(moderators.Length);
+
+		foreach(Moderator moderator in moderators)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return result;
+
+			FairUser account = (FairUser) mcv.Users.Latest(moderator.User);
+			var model = new ModeratorModel(account, moderator.BannedTill);
+			result.Add(model);
+		}
+
+		return result;
 	}
 
 	public IEnumerable<PolicyModel> GetPolicies(string siteId)

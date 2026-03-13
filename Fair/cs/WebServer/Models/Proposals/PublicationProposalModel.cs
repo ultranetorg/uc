@@ -1,8 +1,6 @@
-﻿using Uccs.Fair;
+﻿namespace Uccs.Fair;
 
-namespace Uccs.Fair;
-
-public class PublicationProposalModel(Proposal proposal, Product product, FairUser publisher, PublicationImageBaseModel? publication = null) : BaseProposal(proposal)
+public class PublicationProposalModel(Proposal proposal, FairUser by, Product product, FairUser publisher, PublicationImageBaseModel? publication = null) : BaseOptionsProposalModel(proposal, by)
 {
 	public int UpdationTime { get; } = product.Updated.Days;
 

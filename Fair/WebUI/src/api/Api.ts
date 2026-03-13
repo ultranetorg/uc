@@ -8,6 +8,7 @@ import {
   CategoryParentBase,
   CategoryPublications,
   File,
+  Moderator,
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
@@ -23,6 +24,7 @@ import {
   PublicationExtended,
   PublicationProposal,
   PublicationVersionInfo,
+  Publisher,
   Review,
   ReviewProposal,
   Site,
@@ -44,8 +46,8 @@ export type Api = {
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
   getSitePolicies(siteId: string): Promise<Policy[]>
-  getSitePublishers(siteId: string): Promise<AuthorBaseAvatar[]>
-  getSiteModerators(siteId: string): Promise<AccountBase[]>
+  getSitePublishers(siteId: string): Promise<Publisher[]>
+  getSiteModerators(siteId: string): Promise<Moderator[]>
   getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>

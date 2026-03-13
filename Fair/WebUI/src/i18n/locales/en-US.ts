@@ -253,6 +253,7 @@ export const enUS = {
   moderatorsPage: {
     title: "Moderators",
     noModerators: "No moderators",
+    bannedTill: "Banned till",
   },
   perpetualSurvey: {
     title: "Change approval policy for {{operation}}",

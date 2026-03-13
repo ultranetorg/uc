@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
 import { TabsProvider } from "app"
-import { ButtonOutline, ButtonPrimary, TabContent, TabsList, TabsListItem } from "ui/components"
+import { ButtonPrimary, TabContent, TabsList, TabsListItem } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 
 import { ChangedPublicationsTab } from "./ChangedPublicationsTab"

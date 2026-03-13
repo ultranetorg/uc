@@ -33,24 +33,24 @@ public class ModeratorProposalsService
 
 	T CreateReviewProposalModel<T>(Proposal proposal) where T : ReviewProposalModel
 	{
-		FairUser reviewer = (FairUser) mcv.Users.Latest(proposal.By);
+		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 
 		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
 		{
 			Publication publication = mcv.Publications.Latest(reviewCreation.Publication);
-			return CreateReviewModel<T>(proposal, reviewer, publication);
+			return CreateReviewModel<T>(proposal, by, publication);
 		}
 		if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
 		{
 			Review review = mcv.Reviews.Latest(reviewEdit.Review);
 			Publication publication = mcv.Publications.Latest(review.Publication);
-			return CreateReviewModel<T>(proposal, reviewer, publication);
+			return CreateReviewModel<T>(proposal, by, publication);
 		}
 
 		return null;
 	}
 
-	T CreateReviewModel<T>(Proposal proposal, FairUser reviewer, Publication publication) where T : ReviewProposalModel
+	T CreateReviewModel<T>(Proposal proposal, FairUser by, Publication publication) where T : ReviewProposalModel
 	{
 		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(publication.Category);
@@ -58,7 +58,7 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel model = new PublicationImageBaseModel(publication, product, category.Title, fileId);
 
-		T instance = (T) Activator.CreateInstance(typeof(T), proposal, reviewer, model);
+		T instance = (T) Activator.CreateInstance(typeof(T), proposal, by, model);
 		instance!.Options = ProposalUtils.MapOptions(proposal.Options);
 		return instance;
 	}
@@ -90,8 +90,8 @@ public class ModeratorProposalsService
 
 	UserProposalModel CreateUserProposalModel(Proposal proposal)
 	{
-		FairUser? signer = proposal.Options.Length > 0 ? proposal.Options[0].Operation.User : null;
-		var model = new UserProposalModel(proposal, signer);
+		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+		var model = new UserProposalModel(proposal, by);
 		model.Options = ProposalUtils.MapOptions(proposal.Options);
 		return model;
 	}
@@ -145,6 +145,7 @@ public class ModeratorProposalsService
 
 	PublicationProposalModel CreatePublicationModel(Proposal proposal, AutoId publicationId)
 	{
+		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 		Publication publication = mcv.Publications.Latest(publicationId);
 		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(publication.Category);
@@ -154,7 +155,7 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, category.Title, fileId);
 
-		return new PublicationProposalModel(proposal, product, author, publicationImage)
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage)
 		{
 			Options = ProposalUtils.MapOptions(proposal.Options)
 		};
@@ -162,19 +163,20 @@ public class ModeratorProposalsService
 
 	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, AutoId productId)
 	{
+		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 		Product product = mcv.Products.Latest(productId);
 		FairUser author = (FairUser) mcv.Users.Latest(product.Author);
 		AutoId? fileId = PublicationUtils.GetLatestLogo(product);
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);
 
-		return new PublicationProposalModel(proposal, product, author, publicationImage)
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage)
 		{
 			Options = ProposalUtils.MapOptions(proposal.Options)
 		};
 	}
 
-	T GetProposalByType<T>(string siteId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc) where T : BaseProposal
+	T GetProposalByType<T>(string siteId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc) where T : BaseProposalModel
 	{
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
@@ -203,7 +205,7 @@ public class ModeratorProposalsService
 
 	TotalItemsResult<T> GetProposalsByTypeNotOptimized<T>
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc, CancellationToken cancellationToken)
-		where T : BaseProposal
+		where T : BaseProposalModel
 	{
 		AutoId siteEntityId = AutoId.Parse(siteId);
 
@@ -220,7 +222,7 @@ public class ModeratorProposalsService
 	}
 
 	TotalItemsResult<T> LoadProposalsByType<T>
-		(Site site, int page, int pageSize, string? query, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc, CancellationToken cancellationToken) where T : BaseProposal
+		(Site site, int page, int pageSize, string? query, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc, CancellationToken cancellationToken) where T : BaseProposalModel
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<T>.Empty;

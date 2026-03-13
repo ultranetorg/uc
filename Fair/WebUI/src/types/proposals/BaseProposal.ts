@@ -1,18 +1,25 @@
+import { AccountBase } from "types"
+import { OperationType } from "types/OperationType"
+
 import { ProposalOption } from "./ProposalOption"
 
 export type BaseProposal = {
   id: string
 
-  title: string
-  text: string
+  optionClass: OperationType
 
-  creationTime: number
-
-  options: ProposalOption[]
-
-  optionVotesCount: number[]
+  optionsVotesCount: number[]
   neitherCount: number
   anyCount: number
   banCount: number
   banishCount: number
+
+  creationTime: number
+
+  title: string
+  text: string
+
+  options: ProposalOption[]
+
+  by: AccountBase
 }
