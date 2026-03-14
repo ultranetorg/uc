@@ -143,10 +143,7 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, category.Title, fileId);
 
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage)
-		{
-			Options = ProposalUtils.MapOptions(proposal.Options)
-		};
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
 	}
 
 	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, AutoId productId)
@@ -158,10 +155,7 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);
 
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage)
-		{
-			Options = ProposalUtils.MapOptions(proposal.Options)
-		};
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
 	}
 
 	T GetProposalByType<T>(string siteId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc) where T : BaseProposalModel
