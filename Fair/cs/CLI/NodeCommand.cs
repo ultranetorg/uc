@@ -21,8 +21,7 @@ public class NodeCommand : Uccs.Net.NodeCommand
 						];
 
 		a.Execute = () =>	{
-								Cli.Node = new FairNode(GetString("name", null), 
-														GetEnum("zone", Cli.Net.Zone), 
+								Cli.Node = new FairNode(GetEnum("zone", Cli.Net.Zone), 
 														GetString("profile", Cli.Settings.Profile), 
 														Cli.NexusSettings, 
 														Cli.Settings as FairNodeSettings, 

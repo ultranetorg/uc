@@ -50,9 +50,14 @@ public abstract class Net
 													.Select(i => IPAddress.Parse(i))
 													.ToArray();
 
-	public static readonly  IPAddress[]	VirtualInitials	= [	new([192, 168, 2, 10]),
-															new([192, 168, 2, 11]),
-															new([192, 168, 2, 12])];
+	public static readonly  IPAddress[]	VirtualInitials	= [	new([192, 168, 88, 100]),
+															new([192, 168, 88, 101]),
+															new([192, 168, 88, 102]),
+															new([192, 168, 88, 103]),
+															new([192, 168, 88, 104]),
+															new([192, 168, 88, 105]),
+															new([192, 168, 88, 106]),
+															];
 
 	public Constructor					Constructor = new ();
 

@@ -234,7 +234,7 @@ public class NodeCommand : McvCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var rp = Ppc(new MembersPpc());
 	

@@ -40,7 +40,7 @@ public class UserCommand : McvCommand
 		a.Arguments = [];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								return new UserCreation {};
 							};
@@ -58,7 +58,7 @@ public class UserCommand : McvCommand
 		a.Arguments = [new (name, NAME, "A new user name")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								return new UserNameChange {Name = GetString(name)};
 							};
@@ -76,7 +76,7 @@ public class UserCommand : McvCommand
 		a.Arguments = [new (owner, AA, "Public address of a new account owner")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								return new UserOwnerChange {Owner = GetAccountAddress(owner)};
 							};
@@ -92,7 +92,7 @@ public class UserCommand : McvCommand
 		a.Arguments = [new ("name", NAME, "A name of user to get information about")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var i = Ppc(new UserPpc(GetString(a.Arguments[0].Name)));
 												
@@ -116,7 +116,7 @@ public class UserCommand : McvCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new UserBandwidthAllocation {Bandwidth = GetUInt16("bandwidth"), Months = GetByte("months")};
 							};

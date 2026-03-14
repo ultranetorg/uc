@@ -68,11 +68,11 @@ public abstract class JsonServer
 	protected abstract object				Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 	protected abstract Type					Create(string call);
 
-	public JsonServer(ApiSettings settings, JsonSerializerOptions options, Flow workflow)
+	public JsonServer(ApiSettings settings, JsonSerializerOptions options, Flow flow)
 	{
 		Settings	= settings;
 		Options		= options;
-		Flow		= workflow.CreateNested("JsonServer", new Log());
+		Flow		= flow.CreateNested("JsonServer", new Log());
 
 		if(Flow.Log != null && Flow.WorkDirectory != null)
 		{

@@ -32,7 +32,7 @@ public class Program: ApplicationContext
 		
 			var b = new NetBoot(ExeDirectory);
 			var ns = new NexusSettings(b.Zone, b.Profile) {Name = Guid.NewGuid().ToString()};
-			var vs = new VaultSettings(b.Profile, b.Zone);
+			var vs = new VaultSettings(b.Profile);
 		
 			Nexus = new Nexus(b, ns, vs, new Flow(nameof(Nexus), new Log()));
 

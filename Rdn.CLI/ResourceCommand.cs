@@ -28,7 +28,7 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								Transacted = () =>	{
 														//var	r = Rdc(new ResourceRequest(First)).Resource;
@@ -55,7 +55,7 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var r = Ppc(new ResourcePpc(First)).Resource;
 
@@ -79,7 +79,7 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var	r = Ppc(new ResourcePpc(First)).Resource;
 
@@ -110,7 +110,7 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var	r = Ppc(new ResourcePpc(First)).Resource;
 				
@@ -159,7 +159,7 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var r = Api<IEnumerable<LocalResource>>(new LocalResourcesSearchApc {Query = Args.Any() ? Args[0].Name : null});
 				

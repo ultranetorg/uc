@@ -22,7 +22,7 @@ public class AuthorCommand : FairCommand
 						ByArgument("Address of account that owns or is going to register the author")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new AuthorCreation {Title = GetString("title"), Years = byte.Parse(GetString("years"))};
 							};
@@ -42,7 +42,7 @@ public class AuthorCommand : FairCommand
 						ByArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new AuthorNameChange{Author = FirstAuthorId,
 																Name = GetString(nickname)}; 
@@ -59,7 +59,7 @@ public class AuthorCommand : FairCommand
 		a.Arguments =	[new (null, EID, "Id of an author to get information about", Flag.First)];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new AuthorPpc(FirstAuthorId));
 
@@ -87,7 +87,7 @@ public class AuthorCommand : FairCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 								
 								FairOperation o = null;
 								
@@ -118,7 +118,7 @@ public class AuthorCommand : FairCommand
 						ByArgument("Address of account that owns the author")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new AuthorRenewal {AuthorId = FirstEntityId, Years = byte.Parse(GetString(years))};
 							};
@@ -138,7 +138,7 @@ public class AuthorCommand : FairCommand
 						ByArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return	new AuthorAvatarChange
 										{
@@ -164,7 +164,7 @@ public class AuthorCommand : FairCommand
 						ByArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var o = new AuthorTextChange();
 
@@ -192,7 +192,7 @@ public class AuthorCommand : FairCommand
 						ByArgument("Address of account that owns the author")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var o = new AuthorLinksChange();
 

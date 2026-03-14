@@ -26,7 +26,7 @@ public class UtilityCommand : McvCommand
 						ByArgument("Account public address where funds are debited from")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var info = Ppc(new InfoPpc {});
 								

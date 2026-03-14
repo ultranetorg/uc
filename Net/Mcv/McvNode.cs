@@ -43,7 +43,7 @@ public class McvNode : Node
 	public McvPeering		Peering;
 	public McvNodeSettings	Settings;
 
-	public McvNode(string name, McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(name, net, profile, nexussettings,  flow)
+	public McvNode(McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(net, profile, nexussettings,  flow)
 	{
 	}
 

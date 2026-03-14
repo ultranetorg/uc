@@ -448,6 +448,7 @@ public class PpcApc : McvApc
 
 public class EnforceSessionsApc : McvApc
 {
+	public string	 Application {get; set;}
 	public string	 User {get; set;}
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
@@ -456,7 +457,7 @@ public class EnforceSessionsApc : McvApc
 			throw new NodeException(NodeError.NoPeering);
 
 		lock(node.Peering.Lock)
-			node.Peering.CreateSession(User);
+			node.Peering.CreateSession(Application, User);
 
 		return null;
 	}

@@ -20,7 +20,7 @@ public class SiteCommand : FairCommand
 						ByArgument("Address of account that owns or is going to register the site")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new SiteCreation {Title = GetString("title"), Years = byte.Parse(GetString("years"))};
 							};
@@ -36,7 +36,7 @@ public class SiteCommand : FairCommand
 		a.Arguments =	[new (null, EID, "Id of an site to get information about", Flag.First)];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new SitePpc(FirstEntityId));
 
@@ -60,7 +60,7 @@ public class SiteCommand : FairCommand
 							 ByArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new SiteRenewal {SiteId = FirstEntityId, Years = byte.Parse(GetString(years))};
 							};
@@ -82,7 +82,7 @@ public class SiteCommand : FairCommand
 						ByArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@As), new SiteNameChange {Name = GetString(nickname)}); 
 							};
@@ -98,7 +98,7 @@ public class SiteCommand : FairCommand
 		a.Arguments = [new (null, EID, "Id of a site to get categories from", Flag.First)];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new SiteCategoriesPpc(FirstEntityId));
 
@@ -128,7 +128,7 @@ public class SiteCommand : FairCommand
 						ByArgument("Address of account that owns the site")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var o = new SiteTextChange();
 

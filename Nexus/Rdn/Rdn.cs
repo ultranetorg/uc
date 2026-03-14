@@ -13,11 +13,11 @@ public abstract class Rdn : McvNet
 	public int						FreeNameLengthMinimum => 8;
 	public int						CircularDependeciesChecksMaximum => 100_000;
 		
- 	public static readonly Rdn		Simulated = new RdnSimulated();
- 	public static readonly Rdn		Virtual = new RdnVirtual();
- 	public static readonly Rdn		Test = new RdnTest();
- 	public static readonly Rdn		Developer0 = new RdnDeveloper0();
- 	public static readonly Rdn		TA = new RdnTA();
+ 	public static readonly Rdn		Simulated = new SimulationRdn();
+ 	public static readonly Rdn		Virtual = new VirtualRdn();
+ 	public static readonly Rdn		Test = new TestRdn();
+ 	public static readonly Rdn		Developer0 = new Developer0Rdn();
+ 	public static readonly Rdn		TA = new TaRdn();
 	public static readonly Rdn		Main = null;
 
 	public static Rdn				ByZone(Zone zone) => new Rdn[]{Simulated, Virtual, Developer0, Test, TA}.First(i => i.Zone == zone);
@@ -29,11 +29,11 @@ public abstract class Rdn : McvNet
 	}
 }
 
-public class RdnSimulated : Rdn
+public class SimulationRdn : Rdn
 {	
 	public override	Zone	Zone => Zone.Simulation;
 	
-	public RdnSimulated()
+	public SimulationRdn()
 	{
 		Father0IP						= new(DefaultHost, PpiPort);
 		Cryptography					= Cryptography.No;
@@ -45,21 +45,22 @@ public class RdnSimulated : Rdn
 	}
 }
 
-public class RdnVirtual : Rdn
+public class VirtualRdn : Rdn
 {
 	public override	Zone	Zone => Zone.Virtual;
 
-	public RdnVirtual()
+	public VirtualRdn()
 	{
  		Father0IP	= new(VirtualInitials[0], PpiPort);
 		Initials	= VirtualInitials;
+		UserFreeCreationPoWDifficulity	= 0;
 	}
 }
-public class RdnDeveloper0 : Rdn
+public class Developer0Rdn : Rdn
 {
 	public override	Zone	Zone => Zone.Developer0;
 
-	public RdnDeveloper0()
+	public Developer0Rdn()
 	{
 		var z = Test;
 
@@ -68,11 +69,11 @@ public class RdnDeveloper0 : Rdn
 	}
 }
 
-public class RdnTest : Rdn
+public class TestRdn : Rdn
 {
 	public override	Zone	Zone => Zone.Test;
 
-	public RdnTest()
+	public TestRdn()
 	{
  		Father0IP	= new(IPAddress.Parse("78.47.204.100"), PpiPort);
 		Initials	= UOInitials;
@@ -80,11 +81,11 @@ public class RdnTest : Rdn
 }
 
 
-public class RdnTA : Rdn
+public class TaRdn : Rdn
 {	
 	public override	Zone	Zone => Zone.TA;
 	
-	public RdnTA()
+	public TaRdn()
 	{
 		Father0IP						= new(DefaultHost, PpiPort);
 		Initials						= LocalInitials;

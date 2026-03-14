@@ -15,6 +15,7 @@ public class Vault : Cli
 	public List<Wallet>					Wallets = new();
 	public IEnumerable<WalletAccount>	UnlockedAccounts => Wallets.SelectMany(i => i.Accounts);
 	public VaultSettings				Settings;
+	public Zone							Zone;
 	internal VaultApiServer				ApiServer;
 	public IPasswordAsker				PasswordAsker = new ConsolePasswordAsker();
 
@@ -44,7 +45,8 @@ public class Vault : Cli
 
 	public Vault(string profile, Zone zone, VaultSettings settings, Flow flow)
 	{
-		Settings = settings ?? new VaultSettings(profile, zone);
+		Zone = zone;
+		Settings = settings ?? new VaultSettings(profile);
 		Flow = flow;
 		
 		Directory.CreateDirectory(Settings.Profile);
@@ -57,7 +59,10 @@ public class Vault : Cli
 			}
 		}
 
-		RunApi();
+		if(Settings.Api != null)
+		{
+			RunApi();
+		}
 	}
 	
 	public void Stop()

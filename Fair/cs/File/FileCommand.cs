@@ -26,7 +26,7 @@ public class FileCommand : FairCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return	new FileCreation
 										{
@@ -46,7 +46,7 @@ public class FileCommand : FairCommand
 		a.Arguments = [new (null, EID, "Id of a file to delete", Flag.First)];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new FileDeletion {File = First};
 							};
@@ -62,7 +62,7 @@ public class FileCommand : FairCommand
 		a.Arguments = [new (null, EID, "Id of a file to get information about", Flag.First)];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var	r = Ppc(new FilePpc(First)).File;
 				

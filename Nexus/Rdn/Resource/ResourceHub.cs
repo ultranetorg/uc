@@ -278,6 +278,13 @@ public class ResourceHub
 
 			var cr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
 
+			if(cr == null) 
+			{	
+				Debugger.Break();
+				cr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
+				continue;
+			}
+
 			if(!cr.Members.Any())
 				continue;
 
@@ -345,6 +352,7 @@ public class ResourceHub
 													{	
 														Debugger.Break();
 														cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
+														return;
 													}
 
 													lock(Lock)

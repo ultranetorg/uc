@@ -25,7 +25,7 @@ public class LinkCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
 								var d = Ppc(new ResourcePpc(GetResourceAddress(a[1].Name))).Resource;
@@ -47,7 +47,7 @@ public class LinkCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
 
@@ -68,7 +68,7 @@ public class LinkCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
 				
@@ -93,7 +93,7 @@ public class LinkCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
 																	

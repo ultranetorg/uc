@@ -138,12 +138,12 @@ public abstract class McvPeering : HomoTcpPeering
 					MinimalPeersReached = true;
 					Flow.Log?.Report(this, $"PermanentMin reached");
 	
-					if(IsListener)
-					{
-						foreach(var c in Connections)
-							c.Send(new SharePeersPpc{Broadcast = true, 
-													 Peers = [new HomoPeer(EP) {Roles = Roles}]});
-					}
+					//if(IsListener)
+					//{
+					//	foreach(var c in Connections)
+					//		c.Send(new SharePeersPpc{Broadcast = true, 
+					//								 Peers = [new HomoPeer(EP) {Roles = Roles}]});
+					//}
 	
 					Synchronize();
 				}
@@ -500,6 +500,9 @@ public abstract class McvPeering : HomoTcpPeering
 					used.Add(peer);
 			}
 			catch(EntityException)
+			{
+			}
+			catch(RequestException)
 			{
 			}
 		}
@@ -940,9 +943,9 @@ public abstract class McvPeering : HomoTcpPeering
 		return Node.Settings.Sessions.FirstOrDefault(i => i.User == user);
 	}
 
-	public AccountSessionSettings CreateSession(string user)
+	public AccountSessionSettings CreateSession(string application, string user)
 	{
-		var a = VaultApi.Call<AuthenticationResult>(new AuthenticateApc {Application = Name, Net = Net.Name, User = user}, Flow); 
+		var a = VaultApi.Call<AuthenticationResult>(new AuthenticateApc {Application = application, Net = Net.Name, User = user}, Flow); 
 
 		if(a == null)
 			return null;
@@ -1001,7 +1004,6 @@ public abstract class McvPeering : HomoTcpPeering
 			foreach(var g in nones)
 			{
 				var txs = new Dictionary<IHomoPeer, List<Transaction>>();
-
 
 				foreach(var t in g.Where(i => i.Status == TransactionStatus.None))
 				{
@@ -1065,6 +1067,12 @@ public abstract class McvPeering : HomoTcpPeering
 						t.Flow.Log?.Report(this, $"Examine: {t}");
 					}
 					catch(NodeException ex)
+					{
+						t.Flow.Log?.ReportError(this, "Examine", ex);
+						Thread.Sleep(NodeGlobals.TimeoutOnError);
+						continue;
+					}
+					catch(VaultException ex)
 					{
 						t.Flow.Log?.ReportError(this, "Examine", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
