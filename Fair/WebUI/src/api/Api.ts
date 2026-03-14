@@ -4,6 +4,7 @@ import {
   AccountSearchLite,
   AuthorBaseAvatar,
   AuthorDetails,
+  BaseProposal,
   Category,
   CategoryParentBase,
   CategoryPublications,
@@ -34,7 +35,6 @@ import {
   TotalItemsResult,
   UnpublishedProduct,
   UnpublishedProductDetails,
-  UserProposal,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
@@ -156,5 +156,5 @@ export type Api = {
     page?: number,
     pageSize?: number,
     search?: string,
-  ): Promise<TotalItemsResult<UserProposal>>
+  ): Promise<TotalItemsResult<BaseProposal>>
 }

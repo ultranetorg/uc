@@ -17,7 +17,7 @@ export const getProposalsItemRenderer =
       case "account":
         return renderAccount(proposal.by)
       case "action":
-        return renderAction(t, proposal.options[0].operation?.$type)
+        return renderAction(t, proposal.operation)
     }
 
     return renderCommon(t, column, proposal)

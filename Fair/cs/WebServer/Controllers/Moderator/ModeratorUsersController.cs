@@ -16,7 +16,7 @@ public class ModeratorUsersController
 {
 	// TODO: move to moderator proposals controller and make it more generic (for reviews, users, etc.)
 	[HttpGet]
-	public IEnumerable<UserProposalModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<ProposalModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(ModeratorUsersController)}.{nameof(ModeratorUsersController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
@@ -24,7 +24,7 @@ public class ModeratorUsersController
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<UserProposalModel> reviews = moderatorProposalsService.GetUserProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ProposalModel> reviews = moderatorProposalsService.GetUserProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}

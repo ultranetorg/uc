@@ -22,8 +22,7 @@ export const getReviewsItemRenderer =
       case "publication":
         return renderPublication(proposal.publication)
       case "text":
-        // @ts-expect-error text
-        return renderText(proposal.options[0].operation?.text)
+        return renderText(proposal.reviewText)
       case "review-action":
         return renderActions(
           t,

@@ -10,15 +10,6 @@ public class ModeratorProposalsService
 	FairMcv mcv
 )
 {
-	public ReviewProposalDetailsModel GetReviewProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
-	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(GetReviewProposal), siteId, proposalId);
-
-		Guard.Against.NullOrEmpty(proposalId);
-
-		return GetProposalByType<ReviewProposalDetailsModel>(siteId, proposalId, nameof(Review).ToLower(), ProposalUtils.IsReviewOperation, CreateReviewProposalModel<ReviewProposalDetailsModel>);
-	}
-
 	public TotalItemsResult<ReviewProposalModel> GetReviewProposalsNotOptimized
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
@@ -38,19 +29,19 @@ public class ModeratorProposalsService
 		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
 		{
 			Publication publication = mcv.Publications.Latest(reviewCreation.Publication);
-			return CreateReviewModel<T>(proposal, by, publication);
+			return CreateReviewModel<T>(proposal, by, publication, reviewCreation.Text);
 		}
 		if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
 		{
 			Review review = mcv.Reviews.Latest(reviewEdit.Review);
 			Publication publication = mcv.Publications.Latest(review.Publication);
-			return CreateReviewModel<T>(proposal, by, publication);
+			return CreateReviewModel<T>(proposal, by, publication, reviewEdit.Text);
 		}
 
 		return null;
 	}
 
-	T CreateReviewModel<T>(Proposal proposal, FairUser by, Publication publication) where T : ReviewProposalModel
+	T CreateReviewModel<T>(Proposal proposal, FairUser by, Publication publication, string reviewText) where T : ReviewProposalModel
 	{
 		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(publication.Category);
@@ -58,12 +49,11 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel model = new PublicationImageBaseModel(publication, product, category.Title, fileId);
 
-		T instance = (T) Activator.CreateInstance(typeof(T), proposal, by, model);
-		instance!.Options = ProposalUtils.MapOptions(proposal.Options);
+		T instance = (T) Activator.CreateInstance(typeof(T), proposal, by, model, reviewText);
 		return instance;
 	}
 
-	public UserProposalModel GetUserProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
+	public ProposalModel GetUserProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(GetUserProposal), siteId, proposalId);
 
@@ -72,10 +62,10 @@ public class ModeratorProposalsService
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		return GetProposalByType<UserProposalModel>(siteId, proposalId, EntityNames.UserEntityName, ProposalUtils.IsUserOperation, CreateUserProposalModel);
+		return GetProposalByType<ProposalModel>(siteId, proposalId, EntityNames.UserEntityName, ProposalUtils.IsUserOperation, CreateUserProposalModel);
 	}
 
-	public TotalItemsResult<UserProposalModel> GetUserProposalsNotOptimized
+	public TotalItemsResult<ProposalModel> GetUserProposalsNotOptimized
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}, {Search}",
@@ -88,12 +78,10 @@ public class ModeratorProposalsService
 		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsUserOperation, CreateUserProposalModel, cancellationToken);
 	}
 
-	UserProposalModel CreateUserProposalModel(Proposal proposal)
+	ProposalModel CreateUserProposalModel(Proposal proposal)
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
-		var model = new UserProposalModel(proposal, by);
-		model.Options = ProposalUtils.MapOptions(proposal.Options);
-		return model;
+		return new ProposalModel(proposal, by);
 	}
 
 	public PublicationProposalModel GetPublicationProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)

@@ -6,7 +6,7 @@ import { ProposalOption } from "./ProposalOption"
 export type BaseProposal = {
   id: string
 
-  optionClass: OperationType
+  operation: OperationType
 
   optionsVotesCount: number[]
   neitherCount: number

@@ -5,5 +5,5 @@ export const getFirstOperation = <T extends BaseVotableOperation>(
   operationType: OperationType,
 ): T | undefined => {
   const operation = proposal.options[0].operation
-  return operation.$type === operationType ? (operation as T) : undefined
+  return proposal.operation === operationType ? (operation as T) : undefined
 }

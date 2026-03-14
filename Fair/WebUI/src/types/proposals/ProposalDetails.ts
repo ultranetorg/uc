@@ -1,3 +1,3 @@
-import { Proposal } from "./Proposal"
+import { BaseProposalOptions } from "./BaseProposalOptions"
 
-export type ProposalDetails = {} & Proposal
+export type ProposalDetails = BaseProposalOptions

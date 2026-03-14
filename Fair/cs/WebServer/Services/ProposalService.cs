@@ -161,10 +161,7 @@ public class ProposalService
 		foreach(Proposal proposal in proposals)
 		{
 			FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
-			ProposalModel model = new ProposalModel(proposal, by)
-			{
-				Options = ProposalUtils.MapOptions(proposal.Options)
-			};
+			ProposalModel model = new ProposalModel(proposal, by);
 			result.Add(model);
 		}
 
@@ -173,5 +170,68 @@ public class ProposalService
 			Items = result,
 			TotalItems = totalItems
 		};
+	}
+
+	public TotalItemsResult<BaseProposalModel> GetProposals([NotEmpty][NotNull] string siteId, FairOperationClass? operationClass, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{SiteId}}, {{OperationClass}}, {{Page}}, {{PageSize}}", siteId, operationClass, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page, nameof(page));
+		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+
+		AutoId siteEntityId = AutoId.Parse(siteId);
+
+		lock (mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(siteEntityId);
+			if(site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+
+			return LoadProposalsPagedNotOptimized(site.Proposals, operationClass, page, pageSize, cancellationToken);
+		}
+	}
+
+	TotalItemsResult<BaseProposalModel> LoadProposalsPagedNotOptimized(IEnumerable<AutoId> proposalIds, FairOperationClass? operation, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		if (cancellationToken.IsCancellationRequested)
+			return TotalItemsResult<BaseProposalModel>.Empty;
+
+		var items = new List<BaseProposalModel>(pageSize);
+		int totalItems = 0;
+
+		foreach (var proposalId in proposalIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return new TotalItemsResult<BaseProposalModel> {Items = items, TotalItems = totalItems};
+
+			Proposal proposal = mcv.Proposals.Latest(proposalId);
+			if (proposal.OptionClass != operation)
+			{
+				continue;
+			}
+
+			if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
+			{
+				FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+				BaseProposalModel model = CreateCorrespondedModel(operation, proposal, by);
+				items.Add(model);
+			}
+
+			++totalItems;
+		}
+
+		return new TotalItemsResult<BaseProposalModel> { Items = items, TotalItems = totalItems };
+	}
+
+	BaseProposalModel CreateCorrespondedModel(FairOperationClass? operation, Proposal proposal, FairUser by)
+	{
+		switch (operation)
+		{
+		}
+
+		return null;
 	}
 }

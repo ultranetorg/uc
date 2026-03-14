@@ -19,7 +19,7 @@ export const getPublicationsItemRenderer =
       case "account":
         return renderAccount(proposal.author)
       case "action-short":
-        return renderActionShort(t, proposal.options[0].operation.$type)
+        return renderActionShort(t, proposal.operation)
     }
 
     return renderCommon(t, column, proposal)

@@ -1,4 +1,4 @@
-import { ReactNode, MouseEvent } from "react"
+import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
 import { AccountBaseAvatar, BaseProposal, OperationType, PublicationImageBase } from "types"

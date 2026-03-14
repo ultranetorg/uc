@@ -1,5 +1,3 @@
 import { BaseProposal } from "./BaseProposal"
 
-export type Proposal = {
-  commentsCount: number
-} & BaseProposal
+export type Proposal = BaseProposal

@@ -6,6 +6,7 @@ import {
   AccountSearchLite,
   AuthorBaseAvatar,
   AuthorDetails,
+  BaseProposal,
   Category,
   CategoryParentBase,
   CategoryPublications,
@@ -38,7 +39,6 @@ import {
   TotalItemsResult,
   UnpublishedProduct,
   UnpublishedProductDetails,
-  UserProposal,
 } from "types"
 
 import { Api } from "./Api"
@@ -323,7 +323,7 @@ const getUserProposals = async (
   page?: number,
   pageSize?: number,
   search?: string,
-): Promise<TotalItemsResult<UserProposal>> => {
+): Promise<TotalItemsResult<BaseProposal>> => {
   const params = buildUrlParams(
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },

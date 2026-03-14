@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import { UserProposal } from "types"
+import { BaseProposal } from "types"
 import { TableColumn, TableItem } from "ui/components"
 
 import { renderAccount, renderActions, renderCommon, renderTitle } from "./utils"
@@ -14,18 +14,18 @@ export const getUsersItemRenderer =
     loadingItem?: { id: string; action: "approve" | "reject" } | undefined,
   ) =>
   (item: TableItem, column: TableColumn): ReactNode => {
-    const proposal = item as UserProposal
+    const proposal = item as BaseProposal
 
     switch (column.type) {
       case "title":
         return renderTitle(proposal.title, proposal.text)
       case "account":
-        return renderAccount(proposal.signer)
+        return renderAccount(proposal.by)
       case "actions":
         return renderActions(
           t,
-          () => onApprove(item.id, proposal.signer.nickname),
-          () => onReject(item.id, proposal.signer.nickname),
+          () => onApprove(item.id, proposal.by.nickname),
+          () => onReject(item.id, proposal.by.nickname),
           loadingItem?.id === item.id ? loadingItem.action : undefined,
           loadingItem && loadingItem.id !== item.id,
         )

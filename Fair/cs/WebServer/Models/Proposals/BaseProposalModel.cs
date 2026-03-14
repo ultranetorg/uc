@@ -4,7 +4,7 @@ public abstract class BaseProposalModel(Proposal proposal, FairUser by)
 {
 	public string Id { get; } = proposal.Id.ToString();
 
-	public FairOperationClass OptionClass { get; set; } = proposal.OptionClass;
+	public FairOperationClass Operation { get; set; } = proposal.OptionClass;
 
 	public IEnumerable<int> OptionsVotesCount { get; set; } = proposal.Options.Select(x => x.Yes.Count());
 	public int NeitherCount { get; set; } = proposal.Neither.Count();
