@@ -14,6 +14,7 @@ import {
   ChangedPublicationDetails,
   File,
   Moderator,
+  ModeratorProposal,
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
@@ -30,6 +31,7 @@ import {
   PublicationProposal,
   PublicationVersionInfo,
   Publisher,
+  PublisherProposal,
   Review,
   ReviewProposal,
   Site,
@@ -304,6 +306,34 @@ const getProductFields = (productId: string): Promise<ProductField[]> =>
 const getProductCompareFields = (publicationId: string, version: number): Promise<ProductFieldDiff> =>
   fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
 
+const getModeratorProposals = async (
+  siteId: string,
+  search?: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<ModeratorProposal>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/proposals/moderators` + params)
+  return await toTotalItemsResult(res)
+}
+
+const getPublisherProposals = async (
+  siteId: string,
+  search?: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<PublisherProposal>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/proposals/publishers` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getReviewProposals = async (
   siteId: string,
   page?: number,
@@ -386,6 +416,8 @@ const api: Api = {
   getModeratorUser,
   getProductFields,
   getProductCompareFields,
+  getModeratorProposals,
+  getPublisherProposals,
   getReviewProposals,
   getUserProposals,
 }

@@ -18,4 +18,5 @@ public abstract class BaseProposalModel(Proposal proposal, FairUser by)
 	public string Text { get; } = proposal.Text;
 
 	public AccountBaseModel By { get; } = new AccountBaseModel(by);
+	public bool MultipleOptions { get; } = proposal.Options.Length > 1;
 }

@@ -22,4 +22,5 @@ export type BaseProposal = {
   options: ProposalOption[]
 
   by: AccountBase
+  multipleOptions: boolean
 }

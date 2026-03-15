@@ -10,6 +10,7 @@ import {
   CategoryPublications,
   File,
   Moderator,
+  ModeratorProposal,
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
@@ -26,6 +27,7 @@ import {
   PublicationProposal,
   PublicationVersionInfo,
   Publisher,
+  PublisherProposal,
   Review,
   ReviewProposal,
   Site,
@@ -143,6 +145,20 @@ export type Api = {
   getProductFields(productId: string): Promise<ProductField[]>
 
   getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldDiff>
+
+  getModeratorProposals(
+    siteId: string,
+    search?: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<TotalItemsResult<ModeratorProposal>>
+
+  getPublisherProposals(
+    siteId: string,
+    search?: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<TotalItemsResult<PublisherProposal>>
 
   getReviewProposals(
     siteId: string,

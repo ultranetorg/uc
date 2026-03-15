@@ -3,24 +3,39 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
+[Route("api/sites/{siteId}/[controller]")]
 public class ProposalsController
 (
 	ILogger<ProposalsController> logger,
-	ProposalService proposalsService,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator
+	ModeratorProposalsService proposalsService,
+	IAutoIdValidator autoIdValidator,
+	IPaginationValidator paginationValidator
 ) : BaseController
 {
-	[HttpGet]
-	public IEnumerable<BaseProposalModel> Get(string siteId, [FromQuery] FairOperationClass? operation, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	[HttpGet("moderators")]
+	public IEnumerable<ModeratorProposalModel> GetModeratorProposals(string siteId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(ProposalsController.Get)} method called with {{SiteId}}, {{Operation}}, {{Pagination}}", siteId, operation, pagination);
+		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(GetModeratorProposals)} method called with {{SiteId}}, {{Search}}, {{Pagination}}", siteId, search, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<BaseProposalModel> discussions = proposalsService.GetProposals(siteId, operation, page, pageSize, cancellationToken);
+		TotalItemsResult<ModeratorProposalModel> discussions = proposalsService.GetModeratorProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
+
+		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
+	}
+
+	[HttpGet("publishers")]
+	public IEnumerable<PublisherProposalModel> GetPublisherProposals(string siteId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(PublisherProposalModel)} method called with {{SiteId}}, {{Search}}, {{Pagination}}", siteId, search, pagination);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<PublisherProposalModel> discussions = proposalsService.GetPublisherProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
 	}

@@ -238,4 +238,63 @@ public class ModeratorProposalsService
 
 		return new TotalItemsResult<T>{Items = items, TotalItems = totalItems};
 	}
+
+	public TotalItemsResult<ModeratorProposalModel> GetModeratorProposalsNotOptimized
+		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(GetModeratorProposalsNotOptimized), siteId, page, pageSize, search);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsModeratorOperation, CreateModeratorProposalModel, cancellationToken);
+	}
+
+	ModeratorProposalModel CreateModeratorProposalModel(Proposal proposal)
+	{
+		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+
+		if(proposal.Options[0].Operation is SiteModeratorAddition addition)
+		{
+			// NOTE: if there are multiple options, we won't load moderators.
+			IEnumerable<AccountBaseModel> moderators = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, addition.Candidates, CancellationToken.None) : null;
+			return new ModeratorProposalModel(proposal, by, moderators);
+		}
+		if(proposal.Options[0].Operation is SiteModeratorRemoval removal)
+		{
+			// NOTE: if there are multiple options, we won't load moderators.
+			IEnumerable<AccountBaseModel> moderators = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, [removal.Moderator], CancellationToken.None) : null;
+			return new ModeratorProposalModel(proposal, by, moderators);
+		}
+
+		return null;
+	}
+
+	public TotalItemsResult<PublisherProposalModel> GetPublisherProposalsNotOptimized
+		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(GetPublisherProposalsNotOptimized), siteId, page, pageSize, search);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsPublisherOperation, CreatePublisherProposalModel, cancellationToken);
+	}
+
+	PublisherProposalModel CreatePublisherProposalModel(Proposal proposal)
+	{
+		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+
+		if(proposal.Options[0].Operation is SiteAuthorsChange change)
+		{
+			// NOTE: if there are multiple options, we won't load publishers.
+			IEnumerable<AccountBaseModel> additions = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, change.Additions, CancellationToken.None) : null;
+			IEnumerable<AccountBaseModel> removals = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, change.Removals, CancellationToken.None) : null;
+			return new PublisherProposalModel(proposal, by, additions, removals);
+		}
+
+		return null;
+	}
 }

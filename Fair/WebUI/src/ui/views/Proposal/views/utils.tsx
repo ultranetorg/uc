@@ -55,8 +55,24 @@ const getCategoryTypeChange = (operation: CategoryTypeChange): JSX.Element => {
   )
 }
 
+const getSiteAuthorsChange = (operation: SiteAuthorsChange): JSX.Element => {
+  return (
+    <b>
+      {operation.additionsIds.join(", ")} + " " + {operation.removalsIds.join(", ")}
+    </b>
+  )
+}
+
 const getSiteAvatarChange = (operation: SiteAvatarChange): JSX.Element => {
   return <b>{operation.fileId}</b>
+}
+
+const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element => {
+  return <b>{operation.candidatesIds.join(", ")}</b>
+}
+
+const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element => {
+  return <b>{operation.moderatorId.join(", ")}</b>
 }
 
 const getSiteNameChange = (operation: SiteNicknameChange): JSX.Element => {
@@ -83,8 +99,14 @@ export const getOptionDescription = (t: TFunction, option: ProposalOption): Reac
       return getCategoryMovement(option.operation as CategoryMovement)
     case "category-type-change":
       return getCategoryTypeChange(option.operation as CategoryTypeChange)
+    case "site-authors-change":
+      return getSiteAuthorsChange(option.operation as SiteAuthorsChange)
     case "site-avatar-change":
       return getSiteAvatarChange(option.operation as SiteAvatarChange)
+    case "site-moderator-addition":
+      return getSiteModeratorAddition(option.operation as SiteModeratorAddition)
+    case "site-moderator-removal":
+      return getSiteModeratorRemoval(option.operation as SiteModeratorRemoval)
     case "site-name-change":
       return getSiteNameChange(option.operation as SiteNicknameChange)
     case "site-text-change":

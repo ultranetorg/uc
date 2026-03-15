@@ -14,6 +14,10 @@ public static class ProposalUtils
 
 	public static bool IsUserOperation(Proposal proposal) => proposal.Options[0].Operation is UserUnregistration or UserRegistration;
 
+	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is SiteModeratorAddition or SiteModeratorRemoval;
+
+	public static bool IsPublisherOperation(Proposal proposal) => proposal.Options[0].Operation is SiteAuthorsChange;
+
 	public static BaseVotableOperationModel ToBaseVotableOperationModel(SiteOperation proposal)
 	{
 		return proposal switch
