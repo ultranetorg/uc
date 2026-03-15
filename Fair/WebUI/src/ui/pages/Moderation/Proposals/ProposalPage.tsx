@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useGetModeratorDiscussion, useGetModeratorDiscussionComments } from "entities"
 import { ProposalView } from "ui/views"
 
-export const DiscussionPage = () => {
+export const ProposalPage = () => {
   const { t } = useTranslation()
   const { siteId, discussionId } = useParams()
 
@@ -13,7 +13,7 @@ export const DiscussionPage = () => {
 
   return (
     <ProposalView
-      parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m/d/` }}
+      parentBreadcrumb={{ title: t("common:moderation"), path: `/${siteId}/m` }}
       isFetching={isFetching}
       proposal={proposal}
       isCommentsFetching={isCommentsFetching}

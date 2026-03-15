@@ -8,7 +8,7 @@ public static class ProposalUtils
 	public static bool IsDiscussion(Site site, Proposal proposal) => site.IsDiscussion(proposal.OptionClass); /// TODO: remove this method
 
 	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
-		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationUpdation;
+		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationUpdation or PublicationUnpublish;
 
 	public static bool IsReviewOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;
 

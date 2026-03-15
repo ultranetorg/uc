@@ -1,5 +1,6 @@
-import { SvgCheckSquareSmSvg } from "assets"
 import { useCallback, useState } from "react"
+
+import { SvgCheckSquareSmSvg } from "assets"
 
 import { ButtonPrimary, RadioCard } from "ui/components"
 

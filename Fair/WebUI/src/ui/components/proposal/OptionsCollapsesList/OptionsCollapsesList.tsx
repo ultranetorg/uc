@@ -1,3 +1,4 @@
+import { ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
@@ -7,7 +8,7 @@ import { OptionCollapse } from "./OptionCollapse"
 export type OptionsCollapsesListItem = {
   expanded?: boolean
   title: string
-  description: string
+  description: ReactNode
   value: string | number
   votePercents: number
   voted?: boolean

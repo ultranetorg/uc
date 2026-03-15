@@ -2,6 +2,7 @@ import { ComponentType, memo, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { useModerationContext } from "app"
 import { SvgArrowLeft } from "assets"
 import { Proposal, ProposalComment, TotalItemsResult } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
@@ -26,7 +27,10 @@ export type ProposalViewProps = {
 
 export const ProposalView = memo(({ parentBreadcrumb, proposal, isCommentsFetching, comments }: ProposalViewProps) => {
   const { siteId } = useParams()
+  const { getOperationVoterId } = useModerationContext()
   const { t } = useTranslation("proposal")
+
+  const voterId = getOperationVoterId(proposal?.operation)
 
   const [pageState, setPageState] = useState<PageState>("voting")
 
@@ -60,7 +64,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal, isCommentsFetchi
         <div className="flex gap-8">
           <div className="flex w-full flex-col gap-8">
             {!showOnTop && <NestedView t={t} proposal={proposal} pageState={pageState} />}
-            <AlternativeOptions />
+            {voterId && <AlternativeOptions />}
             <hr className="h-px border-0 bg-gray-300" />
             <CommentsSection isFetching={isCommentsFetching} comments={comments} />
           </div>

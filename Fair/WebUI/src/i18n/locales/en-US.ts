@@ -275,6 +275,10 @@ export const enUS = {
     title: "Title",
     uploadAvatar: "Upload avatar",
   },
+  proposalsPage: {
+    searchProposal: "Search discussion",
+    noProposals: "No open discussions",
+  },
   publication: {
     title: "Publication - {{publicationId}} | Ultranet Fair",
     information: "Information",
@@ -440,10 +444,6 @@ export const enUS = {
   /* Tabs */
   tabChangedPublications: {
     noPublications: "No changed publications",
-  },
-  tabDiscussions: {
-    searchProposal: "Search discussion",
-    noProposals: "No open discussions",
   },
   tabPublications: {
     noPublications: "No publications",

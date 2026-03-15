@@ -1,11 +1,11 @@
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { CheckCircleFillSvg, SvgCheckSquareSmSvg, SvgChevronDown2Sm } from "assets"
 import { ButtonPrimary } from "ui/components"
 
 export type OptionCollapseProps = {
-  description: string
+  description: ReactNode
   disabled?: boolean
   expanded?: boolean
   showResults?: boolean

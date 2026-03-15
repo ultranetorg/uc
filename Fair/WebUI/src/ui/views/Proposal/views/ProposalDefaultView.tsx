@@ -1,6 +1,9 @@
-import { OptionsCollapsesList } from "ui/components/proposal"
+import { memo, useMemo } from "react"
+import { useTranslation } from "react-i18next"
+import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 
 import { ProposalTypeViewProps } from "./types"
+import { getOptionDescription, getOptionTitle } from "./utils"
 
 const TEST_ITEMS: {
   title: string
@@ -66,11 +69,26 @@ const TEST_ITEMS: {
   { title: "Prussia", description: "4", value: 9, votePercents: 10, votesCount: 126 },
 ]
 
-export const ProposalDefaultView = ({ t, pageState }: ProposalTypeViewProps) => (
-  <OptionsCollapsesList
-    className="max-w-187.5"
-    items={TEST_ITEMS}
-    showResults={pageState == "results"}
-    votesText={t("common:votes")}
-  />
-)
+export const ProposalDefaultView = memo(({ t, pageState, proposal }: ProposalTypeViewProps) => {
+  const items = useMemo<OptionsCollapsesListItem[]>(
+    () =>
+      proposal.options.map((x, i) => ({
+        title: x.title ?? getOptionTitle(t, x),
+        description: getOptionDescription(t, x),
+        value: i,
+        votePercents: 2,
+        voted: false,
+        votesCount: 4,
+      })),
+    [proposal.options, t],
+  )
+
+  return (
+    <OptionsCollapsesList
+      className="max-w-187.5"
+      items={items}
+      showResults={pageState == "results"}
+      votesText={t("common:votes")}
+    />
+  )
+})

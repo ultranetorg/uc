@@ -10,8 +10,8 @@ import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
 import { parseInteger } from "utils"
 
-export const DiscussionsPage = () => {
-  const { t } = useTranslation("tabDiscussions")
+export const ProposalsPage = () => {
+  const { t } = useTranslation("proposalsPage")
   const navigate = useNavigate()
   const { siteId } = useParams()
 
@@ -40,7 +40,7 @@ export const DiscussionsPage = () => {
     [setState, state.query],
   )
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/d/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/p/${id}`), [navigate, siteId])
 
   const handleSearchChange = useCallback(
     (query: string) => {

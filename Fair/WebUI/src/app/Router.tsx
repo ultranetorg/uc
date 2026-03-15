@@ -7,8 +7,8 @@ import {
   CategoryPage,
   CreateDiscussionPage,
   CreateReferendumPage,
-  DiscussionPage,
-  DiscussionsPage,
+  ProposalPage,
+  ProposalsPage,
   ErrorPage,
   ModeratorCreatePublicationPage,
   ModeratorsPage,
@@ -133,11 +133,11 @@ const routes: RouteObject[] = [
             children: [
               {
                 index: true,
-                element: <DiscussionsPage />,
+                element: <ProposalsPage />,
               },
               {
-                path: "d/:discussionId",
-                element: <DiscussionPage />,
+                path: "p/:discussionId",
+                element: <ProposalPage />,
               },
               {
                 path: "m/:tabKey?",

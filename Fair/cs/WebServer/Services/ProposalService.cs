@@ -73,8 +73,8 @@ public class ProposalService
 		{
 			ProposalOptionModel model = new(option);
 
-			IEnumerable<AccountBaseAvatarModel> yesAccounts = LoadYesAccounts(option.Yes);
-			model.YesAccounts = yesAccounts;
+			//IEnumerable<AccountBaseModel> yesAccounts = LoadYesAccounts(option.Yes);
+			model.Yes = option.Yes.Select(x => x.ToString());
 			model.Operation = ProposalUtils.ToBaseVotableOperationModel(option.Operation);
 
 			result.Add(model);
@@ -83,17 +83,17 @@ public class ProposalService
 		return result;
 	}
 
-	IEnumerable<AccountBaseAvatarModel> LoadYesAccounts(AutoId[] accountsIds)
-	{
-		lock(mcv.Lock)
-		{
-			return accountsIds.Select(id =>
-			{
-				FairUser account = (FairUser) mcv.Users.Latest(id);
-				return new AccountBaseAvatarModel(account);
-			}).ToArray();
-		}
-	}
+	//IEnumerable<AccountBaseModel> LoadYesAccounts(AutoId[] accountsIds)
+	//{
+	//	lock(mcv.Lock)
+	//	{
+	//		return accountsIds.Select(id =>
+	//		{
+	//			FairUser account = (FairUser) mcv.Users.Latest(id);
+	//			return new AccountBaseModel(account);
+	//		}).ToArray();
+	//	}
+	//}
 
 	TotalItemsResult<ProposalModel> GetProposals(string siteId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{

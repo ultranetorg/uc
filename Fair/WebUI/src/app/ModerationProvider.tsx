@@ -47,7 +47,8 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
   )
 
   const getOperationVoterId = useCallback(
-    (operation: ExtendedOperationType) => {
+    (operation?: ExtendedOperationType) => {
+      if (!operation) return undefined
       const operationClass = toOperationType(operation)
       const policy = policies?.find(x => x.operationClass === operationClass)
       if (!policy || !user) return undefined
