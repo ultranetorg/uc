@@ -24,7 +24,7 @@ public class ProductCommand : FairCommand
 						ByArgument()];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new ProductCreation {Type = GetEnum<ProductType>(type), Author = AutoId.Parse(Args[0].Name)};
 							};
@@ -41,7 +41,7 @@ public class ProductCommand : FairCommand
 						ByArgument()];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new ProductDeletion {Product = First};
 							};
@@ -61,7 +61,7 @@ public class ProductCommand : FairCommand
 						ByArgument()];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var o =	new ProductUpdation(First);
 
@@ -85,7 +85,7 @@ public class ProductCommand : FairCommand
 						ByArgument()];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var	r = Ppc(new ProductPpc(First)).Product;
 				

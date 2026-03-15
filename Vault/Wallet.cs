@@ -84,7 +84,7 @@ public class WalletAccount : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{Address}";
+		return $"{Name}, {Address}";
 	}
 
 	public Authentication AddAuthentication(string application, string net, string user, byte[] logo, Trust trust)
@@ -173,7 +173,7 @@ public class Wallet
 
 		var r = new BinaryReader(new MemoryStream(data));
 		
-		AuthenticationHashes = r.ReadList(() => r.ReadBytes(Cryptography.HashSize));
+		AuthenticationHashes = r.ReadList(() => r.ReadBytes(Cryptography.HashLength));
 		Encrypted			 = r.ReadBytes();
 	}
 

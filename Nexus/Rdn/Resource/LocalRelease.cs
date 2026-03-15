@@ -166,7 +166,7 @@ public enum DeclarationStatus
 
 public class Declaration
 {
-	public Generator					Member;
+	public Generator				Member;
 	public DeclarationStatus		Status;
 	public DateTime					Failed;
 }

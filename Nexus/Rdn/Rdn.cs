@@ -13,13 +13,14 @@ public abstract class Rdn : McvNet
 	public int						FreeNameLengthMinimum => 8;
 	public int						CircularDependeciesChecksMaximum => 100_000;
 		
- 	public static readonly Rdn		Local = new RdnLocal();
- 	public static readonly Rdn		Test = new RdnTest();
- 	public static readonly Rdn		Developer0 = new RdnDeveloper0();
- 	public static readonly Rdn		TA = new RdnTA();
+ 	public static readonly Rdn		Simulated = new SimulationRdn();
+ 	public static readonly Rdn		Virtual = new VirtualRdn();
+ 	public static readonly Rdn		Test = new TestRdn();
+ 	public static readonly Rdn		Developer0 = new Developer0Rdn();
+ 	public static readonly Rdn		TA = new TaRdn();
 	public static readonly Rdn		Main = null;
 
-	public static Rdn				ByZone(Zone zone) => new Rdn[]{Local, Developer0, Test, TA}.First(i => i.Zone == zone);
+	public static Rdn				ByZone(Zone zone) => new Rdn[]{Simulated, Virtual, Developer0, Test, TA}.First(i => i.Zone == zone);
 	//public bool						IsFree(Domain domain) => domain.Space <= FreeSpaceMaximum && domain.Address.Length >= FreeNameLengthMinimum;
 
 	public Rdn()
@@ -28,27 +29,38 @@ public abstract class Rdn : McvNet
 	}
 }
 
-public class RdnLocal : Rdn
+public class SimulationRdn : Rdn
 {	
-	public override	Zone	Zone => Zone.Local;
+	public override	Zone	Zone => Zone.Simulation;
 	
-	public RdnLocal()
+	public SimulationRdn()
 	{
 		Father0IP						= new(DefaultHost, PpiPort);
 		Cryptography					= Cryptography.No;
 		AffectedCountMaximum			= 10;
 		ECLifetime						= Time.FromYears(100);
-		UserFreeCreationPoWDifficulity	= 150;
+		UserFreeCreationPoWDifficulity	= 0;
 
 		Initials						= LocalInitials;
 	}
 }
 
-public class RdnDeveloper0 : Rdn
+public class VirtualRdn : Rdn
+{
+	public override	Zone	Zone => Zone.Virtual;
+
+	public VirtualRdn()
+	{
+ 		Father0IP	= new(VirtualInitials[0], PpiPort);
+		Initials	= VirtualInitials;
+		UserFreeCreationPoWDifficulity	= 0;
+	}
+}
+public class Developer0Rdn : Rdn
 {
 	public override	Zone	Zone => Zone.Developer0;
 
-	public RdnDeveloper0()
+	public Developer0Rdn()
 	{
 		var z = Test;
 
@@ -57,24 +69,26 @@ public class RdnDeveloper0 : Rdn
 	}
 }
 
-public class RdnTest : Rdn
+public class TestRdn : Rdn
 {
 	public override	Zone	Zone => Zone.Test;
 
-	public RdnTest()
+	public TestRdn()
 	{
  		Father0IP	= new(IPAddress.Parse("78.47.204.100"), PpiPort);
 		Initials	= UOInitials;
 	}
 }
 
-public class RdnTA : Rdn
+
+public class TaRdn : Rdn
 {	
 	public override	Zone	Zone => Zone.TA;
 	
-	public RdnTA()
+	public TaRdn()
 	{
-		Father0IP		= new(DefaultHost, PpiPort);
-		Initials		= LocalInitials;
+		Father0IP						= new(DefaultHost, PpiPort);
+		Initials						= LocalInitials;
+		UserFreeCreationPoWDifficulity	= 0;
 	}
 }

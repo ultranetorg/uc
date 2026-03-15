@@ -86,7 +86,7 @@ public class CategoryCommand : FairCommand
 		a.Arguments = [new (null, EID, "Id of a category to get publications of", Flag.First)];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new CategoryPublicationsPpc(FirstEntityId));
 
@@ -106,7 +106,7 @@ public class CategoryCommand : FairCommand
 		a.Arguments = [new (null, EID, "Id of a site to get subcategories from", Flag.First)];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new CategoryCategoriesPpc(FirstEntityId));
 

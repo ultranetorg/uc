@@ -26,7 +26,7 @@ public class RdnNode : McvNode
 	//public RdnNnTcpPeering			NnPeering;
 	IppConnection					NnConnection;
 
-	public RdnNode(string name, Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(name, Rdn.ByZone(zone), profile, nexussettings, flow)
+	public RdnNode(Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), profile, nexussettings, flow)
 	{
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
@@ -36,14 +36,14 @@ public class RdnNode : McvNode
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		InitializeVaultApi(NexusSettings.Host);
+		InitializeVaultClient(NexusSettings.Host);
 
 		if(Settings.Mcv != null)
 		{
 			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.EP], [Settings.Peering.EP], clock ?? new RealClock());
 
 			Mcv.Confirmed += r =>	{
-										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Any(g => g.Signer == i.Address)))
+										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Any(g => g.Id == i.User)))
 										{
 											var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
 												
@@ -126,7 +126,7 @@ public class RdnNode : McvNode
 													(ApiServer != null ? "A" : null) +
 													(Settings.Mcv != null ? "G" : null) +
 													(Settings.Mcv?.Chain != null  ? "C" : null) +
-													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.Voters.Any(i => Settings.Mcv.Generators.Any(g => g.Signer == i.Address)) ? "M" : null) +
+													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.Voters.Any(i => Settings.Mcv.Generators.Any(g => g.Id == i.User)) ? "M" : null) +
 													(Settings.Seed != null  ? "S" : null),
 													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													Mcv != null ? $"{Peering.Synchronization}{(Peering.SynchronizationInfo != null ? $"-{Peering.SynchronizationInfo}" : null)}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,

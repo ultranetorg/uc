@@ -10,9 +10,9 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <AssemblyVersion>1.0.533.0</AssemblyVersion>
-    <FileVersion>1.0.533.0</FileVersion>
-    <Version>1.0.533.0</Version>
+    <AssemblyVersion>1.0.696.0</AssemblyVersion>
+    <FileVersion>1.0.696.0</FileVersion>
+    <Version>1.0.696.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -20,9 +20,7 @@
     <NoWarn>1701;1702;</NoWarn>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
   <ItemGroup>
     <Compile Remove="Zone\**" />
     <EmbeddedResource Remove="Zone\**" />
@@ -32,7 +30,7 @@
     <PackageReference Include="DnsClient" Version="1.8.0" />
     <PackageReference Include="NBitcoin.Secp256k1" Version="3.2.0" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="RocksDB" Version="10.4.2.63147" />
+    <PackageReference Include="RocksDB" Version="10.4.2.64152" />
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>

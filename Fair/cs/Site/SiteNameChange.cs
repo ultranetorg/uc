@@ -6,7 +6,7 @@ public class SiteNameChange : VotableOperation
 {
 	public string				Name { get; set; }
 
-	public override bool		IsValid(McvNet net) => IsFreeNameValid(Name);
+	public override bool		IsValid(McvNet net) => IsNameValid(Name);
 	public override string		Explanation => $"{Name}";
 
 	public SiteNameChange()

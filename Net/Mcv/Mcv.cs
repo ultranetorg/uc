@@ -64,9 +64,10 @@ public abstract class Mcv /// Mutual chain voting
 														return _Tail;
 													}
 												}
-	public Dictionary<int, Round>				OldRounds = new();
+	public List<Round>							OldRounds = new();
 	public Round								LastConfirmedRound;
 	public Round								LastCommitedRound;
+	public int									OldestRememberedRoundId => LastConfirmedRound.Id - P*2;
 	public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 	public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + P);
@@ -194,7 +195,7 @@ public abstract class Mcv /// Mutual chain voting
 			LastCommitedRound = CreateRound();
 			LastCommitedRound.ReadGraphState(r);
 
-			OldRounds.Add(LastCommitedRound.Id, LastCommitedRound);
+			OldRounds.Add(LastCommitedRound);
 
 			Hashify();
 
@@ -383,7 +384,9 @@ public abstract class Mcv /// Mutual chain voting
 			if(i.Id == rid)
 				return i;
 
-		if(OldRounds.TryGetValue(rid, out var r))
+		var r = OldRounds.Find(i => i.Id == rid);
+		
+		if(r != null)
 			return r;
 
 		var d = Rocks.Get(BitConverter.GetBytes(rid), ChainFamily);
@@ -393,12 +396,10 @@ public abstract class Mcv /// Mutual chain voting
 			r = CreateRound();
 			r.Id			= rid; 
 			r.Confirmed		= true;
-			//r.LastAccessed	= DateTime.UtcNow;
 
 			r.Load(new BinaryReader(new MemoryStream(d)));
 
-			OldRounds[r.Id] = r;
-			//Recycle();
+			OldRounds.Add(r);
 			
 			return r;
 		}

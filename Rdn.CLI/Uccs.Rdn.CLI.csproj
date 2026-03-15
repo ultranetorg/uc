@@ -9,18 +9,16 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>1.0.220.0</AssemblyVersion>
-    <FileVersion>1.0.220.0</FileVersion>
-    <Version>1.0.220.0</Version>
+    <AssemblyVersion>1.0.381.0</AssemblyVersion>
+    <FileVersion>1.0.381.0</FileVersion>
+    <Version>1.0.381.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>rdn</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
   <ItemGroup>
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
   </ItemGroup>

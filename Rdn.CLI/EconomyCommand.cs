@@ -248,7 +248,7 @@ public class EconomyCommand : RdnCommand
 		a.Description = "Gets information about current cost of various ULTRANET resources.";
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var c = new CostApc{Years = [1, 5, 10], 
 													DomainLengths = [1, 5, 10, 15], 

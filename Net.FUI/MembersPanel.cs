@@ -18,27 +18,27 @@ public partial class MembersPanel : MainPanel
 
 	public override void Open(bool first)
 	{
-		BaseRdcIPs.Items.Clear();
-		Generators.Items.Clear();
-		Proxies.Items.Clear();
-
-		lock(Mcv.Lock)
-		{
-			foreach(var i in Mcv.LastConfirmedRound.Members)
-			{
-				var li = Generators.Items.Add(i.Address.ToString());
-	
-				if(Mcv.Settings.Generators.Any(g => g.Signer == i.Address))
-				{
-					li.Font = Bold;
-				}
-	
-				li.Tag = i;
-				li.SubItems.Add(i.Since.ToString());
-				//li.SubItems.Add(i.Pledge.ToString());
-				//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
-			}
-		}
+	//	BaseRdcIPs.Items.Clear();
+	//	Generators.Items.Clear();
+	//	Proxies.Items.Clear();
+	//
+	//	lock(Mcv.Lock)
+	//	{
+	//		foreach(var i in Mcv.LastConfirmedRound.Members)
+	//		{
+	//			var li = Generators.Items.Add(i.Address.ToString());
+	//
+	//			if(Mcv.Settings.Generators.Any(g => g.Signer == i.Address))
+	//			{
+	//				li.Font = Bold;
+	//			}
+	//
+	//			li.Tag = i;
+	//			li.SubItems.Add(i.Since.ToString());
+	//			//li.SubItems.Add(i.Pledge.ToString());
+	//			//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
+	//		}
+	//	}
 	}
 
 	public override void PeriodicalRefresh()

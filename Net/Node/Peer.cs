@@ -17,6 +17,7 @@ public enum ConnectionStatus
 public abstract class Peer : IBinarySerializable
 {
 	public Endpoint					EP {get; set;} 
+	public long						Roles  {get; set;} 
 	public string					Name;
 	public string					Net;
 
@@ -33,7 +34,6 @@ public abstract class Peer : IBinarySerializable
 	public string					StatusDescription => Status == ConnectionStatus.OK ? (Inbound ? "Incoming" : "Outbound") : Status.ToString();
 
 	public int						PeerRank = 0;
-	public long						Roles;
 
 	public Peering					Peering;
 	protected TcpClient				Tcp;

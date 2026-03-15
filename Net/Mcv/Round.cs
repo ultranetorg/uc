@@ -14,7 +14,7 @@ public abstract class Round : IBinarySerializable
 	public Round										Parent		=> Mcv.FindRound(ParentId);
 	public Round										Child		=> Mcv.FindRound(Id + Mcv.P);
 	//public long											PerVoteTransactionsLimit		=> Mcv.Net.TransactionsPerRoundMaximum / Members.Count;
-	public long											PerVoteOperationsMaximum			=> Mcv.Net.OperationsPerRoundMaximum / Members.Count;
+	public long											PerVoteOperationsMaximum			=> Mcv.Net.OperationsPerRoundMaximum / (Id < Mcv.JoinToVote ? 1 : Voters.Count());
 	//public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
 	//public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
@@ -25,9 +25,9 @@ public abstract class Round : IBinarySerializable
 	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 	public IEnumerable<Generator>						Voters => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id) ?? []; //VotersRound.Members;
-	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {Id = AutoId.God, Address = Mcv.God.Address}] 
+	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {User = AutoId.God}] 
 																								: 
-																								Voters.OrderByHash(i => i.Address.Bytes, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+																								Voters.OrderByHash(i => i.User.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = [];
 	public List<AutoId>									Forkers = [];
@@ -36,7 +36,7 @@ public abstract class Round : IBinarySerializable
 	public List<Vote>									SelectedArrived = [];
 	public IGrouping<byte[], Vote>						MajorityOfRequiredByParentHash;
 
-	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
+	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Signer).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
 
 	public Time											ConsensusTime;
@@ -143,7 +143,7 @@ public abstract class Round : IBinarySerializable
 	
  		VotesOfTry.AddRange(Votes.Where(i => i.Try == Try));
 		Payloads.AddRange(VotesOfTry.Where(i => i.Transactions.Any()));
-		SelectedArrived.AddRange(VotesOfTry.Where(i => SelectedVoters.Any(j => j.Address == i.Generator)));
+		SelectedArrived.AddRange(VotesOfTry.Where(i => SelectedVoters.Any(j => j.User == i.User)));
 		MajorityOfRequiredByParentHash	= SelectedArrived.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 	}
 
@@ -238,7 +238,7 @@ public abstract class Round : IBinarySerializable
 			}
 		}
 
-		var txs = all.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
+		var txs = all.OrderBy(i => i.Signer).SelectMany(i => i.Transactions).ToArray();
 
 		Execute(txs);
 
@@ -255,7 +255,7 @@ public abstract class Round : IBinarySerializable
 		else
 		{
 			ConsensusMemberLeavers = svotes	.SelectMany(i => i.MemberLeavers).Distinct()
-											.Where(x => Members.Any(j => j.Id == x) && svotes.Count(b => b.MemberLeavers.Contains(x)) >= min)
+											.Where(x => Members.Any(j => j.User == x) && svotes.Count(b => b.MemberLeavers.Contains(x)) >= min)
 											.Order().ToArray();
 
 			ConsensusViolators = svotes	.SelectMany(i => i.Violators).Distinct()
@@ -279,7 +279,7 @@ public abstract class Round : IBinarySerializable
 		return Forkers;
 	}
 
-	public IEnumerable<AutoId> ProposeMemberLeavers(AccountAddress generator)
+	public IEnumerable<AutoId> ProposeMemberLeavers(AutoId generator)
 	{
 		if(Id < Mcv.JoinToVote + Mcv.JoinToVote - 1)
 			return [];
@@ -289,9 +289,9 @@ public abstract class Round : IBinarySerializable
 		if(prevs.Any(i => i == null)) /// if just synchronized
 			return [];
 
-		var l = Parent.Voters.Where(i => !Parent.VotesOfTry.Any(v => v.Generator == i.Address) && /// did not sent a vote
-										 !prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.MemberLeavers.Contains(i.Id)))) /// not yet proposed in prev [Pitch-1] rounds
-							 .Select(i => i.Id);
+		var l = Parent.Voters.Where(i => !Parent.VotesOfTry.Any(v => v.User == i.User) && /// did not sent a vote
+										 !prevs.Any(r => r.VotesOfTry.Any(v => v.User == generator && v.MemberLeavers.Contains(i.User)))) /// not yet proposed in prev [Pitch-1] rounds
+							 .Select(i => i.User);
 
 		return l;
 	}
@@ -451,15 +451,15 @@ public abstract class Round : IBinarySerializable
 
 		Members = [..Members];
 
-		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Id == i)))
+		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.User == i)))
 		{
-			e.AffectUser(i.Id).AverageUptime = 0;
+			e.AffectUser(i.User).AverageUptime = 0;
 			Members.Remove(i);
 		}
 
-		foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Id == i)))
+		foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.User == i)))
 		{
-			var a = e.AffectUser(i.Id);
+			var a = e.AffectUser(i.User);
 			
 			a.AverageUptime = (a.AverageUptime + Id - i.Since)/(a.AverageUptime == 0 ? 1 : 2);
 			Members.Remove(i);
@@ -467,7 +467,7 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in e.Candidates.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
-			var c = e.AffectCandidate(i.Id);
+			var c = e.AffectCandidate(i.User);
 			
 			c.Since = Id + Mcv.JoinToVote;
 			
@@ -488,7 +488,7 @@ public abstract class Round : IBinarySerializable
 			{
 				e.AffectSpaces();
 
-				foreach(var i in Members.Select(i => e.AffectUser(i.Id)))
+				foreach(var i in Members.Select(i => e.AffectUser(i.User)))
 				{
 					i.EnergyNext += d * Net.EnergyDailyEmission / Members.Count;
 					i.Spacetime	 += d * (Net.SpacetimeDayEmission + e.Spaces.Take(d).Sum()) / Members.Count;
@@ -511,6 +511,8 @@ public abstract class Round : IBinarySerializable
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
 		Mcv.Tail.RemoveAll(i => i.Id < Id);
+		Mcv.OldRounds.Add(this);
+		Mcv.OldRounds.RemoveAll(i => i.Id < Mcv.OldestRememberedRoundId);
 		Mcv.Confirmed?.Invoke(this);
 	}
 

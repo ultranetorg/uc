@@ -12,10 +12,10 @@ public abstract class Cryptography
 	public static readonly Cryptography				Mcv = new McvCryptography();
 
 	public const int								SignatureLength = 65;
-	public const int								HashSize = 32;
+	public const int								HashLength = 32;
 	public const int								PrivateKeyLength = 32;
 	public virtual byte[]							ZeroSignature => new byte[SignatureLength];
-	public virtual byte[]							ZeroHash  => new byte[HashSize];
+	public virtual byte[]							ZeroHash  => new byte[HashLength];
 
 	public abstract CryptographyType				Type {get; }
 

@@ -17,33 +17,6 @@ public abstract class Apc
 	public int				Limit { get; set; }
 }
 
-public abstract class CodeException : Exception, ITypeCode, IBinarySerializable 
-{
-	public abstract int		ErrorCode { get; set; }
-
-	static CodeException()
-	{
-	}
-
-	public CodeException()
-	{
-	}
-
-	public CodeException(string message) : base(message)
-	{
-	}
-
-	public void Read(BinaryReader reader)
-	{
-		ErrorCode = reader.Read7BitEncodedInt();
-	}
-
-	public void Write(BinaryWriter writer)
-	{
-		writer.Write7BitEncodedInt(ErrorCode);
-	}
-}
-
 public class ApiSettings : Settings
 {
 	public string			LocalAddress { get; set; }
@@ -88,18 +61,18 @@ public abstract class JsonServer
 	HttpListener							Listener;
 	Thread									Thread;
 	ApiSettings								Settings;
-	Flow									Flow;
+	public Flow								Flow;
 	protected JsonSerializerOptions			Options;
 	Dictionary<string, ConstructorInfo>		Calls = [];
 
 	protected abstract object				Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 	protected abstract Type					Create(string call);
 
-	public JsonServer(ApiSettings settings, JsonSerializerOptions options, Flow workflow)
+	public JsonServer(ApiSettings settings, JsonSerializerOptions options, Flow flow)
 	{
 		Settings	= settings;
 		Options		= options;
-		Flow		= workflow.CreateNested("JsonServer", new Log());
+		Flow		= flow.CreateNested("JsonServer", new Log());
 
 		if(Flow.Log != null && Flow.WorkDirectory != null)
 		{
@@ -128,10 +101,12 @@ public abstract class JsonServer
 										}
 										catch(SocketException ex) when (ex.SocketErrorCode == SocketError.Interrupted)
 										{
+											Flow.Log?.ReportError(this, "Listener Thread Error", ex);
 											Listener = null;
 										}
 										catch(HttpListenerException ex) when (ex.NativeErrorCode == 995 || ex.NativeErrorCode == 500)
 										{
+											Flow.Log?.ReportError(this, "Listener Thread Error", ex);
 											Listener = null;
 										}
 										catch(Exception ex) when (!Debugger.IsAttached)

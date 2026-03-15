@@ -27,12 +27,12 @@ public class NexusCli : Cli
 	public static void Main(string[] args)
 	{
 		var b = new NetBoot(ExeDirectory);
-		var ns = new NexusSettings(b.Zone, b.Profile) {Name = Guid.NewGuid().ToString()};
-		var vs = new VaultSettings(b.Profile, b.Zone);
+		var ns = new NexusSettings(b.Zone, b.Profile);
+		var vs = new VaultSettings(b.Profile);
 		
 		var cli = new NexusCli();
 
-		cli.Nexus = new Nexus(b, ns, vs, new Flow(nameof(Nexus), new Log()));
+		cli.Nexus = new Nexus(b, ns, vs, new Flow(nameof(Nexus), new Log()){WorkDirectory = b.Profile});
 
 		cli.Nexus.RunRdn(null, new RealClock());
 

@@ -183,8 +183,8 @@ public class McvSummaryApc : McvApc
 				f.Add("Base Hash",				node.Mcv.GraphHash.ToHex());
 				f.Add("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}");
 				f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
-				f.Add("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}");
-				f.Add("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
+				f.Add("Last Payload Round",		$"{node.Mcv.LastPayloadRound?.Id}");
+				f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
 				f.Add("Loaded Rounds",			$"{node.Mcv.OldRounds.Count}");
 			}
 		}
@@ -209,7 +209,7 @@ public class ChainReportApc : McvApc
 																	Confirmed = i.Confirmed,
 																	Time = i.ConsensusTime,
 																	Hash = i.Hash,
-																	Votes = i.Votes.Select(b => new Return.Vote{Generator = b.Generator, 
+																	Votes = i.Votes.Select(b => new Return.Vote{Generator = b.Signer, 
 																															IsPayload = b.Transactions.Any(), 
 																															/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
 																	JoinRequests = i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(i => i.Transaction.Signer),
@@ -252,14 +252,14 @@ public class VotesReportApc : McvApc
 	{
 		lock(node.Mcv.Lock)
 			return new VotesReportResponse{Votes = node.Mcv	.FindRound(RoundId)?.Votes
-															.OrderBy(i => i.Generator)
+															.OrderBy(i => i.Signer)
 															.Take(Limit)
 															.Select(i => new VotesReportResponse.Vote
 															{
 																Try = i.Try,
 																ParentSummary = i.ParentHash,
 																Signature = i.Signature,
-																Generator = i.Generator
+																Generator = i.Signer
 															})
 															.ToArray()}; 
 	}
@@ -448,6 +448,7 @@ public class PpcApc : McvApc
 
 public class EnforceSessionsApc : McvApc
 {
+	public string	 Application {get; set;}
 	public string	 User {get; set;}
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
@@ -456,7 +457,7 @@ public class EnforceSessionsApc : McvApc
 			throw new NodeException(NodeError.NoPeering);
 
 		lock(node.Peering.Lock)
-			node.Peering.CreateSession(User);
+			node.Peering.CreateSession(Application, User);
 
 		return null;
 	}

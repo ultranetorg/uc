@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using RocksDbSharp;
 
 namespace Uccs.Rdn;
@@ -277,6 +278,13 @@ public class ResourceHub
 
 			var cr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
 
+			if(cr == null) 
+			{	
+				Debugger.Break();
+				cr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
+				continue;
+			}
+
 			if(!cr.Members.Any())
 				continue;
 
@@ -301,10 +309,10 @@ public class ResourceHub
 
 						if(l != null && l.Availability != Availability.None)
 						{
-							foreach(var m in cr.Members	.OrderByHash(i => i.Address.Bytes, l.Address.MemberOrderKey)
+							foreach(var m in cr.Members	.OrderByHash(i => i.User.Raw, l.Address.MemberOrderKey)
 														.Take(MembersPerDeclaration)
 														.Where(m =>	{
-																		var d = l.DeclaredOn.Find(dm => dm.Member.Address == m.Address);
+																		var d = l.DeclaredOn.Find(dm => dm.Member.User == m.User);
 																		return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
 																	})
 														.Cast<RdnGenerator>())
@@ -340,6 +348,13 @@ public class ResourceHub
 												{
 													var cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
 													
+													if(cr == null) 
+													{	
+														Debugger.Break();
+														cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
+														return;
+													}
+
 													lock(Lock)
 													{
 														r.Id = cr.Resource.Id;
@@ -368,7 +383,7 @@ public class ResourceHub
 				{
 					foreach(var r in i.Value.Select(i => i.Value))
 					{
-						var d = r.DeclaredOn.Find(j => j.Member.Address == i.Key.Address);
+						var d = r.DeclaredOn.Find(j => j.Member.User == i.Key.User);
 
 						if(d == null)
 							r.DeclaredOn.Add(new Declaration {Member = i.Key, Status = DeclarationStatus.InProgress});
@@ -405,7 +420,7 @@ public class ResourceHub
 												{
 													foreach(var r in drr.Results)
 													{	
-														var x = Find(r.Address).DeclaredOn.Find(j => j.Member.Address == i.Key.Address);
+														var x = Find(r.Address).DeclaredOn.Find(j => j.Member.User == i.Key.User);
 
 														if(r.Result == DeclarationResult.Accepted)
 															x.Status = DeclarationStatus.Accepted;
@@ -418,10 +433,10 @@ public class ResourceHub
 															Find(r.Address).DeclaredOn.Remove(x);
 													}
 
-													tasks.Remove(i.Key.Address);
+													tasks.Remove(i.Key.User);
 												}
 											});
-					tasks[i.Key.Address] = t;
+					tasks[i.Key.User] = t;
 				}
 			}
 				

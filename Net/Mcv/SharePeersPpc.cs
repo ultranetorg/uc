@@ -2,7 +2,7 @@
 
 public class SharePeersPpc : PeerRequest
 {
-	public bool					Broadcast { get; set; }
+	//public bool					Broadcast { get; set; }
 	public HomoPeer[]			Peers { get; set; }
 
 	public override Result Execute()
@@ -12,13 +12,13 @@ public class SharePeersPpc : PeerRequest
 
 		lock(Peering.Lock)
 		{
-			var newfresh = Peering.RefreshPeers(Peers).ToArray();
+			var updated = Peering.RefreshPeers(Peers).ToArray();
 
-			if(Broadcast && newfresh.Any())
+			if(updated.Any())
 			{
 				foreach(var i in Peering.Connections.Where(i => i != Peer))
 				{
-					i.Send(new SharePeersPpc {Broadcast = true, Peers = newfresh});
+					i.Send(new SharePeersPpc {Peers = updated});
 				}
 			}
 		}

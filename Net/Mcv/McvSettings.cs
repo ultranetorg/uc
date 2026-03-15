@@ -11,9 +11,15 @@ public class GeneratorSettings : Settings
 {
 	public string			User { get; set; }
 	public AccountAddress	Signer { get; set; }
+	public AutoId			Id;
 
 	public GeneratorSettings() : base(NetXonTextValueSerializator.Default)
 	{
+	}
+
+	public override string ToString()
+	{
+		return $"{User}/{Signer}";
 	}
 }
 

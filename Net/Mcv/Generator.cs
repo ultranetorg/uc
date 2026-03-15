@@ -4,9 +4,7 @@ namespace Uccs.Net;
 
 public class Generator
 {
-	public AccountAddress	Address { get; set; }
-	public AutoId			Id { get; set; }
-	public int				Registered { get; set; }
+	public AutoId			User { get; set; }
 	public Endpoint[]		GraphPpcIPs { get; set; } = [];
 	public int				Since { get; set; }
 	
@@ -14,36 +12,32 @@ public class Generator
 
 	public override string ToString()
 	{
-		return $"Address={Address}, CastingSince={Since}, BaseRdcIPs={{{GraphPpcIPs.Length}}}";
+		return $"Id={User}, CastingSince={Since}, BaseRdcIPs={{{GraphPpcIPs.Length}}}";
 	}
 
   	public virtual void WriteMember(BinaryWriter writer)
  	{
- 		writer.Write(Id);
- 		writer.Write(Address);
+ 		writer.Write(User);
 		writer.Write(GraphPpcIPs, i => writer.Write(i));
 		writer.Write7BitEncodedInt(Since);
  	}
  
  	public virtual void ReadMember(BinaryReader reader)
  	{
-		Id				= reader.Read<AutoId>();
-		Address			= reader.Read<AccountAddress>();
+		User			= reader.Read<AutoId>();
 		GraphPpcIPs		= reader.ReadArray<Endpoint>();
- 		Since	= reader.Read7BitEncodedInt();
+ 		Since			= reader.Read7BitEncodedInt();
 	}
 
   	public virtual void WriteCandidate(BinaryWriter writer)
  	{
- 		writer.Write(Id);
- 		writer.Write7BitEncodedInt(Registered);
+ 		writer.Write(User);
 		writer.Write(GraphPpcIPs, i => writer.Write(i));
  	}
  
  	public virtual void ReadCandidate(BinaryReader reader)
  	{
-		Id			= reader.Read<AutoId>();
-		Registered	= reader.Read7BitEncodedInt();
+		User		= reader.Read<AutoId>();
 		GraphPpcIPs	= reader.ReadArray<Endpoint>();
 	}
 
@@ -58,10 +52,8 @@ public class Generator
 
 	public void Clone(Generator generator)
 	{
-		generator.Address		= Address;
-		generator.Id			= Id;
-		generator.Registered	= Registered;
+		generator.User			= User;
 		generator.GraphPpcIPs	= GraphPpcIPs;
-		generator.Since	= Since;
+		generator.Since			= Since;
 	}
 }

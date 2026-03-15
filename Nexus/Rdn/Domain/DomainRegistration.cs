@@ -53,6 +53,12 @@ public class DomainRegistration : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
+		if(execution.Transaction.Nonce == 0)
+		{
+			Error = NotAllowedForNewUser;
+			return;
+		}
+
 		var d = execution.Domains.Find(Address);
 
 		if(Domain.IsRoot(Address))

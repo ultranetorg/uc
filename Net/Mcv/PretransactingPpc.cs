@@ -6,10 +6,14 @@ public class PretransactingPpc : McvPpc<PretransactingPpr>
 
 	public override Result Execute()
 	{
+
+
 		//lock(Peering.Lock)
 		{
 			lock(Mcv.Lock)
 			{
+				RequireGraph();
+
 				var u = Mcv.Users.Latest(User);
 
 				return  new PretransactingPpr

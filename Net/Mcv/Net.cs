@@ -6,8 +6,9 @@ namespace Uccs.Net;
 public enum Zone : ushort
 {
 	None, 
-	Local		= 02_00_0, 
-	TA			= 03_00_0,
+	Simulation	= 02_00_0, 
+	Virtual		= 03_00_0, 
+	TA			= 04_00_0,
 	Main		= 10_00_0,
 	Test		= 11_00_0,
 	Developer0	= 12_00_0,
@@ -33,8 +34,8 @@ public abstract class Net
 	public ushort						NniPort => MapPort(Zone, KnownProtocol.Nni);
 
 	public IPAddress[]					Initials;
-	public IPAddress[]					LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
-	public IPAddress[]					UOInitials = @" 78.47.204.100	
+	public static readonly  IPAddress[]	LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
+	public static readonly  IPAddress[]	UOInitials = @" 78.47.204.100	
 														185.208.159.160	
 														5.42.221.102	
 														139.99.94.185	
@@ -48,6 +49,15 @@ public abstract class Net
 													.Split(['\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
 													.Select(i => IPAddress.Parse(i))
 													.ToArray();
+
+	public static readonly  IPAddress[]	VirtualInitials	= [	new([192, 168, 88, 100]),
+															new([192, 168, 88, 101]),
+															new([192, 168, 88, 102]),
+															new([192, 168, 88, 103]),
+															new([192, 168, 88, 104]),
+															new([192, 168, 88, 105]),
+															new([192, 168, 88, 106]),
+															];
 
 	public Constructor					Constructor = new ();
 

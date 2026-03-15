@@ -85,12 +85,13 @@ public enum PlatformFamily : byte
 {
 	Unknown = 0,
 
-	Android	= 40,
-	iOS		= 80,
-	macOS	= 120,
-	Unix	= 160,
-	UOS		= 200,
-	Windows	= 240,
+	Android	= 1,
+	iOS		= 2,
+	macOS	= 3,
+	Unix	= 4,
+	Darwin		= 5,
+	UOS		= 6,
+	Windows	= 7,
 }
 
 public enum PlatformBrand : byte

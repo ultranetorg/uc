@@ -114,7 +114,10 @@ public class Nexus : IProgram
 	
 	public void RunRdn(RdnNodeSettings rdnsettings, IClock clock)
 	{
-		RdnNode		= new RdnNode(Settings.Name, Settings.Zone, Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address), Settings, rdnsettings, clock, Flow.CreateNested(new Log()));
+		var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
+		Directory.CreateDirectory(d);
+		
+		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log()));
 		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
 		
 		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];

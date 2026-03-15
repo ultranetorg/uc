@@ -10,7 +10,7 @@ public class FairNode : McvNode
 	public WebServer				WebServer;
 	IppConnection					NnConnection;
 
-	public FairNode(string name, Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(name, Fair.ByZone(zone), profile, nexussettings, flow)
+	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
 	{
 		base.Settings = settings ?? new FairNodeSettings(profile);
 
@@ -20,7 +20,7 @@ public class FairNode : McvNode
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
 
-		InitializeVaultApi(NexusSettings.Host);
+		InitializeVaultClient(NexusSettings.Host);
 
 		if(Settings.Mcv != null)
 		{

@@ -14,11 +14,11 @@ public class LocalResourceAddApc : RdnApc
 {
 	public Ura		Address { get; set; }
 
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{
-			sun.ResourceHub.Add(Address);
+			node.ResourceHub.Add(Address);
 		}
 
 		return null;
@@ -30,9 +30,9 @@ public class ResourceDownloadApc : RdnApc
 	public ResourceIdentifier	Identifier { get; set; }
 	public string				LocalPath { get; set; }
 
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		var r = sun.Peering.Call(new ResourcePpc(Identifier), workflow);
+		var r = node.Peering.Call(new ResourcePpc(Identifier), workflow);
 
 		if(r == null)
 			throw new ResourceException(ResourceError.NotFound);
@@ -54,29 +54,29 @@ public class ResourceDownloadApc : RdnApc
 				break;
 
 			case Urrsd a :
-				///.var au = sun.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
-				///.itg = new SPDIntegrity(sun.Net.Cryptography, a, au.Owner);
+				///.var au = node.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
+				///.itg = new SPDIntegrity(node.Net.Cryptography, a, au.Owner);
 				throw new NotSupportedException();
 				
 			default:
 				throw new ResourceException(ResourceError.NotSupportedDataType);
 		};
 
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{
-			var lrs = sun.ResourceHub.Find(r.Address) ?? sun.ResourceHub.Add(r.Address);
+			var lrs = node.ResourceHub.Find(r.Address) ?? node.ResourceHub.Add(r.Address);
 			lrs.AddData(r.Resource.Data);
 
-			var lrl = sun.ResourceHub.Find(urr) ?? sun.ResourceHub.Add(urr);
+			var lrl = node.ResourceHub.Find(urr) ?? node.ResourceHub.Add(urr);
 
 			if(r.Resource.Data.Type.Control == DataType.File)
 			{
-				sun.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, null, workflow);
+				node.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? node.ResourceHub.ToReleases(urr), itg, null, workflow);
 				return r;
 			}
 			else if(r.Resource.Data.Type.Control == DataType.Directory)
 			{
-				sun.ResourceHub.DownloadDirectory(lrl, LocalPath ?? sun.ResourceHub.ToReleases(urr), itg, workflow);
+				node.ResourceHub.DownloadDirectory(lrl, LocalPath ?? node.ResourceHub.ToReleases(urr), itg, workflow);
 				return r;
 			}
 			else
@@ -89,11 +89,11 @@ public class CancelResourceDownloadApc : RdnApc
 {
 	public Urr	Release { get; set; }
 
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{
-			var lrs = sun.ResourceHub.Find(Release);
+			var lrs = node.ResourceHub.Find(Release);
 
 			if(lrs.Activity is FileDownload f)
 				f.Stop();
@@ -110,14 +110,14 @@ public class LocalReleaseBuildApc : RdnApc
 	public IEnumerable<string>		Sources { get; set; }
 	public ReleaseAddressCreator	AddressCreator { get; set; }
 
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{
 			if(Sources.Count() == 1 && File.Exists(Sources.First()))
-				return new LocalReleaseApe(sun.ResourceHub.Add(Sources.First(), AddressCreator, workflow));
+				return new LocalReleaseApe(node.ResourceHub.Add(Sources.First(), AddressCreator, workflow));
 			else
-				return new LocalReleaseApe(sun.ResourceHub.Add(Sources, AddressCreator, workflow));
+				return new LocalReleaseApe(node.ResourceHub.Add(Sources, AddressCreator, workflow));
 		}
 	}
 }
@@ -132,20 +132,20 @@ public class LocalReleaseAddApc : RdnApc
 	public string		LocalPath  { get; set; }
 	public Availability	Availability { get; set; } = Availability.Full;
 
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{
-			var rc = sun.ResourceHub.Find(Resource) ?? sun.ResourceHub.Add(Resource);
+			var rc = node.ResourceHub.Find(Resource) ?? node.ResourceHub.Add(Resource);
 			rc.AddData(Data);
 
 			if(Release != null)
 			{
-				var rl = sun.ResourceHub.Find(Release);
+				var rl = node.ResourceHub.Find(Release);
 				
 				if(rl == null)
 				{
-					rl = sun.ResourceHub.Add(Release);
+					rl = node.ResourceHub.Add(Release);
 					rl.AddCompleted(Path, LocalPath, Content);
 					rl.Complete(Availability);
 				}
@@ -162,11 +162,11 @@ public class LocalResourceUpdateApc : RdnApc
 	public AutoId			Id { get; set; }
 	public ResourceData		Data { get; set; }
 
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{
-			var r = sun.ResourceHub.Find(Address) ?? sun.ResourceHub.Add(Address);
+			var r = node.ResourceHub.Find(Address) ?? node.ResourceHub.Add(Address);
 			
 			if(Id != null)
 			{
@@ -187,11 +187,11 @@ public class LocalReleaseActivityProgressApc : RdnApc
 {
 	public Urr Release { get; set; }
 	
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{
-			var r = sun.ResourceHub.Find(Release);
+			var r = node.ResourceHub.Find(Release);
 
 			if(r.Activity is FileDownload f)
 			{
@@ -224,11 +224,11 @@ public class LocalReleaseReadApc : RdnApc
 	public long			Offset  { get; set; } = 0;
 	public long			Length  { get; set; } = -1;
 
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{
-			var rc = sun.ResourceHub.Find(Address);
+			var rc = node.ResourceHub.Find(Address);
 
 			if(rc == null)
 				throw new ResourceException(ResourceError.NotFound);
@@ -243,13 +243,13 @@ public class LocalReleaseReadApc : RdnApc
 // 		public ResourceAddress	Resource { get; set; }
 // 		//public byte[]			Hash { get; set; }
 // 		
-// 		public override object Execute(Sun sun, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+// 		public override object Execute(Sun node, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
 // 		{
-// 			lock(sun.ResourceHub.Lock)
+// 			lock(node.ResourceHub.Lock)
 // 			{	
-// 				var r = sun.Call<ResourceResponse>(p => p.Resources.Find(Resource), workflow);
+// 				var r = node.Call<ResourceResponse>(p => p.Resources.Find(Resource), workflow);
 // 
-// 				//var a = sun.ResourceHub.Find(Resource, Hash);
+// 				//var a = node.ResourceHub.Find(Resource, Hash);
 // 
 // 				return r.Resource;
 // 			}
@@ -262,11 +262,11 @@ public class LocalResourcesSearchApc : RdnApc
 	public int		Skip { get; set; } = 0;
 	public int		Take { get; set; } = int.MaxValue;
 	
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{	
-			return (Query == null ? sun.ResourceHub.Resources : sun.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query))).Skip(Skip).Take(Take);
+			return (Query == null ? node.ResourceHub.Resources : node.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query))).Skip(Skip).Take(Take);
 		}
 	}
 }
@@ -275,11 +275,11 @@ public class LocalResourceApc : RdnApc
 {
 	public Ura		Address { get; set; }
 	
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{	
-			return sun.ResourceHub.Resources.Find(i => i.Address == Address);
+			return node.ResourceHub.Resources.Find(i => i.Address == Address);
 		}
 	}
 }
@@ -340,11 +340,11 @@ public class LocalReleaseApc : RdnApc
 // 		}
 
 	
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(sun.ResourceHub.Lock)
+		lock(node.ResourceHub.Lock)
 		{	
-			var r = sun.ResourceHub.Find(Address);
+			var r = node.ResourceHub.Find(Address);
 
 			return r != null ? new LocalReleaseApe(r) : null;
 		}

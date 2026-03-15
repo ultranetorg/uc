@@ -37,9 +37,9 @@ public class SeedHub
 	public object						Lock = new ();
 	RdnMcv								Mcv;
 
-	public SeedHub(RdnMcv sun)
+	public SeedHub(RdnMcv node)
 	{
-		Mcv = sun;
+		Mcv = node;
 	}
 
 	public IEnumerable<ReleaseDeclarationResult> ProcessIncoming(Endpoint ip, ResourceDeclaration[] resources)
@@ -50,7 +50,7 @@ public class SeedHub
 
 			lock(Mcv.Lock)
 			{ 
-				if(!Mcv.NextVotingRound.Voters.OrderByHash(i => i.Address.Bytes, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Generators.Any(g => g.Signer == i.Address)))
+				if(!Mcv.NextVotingRound.Voters.OrderByHash(i => i.User.Raw, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Generators.Any(g => g.Id == i.User)))
 				{
 					yield return new (rzd, DeclarationResult.NotNearest);
 					continue;

@@ -17,7 +17,7 @@ public class UserCommand : Net.UserCommand
 		a.Arguments = [new ("name", NAME, "A name of user to get information about")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var i = Ppc(new FairUserPpc(GetString(a.Arguments[0].Name)));
 												
@@ -57,7 +57,7 @@ public class UserCommand : Net.UserCommand
 		a.Arguments = [new ("name", NAME, "A name of user to get authors from")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new UserAuthorsPpc(GetString(a.Arguments[0].Name)));
 
@@ -77,7 +77,7 @@ public class UserCommand : Net.UserCommand
 		a.Arguments = [new ("name", NAME, "A name of user to get sites from")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new UserSitesPpc(GetString(a.Arguments[0].Name)));
 
@@ -100,7 +100,7 @@ public class UserCommand : Net.UserCommand
 						ByArgument()];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return	new UserAvatarChange {Image = System.IO.File.ReadAllBytes(GetString(path))}; 
 							};

@@ -26,9 +26,9 @@ public class Node : IProgram
 	readonly DbOptions			DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
 																	.SetCreateMissingColumnFamilies(true);
 
-	public Node(string name, Net net, string profile, NexusSettings nexussettings, Flow flow)
+	public Node(Net net, string profile, NexusSettings nexussettings, Flow flow)
 	{
-		Name = name ?? Guid.NewGuid().ToByteArray().ToHex();
+		Name = nexussettings.Name;
 		Net = net;
 		Profile = profile;
 		Flow = flow;
@@ -48,7 +48,7 @@ public class Node : IProgram
 		Database = RocksDb.Open(DatabaseOptions, Path.Join(profile, "Node"), cf);
 	}
 
-	protected void InitializeVaultApi(IPAddress host)
+	protected void InitializeVaultClient(IPAddress host)
 	{
 		var h = new HttpClientHandler()
 				{

@@ -94,13 +94,13 @@ public partial class ChainPanel : MainPanel
 								//r.TransactionPerByteFee.ToHumanString()
 								;
 
-			Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.Generator)
+			Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.Signer)
 										.Select((i, j) =>
 										{
 											var li = new ListViewItem(j.ToString());
 											li.Tag = i;
 											li.SubItems.Add(i.GetType().Name);
-											li.SubItems.Add(i.Generator.ToString());
+											li.SubItems.Add(i.Signer.ToString());
 											return li;
 										}).ToArray());
 
@@ -109,8 +109,9 @@ public partial class ChainPanel : MainPanel
 			LoadTransactions(txs);
 			LoadOperations(txs.SelectMany(i => i.Operations));
 
-			if(r.Id > 0)
-				MemberJoiners.Items.AddRange(r.Members.Where(i => !r.Previous.Members.Any(j => i.Address == j.Address)).Select(i => new ListViewItem(i.ToString())).ToArray());
+			//if(r.Id > 0)
+			//	MemberJoiners.Items.AddRange(r.Members.Where(i => !r.Previous.Members.Any(j => i.Address == j.Address)).Select(i => new ListViewItem(i.ToString())).ToArray());
+
 			MemberLeavers.Items.AddRange(r.ConsensusMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 			Violators.Items.AddRange(r.ConsensusViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
 

@@ -45,7 +45,7 @@ public class Vote : IBinarySerializable
 		}
 	}
 
-	public AccountAddress Generator
+	public AccountAddress Signer
 	{ 
 		get
 		{
@@ -104,7 +104,7 @@ public class Vote : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{RoundId}, {_Generator?.Bytes.ToHex()}, ParentSummary={ParentHash?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, Time={Time}, Tx(n)={Transactions.Length}, Op(n)={Transactions.Sum(i => i.Operations.Length)}, BroadcastConfirmed={BroadcastConfirmed}";
+		return $"{RoundId}, {User}, {_Generator?.Bytes.ToHex()}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, ParentHash={ParentHash?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
 	}
 	
 	public void AddTransaction(Transaction t)
@@ -135,7 +135,6 @@ public class Vote : IBinarySerializable
 
 	protected virtual void WritePayload(BinaryWriter writer)
 	{
-		writer.Write(User);
 		writer.Write7BitEncodedInt(Try);
 		writer.Write(Time);
 		writer.Write(ParentHash);
@@ -151,10 +150,9 @@ public class Vote : IBinarySerializable
 
 	protected virtual void ReadPayload(BinaryReader reader)
 	{
-		User				= reader.Read<AutoId>();
 		Try					= reader.Read7BitEncodedInt();
 		Time				= reader.Read<Time>();
-		ParentHash			= reader.ReadBytes(Cryptography.HashSize);
+		ParentHash			= reader.ReadBytes(Cryptography.HashLength);
 
 		MemberLeavers		= reader.ReadArray<AutoId>();
 		///FundJoiners		= reader.ReadArray<AccountAddress>();
@@ -172,6 +170,7 @@ public class Vote : IBinarySerializable
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write7BitEncodedInt(RoundId);
+		writer.Write(User);
 		writer.Write(Signature);
 		writer.WriteBytes(RawPayload);
 	}
@@ -179,6 +178,7 @@ public class Vote : IBinarySerializable
 	public void Read(BinaryReader reader)
 	{
 		RoundId		= reader.Read7BitEncodedInt();
+		User		= reader.Read<AutoId>();
 		Signature	= reader.ReadSignature();
 		_RawPayload	= reader.ReadBytes();
 	}
@@ -186,7 +186,7 @@ public class Vote : IBinarySerializable
 	public void WriteForRoundUnconfirmed(BinaryWriter writer)
 	{
 		writer.Write(Signature);
-		writer.Write(Generator);
+		writer.Write(Signer);
 		WritePayload(writer);
 	}
 
@@ -210,7 +210,7 @@ public class Vote : IBinarySerializable
 		foreach(var t in Transactions)
 		{	
 			log.ReportWarning(this, $"----Transaction {t}" );
-			log.ReportWarning(this, $"----NearestBy {round.Voters.NearestBy(i => i.Address, t.Signer, t.Nonce).Address}");
+			log.ReportWarning(this, $"----NearestBy {round.Voters.NearestBy(i => i.User, t.User, t.Nonce).User}");
 			log.ReportWarning(this, $"----Signature {t.Signature.ToHex()}" );
 			log.ReportWarning(this, $"----Hash {t.Hashify().ToHex()}" );
 			log.ReportWarning(this, $"----Zone {t.Net.Zone}");

@@ -64,7 +64,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	public bool									IsListener => ListeningThread != null;
 
 
-	public List<TcpClient>						IncomingConnections = new();
+	public Dictionary<IPAddress, TcpClient>		IncomingConnections = new(new IPAddressComparer());
 	protected abstract IEnumerable<P>			PeersToDisconnect { get; }
 
 	public TcpListener							Listener;
@@ -131,7 +131,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 		lock(Lock)
 		{
 			foreach(var i in IncomingConnections)
-				i.Close();
+				i.Value.Close();
 
 			foreach(var i in PeersToDisconnect.Where(i => i.Status != ConnectionStatus.Disconnected).ToArray())
 				i.Disconnect();
@@ -263,6 +263,13 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	{
 		var ip = (client.Client.RemoteEndPoint as IPEndPoint).Address.MapToIPv4();
 
+		if(IncomingConnections.ContainsKey(ip))
+		{
+			client.Close();
+			return;
+		}
+
+
 ///		if(ip.Equals(IP))
 ///		{
 ///			IgnoredIPs.Add(ip);
@@ -287,7 +294,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 		P peer = null;
 
-		IncomingConnections.Add(client);
+		IncomingConnections[ip] = client;
 
 		Task.Run(() =>	{
 							Hello h = null;
@@ -317,6 +324,10 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 								{
 									if(peer.Status != ConnectionStatus.Disconnected)
 									{
+										if(h.Name == Name)
+											IgnoredIPs.Add(ip);
+
+										IncomingConnections.Remove(ip);
 										client.Close();
 										return;
 									}
@@ -353,9 +364,9 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 								peer.Permanent = h.Permanent;
 								peer.Start(this, client, h, true);
 
+								IncomingConnections.Remove(ip);
+								
 								OnConnected(peer);
-
-								IncomingConnections.Remove(client);
 							}
 
 							Flow.Log?.Report(this, $"Connected from {peer}");
@@ -368,6 +379,8 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 							client.Close();
 
+							lock(Lock)
+								IncomingConnections.Remove(ip);
 						});
 	}
 

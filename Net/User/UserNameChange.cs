@@ -12,7 +12,7 @@ public class UserNameChange : Operation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return IsFreeNameValid(Name);
+		return IsNameValid(Name);
 	}
 
 	public override void Read(BinaryReader reader)

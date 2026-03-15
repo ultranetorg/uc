@@ -12,7 +12,6 @@ public class AccountSessionSettings
 
 public class McvNodeSettings : SavableSettings
 {
-	public string					Name { get; set; }
 	public IpApiSettings			Api { get; set; }
 	public McvSettings				Mcv { get; set; }
 	public PeeringSettings			Peering { get; set; } = new();
@@ -20,8 +19,8 @@ public class McvNodeSettings : SavableSettings
 	public AccountSessionSettings[]	Sessions { get; set; }
 	public bool						Log { get; set; }
 	public int						PoolMaximum { get; set; } = 100_000;
-	public int						RdcQueryTimeout { get; set; } = 5000;
-	public int						RdcTransactingTimeout { get; set; } = 5*60*1000;
+	public int						PpcTimeout { get; set; } = 5000;
+	public int						TransactingTimeout { get; set; } = 5*60*1000;
 	public int						TransactionNoInquireKeepPeriod { get; set; } = 60; /// In seconds
 
 	public virtual long				Roles => (Mcv?.Roles ?? 0);
@@ -34,8 +33,8 @@ public class McvNodeSettings : SavableSettings
 	{
 		if(Debugger.IsAttached)
 		{
-			RdcQueryTimeout = int.MaxValue;
-			RdcTransactingTimeout = int.MaxValue;
+			PpcTimeout = int.MaxValue;
+			TransactingTimeout = int.MaxValue;
 		}
 	}
 }

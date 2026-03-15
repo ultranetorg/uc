@@ -41,8 +41,8 @@ public class FairNodeSettings : McvNodeSettings
 	{
 		if(Debugger.IsAttached)
 		{
-			RdcQueryTimeout = int.MaxValue;
-			RdcTransactingTimeout = int.MaxValue;
+			PpcTimeout = int.MaxValue;
+			TransactingTimeout = int.MaxValue;
 		}
 	}
 }

@@ -109,6 +109,7 @@ public class Realization
 {
 	public Ura					Latest;
 	public string				Name;
+	public string				Title;
 	public PlatformExpression	Condition;
 	public string				Channel;
 
@@ -121,6 +122,7 @@ public class Realization
 		var r = new Realization();
 
 		r.Name		= xon.Get<string>();
+		r.Title		= xon.Get<string>("Title", null);
 		r.Latest	= xon.One("Latest")?.Get<Ura>();
 		r.Channel	= xon.Get<string>("Channel");
 		r.Condition = xon.Has("Condition") ? PlatformExpression.FromXon(xon.One("Condition").Nodes.First()) : null;
@@ -134,6 +136,7 @@ public class Realization
 
 		x.Name = "Realization";
 		x.Value = Name;
+		x.Add("Title").Value = Title;
 		x.Add("Latest").Value = Latest;
 		x.Add("Channel").Value = Channel;
 		x.Add("Condition").Nodes.Add(Condition.ToXon(serializator));
@@ -157,7 +160,7 @@ public class ProductManifest
 		{
 			var s = new MemoryStream();
 
-			ToXon(new NetXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
+			ToXon(new RdnXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
 
 			return s.ToArray();
 		}

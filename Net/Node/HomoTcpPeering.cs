@@ -219,7 +219,7 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 	protected override void ProcessMain()
 	{
-		var needed = 1 - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
+		var needed = 2 - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
 		foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected &&
 											DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
@@ -240,12 +240,12 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 	protected override void OnConnected(HomoPeer peer)
 	{
 		//RefreshPeers([peer]);
-		peer.Send(new SharePeersPpc {Broadcast = false, Peers = Peers.Where(i => i.Recent).ToArray()});
+		peer.Send(new SharePeersPpc {Peers = Peers.Where(i => i.Recent).ToArray()});
 	}
 
-	public HomoPeer ChooseBestPeer(long role, HashSet<HomoPeer> exclusions)
+	public HomoPeer ChooseBestPeer(long roles, HashSet<HomoPeer> exclusions)
 	{
-		return Peers.Where(i => i.Roles.IsSet(role) && (exclusions == null || !exclusions.Contains(i)))
+		return Peers.Where(i => ((i.Roles & roles) == roles) && (exclusions == null || !exclusions.Contains(i)))
 					.OrderByDescending(i => i.Status == ConnectionStatus.OK)
 					.FirstOrDefault();
 	}

@@ -40,10 +40,8 @@ public class Genesis : Operation
 
 		var	c = execution.AffectCandidate(a.Id);
 
-		c.Id			= a.Id;
-		c.Address		= a.Owner;
+		c.User			= a.Id;
 		c.GraphPpcIPs	= [execution.Net.Father0IP];
-		c.Registered	= execution.Round.Id;
 
 		Declare(execution, c);
 	}

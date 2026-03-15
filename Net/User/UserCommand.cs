@@ -10,39 +10,39 @@ public class UserCommand : McvCommand
 	{
 	}
 
+	//public CommandAction Create()
+	//{
+	//	var name = "name";
+	//	var owner = "owner";
+	//
+	//	var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+	//
+	//	a.Name = "c";
+	//	a.Description = "Create a new user entity";
+	//	a.Arguments = [	new (name,	NAME, "User name"),
+	//					new (owner, AA, "Account public address of account owner")];
+	//
+	//	a.Execute = () =>	{
+	//							Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+	//
+	//							return new UserCreation {Name = GetString(name), Owner = GetAccountAddress(owner)};
+	//						};
+	//	return a;
+	//}
+
 	public CommandAction Create()
 	{
-		var name = "name";
-		var owner = "owner";
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Description = "Create a new user entity";
-		a.Arguments = [	new (name,	NAME, "User name"),
-						new (owner, AA, "Account public address of account owner")];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
-
-								return new UserCreation {Name = GetString(name), Owner = GetAccountAddress(owner)};
-							};
-		return a;
-	}
-
-	public CommandAction FreeCreate()
-	{
-
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "fc";
 		a.Description = "Create a new user without fo free";
 		a.Arguments = [];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								return new UserFreeCreation {};
+								return new UserCreation {};
 							};
 		return a;
 	}
@@ -58,7 +58,7 @@ public class UserCommand : McvCommand
 		a.Arguments = [new (name, NAME, "A new user name")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								return new UserNameChange {Name = GetString(name)};
 							};
@@ -76,7 +76,7 @@ public class UserCommand : McvCommand
 		a.Arguments = [new (owner, AA, "Public address of a new account owner")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								return new UserOwnerChange {Owner = GetAccountAddress(owner)};
 							};
@@ -92,7 +92,7 @@ public class UserCommand : McvCommand
 		a.Arguments = [new ("name", NAME, "A name of user to get information about")];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
 								var i = Ppc(new UserPpc(GetString(a.Arguments[0].Name)));
 												
@@ -116,7 +116,7 @@ public class UserCommand : McvCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new UserBandwidthAllocation {Bandwidth = GetUInt16("bandwidth"), Months = GetByte("months")};
 							};

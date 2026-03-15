@@ -55,7 +55,7 @@ public class DomainCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new DomainMigration(First, GetString("wtld"));
 							};
@@ -76,7 +76,7 @@ public class DomainCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var d = Ppc(new DomainPpc(First)).Domain;
 
@@ -102,7 +102,7 @@ public class DomainCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								if(Domain.IsRoot(First))
 								{
@@ -141,7 +141,7 @@ public class DomainCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var d = Ppc(new DomainPpc(First)).Domain;
 
@@ -164,7 +164,7 @@ public class DomainCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var d = Ppc(new DomainPpc(First)).Domain;
 								var to = Ppc(new UserPpc(GetString(a.Arguments[1].Name))).User;
@@ -190,7 +190,7 @@ public class DomainCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new DomainPpc(First));
 

@@ -24,7 +24,7 @@ public partial class AssetsPage : Page
 
 			Message.Visible = false;
 
-			if(Nexus.Settings.Zone == Zone.Local)
+			if(Nexus.Settings.Zone == Zone.Simulation)
 			{
 				Entity.Text = "user/father0000";
 			}

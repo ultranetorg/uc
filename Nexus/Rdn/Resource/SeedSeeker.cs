@@ -20,7 +20,7 @@ public class SeedSeeker
 
 	public class Hub
 	{
-		public AccountAddress		Member;
+		public AutoId				Member;
 		public Endpoint[]			IPs;
 		//public Seed[]				Seeds = {};
 		public HubStatus			Status = HubStatus.Estimating;
@@ -28,7 +28,7 @@ public class SeedSeeker
 		Urr							Address;
 		Flow						Flow;
 
-		public Hub(SeedSeeker seeker, Urr hash, AccountAddress member, IEnumerable<Endpoint> ips)
+		public Hub(SeedSeeker seeker, Urr hash, AutoId member, IEnumerable<Endpoint> ips)
 		{
 			Seeker = seeker;
 			Address = hash;
@@ -87,9 +87,9 @@ public class SeedSeeker
 	DateTime					MembersRefreshed = DateTime.MinValue;
 	RdnGenerator[]				Members;
 
-	public SeedSeeker(RdnNode sun, Urr address, Flow flow)
+	public SeedSeeker(RdnNode node, Urr address, Flow flow)
 	{
-		Node = sun;
+		Node = node;
 		Flow = flow.CreateNested($"{GetType().Name}, {address}");
 		Hub hlast = null;
 
@@ -102,15 +102,15 @@ public class SeedSeeker
 														{
 															Members = r.Members.ToArray();
 
-															var nearest = Members.OrderByHash(i => i.Address.Bytes, address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnGenerator>();
+															var nearest = Members.OrderByHash(i => i.User.Raw, address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnGenerator>();
 		
 															do 
 															{
-																var m = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Address));
+																var m = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.User));
 														
 												 				if(m != null)
 																{
-																	hlast = new Hub(this, address, m.Address, m.SeedHubPpcIPs);
+																	hlast = new Hub(this, address, m.User, m.SeedHubPpcIPs);
 																	Hubs.Add(hlast);
 																}
 																else
@@ -120,7 +120,7 @@ public class SeedSeeker
 
 															do 
 															{
-																var h = Hubs.FirstOrDefault(x => !nearest.Any(y => y.Address == x.Member));
+																var h = Hubs.FirstOrDefault(x => !nearest.Any(y => y.User == x.Member));
 	
 																if(h != null)
 																{

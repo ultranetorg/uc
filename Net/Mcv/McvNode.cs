@@ -19,7 +19,7 @@ public abstract class McvPpc<R> : Ppc<R> where R : Result
 	{
 		RequireGraph();
 
-		if(!Node.Mcv.NextVotingRound.Voters.Any(i => Node.Mcv.Settings.Generators.Any(j => j.Signer == i.Address))) 
+		if(!Node.Mcv.NextVotingRound.Voters.Any(i => Node.Mcv.Settings.Generators.Any(j => j.Id == i.User))) 
 			throw new NodeException(NodeError.NotMember);
 	}
 
@@ -43,7 +43,7 @@ public class McvNode : Node
 	public McvPeering		Peering;
 	public McvNodeSettings	Settings;
 
-	public McvNode(string name, McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(name, net, profile, nexussettings,  flow)
+	public McvNode(McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(net, profile, nexussettings,  flow)
 	{
 	}
 

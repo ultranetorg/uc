@@ -10,19 +10,15 @@
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyName>open</AssemblyName>
-    <AssemblyVersion>1.0.648.0</AssemblyVersion>
-    <FileVersion>1.0.648.0</FileVersion>
-    <Version>1.0.648.0</Version>
+    <AssemblyVersion>1.0.691.0</AssemblyVersion>
+    <FileVersion>1.0.691.0</FileVersion>
+    <Version>1.0.691.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\_Debug\net</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\_Release\net</OutputPath>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
   <ItemGroup>
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
     <ProjectReference Include="..\Rdn.CLI\Uccs.Rdn.CLI.csproj" />
