@@ -183,8 +183,8 @@ public class McvSummaryApc : McvApc
 				f.Add("Base Hash",				node.Mcv.GraphHash.ToHex());
 				f.Add("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}");
 				f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
-				f.Add("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}");
-				f.Add("ExeunitMinFee",			$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
+				f.Add("Last Payload Round",		$"{node.Mcv.LastPayloadRound?.Id}");
+				f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
 				f.Add("Loaded Rounds",			$"{node.Mcv.OldRounds.Count}");
 			}
 		}

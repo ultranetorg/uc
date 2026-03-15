@@ -87,9 +87,9 @@ public class SeedSeeker
 	DateTime					MembersRefreshed = DateTime.MinValue;
 	RdnGenerator[]				Members;
 
-	public SeedSeeker(RdnNode sun, Urr address, Flow flow)
+	public SeedSeeker(RdnNode node, Urr address, Flow flow)
 	{
-		Node = sun;
+		Node = node;
 		Flow = flow.CreateNested($"{GetType().Name}, {address}");
 		Hub hlast = null;
 

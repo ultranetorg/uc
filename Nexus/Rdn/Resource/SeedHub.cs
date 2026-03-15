@@ -37,9 +37,9 @@ public class SeedHub
 	public object						Lock = new ();
 	RdnMcv								Mcv;
 
-	public SeedHub(RdnMcv sun)
+	public SeedHub(RdnMcv node)
 	{
-		Mcv = sun;
+		Mcv = node;
 	}
 
 	public IEnumerable<ReleaseDeclarationResult> ProcessIncoming(Endpoint ip, ResourceDeclaration[] resources)

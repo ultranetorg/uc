@@ -32,9 +32,9 @@ public class PropertyApc : NodeApc
 {
 	public string Path { get; set; }
 
-	public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(Node node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		object o = sun;
+		object o = node;
 
 		foreach(var i in Path.Split('.'))
 		{

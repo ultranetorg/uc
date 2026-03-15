@@ -511,6 +511,8 @@ public abstract class Round : IBinarySerializable
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
 		Mcv.Tail.RemoveAll(i => i.Id < Id);
+		Mcv.OldRounds.Add(this);
+		Mcv.OldRounds.RemoveAll(i => i.Id < Mcv.OldestRememberedRoundId);
 		Mcv.Confirmed?.Invoke(this);
 	}
 

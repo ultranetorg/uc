@@ -295,14 +295,13 @@ public abstract class McvPeering : HomoTcpPeering
 					lock(Mcv.Lock)
 					{
 						Mcv.GraphState = stamp.GraphState;
-						Mcv.LastConfirmedRound = r;
-						Mcv.LastCommitedRound = r;
-						Mcv.OldRounds[r.Id] = r;
 						Mcv.Hashify();
 			
 						if(s.GraphHash.SequenceEqual(Mcv.GraphHash))
 	 					{	
-							Mcv.OldRounds[r.Id] = r;
+							Mcv.LastConfirmedRound = r;
+							Mcv.LastCommitedRound = r;
+							Mcv.OldRounds.Add(r);
 
 							using(var w = new WriteBatch())
 							{
@@ -333,7 +332,6 @@ public abstract class McvPeering : HomoTcpPeering
 								{
 									foreach(var v in i.Value.OrderBy(i => i.Try))
 										ProcessIncoming(v, true);
-		
 								}
 
 								if(r.Confirmed)
@@ -391,7 +389,7 @@ public abstract class McvPeering : HomoTcpPeering
 	
 							lock(SyncLock)
 							{
-								if(Enumerable.Range(r.Id, Mcv.P + 1).All(SynchronizationTail.ContainsKey) && (Mcv.Settings.Chain != null || Mcv.FindRound(r.VotersId) != null))
+								if(Enumerable.Range(r.Id, Mcv.P + 1).All(SynchronizationTail.ContainsKey))
 								{
 									try
 									{
@@ -407,10 +405,16 @@ public abstract class McvPeering : HomoTcpPeering
 		
 									if(Mcv.LastConfirmedRound.Id == r.Id && Mcv.LastConfirmedRound.Hash.SequenceEqual(r.Hash))
 									{
+										Flow.Log?.Report(this, $"Synchronized at {Mcv.LastConfirmedRound}");
+										Flow.Log?.Report(this, $"Tail {string.Join(", ", SynchronizationTail.OrderBy(i => i.Key).Select(i => $"{i.Key}={i.Value.Count}"))}");
+
 										foreach(var i in SynchronizationTail.OrderBy(i => i.Key).Where(i => i.Key > r.Id))
 										{
 											foreach(var v in i.Value)
 												ProcessIncoming(v, true);
+		
+											if(Mcv.FindRound(i.Key).Parent.Confirmed)
+												Flow.Log?.Report(this, $"Confirmed {Mcv.FindRound(i.Key).Parent}");
 										}
 											
 										SynchronizingThread = null;
@@ -542,71 +546,80 @@ public abstract class McvPeering : HomoTcpPeering
 		{
 			lock(Mcv.Lock)
 			{
-				if(vote.RoundId <= Mcv.LastConfirmedRound.Id || Mcv.LastConfirmedRound.Id + Mcv.P*2 < vote.RoundId)
+				if(vote.RoundId < Mcv.OldestRememberedRoundId)
 				{	
-					//Flow.Log.ReportWarning(this, $"Vote rejected v.RoundId={v.RoundId} LastConfirmedRound={Mcv.LastConfirmedRound.Id}");
+					Flow.Log.ReportWarning(this, $"Vote rejected v.RoundId={vote} OldestRememberedRoundId={Mcv.OldestRememberedRoundId}");
 					return false;
 				}
-
-				var r = Mcv.GetRound(vote.RoundId);
-	
-				if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
-					return false;
-
-				var u = Mcv.Users.Latest(vote.User);
-				
-				if(u == null || u.Owner != vote.Signer)
-					return false;
-									
-				if(r.Voters.Any() && !r.Voters.Any(i => i.User == vote.User))
-					return false;
-	
-				if(r.Forkers.Contains(vote.User))
-					return false;
-	
-				var e = r.VotesOfTry.FirstOrDefault(i => i.Signer == vote.Signer);
-				
-				if(e != null) /// FORK
+				else
 				{
-					//Flow.Log.ReportWarning(this, $"Vote rejected FORK : {v}");
+					var r = Mcv.GetRound(vote.RoundId);
+
+					if(r.Forkers.Contains(vote.User))
+						return false;
 	
-					r.Votes.Remove(e);
-					r.Forkers.Add(e.User);
+					if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
+						return false;
 	
-					return false;
-				}
-	
-				vote.Restore();
+					var e = r.VotesOfTry.FirstOrDefault(i => i.Signer == vote.Signer);
 				
-				if(r.ParentId <= Mcv.LastConfirmedRound.Id)
-				{
-					//if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
-					//{	
-					//	//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
+					if(e != null) /// FORK
+					{
+						Flow.Log.ReportWarning(this, $"FORK : {vote}");
+	
+						r.Votes.Remove(e);
+						r.Forkers.Add(e.User);
+	
+						return true; /// Let others know about incident
+					}
+				
+					if(r.Id > Mcv.LastConfirmedRound.Id && r.Id <= Mcv.NextVotingRound.Id)
+					{
+						if(r.Voters.Any() && !r.Voters.Any(i => i.User == vote.User))
+						{	
+							Flow.Log.ReportWarning(this, $"Not voter {vote}");
+							return false;
+						}
+
+						///var u = Mcv.Users.Latest(vote.User);
+						///
+						///if(u == null || u.Owner != vote.Signer)
+						///{	
+						///	Flow.Log.ReportWarning(this, $"Not owner {vote}");
+						///	return false;
+						///}
+
+						vote.Restore();
+
+						//if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
+						//{	
+						//	//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
+						//	return false;
+						//}
+	
+						//if(vote.Transactions.Sum(i => i.Operations.Length) > Mcv.Net.OperationsPerRoundMaximum / r.Voters.Count()) //r.VotersRound.PerVoteOperationsMaximum)
+						if(vote.Transactions.Sum(i => i.Operations.Length) > r.PerVoteOperationsMaximum)
+						{	
+							Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit : {vote}");
+							return false;
+						}
+	
+						if(vote.Transactions.Any(t => r.Voters.NearestBy(i => i.User, t.User, t.Nonce).User != vote.User))
+						{	
+							Flow.Log.ReportWarning(this, $"{nameof(Vote)} rejected NOT NEAREST : {vote}");
+							return false;
+						}
+					}
+	
+					//if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
+					//{
+					//	Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Any(i => !i.Valid(Mcv)): {v}");
 					//	return false;
 					//}
 	
-					//if(vote.Transactions.Sum(i => i.Operations.Length) > Mcv.Net.OperationsPerRoundMaximum / r.Voters.Count()) //r.VotersRound.PerVoteOperationsMaximum)
-					if(vote.Transactions.Sum(i => i.Operations.Length) > r.PerVoteOperationsMaximum)
-					{	
-						//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Sum(i => i.Operations.Length) > r.Parent.PerVoteOperationsLimit : {v}");
-						return false;
-					}
-	
-					if(vote.Transactions.Any(t => r.Voters.NearestBy(i => i.User, t.User, t.Nonce).User != vote.User))
-					{	
-						//Flow.Log.ReportWarning(this, $"{nameof(Vote)} rejected NOT NEAREST : {v}");
-						return false;
-					}
+					if(r.Id > Mcv.LastConfirmedRound.Id)
+						Mcv.Add(vote);
 				}
-	
-				//if(v.Transactions.Any(i => !i.Valid(Mcv))) /// do it only after adding to the chainbase
-				//{
-				//	Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Any(i => !i.Valid(Mcv)): {v}");
-				//	return false;
-				//}
-	
-				Mcv.Add(vote);
 			}
 		}
 

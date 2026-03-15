@@ -35,7 +35,7 @@ public class VotePpc : PeerRequest
 					
 					accepted = true; /// consensus failed but the vote looks valid
 				}
-								
+				
 				Peering.Statistics.Consensing.End();
 
 				//if(Peering.Synchronization == Synchronization.Synchronized)

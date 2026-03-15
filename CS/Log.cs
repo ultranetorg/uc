@@ -30,7 +30,7 @@ public class Log
 		None, Info, Warning, Error, SubLog
 	}
 
-	public List<LogMessage>		Messages = new List<LogMessage>(1500);
+	public List<LogMessage>		Messages = new List<LogMessage>(10000);
 	public ReportedDelegate		Reported;
 	public Log					Parent;
 	string						Name;
@@ -75,11 +75,12 @@ public class Log
 		{
 			r.Messages.Add(m);
 
-			if(r.Messages.Count > 1500)
-				r.Messages.RemoveRange(0, 1000);
+			if(r.Messages.Count > 10000)
+				r.Messages.RemoveRange(r.Messages.Count - 1000, 1000);
 		
-			r.Reported?.Invoke(m);
 		}
+		
+		r.Reported?.Invoke(m);
 	}
 
 	public void Report(string a)

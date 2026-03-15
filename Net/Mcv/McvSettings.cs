@@ -16,6 +16,11 @@ public class GeneratorSettings : Settings
 	public GeneratorSettings() : base(NetXonTextValueSerializator.Default)
 	{
 	}
+
+	public override string ToString()
+	{
+		return $"{User}/{Signer}";
+	}
 }
 
 public class McvSettings : Settings

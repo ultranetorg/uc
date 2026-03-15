@@ -324,6 +324,9 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 								{
 									if(peer.Status != ConnectionStatus.Disconnected)
 									{
+										if(h.Name == Name)
+											IgnoredIPs.Add(ip);
+
 										IncomingConnections.Remove(ip);
 										client.Close();
 										return;

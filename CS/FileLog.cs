@@ -27,7 +27,8 @@ public class FileLog
 		Log.Reported += m =>{
 								var f = Path.Join(destination, $"{name}.{Current:00000000}.log");
 								
-								File.AppendAllText(f, m.ToString() + Environment.NewLine);
+								lock(this)
+									File.AppendAllText(f, m.ToString() + Environment.NewLine);
 								
 								if(new FileInfo(f).Length > SizeMaximum)
 								{
