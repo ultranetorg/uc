@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import { AccountBaseAvatar, BaseProposal, OperationType, PublicationImageBase } from "types"
+import { AccountBaseAvatar, AuthorBaseAvatar, BaseProposal, OperationType, PublicationImageBase } from "types"
 import { AccountInfo, ButtonOutline, ButtonPrimary, PublicationInfo, TableColumn } from "ui/components"
 import {
   formatNabb,
@@ -14,6 +14,10 @@ import {
 } from "utils"
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
+
+export const renderAuthor = (author: AuthorBaseAvatar) => (
+  <AccountInfo title={author.name || author.id} fullTitle={author.name || author.id} avatarId={author.avatarId} />
+)
 
 export const renderAccount = (account: AccountBaseAvatar) => (
   <AccountInfo

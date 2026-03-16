@@ -16,13 +16,13 @@ const routeToTabKey: Record<string, string> = {
 export const PublishersPage = () => {
   const navigate = useNavigate()
   const { siteId, tabKey } = useParams()
-  const { t } = useTranslation("moderatorsPage")
+  const { t } = useTranslation("publishersPage")
 
   const key = routeToTabKey[tabKey!]
 
   const handleTabSelect = useCallback(
     (item: TabsListItem & { route?: string }) =>
-      navigate(item.route ? `/${siteId}/m/m/${item.route}` : `/${siteId}/m/m`),
+      navigate(item.route ? `/${siteId}/m/a/${item.route}` : `/${siteId}/m/a`),
     [navigate, siteId],
   )
 
@@ -39,7 +39,7 @@ export const PublishersPage = () => {
       <ModerationHeader
         title={t("title")}
         parentBreadcrumbs={{ path: `/${siteId}/m`, title: t("common:proposals") }}
-        components={<ButtonPrimary label="Add new publisher" />}
+        components={<ButtonPrimary label={t("addPublisher")} />}
       />
       <TabsProvider defaultKey={key || "publishers"}>
         <div className="flex flex-col gap-6">

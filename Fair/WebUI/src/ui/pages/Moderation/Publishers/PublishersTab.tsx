@@ -5,26 +5,28 @@ import { useParams } from "react-router-dom"
 import { useGetSitePublishers } from "entities"
 import { Table, TableEmptyState } from "ui/components"
 
+import { getItemRenderer } from "./renderer"
+
 export const PublishersTab = () => {
   const { siteId } = useParams()
-  const { t } = useTranslation("publishersTab")
+  const { t } = useTranslation("publishersPage")
 
   const { data: publishers } = useGetSitePublishers(siteId)
 
   const columns = useMemo(
     () => [
-      { accessor: "account", label: t("common:user"), className: "w-[60%]" },
+      { accessor: "author", label: t("common:author"), type: "author", className: "w-[60%]" },
       { accessor: "bannedTill", label: t("bannedTill"), className: "w-[40%]" },
     ],
     [t],
   )
+  const itemRenderer = getItemRenderer(t)
 
   const items = useMemo(
     () =>
-      publishers?.map(m => ({
-        id: m.author.id,
-        account: m.author.id,
-        bannedTill: m.bannedTill === 0 ? "-" : new Date(m.bannedTill * 1000).toLocaleDateString(),
+      publishers?.map(x => ({
+        id: x.author.id,
+        ...x,
       })),
     [publishers],
   )
@@ -33,6 +35,7 @@ export const PublishersTab = () => {
     <Table
       columns={columns}
       items={items}
+      itemRenderer={itemRenderer}
       tableBodyClassName="text-2sm leading-5"
       emptyState={<TableEmptyState message={t("noModerators")} />}
     />

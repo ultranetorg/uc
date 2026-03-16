@@ -148,7 +148,7 @@ const routes: RouteObject[] = [
                 element: <PublicationsPage />,
               },
               {
-                path: "a",
+                path: "a/:tabKey?",
                 element: <PublishersPage />,
               },
               {

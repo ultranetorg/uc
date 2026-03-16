@@ -332,6 +332,8 @@ export const enUS = {
   },
   publishersPage: {
     title: "Publishers",
+    addPublisher: "Add new publisher",
+    bannedTill: "Banned till",
   },
   referendum: {
     createdAt: "Created At:",
