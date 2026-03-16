@@ -12,7 +12,7 @@ export const useStoreDropdownMenuItems = (siteId: string) => {
     () => [
       { label: t("common:proposals"), to: `/${siteId}/m` },
       { label: t("common:moderators"), to: `/${siteId}/m/m` },
-      { label: t("common:publications"), to: `/${siteId}/m/p` },
+      { label: t("common:publications"), to: `/${siteId}/m/c` },
       { label: t("common:publishers"), to: `/${siteId}/m/a` },
       { label: t("common:reviews"), to: `/${siteId}/m/r` },
       { label: t("common:users"), to: `/${siteId}/m/u` },

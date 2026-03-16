@@ -4,24 +4,19 @@ import {
   AuthorBaseAvatar,
   CreateProposalData,
   CreateProposalDataOption,
-  ExtendedOperationType,
   OperationType,
   Policy,
   ProposalOption,
   ProposalType,
   Site,
 } from "types"
-import { getFairOperationType, toOperationType } from "utils"
+import { getFairOperationType } from "utils"
 
 const mapAuthorsToIds = (accounts?: AuthorBaseAvatar[]): string[] => accounts?.map(x => x.id) ?? []
 
 const mapAccountsToIds = (accounts?: AccountBase[]): string[] => accounts?.map(x => x.id) ?? []
 
-const mapOptionOperation = (
-  type: ExtendedOperationType,
-  data: CreateProposalData,
-  option: CreateProposalDataOption,
-) => {
+const mapOptionOperation = (type: OperationType, data: CreateProposalData, option: CreateProposalDataOption) => {
   switch (type) {
     // Category
     case "category-avatar-change":
@@ -50,8 +45,6 @@ const mapOptionOperation = (
       return { reviewId: data.reviewId, status: option.status }
 
     // Site
-    case "site-author-addition":
-      return { additions: mapAuthorsToIds(option.authors), removals: [] }
     case "site-author-removal":
       return { additions: [], removals: mapAuthorsToIds(option.authors) }
     case "site-avatar-change":
@@ -75,7 +68,7 @@ const mapOptionOperation = (
 }
 
 export const prepareProposalOptions = (data: CreateProposalData): ProposalOption[] => {
-  const type = data.type! as ExtendedOperationType
+  const type = data.type! as OperationType
   const $type = getFairOperationType(type)
 
   if (CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType)) {
@@ -98,13 +91,12 @@ export const prepareProposalOptions = (data: CreateProposalData): ProposalOption
 export const isVotingRequired = (
   proposalType: ProposalType,
   site?: Site,
-  type?: ExtendedOperationType,
+  operation?: OperationType,
   policies?: Policy[],
 ): boolean => {
-  if (!site || !type || !policies) return true
+  if (!site || !operation || !policies) return true
 
   const votersCount = proposalType === "discussion" ? site.moderatorsIds.length : site.authorsIds.length
-  const operation = toOperationType(type)
   const policy = policies.find(x => x.operationClass === operation)
 
   if (policy) {

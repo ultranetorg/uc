@@ -12,7 +12,7 @@ export type OperationType =
   | "review-creation"
   | "review-edit"
   | "review-status-change"
-  | "site-authors-change"
+  | "site-author-removal"
   | "site-avatar-change"
   | "site-moderator-addition"
   | "site-moderator-removal"
@@ -20,8 +20,3 @@ export type OperationType =
   | "site-text-change"
   | "user-registration"
   | "user-unregistration"
-
-export type ExtendedOperationType =
-  | Exclude<OperationType, "site-authors-change">
-  | "site-author-addition"
-  | "site-author-removal"

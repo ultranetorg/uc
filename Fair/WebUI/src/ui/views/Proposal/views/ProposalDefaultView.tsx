@@ -9,7 +9,7 @@ export const ProposalDefaultView = memo(({ t, pageState, proposal }: ProposalTyp
     () =>
       proposal.options.map((x, i) => ({
         title: x.title ?? getOptionTitle(t, x),
-        description: getOptionDescription(t, x),
+        description: getOptionDescription(x),
         value: i,
         votePercents: 2,
         voted: false,

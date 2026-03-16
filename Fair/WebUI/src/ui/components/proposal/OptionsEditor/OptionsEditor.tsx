@@ -10,12 +10,8 @@ import {
 } from "react-hook-form"
 
 import { useCreateProposalContext, useModerationContext } from "app"
-import {
-  CREATE_DISCUSSION_EXTRA_OPERATION_TYPES,
-  CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES,
-  CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES,
-} from "constants/"
-import { CreateProposalData, CreateProposalDataOption, ExtendedOperationType, OperationType, ProposalType } from "types"
+import { CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES, CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
+import { CreateProposalData, CreateProposalDataOption, OperationType, ProposalType } from "types"
 import { Dropdown, DropdownItem, MessageBox, ValidationWrapper } from "ui/components"
 import { getVisibleProposalOperations } from "utils"
 
@@ -47,7 +43,7 @@ export type OptionsEditorProps = {
   proposalType: ProposalType
   labelClassName: string
   isVotingRequired: boolean
-  onProposalTypeChange: (type?: ExtendedOperationType) => void
+  onProposalTypeChange: (type?: OperationType) => void
 }
 
 export const OptionsEditor = memo(
@@ -70,7 +66,7 @@ export const OptionsEditor = memo(
     const typesItems = useMemo<DropdownItem[]>(() => {
       const operations = getVisibleProposalOperations(proposalType, policies)
       return operations.map(x => ({
-        label: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x) ? t(`operations:${x}`) : t(`extraOperations:${x}`),
+        label: t(`operations:${x}`),
         value: x as string,
       }))
     }, [policies, proposalType, t])

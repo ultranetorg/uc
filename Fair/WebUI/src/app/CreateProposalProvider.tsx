@@ -32,6 +32,8 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
       ...(searchParams.get("type") && { type: searchParams.get("type")! as OperationType }),
       ...(location.state?.type && { type: location.state.type as OperationType }),
 
+      ...(searchParams.get("moderatorId") && { moderatorId: searchParams.get("moderatorId")! }),
+      ...(searchParams.get("publisherId") && { publisherId: searchParams.get("publisherId")! }),
       ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
       ...(searchParams.get("publicationId") && { publicationId: searchParams.get("publicationId")! }),
       ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),

@@ -484,7 +484,7 @@ export const enUS = {
     "review-creation": "Review creation",
     "review-edit": "Review edit",
     "review-status-change": "Review status change",
-    "site-authors-change": "Site authors change",
+    "site-author-removal": "Site authors removal",
     "site-avatar-change": "Site avatar change",
     "site-moderator-addition": "Site moderators addition",
     "site-moderator-removal": "Site moderator removal",
@@ -493,10 +493,6 @@ export const enUS = {
     "user-deletion": "User deletion",
     "user-registration": "User registration",
     "user-unregistration": "User unregistration",
-  },
-  extraOperations: {
-    "site-author-addition": "Site author addition",
-    "site-author-removal": "Site author removal",
   },
   operationsShort: {
     "publication-creation": "Creation",

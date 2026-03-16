@@ -60,7 +60,6 @@ export const validateSiteAuthorChange = (
   const hasDuplicates = options.some((opt, i) =>
     options.some((other, j) => i !== j && normalizeAuthors(other.authors) === normalizeAuthors(opt.authors)),
   )
-  console.log(hasDuplicates)
 
   if (hasDuplicates) {
     setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:uniqueOptions") })

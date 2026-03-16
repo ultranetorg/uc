@@ -145,7 +145,6 @@ classDiagram
     VotableOperation <|-- ReviewEdit
     VotableOperation <|-- ReviewStatusChange
 
-    VotableOperation <|-- SiteAuthorsChange
     VotableOperation <|-- SiteAvatarChange
     VotableOperation <|-- SiteModeratorAddition
     VotableOperation <|-- SiteModeratorRemoval

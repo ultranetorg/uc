@@ -1,6 +1,6 @@
 import { UseControllerProps } from "react-hook-form"
 
-import { AccountBase, AuthorBaseAvatar, CreateProposalData, ExtendedOperationType } from "types"
+import { AccountBase, AuthorBaseAvatar, CreateProposalData, OperationType } from "types"
 
 export type FieldValueType =
   | "authors-additions"
@@ -52,7 +52,7 @@ export type ParameterValueType = "category" | "product" | "publication" | "revie
 export type ParameterNameType = "categoryId" | "productId" | "publicationId" | "reviewId" | "userId"
 
 export type EditorOperationFields = {
-  operationType: ExtendedOperationType
+  operationType: OperationType
   parameterValueType?: ParameterValueType
   parameterName?: ParameterNameType
   parameterLabel?: string

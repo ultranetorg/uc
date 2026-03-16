@@ -163,15 +163,6 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
 
     // Site
     {
-      operationType: "site-author-addition",
-      fields: [
-        {
-          valueType: "authors-additions",
-          name: "authors",
-        },
-      ],
-    },
-    {
       operationType: "site-author-removal",
       fields: [
         {

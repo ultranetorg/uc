@@ -27,7 +27,7 @@ export const PublicationsPage = () => {
 
   const handleTabSelect = useCallback(
     (item: TabsListItem & { route?: string }) =>
-      navigate(item.route ? `/${siteId}/m/p/${item.route}` : `/${siteId}/m/p`),
+      navigate(item.route ? `/${siteId}/m/c/${item.route}` : `/${siteId}/m/c`),
     [navigate, siteId],
   )
 

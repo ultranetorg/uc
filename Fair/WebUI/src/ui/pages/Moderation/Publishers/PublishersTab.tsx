@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { useModerationContext } from "app"
 import { useGetSitePublishers } from "entities"
 import { Table, TableEmptyState } from "ui/components"
 
@@ -9,18 +10,31 @@ import { getItemRenderer } from "./renderer"
 
 export const PublishersTab = () => {
   const { siteId } = useParams()
+  const { getOperationVoterId } = useModerationContext()
   const { t } = useTranslation("publishersPage")
+  const voterId = getOperationVoterId("site-author-removal")
 
   const { data: publishers } = useGetSitePublishers(siteId)
 
   const columns = useMemo(
     () => [
-      { accessor: "author", label: t("common:author"), type: "author", className: "w-[60%]" },
-      { accessor: "bannedTill", label: t("bannedTill"), className: "w-[40%]" },
+      { accessor: "author", label: t("common:author"), type: "author", className: "w-[45%]" },
+      { accessor: "bannedTill", label: t("bannedTill"), type: "banned", className: "w-[40%]" },
+      ...(voterId
+        ? [
+            {
+              accessor: "actions",
+              label: t("common:actions"),
+              type: "actions",
+              className: "w-[15%] first-letter:uppercase",
+            },
+          ]
+        : []),
     ],
-    [t],
+    [t, voterId],
   )
-  const itemRenderer = getItemRenderer(t)
+
+  const itemRenderer = useMemo(() => getItemRenderer(t, siteId!), [siteId, t])
 
   const items = useMemo(
     () =>

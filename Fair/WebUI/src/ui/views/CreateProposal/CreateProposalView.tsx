@@ -4,9 +4,8 @@ import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 
 import { useModerationContext, useSiteContext, useUserContext } from "app"
-import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES } from "constants/"
 import { useTransactMutationWithStatus } from "entities/node"
-import { CreateProposalData, ExtendedOperationType, ProposalType, Role } from "types"
+import { CreateProposalData, OperationType, ProposalType, Role } from "types"
 import { ProposalCreation } from "types/fairOperations"
 import { ButtonOutline, ButtonPrimary, DebugPanel, Input, PageHeader, Textarea, ValidationWrapper } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
@@ -37,11 +36,13 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   } = useFormContext<CreateProposalData>()
   const formData: CreateProposalData = watch() // TODO: should be removed.
 
-  const [type, setType] = useState<ExtendedOperationType | undefined>()
+  const [type, setOperationType] = useState<OperationType | undefined>()
 
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const parentPath = proposalType === "discussion" ? `/${siteId}/m` : `/${siteId}/g/r`
+
+  const handleCancelClick = useCallback(() => navigate(-1), [navigate])
 
   const handleFormSubmit = (data: CreateProposalData) => {
     const options = prepareProposalOptions(data)
@@ -53,9 +54,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
       onSuccess: () => {
         showToast(
           t("toast:proposalCreated", {
-            proposal: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(data.type as ExtendedOperationType)
-              ? t(`operations:${data.type}`)
-              : t(`extraOperations:${data.type}`),
+            proposal: t(`operations:${data.type}`),
           }),
           "success",
         )
@@ -69,7 +68,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
   const isRequired = isVotingRequired(proposalType, site, type, policies)
 
-  const handleProposalTypeChange = useCallback((type?: ExtendedOperationType) => setType(type), [])
+  const handleProposalTypeChange = useCallback((operationType?: OperationType) => setOperationType(operationType), [])
 
   const validRole = (proposalType === "discussion" && isModerator) || (proposalType === "referendum" && isPublisher)
   if (!user || !validRole) {
@@ -128,7 +127,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
         <DebugPanel data={formData} />
 
         <div className="flex items-center justify-end gap-6">
-          <ButtonOutline label={t("common:cancel")} className="h-11 w-25" />
+          <ButtonOutline label={t("common:cancel")} className="h-11 w-25" onClick={handleCancelClick} />
           <ButtonPrimary
             label={title}
             className={"h-11 w-42.5"}

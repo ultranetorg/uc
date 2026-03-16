@@ -1,40 +1,26 @@
-import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES, CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES } from "constants/"
-import { ExtendedOperationType, OperationType, Policy, ProposalType } from "types"
+import { CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES } from "constants/"
+import { OperationType, Policy, ProposalType } from "types"
 
-const getProposalOperations = (proposalType: ProposalType, policies: Policy[]): ExtendedOperationType[] => {
-  const operations =
-    proposalType === "discussion"
-      ? policies.filter(x => x.approval !== "publishers-majority").map(x => x.operationClass)
-      : policies.filter(x => x.approval === "publishers-majority").map(x => x.operationClass)
-  return toExtendedOperationTypes(operations)
+const getProposalOperations = (proposalType: ProposalType, policies: Policy[]): OperationType[] => {
+  return proposalType === "discussion"
+    ? policies.filter(x => x.approval !== "publishers-majority").map(x => x.operationClass)
+    : policies.filter(x => x.approval === "publishers-majority").map(x => x.operationClass)
 }
-
-export const toOperationTypes = (operations: ExtendedOperationType[]): OperationType[] => {
-  const hasExtra = operations.some(x => CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x))
-  const filtered = operations.filter(x => !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x))
-  return (hasExtra ? [...filtered, "site-authors-change"] : filtered) as OperationType[]
-}
-
-export const toExtendedOperationTypes = (operations: OperationType[]): ExtendedOperationType[] =>
-  operations.flatMap(x => (x === "site-authors-change" ? CREATE_DISCUSSION_EXTRA_OPERATION_TYPES : x))
-
-export const toOperationType = (operation: ExtendedOperationType): OperationType =>
-  CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(operation) ? "site-authors-change" : (operation as OperationType)
 
 export const getVisibleProposalOperations = (
   proposalType: ProposalType,
   policies: Policy[] | undefined = [],
-): ExtendedOperationType[] => {
+): OperationType[] => {
   const allOperations = getProposalOperations(proposalType, policies)
-  return allOperations.filter(x => !(CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES as ExtendedOperationType[]).includes(x))
+  return allOperations.filter(x => !(CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES as OperationType[]).includes(x))
 }
 
 type GroupedOperations = {
-  items: ExtendedOperationType[]
+  items: OperationType[]
 }
 
-export const groupOperations = (operations: ExtendedOperationType[]): GroupedOperations[] => {
-  const map = new Map<string, ExtendedOperationType[]>()
+export const groupOperations = (operations: OperationType[]): GroupedOperations[] => {
+  const map = new Map<string, OperationType[]>()
 
   for (const op of operations) {
     const parts = op.split("-")
@@ -59,7 +45,7 @@ export const groupOperations = (operations: ExtendedOperationType[]): GroupedOpe
     }))
 }
 
-const operationTypeToFairOperationTypeMap: Record<ExtendedOperationType, string> = {
+const operationTypeToFairOperationTypeMap: Record<OperationType, string> = {
   "category-avatar-change": "CategoryAvatarChange",
   "category-creation": "CategoryCreation",
   "category-deletion": "CategoryDeletion",
@@ -73,8 +59,7 @@ const operationTypeToFairOperationTypeMap: Record<ExtendedOperationType, string>
   "review-creation": "ReviewCreation",
   "review-edit": "ReviewEdit",
   "review-status-change": "ReviewStatusChange",
-  "site-author-addition": "SiteAuthorsChange",
-  "site-author-removal": "SiteAuthorsChange",
+  "site-author-removal": "SiteAuthorRemoval",
   "site-avatar-change": "SiteAvatarChange",
   "site-moderator-addition": "SiteModeratorAddition",
   "site-moderator-removal": "SiteModeratorRemoval",
@@ -84,5 +69,5 @@ const operationTypeToFairOperationTypeMap: Record<ExtendedOperationType, string>
   "user-unregistration": "UserUnregistration",
 }
 
-export const getFairOperationType = (type: ExtendedOperationType): string | undefined =>
+export const getFairOperationType = (type: OperationType): string | undefined =>
   operationTypeToFairOperationTypeMap[type]

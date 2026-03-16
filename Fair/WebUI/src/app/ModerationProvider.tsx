@@ -1,8 +1,7 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useMemo } from "react"
 
 import { useGetSitePolicies } from "entities"
-import { ExtendedOperationType, Policy } from "types"
-import { toOperationType } from "utils"
+import { OperationType, Policy } from "types"
 
 import { useSiteContext } from "./SiteProvider"
 import { useUserContext } from "./UserProvider"
@@ -12,8 +11,8 @@ type ModerationContextType = {
   isModerator: boolean
   policies?: Policy[]
   publishersIds?: string[]
-  isOperationAllowed(operation: ExtendedOperationType): boolean
-  getOperationVoterId(operation: ExtendedOperationType): string | undefined
+  isOperationAllowed(operation: OperationType): boolean
+  getOperationVoterId(operation?: OperationType): string | undefined
 }
 
 const ModerationContext = createContext<ModerationContextType>({
@@ -33,24 +32,21 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
   const { data: policies } = useGetSitePolicies(isPublisher || isModerator, site?.id)
 
   const isOperationAllowed = useCallback(
-    (operation: ExtendedOperationType) => {
-      const operationClass = toOperationType(operation)
+    (operation: OperationType) => {
       return (
         !!policies &&
-        ((isModerator &&
-          policies.some(x => x.operationClass === operationClass && x.approval !== "publishers-majority")) ||
-          (isPublisher &&
-            policies.some(x => x.operationClass == operationClass && x.approval === "publishers-majority")))
+        ((isModerator && policies.some(x => x.operationClass === operation && x.approval !== "publishers-majority")) ||
+          (isPublisher && policies.some(x => x.operationClass == operation && x.approval === "publishers-majority")))
       )
     },
     [isModerator, isPublisher, policies],
   )
 
   const getOperationVoterId = useCallback(
-    (operation?: ExtendedOperationType) => {
+    (operation?: OperationType) => {
       if (!operation) return undefined
-      const operationClass = toOperationType(operation)
-      const policy = policies?.find(x => x.operationClass === operationClass)
+      const policy = policies?.find(x => x.operationClass === operation)
+      console.log(policies, policy, operation)
       if (!policy || !user) return undefined
 
       return policy.approval !== "publishers-majority" && isModerator

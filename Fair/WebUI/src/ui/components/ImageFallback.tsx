@@ -20,8 +20,6 @@ type ImageFallbackBaseProps = WithFallbackElement | WithFallbackSrc
 export type ImageFallbackProps = PropsWithClassName & ImageFallbackBaseProps
 
 export const ImageFallback = memo(({ className, src, fallbackSrc, fallback }: ImageFallbackProps) => {
-  console.log(fallbackSrc, src)
-
   const [showFallbackElement, setShowFallbackElement] = useState(false)
 
   if (showFallbackElement || !src) {

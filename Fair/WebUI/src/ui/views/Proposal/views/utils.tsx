@@ -7,7 +7,7 @@ import {
   CategoryMovement,
   CategoryTypeChange,
   ProposalOption,
-  SiteAuthorsChange,
+  SiteAuthorRemoval,
   SiteAvatarChange,
   SiteModeratorAddition,
   SiteModeratorRemoval,
@@ -55,12 +55,8 @@ const getCategoryTypeChange = (operation: CategoryTypeChange): JSX.Element => {
   )
 }
 
-const getSiteAuthorsChange = (operation: SiteAuthorsChange): JSX.Element => {
-  return (
-    <b>
-      {operation.additionsIds.join(", ")} + " " + {operation.removalsIds.join(", ")}
-    </b>
-  )
+const getSiteAuthorsRemoval = (operation: SiteAuthorRemoval): JSX.Element => {
+  return <b>{operation.authorId}</b>
 }
 
 const getSiteAvatarChange = (operation: SiteAvatarChange): JSX.Element => {
@@ -87,7 +83,7 @@ const getSiteTextChange = (operation: SiteTextChange): JSX.Element => {
   )
 }
 
-export const getOptionDescription = (t: TFunction, option: ProposalOption): ReactNode => {
+export const getOptionDescription = (option: ProposalOption): ReactNode => {
   switch (option.operation.$type) {
     case "category-avatar-change":
       return getCategoryAvatarChange(option.operation as CategoryAvatarChange)
@@ -99,8 +95,8 @@ export const getOptionDescription = (t: TFunction, option: ProposalOption): Reac
       return getCategoryMovement(option.operation as CategoryMovement)
     case "category-type-change":
       return getCategoryTypeChange(option.operation as CategoryTypeChange)
-    case "site-authors-change":
-      return getSiteAuthorsChange(option.operation as SiteAuthorsChange)
+    case "site-author-removal":
+      return getSiteAuthorsRemoval(option.operation as SiteAuthorRemoval)
     case "site-avatar-change":
       return getSiteAvatarChange(option.operation as SiteAvatarChange)
     case "site-moderator-addition":

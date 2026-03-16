@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useModerationContext, useSiteContext } from "app"
-import { CREATE_DISCUSSION_EXTRA_OPERATION_TYPES } from "constants/"
 import { ProposalType } from "types"
 import {
   Breadcrumbs,
@@ -54,9 +53,7 @@ export const GovernanceHeader = memo(
       const grouped = groupOperations(operations)
       return grouped.flatMap<SimpleMenuItem>(({ items }, i) => {
         const mapped = items.map<SimpleMenuItem>(x => ({
-          label: !CREATE_DISCUSSION_EXTRA_OPERATION_TYPES.includes(x)
-            ? t(`operations:${x}`)
-            : t(`extraOperations:${x}`),
+          label: t(`operations:${x}`),
           onClick: () =>
             navigate(`/${site.id}/${proposalType === "discussion" ? "m" : "g"}/new`, { state: { type: x } }),
         }))

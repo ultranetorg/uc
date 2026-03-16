@@ -23,7 +23,7 @@ export type OperationClass =
   | "site-policy-change"
   | "site-moderator-addition"
   | "site-moderator-removal"
-  | "site-authors-change"
+  | "site-author-removal"
   | "site-text-change"
   | "site-avatar-change"
   | "site-name-change"
