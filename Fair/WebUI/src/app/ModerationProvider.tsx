@@ -46,7 +46,6 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
     (operation?: OperationType) => {
       if (!operation) return undefined
       const policy = policies?.find(x => x.operationClass === operation)
-      console.log(policies, policy, operation)
       if (!policy || !user) return undefined
 
       return policy.approval !== "publishers-majority" && isModerator

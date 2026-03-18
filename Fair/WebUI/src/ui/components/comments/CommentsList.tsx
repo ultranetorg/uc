@@ -8,6 +8,8 @@ import { CommentInput } from "./CommentInput"
 import { CommentsListEmptyState } from "./CommentsListEmptyState"
 
 export type CommentsListProps = {
+  inputDisabled?: boolean
+  inputLoading?: boolean
   isFetching: boolean
   comments?: (Review | ProposalComment)[]
   error?: Error
@@ -15,16 +17,20 @@ export type CommentsListProps = {
   commentInputPlaceholder?: string
   noCommentsLabel: string
   showMoreCommentsLabel: string
+  onCommentSubmit: (comment: string) => void
 }
 
 export const CommentsList = memo(
   ({
+    inputDisabled,
+    inputLoading,
     isFetching,
     comments,
     commentInputPlaceholder,
     noCommentsLabel,
     showCommentInput,
     showMoreCommentsLabel,
+    onCommentSubmit,
   }: CommentsListProps) => (
     <div className="flex flex-col gap-4">
       {isFetching || !comments ? (
@@ -32,14 +38,26 @@ export const CommentsList = memo(
       ) : comments.length === 0 ? (
         <>
           {showCommentInput ? (
-            <CommentInput placeholder={commentInputPlaceholder} />
+            <CommentInput
+              disabled={inputDisabled}
+              loading={inputLoading}
+              placeholder={commentInputPlaceholder}
+              onCommentSubmit={onCommentSubmit}
+            />
           ) : (
             <CommentsListEmptyState label={noCommentsLabel} />
           )}
         </>
       ) : (
         <>
-          {showCommentInput && <CommentInput placeholder={commentInputPlaceholder} />}
+          {showCommentInput && (
+            <CommentInput
+              disabled={inputDisabled}
+              loading={inputLoading}
+              placeholder={commentInputPlaceholder}
+              onCommentSubmit={onCommentSubmit}
+            />
+          )}
           {comments.map(r => (
             <Comment
               key={r.id}
@@ -50,7 +68,7 @@ export const CommentsList = memo(
               created={r.created}
             />
           ))}
-          <ButtonOutline className="mx-auto h-9" label={showMoreCommentsLabel} />
+          {/* <ButtonOutline className="mx-auto h-9" label={showMoreCommentsLabel} /> */}
         </>
       )}
     </div>

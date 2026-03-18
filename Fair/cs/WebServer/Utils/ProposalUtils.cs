@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Uccs.Net;
 
 namespace Uccs.Fair;
 
@@ -18,15 +19,15 @@ public static class ProposalUtils
 
 	public static bool IsPublisherOperation(Proposal proposal) => proposal.Options[0].Operation is SiteAuthorsChange;
 
-	public static BaseVotableOperationModel ToBaseVotableOperationModel(SiteOperation proposal)
+	public static BaseVotableOperationModel ToBaseVotableOperationModel(FairMcv mcv, SiteOperation proposal)
 	{
 		return proposal switch
 		{
-			CategoryAvatarChange operation => new CategoryAvatarChangeModel(operation),
-			CategoryCreation operation => new CategoryCreationModel(operation),
-			CategoryDeletion operation => new CategoryDeletionModel(operation),
-			CategoryMovement operation => new CategoryMovementModel(operation),
-			CategoryTypeChange operation => new CategoryTypeChangeModel(operation),
+			CategoryAvatarChange operation => CreateCategoryAvatarChangeModel(mcv, operation),
+			CategoryCreation operation => CreateCategoryCreationModel(mcv, operation),
+			CategoryDeletion operation => CreateCategoryDeletionModel(mcv, operation),
+			CategoryMovement operation => CreateCategoryMovementModel(mcv, operation),
+			CategoryTypeChange operation => CreateCategoryTypeChangeModel(mcv, operation),
 			PublicationCreation operation => new PublicationCreationModel(operation),
 			PublicationDeletion operation => new PublicationDeletionModel(operation),
 			PublicationPublish operation => new PublicationPublishModel(operation),
@@ -39,7 +40,7 @@ public static class ProposalUtils
 			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
 			SiteModeratorAddition operation => new SiteModeratorAdditionModel(operation),
 			SiteModeratorRemoval operation => new SiteModeratorRemovalModel(operation),
-			SiteNameChange operation => new SiteNicknameChangeModel(operation),
+			SiteNameChange operation => CreateSiteNameChangeModel(operation),
 			SiteTextChange operation => new SiteTextChangeModel(operation),
 			UserUnregistration operation => new UserDeletionModel(operation),
 			UserRegistration operation => new UserRegistrationModel(operation),
@@ -47,18 +48,39 @@ public static class ProposalUtils
 		};
 	}
 
-	public static IEnumerable<ProposalOptionModel> MapOptions(ProposalOption[] options)
+	static CategoryAvatarChangeModel CreateCategoryAvatarChangeModel(FairMcv mcv, CategoryAvatarChange operation)
 	{
-		IList<ProposalOptionModel> result = new List<ProposalOptionModel>(options.Length);
+		Category category = mcv.Categories.Latest(operation.Category);
+		return new CategoryAvatarChangeModel(operation, category);
+	}
 
-		foreach(ProposalOption option in options)
-		{
-			ProposalOptionModel model = new(option);
-			model.Operation = ProposalUtils.ToBaseVotableOperationModel(option.Operation);
+	static CategoryCreationModel CreateCategoryCreationModel(FairMcv mcv, CategoryCreation operation)
+	{
+		Category? category = operation.Parent != null ? mcv.Categories.Latest(operation.Parent) : null;
+		return new CategoryCreationModel(operation, category);
+	}
 
-			result.Add(model);
-		}
+	static CategoryDeletionModel CreateCategoryDeletionModel(FairMcv mcv, CategoryDeletion operation)
+	{
+		Category category = mcv.Categories.Latest(operation.Category);
+		return new CategoryDeletionModel(operation, category);
+	}
 
-		return result;
+	static CategoryMovementModel CreateCategoryMovementModel(FairMcv mcv, CategoryMovement operation)
+	{
+		Category category = mcv.Categories.Latest(operation.Category);
+		Category? parentCategory = operation.Parent != null ? mcv.Categories.Latest(operation.Parent) : null;
+		return new CategoryMovementModel(operation, category, parentCategory);
+	}
+
+	static CategoryTypeChangeModel CreateCategoryTypeChangeModel(FairMcv mcv, CategoryTypeChange operation)
+	{
+		Category category = mcv.Categories.Latest(operation.Category);
+		return new CategoryTypeChangeModel(operation, category);
+	}
+
+	static SiteNameChangeModel CreateSiteNameChangeModel(SiteNameChange operation)
+	{
+		return new SiteNameChangeModel(operation, operation.Site.Name);
 	}
 }

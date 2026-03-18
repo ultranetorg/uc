@@ -1,5 +1,7 @@
-import { TFunction } from "i18next"
 import { ReactNode } from "react"
+import { Trans } from "react-i18next"
+import { Link } from "react-router-dom"
+
 import {
   CategoryAvatarChange,
   CategoryCreation,
@@ -11,56 +13,160 @@ import {
   SiteAvatarChange,
   SiteModeratorAddition,
   SiteModeratorRemoval,
-  SiteNicknameChange,
+  SiteNameChange,
   SiteTextChange,
 } from "types"
+import { buildFileUrl } from "utils"
 
-export const getOptionTitle = (t: TFunction, option: ProposalOption) => {
-  return t("operations:" + option.operation.$type)
-}
+const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
+  <>
+    <Trans
+      ns="proposalView"
+      i18nKey={operation.$type}
+      components={{
+        CategoryLink: (
+          <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+            {operation.categoryTitle}
+          </Link>
+        ),
+      }}
+      parent={"p"}
+    />
+    <img src={buildFileUrl(operation.fileId)} loading="lazy" className="size-35 rounded" />
+  </>
+)
 
-const getCategoryAvatarChange = (operation: CategoryAvatarChange): JSX.Element => {
-  return (
-    <b>
-      {operation.categoryId} + " " + {operation.fileId}
-    </b>
+const getCategoryCreation = (siteId: string, operation: CategoryCreation): JSX.Element =>
+  operation.parentCategoryId ? (
+    <Trans
+      ns="proposalView"
+      i18nKey={operation.$type}
+      components={{
+        ParentLink: (
+          <Link to={`/${siteId}/c/${operation.parentCategoryId}`} className="underline">
+            {operation.parentCategoryTitle}
+          </Link>
+        ),
+      }}
+      parent={"p"}
+      values={{ categoryTitle: operation.title }}
+    />
+  ) : (
+    <Trans
+      ns="proposalView"
+      i18nKey={`${operation.$type}_root`}
+      components={{
+        ParentLink: (
+          <Link to={`/${siteId}/c/${operation.parentCategoryId}`} className="underline">
+            {operation.parentCategoryTitle}
+          </Link>
+        ),
+      }}
+      parent={"p"}
+      values={{ categoryTitle: operation.title }}
+    />
   )
-}
 
-const getCategoryCreation = (operation: CategoryCreation): JSX.Element => {
-  return (
-    <b>
-      {operation.title} + " " + {operation.parentCategoryId}
-    </b>
+const getCategoryDeletion = (siteId: string, operation: CategoryDeletion): JSX.Element => (
+  <Trans
+    ns="proposalView"
+    i18nKey={`${operation.$type}`}
+    components={{
+      CategoryLink: (
+        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+          {operation.categoryTitle}
+        </Link>
+      ),
+    }}
+    parent={"p"}
+  />
+)
+
+const getCategoryMovement = (siteId: string, operation: CategoryMovement): JSX.Element =>
+  operation.parentCategoryId ? (
+    <Trans
+      ns="proposalView"
+      i18nKey={operation.$type}
+      components={{
+        CategoryLink: (
+          <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+            {operation.categoryTitle}
+          </Link>
+        ),
+        ParentLink: (
+          <Link to={`/${siteId}/c/${operation.parentCategoryId}`} className="underline">
+            {operation.parentCategoryTitle}
+          </Link>
+        ),
+      }}
+      parent={"p"}
+    />
+  ) : (
+    <Trans
+      ns="proposalView"
+      i18nKey={`${operation.$type}_root`}
+      components={{
+        CategoryLink: (
+          <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+            {operation.categoryTitle}
+          </Link>
+        ),
+      }}
+      parent={"p"}
+    />
   )
-}
 
-const getCategoryDeletion = (operation: CategoryDeletion): JSX.Element => {
-  return <b>{operation.categoryId}</b>
-}
+const getCategoryTypeChange = (siteId: string, operation: CategoryTypeChange): JSX.Element => (
+  <Trans
+    ns="proposalView"
+    i18nKey={`${operation.$type}`}
+    components={{
+      CategoryLink: (
+        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+          {operation.categoryTitle}
+        </Link>
+      ),
+    }}
+    parent={"p"}
+    values={{ categoryType: operation.categoryType, type: operation.type }}
+  />
+)
 
-const getCategoryMovement = (operation: CategoryMovement): JSX.Element => {
-  return (
-    <b>
-      {operation.categoryId} + " " + {operation.parentCategoryId}
-    </b>
+const getSiteAvatarChange = (operation: SiteAvatarChange): JSX.Element => (
+  <>
+    <Trans ns="proposalView" i18nKey={operation.$type} parent={"p"} />
+    <img src={buildFileUrl(operation.fileId)} loading="lazy" className="size-35 rounded" />
+  </>
+)
+
+const getSiteNameChange = (operation: SiteNameChange): JSX.Element =>
+  operation.siteName ? (
+    <Trans
+      ns="proposalView"
+      i18nKey={operation.$type}
+      values={{ name: operation.name, siteName: operation.siteName }}
+      parent={"p"}
+    />
+  ) : (
+    <Trans
+      ns="proposalView"
+      i18nKey={`${operation.$type}_empty`}
+      values={{ siteName: operation.siteName }}
+      parent={"p"}
+    />
   )
-}
 
-const getCategoryTypeChange = (operation: CategoryTypeChange): JSX.Element => {
-  return (
-    <b>
-      {operation.categoryId} + " " + {operation.type}
-    </b>
-  )
-}
+const getSiteTextChange = (operation: SiteTextChange): JSX.Element => (
+  <Trans
+    ns="proposalView"
+    i18nKey={`${operation.$type}`}
+    values={{ title: operation.title, description: operation.description, slogan: operation.slogan }}
+    parent={"p"}
+  />
+)
 
 const getSiteAuthorsRemoval = (operation: SiteAuthorRemoval): JSX.Element => {
   return <b>{operation.authorId}</b>
-}
-
-const getSiteAvatarChange = (operation: SiteAvatarChange): JSX.Element => {
-  return <b>{operation.fileId}</b>
 }
 
 const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element => {
@@ -71,42 +177,32 @@ const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element =
   return <b>{operation.moderatorId.join(", ")}</b>
 }
 
-const getSiteNameChange = (operation: SiteNicknameChange): JSX.Element => {
-  return <b>{operation.name}</b>
-}
-
-const getSiteTextChange = (operation: SiteTextChange): JSX.Element => {
-  return (
-    <b>
-      {operation.title} + " " + {operation.slogan} + " " + {operation.description}
-    </b>
-  )
-}
-
-export const getOptionDescription = (option: ProposalOption): ReactNode => {
+export const renderDescription = (siteId: string, option: ProposalOption): ReactNode => {
   switch (option.operation.$type) {
     case "category-avatar-change":
-      return getCategoryAvatarChange(option.operation as CategoryAvatarChange)
+      return getCategoryAvatarChange(siteId, option.operation as CategoryAvatarChange)
     case "category-creation":
-      return getCategoryCreation(option.operation as CategoryCreation)
+      return getCategoryCreation(siteId, option.operation as CategoryCreation)
     case "category-deletion":
-      return getCategoryDeletion(option.operation as CategoryDeletion)
+      return getCategoryDeletion(siteId, option.operation as CategoryDeletion)
     case "category-movement":
-      return getCategoryMovement(option.operation as CategoryMovement)
+      return getCategoryMovement(siteId, option.operation as CategoryMovement)
     case "category-type-change":
-      return getCategoryTypeChange(option.operation as CategoryTypeChange)
-    case "site-author-removal":
-      return getSiteAuthorsRemoval(option.operation as SiteAuthorRemoval)
+      return getCategoryTypeChange(siteId, option.operation as CategoryTypeChange)
+
     case "site-avatar-change":
       return getSiteAvatarChange(option.operation as SiteAvatarChange)
+    case "site-name-change":
+      return getSiteNameChange(option.operation as SiteNameChange)
+    case "site-text-change":
+      return getSiteTextChange(option.operation as SiteTextChange)
+
+    case "site-author-removal":
+      return getSiteAuthorsRemoval(option.operation as SiteAuthorRemoval)
     case "site-moderator-addition":
       return getSiteModeratorAddition(option.operation as SiteModeratorAddition)
     case "site-moderator-removal":
       return getSiteModeratorRemoval(option.operation as SiteModeratorRemoval)
-    case "site-name-change":
-      return getSiteNameChange(option.operation as SiteNicknameChange)
-    case "site-text-change":
-      return getSiteTextChange(option.operation as SiteTextChange)
   }
 
   return null

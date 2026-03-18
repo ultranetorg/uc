@@ -12,11 +12,11 @@ export const useGetModeratorDiscussionComments = (
 ) => {
   const queryFn = () => api.getModeratorDiscussionComments(siteId!, discussionId!, page, pageSize)
 
-  const { isFetching, error, data } = useQuery({
+  const { isFetching, error, data, refetch } = useQuery({
     queryKey: ["moderator", "sites", siteId, "discussions", discussionId, "comments", { page, pageSize }],
     queryFn: queryFn,
     enabled: !!siteId && !!discussionId,
   })
 
-  return { isFetching, error: error ?? undefined, data }
+  return { isFetching, error: error ?? undefined, data, refetch }
 }

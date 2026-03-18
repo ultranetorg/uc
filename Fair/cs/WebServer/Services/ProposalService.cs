@@ -75,7 +75,7 @@ public class ProposalService
 
 			//IEnumerable<AccountBaseModel> yesAccounts = LoadYesAccounts(option.Yes);
 			model.Yes = option.Yes.Select(x => x.ToString());
-			model.Operation = ProposalUtils.ToBaseVotableOperationModel(option.Operation);
+			model.Operation = ProposalUtils.ToBaseVotableOperationModel(mcv, option.Operation);
 
 			result.Add(model);
 		}
@@ -134,7 +134,8 @@ public class ProposalService
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
 			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
-				ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsUserOperation(proposal))
+				ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsUserOperation(proposal) ||
+				ProposalUtils.IsModeratorOperation(proposal) || ProposalUtils.IsPublisherOperation(proposal))
 			{
 				continue;
 			}

@@ -148,7 +148,7 @@ classDiagram
     VotableOperation <|-- SiteAvatarChange
     VotableOperation <|-- SiteModeratorAddition
     VotableOperation <|-- SiteModeratorRemoval
-    VotableOperation <|-- SiteNicknameChange
+    VotableOperation <|-- SiteNameChange
     VotableOperation <|-- SiteTextChange
 
     VotableOperation <|-- UserDeletion

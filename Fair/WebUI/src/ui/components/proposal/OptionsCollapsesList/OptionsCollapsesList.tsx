@@ -16,24 +16,24 @@ export type OptionsCollapsesListItem = {
 }
 
 type OptionsCollapsesListBaseProps = {
-  disabled?: boolean
   items: OptionsCollapsesListItem[]
   showResults?: boolean
   showVoteButton?: boolean
   votesText: string
+  votedValue?: number
   onExpand?: (value: string | number, expanded: boolean) => void
-  onVoteClick?: (value: string | number) => void
+  onVoteClick?: (value: number) => void
 }
 
 export type OptionsCollapsesListProps = PropsWithClassName & OptionsCollapsesListBaseProps
 
 export const OptionsCollapsesList = ({
   className,
-  disabled = false,
   items,
   showResults,
   showVoteButton,
   votesText,
+  votedValue,
   onExpand,
   onVoteClick,
 }: OptionsCollapsesListProps) => (
@@ -42,12 +42,13 @@ export const OptionsCollapsesList = ({
       <OptionCollapse
         {...x}
         key={x.value}
-        disabled={disabled}
+        disabled={votedValue !== undefined && x.value !== votedValue}
+        loading={votedValue !== undefined && x.value === votedValue}
         expanded={!!x.expanded || (items.length === 1 ? true : undefined)}
         showResults={showResults}
         showVoteButton={showVoteButton}
         onExpand={expanded => onExpand?.(x.value, expanded)}
-        onVoteClick={() => onVoteClick?.(x.value)}
+        onVoteClick={() => onVoteClick?.(x.value as number)}
         votesText={votesText}
       />
     ))}

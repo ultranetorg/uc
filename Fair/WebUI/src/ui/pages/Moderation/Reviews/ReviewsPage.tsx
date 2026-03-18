@@ -8,7 +8,7 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { useUrlParamsState } from "hooks"
-import { ProposalVoting } from "types"
+import { ProposalVoting, SpecialChoice } from "types"
 import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { getReviewsItemRenderer } from "ui/renderers"
@@ -71,7 +71,7 @@ export const ReviewsPage = () => {
     (id: string, action: "approve" | "reject") => {
       setLoadingItem({ id: id, action })
 
-      const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : -1)
+      const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : SpecialChoice.Neither)
       mutate(operation, {
         onSuccess: () => {
           const message = action === "approve" ? t("toast:reviewApproved") : t("toast:reviewRejected")

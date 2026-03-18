@@ -2,5 +2,7 @@ import { BaseVotableOperation } from "./BaseVotableOperation"
 
 export type CategoryMovement = {
   categoryId: string
-  parentCategoryId: string
+  categoryTitle: string
+  parentCategoryId?: string
+  parentCategoryTitle?: string
 } & BaseVotableOperation

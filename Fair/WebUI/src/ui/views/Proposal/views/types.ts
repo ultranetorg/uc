@@ -8,4 +8,6 @@ export type ProposalTypeViewProps = {
   t: TFunction
   pageState: PageState
   proposal: Proposal
+  votedValue?: number
+  onVoteClick: (value: number) => void
 }

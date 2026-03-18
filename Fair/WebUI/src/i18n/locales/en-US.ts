@@ -117,6 +117,10 @@ export const enUS = {
   },
 
   /* Components */
+  alternativeOptions: {
+    title: "Alternative options",
+    description: "If none of the provided options suit you",
+  },
   currentAccount: {
     addAccount: "Add account",
     authenticate: "Authenticate Yourself",
@@ -189,6 +193,7 @@ export const enUS = {
     },
   },
   toast: {
+    commentAdded: "Comment successfully added",
     favoriteAdded: `Site "{{site}}" added to favorites`,
     favoriteRemoved: `Site "{{site}}" removed from favorites`,
     fileDeleted: `File "{{fileId}}" successfully deleted`,
@@ -196,6 +201,7 @@ export const enUS = {
     nicknameChanged: "Nickname changed successfully",
     perpetualVoted: `Publisher "{{publisher}}" successfully voted`,
     proposalCreated: `Proposal "{{proposal}}" created successfully`,
+    proposalVoted: "You have successfully voted",
     reviewApproved: "Review approved",
     reviewRejected: "Review rejected",
     userRegistrationApproved: `User "{{name}}" registration approved`,
@@ -382,10 +388,25 @@ export const enUS = {
   },
 
   /* Views */
-  proposal: {
+  proposalView: {
     addComment: "Add your comment",
     noComments: "No comments",
     showMore: "Show more comments",
+    showResults: "Show results",
+    "category-avatar-change": 'Change "<CategoryLink/>" category avatar',
+    "category-creation": 'Create child "{{categoryTitle}}" category  in "<ParentLink />"',
+    "category-creation_root": 'Create root category "{{categoryTitle}}"',
+    "category-deletion": 'Delete "<CategoryLink/>" category',
+    "category-movement": `Move "<CategoryLink/>" category inside "<ParentLink/>" category`,
+    "category-movement_root": `Move "<CategoryLink/>" category to root`,
+    "category-type-change": `Change "<CategoryLink/>" category type from "{{categoryType}}" to "{{type}}"`,
+    "site-avatar-change": "Change site avatar",
+    "site-name-change": `Change site name from "{{siteName}}" to "{{name}}"`,
+    "site-name-change_empty": `Set site name "{{name}}"`,
+    "site-text-change": `Set site title "{{title}}", description "{{description}}" and slogan "{{slogan}}"`,
+    "site-author-removal": "",
+    "site-moderator-addition": "",
+    "site-moderator-removal": "",
   },
   createProposal: {
     addCount_one: "You can add {{count}} more answer option.",
@@ -506,6 +527,12 @@ export const enUS = {
     none: "None",
     accepted: "Accepted",
     rejected: "Rejected",
+  },
+  specialChoice: {
+    "-1": "None of the options are suitable",
+    "-2": "Any option is acceptable",
+    "-3": "Opposed to holding the referendum",
+    "-4": "Ban the author of this referendum",
   },
 
   /* Placeholders */

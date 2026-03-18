@@ -31,7 +31,7 @@ public class PolymorphicTypeResolver : DefaultJsonTypeInfoResolver
 					new JsonDerivedType(typeof(SiteAvatarChangeModel), "site-avatar-change"),
 					new JsonDerivedType(typeof(SiteModeratorAdditionModel), "site-moderators-addition"),
 					new JsonDerivedType(typeof(SiteModeratorRemovalModel), "site-moderators-removal"),
-					new JsonDerivedType(typeof(SiteNicknameChangeModel), "site-nickname-change"),
+					new JsonDerivedType(typeof(SiteNameChangeModel), "site-name-change"),
 					new JsonDerivedType(typeof(SiteTextChangeModel), "site-text-change"),
 					new JsonDerivedType(typeof(UserDeletionModel), "user-deletion"),
 					new JsonDerivedType(typeof(UserRegistrationModel), "user-registration"),

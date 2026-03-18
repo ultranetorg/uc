@@ -7,6 +7,7 @@ import { ButtonPrimary } from "ui/components"
 export type OptionCollapseProps = {
   description: ReactNode
   disabled?: boolean
+  loading?: boolean
   expanded?: boolean
   showResults?: boolean
   showVoteButton?: boolean
@@ -22,6 +23,7 @@ export type OptionCollapseProps = {
 export const OptionCollapse = ({
   description,
   disabled = false,
+  loading = false,
   expanded = false,
   showResults,
   showVoteButton = false,
@@ -84,7 +86,7 @@ export const OptionCollapse = ({
 
       {isExpanded && (
         <div className="flex flex-col gap-4 p-4">
-          <span className="text-2sm leading-5">{description}</span>
+          <div className="flex flex-col gap-2 text-2sm leading-5">{description}</div>
           {showVoteButton && !voted && (
             <>
               <hr className="h-px border-0 bg-gray-300" />
@@ -94,6 +96,7 @@ export const OptionCollapse = ({
                 iconAfter={<SvgCheckSquareSmSvg className="fill-white" />}
                 onClick={onVoteClick}
                 disabled={disabled}
+                loading={loading}
               />
             </>
           )}

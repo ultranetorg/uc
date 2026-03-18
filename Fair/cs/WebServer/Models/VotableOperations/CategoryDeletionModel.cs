@@ -1,6 +1,7 @@
 ﻿namespace Uccs.Fair;
 
-public class CategoryDeletionModel(CategoryDeletion operation) : BaseVotableOperationModel(operation)
+public class CategoryDeletionModel(CategoryDeletion operation, Category category) : BaseVotableOperationModel(operation)
 {
-	public string CategoryId { get; set; } = operation.Category.ToString();
+	public string CategoryId { get; } = category.Id.ToString();
+	public string CategoryTitle { get; } = category.Title;
 }

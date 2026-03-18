@@ -15,7 +15,7 @@ export const Radio = ({ className, checked, ...rest }: RadioProps) => (
         className,
       )}
     >
-      {checked && <span className="h-2.5 w-2.5 rounded-full bg-gray-800" />}
+      {checked && <span className="size-2.5 rounded-full bg-gray-800" />}
     </span>
   </>
 )

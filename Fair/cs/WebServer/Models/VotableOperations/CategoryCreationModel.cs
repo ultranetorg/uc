@@ -1,7 +1,9 @@
 ﻿namespace Uccs.Fair;
 
-public class CategoryCreationModel(CategoryCreation operation) : BaseVotableOperationModel(operation)
+public class CategoryCreationModel(CategoryCreation operation, Category? category) : BaseVotableOperationModel(operation)
 {
-	public string ParentCategoryId { get; set; } = operation.Parent?.ToString();
-	public string Title { get; set; } = operation.Title;
+	public string ParentCategoryId { get; } = category?.Id.ToString();
+	public string ParentCategoryTitle { get; } = category?.Title;
+
+	public string Title { get; } = operation.Title;
 }

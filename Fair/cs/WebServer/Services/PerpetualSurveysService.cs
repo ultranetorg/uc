@@ -68,7 +68,7 @@ public class PerpetualSurveysService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static TSurvey ToPerpetualSurvey<TSurvey, TOption>(int sitePublishersCount, int id, PerpetualSurvey survey, Action<TOption, SurveyOption>? mapOption = null)
+	TSurvey ToPerpetualSurvey<TSurvey, TOption>(int sitePublishersCount, int id, PerpetualSurvey survey, Action<TOption, SurveyOption>? mapOption = null)
 		where TOption : SurveyOptionModel, new()
 		where TSurvey : BasePerpetualSurveyModel<TOption>, new()
 	{
@@ -78,7 +78,7 @@ public class PerpetualSurveysService
 		{
 			var newOption = new TOption
 			{
-				Operation = ProposalUtils.ToBaseVotableOperationModel(x.Operation),
+				Operation = ProposalUtils.ToBaseVotableOperationModel(mcv, x.Operation),
 				VotePercents = totalVotes != 0 ? (sbyte)(x.Yes.Length * 100f / totalVotes) : (sbyte)0
 			};
 

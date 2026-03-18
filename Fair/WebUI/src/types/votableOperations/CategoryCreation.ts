@@ -1,6 +1,7 @@
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
 export type CategoryCreation = {
-  parentCategoryId: string
+  parentCategoryId?: string
+  parentCategoryTitle?: string
   title: string
 } & BaseVotableOperation

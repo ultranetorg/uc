@@ -5,5 +5,6 @@ export type FairOperationType =
   | "FileDeletion"
   | "PerpetualVoting"
   | "ProposalCreation"
+  | "ProposalCommentCreation"
   | "ProposalVoting"
   | "UserFreeCreation"
