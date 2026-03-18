@@ -1,13 +1,16 @@
 import { TFunction } from "i18next"
 
-import { Proposal } from "types"
+import { ProposalDetails } from "types"
 
 import { PageState } from "../types"
+
+export type VoteStatus = "idle" | "voting" | "voted"
 
 export type ProposalTypeViewProps = {
   t: TFunction
   pageState: PageState
-  proposal: Proposal
+  proposal: ProposalDetails
+  voteStatus: VoteStatus
   votedValue?: number
   onVoteClick: (value: number) => void
 }

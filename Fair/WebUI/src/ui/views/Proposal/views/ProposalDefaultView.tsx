@@ -8,7 +8,7 @@ import { ProposalTypeViewProps } from "./types"
 import { renderDescription } from "./utils"
 
 export const ProposalDefaultView = memo(
-  ({ t, pageState, proposal, votedValue, onVoteClick }: ProposalTypeViewProps) => {
+  ({ t, pageState, proposal, voteStatus, votedValue, onVoteClick }: ProposalTypeViewProps) => {
     const { getOperationVoterId } = useModerationContext()
     const { siteId } = useParams()
     const voterId = getOperationVoterId(proposal.operation)
@@ -19,11 +19,14 @@ export const ProposalDefaultView = memo(
           title: x.title ?? t("operations:" + x.operation.$type),
           description: renderDescription(siteId!, x),
           value: i,
-          votePercents: 2,
-          voted: false,
-          votesCount: 4,
+          votePercents:
+            proposal.votesRequiredToWin > 0
+              ? Math.min(100, Math.round((proposal.optionsVotesCount[i] / proposal.votesRequiredToWin) * 100))
+              : 0,
+          voted: i === votedValue,
+          votesCount: proposal.optionsVotesCount[i],
         })),
-      [proposal.options, siteId, t],
+      [proposal.options, proposal.optionsVotesCount, proposal.votesRequiredToWin, siteId, t, votedValue],
     )
 
     return (
@@ -31,7 +34,7 @@ export const ProposalDefaultView = memo(
         className="max-w-187.5"
         items={items}
         showResults={pageState == "results"}
-        showVoteButton={!!voterId}
+        showVoteButton={voteStatus !== "voted" && !!voterId}
         votesText={t("common:votes")}
         votedValue={votedValue}
         onVoteClick={onVoteClick}

@@ -7,11 +7,12 @@ import { ButtonPrimary, RadioCard } from "ui/components"
 import { SpecialChoice } from "types"
 
 export type AlternativeOptionsProps = {
+  hideVoteButton?: boolean
   votedValue?: number
   onVoteClick: (value: number) => void
 }
 
-export const AlternativeOptions = memo(({ votedValue, onVoteClick }: AlternativeOptionsProps) => {
+export const AlternativeOptions = memo(({ hideVoteButton, votedValue, onVoteClick }: AlternativeOptionsProps) => {
   const { t } = useTranslation("alternativeOptions")
 
   const [checkedValue, setCheckedValue] = useState(SpecialChoice.Neither)
@@ -72,14 +73,16 @@ export const AlternativeOptions = memo(({ votedValue, onVoteClick }: Alternative
           />
         ))}
       </div>
-      <ButtonPrimary
-        disabled={votedValue !== undefined}
-        loading={votedValue !== undefined && votedValue < 0}
-        className="h-11 w-37.5 self-end"
-        label="Vote"
-        iconAfter={<SvgCheckSquareSmSvg className="fill-white" />}
-        onClick={handleVoteClick}
-      />
+      {!hideVoteButton && (
+        <ButtonPrimary
+          disabled={votedValue !== undefined}
+          loading={votedValue !== undefined && votedValue < 0}
+          className="h-11 w-37.5 self-end"
+          label="Vote"
+          iconAfter={<SvgCheckSquareSmSvg className="fill-white" />}
+          onClick={handleVoteClick}
+        />
+      )}
     </div>
   )
 })

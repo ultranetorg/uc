@@ -50,6 +50,7 @@ export const OptionsCollapsesList = ({
         onExpand={expanded => onExpand?.(x.value, expanded)}
         onVoteClick={() => onVoteClick?.(x.value as number)}
         votesText={votesText}
+        voted={x.voted}
       />
     ))}
   </div>

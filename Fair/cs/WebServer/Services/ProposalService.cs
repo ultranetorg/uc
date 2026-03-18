@@ -58,12 +58,40 @@ public class ProposalService
 			FairUser account = (FairUser) mcv.Users.Latest(proposal.By);
 
 			IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
-			return new ProposalDetailsModel(proposal, account)
+
+			Policy proposalPolicy = site.Policies.FirstOrDefault(p => p.OperationClass == proposal.OptionClass);
+			int votesRequiredToWin = GetVotesRequiredToWin(proposalPolicy.Approval, site);
+
+			return new ProposalDetailsModel(proposal, account, votesRequiredToWin)
 			{
 				Options = options
 			};
 		}
 	}
+
+	int GetVotesRequiredToWin(ApprovalRequirement approval, Site site)
+	{
+		return approval switch
+		{
+			ApprovalRequirement.AnyModerator => 1,
+			ApprovalRequirement.ModeratorsMajority => site.Moderators.Length / 2 + (site.Moderators.Length & 1),
+			ApprovalRequirement.AllModerators => site.Moderators.Length,
+			ApprovalRequirement.PublishersMajority => site.Publishers.Length / 2 + (site.Publishers.Length & 1),
+			_ => -1
+		};
+	}
+
+	//bool won(AutoId[] votes)
+	//{
+	//	return policy.Approval switch
+	//	{
+	//		ApprovalRequirement.AnyModerator => votes.Length + p.Any.Length == 1,
+	//		ApprovalRequirement.ModeratorsMajority => votes.Length + p.Any.Length >= s.Moderators.Length / 2 + (s.Moderators.Length & 1),
+	//		ApprovalRequirement.AllModerators => votes.Length + p.Any.Length == s.Moderators.Length,
+	//		ApprovalRequirement.PublishersMajority => votes.Length + p.Any.Length >= s.Publishers.Length / 2 + (s.Publishers.Length & 1),
+	//		_ => throw new IntegrityException()
+	//	};
+	//}
 
 	IEnumerable<ProposalOptionModel> LoadOptions(Proposal proposal)
 	{

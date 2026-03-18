@@ -1,19 +1,25 @@
-import { ComponentType, memo, useCallback, useMemo, useState } from "react"
+import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
 import { useModerationContext } from "app"
 import { SvgArrowLeft } from "assets"
 import { useTransactMutationWithStatus } from "entities/node"
-import { Proposal, ProposalCommentCreation, ProposalVoting } from "types"
+import { ProposalCommentCreation, ProposalDetails, ProposalVoting } from "types"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
-import { showToast } from "utils"
+import { getVotedIndex, showToast } from "utils"
 
 import { useGetModeratorDiscussionComments } from "entities"
 import { PublicationOwnerProvider } from "./providers/publicationOwner"
 import { PageState } from "./types"
-import { ProposalCompareFieldsView, ProposalDefaultView, ProposalFieldsView, ProposalTypeViewProps } from "./views"
+import {
+  ProposalCompareFieldsView,
+  ProposalDefaultView,
+  ProposalFieldsView,
+  ProposalTypeViewProps,
+  VoteStatus,
+} from "./views"
 
 const renderByOperationType: Record<string, ComponentType<ProposalTypeViewProps>> = {
   "publication-creation": ProposalFieldsView,
@@ -23,8 +29,11 @@ const renderByOperationType: Record<string, ComponentType<ProposalTypeViewProps>
 export type ProposalViewProps = {
   parentBreadcrumb?: BreadcrumbsItemProps
   isFetching: boolean
-  proposal?: Proposal
+  proposal?: ProposalDetails
 }
+
+// Set voted value in order to disable all buttons inside OptionsCollapsesList.
+const ALREADY_VOTED = 100
 
 export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewProps) => {
   const { siteId } = useParams()
@@ -35,6 +44,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
 
   const voterId = getOperationVoterId(proposal?.operation)
 
+  const [voteStatus, setVoteStatus] = useState<VoteStatus>("idle")
   const [pageState, setPageState] = useState<PageState>("voting")
   const [votedValue, setVotedValue] = useState<number | undefined>()
   const [commentSubmitting, setCommentSubmitting] = useState(false)
@@ -54,13 +64,18 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
   const handleVoteClick = useCallback(
     (value: number) => {
       setVotedValue(value)
+      setVoteStatus("voting")
       const operation = new ProposalVoting(proposal!.id, voterId!, value)
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:proposalVoted"), "success")
           navigate(`/${siteId}/m`)
+          setVoteStatus("voted")
         },
-        onError: err => showToast(err.toString(), "error"),
+        onError: err => {
+          showToast(err.toString(), "error")
+          setVoteStatus("idle")
+        },
         onSettled: () => setVotedValue(undefined),
       })
     },
@@ -70,7 +85,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
   const handleCommentSubmit = useCallback(
     (comment: string) => {
       setCommentSubmitting(true)
-      setVotedValue(100) // Set voted value in order to disable all buttons inside OptionsCollapsesList.
+      setVotedValue(ALREADY_VOTED)
       const operation = new ProposalCommentCreation(proposal!.id, voterId!, comment)
       mutate(operation, {
         onSuccess: () => {
@@ -86,6 +101,14 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
     },
     [mutate, proposal, refetchComments, t, voterId],
   )
+
+  useEffect(() => {
+    const votedIndex = getVotedIndex(voterId, proposal)
+    if (votedIndex !== undefined) {
+      setVoteStatus("voted")
+      setVotedValue(votedIndex)
+    }
+  }, [proposal, voterId])
 
   if (!proposal || !comments) {
     return <>LOADING</>
@@ -112,6 +135,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
             t={t}
             proposal={proposal}
             pageState={pageState}
+            voteStatus={voteStatus}
             votedValue={votedValue}
             onVoteClick={handleVoteClick}
           />
@@ -123,14 +147,21 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
                 t={t}
                 proposal={proposal}
                 pageState={pageState}
+                voteStatus={voteStatus}
                 votedValue={votedValue}
                 onVoteClick={handleVoteClick}
               />
             )}
-            {voterId && <AlternativeOptions votedValue={votedValue} onVoteClick={handleVoteClick} />}
+            {voterId && (
+              <AlternativeOptions
+                hideVoteButton={voteStatus === "voted"}
+                votedValue={votedValue}
+                onVoteClick={handleVoteClick}
+              />
+            )}
             <hr className="h-px border-0 bg-gray-300" />
             <CommentsSection
-              inputDisabled={votedValue !== undefined || commentSubmitting}
+              inputDisabled={voteStatus === "voting" || commentSubmitting}
               inputLoading={commentSubmitting}
               showCommentInput={!!voterId}
               isFetching={isCommentsFetching}
