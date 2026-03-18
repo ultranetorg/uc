@@ -1,7 +1,6 @@
 import { memo } from "react"
 
 import { ProposalComment, Review } from "types"
-import { ButtonOutline } from "ui/components"
 
 import { Comment } from "./Comment"
 import { CommentInput } from "./CommentInput"
@@ -29,7 +28,6 @@ export const CommentsList = memo(
     commentInputPlaceholder,
     noCommentsLabel,
     showCommentInput,
-    showMoreCommentsLabel,
     onCommentSubmit,
   }: CommentsListProps) => (
     <div className="flex flex-col gap-4">

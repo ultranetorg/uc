@@ -1,6 +1,6 @@
 import { ChangeEvent, memo, useCallback, useState } from "react"
-import { SvgEmojiLaughing, SvgSendSm } from "assets"
-import { ButtonIcon, ButtonPrimary } from "ui/components"
+import { SvgSendSm } from "assets"
+import { ButtonPrimary } from "ui/components"
 
 export type CommentInputProps = {
   disabled?: boolean

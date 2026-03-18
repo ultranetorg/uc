@@ -17,7 +17,7 @@ export const PerpetualSurveyPage = () => {
   const { siteId, perpetualSurveyId } = useParams()
 
   const { isPublisher, publishersIds } = useModerationContext()
-  const { mutate, isPending } = useTransactMutationWithStatus()
+  const { mutate } = useTransactMutationWithStatus()
 
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()
 
@@ -89,7 +89,6 @@ export const PerpetualSurveyPage = () => {
       <div className="flex gap-8">
         <div className="flex w-full max-w-187.5 flex-col gap-8">
           <OptionsCollapsesList
-            disabled={isPending}
             items={items!}
             showResults={true}
             showVoteButton={isPublisher}
