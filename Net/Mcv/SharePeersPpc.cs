@@ -12,15 +12,7 @@ public class SharePeersPpc : PeerRequest
 
 		lock(Peering.Lock)
 		{
-			var updated = Peering.RefreshPeers(Peers).ToArray();
-
-			if(updated.Any())
-			{
-				foreach(var i in Peering.Connections.Where(i => i != Peer))
-				{
-					i.Send(new SharePeersPpc {Peers = updated});
-				}
-			}
+			Peering.RefreshPeers(Peers, Peer);
 		}
 
 		return null;

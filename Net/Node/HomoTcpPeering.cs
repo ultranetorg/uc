@@ -185,36 +185,41 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		}
 	}
 
-	public List<HomoPeer> RefreshPeers(IEnumerable<HomoPeer> peers)
+	public List<HomoPeer> RefreshPeers(IEnumerable<HomoPeer> peers, Peer source)
 	{
-		lock(Lock)
-		{
-			var affected = new List<HomoPeer>();
+		var affected = new List<HomoPeer>();
 												
-			foreach(var i in peers.Where(i => !i.EP.Equals(EP)))
-			{
-				var p = Peers.Find(j => j.EP.Equals(i.EP));
+		foreach(var i in peers.Where(i => !i.EP.Equals(EP)))
+		{
+			var p = Peers.Find(j => j.EP.Equals(i.EP));
 				
-				if(p == null)
-				{
-					i.Recent = true;
+			if(p == null)
+			{
+				i.Recent = true;
 					
-					Peers.Add(i);
-					affected.Add(i);
-				}
-				else if(p.Roles != i.Roles)
-				{
-					p.Recent = true;
-					p.Roles = i.Roles;
-
-					affected.Add(p);
-				}
+				Peers.Add(i);
+				affected.Add(i);
 			}
+			else if(p.Roles != i.Roles)
+			{
+				p.Recent = true;
+				p.Roles = i.Roles;
 
+				affected.Add(p);
+			}
+		}
+
+		if(affected.Any())
+		{
 			SavePeers(affected);
 
-			return affected;
+			foreach(var i in Connections.Where(i => i != source))
+			{
+				i.Send(new SharePeersPpc {Peers = [..affected]});
+			}
 		}
+
+		return affected;
 	}
 
 	protected override void ProcessMain()
@@ -239,8 +244,8 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 	protected override void OnConnected(HomoPeer peer)
 	{
-		//RefreshPeers([peer]);
-		peer.Send(new SharePeersPpc {Peers = Peers.Where(i => i.Recent).ToArray()});
+		RefreshPeers([peer], peer);
+		//peer.Send(new SharePeersPpc {Peers = Peers.Where(i => i.Recent).ToArray()});
 	}
 
 	public HomoPeer ChooseBestPeer(long roles, HashSet<HomoPeer> exclusions)

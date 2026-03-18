@@ -251,7 +251,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 							failed:
 							{
 								lock(Lock)
-									peer.Disconnect();;
+									peer.Disconnect();
 								
 								tcp?.Close();
 							}
@@ -259,13 +259,13 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	
 	}
 
-	private void InboundConnect(TcpClient client)
+	private void InboundConnect(TcpClient tcp)
 	{
-		var ip = (client.Client.RemoteEndPoint as IPEndPoint).Address.MapToIPv4();
+		var ip = (tcp.Client.RemoteEndPoint as IPEndPoint).Address.MapToIPv4();
 
 		if(IncomingConnections.ContainsKey(ip))
 		{
-			client.Close();
+			tcp.Close();
 			return;
 		}
 
@@ -288,23 +288,23 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 			///if(peer != null)
 			///	RemovePeer(peer);
 
-			client.Close();
+			tcp.Close();
 			return;
 		}
 
 		P peer = null;
 
-		IncomingConnections[ip] = client;
+		IncomingConnections[ip] = tcp;
 
 		Task.Run(() =>	{
 							Hello h = null;
 
 							try
 							{
-								client.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
-								client.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
+								tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
+								tcp.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
-								h = Peer.WaitHello(client);
+								h = Peer.WaitHello(tcp);
 							}
 							catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 							{
@@ -325,10 +325,13 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 									if(peer.Status != ConnectionStatus.Disconnected)
 									{
 										if(h.Name == Name)
+										{	
+											RemovePeer(peer);
 											IgnoredIPs.Add(ip);
+										}
 
 										IncomingConnections.Remove(ip);
-										client.Close();
+										tcp.Close();
 										return;
 									}
 								}
@@ -350,7 +353,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	
 								try
 								{
-									Peer.SendHello(client, CreateInboundHello(ip, h));
+									Peer.SendHello(tcp, CreateInboundHello(ip, h));
 								}
 								catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 								{
@@ -358,11 +361,8 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 									goto failed;
 								}
 
-								if(FindPeer(peer.EP) == null)
-									AddPeer(peer);
-
 								peer.Permanent = h.Permanent;
-								peer.Start(this, client, h, true);
+								peer.Start(this, tcp, h, true);
 
 								IncomingConnections.Remove(ip);
 								
@@ -377,7 +377,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 								lock(Lock)
 									peer.Disconnect();;
 
-							client.Close();
+							tcp.Close();
 
 							lock(Lock)
 								IncomingConnections.Remove(ip);

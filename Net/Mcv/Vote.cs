@@ -7,7 +7,6 @@ public class Vote : IBinarySerializable
 	//public List<Peer>			Peers;
 	public bool					BroadcastConfirmed;
 	public Round				Round;
-	public DateTime				Created;
 	AccountAddress				_Generator;
 	byte[]						_Hash;
 	byte[]						_RawPayload;
@@ -17,7 +16,7 @@ public class Vote : IBinarySerializable
 	public int					RoundId;
 	public int					Try; /// revote if consensus not reached
 	public Time					Time;
-	public byte[]				ParentHash;
+	public byte[]				TargetHash;
 	public AutoId[]				MemberLeavers = [];
 	///public AccountAddress[]	FundJoiners = {};
 	///public AccountAddress[]	FundLeavers = {};
@@ -27,6 +26,9 @@ public class Vote : IBinarySerializable
 	public byte[]				Signature { get; set; }
 
 	public int					TransactionCountExcess;
+	public bool					Restored => TargetHash != null;
+
+	public VoteStatus		Status;
 
 	public bool Valid
 	{
@@ -104,7 +106,7 @@ public class Vote : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{RoundId}, {User}, {_Generator?.Bytes.ToHex()}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, ParentHash={ParentHash?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
+		return $"{RoundId}, {User}, {_Generator?.Bytes.ToHex()}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, ParentHash={TargetHash?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
 	}
 	
 	public void AddTransaction(Transaction t)
@@ -137,7 +139,7 @@ public class Vote : IBinarySerializable
 	{
 		writer.Write7BitEncodedInt(Try);
 		writer.Write(Time);
-		writer.Write(ParentHash);
+		writer.Write(TargetHash);
 
 		writer.Write(MemberLeavers);
 		///writer.Write(FundJoiners);
@@ -152,7 +154,7 @@ public class Vote : IBinarySerializable
 	{
 		Try					= reader.Read7BitEncodedInt();
 		Time				= reader.Read<Time>();
-		ParentHash			= reader.ReadBytes(Cryptography.HashLength);
+		TargetHash			= reader.ReadBytes(Cryptography.HashLength);
 
 		MemberLeavers		= reader.ReadArray<AutoId>();
 		///FundJoiners		= reader.ReadArray<AccountAddress>();
@@ -199,7 +201,10 @@ public class Vote : IBinarySerializable
 
 	public void Restore()
 	{
-		ReadPayload(new BinaryReader(new MemoryStream(RawPayload)));
+		if(!Restored)
+		{
+			ReadPayload(new BinaryReader(new MemoryStream(RawPayload)));
+		}
 	}
 
 	public void Dump(Round round, Log log)

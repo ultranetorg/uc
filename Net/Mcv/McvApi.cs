@@ -158,11 +158,6 @@ public class McvSummaryApc : McvApc
 						{"Votes Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"}};
 		}
 
-		lock(node.Peering.SyncLock)
-		{
-			f.Add("SyncTail", $"{node.Peering.SynchronizationTail.Sum(i => i.Value.Count)}");
-		}
-
 		lock(node.Peering.TransactingLock)
 		{
 			f.Add("Incoming Transactions",	$"{node.Peering.CandidateTransactions.Count}");
@@ -257,7 +252,7 @@ public class VotesReportApc : McvApc
 															.Select(i => new VotesReportResponse.Vote
 															{
 																Try = i.Try,
-																ParentSummary = i.ParentHash,
+																ParentSummary = i.TargetHash,
 																Signature = i.Signature,
 																Generator = i.Signer
 															})

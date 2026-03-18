@@ -44,7 +44,7 @@ public class FairNode : McvNode
 		return string.Join(", ", new string[]{	GetType().Name,
 												Name,
 												(ApiServer != null ? "A" : null) +
-												(Settings.Mcv != null ? "B" : null) +
+												(Settings.Mcv != null ? "G" : null) +
 												(Settings.Mcv?.Chain != null  ? "C" : null),
 												Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 												Mcv != null ? $"{Peering.Synchronization}{(Peering.SynchronizationInfo != null ? $"-{Peering.SynchronizationInfo}" : null)}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,

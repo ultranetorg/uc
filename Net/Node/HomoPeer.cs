@@ -151,7 +151,7 @@ public class HomoPeer : Peer, IHomoPeer
 						{
 							var rq = OutRequests.Find(i => i.Id == id);
 
-							if(rq.Event != null)
+							if(rq?.Event != null)
 							{
 								rq.Exception = ex;
 								rq.Event.Set();
