@@ -77,6 +77,17 @@ public class DomainMigration : OutwardOperation
 			Error = OtherTldHasPriority;
 			return;
 		}
+
+		execution.AffectOutwards();
+		execution.Outwards.Add(	new Outward(execution.Net)
+								{
+									Id			= ++User.LastOutward,
+									User		= User.Id, 
+									Generator	= Transaction.Member,  
+									Operation	= this,
+									Expiration	= execution.Time + execution.Net.ForeignVerificationDurationLimit
+								 });
+
 	
 		execution.PayOperationEnergy(User);
 	}

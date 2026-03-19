@@ -332,7 +332,7 @@ public abstract class Round : IBinarySerializable
 		Bandwidths	= Id == 0 ? new long[McvNet.BandwidthPeriodsMaximum] : Previous.Bandwidths;
 		Spacetimes	= Id == 0 ? new long[1]								 : Previous.Spacetimes;
 
-		AffectedMetas		= Id == 0 ? [] : new (Previous.AffectedMetas);
+		AffectedMetas	= Id == 0 ? [] : new (Previous.AffectedMetas);
 		AffectedUsers	= Id == 0 ? [] : new (Previous.AffectedUsers);
 		
 		NextEids = [..Mcv.Tables.Select(i => (Dictionary<int, int>)null)];

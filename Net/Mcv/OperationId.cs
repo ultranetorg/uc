@@ -4,18 +4,21 @@ namespace Uccs.Net;
 
 public struct ForeignResult : IBinarySerializable, IEquatable<ForeignResult>, IComparable<ForeignResult>
 {
-	public OperationId	Id;
+	public AutoId		User;
+	public int			Id;
 	public bool			Approved;
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<OperationId>();
+		User		= reader.Read<AutoId>();
+		Id			= reader.Read7BitEncodedInt();
 		Approved	= reader.ReadBoolean();	
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(Id);
+		writer.Write(User);
+		writer.Write7BitEncodedInt(Id);
 		writer.Write(Approved);
 	}
 
@@ -26,12 +29,17 @@ public struct ForeignResult : IBinarySerializable, IEquatable<ForeignResult>, IC
 
 	public bool Equals(ForeignResult a)
 	{
-		return Id == a.Id && Approved == a.Approved;
+		return User == a.User && Id == a.Id && Approved == a.Approved;
 	}
 
 	public int CompareTo(ForeignResult a)
 	{
-		var c = Id.CompareTo(a.Id);
+		var c = User.CompareTo(a.User);
+
+		if(c != 0)
+			return c;
+
+		c = Id.CompareTo(a.Id);
 
 		if(c != 0)
 			return c;

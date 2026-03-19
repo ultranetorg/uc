@@ -9,7 +9,7 @@ public abstract class OutwardOperation : RdnOperation
 
 public class Outward
 {
-	public OperationId		Id;
+	public int				Id;
 	public Time				Expiration;
 	public AutoId			Generator;
 	public AutoId			User;
@@ -24,7 +24,7 @@ public class Outward
 
 	public void WriteBaseState(BinaryWriter writer)
 	{
-		writer.Write(Id);
+		writer.Write7BitEncodedInt(Id);
 		writer.Write(User);
 		writer.Write(Generator);
 		writer.Write(Expiration);
@@ -34,7 +34,7 @@ public class Outward
 
 	public void ReadBaseState(BinaryReader reader)
 	{
-		Id			= reader.Read<OperationId>();
+		Id			= reader.Read7BitEncodedInt();
 		User		= reader.Read<AutoId>();
 		Generator	= reader.Read<AutoId>();
 		Expiration	= reader.Read<Time>();
@@ -46,9 +46,9 @@ public class Outward
 public class RdnRound : Round
 {
 	public new RdnMcv						Mcv => base.Mcv as RdnMcv;
-	public List<Outward>					Outwards;
 	public TableState<AutoId, Domain>		Domains;
 	public TableState<AutoId, Resource>		Resources;
+	public List<Outward>					Outwards;
 	public ForeignResult[]					ConsensusOutwards = {};
 
 	public RdnRound(RdnMcv mcv) : base(mcv)
@@ -91,6 +91,8 @@ public class RdnRound : Round
 
 		Domains.Absorb(e.Domains);
 		Resources.Absorb(e.Resources);
+
+		Outwards = e.Outwards;
 	}
 
 	public override void Execute(IEnumerable<Transaction> transactions)
@@ -114,16 +116,10 @@ public class RdnRound : Round
 	{
 		var vs = votes.Cast<RdnVote>();
 
-		ConsensusOutwards	= vs.SelectMany(i => i.Migrations)
+		ConsensusOutwards = vs	.SelectMany(i => i.Migrations)
 								.Distinct()
-								.Where(x => Outwards.Any(b => b.Id == x.Id) && vs.Count(b => b.Migrations.Contains(x)) >= gq)
+								.Where(x => Outwards.Any(o => o.User == x.User && o.Id == x.Id) && vs.Count(b => b.Migrations.Contains(x)) >= gq)
 								.Order().ToArray();
-
-		#if IMMISSION
-		ConsensusEmissions	= rvs.SelectMany(i => i.Emissions).Distinct()
-								 .Where(x => Emissions.Any(e => e.Id == x.OperationId) && rvs.Count(b => b.Emissions.Contains(x)) >= gq)
-								 .Order().ToArray();
-		#endif
 	}
 
 	public override void CopyConfirmed()
@@ -135,14 +131,6 @@ public class RdnRound : Round
 	{
 		if(operation is OutwardOperation oo)
 		{
-			Outwards.Add(new Outward(Net)
-							 {
-								Id			= operation.Id,
-								User		= operation.User.Id, 
-								Generator	= operation.Transaction.Member,  
-								Operation	= oo,
-								Expiration	= time + Net.ForeignVerificationDurationLimit
-							 });
 		}
 	}
 
@@ -162,26 +150,9 @@ public class RdnRound : Round
 			Mcv.NnBlocks.Remove(b); /// ??????
 		}
 
-		#if IMMISSION
-		foreach(var i in ConsensusEmissions)
-		{
-			var e = Emissions.Find(j => j.Id == i.OperationId);
-
-			if(i.Approved)
-			{
-				e.ConfirmedExecute(this);
-				Emissions.Remove(e);
-			} 
-			else
-				AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AvarageUptime -= 10;
-		}
-
-		Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationDurationLimit);
-		#endif
-
 		foreach(var i in ConsensusOutwards)
 		{
-			var e = Outwards.Find(j => j.Id == i.Id);
+			var e = Outwards.Find(j => j.User == i.User && j.Id == i.Id);
 
 			if(i.Approved)
 			{
