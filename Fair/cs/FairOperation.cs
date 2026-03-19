@@ -31,7 +31,7 @@ public enum FairOperationClass : uint
 		SiteApprovalPolicyChange	= 103_000_003,
 		SiteModeratorAddition		= 103_000_004,
 		SiteModeratorRemoval		= 103_000_005,
-		SiteAuthorsChange			= 103_000_006,
+		SiteAuthorsRemoval			= 103_000_006,
 		SiteTextChange				= 103_000_007,
 		SiteAvatarChange			= 103_000_008,
 		SiteNameChange				= 103_000_009,
