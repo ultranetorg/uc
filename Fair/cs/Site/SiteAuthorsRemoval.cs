@@ -31,11 +31,22 @@ public class SiteAuthorsRemoval : VotableOperation
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
 		foreach(var i in Authors)
+		{
 			if(!Site.Publishers.Any(a => a.Author == i))
 			{	
 				error = NotFound;
 				return false;
 			}
+
+			var a = execution.Authors.Find(i);
+
+			if(a.Products.Select(i => execution.Products.Find(i)).Any(i => i.Publications.Any(p => execution.Publications.Find(p).Site == Site.Id)))
+			{	
+				error = PublicationsExist;
+				return false;
+			}
+		}
+
 	
 		error = null;
 		return true;

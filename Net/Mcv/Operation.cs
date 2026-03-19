@@ -41,6 +41,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			Denied = "Access denied";
 	public const string			DoesNotSatisfy = "Does Not Satisfy";
 	public const string			ExistingAccountRequired = "ExistingAccountRequired";
+	public const string			PublicationsExist = "Existing publications must be removed first";
 	public const string			Expired = "Expired";
 	public const string			InvalidName = "Invalid Name";
 	public const string			LimitExceeded = "Limit exceeded";
