@@ -57,6 +57,12 @@ public class SiteAuthorsRemoval : VotableOperation
  		var s = Site;
  
  		foreach(var i in Authors)
- 			s.Publishers = s.Publishers.Remove(s.Publishers.First(m => m.Author == i));
+ 		{	
+			s.Publishers = s.Publishers.Remove(s.Publishers.First(m => m.Author == i));
+			
+			var a = execution.Authors.Affect(i);
+			a.Sites = a.Sites.Remove(s.Id);
+		}
+
 	}
 }
