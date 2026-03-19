@@ -32,6 +32,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public Transaction			Transaction;
 	public User					User;
 	public abstract string		Explanation { get; }
+	public OperationId			Id;
 
 	public const string			AlreadyExists = "Already exists";
 	public const string			AlreadySet = "Already set";
@@ -58,21 +59,6 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			NothingLastCreated = "Nothing last created";
 	public const string			NotReady = "Not ready";
 	public const string			Rejected = "Rejected";
-
-	protected OperationId		_Id;
-	
-	public OperationId Id
-	{
-		get
-		{
-			if(_Id == default)
-			{
-				_Id = new (Transaction.Id.Ri, Transaction.Id.Ti, (byte)Array.IndexOf(Transaction.Operations, this));
-			}
-
-			return _Id;
-		}
-	}
 
 	public Operation()
 	{

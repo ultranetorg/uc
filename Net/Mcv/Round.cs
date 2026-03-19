@@ -64,7 +64,7 @@ public abstract class Round : IBinarySerializable
 
 	public abstract long								UserAllocationFee();
 	public virtual void									CopyConfirmed(){}
-	public virtual void									RegisterForeign(Operation o){}
+	public virtual void									RegisterForeign(Operation operation, Time time){}
 	public virtual void									ConfirmForeign(Execution execution){}
 
 	public Round FindParent(int level)
@@ -434,16 +434,18 @@ public abstract class Round : IBinarySerializable
 		if(Id > 0 && Mcv.LastConfirmedRound != null && Mcv.LastConfirmedRound.Id + 1 != Id)
 			throw new IntegrityException("LastConfirmedRound.Id + 1 == Id");
 
-		///if(Members == null)
-			Execute(ConsensusTransactions);
+		Execute(ConsensusTransactions);
 
 		CopyConfirmed();
 		
-		foreach(var t in ConsensusTransactions)
+		foreach(var (i, t) in ConsensusTransactions.Index())
 		{
-			foreach(var o in t.Operations)
-			{
-				RegisterForeign(o);
+			t.Id = new (Id, i);
+			
+			foreach(var (j, o) in t.Operations.Index())
+			{	
+				o.Id = new (Id, i, (byte)j);
+				RegisterForeign(o, ConsensusTime);
 			}
 		}
 

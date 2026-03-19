@@ -180,7 +180,6 @@ public class McvSummaryApc : McvApc
 				f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
 				f.Add("Last Payload Round",		$"{node.Mcv.LastPayloadRound?.Id}");
 				f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
-				f.Add("Loaded Rounds",			$"{node.Mcv.OldRounds.Count}");
 			}
 		}
 
@@ -337,7 +336,7 @@ public class EstimateOperationApc : McvApc
 
 public class TransactionApe
 {
-	public TransactionId			Id { get; set; }
+	//public TransactionId			Id { get; set; }
 	public int						Nid { get; set; }
 		
 	public AutoId					Member { get; set; }
@@ -360,7 +359,7 @@ public class TransactionApe
 	public TransactionApe(Transaction transaction)
 	{
 		Nid					= transaction.Nonce;
-		Id					= transaction.Id;
+		//Id					= transaction.Id;
 		Operations			= [..transaction.Operations];
 		   
 		Member				= transaction.Member;

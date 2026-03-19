@@ -382,7 +382,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public TailGraphEnumerator(Table<ID, E> table)
 		{
 			Table = table;
-
 			Round = Table.Mcv.Tail.GetEnumerator();
 		}
 

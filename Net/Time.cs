@@ -35,9 +35,9 @@ public struct Time : IBinarySerializable
 	{
 	}
 
-	public Time(int t)
+	public Time(int seconds)
 	{
-		Seconds = t;
+		Seconds = seconds;
 	}
 	
 	public Time(TimeSpan time)
@@ -65,9 +65,14 @@ public struct Time : IBinarySerializable
 		return Seconds.GetHashCode();
 	}
 
+	public static Time FromHours(int hours)
+	{
+		return new Time(hours * (int)TimeSpan.SecondsPerHour);
+	}
+
 	public static Time FromYears(int years)
 	{
-		return new Time(365 * 60 * 60 * 24 * years);
+		return FromDays(years * 365);
 	}
 
 	public static Time FromDays(int days)

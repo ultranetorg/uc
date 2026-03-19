@@ -16,20 +16,7 @@ public class Transaction : IBinarySerializable
 {
 	public const int				TagLengthMax = 1024;
 
-	TransactionId					_Id;
-	public TransactionId			Id
-									{ 
-										set => _Id = value; 
-										get
-										{
-											if(_Id != default)
-												return _Id;
-
-											_Id = Round != null && Round.Confirmed ? new (Round.Id, Array.IndexOf(Round.ConsensusTransactions, this)) : default; 
-
-											return _Id;
-										}
-									 }
+	public TransactionId			Id;
 	public Operation[]				Operations = {};
 	public string					User { get; set; }
 	public int						Nonce { get; set; }
@@ -72,7 +59,7 @@ public class Transaction : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"Id={Id}, User={User}, Nid={Nonce}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+		return $"User={User}, Nid={Nonce}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 	}
 
 	public void Sign(AccountKey signer)
@@ -88,7 +75,7 @@ public class Transaction : IBinarySerializable
 
 	public void AddOperation(Operation operation)
 	{ 
-		Operations = Operations.Append(operation).ToArray();
+		Operations = [..Operations, operation];
 		operation.Transaction = this;
 	}
 

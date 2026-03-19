@@ -1,14 +1,11 @@
 ﻿namespace Uccs.Rdn;
 
-public class DomainMigration : RdnOperation
-{
+public class DomainMigration : OutwardOperation
+{ 
 	public string			Name  { get; set; }
 	public string			Tld  { get; set; }
 
 	public override string	Explanation => $"{Name}.{Tld}";
-	public bool				DnsApproved;
-	public AutoId			Generator;
-	public AutoId			UserId;
 
 	public DomainMigration()
 	{
@@ -43,19 +40,19 @@ public class DomainMigration : RdnOperation
 		writer.WriteUtf8(Tld);
 	}
 
-	public void WriteBaseState(BinaryWriter writer)
-	{
-		writer.Write(UserId);
-		writer.WriteUtf8(Name);
-		writer.Write(Generator);
-	}
-
-	public void ReadBaseState(BinaryReader reader)
-	{
-		UserId		= reader.Read<AutoId>();
-		Name		= reader.ReadUtf8();
-		Generator	= reader.Read<AutoId>();
-	}
+	//public void WriteBaseState(BinaryWriter writer)
+	//{
+	//	writer.Write(UserId);
+	//	writer.WriteUtf8(Name);
+	//	writer.Write(Generator);
+	//}
+	//
+	//public void ReadBaseState(BinaryReader reader)
+	//{
+	//	UserId		= reader.Read<AutoId>();
+	//	Name		= reader.ReadUtf8();
+	//	Generator	= reader.Read<AutoId>();
+	//}
 
 	public override void Execute(RdnExecution execution)
 	{
@@ -80,17 +77,15 @@ public class DomainMigration : RdnOperation
 			Error = OtherTldHasPriority;
 			return;
 		}
-
-		UserId = User.Id;
 	
 		execution.PayOperationEnergy(User);
 	}
 
-	public void ConfirmedExecute(Execution execution)
+	public override void ConfirmedExecute(Execution execution, Outward task)
 	{
 		var e = execution as RdnExecution;
 		var a = e.Domains.Affect(Name);
 
-		a.Owner = UserId;
+		a.Owner = task.User;
 	}
 }

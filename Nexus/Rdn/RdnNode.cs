@@ -57,29 +57,18 @@ public class RdnNode : McvNode
 																			var approved = IsDnsValid(am);
 
 																			lock(Mcv.Lock)
-																				Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
+																				Mcv.ApprovedMigrations.Add(new ForeignResult {Id = am.Id, Approved = approved});
 																		});
 	 												}
 													else
-														Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
+														Mcv.ApprovedMigrations.Add(new ForeignResult {Id = am.Id, Approved = true});
 												}
-	
-												#if IMMISION
-												if(o is Immission e)
-												{
-													Task.Run(() =>	{
-																		var v = Ethereum.IsEmissionValid(e);
-
-																		lock(Lock)
-																			Mcv.ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
-																	});
-												}
-												#endif
 											}
 										}
 
-										//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
-										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
+										/// Remove if consensus has reached or expired
+										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusOutwards.Any(x => x.Id == i.Id) || 
+																			  (r as RdnRound).Outwards.Find(x => x.Id == i.Id)?.Expiration < r.ConsensusTime);
 									};
 
 

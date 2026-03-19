@@ -297,7 +297,7 @@ public abstract class McvPeering : HomoTcpPeering
 	 					{	
 							Mcv.LastConfirmedRound = r;
 							Mcv.LastCommitedRound = r;
-							Mcv.OldRounds.Add(r);
+							Mcv.InsertRound(r);
 
 							using(var w = new WriteBatch())
 							{
@@ -374,16 +374,7 @@ public abstract class McvPeering : HomoTcpPeering
 							if(r.Id <= Mcv.LastConfirmedRound.Id)
 								continue;
 	
-							var x = Mcv.FindRound(r.Id);
-	
-							if(x != null)
-							{
-								Mcv.Tail.Remove(x);
-								Mcv.Tail.Insert(0, r);
-								Mcv.Tail.Sort((a, b) => -a.Id.CompareTo(b.Id));
-							}
-							else
-								Mcv.Tail.Insert(0, r);
+							Mcv.InsertRound(r);
 	
 							var h = r.Hash;
 	
@@ -663,7 +654,7 @@ public abstract class McvPeering : HomoTcpPeering
 						return true;
 					}
 	
-					var stxs = txs.Select(i => new {t = i, a = Mcv.Users.Find(i.User, pp.Id)});
+					var stxs = txs.Select(i => new {t = i, a = Mcv.Users.Latest(i.User)});
 	
 					foreach(var t in stxs.Where(i => i.a != null).OrderByDescending(i => i.a.EnergyRating))	/// Allocated bandwidth first
 						if(false == tryplace(t.t, false))

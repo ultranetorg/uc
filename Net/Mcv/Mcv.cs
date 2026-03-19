@@ -75,12 +75,11 @@ public abstract class Mcv /// Mutual chain voting
 													{
 														if(!Monitor.IsEntered(Lock))
 															Debugger.Break();
-
+	
 														return _Tail;
 													}
 												}
 
-	public List<Round>							OldRounds = new();
 	public Round								LastConfirmedRound;
 	public Round								LastCommitedRound;
 	public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
@@ -208,7 +207,7 @@ public abstract class Mcv /// Mutual chain voting
 			LastCommitedRound = CreateRound();
 			LastCommitedRound.ReadGraphState(r);
 
-			OldRounds.Add(LastCommitedRound);
+			InsertRound(LastCommitedRound);
 
 			Hashify();
 
@@ -249,16 +248,12 @@ public abstract class Mcv /// Mutual chain voting
 	public void Clear()
 	{
 		Tail.Clear();
-		OldRounds.Clear();
 
 		GraphState = null;
 		GraphHash = Net.Cryptography.ZeroHash;
 
 		LastCommitedRound = null;
 		LastConfirmedRound = null;
-
-		OldRounds.Clear();
-		//Accounts.Clear();
 
 		foreach(var i in Tables)
 			i.Clear();
@@ -490,12 +485,7 @@ public abstract class Mcv /// Mutual chain voting
 			r = CreateRound();
 			r.Id = rid;
 
-			var i = Tail.FindIndex(i => i.Id < rid);
-			
-			if(i != -1)
-				Tail.Insert(i, r);
-			else
-				Tail.Add(r);
+			InsertRound(r);
 		}
 
 		return r;
@@ -507,27 +497,37 @@ public abstract class Mcv /// Mutual chain voting
 			if(i.Id == rid)
 				return i;
 
-		var r = OldRounds.Find(i => i.Id == rid);
-		
-		if(r != null)
-			return r;
-
 		var d = Rocks.Get(BitConverter.GetBytes(rid), ChainFamily);
 
 		if(d != null)
 		{
-			r = CreateRound();
+			var r = CreateRound();
 			r.Id			= rid; 
 			r.Confirmed		= true;
 
 			r.Load(new BinaryReader(new MemoryStream(d)));
 
-			OldRounds.Add(r);
+			InsertRound(r);
 			
 			return r;
 		}
 		else
 			return null;
+	}
+
+	public void InsertRound(Round round)
+	{
+		var i = Tail.FindIndex(i => i.Id <= round.Id);
+			
+		if(i != -1)
+		{	
+			if(Tail[i].Id == round.Id)
+				Tail[i] = round;
+			else
+				Tail.Insert(i, round);
+		}
+		else
+			Tail.Add(round);
 	}
 
 	public Round Examine(Transaction transaction)
