@@ -4,18 +4,21 @@ namespace Uccs.Net;
 
 public struct ForeignResult : IBinarySerializable, IEquatable<ForeignResult>, IComparable<ForeignResult>
 {
-	public OperationId	OperationId;
+	public AutoId		User;
+	public int			Id;
 	public bool			Approved;
 
 	public void Read(BinaryReader reader)
 	{
-		OperationId = reader.Read<OperationId>();
+		User		= reader.Read<AutoId>();
+		Id			= reader.Read7BitEncodedInt();
 		Approved	= reader.ReadBoolean();	
 	}
 
 	public void Write(BinaryWriter writer)
 	{
-		writer.Write(OperationId);
+		writer.Write(User);
+		writer.Write7BitEncodedInt(Id);
 		writer.Write(Approved);
 	}
 
@@ -26,12 +29,17 @@ public struct ForeignResult : IBinarySerializable, IEquatable<ForeignResult>, IC
 
 	public bool Equals(ForeignResult a)
 	{
-		return OperationId == a.OperationId && Approved == a.Approved;
+		return User == a.User && Id == a.Id && Approved == a.Approved;
 	}
 
 	public int CompareTo(ForeignResult a)
 	{
-		var c = OperationId.CompareTo(a.OperationId);
+		var c = User.CompareTo(a.User);
+
+		if(c != 0)
+			return c;
+
+		c = Id.CompareTo(a.Id);
 
 		if(c != 0)
 			return c;
@@ -46,7 +54,7 @@ public struct ForeignResult : IBinarySerializable, IEquatable<ForeignResult>, IC
 
 	public override int GetHashCode()
 	{
-		return OperationId.GetHashCode();
+		return Id.GetHashCode();
 	}
 
 	public static bool operator == (ForeignResult left, ForeignResult right)
@@ -56,7 +64,7 @@ public struct ForeignResult : IBinarySerializable, IEquatable<ForeignResult>, IC
 
 	public static bool operator != (ForeignResult left, ForeignResult right)
 	{
-		return !(left == right);
+		return !left.Equals(right);
 	}
 
 }

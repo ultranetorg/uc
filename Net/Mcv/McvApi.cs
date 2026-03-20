@@ -158,11 +158,6 @@ public class McvSummaryApc : McvApc
 						{"Votes Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"}};
 		}
 
-		lock(node.Peering.SyncLock)
-		{
-			f.Add("SyncTail", $"{node.Peering.SynchronizationTail.Sum(i => i.Value.Count)}");
-		}
-
 		lock(node.Peering.TransactingLock)
 		{
 			f.Add("Incoming Transactions",	$"{node.Peering.CandidateTransactions.Count}");
@@ -185,7 +180,6 @@ public class McvSummaryApc : McvApc
 				f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
 				f.Add("Last Payload Round",		$"{node.Mcv.LastPayloadRound?.Id}");
 				f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
-				f.Add("Loaded Rounds",			$"{node.Mcv.OldRounds.Count}");
 			}
 		}
 
@@ -257,7 +251,7 @@ public class VotesReportApc : McvApc
 															.Select(i => new VotesReportResponse.Vote
 															{
 																Try = i.Try,
-																ParentSummary = i.ParentHash,
+																ParentSummary = i.TargetHash,
 																Signature = i.Signature,
 																Generator = i.Signer
 															})
@@ -342,7 +336,7 @@ public class EstimateOperationApc : McvApc
 
 public class TransactionApe
 {
-	public TransactionId			Id { get; set; }
+	//public TransactionId			Id { get; set; }
 	public int						Nid { get; set; }
 		
 	public AutoId					Member { get; set; }
@@ -365,7 +359,7 @@ public class TransactionApe
 	public TransactionApe(Transaction transaction)
 	{
 		Nid					= transaction.Nonce;
-		Id					= transaction.Id;
+		//Id					= transaction.Id;
 		Operations			= [..transaction.Operations];
 		   
 		Member				= transaction.Member;

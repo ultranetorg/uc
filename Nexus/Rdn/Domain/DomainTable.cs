@@ -5,7 +5,6 @@ namespace Uccs.Rdn;
 public class DomainTable : Table<AutoId, Domain>
 {
 	public override string			Name => RdnTable.Domain.ToString();
-	public IEnumerable<RdnRound>	Tail => Mcv.Tail.Cast<RdnRound>();
 
 	public int						KeyToBid(string domain) => EntityId.BytesToBucket(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
 

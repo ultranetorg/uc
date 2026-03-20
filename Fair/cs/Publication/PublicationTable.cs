@@ -108,6 +108,12 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 			Execution.PublicationTitles.Deindex(c.Site, f.AsUtf8);
 		}
 
-		Execution.Free(s, s, Execution.Net.EntityLength);
+		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{ 
+			var a = Execution.Authors.Affect(r.Author);
+			Execution.Free(a, a, Execution.Net.EntityLength);
+		}
+		else
+			Execution.Free(s, s, Execution.Net.EntityLength);
 	}
 }

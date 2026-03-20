@@ -17,8 +17,6 @@ public class StampPpc : McvPpc<StampPpr>
 						GraphHash				= Mcv.GraphHash,
 						LastCommitedRound		= Mcv.LastCommitedRound?.Id ?? -1,
 						LastCommitedRoundHash	= Mcv.LastCommitedRound?.Hash,
-						FirstTailRound			= Mcv.Tail.Last().Id,
-						LastTailRound			= Mcv.Tail.First().Id,
 						Tables					= Mcv.Tables.Select(i => new StampPpr.Table
 																		 {
 																			Id = i.Id, 
@@ -50,8 +48,6 @@ public class StampPpr : Result
 
 	public byte[]		GraphState { get; set; }
 	public byte[]		GraphHash { get; set; }
-	public int			FirstTailRound { get; set; }
-	public int			LastTailRound { get; set; }
 	public int			LastCommitedRound { get; set; }
 	public byte[]		LastCommitedRoundHash { get; set; }
 	public Table[]		Tables { get; set; }

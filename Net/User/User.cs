@@ -88,6 +88,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public string			Name { get; set; }
 	public AccountAddress	Owner { get; set; }
 	public int				LastNonce { get; set; } = -1;
+	public int				LastOutward { get; set; } = -1;
 	public long				AverageUptime { get; set; }
 	
 	public long				Spacetime { get; set; }
@@ -139,6 +140,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 
 		writer.Write7BitEncodedInt64(Spacetime);
 		writer.Write7BitEncodedInt(LastNonce);
+		writer.Write7BitEncodedInt(LastOutward);
 		writer.Write7BitEncodedInt64(AverageUptime);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
@@ -152,6 +154,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 
 		Spacetime 			= reader.Read7BitEncodedInt64();
 		LastNonce			= reader.Read7BitEncodedInt();
+		LastOutward			= reader.Read7BitEncodedInt();
 		AverageUptime		= reader.Read7BitEncodedInt64();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
@@ -175,6 +178,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		a.Name					= Name;
 		a.Spacetime				= Spacetime;
 		a.LastNonce				= LastNonce;
+		a.LastOutward			= LastOutward;
 		a.AverageUptime			= AverageUptime;
 
 		((IEnergyHolder)this).Clone(a);

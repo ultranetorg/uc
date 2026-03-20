@@ -25,6 +25,8 @@ public class RdnNode : McvNode
 	public JsonServer				ApiServer;
 	//public RdnNnTcpPeering			NnPeering;
 	IppConnection					NnConnection;
+	List<Outward>					CurrentOutwards = [];
+	Thread							OutwardThread;
 
 	public RdnNode(Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), profile, nexussettings, flow)
 	{
@@ -38,65 +40,13 @@ public class RdnNode : McvNode
 
 		InitializeVaultClient(NexusSettings.Host);
 
+
 		if(Settings.Mcv != null)
 		{
 			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.EP], [Settings.Peering.EP], clock ?? new RealClock());
 
-			Mcv.Confirmed += r =>	{
-										if(Mcv.LastConfirmedRound.Members.Any(i => Settings.Mcv.Generators.Any(g => g.Id == i.User)))
-										{
-											var ops = r.ConsensusTransactions.SelectMany(t => t.Operations).ToArray();
-												
-											foreach(var o in ops)
-											{
-												if(o is DomainMigration am)
-												{
-	 												if(!NodeGlobals.SkipMigrationVerification)
-	 												{
-														Task.Run(() =>	{
-																			var approved = IsDnsValid(am);
-
-																			lock(Mcv.Lock)
-																				Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = approved});
-																		});
-	 												}
-													else
-														Mcv.ApprovedMigrations.Add(new ForeignResult {OperationId = am.Id, Approved = true});
-												}
-	
-												#if IMMISION
-												if(o is Immission e)
-												{
-													Task.Run(() =>	{
-																		var v = Ethereum.IsEmissionValid(e);
-
-																		lock(Lock)
-																			Mcv.ApprovedEmissions.Add(new ForeignResult {OperationId = e.Id, Approved = v});
-																	});
-												}
-												#endif
-											}
-										}
-
-										//Mcv.ApprovedEmissions.RemoveAll(i => (r as RdnRound).ConsensusEmissions.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
-										Mcv.ApprovedMigrations.RemoveAll(i => (r as RdnRound).ConsensusMigrations.Any(j => j.OperationId == i.OperationId) || r.Id > i.OperationId.Ri + Net.ExternalVerificationRoundDurationLimit);
-									};
-
-
 			if(Settings.Mcv.Generators.Any())
 			{
-				#if ETHEREUM
-	  			try
-	  			{
-	 				new Uri(Settings.Ethereum.Provider);
-	  			}
-	  			catch(Exception)
-	  			{
-	  				Ethereum.ReportEthereumJsonAPIWarning($"Ethereum Json-API provider required to run the node as a generator.", true);
-					return;
-	  			}
-				#endif
-
 				SeedHub = new SeedHub(Mcv);
 			}
 
@@ -104,18 +54,65 @@ public class RdnNode : McvNode
 			{
 				//NnPeering = new RdnNnTcpPeering(this, Settings.NnPeering, 0, flow);
 			}
+
+			Mcv.Confirmed += r =>	{
+										/// Remove if consensus has reached or expired
+										Mcv.ApprovedOutwards.RemoveAll(i => (r as RdnRound).ConsensusOutwards.Any(x => x == i) || 
+																			  (r as RdnRound).Outwards.Find(x => x.User == i.User && x.Id == i.Id)?.Expiration < r.ConsensusTime);
+									};
+
+			OutwardThread = CreateThread(() => {
+											 		while(Flow.Active)
+											 		{
+											 			var r = WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
+														
+														lock(Mcv.Lock)
+														{
+															if(CurrentOutwards.Count < 100)
+															{
+																var ows = (Mcv.LastConfirmedRound as RdnRound).Outwards;
+
+																var a = ows.Where(i => !CurrentOutwards.Any(a => a.User == i.User && a.Id == i.Id) && !Mcv.ApprovedOutwards.Any(a => a.User == i.User && a.Id == i.Id)).Take(100 - CurrentOutwards.Count).ToArray();
+
+																foreach(var i in a)
+																{
+	 																if(!NodeGlobals.ForceApproveOutwards)
+	 																{
+																		Task.Run(() =>	{
+																							if(i.Operation is DomainMigration am)
+																							{
+																								var approved = IsDnsValid(am);
+	
+																								lock(Mcv.Lock)
+																								{	
+																									Mcv.ApprovedOutwards.Add(new ForeignResult {User = i.User, Id = i.Id, Approved = approved});
+
+																									CurrentOutwards.Remove(i);
+																								}
+																							}
+																						});
+	 																}
+																	else
+																		Mcv.ApprovedOutwards.Add(new ForeignResult {User = i.User, Id = i.Id, Approved = true});
+																}
+															}
+														}
+											 		}
+												});
+
+			OutwardThread.Name = $"{Name} Outwarding";
+			OutwardThread.Start();
 		}
-		
+
 		NnConnection = new RdnNnpIppConnection(this, flow);
-
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
-
+		
 		if(Settings.Seed != null)
 		{
 			ResourceHub = new ResourceHub(this, Net, Settings.Seed);
 			ResourceHub.RunDeclaring();
 		}
-		
+
 		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToApiSettings(Net), Flow);
 	}
 

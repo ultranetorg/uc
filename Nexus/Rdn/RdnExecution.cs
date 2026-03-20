@@ -9,10 +9,18 @@ public class RdnExecution : Execution
 	public DomainExecution		Domains;
 	public ResourceExecution	Resources;
 
+	public List<Outward>		Outwards  { get => _Outwards ?? Round.Outwards; set => _Outwards = value; }
+	List<Outward>				_Outwards;
+
 	public RdnExecution(RdnMcv mcv, RdnRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
 		Domains = new(this);
 		Resources = new(this);
+	}
+
+	public void AffectOutwards()
+	{
+		_Outwards ??= [..Round.Outwards];
 	}
 
 	public override ITableExecution FindExecution(byte table)

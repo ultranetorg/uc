@@ -53,7 +53,7 @@ public class SiteCreation : FairOperation
 						new (FairOperationClass.SiteNameChange,			Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.SiteTextChange,			Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.SiteAvatarChange,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
-						new (FairOperationClass.SiteAuthorsChange,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.SiteAuthorsRemoval,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 																																						
 						new (FairOperationClass.CategoryCreation,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.CategoryDeletion,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),

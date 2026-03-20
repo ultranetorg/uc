@@ -17,7 +17,7 @@ public class VotePpc : PeerRequest
 
 		//lock(p.Lock)
 		{
-			var accepted = false;
+			var vp = VoteStatus.OK;
 		
 			//lock(p.Mcv.Lock)
 			{
@@ -26,14 +26,13 @@ public class VotePpc : PeerRequest
 
 				try
 				{
-					accepted = p.ProcessIncoming(Vote, false);
+					lock(p.Mcv.Lock)
+						vp = p.Mcv.ProcessIncoming(Vote, p.Synchronization == Synchronization.Downloading);
 				}
 				catch(ConfirmationException ex)
 				{
 					lock(p.Mcv.Lock)
 						p.ProcessConfirmationException(ex);
-					
-					accepted = true; /// consensus failed but the vote looks valid
 				}
 				
 				Peering.Statistics.Consensing.End();
@@ -63,7 +62,7 @@ public class VotePpc : PeerRequest
 			}
 
 			lock(p.Lock)
-				if(accepted)
+				if(vp == VoteStatus.OK)
 				{
 					p.Broadcast(Vote, Peer);
 					p.Statistics.AcceptedVotes++;

@@ -62,7 +62,7 @@ public class NodeGlobals
 	public static bool				InfiniteTimeouts;
 	public static int				TimeoutOnError = 1000;
 	public static bool				ThrowOnCorrupted;
-	public static bool				SkipMigrationVerification;
+	public static bool				ForceApproveOutwards;
 
 	public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
 	static IEnumerable<FieldInfo>	Fields => typeof(NodeGlobals).GetFields().Where(i => i.FieldType == typeof(bool));

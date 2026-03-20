@@ -111,14 +111,6 @@ public class FairRound : Round
 	{
 	}
 
-	public override void RegisterForeign(Operation o)
-	{
-	}
-
-	public override void ConfirmForeign(Execution execution)
-	{
-	}
-
 	public override void WriteGraphState(BinaryWriter writer)
 	{
 		base.WriteGraphState(writer);

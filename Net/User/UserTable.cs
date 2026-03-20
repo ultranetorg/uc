@@ -24,15 +24,6 @@ public class UserTable : Table<AutoId, User>
 		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Name == nickname);
 	}
 
-	public User Find(string nickname, int ridmax)
-	{
-		foreach(var r in Mcv.Tail.Where(i => i.Id <= ridmax))
-			if(r.AffectedUsers.Values.FirstOrDefault(i => i.Name == nickname) is User e && !e.Deleted)
-				return e;
-
-		return FindEntry(nickname);
-	}
-
 	public User Latest(string nickname)
 	{
 		if(Mcv.LastConfirmedRound.AffectedUsers.Values.FirstOrDefault(i => i.Name == nickname) is User e && !e.Deleted)

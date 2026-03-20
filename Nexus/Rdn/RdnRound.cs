@@ -2,13 +2,54 @@
 
 namespace Uccs.Rdn;
 
+public abstract class OutwardOperation : RdnOperation
+{	
+	public abstract void ConfirmedExecute(Execution execution, Outward task);
+}
+
+public class Outward
+{
+	public int				Id;
+	public Time				Expiration;
+	public AutoId			Generator;
+	public AutoId			User;
+	public OutwardOperation	Operation;
+
+	Net.Net					Net;
+
+	public Outward(Net.Net net)
+	{
+		Net = net;
+	}
+
+	public void WriteBaseState(BinaryWriter writer)
+	{
+		writer.Write7BitEncodedInt(Id);
+		writer.Write(User);
+		writer.Write(Generator);
+		writer.Write(Expiration);
+		writer.Write(Net.Constructor.TypeToCode(Operation.GetType())); 
+		Operation.Write(writer); 
+	}
+
+	public void ReadBaseState(BinaryReader reader)
+	{
+		Id			= reader.Read7BitEncodedInt();
+		User		= reader.Read<AutoId>();
+		Generator	= reader.Read<AutoId>();
+		Expiration	= reader.Read<Time>();
+		Operation	= Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as OutwardOperation;
+		Operation.Read(reader); 
+	}
+}
+
 public class RdnRound : Round
 {
 	public new RdnMcv						Mcv => base.Mcv as RdnMcv;
-	public List<DomainMigration>			Migrations;
 	public TableState<AutoId, Domain>		Domains;
 	public TableState<AutoId, Resource>		Resources;
-	public ForeignResult[]					ConsensusMigrations = {};
+	public List<Outward>					Outwards;
+	public ForeignResult[]					ConsensusOutwards = {};
 
 	public RdnRound(RdnMcv mcv) : base(mcv)
 	{
@@ -50,11 +91,13 @@ public class RdnRound : Round
 
 		Domains.Absorb(e.Domains);
 		Resources.Absorb(e.Resources);
+
+		Outwards = e.Outwards;
 	}
 
 	public override void Execute(IEnumerable<Transaction> transactions)
 	{
-		Migrations	= Id == 0 ? [] : (Previous as RdnRound).Migrations;
+		Outwards	= Id == 0 ? [] : (Previous as RdnRound).Outwards;
 
 		base.Execute(transactions);
 	}
@@ -73,29 +116,21 @@ public class RdnRound : Round
 	{
 		var vs = votes.Cast<RdnVote>();
 
-		ConsensusMigrations	= vs.SelectMany(i => i.Migrations)
+		ConsensusOutwards = vs	.SelectMany(i => i.Migrations)
 								.Distinct()
-								.Where(x => Migrations.Any(b => b.Id == x.OperationId) && vs.Count(b => b.Migrations.Contains(x)) >= gq)
+								.Where(x => Outwards.Any(o => o.User == x.User && o.Id == x.Id) && vs.Count(b => b.Migrations.Contains(x)) >= gq)
 								.Order().ToArray();
-
-		#if IMMISSION
-		ConsensusEmissions	= rvs.SelectMany(i => i.Emissions).Distinct()
-								 .Where(x => Emissions.Any(e => e.Id == x.OperationId) && rvs.Count(b => b.Emissions.Contains(x)) >= gq)
-								 .Order().ToArray();
-		#endif
 	}
 
 	public override void CopyConfirmed()
 	{
-		Migrations = Migrations.ToList();
+		Outwards = Outwards.ToList();
 	}
 
-	public override void RegisterForeign(Operation o)
+	public override void RegisterForeign(Operation operation, Time time)
 	{
-		if(o is DomainMigration m)
+		if(operation is OutwardOperation oo)
 		{
-			m.Generator = m.Transaction.Member;
-			Migrations.Add(m);
 		}
 	}
 
@@ -115,37 +150,20 @@ public class RdnRound : Round
 			Mcv.NnBlocks.Remove(b); /// ??????
 		}
 
-		#if IMMISSION
-		foreach(var i in ConsensusEmissions)
+		foreach(var i in ConsensusOutwards)
 		{
-			var e = Emissions.Find(j => j.Id == i.OperationId);
+			var e = Outwards.Find(j => j.User == i.User && j.Id == i.Id);
 
 			if(i.Approved)
 			{
-				e.ConfirmedExecute(this);
-				Emissions.Remove(e);
-			} 
-			else
-				AffectAccount(Mcv.Accounts.Find(e.Generator, Id).Address).AvarageUptime -= 10;
-		}
-
-		Emissions.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationDurationLimit);
-		#endif
-
-		foreach(var i in ConsensusMigrations)
-		{
-			var e = Migrations.Find(j => j.Id == i.OperationId);
-
-			if(i.Approved)
-			{
-				e.ConfirmedExecute(execution);
-				Migrations.Remove(e);
+				e.Operation.ConfirmedExecute(execution, e);
+				Outwards.Remove(e);
 			} 
 			else
 				execution.AffectUser(e.Generator).AverageUptime -= 10;
 		}
 
-		Migrations.RemoveAll(i => Id > i.Id.Ri + Mcv.Net.ExternalVerificationRoundDurationLimit);
+		Outwards.RemoveAll(i => i.Expiration < execution.Time);
 	}
 
 	public override void WriteGraphState(BinaryWriter writer)
@@ -154,7 +172,7 @@ public class RdnRound : Round
 
 		writer.Write(Candidates, i => i.WriteCandidate(writer));  
 		writer.Write(Members, i => i.WriteMember(writer));  
-		writer.Write(Migrations, i => i.WriteBaseState(writer));
+		writer.Write(Outwards, i => i.WriteBaseState(writer));
 	}
 
 	public override void ReadGraphState(BinaryReader reader)
@@ -163,14 +181,14 @@ public class RdnRound : Round
 
 		Candidates	= reader.Read<RdnGenerator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
 		Members		= reader.Read<RdnGenerator>(m => m.ReadMember(reader)).Cast<Generator>().ToList();
-		Migrations	= reader.Read<DomainMigration>(m => m.ReadBaseState(reader)).ToList();
+		Outwards	= reader.Read(() => new Outward(Net), i => i.ReadBaseState(reader)).ToList();
 	}
 
 	public override void WriteConfirmed(BinaryWriter writer)
 	{
 		base.WriteConfirmed(writer);
 
-		writer.Write(ConsensusMigrations);
+		writer.Write(ConsensusOutwards);
 		writer.Write(ConsensusNnStates, writer.Write);
 	}
 
@@ -178,7 +196,7 @@ public class RdnRound : Round
 	{
 		base.ReadConfirmed(reader);
 		
-		ConsensusMigrations	= reader.ReadArray<ForeignResult>();
+		ConsensusOutwards	= reader.ReadArray<ForeignResult>();
 		ConsensusNnStates = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashLength));
 	}
 }

@@ -86,15 +86,15 @@ public class NoCryptography : Cryptography
 	{
 		var s = new byte[SignatureLength];
 
-		Array.Copy(k.Address.Bytes, 0, s, 0, k.Address.Bytes.Length);
-		Array.Copy(h, 0, s, 32,	h.Length);
+		Array.Copy(h, 0, s, 0, h.Length);
+		Array.Copy(k.Address.Bytes, 0, s, 32, k.Address.Bytes.Length);
 
 		return s;
 	}
 
 	public override AccountAddress AccountFrom(byte[] signature, byte[] hash)
 	{
-		return new AccountAddress(signature.Take(AccountAddress.Length).ToArray());
+		return new AccountAddress(signature[32..52]);
 	}
 }
 

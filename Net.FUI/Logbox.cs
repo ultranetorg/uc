@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Uccs.Net.FUI;
@@ -59,48 +60,58 @@ public partial class Logbox : TextBox, ILogView
 
 	public void OnReported(LogMessage m)
 	{
-  			var a =	new Action( () =>
-  								{
- 									var t = new string(' ', 4 * m.Log.Depth);
+  		var a =	new Action(() =>{
+ 									StringBuilder t = new ();
+
+									t.Append(' ', 4 * m.Log.Depth);
   
  									if(m.Severity != Uccs.Log.Severity.Info && m.Severity != Uccs.Log.Severity.SubLog)
- 										t += ("!!! " + m.Severity + " : ");
+ 									{
+										t.Append("!!! ");
+										t.Append(m.Severity);
+										t.Append(" : ");
+									}
  
   									if(ShowSender && m.Sender != null)
- 										t += (m.Sender + " : ");
+ 									{	
+										t.Append(m.Sender + " : ");
+ 										t.Append(" : ");
+									}
  
  									if(ShowSubject && m.Subject != null)
  									{
- 										t += (m.Subject); 
+ 										t.Append(m.Subject); 
  
  										if(m.Text != null)
- 											t += (" : "); 
+ 											t.Append(" : "); 
  									}
  									
  									if(m.Text != null)
- 										t += (m.Text[0] + Environment.NewLine);
- 									else
- 										t += (Environment.NewLine);
+ 										t.Append(m.Text[0]);
+
+									t.Append(Environment.NewLine);
  
  									if(m.Text != null)
  									{
   										foreach(var i in m.Text.Skip(1))
   										{
-  											t += (new string(' ', 4 * m.Log.Depth + 4) + i + Environment.NewLine);
+  											t.Append(' ', 4 * m.Log.Depth + 4);
+											t.Append(i);
+											t.Append(Environment.NewLine);
   										}
  									}
 
-									AppendText(t);
+									AppendText(t.ToString());
 
-  									if(Lines.Length > 100 && Lines.Length > 1100)
-  									{
-									Lines = Lines.Skip(1000).ToArray();
-  									}
+  									//if(Lines.Length > 100 && Lines.Length > 1100)
+  									//{
+									//	Lines = Lines.Skip(1000).ToArray();
+  									//}
   								});
   
-  			if(InvokeRequired)
-  				BeginInvoke(a);
-  			else
-  				a();
+  		if(InvokeRequired)
+  			BeginInvoke(a);
+  		else
+  			a();
 	}
 }

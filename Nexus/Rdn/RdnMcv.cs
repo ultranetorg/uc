@@ -14,7 +14,7 @@ public class RdnMcv : Mcv
 {
 	public DomainTable				Domains;
 	public ResourceTable			Resources;
-	public List<ForeignResult>		ApprovedMigrations = new();
+	public List<ForeignResult>		ApprovedOutwards = new();
 	Endpoint[]						GraphIPs;
 	Endpoint[]						SeedHubIPs;
 
@@ -92,7 +92,7 @@ public class RdnMcv : Mcv
 		var v = vote as RdnVote;
 
   			//v.Emissions	= ApprovedEmissions.ToArray();
-		v.Migrations	= ApprovedMigrations.ToArray();
+		v.Migrations	= ApprovedOutwards.ToArray();
 	}
 
 	public IEnumerable<Resource> SearchResources(string query)

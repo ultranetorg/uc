@@ -5,36 +5,32 @@ namespace Uccs.Net;
 public abstract class Round : IBinarySerializable
 {
 	public int											Id;
-	public int											ParentId	=> Id - Mcv.P;
-	public int											ChildId		=> Id + Mcv.P;
-	public int											VotersId	=> Id - Mcv.JoinToVote;
-	//public Round										VotersRound	=> Mcv.FindRound(VotersId);
+	public int											Try;
+	public int											TargetId	=> Id - Mcv.P;
+	public int											VotingId	=> Id + Mcv.P;
 	public Round										Previous	=> Mcv.FindRound(Id - 1);
 	public Round										Next		=> Mcv.FindRound(Id + 1);
-	public Round										Parent		=> Mcv.FindRound(ParentId);
-	public Round										Child		=> Mcv.FindRound(Id + Mcv.P);
-	//public long											PerVoteTransactionsLimit		=> Mcv.Net.TransactionsPerRoundMaximum / Members.Count;
-	public long											PerVoteOperationsMaximum			=> Mcv.Net.OperationsPerRoundMaximum / (Id < Mcv.JoinToVote ? 1 : Voters.Count());
-	//public long											PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
+	public Round										Target		=> Mcv.FindRound(TargetId);
+	public Round										Voting		=> Mcv.FindRound(Id + Mcv.P);
+	public long											PerVoteOperationsMaximum		=> Mcv.Net.OperationsPerRoundMaximum / (Id < Mcv.JoinToVote ? 1 : Voters.Count());
+	//public long										PerVoteTransactionsLimit		=> Mcv.Net.TransactionsPerRoundMaximum / Members.Count;
+	//public long										PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
-	//public bool											IsLastInCommit => (Id % Net.CommitLength) == Net.CommitLength - 1; ///Tail.Count(i => i.Id <= round.Id) >= Net.CommitLength; 
 	public bool											IsLastInCommit => AffectedCount >= Net.AffectedCountMaximum;
 	public virtual int									AffectedCount => AffectedMetas.Count + AffectedUsers.Count + Mcv.Tables.Sum(i => AffectedByTable(i).Count);
 
-	public int											Try;
-	public DateTime										FirstArrivalTime = DateTime.MaxValue;
 
 	public IEnumerable<Generator>						Voters => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id) ?? []; //VotersRound.Members;
 	public IEnumerable<Generator>						SelectedVoters => Id < Mcv.JoinToVote ? [new Generator {User = AutoId.God}] 
 																								: 
 																								Voters.OrderByHash(i => i.User.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
+	public List<Vote>									New = [];
 	public List<Vote>									Votes = [];
 	public List<AutoId>									Forkers = [];
 	public List<Vote>									VotesOfTry = [];
 	public List<Vote>									Payloads = [];
 	public List<Vote>									SelectedArrived = [];
-	public IGrouping<byte[], Vote>						MajorityOfRequiredByParentHash;
 
 	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Signer).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
@@ -67,16 +63,16 @@ public abstract class Round : IBinarySerializable
 
 	public abstract long								UserAllocationFee();
 	public virtual void									CopyConfirmed(){}
-	public virtual void									RegisterForeign(Operation o){}
+	public virtual void									RegisterForeign(Operation operation, Time time){}
 	public virtual void									ConfirmForeign(Execution execution){}
 
 	public Round FindParent(int level)
 	{
-		var p = Parent;
+		var p = Target;
 
 		for(int i = 0; i < level; i++)
 		{
-			p = p.Parent;
+			p = p.Target;
 
 			if(p == null)
 				break;
@@ -96,18 +92,6 @@ public abstract class Round : IBinarySerializable
 			if(n == 4)	return 3;
 	
 			return n * 2/3;
-
-		}
-	}
-
-	public bool ConsensusReached
-	{
-		get
-		{ 
-			if(VotesOfTry.Count() < MinimumForConsensus)
-				return false;
-
-			return MajorityOfRequiredByParentHash.Count() >= MinimumForConsensus;
 		}
 	}
 
@@ -120,7 +104,7 @@ public abstract class Round : IBinarySerializable
 		
 			var missing = s.Count() - r.Count();
 
-			return r.Any() && r.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).All(i => i.Count() + missing < MinimumForConsensus);
+			return r.Any() && r.GroupBy(i => i.TargetHash, Bytes.EqualityComparer).All(i => i.Count() + missing < MinimumForConsensus);
 		}
 	}
 
@@ -132,19 +116,57 @@ public abstract class Round : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"Id={Id}, VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), Members={Members?.Count}, ConfirmedTime={ConsensusTime}, {(Confirmed ? "Confirmed, " : "")}Hash={Hash?.ToHex()}";
+		return $"Id={Id}, V/VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), {(Confirmed ? "Confirmed, " : "")}Members={Members?.Count}, ConfirmedTime={ConsensusTime}, Hash={Hash?.ToHex()}";
 	}
 
 	public void Update()
 	{
+		foreach(var i in New)
+		{
+			Mcv.Check(i);
+
+			if(i.Status == VoteStatus.OK)
+			{	
+				if(i.Try == Try)
+	 			{	
+					VotesOfTry.Add(i);
+					
+					if(i.Transactions.Any())
+						Payloads.Add(i);
+
+					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
+						SelectedArrived.Add(i);
+				}
+			}
+		}
+
+		New.Clear();
+	}
+
+	public void ReUpdate()
+	{
 		VotesOfTry.Clear();	
 		Payloads.Clear();
 		SelectedArrived.Clear();
-	
- 		VotesOfTry.AddRange(Votes.Where(i => i.Try == Try));
-		Payloads.AddRange(VotesOfTry.Where(i => i.Transactions.Any()));
-		SelectedArrived.AddRange(VotesOfTry.Where(i => SelectedVoters.Any(j => j.User == i.User)));
-		MajorityOfRequiredByParentHash	= SelectedArrived.GroupBy(i => i.ParentHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
+
+		foreach(var i in Votes)
+		{
+			Mcv.Check(i);
+
+			if(i.Status == VoteStatus.OK)
+			{	
+				if(i.Try == Try)
+	 			{	
+					VotesOfTry.Add(i);
+					
+					if(i.Transactions.Any())
+						Payloads.Add(i);
+
+					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
+						SelectedArrived.Add(i);
+				}
+			}
+		}
 	}
 
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
@@ -175,8 +197,6 @@ public abstract class Round : IBinarySerializable
 			return null;
 
 		var min = MinimumForConsensus;
-		var all = VotesOfTry.ToArray();
-		var svotes = Id < Mcv.JoinToVote ? [] : SelectedArrived.ToArray();
 					
 		ConsensusEnergyCost	= Id == 0 ? 0 : Previous.ConsensusEnergyCost;
 		//ConsensusOverloadRound	= Id == 0 ? 0 : Previous.ConsensusOverloadRound;
@@ -238,7 +258,7 @@ public abstract class Round : IBinarySerializable
 			}
 		}
 
-		var txs = all.OrderBy(i => i.Signer).SelectMany(i => i.Transactions).ToArray();
+		var txs = Payloads.OrderBy(i => i.User).SelectMany(i => i.Transactions).ToArray();
 
 		Execute(txs);
 
@@ -249,11 +269,14 @@ public abstract class Round : IBinarySerializable
 			ConsensusMemberLeavers = [];
 			ConsensusViolators = [];
 			ConsensusNnStates = [];
+			Funds = [];
 			//ConsensusFundJoiners = [];
 			//ConsensusFundLeavers = [];
 		}
 		else
 		{
+			var svotes = Id < Mcv.JoinToVote ? [] : SelectedArrived.ToArray();
+
 			ConsensusMemberLeavers = svotes	.SelectMany(i => i.MemberLeavers).Distinct()
 											.Where(x => Members.Any(j => j.User == x) && svotes.Count(b => b.MemberLeavers.Contains(x)) >= min)
 											.Order().ToArray();
@@ -284,12 +307,12 @@ public abstract class Round : IBinarySerializable
 		if(Id < Mcv.JoinToVote + Mcv.JoinToVote - 1)
 			return [];
 
-		var prevs = Enumerable.Range(ParentId - Mcv.P, Mcv.P).Select(Mcv.FindRound);
+		var prevs = Enumerable.Range(TargetId - Mcv.P, Mcv.P).Select(Mcv.FindRound);
 
 		if(prevs.Any(i => i == null)) /// if just synchronized
 			return [];
 
-		var l = Parent.Voters.Where(i => !Parent.VotesOfTry.Any(v => v.User == i.User) && /// did not sent a vote
+		var l = Target.Voters.Where(i => !Target.VotesOfTry.Any(v => v.User == i.User) && /// did not sent a vote
 										 !prevs.Any(r => r.VotesOfTry.Any(v => v.User == generator && v.MemberLeavers.Contains(i.User)))) /// not yet proposed in prev [Pitch-1] rounds
 							 .Select(i => i.User);
 
@@ -327,7 +350,7 @@ public abstract class Round : IBinarySerializable
 		Bandwidths	= Id == 0 ? new long[McvNet.BandwidthPeriodsMaximum] : Previous.Bandwidths;
 		Spacetimes	= Id == 0 ? new long[1]								 : Previous.Spacetimes;
 
-		AffectedMetas		= Id == 0 ? [] : new (Previous.AffectedMetas);
+		AffectedMetas	= Id == 0 ? [] : new (Previous.AffectedMetas);
 		AffectedUsers	= Id == 0 ? [] : new (Previous.AffectedUsers);
 		
 		NextEids = [..Mcv.Tables.Select(i => (Dictionary<int, int>)null)];
@@ -429,16 +452,18 @@ public abstract class Round : IBinarySerializable
 		if(Id > 0 && Mcv.LastConfirmedRound != null && Mcv.LastConfirmedRound.Id + 1 != Id)
 			throw new IntegrityException("LastConfirmedRound.Id + 1 == Id");
 
-		///if(Members == null)
-			Execute(ConsensusTransactions);
+		Execute(ConsensusTransactions);
 
 		CopyConfirmed();
 		
-		foreach(var t in ConsensusTransactions)
+		foreach(var (i, t) in ConsensusTransactions.Index())
 		{
-			foreach(var o in t.Operations)
-			{
-				RegisterForeign(o);
+			t.Id = new (Id, i);
+			
+			foreach(var (j, o) in t.Operations.Index())
+			{	
+				o.Id = new (Id, i, (byte)j);
+				RegisterForeign(o, ConsensusTime);
 			}
 		}
 
@@ -511,8 +536,6 @@ public abstract class Round : IBinarySerializable
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
 		Mcv.Tail.RemoveAll(i => i.Id < Id);
-		Mcv.OldRounds.Add(this);
-		Mcv.OldRounds.RemoveAll(i => i.Id < Mcv.OldestRememberedRoundId);
 		Mcv.Confirmed?.Invoke(this);
 	}
 

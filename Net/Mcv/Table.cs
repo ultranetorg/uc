@@ -382,7 +382,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public TailGraphEnumerator(Table<ID, E> table)
 		{
 			Table = table;
-
 			Round = Table.Mcv.Tail.GetEnumerator();
 		}
 
@@ -432,18 +431,13 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 				{
 					if(Entity.MoveNext())
 					{
-						if(!Unique.Contains(Entity.Current))
-						{
-							Unique.Add(Entity.Current);
+						if(Unique.Add(Entity.Current))
 							return true;
-						}
 						else
 							continue;
 					}
 					else
-					{
 						return false;
-					}
 				}
 			}
 		}

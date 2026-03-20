@@ -27,9 +27,13 @@ public class ProductDeletion : FairOperation
 			return;
 
 		a = execution.Authors.Affect(p.Author);
-		a.Products = a.Products.Where(i => i != Product).ToArray();
+		p = execution.Products.Affect(p.Id);
+		p.Deleted = true;
 
-		execution.Products.Affect(Product).Deleted = true;
+		foreach(var i in p.Publications)
+			execution.Publications.Delete(i);
+
+		a.Products = a.Products.Remove(p.Id);
 
 		execution.Free(a, a, execution.Net.EntityLength + p.Length);
 		execution.PayOperationEnergy(a);

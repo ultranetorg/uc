@@ -93,14 +93,14 @@ public abstract class McvNet : Net
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
 	public int								AffectedCountMaximum					= 100_000;
-	public int								ExternalVerificationRoundDurationLimit	= 1000;
+	public Time								ForeignVerificationDurationLimit		= Time.FromHours(1);
 	public int								MembersLimit							= 1000;
 	public long								CandidatesMaximum						= 1000 * 10;
 	
 	public long								TransactionsPerRoundMaximum				= 100_000;
 	public long								OperationsPerRoundMaximum				= 100_000;
 	
-	public int								ExecutionCyclesPerTransactionLimit		= 200;
+	public int								ExecutionCyclesPerTransactionLimit		= 200; /// Not more than 256, see OperationId.Oi
 	//public long								ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
 	public long								EnergyDailyEmission						=> OperationsPerRoundMaximum * IdealRoundsPerDay;
 	public long								EnergyHourlyEmission					=> OperationsPerRoundMaximum * IdealRoundsPerDay/24;
