@@ -10,7 +10,6 @@ import { ModeratorsTab } from "./ModeratorsTab"
 import { ModeratorsProposalsTab } from "./ModeratorsProposalsTab"
 
 const routeToTabKey: Record<string, string> = {
-  m: "moderators",
   p: "proposals",
 }
 
@@ -21,6 +20,12 @@ export const ModeratorsPage = () => {
 
   const key = routeToTabKey[tabKey!]
 
+  const handleAddModeratorClick = useCallback(() => {}, [])
+
+  // <Link to={`/${siteId}/g/new`} state={{ type: "site-moderator-removal", publisherId: publisher.user.id }}>
+  //   <ButtonOutline className="h-9 w-20 capitalize" label={t("common:remove")} />
+  // </Link>
+
   const handleTabSelect = useCallback(
     (item: TabsListItem & { route?: string }) =>
       navigate(item.route ? `/${siteId}/m/m/${item.route}` : `/${siteId}/m/m`),
@@ -29,7 +34,7 @@ export const ModeratorsPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "moderators", label: t("common:moderators"), route: "m" },
+      { key: "moderators", label: t("common:moderators") },
       { key: "proposals", label: t("common:proposals"), route: "p" },
     ],
     [t],
@@ -40,7 +45,7 @@ export const ModeratorsPage = () => {
       <ModerationHeader
         title={t("title")}
         parentBreadcrumbs={{ path: `/${siteId}/m`, title: t("common:proposals") }}
-        components={<ButtonPrimary label="Add new moderator" />}
+        components={<ButtonPrimary label="Add new moderator" onClick={handleAddModeratorClick} />}
       />
       <TabsProvider defaultKey={key || "moderators"}>
         <div className="flex flex-col gap-6">

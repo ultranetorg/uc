@@ -45,7 +45,7 @@ export const PublicationsTab = () => {
   )
   const itemRenderer = useMemo(() => getPublicationsItemRenderer(t), [t])
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/p/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/c/p/${id}`), [navigate, siteId])
 
   const handlePageChange = useCallback(
     (page: number) => {

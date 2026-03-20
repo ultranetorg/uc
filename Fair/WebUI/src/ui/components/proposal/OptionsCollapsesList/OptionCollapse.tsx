@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { CheckCircleFillSvg, SvgCheckSquareSmSvg, SvgChevronDown2Sm } from "assets"
+import { CheckCircleFillSvg, SvgChevronDown2Sm } from "assets"
 import { ButtonPrimary } from "ui/components"
 
 export type OptionCollapseProps = {
@@ -93,7 +93,6 @@ export const OptionCollapse = ({
               <ButtonPrimary
                 label="Vote for this"
                 className="h-11 w-37.5 self-end"
-                iconAfter={<SvgCheckSquareSmSvg className="fill-white" />}
                 onClick={onVoteClick}
                 disabled={disabled}
                 loading={loading}

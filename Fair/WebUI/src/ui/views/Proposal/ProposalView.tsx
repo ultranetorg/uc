@@ -11,6 +11,7 @@ import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components
 import { getVotedIndex, showToast } from "utils"
 
 import { useGetModeratorDiscussionComments } from "entities"
+import { ModerationHeader } from "ui/components/specific"
 import { PublicationOwnerProvider } from "./providers/publicationOwner"
 import { PageState } from "./types"
 import {
@@ -57,9 +58,17 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
 
   const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
 
-  const firstOperationType = useMemo(() => proposal?.options?.[0]?.operation.$type, [proposal])
+  const firstOperationType = useMemo(() => proposal?.operation, [proposal])
   const showOnTop = !!(firstOperationType && renderByOperationType[firstOperationType])
   const NestedView = (firstOperationType && renderByOperationType[firstOperationType]) ?? ProposalDefaultView
+
+  const parentBreadcrumbs = useMemo(
+    () =>
+      parentBreadcrumb
+        ? [{ path: `/${siteId}/m`, title: t("common:proposals") }, parentBreadcrumb]
+        : { path: `/${siteId}/m`, title: t("common:proposals") },
+    [parentBreadcrumb, siteId, t],
+  )
 
   const handleVoteClick = useCallback(
     (value: number) => {
@@ -116,19 +125,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Breadcrumbs
-          fullPath={true}
-          items={[
-            { path: `/${siteId}`, title: t("home") },
-            ...(parentBreadcrumb ? [parentBreadcrumb] : []),
-            { title: proposal.title || proposal.id },
-          ]}
-        />
-        <div className="flex flex-col gap-4">
-          <span className="text-3.5xl font-semibold leading-10">{proposal.title}</span>
-        </div>
-      </div>
+      <ModerationHeader title={proposal.title ?? proposal.id} parentBreadcrumbs={parentBreadcrumbs} />
       <PublicationOwnerProvider owner={proposal?.by}>
         {showOnTop && (
           <NestedView
@@ -171,14 +168,18 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
           </div>
           <div className="flex flex-col gap-6">
             <ProposalInfo className="w-87.5" createdBy={proposal?.by} createdAt={proposal?.creationTime} daysLeft={7} />
-            {pageState == "voting" ? (
-              <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
-            ) : (
-              <ButtonPrimary
-                label="Back to options"
-                onClick={togglePageState}
-                iconBefore={<SvgArrowLeft className="fill-white" />}
-              />
+            {!showOnTop && (
+              <>
+                {pageState == "voting" ? (
+                  <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
+                ) : (
+                  <ButtonPrimary
+                    label="Back to options"
+                    onClick={togglePageState}
+                    iconBefore={<SvgArrowLeft className="fill-white" />}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>

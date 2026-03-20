@@ -1,7 +1,6 @@
 import { memo, useCallback, useMemo, useState } from "react"
 
 import { useTranslation } from "react-i18next"
-import { SvgCheckSquareSmSvg } from "assets"
 
 import { ButtonPrimary, RadioCard } from "ui/components"
 import { SpecialChoice } from "types"
@@ -79,7 +78,6 @@ export const AlternativeOptions = memo(({ hideVoteButton, votedValue, onVoteClic
           loading={votedValue !== undefined && votedValue < 0}
           className="h-11 w-37.5 self-end"
           label="Vote"
-          iconAfter={<SvgCheckSquareSmSvg className="fill-white" />}
           onClick={handleVoteClick}
         />
       )}

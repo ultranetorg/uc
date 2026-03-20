@@ -57,11 +57,11 @@ export const PublicationsPage = () => {
             items={tabsItems}
           />
 
-          <TabContent when="changed">
-            <ChangedPublicationsTab />
-          </TabContent>
           <TabContent when="publications">
             <PublicationsTab />
+          </TabContent>
+          <TabContent when="changed">
+            <ChangedPublicationsTab />
           </TabContent>
           <TabContent when="unpublished">
             <UnpublishedProductsTab />

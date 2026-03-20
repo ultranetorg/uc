@@ -1,1 +1,5 @@
+export * from "./ModeratorChangedPublicationPage"
+export * from "./ModeratorCreatePublicationPage"
+export * from "./ModeratorPublicationPage"
+export * from "./ModeratorUnpublishedProductPage"
 export * from "./PublicationsPage"

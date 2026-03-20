@@ -37,7 +37,7 @@ export const UnpublishedProductsTab = () => {
     [t],
   )
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/n/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/c/u/${id}`), [navigate, siteId])
 
   const handlePageChange = useCallback(
     (page: number) => {

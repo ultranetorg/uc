@@ -26,8 +26,8 @@ export const ModerationHeader = memo(
             { title: breadcrumbTitle ?? title },
           ]}
         />
-        <div className="flex justify-between">
-          <div className="flex gap-2 text-3.5xl font-semibold leading-10">{title}</div>
+        <div className="flex h-11 justify-between">
+          <div className="flex gap-2 text-3.5xl font-semibold leading-11">{title}</div>
           {components}
         </div>
       </div>

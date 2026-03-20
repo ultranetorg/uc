@@ -61,7 +61,7 @@ export const ChangedPublicationsTab = () => {
     ],
     [t],
   )
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/c/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/c/c/${id}`), [navigate, siteId])
 
   const handlePageChange = useCallback(
     (page: number) => {
