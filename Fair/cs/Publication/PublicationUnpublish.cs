@@ -56,7 +56,7 @@ public class PublicationUnpublish : VotableOperation
 		r.Publications				 = r.Publications.Remove(r.Id);
 		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
 		
-		var f = r.Versions[p.ProductVersion].Fields.FirstOrDefault(f => f.Name == Token.Title);
+		var f = r.Versions.First(i => i.Id == p.ProductVersion).Fields.FirstOrDefault(f => f.Name == Token.Title);
 		
 		if(f != null)
 		{

@@ -162,7 +162,7 @@ public abstract class Round : IBinarySerializable
 					if(i.Transactions.Any())
 						Payloads.Add(i);
 
-					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
+					if(SelectedVoters.Any(j => j.User == i.User))
 						SelectedArrived.Add(i);
 				}
 			}

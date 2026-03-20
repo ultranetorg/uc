@@ -101,8 +101,12 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 			Execution.Reviews.Delete(s, i);
 		}
 		
-		var f = r.Versions[p.ProductVersion].Fields.FirstOrDefault(f => f.Name == Token.Title);
+		var v = r.Versions.First(i => i.Id == p.ProductVersion);
+
+		r.Versions = r.Versions.Replace(v, new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs - 1});
 		
+		var f = v.Fields.FirstOrDefault(f => f.Name == Token.Title);
+
 		if(f != null)
 		{
 			Execution.PublicationTitles.Deindex(c.Site, f.AsUtf8);

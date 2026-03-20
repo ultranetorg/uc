@@ -9,9 +9,9 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>1.0.826.0</AssemblyVersion>
-    <FileVersion>1.0.826.0</FileVersion>
-    <Version>1.0.826.0</Version>
+    <AssemblyVersion>1.0.830.0</AssemblyVersion>
+    <FileVersion>1.0.830.0</FileVersion>
+    <Version>1.0.830.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

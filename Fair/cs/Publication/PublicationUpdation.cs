@@ -57,30 +57,15 @@ public class PublicationUpdation : VotableOperation
 
 		var v = r.Versions.First(i => i.Id == Version);
 		var prev = r.Versions.FirstOrDefault(i => i.Id == p.ProductVersion);
-
-		var d = Product.FindDeclaration(r.Type);
-	
-		if(prev == null)	/// new field
-			p.ProductVersion = Version;
-		else				/// replace version
+				
+		if(prev != null)	/// replace version
 		{
-			/// decrease file refs
-			v.ForEach(d, (f, i) =>	{
-										if(f.Type == FieldType.FileId)
-										{
-											var x = execution.Files.Affect(i.AsAutoId);
-											x.Refs--;
-										}
-									});
-	
-			var x = new ProductVersion
-					{
-						Id		= prev.Id, 
-						Refs	= prev.Refs - 1,
-						Fields	= prev.Fields
-					};
-		
-			r.Versions = [..r.Versions.Where(i => i.Id != prev.Id), x];
+			r.Versions = r.Versions.Replace(prev,	new ProductVersion
+													{
+														Id		= prev.Id, 
+														Refs	= prev.Refs - 1,
+														Fields	= prev.Fields
+													});
 
 			var xtitle = prev.Fields.FirstOrDefault(i => i.Name == Token.Title);
 			
@@ -88,23 +73,18 @@ public class PublicationUpdation : VotableOperation
 				execution.PublicationTitles.Deindex(p.Site, xtitle.AsUtf8);
 		}
 	
+		p.ProductVersion = Version;
+
 		/// increase refs in product
 	
-		var y = new ProductVersion {Id		= v.Id, 
-									Refs	= v.Refs + 1,
-									Fields	= v.Fields};
-	
-		r.Versions = [..r.Versions.Where(i => i.Id != v.Id), y];
+		r.Versions = r.Versions.Replace(v,	new ProductVersion
+											{
+												Id		= v.Id, 
+												Refs	= v.Refs + 1,
+												Fields	= v.Fields
+											});
 
-		v.ForEach(d, (f, i) =>	{
-									if(f.Type == FieldType.FileId)
-									{
-										var x = execution.Files.Affect(i.AsAutoId);
-										x.Refs++;
-									}
-								});
-
-		var title = prev.Fields.FirstOrDefault(i => i.Name == Token.Title);
+		var title = v.Fields.FirstOrDefault(i => i.Name == Token.Title);
 
 		if(title != null)
 			execution.PublicationTitles.Index(p.Site, p.Id, title.AsUtf8);
