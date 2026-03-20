@@ -27,7 +27,6 @@ public abstract class Round : IBinarySerializable
 
 	public List<Vote>									New = [];
 	public List<Vote>									Votes = [];
-	public List<Vote>									Eligible = [];
 	public List<AutoId>									Forkers = [];
 	public List<Vote>									VotesOfTry = [];
 	public List<Vote>									Payloads = [];
@@ -122,33 +121,52 @@ public abstract class Round : IBinarySerializable
 
 	public void Update()
 	{
-		var neweligibles = false;
-
 		foreach(var i in New)
 		{
 			Mcv.Check(i);
 
 			if(i.Status == VoteStatus.OK)
 			{	
-				Eligible.Add(i);
-				neweligibles = true;
+				if(i.Try == Try)
+	 			{	
+					VotesOfTry.Add(i);
+					
+					if(i.Transactions.Any())
+						Payloads.Add(i);
+
+					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
+						SelectedArrived.Add(i);
+				}
 			}
 		}
 
 		New.Clear();
-			
- 		if(neweligibles)
- 		{
-			VotesOfTry.Clear();	
-			Payloads.Clear();
-			SelectedArrived.Clear();
+	}
 
-	 		VotesOfTry.AddRange(Eligible.Where(i => i.Try == Try));
-			Payloads.AddRange(VotesOfTry.Where(i => i.Transactions.Any()));
-	
-			if(Id >= Mcv.JoinToVote)
-				SelectedArrived.AddRange(VotesOfTry.Where(i => SelectedVoters.Any(j => j.User == i.User)));
- 		}
+	public void ReUpdate()
+	{
+		VotesOfTry.Clear();	
+		Payloads.Clear();
+		SelectedArrived.Clear();
+
+		foreach(var i in Votes)
+		{
+			Mcv.Check(i);
+
+			if(i.Status == VoteStatus.OK)
+			{	
+				if(i.Try == Try)
+	 			{	
+					VotesOfTry.Add(i);
+					
+					if(i.Transactions.Any())
+						Payloads.Add(i);
+
+					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
+						SelectedArrived.Add(i);
+				}
+			}
+		}
 	}
 
 	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)

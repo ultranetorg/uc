@@ -303,7 +303,7 @@ public abstract class Mcv /// Mutual chain voting
 		{	
 			return VoteStatus.TooOld;
 		}
-		else if(synchroniztion) //if(LastConfirmedRound == null || vote.RoundId > NextVotingRound.Id)
+		else if(synchroniztion || LastConfirmedRound != null && vote.RoundId > NextVotingRound.Id)
 		{
 			var r = GetRound(vote.RoundId);
 
@@ -402,13 +402,13 @@ public abstract class Mcv /// Mutual chain voting
 		if(LastConfirmedRound == null)
 			return false;
 
+		r.Update();
+
 		if(r.Target == null)
 			return false;
 
 		if(r.TargetId != LastConfirmedRound.Id + 1)
 			return false;
-
-		r.Update();
 
 		if(r.VotesOfTry.Count() < r.MinimumForConsensus)
 			return false;
@@ -463,7 +463,8 @@ public abstract class Mcv /// Mutual chain voting
 			if(h == null || !r.Target.Hash.SequenceEqual(h))
 			{
 				r.Try++;
-				r.Update();
+
+				r.ReUpdate();
 
 				r.Target.Hash = null;
 			}

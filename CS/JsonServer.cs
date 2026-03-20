@@ -88,6 +88,15 @@ public abstract class JsonServer
 											if(settings.PublicAddress != null)
 												Listener.Prefixes.Add(settings.PublicAddress + "/");
 
+											if(Debugger.IsAttached)
+											{
+												Listener.TimeoutManager.DrainEntityBody			= Timeout.InfiniteTimeSpan;
+												Listener.TimeoutManager.EntityBody				= Timeout.InfiniteTimeSpan;
+												Listener.TimeoutManager.HeaderWait				= Timeout.InfiniteTimeSpan;
+												Listener.TimeoutManager.IdleConnection			= Timeout.InfiniteTimeSpan;
+												Listener.TimeoutManager.RequestQueue			= Timeout.InfiniteTimeSpan;
+												Listener.TimeoutManager.MinSendBytesPerSecond	= 0;
+											}
 											Listener.Start();
 
 											Flow.Log?.Report(this, "Listening started", settings.LocalAddress);
