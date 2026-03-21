@@ -50,10 +50,10 @@ public class PublicationUnpublish : VotableOperation
 
 		var p = execution.Publications.Affect(Publication);
 		var	c = execution.Categories.Affect(p.Category);
-		var r = execution.Products.Affect(p.Product);
+		var r = execution.Products.Find(p.Product);
 
 		c.Publications				 = c.Publications.Remove(Publication);
-		r.Publications				 = r.Publications.Remove(r.Id);
+		//r.Publications				 = r.Publications.Remove(r.Id);
 		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
 		
 		var f = r.Versions.First(i => i.Id == p.ProductVersion).Fields.FirstOrDefault(f => f.Name == Token.Title);
