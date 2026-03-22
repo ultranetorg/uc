@@ -131,7 +131,12 @@ public class AddAccountToWalletApc : AdminApc
 	{
 		lock(vault)
 		{	
-			var a = vault.Wallets.FirstOrDefault(i => i.Name == Wallet, vault.Wallets[0]).AddAccount(Name, Key);
+			var w = Name == null ? vault.Wallets.FirstOrDefault() : vault.FindWallet(Wallet);
+
+			if(w == null)
+				throw new VaultException(VaultError.NotFound);
+
+			var a = w.AddAccount(Name, Key);
 		
 			return a.Key.PrivateKey;
 		}
