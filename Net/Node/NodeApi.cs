@@ -8,18 +8,18 @@ public abstract class NodeApc : Apc
 	public abstract object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 }
 
-public class NodeApiServer : JsonServer
+public abstract class NodeApiServer : JsonServer
 {
 	Node Node;
 
-	public NodeApiServer(Node node, ApiSettings settings, Flow workflow, JsonSerializerOptions options = null) : base(settings, options ?? ApiClient.CreateOptions(), workflow)
+	public NodeApiServer(Node node, ApiSettings settings, Flow workflow, JsonSerializerOptions options) : base(settings, options, workflow)
 	{
 		Node = node;
 	}
  	
  	protected override Type Create(string call)
  	{
- 		return Type.GetType(typeof(NodeApiServer).Namespace + '.' + call);
+ 		return Type.GetType(typeof(NodeApc).Namespace + '.' + call);
  	}
 
 	protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -65,7 +65,7 @@ public class ExceptionApc : NodeApc
 	}
 }
 
-public class ExitApc : NodeApc
+public class StopApc : NodeApc
 {
 	public string Reason { get; set; }
 
@@ -76,15 +76,15 @@ public class ExitApc : NodeApc
 	}
 }
 
-public class StartApc : NodeApc
-{
-	public string Entity { get; set; }
-
-	public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		return null;
-	}
-}
+//public class StartApc : NodeApc
+//{
+//	public string Entity { get; set; }
+//
+//	public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+//	{
+//		return null;
+//	}
+//}
 
 //public class SettingsApc : NodeApc
 //{

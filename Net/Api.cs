@@ -1,19 +1,43 @@
 ﻿using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 namespace Uccs.Net;
 
-public static class Api
+public abstract class Api
 {
-	public const string		Nexus = "v0/nexus";
-	public const string		Vault = "v0/vault";
+	public const string						Nexus = "v0/nexus";
+	public const string						Vault = "v0/vault";
 
+	public static ushort					MapPort(Zone zone) => (ushort)(zone + (ushort)KnownProtocol.Api);
+	public static string					ForSystem(Zone zone, IPAddress ip, string path, bool ssl = false) => $@"http{(ssl ? "s" : "")}://{ip}:{MapPort(zone)}/{path}";
+	public static string					ForNode(Net net, IPAddress ip, bool ssl = false) => $@"http{(ssl ? "s" : "")}://{ip}:{MapPort(net.Zone)}/node/v0/{net.Name}";
+}
 
-	public static ushort	MapPort(Zone zone) => (ushort)(zone + (ushort)KnownProtocol.Api);
-	public static string	ForSystem(Zone zone, IPAddress ip, string path, bool ssl = false) => $@"http{(ssl ? "s" : "")}://{ip}:{MapPort(zone)}/{path}";
-	public static string	ForNode(Net net, IPAddress ip, bool ssl = false) => $@"http{(ssl ? "s" : "")}://{ip}:{MapPort(net.Zone)}/node/v0/{net.Name}";
+public class NetJsonConfiguration : JsonConfiguration
+{
+	public NetJsonConfiguration()
+	{
+		Options = CreateOptions();
+	}
+
+	new public static JsonSerializerOptions CreateOptions()
+	{
+		var o = JsonConfiguration.CreateOptions();
+
+		o.Converters.Add(new UnitJsonConverter());
+		o.Converters.Add(new AccountJsonConverter());
+		o.Converters.Add(new AccountKeyJsonConverter());
+		o.Converters.Add(new AutoIdJsonConverter());
+		o.Converters.Add(new TimeJsonConverter());
+		o.Converters.Add(new EntityAddressJsonConverter());
+
+		o.TypeInfoResolver = new ApiTypeResolver();
+
+		return o;
+	}
 }
 
 public class IpApiSettings : Settings
@@ -27,42 +51,42 @@ public class IpApiSettings : Settings
 	{
 	}
 
-	public string PublicAddress(Net net) 
+	public string PublicNodeAddress(Net net) 
 	{
 		return Api.ForNode(net, PublicIP, Ssl);
 	}
 
-	public string LocalAddress(Net net)
+	public string LocalNodeAddress(Net net)
 	{
 		return Api.ForNode(net, LocalIP, false);
 	}
 
-	public string PublicAddress(Zone zone, string path) 
+	public string PublicSystemAddress(Zone zone, string path) 
 	{
 		return Api.ForSystem(zone, PublicIP, path, Ssl);
 	}
 
-	public string LocalAddress(Zone zone, string path)
+	public string LocalSystemAddress(Zone zone, string path)
 	{
 		return Api.ForSystem(zone, LocalIP, path, false);
 	}
 
-	public ApiSettings ToApiSettings(Zone zone, string path)
+	public ApiSettings ToSystemSettings(Zone zone, string path)
 	{
 		return	new ApiSettings
 				{
-					LocalAddress = LocalAddress(zone, path),
-					PublicAddress = PublicIP == null ? null : PublicAddress(zone, path),
+					LocalAddress = LocalSystemAddress(zone, path),
+					PublicAddress = PublicIP == null ? null : PublicSystemAddress(zone, path),
 					PublicAccessKey = PublicAccessKey,
 				};
 	}
 
-	public ApiSettings ToApiSettings(Net net)
+	public ApiSettings ToNodeSettings(Net net)
 	{
 		return	new ApiSettings
 				{
-					LocalAddress = LocalAddress(net),
-					PublicAddress = PublicIP == null ? null : PublicAddress(net),
+					LocalAddress = LocalNodeAddress(net),
+					PublicAddress = PublicIP == null ? null : PublicNodeAddress(net),
 					PublicAccessKey = PublicAccessKey,
 				};
 	}
@@ -153,39 +177,10 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
     }
 }
 
-public class ApiClient : JsonClient
+public class JsonApiClient : JsonClient
 {
-	public static JsonSerializerOptions CreateOptions()
+	public JsonApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
-		var o = new JsonSerializerOptions {};
-		
-		o.IgnoreReadOnlyProperties = true;
-
-		o.Converters.Add(new JsonStringEnumConverter());
-		o.Converters.Add(new UnitJsonConverter());
-		o.Converters.Add(new AccountJsonConverter());
-		o.Converters.Add(new AccountKeyJsonConverter());
-		o.Converters.Add(new AutoIdJsonConverter());
-		o.Converters.Add(new IPJsonConverter());
-		o.Converters.Add(new TimeJsonConverter());
-		o.Converters.Add(new VersionJsonConverter());
-		o.Converters.Add(new XonJsonConverter());
-		o.Converters.Add(new BigIntegerJsonConverter());
-		o.Converters.Add(new EntityAddressJsonConverter());
-
-#if ETHEREUM
-		DefaultOptions.Converters.Add(new HexBigIntegerJsonConverter());
-#endif
-
-		o.TypeInfoResolver = new ApiTypeResolver();
-
-
-		return o;
-	}
-
-
-	public ApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
-	{
-		Options = CreateOptions();
+		Options = NetJsonConfiguration.CreateOptions();
 	}
 }

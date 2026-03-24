@@ -3,7 +3,7 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
-public class NexusApiClient : ApiClient
+public class NexusApiClient : JsonApiClient
 {
 	public PackageInfo FindLocalPackage(Ura address, Flow flow) => Call<PackageInfo>(new LocalPackageApc { Address = address }, flow);
 

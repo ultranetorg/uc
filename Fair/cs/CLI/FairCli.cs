@@ -4,20 +4,29 @@ namespace Uccs.Fair;
 
 public class FairCli : McvCli
 {
-	public FairCli()
-	{
-	}
-
-	public FairCli(NexusSettings nexussettings, FairNodeSettings settings, FairApiClient api) : base(nexussettings, settings, api)
-	{
-	}
-
 	static void Main(string[] args)
 	{
 		Thread.CurrentThread.CurrentCulture = 
 		Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 
 		new FairCli();
+	}
+
+	public FairCli()
+	{
+		var b = new NetBoot(ExeDirectory);
+
+		Net				= Fair.ByZone(b.Zone);
+		NexusSettings	= new NexusSettings(b.Zone, b.Profile);
+		Settings		= new FairNodeSettings(Path.Join(b.Profile, Net.Name));
+
+		Execute(b);
+
+		Node.Stop();
+	}
+
+	public FairCli(NexusSettings nexussettings, FairNodeSettings settings, FairApiClient api) : base(nexussettings, settings, api)
+	{
 	}
 
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)

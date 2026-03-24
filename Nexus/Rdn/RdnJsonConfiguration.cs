@@ -5,13 +5,19 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace Uccs.Rdn;
 
-public abstract class RdnApc : McvApc
+public class RdnJsonConfiguration : NetJsonConfiguration
 {
-	public abstract object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
-
-	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	new public static JsonSerializerOptions CreateOptions()
 	{
-		return Execute(mcv as RdnNode, request, response, workflow);
+		var o = NetJsonConfiguration.CreateOptions();
+
+		o.TypeInfoResolver = new RdnTypeResolver();
+
+		o.Converters.Add(new UraJsonConverter());
+		o.Converters.Add(new UrrJsonConverter());
+		o.Converters.Add(new ResourceDataJsonConverter());
+
+		return o;
 	}
 }
 
@@ -45,7 +51,7 @@ public class RdnApiServer : McvApiServer
 {
 	RdnNode Node;
 
-	public RdnApiServer(RdnNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, RdnApiClient.CreateOptions())
+	public RdnApiServer(RdnNode node, ApiSettings settings, Flow workflow) : base(node, settings, workflow, RdnJsonConfiguration.CreateOptions())
 	{
 		Node = node;
 	}
@@ -69,22 +75,9 @@ public class RdnApiClient : McvApiClient
 	public LocalResource	FindLocalResource(Ura address, Flow flow) => Call<LocalResource>(new LocalResourceApc {Address = address}, flow);
 	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Call<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
 
-	new public static JsonSerializerOptions CreateOptions()
-	{
-		var o = McvApiClient.CreateOptions();
-
-		o.TypeInfoResolver = new RdnTypeResolver();
-
-		o.Converters.Add(new UraJsonConverter());
-		o.Converters.Add(new UrrJsonConverter());
-		o.Converters.Add(new ResourceDataJsonConverter());
-
-		return o;
-	}
-
 	public RdnApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
-		Options = CreateOptions();
+		Options = RdnJsonConfiguration.CreateOptions();
 	}
 
 	public LocalReleaseApe Download(Ura address, Flow flow)
@@ -114,6 +107,16 @@ public class RdnApiClient : McvApiClient
 		while(flow.Active);
 
 		throw new OperationCanceledException();
+	}
+}
+
+public abstract class RdnApc : McvApc
+{
+	public abstract object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+
+	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		return Execute(mcv as RdnNode, request, response, workflow);
 	}
 }
 
@@ -220,54 +223,6 @@ public class HttpGetApc : RdnApc
 		return null;
 	}
 }
-
-#if ETHEREUM
-public class EstimateEmitApc : RdnApc
-{
-	public byte[]			FromPrivateKey { get; set; } 
-	public BigInteger		Wei { get; set; } 
-
-	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		return rdn.Ethereum.EstimateEmission(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnNet).EthereumNetwork)), Wei, workflow);
-	}
-}
-
-public class EmitApc : RdnApc
-{
-	public byte[]				FromPrivateKey { get; set; } 
-	public AccountAddress		To { get; set; } 
-	public int					Eid { get; set; } 
-	public BigInteger			Wei { get; set; } 
-	public BigInteger			Gas { get; set; } 
-	public BigInteger			GasPrice { get; set; } 
-
-	public class Response
-	{
-		
-	}
-
-	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		return rdn.Ethereum.Emit(new Nethereum.Web3.Accounts.Account(FromPrivateKey, new BigInteger((int)(rdn.Net as RdnNet).EthereumNetwork)), To, Wei, Eid, Gas, GasPrice, workflow);
-		//return sun.Enqueue(o, sun.Vault.GetKey(To), Await, workflow);
-	}
-}
-
-public class EmissionApc : RdnApc
-{
-	public AccountAddress		By { get; set; } 
-	public int					Eid { get; set; } 
-	public TransactionStatus	Await { get; set; }
-
-	public override object Execute(RdnNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		var o = sun.Ethereum.FindEmission(By, Eid, workflow);
-
-		return o;
-	}
-}
-#endif
 
 public class CostApc : RdnApc
 {

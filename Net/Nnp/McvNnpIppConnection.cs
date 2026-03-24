@@ -1,15 +1,19 @@
-﻿using System.Numerics;
+﻿using System.Net;
+using System.Numerics;
 using System.Reflection;
+using System.Text.Json;
 
 namespace Uccs.Net;
 
 public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode where T : unmanaged, Enum
 {
+	//public string		ApiAddress;
 	protected N			Node => Program as N;
 	protected string[]	Classes; 
 	protected Asset[]	Assets = [new () {Name = nameof(User.Spacetime),	Units = "Byte-days (BD)"},
 								  new () {Name = nameof(User.Energy),		Units = "Execution Cycles (EC)"},
 								  new () {Name = nameof(User.EnergyNext),	Units = "Execution Cycles (EC)"}];
+	Dictionary<string, ConstructorInfo>		Calls = [];
 
 	public McvNnpIppConnection(N node, string [] classes, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
 	{
@@ -22,7 +26,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		{
 			Writer.Write(NnpIppConnectionType.Node);
 			Writer.WriteUtf8(Node.Net.Address);
-			Writer.WriteUtf8(Node.Settings.Api.LocalAddress(Node.Net));
+			Writer.WriteUtf8(Node.Settings.Api.LocalNodeAddress(Node.Net));
 		}
 	}
 
@@ -67,6 +71,42 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 
 		return new RequestNnr {Response = (w.BaseStream as MemoryStream).ToArray()};
 	}
+	
+//	public virtual Result JsonApi(IppConnection connection, JsonApiNna args)
+//	{
+//		
+//		ConstructorInfo constuctor;
+//		
+//		var rp = new JsonApiNnr();
+//
+//		lock(Calls)
+//			if(!Calls.TryGetValue(args.Call, out constuctor))
+//			{
+//				var t = Type.GetType($"{typeof(JsonServer).Namespace}.{args.Call}{Apc.Postfix}") ?? Create(args.Call + Apc.Postfix);
+//
+//				if(t == null)
+//				{
+//					rp.Status = (int)HttpStatusCode.NotFound;
+//					goto end;
+//				}
+//
+//				Calls[args.Call] = constuctor = t.GetConstructor(new System.Type[]{});
+//			}
+//
+//		var c = (args.Request.Length > 0 ? JsonSerializer.Deserialize(args.Request, constuctor.DeclaringType, McvApi.CreateOptions()) : constuctor.Invoke(null)) as Apc;
+//
+//		rp.Status = (int)HttpStatusCode.OK;
+//
+//		var f = Flow.CreateNested(args.Timeout);
+//
+//		Execute(call, rq, rp, f);
+//
+//		rp.Response = JsonSerializer.Serialize(execute(c));
+//		
+//		end:
+//
+//		return rp;
+//	}
 
 	public virtual Result HolderClasses(IppConnection connection, HolderClassesNna args)
 	{

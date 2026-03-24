@@ -109,7 +109,7 @@ public abstract class McvNet : Net
 	public long								DeclarationCost							=> 1000_000;
 
 
-	public Endpoint							Father0IP;
+	public Endpoint							Father0EP;
 	public readonly string					Father0Name		= "father0000";
 	public readonly AutoId					Father0Id		= new (287078, 0);
 	public readonly AccountAddress			Father0Signer	= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");

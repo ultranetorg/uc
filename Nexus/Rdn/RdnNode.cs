@@ -57,8 +57,8 @@ public class RdnNode : McvNode
 
 			Mcv.Confirmed += r =>	{
 										/// Remove if consensus has reached or expired
-										Mcv.ApprovedOutwards.RemoveAll(i => (r as RdnRound).ConsensusOutwards.Any(x => x == i) || 
-																			  (r as RdnRound).Outwards.Find(x => x.User == i.User && x.Id == i.Id)?.Expiration < r.ConsensusTime);
+										Mcv.ApprovedOutwards.RemoveAll(i =>	(r as RdnRound).ConsensusOutwards.Any(x => x == i) || 
+																			(r as RdnRound).Outwards.Find(x => x.User == i.User && x.Id == i.Id)?.Expiration < r.ConsensusTime);
 									};
 
 			OutwardThread = CreateThread(() => {
@@ -66,6 +66,9 @@ public class RdnNode : McvNode
 											 		{
 											 			var r = WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 														
+														if(Peering.Synchronization != Synchronization.Synchronized)
+															continue;
+
 														lock(Mcv.Lock)
 														{
 															if(CurrentOutwards.Count < 100)
@@ -113,7 +116,7 @@ public class RdnNode : McvNode
 			ResourceHub.RunDeclaring();
 		}
 
-		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToApiSettings(Net), Flow);
+		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
 	}
 
 	public override string ToString()

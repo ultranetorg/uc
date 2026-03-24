@@ -10,6 +10,6 @@ public class RdnGenesis : Genesis
 
 	protected override void Declare(Execution execution, Generator generator)
 	{
-		(generator as RdnGenerator).SeedHubPpcIPs = [execution.Net.Father0IP];
+		(generator as RdnGenerator).SeedHubPpcIPs = [execution.Net.Father0EP];
 	}
 }

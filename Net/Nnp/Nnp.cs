@@ -180,6 +180,47 @@ public class RequestNnr : Result, IBinarySerializable
 	public void		Write(BinaryWriter writer) => writer.WriteBytes(Response);
 }
 
+public class JsonApiNna : NnpArgumentation, IBinarySerializable
+{
+	public string			Call { get; set; }
+	public string			Request { get; set; }
+	public int				Timeout { get; set; } = 5000;
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		Call		= reader.ReadUtf8();
+		Request		= reader.ReadUtf8();
+		Timeout		= reader.Read7BitEncodedInt();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.WriteUtf8(Call);
+		writer.WriteUtf8(Request);
+		writer.Write7BitEncodedInt(Timeout);
+	}
+}
+
+public class JsonApiNnr : Result, IBinarySerializable
+{
+	public string	Response { get; set; }
+	public int		Status { get; set; }
+
+	public void Read(BinaryReader reader)
+	{ 
+		Response = reader.ReadUtf8();
+		Status = reader.Read7BitEncodedInt();
+	}
+
+	public void Write(BinaryWriter writer)
+	{
+		writer.WriteUtf8(Response);
+		writer.Write7BitEncodedInt(Status);
+	}
+}
+
 //public class McvTransactNna : NnpArgumentation, IBinarySerializable
 //{
 //	public byte[]		Operations { get; set; }

@@ -55,7 +55,7 @@ public class Vault : Cli
 		{
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, "*." + WalletExtention))
 			{
-				Wallets.Add(new Wallet(this, Path.GetFileName(i), File.ReadAllBytes(i)));
+				Wallets.Add(new Wallet(this, Path.GetFileNameWithoutExtension(i), File.ReadAllBytes(i)));
 			}
 		}
 

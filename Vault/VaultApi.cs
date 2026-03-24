@@ -7,7 +7,7 @@ internal class VaultApiServer : JsonServer
 {
 	Vault Vault;
 
-	public VaultApiServer(Vault vault, IpApiSettings settings, Flow workflow) : base(settings.ToApiSettings(vault.Zone, Api.Vault), VaultApiClient.CreateOptions(), workflow)
+	public VaultApiServer(Vault vault, IpApiSettings settings, Flow workflow) : base(settings.ToSystemSettings(vault.Zone, Api.Vault), NetJsonConfiguration.CreateOptions(), workflow)
 	{
 		Vault = vault;
 	}

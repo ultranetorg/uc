@@ -35,7 +35,7 @@ public class SimulationRdn : Rdn
 	
 	public SimulationRdn()
 	{
-		Father0IP						= new(DefaultHost, PpiPort);
+		Father0EP						= new(DefaultHost, PpiPort);
 		Cryptography					= Cryptography.No;
 		AffectedCountMaximum			= 10;
 		ECLifetime						= Time.FromYears(100);
@@ -51,7 +51,7 @@ public class VirtualRdn : Rdn
 
 	public VirtualRdn()
 	{
- 		Father0IP	= new(VirtualInitials[0], PpiPort);
+ 		Father0EP	= new(VirtualInitials[0], PpiPort);
 		Initials	= VirtualInitials;
 		UserFreeCreationPoWDifficulity	= 0;
 	}
@@ -64,7 +64,7 @@ public class Developer0Rdn : Rdn
 	{
 		var z = Test;
 
- 		Father0IP	= z.Father0IP;
+ 		Father0EP	= z.Father0EP;
 		Initials	= z.Initials;
 	}
 }
@@ -75,7 +75,7 @@ public class TestRdn : Rdn
 
 	public TestRdn()
 	{
- 		Father0IP	= new(IPAddress.Parse("78.47.204.100"), PpiPort);
+ 		Father0EP	= new(IPAddress.Parse("78.47.204.100"), PpiPort);
 		Initials	= UOInitials;
 	}
 }
@@ -87,7 +87,7 @@ public class TaRdn : Rdn
 	
 	public TaRdn()
 	{
-		Father0IP						= new(DefaultHost, PpiPort);
+		Father0EP						= new(DefaultHost, PpiPort);
 		Initials						= LocalInitials;
 		UserFreeCreationPoWDifficulity	= 0;
 	}

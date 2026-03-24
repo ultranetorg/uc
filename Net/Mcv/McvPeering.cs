@@ -164,7 +164,7 @@ public abstract class McvPeering : HomoTcpPeering
 	{
 		lock(Mcv.Lock)
 		{
-			if(Settings.EP != null && Settings.EP.Equals(Net.Father0IP) && Mcv.Settings.Generators.Any(g => g.User == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
+			if(Settings.EP != null && Settings.EP.Equals(Net.Father0EP) && Mcv.Settings.Generators.Any(g => g.User == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -481,7 +481,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 			if(s == null)
 			{	
-				Thread.Sleep(NodeGlobals.TimeoutOnError);
+				//Thread.Sleep(NodeGlobals.TimeoutOnError);
 				continue;;
 			}
 
@@ -496,7 +496,7 @@ public abstract class McvPeering : HomoTcpPeering
 					gs.Id = u.Id;
 				else
 				{
-					Thread.Sleep(NodeGlobals.TimeoutOnError);
+					//Thread.Sleep(NodeGlobals.TimeoutOnError);
 					continue;
 				}	
 			}
@@ -538,7 +538,8 @@ public abstract class McvPeering : HomoTcpPeering
 				}
 				catch(VaultException ex)
 				{
-					Thread.Sleep(NodeGlobals.TimeoutOnError);
+					//Thread.Sleep(NodeGlobals.TimeoutOnError);
+					continue;
 				}
 			}
 			else
@@ -1205,7 +1206,7 @@ public abstract class McvPeering : HomoTcpPeering
 		//Suns.GroupBy(s => s.Mcv.Accounts.SuperClusters.SelectMany(i => i.Value), Bytes.EqualityComparer);
 		Directory.CreateDirectory(destibation);
 
-		var jo = new JsonSerializerOptions(ApiClient.CreateOptions());
+		var jo = new JsonSerializerOptions(NetJsonConfiguration.CreateOptions());
 		jo.WriteIndented = true;
 
 		foreach(var i in all)

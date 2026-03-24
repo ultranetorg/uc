@@ -4,16 +4,6 @@ using System.Text.Json.Serialization;
 
 namespace Uccs.Net;
 
-public abstract class McvApc : NodeApc
-{
-	public abstract object Execute(McvNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
-
-	public override object Execute(Node mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		return Execute(mcv as McvNode, request, response, workflow);
-	}
-}
-
 //public class OperationJsonConverter : JsonConverter<Operation>
 //{
 //	Net Net;
@@ -48,14 +38,14 @@ public abstract class McvApiServer : NodeApiServer
 {
 	McvNode Node;
 
-	public McvApiServer(McvNode node, ApiSettings settings, Flow workflow, JsonSerializerOptions options = null) : base(node, settings, workflow, options ?? McvApiClient.CreateOptions())
+	public McvApiServer(McvNode node, ApiSettings settings, Flow workflow, JsonSerializerOptions options) : base(node, settings, workflow, options)
 	{
 		Node = node;
 	}
 
 	protected override Type Create(string call)
 	{
-		return Type.GetType(typeof(McvApiServer).Namespace + '.' + call) ?? base.Create(call);
+		return Type.GetType(typeof(McvApc).Namespace + '.' + call) ?? base.Create(call);
 	}
 
 	protected override object Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -67,21 +57,21 @@ public abstract class McvApiServer : NodeApiServer
 	}
 }
 
-public class McvApiClient : ApiClient
+public class McvApiClient : JsonApiClient
 {
-	new public static JsonSerializerOptions CreateOptions()
-	{
-		var o = ApiClient.CreateOptions();
-
-		//o.Converters.Add(new OperationJsonConverter(net));
-		//o.Converters.Add(new JsonStringEnumConverter());
-
-		return o;
-	}
-
 	public McvApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
-		Options = CreateOptions();
+		Options = NetJsonConfiguration.CreateOptions();
+	}
+}
+
+public abstract class McvApc : NodeApc
+{
+	public abstract object Execute(McvNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+
+	public override object Execute(Node mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		return Execute(mcv as McvNode, request, response, workflow);
 	}
 }
 

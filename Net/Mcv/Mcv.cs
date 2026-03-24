@@ -557,7 +557,7 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void Dump()
 	{
-		var jo = new JsonSerializerOptions(ApiClient.CreateOptions());
+		var jo = new JsonSerializerOptions(NetJsonConfiguration.CreateOptions());
 		jo.WriteIndented = true;
 
 		foreach(var t in Tables)
