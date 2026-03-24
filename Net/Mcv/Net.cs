@@ -17,9 +17,17 @@ public enum Zone : ushort
 public enum KnownProtocol : ushort
 {
 	Nni			= 000,
+	SystemApi	= 900,
 	Rdn			= 001,
+	RdnApi		= 901,
 	Fair		= 002,
-	Api			= 900,
+	FairApi		= 902,
+	//Api			= 900,
+}
+
+public class Port
+{
+	public static ushort	Map(Zone zone, KnownProtocol system) => (ushort)(zone + (ushort)system);
 }
 
 public abstract class Net
@@ -31,7 +39,8 @@ public abstract class Net
 	public abstract string				Name { get; }
 	public abstract	Zone				Zone { get; }
 	public abstract ushort				PpiPort { get; }
-	public ushort						NniPort => MapPort(Zone, KnownProtocol.Nni);
+	public abstract ushort				ApiPort { get; }
+	public ushort						NniPort => Port.Map(Zone, KnownProtocol.Nni);
 
 	public IPAddress[]					Initials;
 	public static readonly  IPAddress[]	LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
@@ -61,7 +70,6 @@ public abstract class Net
 
 	public Constructor					Constructor = new ();
 
-	public static ushort				MapPort(Zone zone, KnownProtocol system) => (ushort)(zone + (ushort)system);
 
 	public override string ToString()
 	{

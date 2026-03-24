@@ -7,12 +7,13 @@ public abstract class Rdn : McvNet
 {
 	public override	string			Address => Root;
 	public override	string			Name => Root;
-	public override ushort			PpiPort => MapPort(Zone, KnownProtocol.Rdn);
+	public override ushort			PpiPort => Port.Map(Zone, KnownProtocol.Rdn);
+	public override ushort			ApiPort => Port.Map(Zone, KnownProtocol.RdnApi);
 	public override int				TablesCount => Enum.GetValues<RdnTable>().Length;
 	public override int				FreeSpaceMaximum => 4096;
 	public int						FreeNameLengthMinimum => 8;
 	public int						CircularDependeciesChecksMaximum => 100_000;
-		
+
  	public static readonly Rdn		Simulated = new SimulationRdn();
  	public static readonly Rdn		Virtual = new VirtualRdn();
  	public static readonly Rdn		Test = new TestRdn();

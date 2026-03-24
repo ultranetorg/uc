@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Numerics;
-using System.Reflection;
-using System.Text.Json;
+﻿using System.Numerics;
 
 namespace Uccs.Net;
 
@@ -13,7 +10,6 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 	protected Asset[]	Assets = [new () {Name = nameof(User.Spacetime),	Units = "Byte-days (BD)"},
 								  new () {Name = nameof(User.Energy),		Units = "Execution Cycles (EC)"},
 								  new () {Name = nameof(User.EnergyNext),	Units = "Execution Cycles (EC)"}];
-	Dictionary<string, ConstructorInfo>		Calls = [];
 
 	public McvNnpIppConnection(N node, string [] classes, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
 	{

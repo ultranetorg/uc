@@ -107,6 +107,8 @@ public class RdnNode : McvNode
 			OutwardThread.Start();
 		}
 
+		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
+
 		NnConnection = new RdnNnpIppConnection(this, flow);
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
@@ -116,7 +118,6 @@ public class RdnNode : McvNode
 			ResourceHub.RunDeclaring();
 		}
 
-		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
 	}
 
 	public override string ToString()

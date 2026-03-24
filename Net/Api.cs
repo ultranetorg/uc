@@ -8,12 +8,11 @@ namespace Uccs.Net;
 
 public abstract class Api
 {
-	public const string						Nexus = "v0/nexus";
-	public const string						Vault = "v0/vault";
+	public const string						Nexus = "nexus/v0";
+	public const string						Vault = "vault/v0";
 
-	public static ushort					MapPort(Zone zone) => (ushort)(zone + (ushort)KnownProtocol.Api);
-	public static string					ForSystem(Zone zone, IPAddress ip, string path, bool ssl = false) => $@"http{(ssl ? "s" : "")}://{ip}:{MapPort(zone)}/{path}";
-	public static string					ForNode(Net net, IPAddress ip, bool ssl = false) => $@"http{(ssl ? "s" : "")}://{ip}:{MapPort(net.Zone)}/node/v0/{net.Name}";
+	public static string					ForSystem(Zone zone, IPAddress ip, string path, bool ssl = false) => $"http{(ssl ? "s" : "")}://{ip}:{Port.Map(zone, KnownProtocol.SystemApi)}/{path}";
+	public static string					ForNode(Net net, IPAddress ip, bool ssl = false) => $"http{(ssl ? "s" : "")}://{ip}:{net.ApiPort}";
 }
 
 public class NetJsonConfiguration : JsonConfiguration
@@ -51,7 +50,7 @@ public class IpApiSettings : Settings
 	{
 	}
 
-	public string PublicNodeAddress(Net net) 
+	public string PublicNodeAddress(Net net)
 	{
 		return Api.ForNode(net, PublicIP, Ssl);
 	}
