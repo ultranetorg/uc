@@ -193,7 +193,7 @@ public abstract class Round : IBinarySerializable
 
 	public byte[] Summarize()
 	{
-		if(!VotesOfTry.Any())
+		if(SelectedArrived.Count < MinimumForConsensus)
 			return null;
 
 		var min = MinimumForConsensus;
@@ -361,7 +361,6 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in Mcv.Tables)
 			FindState<TableStateBase>(i)?.StartRoundExecution(this);
-
 
 		foreach(var t in transactions.Reverse())
 		{

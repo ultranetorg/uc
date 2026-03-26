@@ -384,7 +384,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 						});
 	}
 
-	public void Connect(P peer, Flow workflow)
+	public void Connect(P peer, Flow flow)
 	{
 		lock(Lock)
 		{
@@ -396,7 +396,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 			{	
 				while(peer.Status != ConnectionStatus.Disconnected)
 				{
-					workflow.ThrowIfAborted();
+					flow.ThrowIfAborted();
 					Thread.Sleep(0);
 				}
 				
@@ -406,7 +406,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 		var t = DateTime.Now;
 
-		while(workflow.Active)
+		while(flow.Active)
 		{
 			lock(Lock)
 				if(peer.Status == ConnectionStatus.OK)

@@ -7,8 +7,8 @@ namespace Uccs.Net;
 public interface IHomoPeer
 {
  	public abstract	void			Send(PeerRequest rq);
-	public abstract Result			Call(PeerRequest rq);
-	public R						Call<R>(Ppc<R> rq) where R : Result => Call((PeerRequest)rq) as R;
+	public abstract Result			CallMe(PeerRequest rq, Flow flow);
+	public R						CallMe<R>(Ppc<R> rq, Flow flow) where R : Result => CallMe((PeerRequest)rq, flow) as R;
 }
 
 public class HomoPeer : Peer, IHomoPeer
@@ -192,7 +192,7 @@ public class HomoPeer : Peer, IHomoPeer
 		Request(IdCounter++, args);
 	}
 
-	public Result Call(PeerRequest args)
+	public Result CallMe(PeerRequest args, Flow flow)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
@@ -214,7 +214,7 @@ public class HomoPeer : Peer, IHomoPeer
 
 		try
 		{
-			i = WaitHandle.WaitAny([p.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
+			i = WaitHandle.WaitAny([p.Event, flow.Cancellation.WaitHandle, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
 		}
 		catch(ObjectDisposedException)
 		{
@@ -245,7 +245,7 @@ public class HomoPeer : Peer, IHomoPeer
 				throw p.Exception;
 			}
 		}
-		else if(i == 1)
+		else if(i == 1 || i == 2)
 			throw new OperationCanceledException();
 		else
 			throw new NodeException(NodeError.Timeout);

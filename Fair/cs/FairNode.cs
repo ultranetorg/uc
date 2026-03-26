@@ -17,7 +17,7 @@ public class FairNode : McvNode
 		base.Settings = settings ?? new FairNodeSettings(profile);
 
 		if(Flow.Log != null)
-			new FileLog(Flow.Log, GetType().Name, Settings.Profile);
+			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");

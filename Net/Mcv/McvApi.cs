@@ -145,12 +145,13 @@ public class McvSummaryApc : McvApc
 		{
 			f = new () {{"Peers all/in/out",		$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound )}/{node.Peering.Connections.Count(i => !i.Inbound)} {(node.Peering.MinimalPeersReached ? " MinimalPeersReached" : null)}"},
 						{"IP(Reported):Port",		$"{node.Peering.Settings.EP} ({node.Peering})"},
-						{"Votes Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"}};
+						{"Votes Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"},
+						{"Candidate Transactions",	$"{node.Peering.CandidateTransactions.Count}"}
+						};
 		}
 
-		lock(node.Peering.TransactingLock)
+		lock(node.Peering.OutgoingTransactions)
 		{
-			f.Add("Incoming Transactions",	$"{node.Peering.CandidateTransactions.Count}");
 			f.Add("Outgoing Transactions",	$"{node.Peering.OutgoingTransactions.Count}");
 			f.Add("    Pending",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Pending)}");
 			f.Add("    Accepted",			$"{node.Peering.OutgoingTransactions.Count(i => i.Status == TransactionStatus.Accepted)}");
@@ -289,7 +290,7 @@ public class OutgoingTransactionApc : McvApc
 
 	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(mcv.Peering.TransactingLock)
+		lock(mcv.Peering.OutgoingTransactions)
 		{
 			var t = mcv.Peering.OutgoingTransactions.Find(i => i.Tag != null && i.Tag.SequenceEqual(Tag));
 
@@ -308,7 +309,7 @@ public class OutgoingTransactionsApc : McvApc
 {
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(node.Peering.TransactingLock)
+		lock(node.Peering.OutgoingTransactions)
 			return node.Peering.OutgoingTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }
@@ -373,7 +374,7 @@ public class IncomingTransactionsApc : McvApc
 		if(node.Peering == null)
 			throw new NodeException(NodeError.NoPeering);
 
-		lock(node.Peering.TransactingLock)
+		lock(node.Mcv.Lock)
 			return node.Peering.CandidateTransactions.Select(i => new TransactionApe(i)).ToArray();
 	}
 }
@@ -396,7 +397,7 @@ public class PpcApc : McvApc
 		if(node.Peering == null)
 			throw new NodeException(NodeError.NoPeering);
 
-		return node.Peering.Call(Request, workflow);
+		return node.Peering.Call(Request, workflow, null);
 	}
 }
 

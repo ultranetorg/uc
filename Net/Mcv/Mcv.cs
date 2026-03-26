@@ -301,7 +301,20 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(LastConfirmedRound != null && vote.RoundId <= LastConfirmedRound.Id)
 		{	
-			return VoteStatus.TooOld;
+			if(vote.RoundId <= LastConfirmedRound.Id - P)
+				return VoteStatus.TooOld;
+			else
+			{
+				var r = GetRound(vote.RoundId);
+	
+				if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
+					return VoteStatus.AlreadyExists;
+
+				Add(vote);
+				
+				return VoteStatus.OK;
+
+			}
 		}
 		else if(synchroniztion || LastConfirmedRound != null && vote.RoundId > NextVotingRound.Id)
 		{
@@ -542,8 +555,8 @@ public abstract class Mcv /// Mutual chain voting
 
 		transaction.Nonce = a == null ? 0 : a.LastNonce + 1;
 
-		var p = /*Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => Settings.Generators.Any(g => g.Signer == v.Generator))) ??*/ LastConfirmedRound;
-		var r = GetRound(p.Id + 1);
+		var r = CreateRound();
+		r.Id = LastConfirmedRound.Id + 1;
 		
 		r.ConsensusTime			= Time.Now(Clock);
 		r.ConsensusEnergyCost	= LastConfirmedRound.ConsensusEnergyCost;

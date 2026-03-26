@@ -4,9 +4,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>1.0.664</AssemblyVersion>
-    <FileVersion>1.0.664.0</FileVersion>
-    <Version>1.0.664</Version>
+    <AssemblyVersion>1.0.730</AssemblyVersion>
+    <FileVersion>1.0.730.0</FileVersion>
+    <Version>1.0.730</Version>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>

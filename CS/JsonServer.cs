@@ -100,7 +100,7 @@ public abstract class JsonServer
 
 		if(Flow.Log != null && Flow.WorkDirectory != null)
 		{
-			new FileLog(Flow.Log, GetType().Name, Flow.WorkDirectory);
+			new FileLog(Flow.Log, GetType().Name, Flow.WorkDirectory, Flow);
 		}
 
 		Flow.Log?.Report(this, "Listening ", settings.LocalAddress);

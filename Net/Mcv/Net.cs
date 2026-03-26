@@ -66,6 +66,15 @@ public abstract class Net
 															new([192, 168, 88, 104]),
 															new([192, 168, 88, 105]),
 															new([192, 168, 88, 106]),
+															new([192, 168, 88, 107]),
+															new([192, 168, 88, 108]),
+															new([192, 168, 88, 109]),
+															new([192, 168, 88, 110]),
+															new([192, 168, 88, 111]),
+															new([192, 168, 88, 112]),
+															new([192, 168, 88, 113]),
+															new([192, 168, 88, 114]),
+															new([192, 168, 88, 115]),
 															];
 
 	public Constructor					Constructor = new ();
@@ -96,7 +105,7 @@ public abstract class McvNet : Net
 	public const int						BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
 	public virtual int						FreeSpaceMaximum						=> 0;
 	public Time								ECLifetime								= Time.FromYears(1);
-	public ushort							UserFreeCreationPoWDifficulity			= 172;
+	public ushort							UserCreationPoWDifficulity			= 172;
 	public int								EntityLength							= 100;
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;

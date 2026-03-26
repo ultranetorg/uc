@@ -33,7 +33,7 @@ public class RdnNode : McvNode
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
 		if(Flow.Log != null)
-			new FileLog(Flow.Log, GetType().Name, Settings.Profile);
+			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
@@ -66,7 +66,7 @@ public class RdnNode : McvNode
 											 		{
 											 			var r = WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 														
-														if(Peering.Synchronization != Synchronization.Synchronized)
+														if(Peering == null || Peering.Synchronization != Synchronization.Synchronized)
 															continue;
 
 														lock(Mcv.Lock)

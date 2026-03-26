@@ -26,14 +26,14 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 	{
 		RequireGraph();
 		
-		lock(Peering.TransactingLock)
+		lock(Mcv.Lock)
 		{
 			var r = new TransactionStatusPpr
 					{								
 						Transactions = Signatures.Select(s =>	{ 
-																	var  t = (Peering.CandidateTransactions.Find(i => i.Signature.SequenceEqual(s))
-																				?? 
-																				Peering.ConfirmedTransactions.Find(i => i.Signature.SequenceEqual(s)));
+																	var  t = Peering.CandidateTransactions.Find(i => i.Signature.SequenceEqual(s))
+																			 ?? 
+																			 Peering.ConfirmedTransactions.Find(i => i.Signature.SequenceEqual(s));
 
 																	if(t != null)
 																		t.Inquired = DateTime.UtcNow;

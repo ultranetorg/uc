@@ -8,8 +8,8 @@ public abstract class Fair : McvNet
 	public override	string			Address => "fair";
 	public override	string			Name => "fair";
 	public override ushort			PpiPort => Port.Map(Zone, KnownProtocol.Fair);
-	public override int				TablesCount => Enum.GetNames<FairTable>().Count(i => i[0] != '_');
 	public override ushort			ApiPort => Port.Map(Zone, KnownProtocol.FairApi);
+	public override int				TablesCount => Enum.GetNames<FairTable>().Count(i => i[0] != '_');
 
 	public int						FileLengthMaximum = 1024*1024;
 	public const ushort				PostLengthMaximum = 65535;
@@ -53,13 +53,13 @@ public class FairSimulated : Fair
 	
 	public FairSimulated()
 	{
-		Father0EP						= new (DefaultHost, PpiPort);
-		Cryptography					= Cryptography.No;
-		AffectedCountMaximum			= 10;
-		ECLifetime						= Time.FromYears(100);
-		UserFreeCreationPoWDifficulity	= 0;
+		Father0EP					= new (DefaultHost, PpiPort);
+		Cryptography				= Cryptography.No;
+		AffectedCountMaximum		= 10;
+		ECLifetime					= Time.FromYears(100);
+		UserCreationPoWDifficulity	= 0;
 
-		Initials						= LocalInitials;
+		Initials					= LocalInitials;
 	}
 }
 
@@ -69,8 +69,9 @@ public class FairVirtual : Fair
 
 	public FairVirtual()
 	{
- 		Father0EP	= new(VirtualInitials[0], PpiPort);
-		Initials	= VirtualInitials;
+ 		Father0EP					= new(VirtualInitials[0], PpiPort);
+		Initials					= VirtualInitials;
+		UserCreationPoWDifficulity	= 0;
 	}
 }
 
@@ -106,6 +107,6 @@ public class FairTA : Fair
 	{
 		Father0EP						= new (DefaultHost, PpiPort);
 		Initials						= LocalInitials;
-		UserFreeCreationPoWDifficulity	= 0;
+		UserCreationPoWDifficulity	= 0;
 	}
 }

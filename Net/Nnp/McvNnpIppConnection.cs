@@ -63,7 +63,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		var rq = BinarySerializator.Deserialize<PeerRequest>(r, Node.Peering.Constructor.Construct);
 		
 		var w = new BinaryWriter(new MemoryStream());
-		BinarySerializator.Serialize(w, Node.Peering.Call(rq, f), Node.Peering.Constructor.TypeToCode);
+		BinarySerializator.Serialize(w, Node.Peering.Call(rq, f, null), Node.Peering.Constructor.TypeToCode);
 
 		return new RequestNnr {Response = (w.BaseStream as MemoryStream).ToArray()};
 	}
