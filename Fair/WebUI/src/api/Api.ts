@@ -14,8 +14,8 @@ import {
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
-  ProductField,
-  ProductFieldDiff,
+  FieldValue,
+  FieldValueCompare,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -142,9 +142,9 @@ export type Api = {
 
   getModeratorUser(name: string): Promise<AccountBase>
 
-  getProductFields(productId: string): Promise<ProductField[]>
+  getProductFields(productId: string): Promise<FieldValue[]>
 
-  getProductCompareFields(publicationId: string, version: number): Promise<ProductFieldDiff>
+  getProductCompareFields(publicationId: string, version: number): Promise<FieldValueCompare>
 
   getModeratorProposals(
     siteId: string,

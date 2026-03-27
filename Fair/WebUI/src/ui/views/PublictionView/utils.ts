@@ -1,17 +1,17 @@
-import { ProductField, TokenType } from "types"
+import { FieldValue, TokenType } from "types"
 import { buildFileUrl, formatSecDate } from "utils"
 import { IPublication, IPublicationDescription } from "./types"
 
-const getData = <TData = string>(fields: ProductField[], token: TokenType): TData | undefined => {
+const getData = <TData = string>(fields: FieldValue[], token: TokenType): TData | undefined => {
   return fields.find(x => x.name === token)?.value as TData | undefined
 }
 
-const getFileUri = (fields: ProductField[], token: TokenType): string | undefined => {
+const getFileUri = (fields: FieldValue[], token: TokenType): string | undefined => {
   const id = getData<string>(fields, token)
   return id ? buildFileUrl(id) : undefined
 }
 
-const parseDescription = (fields: ProductField[], token: TokenType): IPublicationDescription[] =>
+const parseDescription = (fields: FieldValue[], token: TokenType): IPublicationDescription[] =>
   fields
     .filter(field => field.name === token)
     .map(field => {
@@ -23,7 +23,7 @@ const parseDescription = (fields: ProductField[], token: TokenType): IPublicatio
     })
     .filter((x): x is IPublicationDescription => !!x)
 
-const parseArts = (fields: ProductField[], token: TokenType): IPublication["arts"] =>
+const parseArts = (fields: FieldValue[], token: TokenType): IPublication["arts"] =>
   fields
     .filter(field => field.name === token)
     .map(field => {
@@ -47,7 +47,7 @@ const parseArts = (fields: ProductField[], token: TokenType): IPublication["arts
       }
     })
 
-const parseReleases = (fields: ProductField[], token: TokenType): IPublication["releases"] =>
+const parseReleases = (fields: FieldValue[], token: TokenType): IPublication["releases"] =>
   fields
     .filter(field => field.name === token)
     .map(field => {
@@ -95,7 +95,7 @@ const parseReleases = (fields: ProductField[], token: TokenType): IPublication["
       }
     })
 
-export function toPublicationData(fields: ProductField[]): IPublication {
+export function toPublicationData(fields: FieldValue[]): IPublication {
   return {
     logo: getFileUri(fields, "logo") ?? "",
     title: getData<string>(fields, "title") ?? "",

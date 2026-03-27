@@ -14,6 +14,7 @@ import {
   ModeratorPublicationPage,
   ModeratorsPage,
   PerpetualSurveyPage,
+  PreviewPage,
   ProfilePage,
   PublicationPage,
   PublicationsPage,
@@ -183,6 +184,10 @@ const routes: RouteObject[] = [
                     element: <UserPage />,
                   },
                 ],
+              },
+              {
+                path: "v",
+                element: <PreviewPage />,
               },
             ],
           },

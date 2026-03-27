@@ -6,11 +6,13 @@ import { PageState } from "../types"
 
 export type VoteStatus = "idle" | "voting" | "voted"
 
+export type VoteAction = "approve" | "reject"
+
 export type ProposalTypeViewProps = {
   t: TFunction
-  pageState: PageState
+  pageState?: PageState
   proposal: ProposalDetails
-  voteStatus: VoteStatus
+  voteStatus?: VoteStatus
   votedValue?: number
-  onVoteClick: (value: number) => void
+  onVoteClick?: (value: number) => void
 }

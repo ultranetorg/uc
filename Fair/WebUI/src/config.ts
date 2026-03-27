@@ -7,4 +7,4 @@ export const DEFAULT_PAGE_SIZE = 30
 
 export const SEARCH_DELAY = 500
 
-export const START_DATE = "2025-01-01"
+export const START_DATE = "2026-01-01"

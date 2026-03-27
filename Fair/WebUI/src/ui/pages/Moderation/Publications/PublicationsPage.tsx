@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
-import { TabsProvider } from "app"
+import { TabsProvider, useModerationContext } from "app"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 
@@ -11,15 +11,17 @@ import { PublicationsTab } from "./PublicationsTab"
 import { UnpublishedProductsTab } from "./UnpublishedProductsTab"
 
 const routeToTabKey: Record<string, string> = {
-  p: "publications",
+  p: "proposals",
   c: "changed",
   u: "unpublished",
 }
 
 export const PublicationsPage = () => {
   const navigate = useNavigate()
+  const { getOperationVoterId } = useModerationContext()
   const { siteId, tabKey } = useParams()
   const { t } = useTranslation("publicationsPage")
+  const voterId = getOperationVoterId("publication-creation")
 
   const key = routeToTabKey[tabKey!]
 
@@ -33,7 +35,7 @@ export const PublicationsPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "publications", label: t("common:publications"), route: "p" },
+      { key: "proposals", label: t("common:proposals"), route: "p" },
       { key: "changed", label: t("changed"), route: "c" },
       { key: "unpublished", label: t("unpublished"), route: "u" },
     ],
@@ -45,9 +47,13 @@ export const PublicationsPage = () => {
       <ModerationHeader
         title={t("title")}
         parentBreadcrumbs={{ path: `/${siteId}/m`, title: t("common:proposals") }}
-        components={<ButtonPrimary className="w-48" label={t("searchProduct")} onClick={handleSearchProduct} />}
+        components={
+          <>
+            {!!voterId && <ButtonPrimary className="w-48" label={t("searchProduct")} onClick={handleSearchProduct} />}
+          </>
+        }
       />
-      <TabsProvider defaultKey={key || "publications"}>
+      <TabsProvider defaultKey={key || "proposals"}>
         <div className="flex flex-col gap-6">
           <TabsList
             className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
@@ -57,7 +63,7 @@ export const PublicationsPage = () => {
             items={tabsItems}
           />
 
-          <TabContent when="publications">
+          <TabContent when="proposals">
             <PublicationsTab />
           </TabContent>
           <TabContent when="changed">

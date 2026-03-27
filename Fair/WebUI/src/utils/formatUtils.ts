@@ -11,6 +11,11 @@ const SOFTWARE_DELIMITER = ", "
 const THREE_DOTS = "..."
 const VOTES_DELIMITER = " / "
 
+export const formatAr = (t: TFunction, approved: number, rejected: number) =>
+  `${t("common:approved")}: ${approved} / ${t("common:rejected")}: ${rejected}`
+
+export const formatArShort = (approved: number, rejected: number) => `${approved} / ${rejected}`
+
 export const formatNabb = (t: TFunction, neither: number, any: number, ban: number, banish: number) =>
   `${t("common:neither")}: ${neither} / ${t("common:any")}: ${any} / ${t("common:ban")}: ${ban} / ${t("common:banish")}: ${banish}`
 
@@ -27,17 +32,36 @@ export function formatSecDate(seconds: number) {
   return dayjs(START_DATE).add(seconds, "seconds").startOf("day").format("DD.MM.YYYY")
 }
 
-export const formatDuration = (t: TFunction, durationInDays: number): string => {
-  const years = Math.floor(durationInDays / 365)
-  if (years > 0) {
-    const months = Math.floor((durationInDays - years * 365) / 30)
+export const formatDuration = (t: TFunction, durationInHours: number): string => {
+  const HOURS_IN_DAY = 24
+  const HOURS_IN_MONTH = 30 * HOURS_IN_DAY
+  const HOURS_IN_YEAR = 365 * HOURS_IN_DAY
+
+  if (durationInHours >= HOURS_IN_YEAR) {
+    const years = Math.floor(durationInHours / HOURS_IN_YEAR)
+    const months = Math.floor((durationInHours - years * HOURS_IN_YEAR) / HOURS_IN_MONTH)
     return months > 0
       ? t("date:year", { count: years }) + " " + t("date:month", { count: months })
       : t("date:year", { count: years })
   }
 
-  const months = Math.floor(durationInDays / 30)
-  return months > 0 ? t("date:month", { count: months }) : t("date:day", { count: durationInDays })
+  if (durationInHours >= 31 * HOURS_IN_DAY) {
+    const months = Math.floor(durationInHours / HOURS_IN_MONTH)
+    const days = Math.floor((durationInHours - months * HOURS_IN_MONTH) / HOURS_IN_DAY)
+    return days > 0
+      ? t("date:month", { count: months }) + " " + t("date:day", { count: days })
+      : t("date:month", { count: months })
+  }
+
+  if (durationInHours >= HOURS_IN_DAY) {
+    const days = Math.floor(durationInHours / HOURS_IN_DAY)
+    const hours = Math.floor(durationInHours - days * HOURS_IN_DAY)
+    return hours > 0
+      ? t("date:day", { count: days }) + " " + t("date:hour", { count: hours })
+      : t("date:day", { count: days })
+  }
+
+  return t("date:hour", { count: Math.floor(durationInHours) })
 }
 
 export const formatOption = (option: BaseVotableOperation, t: TFunction) => {

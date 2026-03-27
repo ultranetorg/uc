@@ -20,3 +20,12 @@ export const getVotedIndex = (voterId?: string, proposal?: ProposalDetails): num
 
   return undefined
 }
+
+export const isVoted = (voterId?: string, proposal?: ProposalDetails): boolean | undefined =>
+  voterId && proposal
+    ? proposal.options.some(x => x.yes.includes(voterId)) ||
+      proposal.neither.includes(voterId) ||
+      proposal.any.includes(voterId) ||
+      proposal.ban.includes(voterId) ||
+      proposal.banish.includes(voterId)
+    : undefined

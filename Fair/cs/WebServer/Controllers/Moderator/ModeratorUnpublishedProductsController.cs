@@ -12,37 +12,42 @@ public class ModeratorUnpublishedProductsController
 	ProductsService productsService
 ) : BaseController
 {
+	// TODO: should be moved to ProductsController.
 	[HttpHead("/api/products/unpublished/{unpublishedProductId}")]
 	public IActionResult HeadUnpublishedProduct(string unpublishedProductId)
 	{
 		logger.LogInformation("HEAD {ControllerName}.{MethodName} called with {UnpublishedPublicationId}", nameof(ModeratorUnpublishedProductsController), nameof(HeadUnpublishedProduct), unpublishedProductId);
 
-		autoIdValidator.Validate(unpublishedProductId, nameof(EntityNames.UnpublishedProductEntityName).ToLower());
+		autoIdValidator.Validate(unpublishedProductId, EntityNames.UnpublishedProductEntityName);
 
 		bool exists = productsService.UnpublishedProductExists(unpublishedProductId);
 
 		return exists ? Ok() : NotFound();
 	}
 
+	// TODO: should be moved to ProductsController.
 	[HttpGet("/api/products/unpublished/{unpublishedProductId}")]
 	public UnpublishedProductDetailsModel GetUnpublishedProduct(string unpublishedProductId)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {UnpublishedPublicationId}", nameof(ModeratorUnpublishedProductsController), nameof(GetUnpublishedProduct), unpublishedProductId);
 
-		autoIdValidator.Validate(unpublishedProductId, nameof(EntityNames.UnpublishedProductEntityName).ToLower());
+		autoIdValidator.Validate(unpublishedProductId, EntityNames.UnpublishedProductEntityName.ToLower());
 
 		return productsService.GetUnpublishedProduct(unpublishedProductId);
 	}
 
-	[HttpGet("{unpublishedProductId}")]
-	public UnpublishedProductDetailsModel GetUnpublishedSiteProduct(string siteId, string unpublishedProductId)
+	/// <summary>
+	/// Returns Products that have not been published on the Site.
+	/// </summary>
+	[HttpGet("{productId}")]
+	public UnpublishedProductDetailsModel GetUnpublishedSiteProduct(string siteId, string productId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {UnpublishedPublicationId}", nameof(ModeratorUnpublishedProductsController), nameof(GetUnpublishedSiteProduct), siteId, unpublishedProductId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {ProductId}", nameof(ModeratorUnpublishedProductsController), nameof(GetUnpublishedSiteProduct), siteId, productId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		autoIdValidator.Validate(unpublishedProductId, nameof(EntityNames.UnpublishedProductEntityName).ToLower());
+		autoIdValidator.Validate(productId, nameof(Product).ToLower());
 
-		return productsService.GetUnpublishedProduct(unpublishedProductId, siteId);
+		return productsService.GetUnpublishedSiteProduct(siteId, productId);
 	}
 
 	[HttpGet]

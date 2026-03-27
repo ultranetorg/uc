@@ -18,8 +18,8 @@ import {
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
-  ProductField,
-  ProductFieldDiff,
+  FieldValue,
+  FieldValueCompare,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -162,8 +162,17 @@ const headUnpublishedProduct = async (unpublishedProductId: string): Promise<boo
 const getUnpublishedProduct = (unpublishedProductId: string): Promise<UnpublishedProductDetails> =>
   fetch(`${BASE_URL}/products/unpublished/${unpublishedProductId}`).then(res => res.json())
 
-const getUnpublishedSiteProduct = (siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails> =>
-  fetch(`${BASE_URL}/sites/${siteId}/products/unpublished/${unpublishedProductId}`).then(res => res.json())
+const getUnpublishedSiteProduct = async (
+  siteId: string,
+  unpublishedProductId: string,
+): Promise<UnpublishedProductDetails> => {
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/products/unpublished/${unpublishedProductId}`)
+  if (!res.ok) {
+    throw new Error()
+  }
+
+  return await res.json()
+}
 
 const getUnpublishedSiteProducts = async (
   siteId: string,
@@ -300,10 +309,10 @@ const getPublicationProposals = async (
 const getModeratorUser = (name: string): Promise<AccountBase> =>
   fetch(`${BASE_URL}/moderator/users/${name}`).then(res => res.json())
 
-const getProductFields = (productId: string): Promise<ProductField[]> =>
+const getProductFields = (productId: string): Promise<FieldValue[]> =>
   fetch(`${BASE_URL}/products/${productId}/fields`).then(res => res.json())
 
-const getProductCompareFields = (publicationId: string, version: number): Promise<ProductFieldDiff> =>
+const getProductCompareFields = (publicationId: string, version: number): Promise<FieldValueCompare> =>
   fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
 
 const getModeratorProposals = async (

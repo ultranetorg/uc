@@ -1,22 +1,22 @@
-import { ProductField } from "types"
+import { FieldValue } from "types"
 import { nameEq } from "utils"
 
-export const getChildren = (fields: ProductField[] | undefined, name: string) => {
+export const getChildren = (fields: FieldValue[] | undefined, name: string) => {
   return fields?.find(x => nameEq(x.name, name))?.children ?? []
 }
 
-export const getChildrenAny = (fields: ProductField[] | undefined, names: string[]) => {
+export const getChildrenAny = (fields: FieldValue[] | undefined, names: string[]) => {
   for (const n of names) {
     const c = getChildren(fields, n)
     if (c.length) return c
   }
-  return [] as ProductField[]
+  return [] as FieldValue[]
 }
 
 export type RequirementPlatform = {
   key: string
   label: string
-  node: ProductField
+  node: FieldValue
 }
 
 const normalizePlatformName = (raw: string): { key: string; label: string } => {
@@ -37,7 +37,7 @@ const normalizePlatformName = (raw: string): { key: string; label: string } => {
   return { key: lower || value.toLowerCase(), label: value || raw }
 }
 
-export const getRequirementPlatforms = (fields: ProductField[] | undefined): RequirementPlatform[] => {
+export const getRequirementPlatforms = (fields: FieldValue[] | undefined): RequirementPlatform[] => {
   const result: RequirementPlatform[] = []
   const seen = new Set<string>()
   const releases = (fields ?? []).filter(x => nameEq(x.name, "release"))

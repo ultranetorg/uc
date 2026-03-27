@@ -287,12 +287,11 @@ public class ModeratorProposalsService
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 
-		if(proposal.Options[0].Operation is SiteAuthorsChange change)
+		if(proposal.Options[0].Operation is SiteAuthorsRemoval removal)
 		{
 			// NOTE: if there are multiple options, we won't load publishers.
-			IEnumerable<AccountBaseModel> additions = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, change.Additions, CancellationToken.None) : null;
-			IEnumerable<AccountBaseModel> removals = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, change.Removals, CancellationToken.None) : null;
-			return new PublisherProposalModel(proposal, by, additions, removals);
+			IEnumerable<AccountBaseModel> removals = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, removal.Authors, CancellationToken.None) : null;
+			return new PublisherProposalModel(proposal, by, removals);
 		}
 
 		return null;

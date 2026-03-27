@@ -1,4 +1,4 @@
-import { ProductFieldDiff, ProductField } from "types"
+import { FieldValueCompare, FieldValue } from "types"
 
 import { CompareStatus, ProductFieldCompareViewModel, ProductFieldViewModel } from "./types"
 
@@ -16,7 +16,7 @@ const groupByName = (list?: ProductFieldViewModel[]) => {
 const getGenerator = () => {
   let index = 0
   return (
-    field: ProductField,
+    field: FieldValue,
     ext: Partial<ProductFieldCompareViewModel>,
     parent?: ProductFieldCompareViewModel,
   ): ProductFieldCompareViewModel => ({
@@ -113,7 +113,7 @@ const mergeArrays = (
 }
 
 const mapItems = (
-  items: ProductField[],
+  items: FieldValue[],
   parent: ProductFieldViewModel | undefined = undefined,
   idCounter: number = 0,
 ): ProductFieldViewModel[] => {
@@ -130,10 +130,10 @@ const isCompareNode = (n?: ProductFieldViewModel | ProductFieldCompareViewModel)
   return !!n && ("isRemoved" in n || "isAdded" in n || "isChanged" in n)
 }
 
-export const mergeFields = (compare: ProductFieldDiff): ProductFieldCompareViewModel[] =>
+export const mergeFields = (compare: FieldValueCompare): ProductFieldCompareViewModel[] =>
   mergeArrays(mapItems(compare.from), mapItems(compare.to))
 
-export const mapFields = (items: ProductField[]): ProductFieldViewModel[] => mapItems(items)
+export const mapFields = (items: FieldValue[]): ProductFieldViewModel[] => mapItems(items)
 
 export const getCompareStatus = (node?: ProductFieldViewModel | ProductFieldCompareViewModel): CompareStatus => {
   if (!node) return undefined

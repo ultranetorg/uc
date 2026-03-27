@@ -10,6 +10,8 @@ export const enUS = {
     anbbFull: "Any / Neither / Ban / Banish",
     answers: "answers",
     approve: "approve",
+    ar: "A / R",
+    arFull: "Approved / Rejected",
     author: "Author",
     back: "back",
     ban: "Ban",
@@ -201,11 +203,13 @@ export const enUS = {
     nicknameChanged: "Nickname changed successfully",
     perpetualVoted: `Publisher "{{publisher}}" successfully voted`,
     proposalCreated: `Proposal "{{proposal}}" created successfully`,
-    proposalVoted: "You have successfully voted",
+    publicationCreated: "Publication successfully created",
+    publicationVoted: "You have successfully voted for publication",
     reviewApproved: "Review approved",
     reviewRejected: "Review rejected",
     userRegistrationApproved: `User "{{name}}" registration approved`,
     userRegistrationRejected: `User "{{name}}" registration rejected`,
+    voted: "You have successfully voted",
   },
 
   /* Pages */
@@ -228,7 +232,9 @@ export const enUS = {
     resetAll: "Reset all",
   },
   createPublication: {
+    createPublication: "Create publication",
     productNotFound: "We didn’t find anything. Try a different or shorter search.",
+    productHasNoField: "Specified product has no fields.",
     searchProduct: "Search products by ID",
   },
   error: {
@@ -505,7 +511,7 @@ export const enUS = {
     "review-creation": "Review creation",
     "review-edit": "Review edit",
     "review-status-change": "Review status change",
-    "site-author-removal": "Site authors removal",
+    "site-authors-removal": "Site authors removal",
     "site-avatar-change": "Site avatar change",
     "site-moderator-addition": "Site moderators addition",
     "site-moderator-removal": "Site moderator removal",
@@ -596,6 +602,8 @@ export const enUS = {
 
   /* Misc */
   date: {
+    hour_one: "{{count}} hour",
+    hour_other: "{{count}} hours",
     day_one: "{{count}} day",
     day_other: "{{count}} days",
     month_one: "{{count}} month",

@@ -8,5 +8,5 @@ public class UnpublishedProductDetailsModel(Product product, FairUser account, A
 
 	public string? LogoId { get; } = PublicationUtils.GetLatestLogo(product)?.ToString();
 
-	public IEnumerable<ProductFieldValueModel>? Versions { get; set; }
+	public IEnumerable<FieldValueModel>? Fields { get; set; }
 }

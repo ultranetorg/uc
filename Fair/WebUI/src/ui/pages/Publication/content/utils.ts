@@ -1,4 +1,4 @@
-import { ProductField } from "types"
+import { FieldValue } from "types"
 import { getValue, nameEq } from "utils"
 
 type BookFields = {
@@ -11,7 +11,7 @@ type BookFields = {
   coverId?: string
 }
 
-export const buildBookFields = (fields?: ProductField[]): BookFields => {
+export const buildBookFields = (fields?: FieldValue[]): BookFields => {
   if (!fields?.length) return {}
 
   return {
@@ -40,7 +40,7 @@ type MovieFieldMap = {
   about?: string
 }
 
-export function buildMovieFields(fields: ProductField[] | undefined): MovieFieldMap {
+export function buildMovieFields(fields: FieldValue[] | undefined): MovieFieldMap {
   if (!fields?.length) return {}
 
   return {
@@ -59,7 +59,7 @@ export function buildMovieFields(fields: ProductField[] | undefined): MovieField
   }
 }
 
-export const getMaxDescription = (fields: ProductField[] | undefined): string | undefined => {
+export const getMaxDescription = (fields: FieldValue[] | undefined): string | undefined => {
   if (!fields?.length) return undefined
 
   const nodes = fields.filter(f => nameEq(f.name, "description-maximal"))

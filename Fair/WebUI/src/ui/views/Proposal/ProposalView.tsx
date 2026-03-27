@@ -1,31 +1,20 @@
-import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
 import { useModerationContext } from "app"
 import { SvgArrowLeft } from "assets"
+import { useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { ProposalCommentCreation, ProposalDetails, ProposalVoting } from "types"
-import { Breadcrumbs, BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
+import { BreadcrumbsItemProps, ButtonOutline, ButtonPrimary } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
+import { ModerationHeader } from "ui/components/specific"
 import { getVotedIndex, showToast } from "utils"
 
-import { useGetModeratorDiscussionComments } from "entities"
-import { ModerationHeader } from "ui/components/specific"
 import { PublicationOwnerProvider } from "./providers/publicationOwner"
 import { PageState } from "./types"
-import {
-  ProposalCompareFieldsView,
-  ProposalDefaultView,
-  ProposalFieldsView,
-  ProposalTypeViewProps,
-  VoteStatus,
-} from "./views"
-
-const renderByOperationType: Record<string, ComponentType<ProposalTypeViewProps>> = {
-  "publication-creation": ProposalFieldsView,
-  "publication-updation": ProposalCompareFieldsView,
-}
+import { ProposalDefaultView, VoteStatus } from "./views"
 
 export type ProposalViewProps = {
   parentBreadcrumb?: BreadcrumbsItemProps
@@ -58,10 +47,6 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
 
   const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
 
-  const firstOperationType = useMemo(() => proposal?.operation, [proposal])
-  const showOnTop = !!(firstOperationType && renderByOperationType[firstOperationType])
-  const NestedView = (firstOperationType && renderByOperationType[firstOperationType]) ?? ProposalDefaultView
-
   const parentBreadcrumbs = useMemo(
     () =>
       parentBreadcrumb
@@ -77,7 +62,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
       const operation = new ProposalVoting(proposal!.id, voterId!, value)
       mutate(operation, {
         onSuccess: () => {
-          showToast(t("toast:proposalVoted"), "success")
+          showToast(t("toast:voted"), "success")
           navigate(`/${siteId}/m`)
           setVoteStatus("voted")
         },
@@ -127,28 +112,16 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
     <div className="flex flex-col gap-6">
       <ModerationHeader title={proposal.title ?? proposal.id} parentBreadcrumbs={parentBreadcrumbs} />
       <PublicationOwnerProvider owner={proposal?.by}>
-        {showOnTop && (
-          <NestedView
-            t={t}
-            proposal={proposal}
-            pageState={pageState}
-            voteStatus={voteStatus}
-            votedValue={votedValue}
-            onVoteClick={handleVoteClick}
-          />
-        )}
         <div className="flex gap-8">
           <div className="flex w-full flex-col gap-8">
-            {!showOnTop && (
-              <NestedView
-                t={t}
-                proposal={proposal}
-                pageState={pageState}
-                voteStatus={voteStatus}
-                votedValue={votedValue}
-                onVoteClick={handleVoteClick}
-              />
-            )}
+            <ProposalDefaultView
+              t={t}
+              proposal={proposal}
+              pageState={pageState}
+              voteStatus={voteStatus}
+              votedValue={votedValue}
+              onVoteClick={handleVoteClick}
+            />
             {voterId && (
               <AlternativeOptions
                 hideVoteButton={voteStatus === "voted"}
@@ -168,18 +141,14 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
           </div>
           <div className="flex flex-col gap-6">
             <ProposalInfo className="w-87.5" createdBy={proposal?.by} createdAt={proposal?.creationTime} daysLeft={7} />
-            {!showOnTop && (
-              <>
-                {pageState == "voting" ? (
-                  <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
-                ) : (
-                  <ButtonPrimary
-                    label="Back to options"
-                    onClick={togglePageState}
-                    iconBefore={<SvgArrowLeft className="fill-white" />}
-                  />
-                )}
-              </>
+            {pageState === "voting" ? (
+              <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
+            ) : (
+              <ButtonPrimary
+                label="Back to options"
+                onClick={togglePageState}
+                iconBefore={<SvgArrowLeft className="fill-white" />}
+              />
             )}
           </div>
         </div>

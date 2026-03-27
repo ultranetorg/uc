@@ -6,3 +6,4 @@ export * from "./Reviews"
 export * from "./Users"
 
 export * from "./CreateDiscussionPage"
+export * from "./PreviewPage"

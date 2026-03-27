@@ -36,7 +36,7 @@ public class PublicationsController
 	}
 
 	[HttpGet("{publicationId}/updated-fields")]
-	public ProductFieldCompareModel GetUpdatedFields(string publicationId, int version)
+	public FieldValueCompareModel GetUpdatedFields(string publicationId, int version)
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetUpdatedFields)} method called with {{PublicationId}}", publicationId);
 

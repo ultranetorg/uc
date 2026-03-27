@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from "react"
 
-import { ProductField } from "types"
+import { FieldValue } from "types"
 import { TagsList, TextModal } from "ui/components"
 import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
 import { RequirementPlatform, getChildren, getRequirementPlatforms } from "ui/components/publication/utils"
@@ -9,7 +9,7 @@ import { buildFileUrl, ensureHttp, getValue, nameEq } from "utils"
 
 import { ContentProps } from "../types"
 
-function buildDescriptions(fields: ProductField[] | undefined): { language: string; text: string }[] {
+function buildDescriptions(fields: FieldValue[] | undefined): { language: string; text: string }[] {
   const descriptionMaximal = (fields ?? []).filter(x => nameEq(x.name, "description-maximal"))
 
   const descriptions: { language: string; text: string }[] = []
@@ -27,7 +27,7 @@ function buildDescriptions(fields: ProductField[] | undefined): { language: stri
   return descriptions
 }
 
-function buildMediaItems(fields: ProductField[] | undefined) {
+function buildMediaItems(fields: FieldValue[] | undefined) {
   const arts = (fields ?? []).filter(x => nameEq(x.name, "art"))
   const items: { src: string; poster?: string; alt?: string }[] = []
 
@@ -75,7 +75,7 @@ function buildSection(
   platform: RequirementPlatform,
   sectionKey: string,
   sectionName: string,
-  children: ProductField[] | undefined,
+  children: FieldValue[] | undefined,
 ): SystemRequirementsTabSectionLike | null {
   if (!children?.length) return null
 
@@ -111,7 +111,7 @@ function buildSection(
   }
 }
 
-function buildSystemRequirementsTabs(fields: ProductField[] | undefined): SystemRequirementsTabLike[] {
+function buildSystemRequirementsTabs(fields: FieldValue[] | undefined): SystemRequirementsTabLike[] {
   const platforms = getRequirementPlatforms(fields)
   const tabs: SystemRequirementsTabLike[] = []
 

@@ -1,6 +1,6 @@
-import { ProductField } from "./ProductField"
+import { FieldValue } from "./ProductField"
 
-export type ProductFieldDiff = {
-  from: ProductField[]
-  to: ProductField[]
+export type FieldValueCompare = {
+  from: FieldValue[]
+  to: FieldValue[]
 }

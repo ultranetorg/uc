@@ -1,7 +1,14 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import { AccountBaseAvatar, AuthorBaseAvatar, BaseProposal, OperationType, PublicationImageBase } from "types"
+import {
+  AccountBaseAvatar,
+  AuthorBaseAvatar,
+  BaseProposal,
+  OperationType,
+  PublicationImageBase,
+  PublicationProposal,
+} from "types"
 import { AccountInfo, ButtonOutline, ButtonPrimary, PublicationInfo, TableColumn } from "ui/components"
 import {
   formatNabb,
@@ -9,8 +16,10 @@ import {
   formatDate,
   formatDuration,
   formatVotes,
-  getDaysPassedFromStart,
+  getHoursPassedFromStart,
   shortenAddress,
+  formatArShort,
+  formatAr,
 } from "utils"
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
@@ -40,6 +49,18 @@ export const renderActionShort = (t: TFunction, operationType: OperationType) =>
   <span title={t(`operations:${operationType}`)}>{t(`operationsShort:${operationType}`)}</span>
 )
 
+export const renderAr = (t: TFunction, proposal: PublicationProposal) => {
+  const approved =
+    proposal.optionsVotesCount && proposal.optionsVotesCount.length > 0 ? proposal.optionsVotesCount[0] : 0
+  const title = formatAr(t, approved, proposal.neitherCount)
+  const value = formatArShort(approved, proposal.neitherCount)
+  return (
+    <div className="truncate" title={title}>
+      {value}
+    </div>
+  )
+}
+
 export const renderNabb = (t: TFunction, proposal: BaseProposal) => {
   const title = formatNabb(t, proposal.neitherCount, proposal.anyCount, proposal.banCount, proposal.banishCount)
   const value = formatNabbShort(proposal.neitherCount, proposal.anyCount, proposal.banCount, proposal.banishCount)
@@ -59,9 +80,9 @@ export const renderCategory = (title: string) => (
 export const renderDate = (date: number) => <span className={FONT_SM_CLASSNAME}>{formatDate(date)}</span>
 
 export const renderLastsFor = (t: TFunction, creationTime: number) => {
-  const passed = getDaysPassedFromStart()
-  const duration = passed - creationTime + 1
-  const formatted = formatDuration(t, duration)
+  const hoursPassed = getHoursPassedFromStart()
+  const hoursDuration = hoursPassed - creationTime
+  const formatted = formatDuration(t, hoursDuration)
   return (
     <span className={FONT_SM_CLASSNAME} title={formatted}>
       {formatted}

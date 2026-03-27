@@ -25,14 +25,62 @@ public class ProductsService
 		}
 	}
 
+	public UnpublishedProductDetailsModel GetUnpublishedSiteProduct([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string productId)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProductId}", nameof(ProductsService), nameof(GetUnpublishedSiteProduct), siteId, productId);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(productId);
+
+		lock(mcv.Lock)
+		{
+			AutoId entitySiteId = AutoId.Parse(siteId);
+			Site site = mcv.Sites.Latest(entitySiteId);
+			if(site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+
+			AutoId entityProductId = AutoId.Parse(productId);
+			Product product = mcv.Products.Latest(entityProductId);
+			if(product == null)
+			{
+				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+			}
+
+			if(product.Publications.Any(i => mcv.Publications.Latest(i).Site == site.Id))
+			{
+				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+			}
+
+			FairUser account = (FairUser) mcv.Users.Latest(product.Author);
+			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
+			IEnumerable<FieldValueModel> mappedFields = GetMappedValue(product);
+
+			return new UnpublishedProductDetailsModel(product, account, fileId)
+			{
+				Fields = mappedFields
+			};
+		}
+	}
+
+	IEnumerable<FieldValueModel> GetMappedValue(Product product)
+	{
+		FieldValue[] fields = GetFieldsLastVersion(product);
+		if(fields != null)
+		{
+			Field[] declaration = Product.FindDeclaration(product.Type);
+			return MapValues(declaration, fields);
+		}
+
+		return null;
+	}
+
 	public UnpublishedProductDetailsModel GetUnpublishedProduct([NotNull][NotEmpty] string unpublishedProductId, [NotEmpty] string siteId = null)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {UnpublishedProductId}, {SiteId}", nameof(ProductsService), nameof(GetUnpublishedProduct), unpublishedProductId, siteId);
 
-		if(siteId != null)
-		{
-			Guard.Against.NullOrEmpty(siteId);
-		}
+		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(unpublishedProductId);
 
 		AutoId entityUnpublishedProductId = AutoId.Parse(unpublishedProductId);
@@ -49,7 +97,7 @@ public class ProductsService
 				}
 				if(!site.UnpublishedPublications.Contains(entityUnpublishedProductId))
 				{
-					throw new EntityNotFoundException(nameof(EntityNames.UnpublishedProductEntityName).ToLower(), unpublishedProductId);
+					throw new EntityNotFoundException(EntityNames.UnpublishedProductEntityName, unpublishedProductId);
 				}
 			}
 
@@ -63,16 +111,15 @@ public class ProductsService
 			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
 
 			FieldValue[] fields = GetFieldsLastVersion(product);
-			IEnumerable<ProductFieldValueModel> mappedFields = fields != null ? MapValues(Product.Software, fields) : null;
+			IEnumerable<FieldValueModel> mappedFields = fields != null ? MapValues(Product.Software, fields) : null;
 			return new UnpublishedProductDetailsModel(product, account, fileId)
 			{
-				Versions = mappedFields
+				Fields = mappedFields
 			};
 		}
 	}
 
-
-	public IEnumerable<ProductFieldValueModel> GetFields([NotNull][NotEmpty] string productId)
+	public IEnumerable<FieldValueModel> GetFields([NotNull][NotEmpty] string productId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetFields), productId);
 
@@ -151,7 +198,7 @@ public class ProductsService
 		return result;
 	}
 
-	public ProductFieldCompareModel GetUpdatedFieldsByPublication([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int version)
+	public FieldValueCompareModel GetUpdatedFieldsByPublication([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int version)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(ProductsService), nameof(GetUpdatedFieldsByPublication), publicationId);
 
@@ -179,19 +226,19 @@ public class ProductsService
 			var mappedFrom = MapValues(Product.Software, fieldsFrom);
 			var mappedTo = MapValues(Product.Software, fieldsTo);
 
-			return new ProductFieldCompareModel {From = mappedFrom, To = mappedTo};
+			return new FieldValueCompareModel {From = mappedFrom, To = mappedTo};
 		}
 	}
 
-	public static IEnumerable<ProductFieldValueModel> MapValues(Field[] declarationFields, FieldValue[] productFields)
+	public static IEnumerable<FieldValueModel> MapValues(Field[] declarationFields, FieldValue[] productFields)
 	{
-		var result = new List<ProductFieldValueModel>();
+		var result = new List<FieldValueModel>();
 
 		foreach(FieldValue value in productFields)
 		{
 			var declarationField = declarationFields.FirstOrDefault(d => d.Name == value.Name);
 
-			var model = new ProductFieldValueModel
+			var model = new FieldValueModel
 			{
 				Name = value.Name,
 				Type = declarationField?.Type,

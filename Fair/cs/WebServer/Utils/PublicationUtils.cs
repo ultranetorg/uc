@@ -22,7 +22,11 @@ public static class PublicationUtils
 
 	public static string? GetLatestTitle(Product product) => FindLatestField(product, Token.Title)?.AsUtf8;
 
-	public static string? GetLatestDescription(Product product) => FindLatestField(product, Token.DescriptionMinimal)?.AsUtf8;
+	public static string? GetLatestDescription(Product product)
+	{
+		FieldValue? fieldValue = FindLatestField(product, Token.DescriptionMinimal);
+		return fieldValue != null && fieldValue.Value != null ? fieldValue.AsUtf8 : null;
+	}
 
 	public static string? GetDescription(Publication publication, Product product) => FindProductField(publication, product, Token.Description)?.AsUtf8;
 

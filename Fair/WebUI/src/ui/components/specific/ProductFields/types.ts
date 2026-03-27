@@ -1,14 +1,14 @@
-import { ProductField } from "types"
+import { FieldValue } from "types"
 
 export type CompareStatus = "removed" | "added" | "changed" | undefined
 
-export type ProductFieldViewModel = Omit<ProductField, "children"> & {
+export type ProductFieldViewModel = Omit<FieldValue, "children"> & {
   id: string
   parent?: ProductFieldViewModel
   children?: ProductFieldViewModel[]
 }
 
-export type ProductFieldCompareViewModel = Omit<ProductField, "children"> & {
+export type ProductFieldCompareViewModel = Omit<FieldValue, "children"> & {
   id: string
   parent?: ProductFieldCompareViewModel
   children?: ProductFieldCompareViewModel[]

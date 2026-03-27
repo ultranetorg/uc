@@ -17,7 +17,7 @@ public static class ProposalUtils
 
 	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is SiteModeratorAddition or SiteModeratorRemoval;
 
-	public static bool IsPublisherOperation(Proposal proposal) => proposal.Options[0].Operation is SiteAuthorsChange;
+	public static bool IsPublisherOperation(Proposal proposal) => proposal.Options[0].Operation is SiteAuthorsRemoval;
 
 	public static BaseVotableOperationModel ToBaseVotableOperationModel(FairMcv mcv, SiteOperation proposal)
 	{

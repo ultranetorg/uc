@@ -1,36 +1,27 @@
 import { memo, useMemo } from "react"
 
 import { useGetProductFields } from "entities"
+import { ProposalDetails, PublicationCreation, PublicationDeletion } from "types"
 import { ProductFieldsTree } from "ui/components/specific"
 
-import { PublicationCreation } from "types"
 import { ProposalTypeViewProps } from "./types"
 
-const ProductFieldsForProduct = ({ productId }: { productId: string }) => {
-  const { isFetching, data } = useGetProductFields(productId)
-
-  if (isFetching || !data) return <div>LOADING</div>
-
-  return <ProductFieldsTree productFields={data} />
+const getPublicationOrProductId = (proposal?: ProposalDetails): string | undefined => {
+  const operation = proposal?.options.find(
+    x => x.operation.$type === "publication-creation" || x.operation.$type === "publication-deletion",
+  )?.operation
+  if (operation?.$type === "publication-creation") return (operation as PublicationCreation | undefined)?.productId
+  else if (operation?.$type === "publication-deletion")
+    return (operation as PublicationDeletion | undefined)?.publicationId
+  return undefined
 }
 
-export const ProposalFieldsView = memo(({ proposal }: ProposalTypeViewProps) => {
-  const productIds = useMemo(
-    () =>
-      proposal?.options
-        ?.map(option => option.operation)
-        .filter((operation): operation is PublicationCreation => operation.$type === "publication-creation")
-        .map(operation => operation.productId),
-    [proposal],
-  )
+export const PublicationCreationProposalView = memo(({ proposal }: ProposalTypeViewProps) => {
+  const productId = useMemo(() => getPublicationOrProductId(proposal), [proposal])
 
-  if (!productIds?.length) return null
+  const { isFetching, data: productFields } = useGetProductFields(productId)
 
-  return (
-    <>
-      {productIds.map(productId => (
-        <ProductFieldsForProduct key={productId} productId={productId} />
-      ))}
-    </>
-  )
+  if (isFetching || !productFields) return <div>LOADING</div>
+
+  return <ProductFieldsTree productFields={productFields} />
 })

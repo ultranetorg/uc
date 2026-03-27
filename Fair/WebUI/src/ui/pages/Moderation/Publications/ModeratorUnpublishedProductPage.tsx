@@ -30,7 +30,7 @@ export const ModeratorUnpublishedProductPage = () => {
         homeLabel={t("common:home")}
       />
       {/* TODO: ProductFields component should be modified and receive product.versions property instead of productIds to avoid second request to back-end. */}
-      <ProductFieldsTree productFields={product.versions} />
+      <ProductFieldsTree productFields={product.fields} />
     </div>
   )
 }

@@ -10,8 +10,6 @@ import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getPublicationsItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
 
-import { getVotingColumns } from "../constants"
-
 export const PublicationsTab = () => {
   const { t } = useTranslation("tabPublications")
   const navigate = useNavigate()
@@ -35,11 +33,12 @@ export const PublicationsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "title", label: t("common:title"), type: "title", className: "w-[23%]" },
+      { accessor: "title", label: t("common:title"), type: "title", className: "w-[30%]" },
       { accessor: "publication", label: t("common:product"), type: "publication", className: "w-[18%]" },
       { accessor: "author", label: t("common:author"), type: "account", className: "w-[15%]" },
       { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[13%]" },
-      ...getVotingColumns(t),
+      { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for" },
+      { accessor: "ar", label: t("common:ar"), type: "ar", title: t("common:arFull") },
     ],
     [t],
   )
