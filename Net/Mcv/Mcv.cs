@@ -466,28 +466,35 @@ public abstract class Mcv /// Mutual chain voting
 
 			return true;
 		}
-		else if(r.ConsensusFailed)
-		{
-			var h = r.Target.Hash;
-
-			r.Target.Update();
-			r.Target.Summarize();
-
-			if(h == null || !r.Target.Hash.SequenceEqual(h))
-			{
-				r.Try++;
-
-				r.ReUpdate();
-
-				r.Target.Hash = null;
-			}
-
-			ConsensusFailed(r); /// -> set MainWakeup -> Generate -> this method to revote
-				
-			return false;
-		}
 		else
-			return false;
+		{
+
+			var s = r.SelectedVoters;
+			var a = r.SelectedArrived;
+		
+			var missing = s.Count() - a.Count();
+
+			if(a.Any() && m.Count() + missing < r.MinimumForConsensus)
+			{
+				//var h = r.Target.Hash;
+
+				//r.Target.Update();
+				//r.Target.Summarize();
+				//
+				//if(!r.Target.Hash.SequenceEqual(h))
+				{
+					r.Try++;
+
+					r.ReUpdate();
+
+					r.Target.Hash = null;
+				}
+
+				ConsensusFailed(r); /// -> set MainWakeup -> Generate -> here to revote
+			}
+		}
+
+		return false;
 	}
 
 	public Round GetRound(int rid)

@@ -95,19 +95,6 @@ public abstract class Round : IBinarySerializable
 		}
 	}
 
-	public bool ConsensusFailed
-	{
-		get
-		{ 
-			var s = SelectedVoters;
-			var r = SelectedArrived;
-		
-			var missing = s.Count() - r.Count();
-
-			return r.Any() && r.GroupBy(i => i.TargetHash, Bytes.EqualityComparer).All(i => i.Count() + missing < MinimumForConsensus);
-		}
-	}
-
 	public Round(Mcv c)
 	{
 		Mcv = c;
@@ -151,12 +138,12 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in Votes)
 		{
-			Mcv.Check(i);
+			if(i.Try == Try)
+	 		{	
+				Mcv.Check(i);
 
-			if(i.Status == VoteStatus.OK)
-			{	
-				if(i.Try == Try)
-	 			{	
+				if(i.Status == VoteStatus.OK)
+				{	
 					VotesOfTry.Add(i);
 					
 					if(i.Transactions.Any())
