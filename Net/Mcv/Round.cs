@@ -106,29 +106,29 @@ public abstract class Round : IBinarySerializable
 		return $"Id={Id}, V/VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), {(Confirmed ? "Confirmed, " : "")}Members={Members?.Count}, ConfirmedTime={ConsensusTime}, Hash={Hash?.ToHex()}";
 	}
 
-	public void Update()
-	{
-		foreach(var i in New)
-		{
-			Mcv.Check(i);
-
-			if(i.Status == VoteStatus.OK)
-			{	
-				if(i.Try == Try)
-	 			{	
-					VotesOfTry.Add(i);
-					
-					if(i.Transactions.Any())
-						Payloads.Add(i);
-
-					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
-						SelectedArrived.Add(i);
-				}
-			}
-		}
-
-		New.Clear();
-	}
+//	public void Update()
+//	{
+//		foreach(var i in New)
+//		{
+//			Mcv.Check(i);
+//
+//			if(i.Status == VoteStatus.OK)
+//			{	
+//				if(i.Try == Try)
+//	 			{	
+//					VotesOfTry.Add(i);
+//					
+//					if(i.Transactions.Any())
+//						Payloads.Add(i);
+//
+//					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
+//						SelectedArrived.Add(i);
+//				}
+//			}
+//		}
+//
+//		New.Clear();
+//	}
 
 	public void ReUpdate()
 	{
@@ -142,7 +142,7 @@ public abstract class Round : IBinarySerializable
 	 		{	
 				Mcv.Check(i);
 
-				if(i.Status == VoteStatus.OK)
+				if(i.Status == VoteStatus.OK || i.User == AutoId.God)
 				{	
 					VotesOfTry.Add(i);
 					

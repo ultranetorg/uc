@@ -82,6 +82,11 @@ public abstract class McvPeering : HomoTcpPeering
 										}
 									};
 
+			Mcv.ConsensusReached += r => {
+											Generate(r);
+											MainWakeup.Set(); /// send next try vote
+										 };
+
 			Mcv.ConsensusFailed += r =>	{
 											foreach(var i in r.OrderedTransactions.Where(j => Mcv.Settings.Generators.Any(g => g.Id == j.Vote.User)))
 											{
@@ -324,9 +329,9 @@ public abstract class McvPeering : HomoTcpPeering
 								}
 							}
 
-							r = Mcv.NextVotingRound;
-							
-							if(Mcv.TryReachConsensus(r))
+							Mcv.NextVotingRound.ReUpdate();
+
+							if(Mcv.TryReachConsensus(Mcv.NextVotingRound))
 							{
 								SynchronizingThread = null;
 								SynchronizationInfo = null;
@@ -405,6 +410,8 @@ public abstract class McvPeering : HomoTcpPeering
 							Mcv.Save(r);
 						}
 
+						Mcv.NextVotingRound.ReUpdate();
+
 						if(Mcv.TryReachConsensus(Mcv.NextVotingRound))
 						{
 							SynchronizingThread = null;
@@ -473,7 +480,7 @@ public abstract class McvPeering : HomoTcpPeering
 		Synchronize();
 	}
 
-	public void Generate()
+	public void Generate(Round round = null)
 	{
 		Statistics.Generating.Begin();
 	
@@ -491,9 +498,6 @@ public abstract class McvPeering : HomoTcpPeering
 				//Thread.Sleep(NodeGlobals.TimeoutOnError);
 				continue;;
 			}
-
-			if(Synchronization != Synchronization.Synchronized)
-				continue;
 			
 			if(gs.Id == null)
 			{
@@ -561,29 +565,22 @@ public abstract class McvPeering : HomoTcpPeering
 						OutgoingTransactions.RemoveAll(i => i.User == gs.User && i.Operations.Any(o => o is CandidacyDeclaration));
 				}
 	
-				var r = Mcv.NextVotingRound;
+				var r = round ?? Mcv.NextVotingRound;
 	
-				///if(r.ConsensusFailed)
-				///{
-				///	var h = r.Target.Hash;
-				///
-				///	//r.Target.Update();
-				///
-				///	if(r.Target.Summarize().SequenceEqual(h))
-				///		continue;
-				///}
-				///else 
 				if(r.VotesOfTry.Any(i => i.User == gs.Id))
 					continue;
+
+				if(round == null) /// when consensus is already reached
+					r.ReUpdate();
 	
 				if(r.Target.Hash == null)
 				{
-					r.Target.Update();
+					//r.Target.ReUpdate();
 					r.Target.Summarize();
 
 					if(r.Target.Hash == null)
 						return;
-				} 
+				}
 
 				Vote createvote(Round r)
 				{
@@ -728,7 +725,7 @@ public abstract class McvPeering : HomoTcpPeering
 				{
 					foreach(var i in v)
 					{
-						Mcv.Add(i);
+						Mcv.Add(i, true);
 					}
 				
 					Mcv.TryReachConsensus(Mcv.FindRound(v.Key));
