@@ -1,20 +1,31 @@
 import { memo, useEffect, useMemo, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { SvgStarXxs } from "assets"
-import { PublicationDetails } from "types"
+import { Link } from "react-router-dom"
+import { SvgBoxArrowUpRight, SvgStarXxs } from "assets"
+import { DownloadSource, ProductDetails, PublicationDetails } from "types"
 import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
-import { formatAverageRating, formatDate, getValue, nameEq } from "utils"
-import { getChildren, getRequirementPlatforms } from "ui/components/publication/utils"
+import { formatAverageRating, formatDate, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq } from "utils"
 
 import { AuthorImageTitle } from "./components"
 
 const LABEL_CLASSNAME = "leading-4 text-gray-500 text-2xs"
 const VALUE_CLASSNAME = "overflow-hidden text-ellipsis whitespace-nowrap text-2sm font-medium leading-5 text-gray-800"
 
+export interface SoftwareDownload {
+  source: DownloadSource
+  link: string
+}
+
 export type SoftwareInfoProps = {
   siteId: string
-  publication: PublicationDetails
+  productOrPublication: ProductDetails | PublicationDetails
+  languages?: string[]
+  supportedPlatforms?: string[]
+  price?: string
+  licenseType?: string
+  licensingDetailsUrl?: string
+  softwareDownloads?: SoftwareDownload[]
   publisherLabel: string
   versionLabel: string
   osLabel: string
@@ -25,13 +36,20 @@ export type SoftwareInfoProps = {
   languagesLabel: string
   downloadFromRdnLabel: string
   downloadFromTorrentLabel: string
-  downloadFromWebLabel: string
+  downloadFromIpfsLabel: string
+  onVersionChange: (version?: string) => void
 }
 
 export const SoftwareInfo = memo(
   ({
     siteId,
-    publication,
+    productOrPublication,
+    supportedPlatforms,
+    price,
+    languages,
+    licenseType,
+    licensingDetailsUrl,
+    softwareDownloads,
     publisherLabel,
     versionLabel,
     osLabel,
@@ -42,11 +60,12 @@ export const SoftwareInfo = memo(
     languagesLabel,
     downloadFromRdnLabel,
     downloadFromTorrentLabel,
-    downloadFromWebLabel,
+    downloadFromIpfsLabel,
+    onVersionChange,
   }: SoftwareInfoProps) => {
     const [selectedVersion, setSelectedVersion] = useState<string | undefined>()
 
-    const fields = publication.productFields
+    const fields = productOrPublication.productFields
 
     const versions = useMemo(() => {
       const releases = (fields ?? []).filter(x => nameEq(x.name, "release"))
@@ -61,40 +80,29 @@ export const SoftwareInfo = memo(
 
     const versionItems = useMemo(() => versions.map(v => ({ value: v, label: v })), [versions])
 
-    const licenseType = useMemo(() => getValue(fields, "license-type"), [fields])
-
-    const price = useMemo(() => getValue(fields, "price"), [fields])
-
-    const languages = useMemo(() => {
-      const uiLanguages = getChildren(fields, "uilanguages")
-      const codes = uiLanguages
-        .filter(x => nameEq(x.name, "language"))
-        .map(x => String(x.value).toUpperCase())
-        .filter(Boolean)
-      const unique = Array.from(new Set(codes))
-      return unique.length ? unique.join(", ") : undefined
-    }, [fields])
-
-    const os = useMemo(() => {
-      const platforms = getRequirementPlatforms(fields)
-      if (!platforms.length) return undefined
-      return platforms.map(p => p.label.replace("Mac OS", "macOS")).join(" / ")
-    }, [fields])
+    const links = useMemo(() => {
+      return {
+        ipfs: softwareDownloads?.find(x => x.source === "ipfs")?.link?.trim(),
+        rdn: softwareDownloads?.find(x => x.source === "ipfs")?.link?.trim(),
+        torrent: softwareDownloads?.find(x => x.source === "ipfs")?.link?.trim(),
+      }
+    }, [softwareDownloads])
 
     useEffect(() => {
       if (!versions.length) {
         setSelectedVersion(undefined)
-        return
+      } else {
+        setSelectedVersion(prev => (prev && versions.includes(prev) ? prev : versions[0]))
       }
-      setSelectedVersion(prev => (prev && versions.includes(prev) ? prev : versions[0]))
-    }, [versions])
+      onVersionChange(selectedVersion)
+    }, [onVersionChange, selectedVersion, versions])
 
     return (
       <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
         <div className="flex flex-col gap-2">
           <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
-          <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
-            <AuthorImageTitle title={publication.authorTitle} authorAvatar={publication.authorAvatar} />
+          <LinkFullscreen to={`/${siteId}/a/${productOrPublication.authorId}`}>
+            <AuthorImageTitle title={productOrPublication.authorTitle} authorFileId={productOrPublication.authorId} />
           </LinkFullscreen>
         </div>
 
@@ -108,31 +116,43 @@ export const SoftwareInfo = memo(
               size="medium"
               items={versionItems}
               value={selectedVersion ?? versions[0]}
-              onChange={x => setSelectedVersion(x.value)}
+              onChange={x => setSelectedVersion(x.value!)}
             />
           </div>
         )}
 
-        {os && (
+        {supportedPlatforms && (
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{osLabel}</span>
-            <span className={VALUE_CLASSNAME}>{os}</span>
+            <span className={VALUE_CLASSNAME}>{formatSupportedPlatforms(supportedPlatforms)}</span>
           </div>
         )}
 
         {licenseType && (
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{licenseTypeLabel}</span>
-            <span className={VALUE_CLASSNAME}>{licenseType}</span>
+            {licensingDetailsUrl ? (
+              <Link
+                className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}
+                to={licensingDetailsUrl}
+                title={licensingDetailsUrl}
+              >
+                {licenseType} <SvgBoxArrowUpRight className="fill-gray-800" />
+              </Link>
+            ) : (
+              <span className={VALUE_CLASSNAME}>{licenseType}</span>
+            )}
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
-          <span className={LABEL_CLASSNAME}>{ratingLabel}</span>
-          <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>
-            {formatAverageRating(publication.rating)} <SvgStarXxs className="fill-favorite" />
+        {"rating" in productOrPublication && (
+          <div className="flex flex-col gap-2">
+            <span className={LABEL_CLASSNAME}>{ratingLabel}</span>
+            <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>
+              {formatAverageRating(productOrPublication.rating)} <SvgStarXxs className="fill-favorite" />
+            </div>
           </div>
-        </div>
+        )}
 
         {price && (
           <div className="flex flex-col gap-2">
@@ -143,21 +163,37 @@ export const SoftwareInfo = memo(
 
         <div className="flex flex-col gap-2">
           <span className={LABEL_CLASSNAME}>{lastUpdatedLabel}</span>
-          <span className={VALUE_CLASSNAME}>{formatDate(publication.productUpdated)}</span>
+          <span className={VALUE_CLASSNAME}>{formatDate(productOrPublication.updated)}</span>
         </div>
 
-        {languages && (
+        {languages && languages.length > 0 && (
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{languagesLabel}</span>
-            <span className={VALUE_CLASSNAME}>{languages}</span>
+            <span className={VALUE_CLASSNAME}>{formatUiLanguages(languages)}</span>
           </div>
         )}
 
-        <div className="flex flex-col gap-4">
-          <ButtonPrimary className="w-full" label={downloadFromRdnLabel} />
-          <ButtonPrimary className="w-full" label={downloadFromTorrentLabel} />
-          <ButtonPrimary className="w-full" label={downloadFromWebLabel} />
-        </div>
+        {links.ipfs ||
+          links.rdn ||
+          (links.torrent && (
+            <div className="flex flex-col gap-4">
+              {links.rdn && (
+                <Link to={links.rdn}>
+                  <ButtonPrimary className="w-full" label={downloadFromRdnLabel} />
+                </Link>
+              )}
+              {links.torrent && (
+                <Link to={links.torrent}>
+                  <ButtonPrimary className="w-full" label={downloadFromTorrentLabel} />
+                </Link>
+              )}
+              {links.ipfs && (
+                <Link to={links.ipfs}>
+                  <ButtonPrimary className="w-full" label={downloadFromIpfsLabel} />
+                </Link>
+              )}
+            </div>
+          ))}
       </div>
     )
   },

@@ -16,19 +16,19 @@ const VALUE_CLASSNAME = "truncate text-2sm leading-5"
 const LONG_VALUE_CLASSNAME = "line-clamp-3 text-2sm leading-5"
 
 export const MoviePublicationContent = memo(
-  ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
-    const fields = publication.productFields
+  ({ t, siteId, productOrPublication, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
+    const fields = productOrPublication.productFields
 
     const movieFields = useMemo(() => buildMovieFields(fields), [fields])
 
     const posterSrc = useMemo(() => buildFileUrl(movieFields.posterId), [movieFields.posterId])
 
     const aboutText = useMemo(
-      () => movieFields.about ?? getMaxDescription(fields) ?? publication.description,
-      [movieFields.about, fields, publication.description],
+      () => movieFields.about ?? getMaxDescription(fields) ?? productOrPublication.description,
+      [movieFields.about, fields, productOrPublication.description],
     )
 
-    const publisherAccountName = publication.authorTitle
+    const publisherAccountName = productOrPublication.authorTitle
 
     return (
       <>
@@ -36,7 +36,7 @@ export const MoviePublicationContent = memo(
         <div className="flex h-fit w-87.5 flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-6">
           <div className="flex h-112.5 items-center justify-center overflow-hidden rounded-lg bg-gray-200">
             {posterSrc ? (
-              <img src={posterSrc} alt={publication.title} className="size-full object-cover" />
+              <img src={posterSrc} alt={productOrPublication.title} className="size-full object-cover" />
             ) : (
               <div className="size-full bg-gray-300" />
             )}
@@ -45,8 +45,7 @@ export const MoviePublicationContent = memo(
           <div className="flex flex-col gap-4">
             <ButtonPrimary className="w-full" label={t("downloadFromRdn")} />
             <ButtonPrimary className="w-full" label={t("downloadFromTorrent")} />
-            <ButtonPrimary className="w-full" label={t("downloadFromTorrent")} />
-            <ButtonPrimary className="w-full" label={t("downloadFromWeb")} />
+            <ButtonPrimary className="w-full" label={t("downloadFromIpfs")} />
           </div>
         </div>
 
@@ -56,23 +55,26 @@ export const MoviePublicationContent = memo(
             {/* Publisher (account with avatar) */}
             <div className="flex items-center gap-6 py-1">
               <span className={LABEL_CLASSNAME}>{t("publisher")}:</span>
-              <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
-                <AuthorImageTitle title={publisherAccountName} authorAvatar={publication.authorAvatar} />
+              <LinkFullscreen to={`/${siteId}/a/${productOrPublication.authorId}`}>
+                <AuthorImageTitle title={publisherAccountName} authorFileId={productOrPublication.authorId} />
               </LinkFullscreen>
             </div>
 
             {/* Ratings */}
-            <div className="flex items-center gap-6 py-1">
-              <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
-              <span className={twMerge(VALUE_CLASSNAME, "flex flex-wrap items-center gap-3 whitespace-nowrap")}>
-                <span className="flex items-center gap-1">
-                  <span>{t("storeName")}: </span>
-                  <span className="font-semibold">{formatAverageRating(publication.rating)}</span>
-                  <SvgStarXxs className="fill-favorite" />
+            {"rating" in productOrPublication && productOrPublication.rating && (
+              <div className="flex items-center gap-6 py-1">
+                <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
+                <span className={twMerge(VALUE_CLASSNAME, "flex flex-wrap items-center gap-3 whitespace-nowrap")}>
+                  <span className="flex items-center gap-1">
+                    <span className="font-semibold">{formatAverageRating(productOrPublication.rating)}</span>
+                    <SvgStarXxs className="fill-favorite" />
+                  </span>
+                  {movieFields.imdb && (
+                    <span className="text-2sm leading-5 text-gray-900">IMDb: {movieFields.imdb}</span>
+                  )}
                 </span>
-                {movieFields.imdb && <span className="text-2sm leading-5 text-gray-900">IMDb: {movieFields.imdb}</span>}
-              </span>
-            </div>
+              </div>
+            )}
 
             {/* Director */}
             {movieFields.director && (
@@ -155,16 +157,18 @@ export const MoviePublicationContent = memo(
             )}
           </div>
 
-          <ReviewsList
-            isPending={isPending || isPendingReviews}
-            reviews={reviews}
-            error={error}
-            onLeaveReviewClick={onLeaveReview}
-            leaveReviewLabel={t("leaveReview")}
-            noReviewsLabel={t("noReviews")}
-            reviewLabel={t("review", { count: reviews?.totalItems })}
-            showMoreReviewsLabel={t("showMoreReviews")}
-          />
+          {reviews && onLeaveReview && (
+            <ReviewsList
+              isPending={isPendingReviews!}
+              reviews={reviews}
+              error={error}
+              onLeaveReviewClick={onLeaveReview}
+              leaveReviewLabel={t("leaveReview")}
+              noReviewsLabel={t("noReviews")}
+              reviewLabel={t("review", { count: reviews?.totalItems })}
+              showMoreReviewsLabel={t("showMoreReviews")}
+            />
+          )}
         </div>
       </>
     )

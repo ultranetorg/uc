@@ -4,9 +4,12 @@
     "anbb",
     "avenir",
     "brower",
+    "btih",
     "cpuarchitecture",
+    "Descrs",
     "grayscale",
     "imdb",
+    "Ipfs",
     "lightgray",
     "nabb",
     "novaverse",
@@ -49,5 +52,8 @@
   "files.exclude": {
     "**/.husky": true,
     "**/.idea": true
+  },
+  "search.exclude": {
+    "**/archive": true
   }
 }

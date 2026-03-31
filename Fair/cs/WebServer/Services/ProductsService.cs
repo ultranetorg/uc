@@ -142,6 +142,36 @@ public class ProductsService
 
 	FieldValue[]? GetFieldsLastVersion(Product product) => product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields;
 
+	public ProductDetailsModel GetDetails([NotNull][NotEmpty] string productId)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetDetails), productId);
+
+		Guard.Against.NullOrEmpty(productId);
+
+		AutoId id = AutoId.Parse(productId);
+
+		lock(mcv.Lock)
+		{
+			Product product = mcv.Products.Latest(id);
+			if(product == null)
+			{
+				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+			}
+
+			Author author = mcv.Authors.Latest(product.Author);
+
+			IEnumerable<FieldValueModel>? productFields = null;
+			FieldValue[]? fields = GetFieldsLastVersion(product);
+			if (fields != null)
+			{
+				Field[] declaration = Product.FindDeclaration(product.Type);
+				productFields = ProductsService.MapValues(declaration, fields);
+			}
+
+			return new ProductDetailsModel(product, author, productFields);
+		}
+	}
+
 	public TotalItemsResult<UnpublishedProductModel> GetUnpublishedProducts([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetUnpublishedProducts), siteId, page, pageSize);
@@ -237,6 +267,8 @@ public class ProductsService
 		foreach(FieldValue value in productFields)
 		{
 			var declarationField = declarationFields.FirstOrDefault(d => d.Name == value.Name);
+			if(declarationField == null)
+				continue;
 
 			var model = new FieldValueModel
 			{
@@ -269,6 +301,7 @@ public class ProductsService
 			case FieldType.TextUtf8:
 			case FieldType.StringUtf8:
 			case FieldType.URI:
+			case FieldType.URL:
 			case FieldType.LanguageCode:
 			case FieldType.License:
 			case FieldType.DistributionType:

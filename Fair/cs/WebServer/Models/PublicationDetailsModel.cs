@@ -1,13 +1,11 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category, byte[]? logo, byte[]? authorAvatar)
+public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category, byte[]? logo)
 	: PublicationExtendedModel(publication, product, author, category, logo)
 {
 	public ProductType ProductType { get; } = product.Type;
 
 	public IEnumerable<FieldValueModel> ProductFields { get; set; }
-
-	public byte[] AuthorAvatar { get; set; } = authorAvatar;
 
 	public int Rating { get; set; } = publication.Rating;
 
@@ -15,5 +13,5 @@ public class PublicationDetailsModel(Publication publication, Product product, A
 
 	public string Description { get; set; } = PublicationUtils.GetDescription(publication, product);	
 
-	public int ProductUpdated { get; set; } = product.Updated.Days;
+	public int Updated { get; set; } = product.Updated.Hours;
 }

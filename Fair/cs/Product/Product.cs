@@ -160,7 +160,20 @@ public class FieldValue : IBinarySerializable
 		Value	= value;
 		Fields	= [];
 	}
-	
+
+	public FieldValue(Token name, FieldValue[] fields) : this(name)
+	{
+		Name = name;
+		Fields = fields;
+	}
+
+	public FieldValue(Token name, byte[] value, FieldValue[] fields) : this(name)
+	{
+		Name = name;
+		Value = value;
+		Fields = fields;
+	}
+
 	public bool IsValid(McvNet net)
 	{
 		if(Value != null && Value.Length > FieldValue.ValueLengthMaximum)
@@ -471,13 +484,13 @@ public class Product : IBinarySerializable, ITableEntry
 													new (Token.Tags,		FieldType.StringUtf8, FieldFlag.Optional, length: 128),
 													new (Token.UILanguages, flags : FieldFlag.Optional, fields: 
 													[
-														new (Token.Language,FieldType.LanguageCode),
+														new (Token.Language, FieldType.LanguageCode),
 													]),
-													//new (Token.DescriptionMinimal,	
-													//[
-													//	new (Token.Language,FieldType.Language, length: 8),
-													//	new (Token.Value,	FieldType.TextUtf8, length: 1024),
-													//]),
+													new (Token.DescriptionMinimal,
+													[
+														new (Token.Language,FieldType.LanguageCode, length: 8),
+														new (Token.Value,   FieldType.TextUtf8, length: 1024),
+													]),
 													new (Token.DescriptionMaximal,
 													[
 														new (Token.Language,	FieldType.LanguageCode, length: 8),

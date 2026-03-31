@@ -31,13 +31,12 @@ public class PublicationsService
 			Category category = mcv.Categories.Latest(publication.Category);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
-			byte[]? authorAvatar = author.Avatar != null ? mcv.Files.Latest(author.Avatar).Data : null;
 
 			var fields = product.Versions.FirstOrDefault(i => i.Id == publication.ProductVersion)?.Fields;
 			Field[] declaration = Product.FindDeclaration(product.Type);
 			var mappedFields = fields != null ? ProductsService.MapValues(declaration, fields) : [];
 
-			return new PublicationDetailsModel(publication, product, author, category, logo, authorAvatar)
+			return new PublicationDetailsModel(publication, product, author, category, logo)
 			{
 				ProductFields = mappedFields
 			};

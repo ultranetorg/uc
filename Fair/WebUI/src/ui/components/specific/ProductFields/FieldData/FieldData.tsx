@@ -25,6 +25,14 @@ export const FieldData = ({ node }: { node: ProductFieldViewModel }) => {
       }
       break
     }
+    case "url": {
+      if (node.parent?.name === "video") {
+        component = <ProductFieldViewVideo value={node.value} oldValue={oldValue} status={compareStatus} />
+      } else {
+        component = <ProductFieldViewUri value={node.value} oldValue={oldValue} status={compareStatus} />
+      }
+      break
+    }
     case "money": {
       component = <ProductFieldViewBigInt value={node.value} oldValue={oldValue} status={compareStatus} />
       break

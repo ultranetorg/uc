@@ -31,6 +31,7 @@ export const enUS = {
     lastsFor: "Lasts for",
     latestVersion: "latest version",
     login: "login",
+    minimal: "Minimal",
     moderator: "moderator",
     moderators: "moderators",
     nabb: "N / A / B / B",
@@ -48,6 +49,7 @@ export const enUS = {
     publications: "publications",
     publishers: "publishers",
     rating: "Rating",
+    recommended: "Recommended",
     remove: "remove",
     reject: "reject",
     review: "review",
@@ -274,6 +276,9 @@ export const enUS = {
     "all-moderators": "This action can be performed only if it is approved unanimously by all moderators",
     "publishers-majority": "This action can be performed only if it is approved by a majority of publishers",
   },
+  previewPage: {
+    closePreview: "Close preview publication",
+  },
   profile: {
     authors: "My authors",
     createNickname: "Create nickname",
@@ -323,7 +328,7 @@ export const enUS = {
     eula: "EULA",
     downloadFromRdn: "Download from RDN",
     downloadFromTorrent: "Download from torrent",
-    downloadFromWeb: "Download from web",
+    downloadFromIpfs: "Download from IPFS",
     writeReview: "Write your review",
     yourRating: "Your Rating:",
     yourReview: "Your Review:",
@@ -528,6 +533,11 @@ export const enUS = {
     "publication-updation": "Updation",
     "review-creation": "Creation",
     "review-edit": "Edit",
+  },
+  platforms: {
+    linux: "Linux",
+    macos: "macOS",
+    windows: "Windows",
   },
   reviewStatuses: {
     none: "None",

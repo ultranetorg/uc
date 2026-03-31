@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useModerationContext } from "app"
@@ -9,7 +9,7 @@ import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
-import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox, Separator } from "ui/components"
+import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
 import { ModerationHeader, ProductFieldsTree } from "ui/components/specific"
 import { showToast } from "utils"
 
@@ -22,9 +22,14 @@ export const ModeratorCreatePublicationPage = () => {
 
   const voterId = getOperationVoterId("publication-creation")
 
-  const [query, setQuery] = useState("")
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get("productId") ?? "")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
   const { data: product } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
+
+  useEffect(() => {
+    setSearchParams(product?.id ? { productId: product.id } : {}, { replace: true })
+  }, [product?.id, setSearchParams])
 
   const handleInputClear = useCallback(() => {
     setQuery("")
@@ -70,14 +75,15 @@ export const ModeratorCreatePublicationPage = () => {
                   disabled={isPending}
                   loading={isPending}
                 />
-                <Separator className="h-8" />
-                <ButtonOutline
-                  disabled={isPending}
-                  className="h-11 w-52"
-                  label="Preview publication"
-                  iconBefore={<SvgEyeSm className="fill-gray-800" />}
-                  onClick={handlePreview}
-                />
+                <Link to={`/${siteId}/m/v/${product.id}`}>
+                  <ButtonOutline
+                    disabled={isPending}
+                    className="h-11 w-52"
+                    label="Preview publication"
+                    iconBefore={<SvgEyeSm className="fill-gray-800" />}
+                    onClick={handlePreview}
+                  />
+                </Link>
               </ButtonBar>
             )}
           </>
@@ -102,10 +108,11 @@ export const ModeratorCreatePublicationPage = () => {
         />
       </div>
 
-      {debouncedQuery && (!product || !product?.fields) && (
+      {!!debouncedQuery && product && product.fields && product.fields.length ? (
+        <ProductFieldsTree productFields={product.fields} />
+      ) : (
         <MessageBox className="p-6" message={!product ? t("productNotFound") : t("productHasNoField")} />
       )}
-      {product && product.fields && <ProductFieldsTree productFields={product.fields} />}
     </div>
   )
 }

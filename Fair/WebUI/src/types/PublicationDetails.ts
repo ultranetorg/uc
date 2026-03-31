@@ -8,6 +8,6 @@ export type PublicationDetails = {
   rating: number
   reviewsCount: number
   description: string
-  productUpdated: number
+  updated: number
   productFields?: FieldValue[]
 } & PublicationExtended

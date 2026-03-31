@@ -2,17 +2,17 @@ import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { TEST_PUBLISHER_SRC } from "testConfig"
-import { buildSrc } from "utils"
+import { buildFileUrl } from "utils"
 
 export type AuthorImageTitleProps = {
   title: string
-  authorAvatar?: string
+  authorFileId?: string
 }
 
-export const AuthorImageTitle = memo(({ title, authorAvatar }: AuthorImageTitleProps) => (
+export const AuthorImageTitle = memo(({ title, authorFileId }: AuthorImageTitleProps) => (
   <div className="flex items-center gap-2">
     <div className="size-8 overflow-hidden rounded-full">
-      <img src={buildSrc(authorAvatar, TEST_PUBLISHER_SRC)} className="size-full object-cover" />
+      <img src={authorFileId ? buildFileUrl(authorFileId) : TEST_PUBLISHER_SRC} className="size-full object-cover" />
     </div>
     <span
       className={twMerge(

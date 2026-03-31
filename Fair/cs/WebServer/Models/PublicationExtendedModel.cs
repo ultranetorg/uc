@@ -7,4 +7,5 @@ public class PublicationExtendedModel(Publication publication, Product product, 
 {
 	public string AuthorId { get; set; } = author.Id.ToString();
 	public string AuthorTitle { get; set; } = author.Title;
+	public string? AuthorFileId { get; } = author.Avatar?.ToString();
 }

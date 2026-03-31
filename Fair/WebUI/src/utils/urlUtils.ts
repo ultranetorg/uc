@@ -10,3 +10,12 @@ export const buildFileUrl = (fileId?: string): string | undefined =>
   fileId ? `${BASE_URL}/files/${fileId}` : undefined
 
 export const buildUserAvatarUrl = (name: string): string => `${BASE_URL}/users/${name}/avatar`
+
+export const isValidUrl = (value: string): boolean => {
+  try {
+    new URL(value.startsWith("http://") || value.startsWith("https://") ? value : `https://${value}`)
+    return true
+  } catch {
+    return false
+  }
+}

@@ -28,6 +28,10 @@ export const formatDate = (days: number): string => {
   return dayjs(START_DATE).add(days, "day").startOf("day").format("DD.MM.YYYY")
 }
 
+export const formatSupportedPlatforms = (platforms: string[]): string => platforms.join(" / ")
+
+export const formatUiLanguages = (languages: string[]): string => languages.join(", ")
+
 export function formatSecDate(seconds: number) {
   return dayjs(START_DATE).add(seconds, "seconds").startOf("day").format("DD.MM.YYYY")
 }

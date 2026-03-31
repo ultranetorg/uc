@@ -9,8 +9,7 @@ import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, SoftwarePublicationHeader } from "ui/components/publication"
 import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
 import { createBreadcrumbs } from "utils"
-
-import { getPublicationContentByType } from "./utils"
+import { PublicationContentView } from "ui/views"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
@@ -34,8 +33,6 @@ export const PublicationPage = () => {
     return <div>Loading</div>
   }
 
-  const ContentComponent = getPublicationContentByType(publication.productType)
-
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -47,12 +44,10 @@ export const PublicationPage = () => {
           categories={TEST_SOFTWARE_CATEGORIES}
         />
         <div className="flex gap-8">
-          <ContentComponent
-            t={t}
+          <PublicationContentView
             isPending={isPending}
             isPendingReviews={isPendingReviews}
-            publication={publication}
-            siteId={siteId!}
+            productOrPublication={publication}
             error={error}
             reviews={reviews}
             onLeaveReview={() => setReviewModalOpen(true)}

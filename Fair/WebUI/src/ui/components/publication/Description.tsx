@@ -1,14 +1,11 @@
 import { useMemo, useState } from "react"
-import { DropdownTertiary, ShowMoreButton } from "ui/components"
 
-export type DescriptionLanguage = {
-  language: string
-  text: string
-}
+import { DropdownTertiary, ShowMoreButton } from "ui/components"
+import { Description as DescriptionType } from "types"
 
 export type DescriptionProps = {
   text?: string
-  descriptions?: DescriptionLanguage[]
+  descriptions?: DescriptionType[]
   descriptionLabel: string
   showMoreLabel: string
   showLessLabel: string
@@ -50,7 +47,7 @@ export const Description = ({
               size="medium"
               items={languageItems}
               value={selectedLanguage}
-              onChange={item => setSelectedLanguage(item.value)}
+              onChange={item => setSelectedLanguage(item.value!)}
             />
           )}
         </div>

@@ -1,5 +1,6 @@
-import { SvgBoxArrowUpRight } from "assets"
 import { Link, To } from "react-router-dom"
+
+import { SvgBoxArrowUpRight } from "assets"
 
 export type SiteLinkProps = {
   to: To

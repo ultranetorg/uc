@@ -37,6 +37,7 @@ import {
   TotalItemsResult,
   UnpublishedProduct,
   UnpublishedProductDetails,
+  ProductDetails,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
@@ -143,6 +144,7 @@ export type Api = {
   getModeratorUser(name: string): Promise<AccountBase>
 
   getProductFields(productId: string): Promise<FieldValue[]>
+  getProductDetails(productId: string): Promise<ProductDetails>
 
   getProductCompareFields(publicationId: string, version: number): Promise<FieldValueCompare>
 

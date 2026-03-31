@@ -16,8 +16,8 @@ const VALUE_CLASSNAME = "truncate text-2sm leading-5"
 const LONG_VALUE_CLASSNAME = "line-clamp-3 text-2sm leading-5"
 
 export const BookPublicationContent = memo(
-  ({ t, siteId, publication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
-    const fields = publication.productFields
+  ({ t, siteId, productOrPublication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
+    const fields = productOrPublication.productFields
 
     const bookFields = useMemo(() => buildBookFields(fields), [fields])
 
@@ -28,17 +28,17 @@ export const BookPublicationContent = memo(
 
     const aboutText = useMemo(() => {
       const fromFields = bookFields.about ?? getMaxDescription(fields)
-      return fromFields ?? publication.description
-    }, [bookFields.about, fields, publication.description])
+      return fromFields ?? productOrPublication.description
+    }, [bookFields.about, fields, productOrPublication.description])
 
     const publishedAt = useMemo(() => {
       if (bookFields.publicationDate) return bookFields.publicationDate
-      return formatDate(publication.productUpdated)
-    }, [bookFields.publicationDate, publication.productUpdated])
+      return formatDate(productOrPublication.updated)
+    }, [bookFields.publicationDate, productOrPublication.updated])
 
-    const authorName = bookFields.author ?? publication.authorTitle
-    const publisherAccountName = publication.authorTitle
-    const publisherName = bookFields.publisher ?? publication.authorTitle
+    const authorName = bookFields.author ?? productOrPublication.authorTitle
+    const publisherAccountName = productOrPublication.authorTitle
+    const publisherName = bookFields.publisher ?? productOrPublication.authorTitle
 
     return (
       <>
@@ -46,7 +46,7 @@ export const BookPublicationContent = memo(
         <div className="flex h-fit w-87.5 flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
           <div className="flex h-112.5 items-center justify-center overflow-hidden rounded-lg bg-gray-200">
             {coverSrc ? (
-              <img src={coverSrc} alt={publication.title} className="size-full object-cover" />
+              <img src={coverSrc} alt={productOrPublication.title} className="size-full object-cover" />
             ) : (
               <div className="size-full bg-gray-500" />
             )}
@@ -55,8 +55,7 @@ export const BookPublicationContent = memo(
           <div className="flex flex-col gap-4">
             <ButtonPrimary className="w-full" label={t("downloadFromRdn")} />
             <ButtonPrimary className="w-full" label={t("downloadFromTorrent")} />
-            <ButtonPrimary className="w-full" label={t("downloadFromTorrent")} />
-            <ButtonPrimary className="w-full" label={t("downloadFromWeb")} />
+            <ButtonPrimary className="w-full" label={t("downloadFromIpfs")} />
           </div>
         </div>
 
@@ -66,19 +65,21 @@ export const BookPublicationContent = memo(
             {/* Publisher (account with avatar) */}
             <div className="flex items-center gap-4">
               <span className={LABEL_CLASSNAME}>{t("publisher")}:</span>
-              <LinkFullscreen to={`/${siteId}/a/${publication.authorId}`}>
-                <AuthorImageTitle title={publisherAccountName} authorAvatar={publication.authorAvatar} />
+              <LinkFullscreen to={`/${siteId}/a/${productOrPublication.authorId}`}>
+                <AuthorImageTitle title={publisherAccountName} authorFileId={productOrPublication.authorId} />
               </LinkFullscreen>
             </div>
 
             {/* Ratings */}
-            <div className="flex items-center gap-6">
-              <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
-              <span className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1 whitespace-nowrap")}>
-                <span className="font-semibold">{formatAverageRating(publication.rating)}</span>
-                <SvgStarXxs className="fill-favorite" />
-              </span>
-            </div>
+            {"rating" in productOrPublication && (
+              <div className="flex items-center gap-6">
+                <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
+                <span className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1 whitespace-nowrap")}>
+                  <span className="font-semibold">{formatAverageRating(productOrPublication.rating)}</span>
+                  <SvgStarXxs className="fill-favorite" />
+                </span>
+              </div>
+            )}
 
             {/* Author */}
             <div className="flex gap-6">
@@ -123,16 +124,18 @@ export const BookPublicationContent = memo(
             )}
           </div>
 
-          <ReviewsList
-            isPending={isPending || isPendingReviews}
-            reviews={reviews}
-            error={error}
-            onLeaveReviewClick={onLeaveReview}
-            leaveReviewLabel={t("leaveReview")}
-            noReviewsLabel={t("noReviews")}
-            reviewLabel={t("review", { count: reviews?.totalItems })}
-            showMoreReviewsLabel={t("showMoreReviews")}
-          />
+          {reviews && onLeaveReview && (
+            <ReviewsList
+              isPending={isPending || isPendingReviews!}
+              reviews={reviews}
+              error={error}
+              onLeaveReviewClick={onLeaveReview}
+              leaveReviewLabel={t("leaveReview")}
+              noReviewsLabel={t("noReviews")}
+              reviewLabel={t("review", { count: reviews?.totalItems })}
+              showMoreReviewsLabel={t("showMoreReviews")}
+            />
+          )}
         </div>
       </>
     )

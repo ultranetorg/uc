@@ -186,7 +186,7 @@ const routes: RouteObject[] = [
                 ],
               },
               {
-                path: "v",
+                path: "v/:productId",
                 element: <PreviewPage />,
               },
             ],

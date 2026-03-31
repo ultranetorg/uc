@@ -41,6 +41,7 @@ import {
   TotalItemsResult,
   UnpublishedProduct,
   UnpublishedProductDetails,
+  ProductDetails,
 } from "types"
 
 import { Api } from "./Api"
@@ -312,6 +313,9 @@ const getModeratorUser = (name: string): Promise<AccountBase> =>
 const getProductFields = (productId: string): Promise<FieldValue[]> =>
   fetch(`${BASE_URL}/products/${productId}/fields`).then(res => res.json())
 
+const getProductDetails = (productId: string): Promise<ProductDetails> =>
+  fetch(`${BASE_URL}/products/${productId}`).then(res => res.json())
+
 const getProductCompareFields = (publicationId: string, version: number): Promise<FieldValueCompare> =>
   fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
 
@@ -424,6 +428,7 @@ const api: Api = {
   getPublicationProposals,
   getModeratorUser,
   getProductFields,
+  getProductDetails,
   getProductCompareFields,
   getModeratorProposals,
   getPublisherProposals,
