@@ -573,10 +573,19 @@ public abstract class Mcv /// Mutual chain voting
 			Tail.Add(round);
 	}
 
-	public Round Examine(Transaction transaction)
+	public void Examine(Transaction transaction)
 	{
-		if(transaction.Expiration <= LastConfirmedRound.Id || !transaction.Valid(this))
-			return null;
+		if(transaction.Expiration <= LastConfirmedRound.Id)
+		{	
+			transaction.Error = Operation.Expired;
+			return;
+		}
+
+		if(!transaction.Valid(this))
+		{	
+			transaction.Error = "Invalid data";
+			return;
+		}
 
 		var a = Users.Latest(transaction.User);
 
@@ -593,8 +602,6 @@ public abstract class Mcv /// Mutual chain voting
 		r.Execute([transaction]);
 
 		transaction.Nonce = oldnonce;
-
-		return r;
 	}
 
 	public void Dump()

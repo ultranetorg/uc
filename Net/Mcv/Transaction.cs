@@ -37,12 +37,12 @@ public class Transaction : IBinarySerializable
 	AccountAddress					_Signer;
 	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
 	public bool						IsSignerSet => _Signer != null;
-	public bool						Successful => Error == null && Operations.Any() && Operations.All(i => i.Error == null);
 	public TransactionStatus		Status;
+	public string					Error;
+	public string					OverallError => Error ?? Operations.FirstOrDefault(i => i.Error != null)?.Error;
 	public IHomoPeer				Ppi;
 	public Flow						Flow;
 	public DateTime					Inquired;
-	public string					Error;
 	public byte[]					Session;
 	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;
 
@@ -66,11 +66,6 @@ public class Transaction : IBinarySerializable
 	{
 		Signer = signer.Address;
 		Signature = Net.Cryptography.Sign(signer, Hashify());
-	}
-
-	public bool EqualBySignature(Transaction t)
-	{
-		return Signature != null && t.Signature != null && Signature.SequenceEqual(t.Signature);
 	}
 
 	public void AddOperation(Operation operation)

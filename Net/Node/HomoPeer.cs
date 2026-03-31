@@ -31,6 +31,9 @@ public class HomoPeer : Peer, IHomoPeer
 	{
 		try
 		{
+			if(Writer == null)
+				throw new OperationCanceledException();
+
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Request);
@@ -51,47 +54,43 @@ public class HomoPeer : Peer, IHomoPeer
 	{
 		try
 		{
-			try
-			{
-				var r =  request.Execute();
+			var r =  request.Execute();
 				
-				if(r != null)
-				{
-					lock(Writer)
-					{
-						Writer.Write((byte)PacketType.Response);
-						Writer.Write(id);
-						BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
-					}
-				}
-			}
-			catch(CodeException ex)
+			if(r != null)
 			{
 				lock(Writer)
 				{
-					Writer.Write((byte)PacketType.Failure);
+					Writer.Write((byte)PacketType.Response);
 					Writer.Write(id);
-					BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
-				}
-			}
-			catch(Exception) when(!Debugger.IsAttached)
-			{
-				lock(Writer)
-				{
-					Writer.Write((byte)PacketType.Failure);
-					Writer.Write(id);
-					BinarySerializator.Serialize(Writer, new NodeException(NodeError.Unknown), Peering.Constructor.TypeToCode);
+					BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
 				}
 			}
 		}
-		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
+		catch(CodeException ex)
+		{
+			lock(Writer)
+			{
+				Writer.Write((byte)PacketType.Failure);
+				Writer.Write(id);
+				BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
+			}
+		}
+		catch(Exception) when(/*ex is SocketException || ex is IOException || ex is ObjectDisposedException ||*/ !Debugger.IsAttached)
 		{
 			lock(Peering.Lock)
 				Disconnect();
 
 			throw new OperationCanceledException();
 		}
-
+		///catch(Exception) when(!Debugger.IsAttached)
+		///{
+		///	lock(Writer)
+		///	{
+		///		Writer.Write((byte)PacketType.Failure);
+		///		Writer.Write(id);
+		///		BinarySerializator.Serialize(Writer, new NodeException(NodeError.Unknown), Peering.Constructor.TypeToCode);
+		///	}
+		///}
 	}
 
 	protected override void Listening()
@@ -169,19 +168,20 @@ public class HomoPeer : Peer, IHomoPeer
  		}
 		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 		{
-			lock(Peering.Lock)
-				Disconnect();
 		}
 
+		lock(Peering.Lock)
+			Disconnect();
+		
 		//lock(Sun.Lock)
-		{
-			ListenThread = null;
-
-			if(Status == ConnectionStatus.Disconnecting && ListenThread == null)
-			{
-				Status = ConnectionStatus.Disconnected;
-			}
-		}
+		//{
+		//	ListenThread = null;
+		//
+		//	if(Status == ConnectionStatus.Disconnecting)
+		//	{
+		//		Status = ConnectionStatus.Disconnected;
+		//	}
+		//}
 	}
 
 	public void Send(PeerRequest args)

@@ -29,6 +29,12 @@ public enum Role : long
 	Chain		= 0b00000010,
 }
 
+public class TransactionResult
+{
+	public byte[]	Tag { set; get; }
+	public string	Error { set; get; }
+}
+
 public abstract class McvPeering : HomoTcpPeering
 {
 	public McvNode							Node;
@@ -77,7 +83,7 @@ public abstract class McvPeering : HomoTcpPeering
 												ConfirmedTransactions.Add(i);
 											}
 
-											ConfirmedTransactions.RemoveAll(i => DateTime.UtcNow - i.Inquired > TimeSpan.FromSeconds(Node.Settings.TransactionNoInquireKeepPeriod));
+											ConfirmedTransactions.RemoveAll(i => DateTime.UtcNow - i.Inquired > TimeSpan.FromSeconds(Node.Settings.TransactionsKeepPeriod));
 											CandidateTransactions.RemoveAll(t => t.Vote?.Round?.Id == r.Id || t.Expiration <= r.Id);
 										}
 									};
@@ -525,22 +531,10 @@ public abstract class McvPeering : HomoTcpPeering
 					{
 						if(Mcv.Users.Latest(gs.Id).Energy < Net.DeclarationCost)
 							continue;
-	
-						var t = new Transaction();
-						t.Flow			 = Flow;
-						t.Net			 = Net;
-						t.User			 = gs.User;
-						t.Session		 = s.Session;
-						t.Signer		 = s.Signer;
-						t.Application	 = Name;
-		 				t.ActionOnResult = ActionOnResult.RetryUntilConfirmed;
-					
-						t.AddOperation(Mcv.CreateCandidacyDeclaration());
-		
+						
 						CandidacyDeclarations.Add(gs.Id);
-		
-						lock(OutgoingTransactions)
-						 	Transact(t);
+					
+						Transact([Mcv.CreateCandidacyDeclaration()], Name, gs.User, null, s.Session, s.Signer, ActionOnResult.RetryUntilConfirmed, Flow);
 					} 
 					else
 					{
@@ -767,17 +761,35 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public abstract bool ValidateIncoming(Operation o);
 
-	public IEnumerable<Transaction> ProcessIncoming(IEnumerable<Transaction> txs)
+	public TransactionResult[] ProcessIncoming(IEnumerable<Transaction> txs)
 	{
+		var o = new TransactionResult[txs.Count()];
+		var i = 0;
+
 		foreach(var t in txs.OrderBy(i => i.Nonce))
 		{
-			if(CandidateTransactions.Any(j => j.User == t.User && j.Nonce == t.Nonce) || t.Operations.Any(o => !ValidateIncoming(o)))
-				continue;
+			var res = new TransactionResult {Tag = t.Tag};
+			o[i++] = res;
 
-			var r = Mcv.Examine(t);
-	
-			if(r == null || !t.Successful)
+			if(CandidateTransactions.Any(j => j.User == t.User && j.Nonce == t.Nonce))
+			{	
+				res.Error = "Already accepted (by User/Nonce)";
 				continue;
+			}
+
+			if(t.Operations.Any(o => !ValidateIncoming(o)))
+			{	
+				res.Error = "Invalid data";
+				continue;
+			}
+
+			Mcv.Examine(t);
+	
+			if(t.OverallError != null)
+			{	
+				res.Error = t.OverallError;
+				continue;
+			}
 
 			if(CandidateTransactions.Sum(i => i.Operations.Length) >= Node.Settings.PoolMaximum) /// limit reached
 			{
@@ -786,16 +798,19 @@ public abstract class McvPeering : HomoTcpPeering
 				if(t.Operations.First().User.EnergyRating + t.Boost > min.Operations.First().User.EnergyRating) /// if the new one is better, replace with the old one
 					CandidateTransactions.Remove(min);
 				else
+				{	
+					res.Error = "Pool limit exceeded";
 					continue;
+				}
 			}
 
 			CandidateTransactions.Add(t);
 			t.Status = TransactionStatus.Accepted;
-
-			yield return t;
 		}
 
 		MainWakeup.Set();
+
+		return o;
 	}
 
 	public AccountSessionSettings FindSession(string user)
@@ -882,28 +897,8 @@ public abstract class McvPeering : HomoTcpPeering
 						foreach(var i in t.Operations)
 							i.PreTransact(Node, t.Flow);
 
-						//t.Nonce		 = 0;
-						//t.Expiration = 0;
-						//t.Member	 = new(0, -1);
-						//t.Signature	 = VaultApi.Call<byte[]>(new AuthorizeApc
-						//									 {
-						//										Cryptography	= Net.Cryptography.Type,
-						//										Application		= t.Application,
-						//										Net				= Net.Name,
-						//										User			= t.User,
-						//										Session			= s.Session,
-						//										Hash			= t.Hashify(),
-						//									 }, t.Flow);
-						//if(t.Signature == null)
-						//{	
-						//	t.Flow?.Log.ReportError(this, $"Failed to sign: {t}");
-						//	break;
-						//}
-
 						var at = Call(new PretransactingPpc {User = t.User}, t.Flow);
 							
-
-						//var m = members.NearestBy(i => i.Address, nonce);
 						IHomoPeer ppi; 
 						
 						var m = members.NearestBy(i => i.User, t.User, at.NextNonce);
@@ -938,31 +933,35 @@ public abstract class McvPeering : HomoTcpPeering
 					}
 					catch(NodeException ex)
 					{
+						t.Error = $"NodeException - {ex.ErrorCode}";
 						t.Flow.Log?.ReportError(this, "Examine", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 					catch(VaultException ex)
 					{
+						t.Error = $"VaultException - {ex.ErrorCode}";
 						t.Flow.Log?.ReportError(this, "Examine", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
-					catch(EntityException ex)
-					{
-						if(t.ActionOnResult != ActionOnResult.RetryUntilConfirmed)
-						{
-							lock(OutgoingTransactions)
-								//t.Status = TransactionStatus.FailedOrNotFound;
-								OutgoingTransactions.Remove(t);
-						} 
-
-						t.Flow.Log?.ReportError(this, "Examine", ex);
-						Thread.Sleep(NodeGlobals.TimeoutOnError);
-						continue;
-					}
+					///catch(EntityException ex)
+					///{
+					///	if(t.ActionOnResult != ActionOnResult.RetryUntilConfirmed)
+					///	{
+					///		lock(OutgoingTransactions)
+					///			//t.Status = TransactionStatus.FailedOrNotFound;
+					///			OutgoingTransactions.Remove(t);
+					///	} 
+					///
+					///	///t.Error = $"EntityException - {ex.ErrorCode}";
+					///	t.Flow.Log?.ReportError(this, "Examine", ex);
+					///	Thread.Sleep(NodeGlobals.TimeoutOnError);
+					///	continue;
+					///}
 					catch(ApiCallException ex)
 					{
+						t.Error = $"ApiCallException - {ex.Message}";
 						t.Flow.Log?.ReportError(this, "Examine", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
@@ -971,16 +970,19 @@ public abstract class McvPeering : HomoTcpPeering
 
 				foreach(var i in txs)
 				{
-					IEnumerable<byte[]> atxs = null;
+					TransactionResult[] atxs = null;
 
 					try
 					{
-						atxs = Call(i.Key, new PlaceTransactionsPpc {Transactions = [..i.Value]}, Flow).Accepted;
+						atxs = Call(i.Key, new PlaceTransactionsPpc {Transactions = [..i.Value]}, Flow).Results;
 					}
 					catch(NodeException ex)
 					{
 						foreach(var t in i.Value)
+						{	
+							t.Error = $"NodeException - {ex.ErrorCode}";
 							t.Flow.Log?.ReportError(this, "Place", ex);
+						}
 
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
@@ -988,14 +990,23 @@ public abstract class McvPeering : HomoTcpPeering
 
 					foreach(var t in i.Value)
 					{ 
-						if(atxs.Any(s => s.SequenceEqual(t.Signature)))
+						var r = atxs.FirstOrDefault(s => s.Tag.SequenceEqual(t.Tag));
+
+						if(r == null)
+						{
+							t.Status = TransactionStatus.FailedOrNotFound;
+							t.Error = $"Incorrect behavior of the member {i.Key}";
+							t.Flow.Log?.Report(this, $"{t.Error} - Member={i.Key}");
+						}
+						else if(r.Error == null)
 						{
 							t.Status = TransactionStatus.Accepted;
-							t.Flow.Log?.Report(this, $"{TransactionStatus.Accepted}: Member={{{i.Key}}}");
+							t.Flow.Log?.Report(this, $"{TransactionStatus.Accepted} - Member={{{i.Key}}}");
 						}
 						else
 						{
-							t.Flow.Log?.Report(this, $"Rejected by {i.Key}");
+							t.Error = r.Error;
+							t.Flow.Log?.ReportError(this, $"{r.Error} - Member={i.Key}");
 
 							if(t.ActionOnResult == ActionOnResult.RetryUntilConfirmed)
 								t.Status = TransactionStatus.None;
@@ -1022,19 +1033,26 @@ public abstract class McvPeering : HomoTcpPeering
 
 					try
 					{
-						ts = Call(g.Key, new TransactionStatusPpc {Signatures = [..g.Select(i => i.Signature)]}, Flow);
+						ts = Call(g.Key, new TransactionStatusPpc {Tags = [..g.Select(i => i.Tag)]}, Flow);
 					}
 					catch(NodeException ex)
-					{
-						Flow.Log?.ReportError(this, "TransactionStatusRequest", ex);
+					{	
+						foreach(var t in g)
+						{	
+							t.Error = $"TransactionStatusRequest - {ex.Message}";
+							Flow.Log?.ReportError(this, "TransactionStatusRequest", ex);
+						}
+
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 
 					foreach(var i in ts.Transactions)
 					{
-						var t = accepted.First(a => a.Signature.SequenceEqual(i.Signature));
-																	
+						var t = accepted.First(a => a.Tag.SequenceEqual(i.Tag));
+						
+						t.Error = i.Error;
+						
 						if(t.Status != i.Status)
 						{
 							t.Flow.Log?.Report(this, $"{i.Status}");
@@ -1051,6 +1069,7 @@ public abstract class McvPeering : HomoTcpPeering
 							}
 							else if(t.Status == TransactionStatus.Confirmed)
 							{
+								t.Error = null;
 								if(t.ActionOnResult == ActionOnResult.ExpectFailure)
 									Debugger.Break();
 								//else
@@ -1069,7 +1088,7 @@ public abstract class McvPeering : HomoTcpPeering
 	{
 		if(OutgoingTransactions.Count > Mcv.TransactionQueueLimit)
 		{
-			OutgoingTransactions.RemoveAll(i => DateTime.UtcNow - i.Inquired > TimeSpan.FromSeconds(Node.Settings.TransactionNoInquireKeepPeriod));
+			OutgoingTransactions.RemoveAll(i => DateTime.UtcNow - i.Inquired > TimeSpan.FromSeconds(Node.Settings.TransactionsKeepPeriod));
 		}
 		
 		if(OutgoingTransactions.Count(i => i.Status != TransactionStatus.Confirmed) <= Mcv.TransactionQueueLimit)
@@ -1099,24 +1118,24 @@ public abstract class McvPeering : HomoTcpPeering
 		if(!operations.Any() || operations.Any(i => !i.IsValid(Net)))
 			throw new NodeException(NodeError.Invalid);
 
-		var t = new Transaction();
-		t.Application			= application;
-		t.User					= user;
-		t.Net					= Net;
-		t.Tag					= tag ?? Guid.NewGuid().ToByteArray();
-		t.Session				= session ?? FindSession(user)?.Session;
-		t.Signer				= signer ?? FindSession(user)?.Signer;
-		t.Flow					= flow;
-		t.Inquired				= DateTime.UtcNow;
-		t.ActionOnResult		= aor;
+		var t = new Transaction()
+				{
+					Application		= application,
+					User			= user,
+					Net				= Net,
+					Tag				= tag ?? Guid.NewGuid().ToByteArray(),
+					Session			= session ?? FindSession(user)?.Session,
+					Signer			= signer ?? FindSession(user)?.Signer,
+					Flow			= flow,
+					Inquired		= DateTime.UtcNow,
+					ActionOnResult	= aor,
+				};
 		
 		if(t.Session == null || !t.IsSignerSet)
 			throw new NodeException(NodeError.NoSession);
 
 		foreach(var i in operations)
-		{
 			t.AddOperation(i);
-		}
 
 		lock(OutgoingTransactions)
 		 	Transact(t);

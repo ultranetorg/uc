@@ -397,7 +397,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 				while(peer.Status != ConnectionStatus.Disconnected)
 				{
 					flow.ThrowIfAborted();
-					Thread.Sleep(0);
+					Thread.Sleep(1);
 				}
 				
 				OutboundConnect(peer, false);

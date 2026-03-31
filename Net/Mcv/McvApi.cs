@@ -337,6 +337,7 @@ public class TransactionApe
 	
 	public AccountAddress			Signer { get; set; }
 	public TransactionStatus		Status { get; set; }
+	public string					Error { get; set; }
 	public Endpoint					MemberEndpoint { get; set; }
 	public ActionOnResult			__ExpectedStatus { get; set; }
 
@@ -361,6 +362,7 @@ public class TransactionApe
 		MemberEndpoint		= (transaction.Ppi as Peer)?.EP ?? (transaction.Ppi as HomoTcpPeering)?.EP;
 		//Signer				= transaction.Signer;
 		Status				= transaction.Status;
+		Error				= transaction.Error;
 		__ExpectedStatus	= transaction.ActionOnResult;
 
 		Log					= [..transaction.Flow.Log.Messages];

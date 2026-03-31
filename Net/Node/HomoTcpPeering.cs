@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using RocksDbSharp;
@@ -303,6 +304,9 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 	
 		call.Peering	= this;
 	
+		if(p.Status ==  ConnectionStatus.Disconnected)
+			Debugger.Break();
+
 		return ((IHomoPeer)p).CallMe(call, flow);
 	}
 

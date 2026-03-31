@@ -249,7 +249,7 @@ public abstract class Round : IBinarySerializable
 
 		Execute(txs);
 
-		ConsensusTransactions = txs.Where(i => i.Successful).ToArray();
+		ConsensusTransactions = txs.Where(i => i.OverallError == null).ToArray();
 
 		if(Id < Mcv.P)
 		{
@@ -399,7 +399,7 @@ public abstract class Round : IBinarySerializable
 				}
 			}
 			
-			if(t.Successful)
+			if(t.OverallError == null)
 			{
 				u.LastNonce++;
 	
