@@ -1,6 +1,8 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
-
 import { sortBy } from "lodash"
+import { Trans } from "react-i18next"
+
+import { SvgImageSlash } from "assets"
 import { TagsList, TextModal } from "ui/components"
 import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
 import { ReviewsList } from "ui/components/specific"
@@ -115,7 +117,14 @@ export const GameSoftwarePublicationContent = memo(
     return (
       <>
         <div className="flex flex-1 flex-col gap-8">
-          {mediaItems.length > 0 && <Slider items={mediaItems} />}
+          {mediaItems.length > 0 ? (
+            <Slider items={mediaItems} />
+          ) : (
+            <div className="flex h-[416px] w-[750px] select-none flex-col items-center justify-center gap-6 rounded-lg bg-[#7E8095] text-center text-2xs text-gray-300">
+              <SvgImageSlash className="stroke-[#A2A4AF]" />
+              <Trans ns="publication" i18nKey={"noScreenshots"} components={{ br: <br /> }} className=" " />
+            </div>
+          )}
           {descriptions && (
             <Description
               text={productOrPublication.description}
