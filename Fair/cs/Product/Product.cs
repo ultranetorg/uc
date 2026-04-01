@@ -14,7 +14,7 @@ public enum Token : uint
 	DescriptionMinimal,
 	Distribution,
 	Distributive,
-	Download,
+	Source,
 	EULA,
 	GPU,
 	Hardware,
@@ -515,13 +515,13 @@ public class Product : IBinarySerializable, ITableEntry
 													new (Token.Release,
 													[
 														new (Token.Version, FieldType.StringUtf8, length: 16),
-														new (Token.Distributive, 
+														new (Token.Distributive, // Can be zip archive, msi installer, 7zip archive etc.
 														[
 															new (Token.Platform,	FieldType.StringUtf8, length: 16),
 															//new (Token.Version,	FieldType.StringUtf8, length: 16),
 															new (Token.Date,		FieldType.Date),
 															new (Token.Distribution,FieldType.DistributionType), 
-															new (Token.Download,
+															new (Token.Source,
 															[
 																new (Token.URI,	FieldType.URI),
 																new (Token.Hash,

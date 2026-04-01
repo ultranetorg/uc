@@ -1,4 +1,4 @@
-import { Distributive, FieldValue, Hardware, Hash, Release, Requirements, Software } from "types"
+import { Distributive, FieldValue, Hardware, Hash, Release, Requirements, Software, Source } from "types"
 import { getValue, nameEq } from "utils"
 
 const normalizePlatformName = (raw: string): string | undefined => {
@@ -31,20 +31,26 @@ const getDistributive = (fields: FieldValue[]): Distributive | undefined => {
   const platform = getValue(fields, "platform")
   const date = getValue<number>(fields, "date")
   const distribution = getValue(fields, "distribution")
-  const downloadNode = fields.find(x => nameEq(x.name, "download"))
+  if (!platform || date === undefined || !distribution) return undefined
 
-  if (!platform || date === undefined || !distribution || !downloadNode) return undefined
+  const sources = fields
+    .filter(x => nameEq(x.name, "source"))
+    .flatMap(x => x.children ?? [])
+    .filter(x => nameEq(x.name, "uri") && !!x.value)
+    .map<Source>(x => {
+      const hashNode = (x.children ?? []).find(y => nameEq(y.name, "hash"))
+      const hash: Hash | undefined = hashNode
+        ? { type: getValue(hashNode.children, "type") ?? "", value: getValue(hashNode.children, "value") ?? "" }
+        : undefined
 
-  const downloadChildren = downloadNode.children ?? []
-  const uri = getValue(downloadChildren, "uri")
-  if (!uri) return undefined
+      return {
+        uri: x.value as string,
+        hash,
+      }
+    })
+  if (!sources.length) return undefined
 
-  const hashNode = downloadChildren.find(x => nameEq(x.name, "hash"))
-  const hash: Hash | undefined = hashNode
-    ? { type: getValue(hashNode.children, "type") ?? "", value: getValue(hashNode.children, "value") ?? "" }
-    : undefined
-
-  return { platform, date, distribution, download: { uri, hash } }
+  return { platform, date, distribution, sources }
 }
 
 const getRequirements = (fields: FieldValue[]): Requirements | undefined => {

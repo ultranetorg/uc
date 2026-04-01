@@ -1,8 +1,8 @@
 import { uniq } from "lodash"
 
-import { Description, FieldValue, Release } from "types"
+import { Description, DownloadSource, FieldValue, Release } from "types"
 import { SoftwareDownload } from "ui/components/publication"
-import { ensureHttp, getValue, isValidUrl, nameEq } from "utils"
+import { ensureHttp, getValue, isIpfsUri, isMagnetUri, isRdnLink, isValidUrl, nameEq } from "utils"
 
 type BookFields = {
   author?: string
@@ -162,6 +162,20 @@ export const getAllSupportedPlatforms = (releases: Release[]): string[] => {
   })
 }
 
-export const getSoftwareDownloads = (releases: Release[]): SoftwareDownload[] => {
-  return []
+const getDownloadSourceByLink = (link: string): DownloadSource | undefined => {
+  if (isMagnetUri(link)) return "torrent"
+  if (isIpfsUri(link)) return "ipfs"
+  if (isRdnLink(link)) return "rdn"
+
+  return undefined
+}
+
+export const getSoftwareDownloads = (releases: Release[], platform: string): SoftwareDownload[] | undefined => {
+  const release = releases.find(x => x.requirements.platform.platform === platform)
+  if (!release) return undefined
+  const sources = release.distributive.sources.flatMap<SoftwareDownload>(x => {
+    const source = getDownloadSourceByLink(x.uri)
+    return source ? [{ link: x.uri, source }] : []
+  })
+  return sources.length > 0 ? sources : undefined
 }

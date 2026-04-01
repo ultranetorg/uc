@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
 import { sortBy } from "lodash"
 import { TagsList, TextModal } from "ui/components"
@@ -20,9 +20,12 @@ import {
   getSoftwareDownloads,
 } from "./utils"
 
+const platformOrder = ["windows", "macos", "linux"]
+
 export const GameSoftwarePublicationContent = memo(
   ({ t, siteId, productOrPublication, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
     const [isEulaOpen, setIsEulaOpen] = useState(false)
+    const [platform, setPlatform] = useState<string | undefined>()
     const [version, setVersion] = useState<string | undefined>()
 
     const releases = useMemo(
@@ -32,17 +35,14 @@ export const GameSoftwarePublicationContent = memo(
 
     const releasesByVersion = useMemo(() => {
       if (!releases) return undefined
-
-      const order = ["windows", "macos", "linux"]
       return sortBy(
         releases.filter(x => x.version === version),
         x => {
-          const i = order.indexOf(x.requirements.platform.platform)
+          const i = platformOrder.indexOf(x.requirements.platform.platform)
           return i === -1 ? Infinity : i
         },
       )
     }, [releases, version])
-    console.log(releasesByVersion)
 
     const descriptions = useMemo(
       () => getDescriptions(productOrPublication.productFields!),
@@ -80,9 +80,13 @@ export const GameSoftwarePublicationContent = memo(
     )
 
     const softwareDownloads = useMemo(
-      () => (releasesByVersion !== undefined ? getSoftwareDownloads(releasesByVersion) : undefined),
-      [releasesByVersion],
+      () =>
+        releasesByVersion !== undefined && platform !== undefined
+          ? getSoftwareDownloads(releasesByVersion, platform)
+          : undefined,
+      [platform, releasesByVersion],
     )
+    console.log(softwareDownloads)
 
     const supportedPlatforms = useMemo(() => {
       if (releases === undefined) return undefined
@@ -103,6 +107,11 @@ export const GameSoftwarePublicationContent = memo(
     )
 
     const handleVersionChange = useCallback((version?: string) => setVersion(version), [])
+    const handlePlatformChange = useCallback((platform: string) => setPlatform(platform), [])
+
+    useEffect(() => {
+      if (systemRequirements && systemRequirements.length > 0) setPlatform(systemRequirements[0].key)
+    }, [systemRequirements])
 
     return (
       <>
@@ -118,7 +127,12 @@ export const GameSoftwarePublicationContent = memo(
             />
           )}
           {systemRequirements && systemRequirements.length > 0 && (
-            <SystemRequirementsTabs label={t("systemRequirements")} tabs={systemRequirements} />
+            <SystemRequirementsTabs
+              label={t("systemRequirements")}
+              tabs={systemRequirements}
+              activeTab={platform}
+              onTabChange={handlePlatformChange}
+            />
           )}
           {reviews && onLeaveReview && (
             <ReviewsList

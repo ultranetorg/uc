@@ -81,10 +81,15 @@ export const SoftwareInfo = memo(
     const versionItems = useMemo(() => versions.map(v => ({ value: v, label: v })), [versions])
 
     const links = useMemo(() => {
+      const ipfs = softwareDownloads?.find(x => x.source === "ipfs")?.link?.trim()
+      const rdn = softwareDownloads?.find(x => x.source === "rdn")?.link?.trim()
+      const torrent = softwareDownloads?.find(x => x.source === "torrent")?.link?.trim()
+      if (!ipfs && !rdn && !torrent) return undefined
+
       return {
-        ipfs: softwareDownloads?.find(x => x.source === "ipfs")?.link?.trim(),
-        rdn: softwareDownloads?.find(x => x.source === "ipfs")?.link?.trim(),
-        torrent: softwareDownloads?.find(x => x.source === "ipfs")?.link?.trim(),
+        ipfs,
+        rdn,
+        torrent,
       }
     }, [softwareDownloads])
 
@@ -173,27 +178,25 @@ export const SoftwareInfo = memo(
           </div>
         )}
 
-        {links.ipfs ||
-          links.rdn ||
-          (links.torrent && (
-            <div className="flex flex-col gap-4">
-              {links.rdn && (
-                <Link to={links.rdn}>
-                  <ButtonPrimary className="w-full" label={downloadFromRdnLabel} />
-                </Link>
-              )}
-              {links.torrent && (
-                <Link to={links.torrent}>
-                  <ButtonPrimary className="w-full" label={downloadFromTorrentLabel} />
-                </Link>
-              )}
-              {links.ipfs && (
-                <Link to={links.ipfs}>
-                  <ButtonPrimary className="w-full" label={downloadFromIpfsLabel} />
-                </Link>
-              )}
-            </div>
-          ))}
+        {links && (
+          <div className="flex flex-col gap-4">
+            {links.rdn && (
+              <Link to={links.rdn}>
+                <ButtonPrimary className="w-full" label={downloadFromRdnLabel} />
+              </Link>
+            )}
+            {links.torrent && (
+              <Link to={links.torrent}>
+                <ButtonPrimary className="w-full" label={downloadFromTorrentLabel} />
+              </Link>
+            )}
+            {links.ipfs && (
+              <Link to={links.ipfs}>
+                <ButtonPrimary className="w-full" label={downloadFromIpfsLabel} />
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     )
   },

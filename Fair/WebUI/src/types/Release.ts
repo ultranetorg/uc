@@ -5,7 +5,7 @@ export interface Hash {
   value: string
 }
 
-export interface Download {
+export interface Source {
   uri: string
   hash?: Hash
 }
@@ -14,7 +14,7 @@ export interface Distributive {
   platform: string
   date: number
   distribution: string
-  download: Download
+  sources: Source[]
 }
 
 export interface Hardware {
