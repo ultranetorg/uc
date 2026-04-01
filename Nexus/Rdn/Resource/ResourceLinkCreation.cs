@@ -50,6 +50,12 @@ public class ResourceLinkCreation : RdnOperation
 
 		if(Type.HasFlag(ResourceLinkType.Dependency))
 		{
+			if(s.IsLocked(execution)) 
+			{
+				Error = Locked;
+				return;
+			}
+
 			if(!d.Flags.HasFlag(ResourceFlags.Dependable))
 			{
 				Error = NotDependable;
