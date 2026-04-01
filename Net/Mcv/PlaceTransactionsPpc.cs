@@ -9,17 +9,15 @@ public class PlaceTransactionsPpc : McvPpc<PlaceTransactionsPpr>
 		lock(Mcv.Lock)
 			RequireMember();
 
-		lock(Peering.TransactingLock)
+		lock(Mcv.Lock)
 		{	
-			var acc = Peering.ProcessIncoming(Transactions).Select(i => i.Signature).ToArray();
-
-			return new PlaceTransactionsPpr {Accepted = acc};
+			return new PlaceTransactionsPpr {Results = Peering.ProcessIncoming(Transactions).ToArray()};
 		}
 	}
 }
 
 public class PlaceTransactionsPpr : Result
 {
-	public byte[][] Accepted { get; set; }
+	public TransactionResult[] Results { get; set; }
 }
 

@@ -7,13 +7,15 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace Uccs.Fair;
 
-public abstract class FairApc : McvApc
+public class FairApiConfiguration : NetJsonConfiguration
 {
-	public abstract object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
-
-	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	new public static JsonSerializerOptions CreateOptions()
 	{
-		return Execute(mcv as FairNode, request, response, flow);
+		var o = NetJsonConfiguration.CreateOptions();
+
+		o.TypeInfoResolver = new FairTypeResolver();
+		
+		return o;
 	}
 }
 
@@ -72,7 +74,7 @@ public class FairApiServer : McvApiServer
 {
 	FairNode Node;
 
-	public FairApiServer(FairNode node, ApiSettings settings, Flow flow) : base(node, settings, flow, FairApiClient.CreateOptions())
+	public FairApiServer(FairNode node, ApiSettings settings, Flow flow) : base(node, settings, flow, FairApiConfiguration.CreateOptions())
 	{
 		Node = node;
 	}
@@ -93,18 +95,19 @@ public class FairApiServer : McvApiServer
 
 public class FairApiClient : McvApiClient
 {
-	new public static JsonSerializerOptions CreateOptions()
-	{
-		var o = McvApiClient.CreateOptions();
-
-		o.TypeInfoResolver = new FairTypeResolver();
-		
-		return o;
-	}
-
 	public FairApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
-		Options = CreateOptions();
+		Options = FairApiConfiguration.CreateOptions();
+	}
+}
+
+public abstract class FairApc : McvApc
+{
+	public abstract object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
+
+	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		return Execute(mcv as FairNode, request, response, flow);
 	}
 }
 

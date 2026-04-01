@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using System.Reflection;
+
+namespace Uccs.Fair;
 
 public class FairNode : McvNode
 {
@@ -15,7 +17,7 @@ public class FairNode : McvNode
 		base.Settings = settings ?? new FairNodeSettings(profile);
 
 		if(Flow.Log != null)
-			new FileLog(Flow.Log, GetType().Name, Settings.Profile);
+			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
@@ -36,14 +38,13 @@ public class FairNode : McvNode
 		
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
-		ApiServer = new FairApiServer(this, (Settings.Api ?? new ()).ToApiSettings(Net), Flow);
+		ApiServer = new FairApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
 	}
 
 	public override string ToString()
 	{
 		return string.Join(", ", new string[]{	GetType().Name,
 												Name,
-												(ApiServer != null ? "A" : null) +
 												(Settings.Mcv != null ? "G" : null) +
 												(Settings.Mcv?.Chain != null  ? "C" : null),
 												Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,

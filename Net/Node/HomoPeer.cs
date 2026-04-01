@@ -7,8 +7,8 @@ namespace Uccs.Net;
 public interface IHomoPeer
 {
  	public abstract	void			Send(PeerRequest rq);
-	public abstract Result			Call(PeerRequest rq);
-	public R						Call<R>(Ppc<R> rq) where R : Result => Call((PeerRequest)rq) as R;
+	public abstract Result			CallMe(PeerRequest rq, Flow flow);
+	public R						CallMe<R>(Ppc<R> rq, Flow flow) where R : Result => CallMe((PeerRequest)rq, flow) as R;
 }
 
 public class HomoPeer : Peer, IHomoPeer
@@ -31,6 +31,9 @@ public class HomoPeer : Peer, IHomoPeer
 	{
 		try
 		{
+			if(Writer == null)
+				throw new OperationCanceledException();
+
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Request);
@@ -51,47 +54,43 @@ public class HomoPeer : Peer, IHomoPeer
 	{
 		try
 		{
-			try
-			{
-				var r =  request.Execute();
+			var r =  request.Execute();
 				
-				if(r != null)
-				{
-					lock(Writer)
-					{
-						Writer.Write((byte)PacketType.Response);
-						Writer.Write(id);
-						BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
-					}
-				}
-			}
-			catch(CodeException ex)
+			if(r != null)
 			{
 				lock(Writer)
 				{
-					Writer.Write((byte)PacketType.Failure);
+					Writer.Write((byte)PacketType.Response);
 					Writer.Write(id);
-					BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
-				}
-			}
-			catch(Exception) when(!Debugger.IsAttached)
-			{
-				lock(Writer)
-				{
-					Writer.Write((byte)PacketType.Failure);
-					Writer.Write(id);
-					BinarySerializator.Serialize(Writer, new NodeException(NodeError.Unknown), Peering.Constructor.TypeToCode);
+					BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
 				}
 			}
 		}
-		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
+		catch(CodeException ex)
+		{
+			lock(Writer)
+			{
+				Writer.Write((byte)PacketType.Failure);
+				Writer.Write(id);
+				BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
+			}
+		}
+		catch(Exception) when(/*ex is SocketException || ex is IOException || ex is ObjectDisposedException ||*/ !Debugger.IsAttached)
 		{
 			lock(Peering.Lock)
 				Disconnect();
 
 			throw new OperationCanceledException();
 		}
-
+		///catch(Exception) when(!Debugger.IsAttached)
+		///{
+		///	lock(Writer)
+		///	{
+		///		Writer.Write((byte)PacketType.Failure);
+		///		Writer.Write(id);
+		///		BinarySerializator.Serialize(Writer, new NodeException(NodeError.Unknown), Peering.Constructor.TypeToCode);
+		///	}
+		///}
 	}
 
 	protected override void Listening()
@@ -169,19 +168,20 @@ public class HomoPeer : Peer, IHomoPeer
  		}
 		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
 		{
-			lock(Peering.Lock)
-				Disconnect();
 		}
 
+		lock(Peering.Lock)
+			Disconnect();
+		
 		//lock(Sun.Lock)
-		{
-			ListenThread = null;
-
-			if(Status == ConnectionStatus.Disconnecting && ListenThread == null)
-			{
-				Status = ConnectionStatus.Disconnected;
-			}
-		}
+		//{
+		//	ListenThread = null;
+		//
+		//	if(Status == ConnectionStatus.Disconnecting)
+		//	{
+		//		Status = ConnectionStatus.Disconnected;
+		//	}
+		//}
 	}
 
 	public void Send(PeerRequest args)
@@ -192,7 +192,7 @@ public class HomoPeer : Peer, IHomoPeer
 		Request(IdCounter++, args);
 	}
 
-	public Result Call(PeerRequest args)
+	public Result CallMe(PeerRequest args, Flow flow)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
@@ -214,7 +214,7 @@ public class HomoPeer : Peer, IHomoPeer
 
 		try
 		{
-			i = WaitHandle.WaitAny([p.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
+			i = WaitHandle.WaitAny([p.Event, flow.Cancellation.WaitHandle, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
 		}
 		catch(ObjectDisposedException)
 		{
@@ -245,7 +245,7 @@ public class HomoPeer : Peer, IHomoPeer
 				throw p.Exception;
 			}
 		}
-		else if(i == 1)
+		else if(i == 1 || i == 2)
 			throw new OperationCanceledException();
 		else
 			throw new NodeException(NodeError.Timeout);

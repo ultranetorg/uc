@@ -95,19 +95,6 @@ public abstract class Round : IBinarySerializable
 		}
 	}
 
-	public bool ConsensusFailed
-	{
-		get
-		{ 
-			var s = SelectedVoters;
-			var r = SelectedArrived;
-		
-			var missing = s.Count() - r.Count();
-
-			return r.Any() && r.GroupBy(i => i.TargetHash, Bytes.EqualityComparer).All(i => i.Count() + missing < MinimumForConsensus);
-		}
-	}
-
 	public Round(Mcv c)
 	{
 		Mcv = c;
@@ -119,29 +106,29 @@ public abstract class Round : IBinarySerializable
 		return $"Id={Id}, V/VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), {(Confirmed ? "Confirmed, " : "")}Members={Members?.Count}, ConfirmedTime={ConsensusTime}, Hash={Hash?.ToHex()}";
 	}
 
-	public void Update()
-	{
-		foreach(var i in New)
-		{
-			Mcv.Check(i);
-
-			if(i.Status == VoteStatus.OK)
-			{	
-				if(i.Try == Try)
-	 			{	
-					VotesOfTry.Add(i);
-					
-					if(i.Transactions.Any())
-						Payloads.Add(i);
-
-					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
-						SelectedArrived.Add(i);
-				}
-			}
-		}
-
-		New.Clear();
-	}
+//	public void Update()
+//	{
+//		foreach(var i in New)
+//		{
+//			Mcv.Check(i);
+//
+//			if(i.Status == VoteStatus.OK)
+//			{	
+//				if(i.Try == Try)
+//	 			{	
+//					VotesOfTry.Add(i);
+//					
+//					if(i.Transactions.Any())
+//						Payloads.Add(i);
+//
+//					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
+//						SelectedArrived.Add(i);
+//				}
+//			}
+//		}
+//
+//		New.Clear();
+//	}
 
 	public void ReUpdate()
 	{
@@ -151,18 +138,18 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in Votes)
 		{
-			Mcv.Check(i);
+			if(i.Try == Try)
+	 		{	
+				Mcv.Check(i);
 
-			if(i.Status == VoteStatus.OK)
-			{	
-				if(i.Try == Try)
-	 			{	
+				if(i.Status == VoteStatus.OK || i.User == AutoId.God)
+				{	
 					VotesOfTry.Add(i);
 					
 					if(i.Transactions.Any())
 						Payloads.Add(i);
 
-					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
+					if(SelectedVoters.Any(j => j.User == i.User))
 						SelectedArrived.Add(i);
 				}
 			}
@@ -193,7 +180,7 @@ public abstract class Round : IBinarySerializable
 
 	public byte[] Summarize()
 	{
-		if(!VotesOfTry.Any())
+		if(SelectedArrived.Count < MinimumForConsensus)
 			return null;
 
 		var min = MinimumForConsensus;
@@ -262,7 +249,7 @@ public abstract class Round : IBinarySerializable
 
 		Execute(txs);
 
-		ConsensusTransactions = txs.Where(i => i.Successful).ToArray();
+		ConsensusTransactions = txs.Where(i => i.OverallError == null).ToArray();
 
 		if(Id < Mcv.P)
 		{
@@ -362,7 +349,6 @@ public abstract class Round : IBinarySerializable
 		foreach(var i in Mcv.Tables)
 			FindState<TableStateBase>(i)?.StartRoundExecution(this);
 
-
 		foreach(var t in transactions.Reverse())
 		{
 			var e = CreateExecution(t);
@@ -413,7 +399,7 @@ public abstract class Round : IBinarySerializable
 				}
 			}
 			
-			if(t.Successful)
+			if(t.OverallError == null)
 			{
 				u.LastNonce++;
 	

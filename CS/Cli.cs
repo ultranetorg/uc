@@ -53,7 +53,7 @@ public abstract class Cli
 		if(!boot.Commnand.Nodes.Any())
 			return;
 
-		Flow = new Flow(GetType().Name, new Log()); 
+		Flow = new Flow(GetType().Name, new Log()){WorkDirectory = boot.Profile}; 
 			
 		try
 		{

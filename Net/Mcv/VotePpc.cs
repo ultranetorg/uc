@@ -27,7 +27,7 @@ public class VotePpc : PeerRequest
 				try
 				{
 					lock(p.Mcv.Lock)
-						vp = p.Mcv.ProcessIncoming(Vote, p.Synchronization == Synchronization.Downloading);
+						vp = p.Mcv.ProcessIncoming(Vote, p.Synchronization);
 				}
 				catch(ConfirmationException ex)
 				{

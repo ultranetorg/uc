@@ -13,7 +13,7 @@ public class NodeController
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called", nameof(ProductsController), nameof(GetNexusUrl));
 
-		return node.NexusSettings.Api.LocalAddress(node.Net.Zone, Api.Nexus);
+		return node.NexusSettings.Api.LocalSystemAddress(node.Net.Zone, Api.Nexus);
 	}
 
 	[HttpGet("urls/vault")]
@@ -21,6 +21,6 @@ public class NodeController
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called", nameof(ProductsController), nameof(GetVaultUrl));
 
-		return node.NexusSettings.Api.LocalAddress(node.Net.Zone, Api.Vault);
+		return node.NexusSettings.Api.LocalSystemAddress(node.Net.Zone, Api.Vault);
 	}
 }

@@ -56,6 +56,30 @@ public class BatchApc : Apc
 	}
 }
 
+public class JsonConfiguration
+{
+	protected JsonSerializerOptions	Options;
+
+	public JsonConfiguration()
+	{
+		Options = CreateOptions();
+	}
+
+	public static JsonSerializerOptions CreateOptions()
+	{
+		var o = new JsonSerializerOptions {};
+		
+		o.IgnoreReadOnlyProperties = true;
+
+		o.Converters.Add(new IPJsonConverter());
+		o.Converters.Add(new VersionJsonConverter());
+		o.Converters.Add(new XonJsonConverter());
+		o.Converters.Add(new BigIntegerJsonConverter());
+
+		return o;
+	}
+}
+
 public abstract class JsonServer
 {
 	HttpListener							Listener;
@@ -76,8 +100,12 @@ public abstract class JsonServer
 
 		if(Flow.Log != null && Flow.WorkDirectory != null)
 		{
-			new FileLog(Flow.Log, GetType().Name, Flow.WorkDirectory);
+			new FileLog(Flow.Log, GetType().Name, Flow.WorkDirectory, Flow);
 		}
+
+		Flow.Log?.Report(this, "Listening ", settings.LocalAddress);
+		if(settings.PublicAddress != null)
+			Flow.Log?.Report(this, "Listening ", settings.PublicAddress);
 
 		Thread = new Thread(() =>	{ 
 										try
@@ -97,12 +125,11 @@ public abstract class JsonServer
 												Listener.TimeoutManager.RequestQueue			= Timeout.InfiniteTimeSpan;
 												Listener.TimeoutManager.MinSendBytesPerSecond	= 0;
 											}
-											Listener.Start();
 
-											Flow.Log?.Report(this, "Listening started", settings.LocalAddress);
-											if(settings.PublicAddress != null)
-												Flow.Log?.Report(this, "Listening started", settings.PublicAddress);
+											Listener.Start();
 					
+											Flow.Log?.Report(this, "Started");
+
 											while(Flow.Active)
 											{
 												ThreadPool.QueueUserWorkItem(new WaitCallback(ProcessRequest), Listener.GetContext()); 
@@ -168,16 +195,6 @@ public abstract class JsonServer
 
 		var rq = context.Request;
 		var rp = context.Response;
-
-		void respondjson(object t)	{
-										var output = rp.OutputStream;
-										var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, Options));
-						
-										rp.ContentType = "text/json" ;
-										rp.ContentLength64 = buffer.Length;
-
-										output.Write(buffer, 0, buffer.Length);
-									}
 		
 		try
 		{
@@ -203,65 +220,7 @@ public abstract class JsonServer
 
 			var call = rq.Url.LocalPath.Substring(new Uri(p).LocalPath.Length);
 
-			if(call == "Ping")
-			{
-				rp.StatusCode = (int)HttpStatusCode.OK;
-				respondjson(new Pong {Status = "OK"});
-				rp.Close();
-				return;
-			}
-
-			ConstructorInfo constuctor;
-			
-			lock(Calls)
-				if(!Calls.TryGetValue(call, out constuctor))
-				{
-					var t = Type.GetType($"{typeof(JsonServer).Namespace}.{call}{Apc.Postfix}") ?? Create(call + Apc.Postfix);
-
-					if(t == null)
-					{
-						RespondError(rp,  "text/plain", HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
-						rp.Close();
-						return;
-					}
-
-					Calls[call] = constuctor = t.GetConstructor(new System.Type[]{});
-				}
-
-			var c = (rq.ContentLength64 > 0 ? JsonSerializer.Deserialize(rq.InputStream, constuctor.DeclaringType, Options) : constuctor.Invoke(null)) as Apc;
-
-			rp.StatusCode = (int)HttpStatusCode.OK;
-
-			object execute(Apc call)
-			{
-				var f = Flow.CreateNested(rq.Url.ToString(), new Log());
-
-				f.CancelAfter(call.Timeout);
-
-				 return Execute(call, rq, rp, f);
-			}
-
-			if(c is BatchApc b)
-			{ 
-				var rs = new List<dynamic>();
-
-				foreach(var i in b.Calls)
-				{
-					var t = Create(i.Name + Apc.Postfix);
-					rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as Apc));
-				}
-
-				respondjson(rs);
-			}
-			else
-			{
-				var r = execute(c);
-
-				//if(r != null)
-				{
-					respondjson(r);
-				}
-			}
+			Route(context, call);
 		}
 		catch(HttpListenerException)
 		{
@@ -291,4 +250,81 @@ public abstract class JsonServer
 		{
 		}
 	}
+
+	protected virtual void Route(HttpListenerContext context, string call)
+	{
+		var rq = context.Request;
+		var rp = context.Response;
+
+		void respondjson(object t)	{
+										var output = rp.OutputStream;
+										var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, Options));
+						
+										rp.ContentType = "text/json" ;
+										rp.ContentLength64 = buffer.Length;
+
+										output.Write(buffer, 0, buffer.Length);
+									}
+
+		if(call == "Ping")
+		{
+			rp.StatusCode = (int)HttpStatusCode.OK;
+			respondjson(new Pong {Status = "OK"});
+			rp.Close();
+			return;
+		}
+
+		ConstructorInfo constuctor;
+			
+		lock(Calls)
+			if(!Calls.TryGetValue(call, out constuctor))
+			{
+				var t = Type.GetType($"{typeof(JsonServer).Namespace}.{call}{Apc.Postfix}") ?? Create(call + Apc.Postfix);
+
+				if(t == null)
+				{
+					RespondError(rp,  "text/plain", HttpStatusCode.NotFound.ToString(), HttpStatusCode.NotFound);
+					rp.Close();
+					return;
+				}
+
+				Calls[call] = constuctor = t.GetConstructor(new System.Type[]{});
+			}
+
+		var c = (rq.ContentLength64 > 0 ? JsonSerializer.Deserialize(rq.InputStream, constuctor.DeclaringType, Options) : constuctor.Invoke(null)) as Apc;
+
+		rp.StatusCode = (int)HttpStatusCode.OK;
+
+		object execute(Apc call)
+		{
+			var f = Flow.CreateNested(rq.Url.ToString(), new Log());
+
+			f.CancelAfter(call.Timeout);
+
+			return Execute(call, rq, rp, f);
+		}
+
+		if(c is BatchApc b)
+		{ 
+			var rs = new List<dynamic>();
+
+			foreach(var i in b.Calls)
+			{
+				var t = Create(i.Name + Apc.Postfix);
+				rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as Apc));
+			}
+
+			respondjson(rs);
+		}
+		else
+		{
+			var r = execute(c);
+
+			//if(r != null)
+			{
+				respondjson(r);
+			}
+		}
+	}
 }
+

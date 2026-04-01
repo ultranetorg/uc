@@ -42,7 +42,7 @@ public class ResourceTable : Table<AutoId, Resource>
 
 	public virtual Resource Latest(Ura name)
 	{
-	     var d = Mcv.Domains.Find(name.Domain);
+	     var d = Mcv.Domains.Latest(name.Domain);
 
         if(d == null)
             return null;

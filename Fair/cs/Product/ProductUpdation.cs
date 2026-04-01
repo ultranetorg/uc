@@ -48,18 +48,40 @@ public class ProductUpdation : FairOperation
 		r = execution.Products.Affect(Product);
 
 		var v = new ProductVersion {Fields = Fields};
-
 		var d = Uccs.Fair.Product.FindDeclaration(r.Type);
+
+		if(r.Versions.Any() && r.Versions.Last().Refs == 0)
+		{
+			r.Versions.Last().ForEach(d, (f, i) =>	{
+														if(f.Type == FieldType.FileId)
+														{	
+															var x = execution.Files.Affect(i.AsAutoId);
+															x.Refs--;
+	 													}
+													});
+
+			execution.Free(a, a, r.Versions.Last().Size);
+
+			v.Id = r.Versions.Last().Id;
+			r.Versions = [..r.Versions[..^1], v];
+		}
+		else
+		{	
+			v.Id = r.Versions.Length == 0 ? 0 : (r.Versions.Last().Id + 1);
+			r.Versions = [..r.Versions, v];
+		}
 
 		var f = v.Find(d, (f, i) =>	{
 										if(f.Type == FieldType.FileId)
 										{	
-											var x = execution.Files.Find(i.AsAutoId);
-
+											var x = execution.Files.Affect(i.AsAutoId);
+	
 											if(x == null)
 												return true;
- 										}
-
+	
+											x.Refs++;
+	 									}
+	
 										return false;
 									});
 		if(f != null)
@@ -68,21 +90,7 @@ public class ProductUpdation : FairOperation
 			return;
 		}
 
-		if(r.Versions.Any() && r.Versions.Last().Refs == 0)
-		{
-			execution.Free(a, a, r.Versions.Last().Size);
-
-			v.Id = r.Versions.Last().Id;
-			r.Versions = [..r.Versions[..^1], v];
-		}
-		else
-		{	
-			v.Id = r.Versions.Length == 0 ? 0 : r.Versions.Last().Id + 1;
-			r.Versions = [..r.Versions, v];
-		}
-
-		execution.Allocate(a, a, r.Versions.Last().Size);
-
+		execution.Allocate(a, a, v.Size);
 
 		foreach(var p in r.Publications)
 		{

@@ -64,6 +64,7 @@ public abstract class Mcv /// Mutual chain voting
 	public TableBase[] 							Tables;
 	public int									Size => Tables.Sum(i => i.Size);
 	public BlockDelegate						VoteAdded;
+	public RoundDelegate						ConsensusReached;
 	public RoundDelegate						ConsensusFailed;
 	public RoundDelegate						Confirmed;
 
@@ -174,7 +175,7 @@ public abstract class Mcv /// Mutual chain voting
 				}
 		
 				v.Sign(God);
-				Add(v);
+				Add(v, false);
 				v.Round.VotesOfTry = v.Round.SelectedArrived = [v];
 				
 				GenesisInitilize(v.Round);
@@ -272,7 +273,7 @@ public abstract class Mcv /// Mutual chain voting
 		Rocks.Dispose();
 	}
 
-	public void Add(Vote vote)
+	public void Add(Vote vote, bool process)
 	{
 		if(!Monitor.IsEntered(Lock))
 			Debugger.Break();
@@ -281,7 +282,6 @@ public abstract class Mcv /// Mutual chain voting
 
 		vote.Round = r;
 
-		r.New.Add(vote);
 		r.Votes.Add(vote);
 		///r.Update();
 	
@@ -291,26 +291,60 @@ public abstract class Mcv /// Mutual chain voting
 			t.Status = TransactionStatus.Placed;
 		}
 
+		if(process)
+		{
+			Check(vote);
+	
+			if(vote.Status == VoteStatus.OK)
+			{	
+				if(vote.Try == r.Try)
+	 			{	
+					r.VotesOfTry.Add(vote);
+					
+					if(vote.Transactions.Any())
+						r.Payloads.Add(vote);
+	
+					if(r.Id >= JoinToVote && r.SelectedVoters.Any(j => j.User == vote.User))
+						r.SelectedArrived.Add(vote);
+				}
+			}
+		}
+		else
+			r.New.Add(vote);
+
 		VoteAdded?.Invoke(vote);
 	}
 
-	public VoteStatus ProcessIncoming(Vote vote, bool synchroniztion)
+	public VoteStatus ProcessIncoming(Vote vote, Synchronization synchroniztion)
 	{
 		if(!vote.Valid)
 			return VoteStatus.Invalid;
 
 		if(LastConfirmedRound != null && vote.RoundId <= LastConfirmedRound.Id)
 		{	
-			return VoteStatus.TooOld;
+			//if(vote.RoundId <= LastConfirmedRound.Id - P)
+				return VoteStatus.TooOld;
+			//else
+			//{
+			//	var r = GetRound(vote.RoundId);
+			//
+			//	if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
+			//		return VoteStatus.AlreadyExists;
+			//
+			//	Add(vote);
+			//	
+			//	return VoteStatus.OK;
+			//
+			//}
 		}
-		else if(synchroniztion || LastConfirmedRound != null && vote.RoundId > NextVotingRound.Id)
+		else if(synchroniztion != Synchronization.Synchronized || LastConfirmedRound != null && vote.RoundId > NextVotingRound.Id)
 		{
 			var r = GetRound(vote.RoundId);
 
 			if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
 				return VoteStatus.AlreadyExists;
 	
-			Add(vote);
+			Add(vote, false);
 				
 			return VoteStatus.OK;
 		}
@@ -321,7 +355,7 @@ public abstract class Mcv /// Mutual chain voting
 			if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
 				return VoteStatus.AlreadyExists;
 
-			Add(vote);
+			Add(vote, true);
 			TryReachConsensus(r);
 			
 			return VoteStatus.OK;
@@ -397,31 +431,29 @@ public abstract class Mcv /// Mutual chain voting
 		vote.Status = VoteStatus.OK;
 	}
 
-	public bool TryReachConsensus(Round r)
+	public bool TryReachConsensus(Round round)
 	{
 		if(LastConfirmedRound == null)
 			return false;
 
-		r.Update();
-
-		if(r.Target == null)
+		if(round.Target == null)
 			return false;
 
-		if(r.TargetId != LastConfirmedRound.Id + 1)
+		if(round.TargetId != LastConfirmedRound.Id + 1)
 			return false;
 
-		if(r.VotesOfTry.Count() < r.MinimumForConsensus)
+		if(round.VotesOfTry.Count() < round.MinimumForConsensus)
 			return false;
 
-		var m = r.SelectedArrived.GroupBy(i => i.TargetHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
+		var m = round.SelectedArrived.GroupBy(i => i.TargetHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 
-		if(m.Count() >= r.MinimumForConsensus)
+		if(m.Count() >= round.MinimumForConsensus)
 		{
-			var t = r.Target;
+			var t = round.Target;
  		
 			if(t.Hash == null || !m.Key.SequenceEqual(t.Hash))
 			{
-				t.Update();
+				t.ReUpdate();
 				t.Summarize();
 					
 				if(t.Hash == null || !m.Key.SequenceEqual(t.Hash))
@@ -446,35 +478,45 @@ public abstract class Mcv /// Mutual chain voting
 			t.Confirm();
 			Save(t);
 
-			if(r.Next != null)
+			ConsensusReached.Invoke(round);
+
+			if(round.Next != null)
 			{
-				TryReachConsensus(r.Next);
+				round.Next.ReUpdate();
+				TryReachConsensus(round.Next);
 			}
 
 			return true;
 		}
-		else if(r.ConsensusFailed)
-		{
-			var h = r.Target.Hash;
-
-			r.Target.Update();
-			r.Target.Summarize();
-
-			if(h == null || !r.Target.Hash.SequenceEqual(h))
-			{
-				r.Try++;
-
-				r.ReUpdate();
-
-				r.Target.Hash = null;
-			}
-
-			ConsensusFailed(r); /// -> set MainWakeup -> Generate -> this method to revote
-				
-			return false;
-		}
 		else
-			return false;
+		{
+
+			var s = round.SelectedVoters;
+			var a = round.SelectedArrived;
+		
+			var missing = s.Count() - a.Count();
+
+			if(a.Any() && m.Count() + missing < round.MinimumForConsensus)
+			{
+				//var h = r.Target.Hash;
+
+				//r.Target.Update();
+				//r.Target.Summarize();
+				//
+				//if(!r.Target.Hash.SequenceEqual(h))
+				{
+					round.Try++;
+
+					//r.ReUpdate();
+
+					round.Target.Hash = null;
+				}
+
+				ConsensusFailed(round); /// -> set MainWakeup -> Generate -> here to revote
+			}
+		}
+
+		return false;
 	}
 
 	public Round GetRound(int rid)
@@ -531,10 +573,19 @@ public abstract class Mcv /// Mutual chain voting
 			Tail.Add(round);
 	}
 
-	public Round Examine(Transaction transaction)
+	public void Examine(Transaction transaction)
 	{
-		if(transaction.Expiration <= LastConfirmedRound.Id || !transaction.Valid(this))
-			return null;
+		if(transaction.Expiration <= LastConfirmedRound.Id)
+		{	
+			transaction.Error = Operation.Expired;
+			return;
+		}
+
+		if(!transaction.Valid(this))
+		{	
+			transaction.Error = "Invalid data";
+			return;
+		}
 
 		var a = Users.Latest(transaction.User);
 
@@ -542,8 +593,8 @@ public abstract class Mcv /// Mutual chain voting
 
 		transaction.Nonce = a == null ? 0 : a.LastNonce + 1;
 
-		var p = /*Tail.FirstOrDefault(r => !r.Confirmed && r.Votes.Any(v => Settings.Generators.Any(g => g.Signer == v.Generator))) ??*/ LastConfirmedRound;
-		var r = GetRound(p.Id + 1);
+		var r = CreateRound();
+		r.Id = LastConfirmedRound.Id + 1;
 		
 		r.ConsensusTime			= Time.Now(Clock);
 		r.ConsensusEnergyCost	= LastConfirmedRound.ConsensusEnergyCost;
@@ -551,13 +602,11 @@ public abstract class Mcv /// Mutual chain voting
 		r.Execute([transaction]);
 
 		transaction.Nonce = oldnonce;
-
-		return r;
 	}
 
 	public void Dump()
 	{
-		var jo = new JsonSerializerOptions(ApiClient.CreateOptions());
+		var jo = new JsonSerializerOptions(NetJsonConfiguration.CreateOptions());
 		jo.WriteIndented = true;
 
 		foreach(var t in Tables)

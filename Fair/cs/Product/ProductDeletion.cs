@@ -33,6 +33,19 @@ public class ProductDeletion : FairOperation
 		foreach(var i in p.Publications)
 			execution.Publications.Delete(i);
 
+		var d = Uccs.Fair.Product.FindDeclaration(p.Type);
+
+		foreach(var i in p.Versions)
+		{
+			i.ForEach(d, (f, i) =>	{
+										if(f.Type == FieldType.FileId)
+										{	
+											var x = execution.Files.Affect(i.AsAutoId);
+											x.Refs--;
+	 									}
+									});
+		}
+
 		a.Products = a.Products.Remove(p.Id);
 
 		execution.Free(a, a, execution.Net.EntityLength + p.Length);

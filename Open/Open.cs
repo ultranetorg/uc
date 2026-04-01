@@ -11,10 +11,10 @@ public class Open : Cli
 	public NexusSettings		Settings;
 
 	RdnApiClient				_Rdn;
-	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
+	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalNodeAddress(Rdn.Rdn.ByZone(Settings.Zone)), null, ApiHttpClient);
 
 	NexusApiClient				_Nexus;
-	public NexusApiClient		NexusApi => _Nexus ??= new NexusApiClient(Settings.Api.LocalAddress(Settings.Zone, Api.Nexus), null, ApiHttpClient);
+	public NexusApiClient		NexusApi => _Nexus ??= new NexusApiClient(Settings.Api.LocalSystemAddress(Settings.Zone, Api.Nexus), null, ApiHttpClient);
 
 	static Open()
 	{

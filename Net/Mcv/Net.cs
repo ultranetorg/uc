@@ -17,9 +17,17 @@ public enum Zone : ushort
 public enum KnownProtocol : ushort
 {
 	Nni			= 000,
+	SystemApi	= 900,
 	Rdn			= 001,
+	RdnApi		= 901,
 	Fair		= 002,
-	Api			= 900,
+	FairApi		= 902,
+	//Api			= 900,
+}
+
+public class Port
+{
+	public static ushort	Map(Zone zone, KnownProtocol system) => (ushort)(zone + (ushort)system);
 }
 
 public abstract class Net
@@ -31,7 +39,8 @@ public abstract class Net
 	public abstract string				Name { get; }
 	public abstract	Zone				Zone { get; }
 	public abstract ushort				PpiPort { get; }
-	public ushort						NniPort => MapPort(Zone, KnownProtocol.Nni);
+	public abstract ushort				ApiPort { get; }
+	public ushort						NniPort => Port.Map(Zone, KnownProtocol.Nni);
 
 	public IPAddress[]					Initials;
 	public static readonly  IPAddress[]	LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
@@ -57,11 +66,19 @@ public abstract class Net
 															new([192, 168, 88, 104]),
 															new([192, 168, 88, 105]),
 															new([192, 168, 88, 106]),
+															new([192, 168, 88, 107]),
+															new([192, 168, 88, 108]),
+															new([192, 168, 88, 109]),
+															new([192, 168, 88, 110]),
+															new([192, 168, 88, 111]),
+															new([192, 168, 88, 112]),
+															new([192, 168, 88, 113]),
+															new([192, 168, 88, 114]),
+															new([192, 168, 88, 115]),
 															];
 
 	public Constructor					Constructor = new ();
 
-	public static ushort				MapPort(Zone zone, KnownProtocol system) => (ushort)(zone + (ushort)system);
 
 	public override string ToString()
 	{
@@ -88,7 +105,7 @@ public abstract class McvNet : Net
 	public const int						BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
 	public virtual int						FreeSpaceMaximum						=> 0;
 	public Time								ECLifetime								= Time.FromYears(1);
-	public ushort							UserFreeCreationPoWDifficulity			= 172;
+	public ushort							UserCreationPoWDifficulity			= 172;
 	public int								EntityLength							= 100;
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
@@ -109,7 +126,7 @@ public abstract class McvNet : Net
 	public long								DeclarationCost							=> 1000_000;
 
 
-	public Endpoint							Father0IP;
+	public Endpoint							Father0EP;
 	public readonly string					Father0Name		= "father0000";
 	public readonly AutoId					Father0Id		= new (287078, 0);
 	public readonly AccountAddress			Father0Signer	= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");

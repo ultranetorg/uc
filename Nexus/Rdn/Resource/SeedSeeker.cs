@@ -41,7 +41,7 @@ public class SeedSeeker
 														{
 															try
 															{
-																var lr = Seeker.Node.Peering.Call(IPs.Random(), () => new LocateReleasePpc {Address = Address, Count = 16}, Flow);
+																var lr = Seeker.Node.Peering.Call(IPs.Random(), new LocateReleasePpc {Address = Address, Count = 16}, Flow);
 
 																lock(Seeker.Lock)
 																{

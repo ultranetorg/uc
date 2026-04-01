@@ -88,10 +88,10 @@ public static class UraTests
 
 
 
-		Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, RdnApiClient.CreateOptions()), RdnApiClient.CreateOptions()));
-		Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, RdnApiClient.CreateOptions()), RdnApiClient.CreateOptions()));
+		Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, RdnJsonConfiguration.CreateOptions()), RdnJsonConfiguration.CreateOptions()));
+		Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, RdnJsonConfiguration.CreateOptions()), RdnJsonConfiguration.CreateOptions()));
 		
-		Assert.True(x == JsonSerializer.Deserialize<A>(JsonSerializer.Serialize(new A{RR = x}, RdnApiClient.CreateOptions()), RdnApiClient.CreateOptions()).RR);
+		Assert.True(x == JsonSerializer.Deserialize<A>(JsonSerializer.Serialize(new A{RR = x}, RdnJsonConfiguration.CreateOptions()), RdnJsonConfiguration.CreateOptions()).RR);
 	}
 
 	class A

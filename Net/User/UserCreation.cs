@@ -26,7 +26,7 @@ public class UserCreation : Operation
 	{
 		Pow = null;
 			
-		if(node.Net.UserFreeCreationPoWDifficulity > 0)
+		if(node.Net.UserCreationPoWDifficulity > 0)
 		{
 			var s = node.Peering.Call(new StampPpc {}, flow);
 			
@@ -43,7 +43,7 @@ public class UserCreation : Operation
 																	 
 																	 		var f = h.Sum(i => BitOperations.PopCount(i));
 																	 
-																	 		if(f >= node.Net.UserFreeCreationPoWDifficulity)
+																	 		if(f >= node.Net.UserCreationPoWDifficulity)
 																	 		{
 																	 			Pow = b;
 																	 		}
@@ -69,7 +69,7 @@ public class UserCreation : Operation
 			return;
 		}
 
-		if(Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < execution.Net.UserFreeCreationPoWDifficulity)
+		if(Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < execution.Net.UserCreationPoWDifficulity)
 		{
 			Error = DoesNotSatisfy;
 			return;

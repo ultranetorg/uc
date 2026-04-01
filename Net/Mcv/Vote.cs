@@ -224,6 +224,7 @@ public class Vote : IBinarySerializable
 			log.ReportWarning(this, $"----Nonce {t.Nonce}");
 			log.ReportWarning(this, $"----Expiration {t.Expiration}");
 			log.ReportWarning(this, $"----Tag {t.Tag?.ToHex()}");
+			log.ReportWarning(this, $"----User{t.User}");
 			//log.ReportWarning(this, $"----Sponsored {t.UserCreationRequest}");
 
 			foreach(var i in t.Operations)

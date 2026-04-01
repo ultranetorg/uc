@@ -36,7 +36,7 @@ public class Nexus : IProgram
 		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
 		Flow = flow;
 
-		new FileLog(Flow.Log, GetType().Name, Settings.Profile);
+		new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
 
 		if(Directory.Exists(Settings.Profile))
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{Cli.FailureExt}"))

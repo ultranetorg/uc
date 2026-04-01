@@ -146,7 +146,9 @@ public abstract class Peer : IBinarySerializable
 		Retries = 0;
 		IdCounter = 0;
 		Inbound = false;
-
+		Writer = null;
+		Reader = null;
+	
 		lock(OutRequests)
 		{
 			foreach(var i in OutRequests)
@@ -157,18 +159,18 @@ public abstract class Peer : IBinarySerializable
 					i.Event.Close();
 				}
 			}
-
+	
 			OutRequests.Clear();
 		}
-
+	
 		if(Tcp != null)
 		{
 			Stream.Close();
 			Tcp.Close();
 			Tcp = null;
 		}
-
-		if(ListenThread == null)
+	
+		//if(ListenThread == null)
 		{
 			Status = ConnectionStatus.Disconnected;
 		}

@@ -13,7 +13,7 @@ public class AuthenticationResult
 	public byte[]			Session { get; set; }
 }
 
-public class VaultApiClient : ApiClient
+public class VaultApiClient : JsonApiClient
 {
 	public VaultApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{

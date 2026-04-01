@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using RocksDbSharp;
@@ -288,23 +289,25 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		throw new OperationCanceledException();
 	}
 
-	public Rp Call<Rp>(IHomoPeer peer, Ppc<Rp> rq) where Rp : Result
+	public Rp Call<Rp>(IHomoPeer peer, Ppc<Rp> rq, Flow flow) where Rp : Result
 	{
 		rq.Peering	= this;
 
-		return peer.Call((PeerRequest)rq) as Rp;
+		return peer.CallMe((PeerRequest)rq, flow) as Rp;
 	}
 
-	public R Call<R>(Endpoint ep, Func<Ppc<R>> call, Flow workflow) where R : Result
+	public R Call<R>(Endpoint ep, Ppc<R> call, Flow flow) where R : Result
 	{
 		var p = GetPeer(ep);
+	
+		Connect(p, flow);
+	
+		call.Peering	= this;
+	
+		if(p.Status ==  ConnectionStatus.Disconnected)
+			Debugger.Break();
 
-		Connect(p, workflow);
-
-		var c = call();
-		c.Peering	= this;
-
-		return ((IHomoPeer)p).Call(c);
+		return ((IHomoPeer)p).CallMe(call, flow);
 	}
 
 	public void Tell(Endpoint ep, PeerRequest requet, Flow workflow)
@@ -320,7 +323,7 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 	}
 
-	public Result Call(PeerRequest request)
+	public Result CallMe(PeerRequest request, Flow flow)
 	{
 		var rq = request;
 

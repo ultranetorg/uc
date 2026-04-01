@@ -33,7 +33,7 @@ public class RdnNode : McvNode
 		base.Settings = settings ?? new RdnNodeSettings(profile);
 
 		if(Flow.Log != null)
-			new FileLog(Flow.Log, GetType().Name, Settings.Profile);
+			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
 
 		if(NodeGlobals.Any)
 			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
@@ -57,8 +57,8 @@ public class RdnNode : McvNode
 
 			Mcv.Confirmed += r =>	{
 										/// Remove if consensus has reached or expired
-										Mcv.ApprovedOutwards.RemoveAll(i => (r as RdnRound).ConsensusOutwards.Any(x => x == i) || 
-																			  (r as RdnRound).Outwards.Find(x => x.User == i.User && x.Id == i.Id)?.Expiration < r.ConsensusTime);
+										Mcv.ApprovedOutwards.RemoveAll(i =>	(r as RdnRound).ConsensusOutwards.Any(x => x == i) || 
+																			(r as RdnRound).Outwards.Find(x => x.User == i.User && x.Id == i.Id)?.Expiration < r.ConsensusTime);
 									};
 
 			OutwardThread = CreateThread(() => {
@@ -66,6 +66,9 @@ public class RdnNode : McvNode
 											 		{
 											 			var r = WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
 														
+														if(Peering == null || Peering.Synchronization != Synchronization.Synchronized)
+															continue;
+
 														lock(Mcv.Lock)
 														{
 															if(CurrentOutwards.Count < 100)
@@ -104,6 +107,8 @@ public class RdnNode : McvNode
 			OutwardThread.Start();
 		}
 
+		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
+
 		NnConnection = new RdnNnpIppConnection(this, flow);
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
@@ -113,7 +118,6 @@ public class RdnNode : McvNode
 			ResourceHub.RunDeclaring();
 		}
 
-		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToApiSettings(Net), Flow);
 	}
 
 	public override string ToString()
