@@ -1,5 +1,15 @@
-import { Distributive, FieldValue, Hardware, Hash, Release, Requirements, Software, Source } from "types"
-import { getValue, nameEq } from "utils"
+import {
+  Distributive,
+  DownloadSource,
+  FieldValue,
+  Hardware,
+  Hash,
+  Release,
+  Requirements,
+  Software,
+  Source,
+} from "types"
+import { getValue, isIpfsUri, isMagnetUri, isRdnLink, nameEq } from "utils"
 
 const normalizePlatformName = (raw: string): string | undefined => {
   const value = raw.trim().toLocaleLowerCase()
@@ -27,6 +37,14 @@ const buildSoftware = (fields: FieldValue[]): Software | undefined => {
   return { os, architecture: getValue(fields, "architecture"), version: getValue(fields, "version") }
 }
 
+const getDownloadSourceByLink = (link: string): DownloadSource | undefined => {
+  if (isMagnetUri(link)) return "torrent"
+  if (isIpfsUri(link)) return "ipfs"
+  if (isRdnLink(link)) return "rdn"
+
+  return undefined
+}
+
 const getDistributive = (fields: FieldValue[]): Distributive | undefined => {
   const platform = getValue(fields, "platform")
   const date = getValue<number>(fields, "date")
@@ -37,14 +55,18 @@ const getDistributive = (fields: FieldValue[]): Distributive | undefined => {
     .filter(x => nameEq(x.name, "source"))
     .flatMap(x => x.children ?? [])
     .filter(x => nameEq(x.name, "uri") && !!x.value)
-    .map<Source>(x => {
+    .flatMap<Source>(x => {
       const hashNode = (x.children ?? []).find(y => nameEq(y.name, "hash"))
+      const source = getDownloadSourceByLink(x.value as string)
+      if (!source) return []
+
       const hash: Hash | undefined = hashNode
         ? { type: getValue(hashNode.children, "type") ?? "", value: getValue(hashNode.children, "value") ?? "" }
         : undefined
 
       return {
         uri: x.value as string,
+        source,
         hash,
       }
     })

@@ -1,3 +1,5 @@
+import { DownloadSource } from "./DownloadSource"
+
 export type CPUArchitecture = "x64" | "x86" | "arm64" | "arm" | string
 
 export interface Hash {
@@ -7,6 +9,7 @@ export interface Hash {
 
 export interface Source {
   uri: string
+  source: DownloadSource
   hash?: Hash
 }
 

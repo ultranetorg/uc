@@ -162,20 +162,9 @@ export const getAllSupportedPlatforms = (releases: Release[]): string[] => {
   })
 }
 
-const getDownloadSourceByLink = (link: string): DownloadSource | undefined => {
-  if (isMagnetUri(link)) return "torrent"
-  if (isIpfsUri(link)) return "ipfs"
-  if (isRdnLink(link)) return "rdn"
-
-  return undefined
-}
-
 export const getSoftwareDownloads = (releases: Release[], platform: string): SoftwareDownload[] | undefined => {
   const release = releases.find(x => x.requirements.platform.platform === platform)
   if (!release) return undefined
-  const sources = release.distributive.sources.flatMap<SoftwareDownload>(x => {
-    const source = getDownloadSourceByLink(x.uri)
-    return source ? [{ link: x.uri, source }] : []
-  })
+  const sources = release.distributive.sources.map<SoftwareDownload>(x => ({ link: x.uri, source: x.source }))
   return sources.length > 0 ? sources : undefined
 }

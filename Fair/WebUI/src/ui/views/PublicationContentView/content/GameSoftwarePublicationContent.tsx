@@ -86,7 +86,6 @@ export const GameSoftwarePublicationContent = memo(
           : undefined,
       [platform, releasesByVersion],
     )
-    console.log(softwareDownloads)
 
     const supportedPlatforms = useMemo(() => {
       if (releases === undefined) return undefined
