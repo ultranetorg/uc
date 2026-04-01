@@ -76,6 +76,13 @@ public class Flow : IDisposable
 		return new Flow(null, log, a) {Parent = this, WorkDirectory = WorkDirectory};
 	}
 	
+	public Flow CreateNested(Log log, string workingdirectory)
+	{
+		var a = CancellationTokenSource.CreateLinkedTokenSource(CancellationSource.Token);
+		
+		return new Flow(null, log, a) {Parent = this, WorkDirectory = workingdirectory};
+	}
+	
 	public Flow CreateNested(int timeout)
 	{
 		var s = CancellationTokenSource.CreateLinkedTokenSource(CancellationSource.Token);

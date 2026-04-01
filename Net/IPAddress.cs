@@ -4,7 +4,7 @@ namespace Uccs.Net;
 
 public class IPAddressComparer : IEqualityComparer<IPAddress>
 {
-    public bool Equals(IPAddress? x, IPAddress? y)
+    public bool Equals(IPAddress x, IPAddress y)
     {
         if(ReferenceEquals(x, y))
 			return true;

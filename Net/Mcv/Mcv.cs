@@ -273,7 +273,7 @@ public abstract class Mcv /// Mutual chain voting
 		Rocks.Dispose();
 	}
 
-	public void Add(Vote vote, bool process)
+	public void Add(Vote vote, bool process, bool check = true)
 	{
 		if(!Monitor.IsEntered(Lock))
 			Debugger.Break();
@@ -293,9 +293,10 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(process)
 		{
-			Check(vote);
+			if(check)
+				Check(vote);
 	
-			if(vote.Status == VoteStatus.OK)
+			if(!check || vote.Status == VoteStatus.OK)
 			{	
 				if(vote.Try == r.Try)
 	 			{	
@@ -309,8 +310,6 @@ public abstract class Mcv /// Mutual chain voting
 				}
 			}
 		}
-		else
-			r.New.Add(vote);
 
 		VoteAdded?.Invoke(vote);
 	}
@@ -455,7 +454,9 @@ public abstract class Mcv /// Mutual chain voting
 			{
 				t.ReUpdate();
 				t.Summarize();
-					
+				
+				Log?.Report(this, $"Summarize {t} - Payloads={string.Join(" ", t.Payloads.Select(i => i.User))} - VotesOfTry={string.Join(" ", t.VotesOfTry.Select(i => i.User))} - Votes={string.Join(" ", t.Votes.Select(i => i.User))}");
+				
 				if(t.Hash == null || !m.Key.SequenceEqual(t.Hash))
 				{
 					#if DEBUG
@@ -593,13 +594,19 @@ public abstract class Mcv /// Mutual chain voting
 
 		transaction.Nonce = a == null ? 0 : a.LastNonce + 1;
 
+		var old = FindRound(LastConfirmedRound.Id + 1);
+
 		var r = CreateRound();
 		r.Id = LastConfirmedRound.Id + 1;
+
 		
 		r.ConsensusTime			= Time.Now(Clock);
 		r.ConsensusEnergyCost	= LastConfirmedRound.ConsensusEnergyCost;
 
 		r.Execute([transaction]);
+
+		if(FindRound(r.Id) != old)
+			Debugger.Break();
 
 		transaction.Nonce = oldnonce;
 	}

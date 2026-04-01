@@ -4,9 +4,9 @@ namespace Uccs.Net;
 
 public class CandidacyDeclaration : Operation
 {
-	public Endpoint[]		GraphIPs  { get; set; }
+	public Endpoint[]		GraphEPs  { get; set; }
 
-	public override string	Explanation => $"Id={User.Id}, Address={User.Owner}, BaseRdcIPs={string.Join(',', GraphIPs as object[])}";
+	public override string	Explanation => $"User={User?.Id}, Owner={User?.Owner}, GraphEPs={string.Join(',', (GraphEPs ?? []) as object[])}";
 
 	public CandidacyDeclaration()
 	{
@@ -16,12 +16,12 @@ public class CandidacyDeclaration : Operation
 
 	public override void Read(BinaryReader reader)
 	{
-		GraphIPs = reader.ReadArray<Endpoint>();
+		GraphEPs = reader.ReadArray<Endpoint>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
-		writer.Write(GraphIPs);
+		writer.Write(GraphEPs);
 	}
 
 	public override void Execute(Execution execution)
@@ -45,7 +45,7 @@ public class CandidacyDeclaration : Operation
 		c = execution.AffectCandidate(User.Id);
 		
 		c.User			= User.Id;
-		c.GraphPpcIPs	= GraphIPs;
+		c.GraphPpcIPs	= GraphEPs;
 
 		execution.EnergySpenders.Add(User);
 	}

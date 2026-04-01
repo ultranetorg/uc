@@ -46,7 +46,7 @@ public class Authentication : IBinarySerializable
 
 	public byte[] Hashify()
 	{
-		var s = new MemoryStream();
+		var s = new Blake2Stream();
 		var w = new BinaryWriter(s);
 
 		w.WriteUtf8(User);
@@ -54,7 +54,7 @@ public class Authentication : IBinarySerializable
 		w.WriteUtf8(Net);
 		w.WriteBytes(Session);
 
-		return Cryptography.Hash(s.ToArray());
+		return s.Hash;
 	}
 }
 

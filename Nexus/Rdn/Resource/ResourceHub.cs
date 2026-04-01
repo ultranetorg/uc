@@ -195,7 +195,8 @@ public class ResourceHub
 				else
 				{
 					files[s] = Path.GetFileName(s);
-					index.Add(files[s]).Value = Net.Cryptography.HashFile(File.ReadAllBytes(s));
+					using var f = File.OpenRead(s);
+					index.Add(files[s]).Value = Net.Cryptography.HashFile(f);
 				}
 			}
 			else
@@ -207,7 +208,8 @@ public class ResourceHub
 				else
 				{
 					files[s] = d;
-					index.Add(files[s]).Value = Net.Cryptography.HashFile(File.ReadAllBytes(s));
+					using var f = File.OpenRead(s);
+					index.Add(files[s]).Value = Net.Cryptography.HashFile(f);
 				}
 			}
 		}
@@ -234,7 +236,7 @@ public class ResourceHub
 
 	public LocalRelease Add(string path, ReleaseAddressCreator address, Flow workflow)
 	{
-		var b = File.ReadAllBytes(path);
+		using var b = File.OpenRead(path);
 
 		var h = Net.Cryptography.HashFile(b);
 		var a = address.Create(null/*Node.Vault*/, h);

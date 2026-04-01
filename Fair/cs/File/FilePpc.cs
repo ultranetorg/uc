@@ -2,7 +2,7 @@
 
 public class FilePpc : FairPpc<FilePpr>
 {
-	public new AutoId	Id { get; set; }
+	public AutoId	Id { get; set; }
 
 	public FilePpc()
 	{

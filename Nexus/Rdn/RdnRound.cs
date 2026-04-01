@@ -184,17 +184,17 @@ public class RdnRound : Round
 		Outwards	= reader.Read(() => new Outward(Net), i => i.ReadBaseState(reader)).ToList();
 	}
 
-	public override void WriteConfirmed(BinaryWriter writer)
+	public override void Write(BinaryWriter writer)
 	{
-		base.WriteConfirmed(writer);
+		base.Write(writer);
 
 		writer.Write(ConsensusOutwards);
 		writer.Write(ConsensusNnStates, writer.Write);
 	}
 
-	public override void ReadConfirmed(BinaryReader reader)
+	public override void Read(BinaryReader reader)
 	{
-		base.ReadConfirmed(reader);
+		base.Read(reader);
 		
 		ConsensusOutwards	= reader.ReadArray<ForeignResult>();
 		ConsensusNnStates = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashLength));

@@ -2,7 +2,7 @@
 
 public class ProductPpc : FairPpc<ProductPpr>
 {
-	public new AutoId	Id { get; set; }
+	public AutoId	Id { get; set; }
 
 	public ProductPpc()
 	{

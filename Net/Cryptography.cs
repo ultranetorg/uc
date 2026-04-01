@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using Blake2Fast;
+using Blake2Fast.Implementation;
 using Org.BouncyCastle.Security;
 
 namespace Uccs.Net;
@@ -27,6 +28,7 @@ public abstract class Cryptography
 	///[ThreadStatic]
 	//public static DZen.Security.Cryptography.SHA3	SHA;
 
+
 	protected Cryptography()
 	{
 	}
@@ -43,6 +45,10 @@ public abstract class Cryptography
 		//return Sha3Keccack.Current.CalculateHash(data);
 		
 		//return SHA256.HashData(data);
+
+		///var c = Blake2b.CreateHashAlgorithm();
+		///c.ComputeHash()
+		
 		return Blake2b.ComputeHash(32, data);
 	}
 
@@ -62,6 +68,11 @@ public abstract class Cryptography
 	}
 
 	public byte[] HashFile(byte[] data)
+	{
+		return SHA256.HashData(data);
+	}
+
+	public byte[] HashFile(Stream data)
 	{
 		return SHA256.HashData(data);
 	}
@@ -131,4 +142,75 @@ public class McvCryptography : Cryptography
 		
 		return AccountKey.RecoverFromSignature(sig, hash).Address;
 	}
+}
+
+public class Blake2Stream : Stream
+{
+    Blake2bHashState			Hasher;
+    bool						IsFinished;
+
+    public override bool		CanRead => false;
+    public override bool		CanSeek => false;
+    public override bool		CanWrite => !IsFinished;
+    public override long		Length => 0;
+    public override long		Position 
+    { 
+        get => 0; 
+        set => throw new NotSupportedException(); 
+    }
+
+    public override void Flush() { /* Nothing to flush */ }
+    public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+    public override void SetLength(long value) => throw new NotSupportedException();
+
+    public byte[] Hash
+    {
+		get
+		{
+			IsFinished = true;
+		
+			return Hasher.Finish();
+		}
+	}
+
+    public Blake2Stream(int digestLength = Cryptography.HashLength)
+    {
+        Hasher = Blake2b.CreateIncrementalHasher(digestLength);
+    }
+
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        if(IsFinished) 
+			throw new InvalidOperationException("Hash already finalized.");
+        
+        Hasher.Update(buffer.AsSpan(offset, count));
+    }
+
+    public override void Write(ReadOnlySpan<byte> buffer)
+    {
+        if(IsFinished) 
+			throw new InvalidOperationException("Hash already finalized.");
+        
+        Hasher.Update(buffer);
+    }
+
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+		if(cancellationToken.IsCancellationRequested)
+            return ValueTask.FromCanceled(cancellationToken);
+
+        try
+        {
+            if(IsFinished)
+				throw new InvalidOperationException("Stream is closed/finished.");
+            
+            Hasher.Update(buffer.Span);
+            return ValueTask.CompletedTask;
+        }
+        catch(Exception ex)
+        {
+            return ValueTask.FromException(ex);
+        }
+    }
 }

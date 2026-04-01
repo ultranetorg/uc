@@ -7,17 +7,17 @@ public class Vote : IBinarySerializable
 	//public List<Peer>			Peers;
 	public bool					BroadcastConfirmed;
 	public Round				Round;
-	AccountAddress				_Generator;
 	byte[]						_Hash;
 	byte[]						_RawPayload;
 	Mcv							Mcv;
+	AccountAddress				_Generator;
 
 	public AutoId				User;
 	public int					RoundId;
 	public int					Try; /// revote if consensus not reached
 	public Time					Time;
 	public byte[]				TargetHash;
-	public AutoId[]				MemberLeavers = [];
+	public AutoId[]				Leavers = [];
 	///public AccountAddress[]	FundJoiners = {};
 	///public AccountAddress[]	FundLeavers = {};
 	public AutoId[]				Violators = [];
@@ -106,7 +106,7 @@ public class Vote : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{RoundId}, {User}, {_Generator?.Bytes.ToHex()}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, ParentHash={TargetHash?.ToHex()}, Violators={{{Violators.Length}}}, Leavers={{{MemberLeavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
+		return $"{RoundId}, {User}, Try={Try}, {_Generator?.Bytes.ToHex()}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, {nameof(TargetHash)}={TargetHash?.ToHex()}, {nameof(Violators)}={{{Violators.Length}}}, {nameof(Leavers)}={{{Leavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
 	}
 	
 	public void AddTransaction(Transaction t)
@@ -123,16 +123,16 @@ public class Vote : IBinarySerializable
 
 	public byte[] Hashify()
 	{
-		var s = new MemoryStream();
+		var s = new Blake2Stream();
 		var w = new BinaryWriter(s);
 
 		w.Write((byte)Mcv.Net.Zone);
 		w.WriteUtf8(Mcv.Net.Address);
-		//w.Write(_Generator);
 		w.Write7BitEncodedInt(RoundId);
+		w.Write(User);
 		w.WriteBytes(RawPayload);
 
-		return Cryptography.Hash(s.ToArray());
+		return s.Hash;
 	}
 
 	protected virtual void WritePayload(BinaryWriter writer)
@@ -141,7 +141,7 @@ public class Vote : IBinarySerializable
 		writer.Write(Time);
 		writer.Write(TargetHash);
 
-		writer.Write(MemberLeavers);
+		writer.Write(Leavers);
 		///writer.Write(FundJoiners);
 		///writer.Write(FundLeavers);
 		writer.Write(Violators);
@@ -156,7 +156,7 @@ public class Vote : IBinarySerializable
 		Time				= reader.Read<Time>();
 		TargetHash			= reader.ReadBytes(Cryptography.HashLength);
 
-		MemberLeavers		= reader.ReadArray<AutoId>();
+		Leavers				= reader.ReadArray<AutoId>();
 		///FundJoiners		= reader.ReadArray<AccountAddress>();
 		///FundLeavers		= reader.ReadArray<AccountAddress>();
 		Violators			= reader.ReadArray<AutoId>();
@@ -185,19 +185,19 @@ public class Vote : IBinarySerializable
 		_RawPayload	= reader.ReadBytes();
 	}
 
-	public void WriteForRoundUnconfirmed(BinaryWriter writer)
-	{
-		writer.Write(Signature);
-		writer.Write(Signer);
-		WritePayload(writer);
-	}
-
-	public void ReadForRoundUnconfirmed(BinaryReader reader)
-	{
-		Signature	= reader.ReadSignature();
-		_Generator	= reader.ReadAccount();
-		ReadPayload(reader);
-	}
+//	public void WriteForRoundUnconfirmed(BinaryWriter writer)
+//	{
+//		writer.Write(Signature);
+//		writer.Write(Signer);
+//		WritePayload(writer);
+//	}
+//
+//	public void ReadForRoundUnconfirmed(BinaryReader reader)
+//	{
+//		Signature	= reader.ReadSignature();
+//		_Generator	= reader.ReadAccount();
+//		ReadPayload(reader);
+//	}
 
 	public void Restore()
 	{

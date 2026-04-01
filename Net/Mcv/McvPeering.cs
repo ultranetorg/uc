@@ -572,6 +572,8 @@ public abstract class McvPeering : HomoTcpPeering
 					//r.Target.ReUpdate();
 					r.Target.Summarize();
 
+					Flow.Log?.Report(this, $"Summarize {r.Target} - Payloads={string.Join(" ", r.Target.Payloads.Select(i => i.User))} - VotesOfTry={string.Join(" ", r.Target.VotesOfTry.Select(i => i.User))} - Votes={string.Join(" ", r.Target.Votes.Select(i => i.User))}");
+
 					if(r.Target.Hash == null)
 						return;
 				}
@@ -586,7 +588,7 @@ public abstract class McvPeering : HomoTcpPeering
 					v.RoundId		= r.Id;
 					v.Time			= Time.Now(Mcv.Clock);
 					v.Violators		= r.ProposeViolators().ToArray();
-					v.MemberLeavers	= r.ProposeMemberLeavers(gs.Id).ToArray();
+					v.Leavers		= r.ProposeMemberLeavers(gs.Id).ToArray();
 					v.NntBlocks		= Mcv.NnBlocks.Select(i => i.State.Hash).ToArray();
 	
 					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
@@ -719,7 +721,8 @@ public abstract class McvPeering : HomoTcpPeering
 				{
 					foreach(var i in v)
 					{
-						Mcv.Add(i, true);
+						Mcv.Add(i, true, false);
+						Flow.Log?.Report(this, $"{nameof(Vote)} generated - {i} - {i.Round}");
 					}
 				
 					Mcv.TryReachConsensus(Mcv.FindRound(v.Key));
@@ -749,11 +752,7 @@ public abstract class McvPeering : HomoTcpPeering
 			}
 	
 			foreach(var v in votes)
-			{
-				Flow.Log?.Report(this, $"{nameof(Vote)} generated : {v}");
-					
 				Broadcast(v);
-			}
 		}
 	
 		Statistics.Generating.End();
@@ -929,19 +928,19 @@ public abstract class McvPeering : HomoTcpPeering
 
 						(txs.TryGetValue(ppi, out var p) ? p : (txs[ppi] = [])).Add(t);
 
-						t.Flow.Log?.Report(this, $"Examine: {t}");
+						t.Flow.Log?.Report(this, $"Signed - {t}");
 					}
 					catch(NodeException ex)
 					{
-						t.Error = $"NodeException - {ex.ErrorCode}";
-						t.Flow.Log?.ReportError(this, "Examine", ex);
+						t.Error = $"NodeException - {ex.Message}";
+						t.Flow.Log?.ReportError(this, "Pretransacting", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
 					catch(VaultException ex)
 					{
-						t.Error = $"VaultException - {ex.ErrorCode}";
-						t.Flow.Log?.ReportError(this, "Examine", ex);
+						t.Error = $"VaultException - {ex.Message}";
+						t.Flow.Log?.ReportError(this, "Pretransacting", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
@@ -954,7 +953,7 @@ public abstract class McvPeering : HomoTcpPeering
 					///			OutgoingTransactions.Remove(t);
 					///	} 
 					///
-					///	///t.Error = $"EntityException - {ex.ErrorCode}";
+					///	///t.Error = $"EntityException - {ex.Message}";
 					///	t.Flow.Log?.ReportError(this, "Examine", ex);
 					///	Thread.Sleep(NodeGlobals.TimeoutOnError);
 					///	continue;
@@ -962,7 +961,7 @@ public abstract class McvPeering : HomoTcpPeering
 					catch(ApiCallException ex)
 					{
 						t.Error = $"ApiCallException - {ex.Message}";
-						t.Flow.Log?.ReportError(this, "Examine", ex);
+						t.Flow.Log?.ReportError(this, "Pretransacting", ex);
 						Thread.Sleep(NodeGlobals.TimeoutOnError);
 						continue;
 					}
@@ -980,7 +979,7 @@ public abstract class McvPeering : HomoTcpPeering
 					{
 						foreach(var t in i.Value)
 						{	
-							t.Error = $"NodeException - {ex.ErrorCode}";
+							t.Error = $"NodeException - {ex.Message}";
 							t.Flow.Log?.ReportError(this, "Place", ex);
 						}
 

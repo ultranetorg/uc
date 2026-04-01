@@ -107,7 +107,7 @@ public class FairMcv : Mcv
 
 	public override CandidacyDeclaration CreateCandidacyDeclaration()
 	{
-		return new CandidacyDeclaration {GraphIPs	= GraphIPs};
+		return new CandidacyDeclaration {GraphEPs	= GraphIPs};
 	}
 
 	public override void FillVote(Vote vote)

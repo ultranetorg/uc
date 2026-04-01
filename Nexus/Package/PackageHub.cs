@@ -271,8 +271,8 @@ public class PackageHub
 
 	public LocalRelease AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura previous, ReleaseAddressCreator addresscreator, Flow flow)
 	{
-		var cstream = new MemoryStream();
-		var istream = (MemoryStream)null;
+		byte[] cstream;
+		byte[] istream = null;
 
 		var files = new Dictionary<string, string>();
 
@@ -304,12 +304,15 @@ public class PackageHub
 			}
 		}
 
-		Build(cstream, files, [], flow);
+		var ms = new MemoryStream();
+		Build(ms, files, [], flow);
+		cstream = ms.ToArray();
 
 		if(previous != null)
 		{
-			istream = new MemoryStream();
-			BuildIncremental(istream, resource, previous, files, flow);
+			ms = new MemoryStream();
+			BuildIncremental(ms, resource, previous, files, flow);
+			istream = ms.ToArray();
 		}
 		
 		var m = File.Exists(dependenciespath) ? PackageManifest.Load(dependenciespath)
@@ -319,8 +322,8 @@ public class PackageHub
 		
  		lock(Node.ResourceHub.Lock)
  		{
-			m.CompleteHash		= Node.ResourceHub.Net.Cryptography.HashFile(cstream.ToArray());
-			m.IncrementalHash	= istream != null ? Node.ResourceHub.Net.Cryptography.HashFile(istream.ToArray()) : null;
+			m.CompleteHash		= Node.ResourceHub.Net.Cryptography.HashFile(cstream);
+			m.IncrementalHash	= istream != null ? Node.ResourceHub.Net.Cryptography.HashFile(istream) : null;
 
 			if(previous != null) /// a single parent supported only
 			{
@@ -340,10 +343,10 @@ public class PackageHub
 			var r = Node.ResourceHub.Add(a);
 			 
  			r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);
-			r.AddCompleted(LocalPackage.CompleteFile, Path.Join(AddressToReleases(a), LocalPackage.CompleteFile), cstream.ToArray());
+			r.AddCompleted(LocalPackage.CompleteFile, Path.Join(AddressToReleases(a), LocalPackage.CompleteFile), cstream);
 
 			if(istream != null)
-				r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(AddressToReleases(a), LocalPackage.IncrementalFile), istream.ToArray());
+				r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(AddressToReleases(a), LocalPackage.IncrementalFile), istream);
 
 			r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				

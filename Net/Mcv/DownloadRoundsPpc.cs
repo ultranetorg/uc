@@ -24,7 +24,7 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 		
 			var rs = Enumerable.Range(From, To - From + 1).Select(Mcv.FindRound).Where(i => i != null && i.Confirmed);
 
-			w.Write(rs, i => i.Write(w));
+			w.Write(rs, i => i.Save(w));
 		
 			return new DownloadRoundsPpr {	LastNonEmptyRound	= Mcv.LastNonEmptyRound.Id,
 											LastConfirmedRound	= Mcv.LastConfirmedRound.Id,
@@ -50,7 +50,7 @@ public class DownloadRoundsPpr : Result
 
 		return rd.ReadArray(() =>{
 									var r = mcv.CreateRound();
-									r.Read(rd);
+									r.Load(rd);
 									return r;
 								});
 	}

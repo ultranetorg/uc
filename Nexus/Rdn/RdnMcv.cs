@@ -82,7 +82,7 @@ public class RdnMcv : Mcv
 
 	public override CandidacyDeclaration CreateCandidacyDeclaration()
 	{
-		return new RdnCandidacyDeclaration {GraphIPs		= GraphIPs,
+		return new RdnCandidacyDeclaration {GraphEPs		= GraphIPs,
 											SeedHubRdcIPs	= SeedHubIPs};
 
 	}

@@ -212,12 +212,12 @@ public class Urrsd : Urr
 
 	public bool Prove(Cryptography cryptography, AccountAddress account, byte[] hash)
 	{
-		var s = new MemoryStream();
+		var s = new Blake2Stream();
 		var w = new BinaryWriter(s);
 		w.Write(Resource);
 		w.Write(hash);
 
-		return cryptography.AccountFrom(Signature, Cryptography.Hash(s.ToArray())) == account;
+		return cryptography.AccountFrom(Signature, s.Hash) == account;
 	}
 
 	public static Urr Create(Cryptography cryptography, AccountKey key, Ura resource, byte[] hash)
