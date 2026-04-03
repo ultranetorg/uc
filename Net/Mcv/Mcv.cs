@@ -22,6 +22,7 @@ public enum VoteStatus
 	AlreadyExists,
 	Fork,
 	Violator,
+	NotMemeber,
 	NotVoter,
 	AccessDenied,
 	PerVoteOperationsMaximumExceeded,
@@ -176,7 +177,7 @@ public abstract class Mcv /// Mutual chain voting
 		
 				v.Sign(God);
 				Add(v, false);
-				v.Round.VotesOfTry = v.Round.SelectedArrived = [v];
+				v.Round.VotesOfTry = v.Round.Selected = [v];
 				
 				GenesisInitilize(v.Round);
 			}
@@ -305,8 +306,8 @@ public abstract class Mcv /// Mutual chain voting
 					if(vote.Transactions.Any())
 						r.Payloads.Add(vote);
 	
-					if(r.Id >= JoinToVote && r.SelectedVoters.Any(j => j.User == vote.User))
-						r.SelectedArrived.Add(vote);
+					if(r.Id >= JoinToVote && r.Voters.Any(j => j.User == vote.User))
+						r.Selected.Add(vote);
 				}
 			}
 		}
@@ -381,7 +382,7 @@ public abstract class Mcv /// Mutual chain voting
 				
 		if(e != null) /// FORK
 		{
-			r.Votes.Remove(e);
+			r.VotesOfTry.Remove(e);
 			r.Forkers.Add(e.User);
 	
 			vote.Status = VoteStatus.Fork; /// Let others know about incident
@@ -390,9 +391,9 @@ public abstract class Mcv /// Mutual chain voting
 
 		//if(r.Id >= JoinToVote)
 		{
-			if(!r.Voters.Any(i => i.User == vote.User))
+			if(!r.Senders.Any(i => i.User == vote.User))
 			{	
-				vote.Status = VoteStatus.NotVoter;
+				vote.Status = VoteStatus.NotMemeber;
 				return;
 			}
 	
@@ -419,7 +420,7 @@ public abstract class Mcv /// Mutual chain voting
 				return;
 			}
 		
-			if(vote.Transactions.Any(t => r.Voters.NearestBy(i => i.User, t.User, t.Nonce).User != vote.User))
+			if(vote.Transactions.Any(t => r.Senders.NearestBy(i => i.User, t.User, t.Nonce).User != vote.User))
 			{	
 				vote.Status = VoteStatus.InvalidTransaction;
 				return;
@@ -441,10 +442,10 @@ public abstract class Mcv /// Mutual chain voting
 		if(round.TargetId != LastConfirmedRound.Id + 1)
 			return false;
 
-		if(round.VotesOfTry.Count() < round.MinimumForConsensus)
+		if(round.VotesOfTry.Count() < round.MinimalFilling)
 			return false;
 
-		var m = round.SelectedArrived.GroupBy(i => i.TargetHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
+		var m = round.Selected.GroupBy(i => i.TargetHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 
 		if(m.Count() >= round.MinimumForConsensus)
 		{
@@ -492,8 +493,8 @@ public abstract class Mcv /// Mutual chain voting
 		else
 		{
 
-			var s = round.SelectedVoters;
-			var a = round.SelectedArrived;
+			var s = round.Voters;
+			var a = round.Selected;
 		
 			var missing = s.Count() - a.Count();
 
@@ -594,19 +595,12 @@ public abstract class Mcv /// Mutual chain voting
 
 		transaction.Nonce = a == null ? 0 : a.LastNonce + 1;
 
-		var old = FindRound(LastConfirmedRound.Id + 1);
-
 		var r = CreateRound();
-		r.Id = LastConfirmedRound.Id + 1;
-
-		
+		r.Id					= LastConfirmedRound.Id + 1;
 		r.ConsensusTime			= Time.Now(Clock);
 		r.ConsensusEnergyCost	= LastConfirmedRound.ConsensusEnergyCost;
 
 		r.Execute([transaction]);
-
-		if(FindRound(r.Id) != old)
-			Debugger.Break();
 
 		transaction.Nonce = oldnonce;
 	}

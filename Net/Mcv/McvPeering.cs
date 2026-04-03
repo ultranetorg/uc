@@ -518,7 +518,7 @@ public abstract class McvPeering : HomoTcpPeering
 				}	
 			}
 				
-			var m = Mcv.NextVotingRound.Voters.FirstOrDefault(i => i.User == gs.Id);
+			var m = Mcv.NextVotingRound.Senders.FirstOrDefault(i => i.User == gs.Id);
 	
 			if(m == null)
 			{
@@ -601,7 +601,7 @@ public abstract class McvPeering : HomoTcpPeering
 	
 				var txs = CandidateTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
 			
-				var must = r.Voters.Any(i => i.User == gs.Id) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
+				var must = r.Senders.Any(i => i.User == gs.Id) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
 			
 				if(txs.Any() || must)
 				{
@@ -625,7 +625,7 @@ public abstract class McvPeering : HomoTcpPeering
 							return true;
 						}
 			
-						var nearest = r.Voters.NearestBy(i => i.User, t.User, t.Nonce);
+						var nearest = r.Senders.NearestBy(i => i.User, t.User, t.Nonce);
 			
 						if(nearest.User != gs.Id)
 						{

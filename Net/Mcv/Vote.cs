@@ -209,13 +209,13 @@ public class Vote : IBinarySerializable
 
 	public void Dump(Round round, Log log)
 	{
-		foreach(var m in round.Voters)
+		foreach(var m in round.Senders)
 			log.ReportWarning(this, $"Member {m}");
 
 		foreach(var t in Transactions)
 		{	
 			log.ReportWarning(this, $"----Transaction {t}" );
-			log.ReportWarning(this, $"----NearestBy {round.Voters.NearestBy(i => i.User, t.User, t.Nonce).User}");
+			log.ReportWarning(this, $"----NearestBy {round.Senders.NearestBy(i => i.User, t.User, t.Nonce).User}");
 			log.ReportWarning(this, $"----Signature {t.Signature.ToHex()}" );
 			log.ReportWarning(this, $"----Hash {t.Hashify().ToHex()}" );
 			log.ReportWarning(this, $"----Zone {t.Net.Zone}");
