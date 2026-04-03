@@ -2,12 +2,11 @@ import { useTranslation } from "react-i18next"
 import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 
 import { SvgXSm } from "assets"
-import { useGetProductDetails } from "entities/Product"
-import { PageType } from "types"
-import { ButtonPrimary } from "ui/components"
-import { PublicationContentView } from "ui/views"
-import { SoftwarePublicationHeader } from "ui/components/publication"
 import { useGetPublication } from "entities"
+import { useGetProductDetails } from "entities/Product"
+import { ButtonPrimary } from "ui/components"
+import { SoftwarePublicationHeader } from "ui/components/publication"
+import { PublicationContentView } from "ui/views"
 
 export const PreviewPage = () => {
   const location = useLocation()
@@ -15,14 +14,17 @@ export const PreviewPage = () => {
   const { t } = useTranslation("previewPage")
 
   const productId = location.state?.productId as string | undefined
-  const proposalId = location.state?.proposalId as string | undefined
   const publicationId = location.state?.publicationId as string | undefined
-  const navigatedFromSource = location.state?.source as PageType | undefined
+  const previousPath = location.state?.previousPath as string | undefined
+
+  console.log(previousPath)
+  console.log(productId)
+  console.log(publicationId)
 
   const { data: product, isPending: isProductPending } = useGetProductDetails(productId)
   const { data: publication, isPending: isPublicationPending } = useGetPublication(publicationId)
 
-  if (!navigatedFromSource || (!productId && !publicationId)) return <Navigate to={`/${siteId}`} />
+  if (!previousPath || (!productId && !publicationId)) return <Navigate to={`/${siteId}`} />
 
   if (isProductPending && isPublicationPending && !product && !publication) {
     return <>🕑 LOADING</>
@@ -34,14 +36,8 @@ export const PreviewPage = () => {
         title={product?.title ?? publication?.title ?? ""}
         logoFileId={product?.logoFileId ?? publication?.logoFileId}
         components={
-          navigatedFromSource && (
-            <Link
-              to={
-                navigatedFromSource === "ModeratorCreatePublicationPage"
-                  ? `/${siteId}/m/new-publication?productId=${productId}`
-                  : `/${siteId}/m/c/p/${proposalId}`
-              }
-            >
+          previousPath && (
+            <Link to={previousPath}>
               <ButtonPrimary
                 iconBefore={<SvgXSm className="fill-white" />}
                 className="h-11 w-61"

@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Ardalis.GuardClauses;
-using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -57,8 +56,11 @@ public class ProductsService
 			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
 			IEnumerable<FieldValueModel> mappedFields = GetMappedValue(product);
 
-			return new UnpublishedProductDetailsModel(product, account, fileId)
+			return new UnpublishedProductDetailsModel(product.Id, product, account, fileId)
 			{
+				Title = PublicationUtils.GetLatestTitle(product),
+				Description = PublicationUtils.GetLatestDescription(product),
+				LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
 				Fields = mappedFields
 			};
 		}
@@ -74,49 +76,6 @@ public class ProductsService
 		}
 
 		return null;
-	}
-
-	public UnpublishedProductDetailsModel GetUnpublishedProduct([NotNull][NotEmpty] string unpublishedProductId, [NotEmpty] string siteId = null)
-	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UnpublishedProductId}, {SiteId}", nameof(ProductsService), nameof(GetUnpublishedProduct), unpublishedProductId, siteId);
-
-		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.NullOrEmpty(unpublishedProductId);
-
-		AutoId entityUnpublishedProductId = AutoId.Parse(unpublishedProductId);
-
-		lock(mcv.Lock)
-		{
-			if(siteId != null)
-			{
-				AutoId entitySiteId = AutoId.Parse(siteId);
-				Site site = mcv.Sites.Latest(entitySiteId);
-				if(site == null)
-				{
-					throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-				}
-				if(!site.UnpublishedPublications.Contains(entityUnpublishedProductId))
-				{
-					throw new EntityNotFoundException(EntityNames.UnpublishedProductEntityName, unpublishedProductId);
-				}
-			}
-
-			Product product = mcv.Products.Latest(entityUnpublishedProductId);
-			if(siteId == null && product == null)
-			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), unpublishedProductId);
-			}
-
-			FairUser account = (FairUser) mcv.Users.Latest(product.Author);
-			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
-
-			FieldValue[] fields = GetFieldsLastVersion(product);
-			IEnumerable<FieldValueModel> mappedFields = fields != null ? MapValues(Product.Software, fields) : null;
-			return new UnpublishedProductDetailsModel(product, account, fileId)
-			{
-				Fields = mappedFields
-			};
-		}
 	}
 
 	public IEnumerable<FieldValueModel> GetFields([NotNull][NotEmpty] string productId)
@@ -170,62 +129,6 @@ public class ProductsService
 
 			return new ProductDetailsModel(product, author, productFields);
 		}
-	}
-
-	public TotalItemsResult<UnpublishedProductModel> GetUnpublishedProducts([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
-	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetUnpublishedProducts), siteId, page, pageSize);
-
-		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
-
-		AutoId id = AutoId.Parse(siteId);
-
-		lock(mcv.Lock)
-		{
-			Site site = mcv.Sites.Latest(id);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-			if(site.UnpublishedPublications.Length == 0)
-			{
-				return TotalItemsResult<UnpublishedProductModel>.Empty;
-			}
-
-			IEnumerable<AutoId> publicationsIds = site.UnpublishedPublications.Skip(page * pageSize).Take(pageSize);
-			List<UnpublishedProductModel> result = LoadUnpublishedProducts(publicationsIds, pageSize, cancellationToken);
-
-			return new TotalItemsResult<UnpublishedProductModel>
-			{
-				Items = result,
-				TotalItems = site.UnpublishedPublications.Length
-			};
-		}
-	}
-
-	List<UnpublishedProductModel> LoadUnpublishedProducts(IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
-	{
-		if(cancellationToken.IsCancellationRequested)
-			return [];
-
-		List<UnpublishedProductModel> result = new(pageSize);
-		foreach(var publicationId in publicationsIds)
-		{
-			if(cancellationToken.IsCancellationRequested)
-				return result;
-
-			Publication publication = mcv.Publications.Latest(publicationId);
-			Product product = mcv.Products.Latest(publication.Product);
-			FairUser account = (FairUser)mcv.Users.Latest(product.Author);
-			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-
-			UnpublishedProductModel model = new UnpublishedProductModel(product, account, fileId);
-			result.Add(model);
-		}
-
-		return result;
 	}
 
 	public FieldValueCompareModel GetUpdatedFieldsByPublication([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int version)
@@ -286,7 +189,7 @@ public class ProductsService
 		return result;
 	}
 
-	private static object ConvertValue(FieldType? declarationType, FieldValue field)
+	static object ConvertValue(FieldType? declarationType, FieldValue field)
 	{
 		if(field?.Value == null)
 			return null;

@@ -17,7 +17,7 @@ export const ModerationHeader = memo(
     const { t } = useTranslation()
 
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex min-w-0 flex-col gap-2 overflow-hidden">
         <Breadcrumbs
           fullPath={true}
           items={[
@@ -26,8 +26,10 @@ export const ModerationHeader = memo(
             { title: breadcrumbTitle ?? title },
           ]}
         />
-        <div className="flex h-11 justify-between">
-          <div className="flex gap-2 text-3.5xl font-semibold leading-11">{title}</div>
+        <div className="flex h-11 justify-between gap-4">
+          <div className="flex min-w-0 gap-2 text-3.5xl font-semibold leading-11">
+            <span className="truncate">{title}</span>
+          </div>
           {components}
         </div>
       </div>

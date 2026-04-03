@@ -1,8 +1,8 @@
 import { uniq } from "lodash"
 
-import { Description, DownloadSource, FieldValue, Release } from "types"
+import { Description, FieldValue, Release } from "types"
 import { SoftwareDownload } from "ui/components/publication"
-import { ensureHttp, getValue, isIpfsUri, isMagnetUri, isRdnLink, isValidUrl, nameEq } from "utils"
+import { ensureHttp, getValue, isValidUrl, nameEq } from "utils"
 
 type BookFields = {
   author?: string

@@ -9,7 +9,7 @@ export const BaseLayout = memo(({ children }: PropsWithChildren) => (
     <div className="mx-auto max-w-[1440px]">
       <div className="flex min-h-screen w-full">
         <Sidebar />
-        <div className="w-full">{children ?? <Outlet />}</div>
+        <div className="w-full min-w-0">{children ?? <Outlet />}</div>
       </div>
     </div>
   </div>

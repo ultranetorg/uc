@@ -6,7 +6,7 @@ import { useModerationContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
-import { PageType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
+import { ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { CommentsSection, ProposalInfo } from "ui/components/proposal"
 import { ModerationHeader } from "ui/components/specific"
@@ -152,7 +152,7 @@ export const PublicationProposalView = memo(({ parentBreadcrumb, proposal }: Pub
                     productId: productId,
                     publicationId: publicationId,
                     proposalId: proposal?.id,
-                    source: "PublicationProposalView" as PageType,
+                    previousPath: `/${siteId}/m/c/p/${proposal?.id}`,
                   }}
                 >
                   <ButtonOutline

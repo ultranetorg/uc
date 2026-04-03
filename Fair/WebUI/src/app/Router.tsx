@@ -28,7 +28,7 @@ import {
   UserPage,
   UsersPage,
   ModeratorChangedPublicationPage,
-  ModeratorUnpublishedProductPage,
+  UnpublishedPublicationPage,
 } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
@@ -160,8 +160,8 @@ const routes: RouteObject[] = [
                 element: <ModeratorChangedPublicationPage />,
               },
               {
-                path: "c/u/:productId",
-                element: <ModeratorUnpublishedProductPage />,
+                path: "c/u/:publicationId",
+                element: <UnpublishedPublicationPage />,
               },
               {
                 path: "a/:tabKey?",

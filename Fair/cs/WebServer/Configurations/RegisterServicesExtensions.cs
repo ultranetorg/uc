@@ -32,6 +32,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<AccountsService>();
 		services.AddSingleton<ModeratorProposalsService>();
 		services.AddSingleton<ProposalCommentsService>();
+		services.AddSingleton<UnpublishedPublicationsService>();
 	}
 
 	private static void RegisterValidators(IServiceCollection services)

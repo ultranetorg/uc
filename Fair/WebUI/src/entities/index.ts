@@ -1,5 +1,6 @@
 export * from "./moderator"
 export * from "./Proposals"
+export * from "./UnpublishedPublications"
 export * from "./User"
 
 export * from "./Account"

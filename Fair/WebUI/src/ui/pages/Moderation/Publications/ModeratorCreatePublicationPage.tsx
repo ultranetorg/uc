@@ -8,7 +8,7 @@ import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
-import { BaseVotableOperation, PageType, ProposalCreation, ProposalOption, Role } from "types"
+import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
 import { ModerationHeader, ProductFieldsTree } from "ui/components/specific"
 import { showToast } from "utils"
@@ -75,7 +75,10 @@ export const ModeratorCreatePublicationPage = () => {
                 />
                 <Link
                   to={`/${siteId}/m/v`}
-                  state={{ productId: product.id, source: "ModeratorCreatePublicationPage" as PageType }}
+                  state={{
+                    productId: product.id,
+                    previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
+                  }}
                 >
                   <ButtonOutline
                     disabled={isPending}

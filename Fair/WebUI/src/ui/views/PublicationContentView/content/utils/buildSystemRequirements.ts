@@ -1,4 +1,3 @@
-import { sortBy } from "lodash"
 import { TFunction } from "i18next"
 
 import { Hardware, Release, Requirements, Software } from "types"

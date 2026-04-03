@@ -3,6 +3,7 @@
 public class ChangedPublicationModel(string publicationId, Product product, int publicationVersion, FairUser account, Category category, AutoId logoId)
 {
 	public string Id { get; } = publicationId;
+	public string ProductId { get; } = product.Id.ToString();
 
 	public PublicationImageBaseModel Publication { get; } = new PublicationImageBaseModel(product, logoId);
 	public AccountBaseAvatarModel Author { get; } = new AccountBaseAvatarModel(account);

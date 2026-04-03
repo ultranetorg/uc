@@ -1,12 +1,12 @@
 ﻿namespace Uccs.Fair;
 
-public class UnpublishedProductDetailsModel(Product product, FairUser account, AutoId? productImage) : UnpublishedProductModel(product, account, productImage)
+public class UnpublishedProductDetailsModel(AutoId id, Product product, FairUser account, AutoId? productImage) : UnpublishedProductModel(id, product, account, productImage)
 {
-	public string Title { get; } = PublicationUtils.GetLatestTitle(product);
+	public string Title { get; init; }
 
-	public string Description { get; } = PublicationUtils.GetLatestDescription(product);
+	public string Description { get; init; }
 
-	public string? LogoId { get; } = PublicationUtils.GetLatestLogo(product)?.ToString();
+	public string? LogoId { get; init; }
 
-	public IEnumerable<FieldValueModel>? Fields { get; set; }
+	public IEnumerable<FieldValueModel>? Fields { get; init; }
 }

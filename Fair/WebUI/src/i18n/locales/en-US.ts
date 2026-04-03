@@ -206,6 +206,7 @@ export const enUS = {
     perpetualVoted: `Publisher "{{publisher}}" successfully voted`,
     proposalCreated: `Proposal "{{proposal}}" created successfully`,
     publicationCreated: "Publication successfully created",
+    publicationUpdated: "Publication successfully updated",
     publicationVoted: "You have successfully voted for publication",
     reviewApproved: "Review approved",
     reviewRejected: "Review rejected",

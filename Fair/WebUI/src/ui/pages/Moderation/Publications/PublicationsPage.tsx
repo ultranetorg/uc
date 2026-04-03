@@ -8,7 +8,7 @@ import { ModerationHeader } from "ui/components/specific"
 
 import { ChangedPublicationsTab } from "./ChangedPublicationsTab"
 import { PublicationsTab } from "./PublicationsTab"
-import { UnpublishedProductsTab } from "./UnpublishedProductsTab"
+import { UnpublishedPublicationsTab } from "./UnpublishedPublicationsTab"
 
 const routeToTabKey: Record<string, string> = {
   p: "proposals",
@@ -70,7 +70,7 @@ export const PublicationsPage = () => {
             <ChangedPublicationsTab />
           </TabContent>
           <TabContent when="unpublished">
-            <UnpublishedProductsTab />
+            <UnpublishedPublicationsTab />
           </TabContent>
         </div>
       </TabsProvider>
