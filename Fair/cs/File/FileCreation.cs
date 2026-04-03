@@ -9,7 +9,7 @@ public class FileCreation : FairOperation
 	public MimeType				Mime { get; set; }
 
 	public override string		Explanation => $"Owner={Owner}, Data={Data.Length}";
-	public override bool		IsValid(McvNet net) => Data.Length <= (net as Fair).FileLengthMaximum && Mime != null;
+	public override bool		IsValid(McvNet net) => Data.Length <= (net as Fair).FileLengthMaximum && Enum.IsDefined(Mime);
 
 	public FileCreation()
 	{

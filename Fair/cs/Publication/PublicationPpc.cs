@@ -2,7 +2,7 @@
 
 public class PublicationPpc : FairPpc<PublicationPpr>
 {
-	public new AutoId	Id { get; set; }
+	public AutoId	Id { get; set; }
 
 	public PublicationPpc()
 	{

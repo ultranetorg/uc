@@ -28,6 +28,8 @@ public class FairNode : McvNode
 		{
 			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.EP], clock ?? new RealClock());
 
+			base.Mcv.Log = Flow.Log;
+
 			if(Settings.Web != null)
 			{
 				WebServer = new WebServer(this, null);

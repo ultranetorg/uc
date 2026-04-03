@@ -2,7 +2,7 @@
 
 public class CategoryPpc : FairPpc<CategoryPpr>
 {
-	public new AutoId	Id { get; set; }
+	public AutoId	Id { get; set; }
 
 	public CategoryPpc()
 	{

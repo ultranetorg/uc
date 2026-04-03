@@ -59,7 +59,7 @@ public class Transaction : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"User={User}, Nid={Nonce}, {Status}, Operations={{{Operations.Length}}}, Signer={Signer?.Bytes.ToHexPrefix()}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+		return $"User={User}, Nonce={Nonce}, {Status}, Operations={Operations.FirstOrDefault()?.ToString() ?? $"{{{Operations.Length}}}"}, Expiration={Expiration}, Signer={Signer?.Bytes.ToHexPrefix()}, Signature={Signature?.ToHexPrefix()}";
 	}
 
 	public void Sign(AccountKey signer)
@@ -76,7 +76,7 @@ public class Transaction : IBinarySerializable
 
 	public byte[] Hashify()
 	{
-		var s = new MemoryStream();
+		var s = new Blake2Stream();
 		var w = new BinaryWriter(s);
 
 		w.Write(Net.Zone);
@@ -89,7 +89,7 @@ public class Transaction : IBinarySerializable
 		w.WriteBytes(Tag);
 		w.Write(Operations, i => i.Write(w));
 
-		return Cryptography.Hash(s.ToArray());
+		return s.Hash;
 	}
 
  	public void	WriteConfirmed(BinaryWriter writer)

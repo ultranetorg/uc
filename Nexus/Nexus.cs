@@ -117,7 +117,7 @@ public class Nexus : IProgram
 		var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
 		Directory.CreateDirectory(d);
 		
-		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log()));
+		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
 		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
 		
 		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];

@@ -12,7 +12,7 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 
 	public RdnCandidacyDeclaration(Endpoint[] baseRdcIPs, Endpoint[] seedHubRdcIPs)
 	{
-		GraphIPs = baseRdcIPs;
+		GraphEPs = baseRdcIPs;
 		SeedHubRdcIPs = seedHubRdcIPs;
 	}
 

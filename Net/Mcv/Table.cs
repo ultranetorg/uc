@@ -172,13 +172,13 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 		public override void Commit(WriteBatch batch)
 		{
-			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var bs = new Blake2Stream();
+			var w = new BinaryWriter(bs);
 			
 			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
 
-			Hash = Cryptography.Hash(s.ToArray());
+			Hash = bs.Hash;
 			Size = 0;
 
 			foreach(var i in _Entries)
@@ -198,7 +198,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 				Size += i.Value.Main.Length;
 			}
 
-			s.Position = 0;
+			var s = new MemoryStream();
+			w = new BinaryWriter(s);
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
@@ -242,7 +243,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			NextI = r.Read7BitEncodedInt();
 			var n = r.Read7BitEncodedInt();
 
-			Hash = Cryptography.Hash(data[..(int)s.Position]);
+			Hash = Cryptography.Hash(data.AsSpan(0, (int)s.Position));
 			Size = 0;
 
 			_Entries.Clear();
