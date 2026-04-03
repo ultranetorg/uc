@@ -84,6 +84,11 @@ public class PublicationUpdation : VotableOperation
 												Fields	= v.Fields
 											});
 
+		if(r.Versions.MaxBy(x => x.Id).Id == Version)
+		{
+			Site.ChangedPublications = Site.ChangedPublications.Remove(p.Id);
+		}
+
 		var title = v.Fields.FirstOrDefault(i => i.Name == Token.Title);
 
 		if(title != null)

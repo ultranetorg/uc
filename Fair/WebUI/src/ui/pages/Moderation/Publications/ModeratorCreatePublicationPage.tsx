@@ -8,7 +8,7 @@ import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
-import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
+import { BaseVotableOperation, PageType, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
 import { ModerationHeader, ProductFieldsTree } from "ui/components/specific"
 import { showToast } from "utils"
@@ -54,8 +54,6 @@ export const ModeratorCreatePublicationPage = () => {
     })
   }, [isModerator, mutate, navigate, product, siteId, t, voterId])
 
-  const handlePreview = useCallback(() => {}, [])
-
   return (
     <div className="flex flex-col gap-6">
       <ModerationHeader
@@ -75,13 +73,15 @@ export const ModeratorCreatePublicationPage = () => {
                   disabled={isPending}
                   loading={isPending}
                 />
-                <Link to={`/${siteId}/m/v/${product.id}`}>
+                <Link
+                  to={`/${siteId}/m/v`}
+                  state={{ productId: product.id, source: "ModeratorCreatePublicationPage" as PageType }}
+                >
                   <ButtonOutline
                     disabled={isPending}
                     className="h-11 w-52"
                     label="Preview publication"
                     iconBefore={<SvgEyeSm className="fill-gray-800" />}
-                    onClick={handlePreview}
                   />
                 </Link>
               </ButtonBar>
@@ -110,8 +110,10 @@ export const ModeratorCreatePublicationPage = () => {
 
       {!!debouncedQuery && product && product.fields && product.fields.length ? (
         <ProductFieldsTree productFields={product.fields} />
-      ) : (
+      ) : debouncedQuery ? (
         <MessageBox className="p-6" message={!product ? t("productNotFound") : t("productHasNoField")} />
+      ) : (
+        <></>
       )}
     </div>
   )

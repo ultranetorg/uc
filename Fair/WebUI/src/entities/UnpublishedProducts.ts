@@ -31,13 +31,13 @@ export const useGetUnpublishedProduct = (unpublishedProductId?: string) => {
 export const useGetUnpublishedSiteProduct = (siteId?: string, unpublishedProductId?: string) => {
   const queryFn = () => api.getUnpublishedSiteProduct(siteId!, unpublishedProductId!)
 
-  const { isFetching, isError, data } = useQuery({
+  const { isLoading, isFetching, isError, data } = useQuery({
     queryKey: ["sites", siteId, "products", "unpublished", unpublishedProductId],
     queryFn: queryFn,
     enabled: !!siteId && !!unpublishedProductId,
   })
 
-  return { isFetching, isError, data }
+  return { isLoading, isFetching, isError, data }
 }
 
 export const useGetUnpublishedSiteProducts = (siteId?: string, page?: number, pageSize?: number) => {

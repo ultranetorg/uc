@@ -9,13 +9,13 @@ export const ModeratorUnpublishedProductPage = () => {
   const { siteId, productId } = useParams()
   const { t } = useTranslation()
 
-  const { isFetching, data: product } = useGetUnpublishedSiteProduct(siteId, productId)
+  const { isLoading, data: product } = useGetUnpublishedSiteProduct(siteId, productId)
 
   const handleApprove = useCallback(() => alert("approve"), [])
   const handleReject = useCallback(() => alert("reject"), [])
   const handlePreview = useCallback(() => alert("preview"), [])
 
-  if (!siteId || isFetching || !product) return <div>LOADING</div>
+  if (isLoading || !product) return <div>LOADING</div>
 
   return (
     <div className="flex flex-col gap-6">

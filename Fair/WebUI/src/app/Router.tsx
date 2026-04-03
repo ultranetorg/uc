@@ -152,7 +152,7 @@ const routes: RouteObject[] = [
                 element: <PublicationsPage />,
               },
               {
-                path: "c/p/:publicationId",
+                path: "c/p/:proposalId",
                 element: <ModeratorPublicationPage />,
               },
               {
@@ -186,7 +186,7 @@ const routes: RouteObject[] = [
                 ],
               },
               {
-                path: "v/:productId",
+                path: "v",
                 element: <PreviewPage />,
               },
             ],

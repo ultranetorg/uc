@@ -7,11 +7,11 @@ const api = getApi()
 export const useGetProductDetails = (productId?: string) => {
   const queryFn = () => api.getProductDetails(productId!)
 
-  const { isFetching, isError, data } = useQuery({
+  const { isPending, isFetching, isError, data } = useQuery({
     queryKey: ["product", productId],
     queryFn: queryFn,
     enabled: !!productId,
   })
 
-  return { isFetching, isError, data }
+  return { isPending, isFetching, isError, data }
 }

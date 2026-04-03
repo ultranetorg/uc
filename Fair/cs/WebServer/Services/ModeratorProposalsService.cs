@@ -127,6 +127,10 @@ public class ModeratorProposalsService
 		{
 			return CreatePublicationModel(proposal, publicationUpdation.Publication);
 		}
+		if(proposal.Options[0].Operation is PublicationUnpublish publicationUnpublish)
+		{
+			return CreatePublicationModel(proposal, publicationUnpublish.Publication);
+		}
 
 		return null;
 	}

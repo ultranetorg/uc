@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Uccs;
 
@@ -75,6 +76,7 @@ public class JsonConfiguration
 		o.Converters.Add(new VersionJsonConverter());
 		o.Converters.Add(new XonJsonConverter());
 		o.Converters.Add(new BigIntegerJsonConverter());
+		o.Converters.Add(new JsonStringEnumConverter());
 
 		return o;
 	}

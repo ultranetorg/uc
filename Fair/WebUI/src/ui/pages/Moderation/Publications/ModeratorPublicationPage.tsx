@@ -6,9 +6,9 @@ import { PublicationProposalView } from "ui/views"
 
 export const ModeratorPublicationPage = () => {
   const { t } = useTranslation()
-  const { siteId, publicationId } = useParams()
+  const { siteId, proposalId } = useParams()
 
-  const { isFetching, data: proposal } = useGetModeratorDiscussion(siteId, publicationId)
+  const { isFetching, data: proposal } = useGetModeratorDiscussion(siteId, proposalId)
 
   return (
     <PublicationProposalView

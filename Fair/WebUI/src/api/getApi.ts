@@ -262,8 +262,14 @@ const getAuthorReferendums = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorDiscussion = (siteId: string, discussionId: string): Promise<ProposalDetails> =>
-  fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`).then(res => res.json())
+const getModeratorDiscussion = async (siteId: string, discussionId: string): Promise<ProposalDetails> => {
+  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`)
+  if (!res.ok) {
+    throw new Error()
+  }
+
+  return await res.json()
+}
 
 const getModeratorDiscussionComments = async (
   siteId: string,

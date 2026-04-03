@@ -345,6 +345,12 @@ public class PublicationsService
 				throw new EntityNotFoundException(nameof(EntityNames.ChangedPublicationEntityName).ToLower(), changedPublicationId);
 			}
 
+			Product p = mcv.Products.Latest(AutoId.Parse(changedPublicationId));
+			foreach (var x in p.Publications)
+			{
+				Publication pub = mcv.Publications.Latest(x);
+			}
+
 			Publication publication = mcv.Publications.Latest(entityChangedPublicationId);
 			Product product = mcv.Products.Latest(publication.Product);
 			if(product.Versions.Length < 2)

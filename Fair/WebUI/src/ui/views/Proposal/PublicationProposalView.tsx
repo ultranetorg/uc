@@ -1,12 +1,12 @@
 import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Navigate, useNavigate, useParams } from "react-router-dom"
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom"
 
 import { useModerationContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
-import { ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
+import { PageType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { CommentsSection, ProposalInfo } from "ui/components/proposal"
 import { ModerationHeader } from "ui/components/specific"
@@ -20,6 +20,7 @@ import {
   VoteStatus,
   VoteAction,
 } from "./views"
+import { getProductId, getPublicationId } from "./utils"
 
 const renderByOperationType: Record<string, ComponentType<ProposalTypeViewProps>> = {
   "publication-creation": PublicationCreationProposalView,
@@ -51,6 +52,9 @@ export const PublicationProposalView = memo(({ parentBreadcrumb, proposal }: Pub
     data: comments,
     refetch: refetchComments,
   } = useGetModeratorDiscussionComments(siteId, proposal?.id)
+
+  const productId = useMemo(() => getProductId(proposal), [proposal])
+  const publicationId = useMemo(() => getPublicationId(proposal), [proposal])
 
   const NestedView = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
 
@@ -85,8 +89,6 @@ export const PublicationProposalView = memo(({ parentBreadcrumb, proposal }: Pub
   const handleApprove = useCallback(() => vote("approve"), [vote])
 
   const handleReject = useCallback(() => vote("reject"), [vote])
-
-  const handlePreview = useCallback(() => {}, [])
 
   const handleCommentSubmit = useCallback(
     (comment: string) => {
@@ -144,13 +146,22 @@ export const PublicationProposalView = memo(({ parentBreadcrumb, proposal }: Pub
                   loading={voteAction === "reject"}
                 />
                 <Separator className="h-8" />
-                <ButtonOutline
-                  disabled={voteStatus === "voting"}
-                  className="h-11 w-52"
-                  label="Preview publication"
-                  iconBefore={<SvgEyeSm className="fill-gray-800" />}
-                  onClick={handlePreview}
-                />
+                <Link
+                  to={`/${siteId}/m/v`}
+                  state={{
+                    productId: productId,
+                    publicationId: publicationId,
+                    proposalId: proposal?.id,
+                    source: "PublicationProposalView" as PageType,
+                  }}
+                >
+                  <ButtonOutline
+                    disabled={voteStatus === "voting"}
+                    className="h-11 w-52"
+                    label="Preview publication"
+                    iconBefore={<SvgEyeSm className="fill-gray-800" />}
+                  />
+                </Link>
               </ButtonBar>
             )}
           </>
