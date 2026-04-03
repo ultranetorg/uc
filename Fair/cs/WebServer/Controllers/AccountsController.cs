@@ -43,16 +43,6 @@ public class AccountsController
 		return accountsService.GetDetails(name);
 	}
 
-	[HttpGet("{accountId}")]
-	public UserModel GetById(string accountId)
-	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(GetById), accountId);
-
-		autoIdValidator.Validate(accountId, nameof(Net.User).ToLower());
-
-		return accountsService.GetById(accountId);
-	}
-
 	[HttpGet]
 	public IEnumerable<AccountBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
