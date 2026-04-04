@@ -21,8 +21,8 @@ public class AccountKeyTests
 
 
 		Assert.True(k.Address == AccountAddress.Parse(k.Address.ToString()));
-		Assert.True(Cryptography.Mcv.Valid(s, h, k.Address));
-		Assert.False(Cryptography.Mcv.Valid(s, h, kk.Address));
+		Assert.True(Cryptography.Mcv.Verify(k.Address, h, s));
+		Assert.False(Cryptography.Mcv.Verify(kk.Address, h, s));
 					
 		string p = "password";
 		Assert.True(Vault.Vault.Decrypt(Vault.Vault.Encrypt(h, p), p).SequenceEqual(h));

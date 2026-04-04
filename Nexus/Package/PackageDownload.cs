@@ -108,11 +108,11 @@ public class PackageDownload
 												itg = new DHIntegrity(u.Hash); 
 												break;
 
-											case Urrsd u:
-												var d = node.Peering.Call(new DomainPpc(package.Resource.Address.Domain), workflow).Domain;
-												var aa = node.Peering.Call(new UserPpc(d.Owner), workflow).User;
-												itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Owner);
-												break;
+											//case Urrsd u:
+											//	var d = node.Peering.Call(new DomainPpc(package.Resource.Address.Domain), workflow).Domain;
+											//	var aa = node.Peering.Call(new UserPpc(d.Owner), workflow).User;
+											//	itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Owner);
+											//	break;
 										};
 
 										Seeker = new SeedSeeker(node, package.Release.Address, workflow);

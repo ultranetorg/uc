@@ -399,8 +399,8 @@ public abstract class Mcv /// Mutual chain voting
 	
 			var u = Users.Latest(vote.User);
 							
-			if(u.Owner != vote.Signer)
-			{	
+			if(!Net.Cryptography.Verify(u.Owner, vote.Hash, vote.Signature))
+			{
 				vote.Status = VoteStatus.AccessDenied;
 				return;
 			}

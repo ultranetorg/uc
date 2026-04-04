@@ -53,7 +53,7 @@ public partial class ChainPanel : MainPanel
 																		li.Tag = i;
 																		li.SubItems.Add(i.Id.ToString());
 																		li.SubItems.Add(i.Nonce.ToString());
-																		li.SubItems.Add(i.Signer.ToString());
+																		li.SubItems.Add(i.User.ToString());
 																		li.SubItems.Add(i.Operations.Length.ToString());
 																		return li;
 																	}).ToArray());
@@ -94,13 +94,13 @@ public partial class ChainPanel : MainPanel
 								//r.TransactionPerByteFee.ToHumanString()
 								;
 
-			Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.Signer)
+			Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.User)
 										.Select((i, j) =>
 										{
 											var li = new ListViewItem(j.ToString());
 											li.Tag = i;
 											li.SubItems.Add(i.GetType().Name);
-											li.SubItems.Add(i.Signer.ToString());
+											li.SubItems.Add(i.User.ToString());
 											return li;
 										}).ToArray());
 

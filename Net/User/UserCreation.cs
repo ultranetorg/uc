@@ -5,21 +5,24 @@ namespace Uccs.Net;
 public class UserCreation : Operation
 {
 	public byte[]				Pow { get; set; }
-	public override string		Explanation => $"Pow={Pow?.ToHex()}";
+	public AccountAddress		Owner { get; set; }
+	public override string		Explanation => $"Pow={Pow?.ToHex()} {nameof(Owner)}=Owner";
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return Pow == null || Pow.Length <= 32;
+		return (Pow == null || Pow.Length <= 32);
 	}
 
 	public override void Read(BinaryReader reader)
 	{
 		Pow = reader.ReadBytes();
+		Owner = reader.Read<AccountAddress>();
 	}
 
 	public override void Write(BinaryWriter writer)
 	{
 		writer.WriteBytes(Pow);
+		writer.Write(Owner);
 	}
 
 	public override void PreTransact(McvNode node, Flow flow)
@@ -74,5 +77,7 @@ public class UserCreation : Operation
 			Error = DoesNotSatisfy;
 			return;
 		}
+
+		User.Owner = Owner;
 	}
 }

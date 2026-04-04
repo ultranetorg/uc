@@ -53,10 +53,10 @@ public class ResourceDownloadApc : RdnApc
 				itg = new DHIntegrity(a.Hash); 
 				break;
 
-			case Urrsd a :
-				///.var au = node.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
-				///.itg = new SPDIntegrity(node.Net.Cryptography, a, au.Owner);
-				throw new NotSupportedException();
+			//case Urrsd a :
+			//	///.var au = node.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
+			//	///.itg = new SPDIntegrity(node.Net.Cryptography, a, au.Owner);
+			//	throw new NotSupportedException();
 				
 			default:
 				throw new ResourceException(ResourceError.NotSupportedDataType);

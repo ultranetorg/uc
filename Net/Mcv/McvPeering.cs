@@ -637,7 +637,7 @@ public abstract class McvPeering : HomoTcpPeering
 			
 						if(!isdeferred)
 						{
-							if(txs.Any(i => i.Signer == t.Signer && i.Nonce < t.Nonce)) /// any older tx left?
+							if(txs.Any(i => i.User == t.User && i.Nonce < t.Nonce)) /// any older tx left?
 							{
 								deferred.Add(t);
 								return true;
@@ -649,7 +649,7 @@ public abstract class McvPeering : HomoTcpPeering
 						t.Status = TransactionStatus.Placed;
 						v.AddTransaction(t);
 			
-						var next = deferred.Find(i => i.Signer == t.Signer && i.Nonce + 1 == t.Nonce);
+						var next = deferred.Find(i => i.User == t.User && i.Nonce + 1 == t.Nonce);
 			
 						if(next != null)
 						{
@@ -675,7 +675,7 @@ public abstract class McvPeering : HomoTcpPeering
 					if(v.Transactions.Any() || must)
 					{
 						///v.Sign(Vault.Find(g).Key);
-						v.Signer = gs.Signer;
+						//v.Signer = gs.Signer;
 						v.Signature	= VaultApi.Call<byte[]>(new AuthorizeApc
 															{
 																Cryptography= Net.Cryptography.Type,
@@ -1124,13 +1124,13 @@ public abstract class McvPeering : HomoTcpPeering
 					Net				= Net,
 					Tag				= tag ?? Guid.NewGuid().ToByteArray(),
 					Session			= session ?? FindSession(user)?.Session,
-					Signer			= signer ?? FindSession(user)?.Signer,
+					//Signer			= signer ?? FindSession(user)?.Signer,
 					Flow			= flow,
 					Inquired		= DateTime.UtcNow,
 					ActionOnResult	= aor,
 				};
 		
-		if(t.Session == null || !t.IsSignerSet)
+		if(t.Session == null)
 			throw new NodeException(NodeError.NoSession);
 
 		foreach(var i in operations)

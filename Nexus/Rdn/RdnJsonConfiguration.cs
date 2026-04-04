@@ -162,11 +162,11 @@ public class HttpGetApc : RdnApc
 					}
 					break;
 
-				case Urrsd x :
-					var d = rdn.Peering.Call(new DomainPpc(a.Domain), workflow).Domain;
-					var aa = rdn.Peering.Call(new UserPpc(d.Owner), workflow).User;
-					itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Owner);
-					break;
+				//case Urrsd x :
+				//	var d = rdn.Peering.Call(new DomainPpc(a.Domain), workflow).Domain;
+				//	var aa = rdn.Peering.Call(new UserPpc(d.Owner), workflow).User;
+				//	itg = new SPDIntegrity(rdn.Net.Cryptography, x, aa.Owner);
+				//	break;
 
 				default:
 					throw new ResourceException(ResourceError.NotSupportedDataType);

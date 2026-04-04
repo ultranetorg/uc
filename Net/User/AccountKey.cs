@@ -1,139 +1,58 @@
-﻿using System.Text.Json;
+﻿using System.Security.Cryptography;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using NBitcoin.Secp256k1;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
 
 namespace Uccs.Net;
 
 public class AccountKey
 {
-	private readonly ECKey		ECKey;
-	private byte[]				_PublicKeyNoPrefix;
-	private byte[]				_PublicKeyNoPrefixCompressed;
-	private byte[]				_PrivateKey;
-	AccountAddress				_Address;
+	private readonly ECPrivKey			ECKey;
+	AccountAddress						_Address;
 
-	static ECKeyPairGenerator	Generator;
+	public byte[]						PrivateKey { get; protected set; }
+	public AccountAddress				Address => _Address ??= new AccountAddress(ECKey.CreateXOnlyPubKey().ToBytes());
 
 	static AccountKey()
 	{
-		Generator = new ECKeyPairGenerator("EC");
-		Generator.Init(new KeyGenerationParameters(Cryptography.Random, 256));
 	}
-
-	public AccountAddress Address 
-	{
-		get
-		{
-			if(_Address == null)
-			{
-				var initaddr = Cryptography.Hash(GetPubKeyNoPrefix());
-				var a  = new byte[initaddr.Length - 12];
-				Array.Copy(initaddr, 12, a, 0, initaddr.Length - 12);
-
-				_Address = new AccountAddress(a);
-			}
-
-			return _Address;
-		}
-	}
-
-	public byte[] PrivateKey
-	{
-		get
-		{
-			if(_PrivateKey == null)
-			{
-				_PrivateKey = ECKey.PrivateKey.D.ToByteArrayUnsigned();
-			}
-			return _PrivateKey;
-		}
-	}
-
+		
 	public AccountKey(byte[] vch)
 	{
-		ECKey = new ECKey(vch, true);
+		PrivateKey = vch;
+		ECKey = ECPrivKey.Create(vch);
 	}
 
-	internal AccountKey(ECKey ecKey)
+	internal AccountKey(ECPrivKey ecKey)
 	{
 		ECKey = ecKey;
 	}
 
-	public static AccountKey Create(byte[] seed = null)
-	{
-		var secureRandom = Cryptography.Random;
-
-		if(seed != null)
-		{
-			secureRandom = new SecureRandom();
-			secureRandom.SetSeed(seed);
-		}
-
-		var keyPair = Generator.GenerateKeyPair();
-		var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
-
-		if (privateBytes.Length != 32)
-			return Create();
-
-		return new AccountKey(privateBytes);
-	}
-
 	public static AccountKey Create()
 	{
-		var keyPair = Generator.GenerateKeyPair();
-		var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
+		var k = new byte[32];
+		RandomNumberGenerator.Fill(k);
 
-		if (privateBytes.Length != 32)
-			return Create();
-
-		return new AccountKey(privateBytes);
+		return new AccountKey(k);
 	}
 
-	public byte[] GetPubKeyNoPrefix(bool compressed = false)
+	public byte[] Sign(byte[] hash)
 	{
-		if(!compressed)
-		{
-			if(_PublicKeyNoPrefix == null)
-			{
-				var pubKey = ECKey.GetPubKey(false);
-				var arr = new byte[pubKey.Length - 1];
-				//remove the prefix
-				Array.Copy(pubKey, 1, arr, 0, arr.Length);
-				_PublicKeyNoPrefix = arr;
-			}
-			return _PublicKeyNoPrefix;
-		}
-		else
-		{
-			if (_PublicKeyNoPrefixCompressed == null)
-			{
-				var pubKey = ECKey.GetPubKey(true);
-				var arr = new byte[pubKey.Length - 1];
-				//remove the prefix
-				Array.Copy(pubKey, 1, arr, 0, arr.Length);
-				_PublicKeyNoPrefixCompressed = arr;
-			}
-			return _PublicKeyNoPrefixCompressed;
-		}
+		byte[] aux = new byte[32];
+		RandomNumberGenerator.Fill(aux);
+
+		SecpSchnorrSignature s;
+		while(ECKey.TrySignBIP340(hash, null, out s) == false);
+
+		return s.ToBytes();
 	}
 
-	public static AccountKey RecoverFromSignature(ECDSASignature signature, byte[] hash)
+	public static bool Verify(byte[] publickey,  byte[] signature, byte[] hash)
 	{
-		return new AccountKey(ECKey.RecoverFromSignature(signature.V[0], signature, hash, false));
-	}
+		if(!SecpSchnorrSignature.TryCreate(signature, out var s))
+			return false;
 
-	public ECDSASignature SignAndCalculateV(byte[] hash)
-	{
-		var privKey = Context.Instance.CreateECPrivKey(PrivateKey);
-		privKey.TrySignRecoverable(hash, out var recSignature);
-		recSignature.Deconstruct(out var r, out var s, out var recId);
-
-		return new ECDSASignature(new BigInteger(1, r.ToBytes()), new BigInteger(1, s.ToBytes())){ V = [(byte)recId]};
+		return ECXOnlyPubKey.Create(publickey).SigVerifyBIP340(s, hash);
 	}
 }
 

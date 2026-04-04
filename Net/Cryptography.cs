@@ -1,6 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 using Blake2Fast;
 using Blake2Fast.Implementation;
 using Org.BouncyCastle.Security;
@@ -12,8 +10,8 @@ public abstract class Cryptography
 	public static readonly Cryptography				No = new NoCryptography();
 	public static readonly Cryptography				Mcv = new McvCryptography();
 
-	public const int								SignatureLength = 65;
 	public const int								HashLength = 32;
+	public const int								SignatureLength = 64;
 	public const int								PrivateKeyLength = 32;
 	public virtual byte[]							ZeroSignature => new byte[SignatureLength];
 	public virtual byte[]							ZeroHash  => new byte[HashLength];
@@ -21,7 +19,7 @@ public abstract class Cryptography
 	public abstract CryptographyType				Type {get; }
 
 	public abstract byte[]							Sign(AccountKey pk, byte[] hash);
-	public abstract AccountAddress					AccountFrom(byte[] signature, byte[] hash);
+	public abstract bool							Verify(AccountAddress address, byte[] hash, byte[] signature);
 
 	public static readonly SecureRandom				Random = new SecureRandom();
 
@@ -77,11 +75,6 @@ public abstract class Cryptography
 		return SHA256.HashData(data);
 	}
 
-	public virtual bool Valid(byte[] signature, byte[] hash, AccountAddress a)
-	{
-		return AccountFrom(signature, hash) == a;
-	}
-
 	public byte[] ToBytes(int n)
 	{
 		var b = BitConverter.GetBytes(n);
@@ -103,9 +96,9 @@ public class NoCryptography : Cryptography
 		return s;
 	}
 
-	public override AccountAddress AccountFrom(byte[] signature, byte[] hash)
+	public override bool Verify(AccountAddress address, byte[] hash, byte[] signature)
 	{
-		return new AccountAddress(signature[32..52]);
+		return Bytes.EqualityComparer.Equals(hash, signature[0..32]) && Bytes.EqualityComparer.Equals(address.Bytes, signature[32..64]);
 	}
 }
 
@@ -115,32 +108,34 @@ public class McvCryptography : Cryptography
 
 	public override byte[] Sign(AccountKey k, byte[] h)
 	{
-		var sig = k.SignAndCalculateV(h);
+//		var sig = k.SignAndCalculateV(h);
+//
+//		var o = new byte[SignatureLength];
+//
+//		var r = sig.R.ToByteArrayUnsigned();
+//		var s = sig.S.ToByteArrayUnsigned();
+//
+//		Array.Copy(r,	  0, o, 32 - r.Length,		r.Length);
+//		Array.Copy(s,	  0, o, 32 + 32 - s.Length,	s.Length);
+//		Array.Copy(sig.V, 0, o, 32 + 32,			1);
 
-		var o = new byte[SignatureLength];
-
-		var r = sig.R.ToByteArrayUnsigned();
-		var s = sig.S.ToByteArrayUnsigned();
-
-		Array.Copy(r,	  0, o, 32 - r.Length,		r.Length);
-		Array.Copy(s,	  0, o, 32 + 32 - s.Length,	s.Length);
-		Array.Copy(sig.V, 0, o, 32 + 32,			1);
-
-		return o;
+		return k.Sign(h);
 	}
 
-	public override AccountAddress AccountFrom(byte[] signature, byte[] hash)
+	public override bool Verify(AccountAddress address, byte[] hash, byte[] signature)
 	{
- 		var r = new byte[32];
- 		var s = new byte[32];
- 		Array.Copy(signature, 0,	r, 0, r.Length);
- 		Array.Copy(signature, 32,	s, 0, s.Length);
- 	
-		var sig = new ECDSASignature(new Org.BouncyCastle.Math.BigInteger(1, r), 
-									 new Org.BouncyCastle.Math.BigInteger(1, s))
-									 {V = [signature[64]]};
-		
-		return AccountKey.RecoverFromSignature(sig, hash).Address;
+// 		var r = new byte[32];
+// 		var s = new byte[32];
+// 		Array.Copy(signature, 0,	r, 0, r.Length);
+// 		Array.Copy(signature, 32,	s, 0, s.Length);
+// 	
+//		var sig = new ECDSASignature(new Org.BouncyCastle.Math.BigInteger(1, r), 
+//									 new Org.BouncyCastle.Math.BigInteger(1, s))
+//									 {V = [signature[64]]};
+//		
+//		return AccountKey.RecoverFromSignature(sig, hash).Address;
+
+		return AccountKey.Verify(address.Bytes, signature, hash);
 	}
 }
 

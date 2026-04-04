@@ -146,7 +146,7 @@ public abstract class Peer : IBinarySerializable
 		Retries = 0;
 		IdCounter = 0;
 		Inbound = false;
-		Writer = null;
+		///Writer = null; Leave for locks
 		Reader = null;
 	
 		lock(OutRequests)

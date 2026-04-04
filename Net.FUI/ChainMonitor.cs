@@ -7,14 +7,14 @@ namespace Uccs.Net.FUI;
 
 public partial class ChainMonitor : UserControl
 {
-	Dictionary<AccountAddress, Brush>	Brushes = new Dictionary<AccountAddress, Brush>();
-	Dictionary<AccountAddress, Pen>		Pens = new Dictionary<AccountAddress, Pen>();
-	bool								Mode = false;
+	Brush[]		Brushes = new Brush [100];
+	Pen[]		Pens = new Pen[100];
+	bool		Mode = false;
 
-	Unit								emission = 0;
-	BigInteger							spent = 0;
+	Unit		emission = 0;
+	BigInteger	spent = 0;
 
-	public Mcv							Mcv;
+	public Mcv	Mcv;
 
 	public ChainMonitor()
 	{
@@ -22,6 +22,15 @@ public partial class ChainMonitor : UserControl
 
 		DoubleBuffered = true;
 		Font = new Font("Lucida Console", 8.25F);
+
+		var r = new Random();
+
+		for(int i = 0; i < 100; i++)
+		{
+			var c = Color.FromArgb(r.Next() | -0x3f000000);
+			Brushes[i]	= new SolidBrush(c);
+			Pens[i]		= new Pen(c);
+		}
 	}
 
 	protected override void OnClick(EventArgs e)
@@ -114,7 +123,7 @@ public partial class ChainMonitor : UserControl
 
 					var f = "";
 
-					IEnumerable<AccountAddress> generators = null;
+					IEnumerable<AutoId> generators = null;
 
 					do 
 					{
@@ -158,8 +167,8 @@ public partial class ChainMonitor : UserControl
 						nm		= IntLength(nm);
 						ndate	= IntLength(ndate);
 	
-						var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.Signer));
-						var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => Mcv.Users.Latest(b.Transaction.User).Owner));
+						var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.User));
+						var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => Mcv.Users.Latest(b.Transaction.User).Id));
 						generators = mems.Union(joins).Order();
 
 						f  = $"{{0,{nid}}} {{1,{ntry}}} {{2}} {{3,{nv}}} {{4,{nm}}} {{5,{nl}}} {{6,{ndate}}} {{7,8}}";
@@ -189,15 +198,6 @@ public partial class ChainMonitor : UserControl
 					if(rounds.Count() > 0)
 					{
 						int y = 0;
-						
-						foreach(var i in generators)
-						{
-							if(!Brushes.ContainsKey(i))
-							{
-								Brushes[i]	= new SolidBrush(Color.FromArgb(i[3], i[4], i[5]));
-								Pens[i]		= new Pen(Color.FromArgb(i[3], i[4], i[5]));
-							}
-						}
 
 						foreach(var r in rounds)
 						{
@@ -224,21 +224,21 @@ public partial class ChainMonitor : UserControl
 		
 								foreach(var m in generators)
 								{
-									var v = r.Votes.FirstOrDefault(i => i.Signer == m);
+									var v = r.Votes.FirstOrDefault(i => i.User == m);
 	
 									if(v != null)
 									{
 										if(v.Transactions.Any())
-											e.Graphics.FillRectangle(Brushes[m], x, y, s, s); 
+											e.Graphics.FillRectangle(Brushes[Math.Max(0, m.I) % Brushes.Length], x, y, s, s); 
 										else
-											e.Graphics.DrawRectangle(Pens[m], x+1, y+1, s-3, s-3);
+											e.Graphics.DrawRectangle(Pens[Math.Max(0, m.I) % Pens.Length], x+1, y+1, s-3, s-3);
 									}
 
-									var jr = r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().FirstOrDefault(i => Mcv.Users.Latest(i.Transaction.User).Owner == m);
+									var jr = r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().FirstOrDefault(i => Mcv.Users.Latest(i.Transaction.User).Id == m);
 
 									if(jr != null)
 									{
-										e.Graphics.FillPolygon(Brushes[m], new PointF[]{new (x + s/2, y), new (x, y+s), new (x+s, y+s)});
+										e.Graphics.FillPolygon(Brushes[Math.Max(0, m.I) % Brushes.Length], new PointF[]{new (x + s/2, y), new (x, y+s), new (x+s, y+s)});
 									}
 									
 									x += s;

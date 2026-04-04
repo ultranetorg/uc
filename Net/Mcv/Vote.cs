@@ -10,7 +10,7 @@ public class Vote : IBinarySerializable
 	byte[]						_Hash;
 	byte[]						_RawPayload;
 	Mcv							Mcv;
-	AccountAddress				_Generator;
+	//AccountAddress				_Generator;
 
 	public AutoId				User;
 	public int					RoundId;
@@ -47,32 +47,32 @@ public class Vote : IBinarySerializable
 		}
 	}
 
-	public AccountAddress Signer
-	{ 
-		get
-		{
-			if(_Generator == null)
-			{
-				_Hash = Hashify();
-				_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, _Hash);
-			}
-
-			return _Generator;
-		}
-		set
-		{
-			_Generator = value;
-		}
-	}
+//	public AccountAddress Signer
+//	{ 
+//		get
+//		{
+//			if(_Generator == null)
+//			{
+//				_Hash = Hashify();
+//				_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, _Hash);
+//			}
+//
+//			return _Generator;
+//		}
+//		set
+//		{
+//			_Generator = value;
+//		}
+//	}
 
 	public byte[] Hash
 	{ 
 		get
 		{
-			if(_Generator == null)
+			if(_Hash == null)
 			{
 				_Hash = Hashify();
-				_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, _Hash);
+				//_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, _Hash);
 			}
 
 			return _Hash;
@@ -106,7 +106,7 @@ public class Vote : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{RoundId}, {User}, Try={Try}, {_Generator?.Bytes.ToHex()}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, {nameof(TargetHash)}={TargetHash?.ToHex()}, {nameof(Violators)}={{{Violators.Length}}}, {nameof(Leavers)}={{{Leavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
+		return $"{RoundId}, {User}, Try={Try}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, {nameof(TargetHash)}={TargetHash?.ToHex()}, {nameof(Violators)}={{{Violators.Length}}}, {nameof(Leavers)}={{{Leavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
 	}
 	
 	public void AddTransaction(Transaction t)
@@ -117,7 +117,7 @@ public class Vote : IBinarySerializable
 	
 	public void Sign(AccountKey generator)
 	{
-		_Generator = generator.Address;
+	//	_Generator = generator.Address;
 		Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());
 	}
 

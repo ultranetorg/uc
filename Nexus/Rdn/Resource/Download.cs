@@ -27,24 +27,24 @@ public class DHIntegrity : IIntegrity
 	}
 }
 
-public class SPDIntegrity : IIntegrity
-{
-	Urrsd			Release;
-	AccountAddress	Account;
-	Cryptography	Cryptography;
-
-	public SPDIntegrity(Cryptography cryptography, Urrsd release, AccountAddress account)
-	{
-		Release		 = release;
-		Account		 = account;
-		Cryptography = cryptography;
-	}
-
-	public bool Verify(byte[] hash)
-	{
-		return Release.Prove(Cryptography, Account, hash);
-	}
-}
+//public class SPDIntegrity : IIntegrity
+//{
+//	Urrsd			Release;
+//	AccountAddress	Account;
+//	Cryptography	Cryptography;
+//
+//	public SPDIntegrity(Cryptography cryptography, Urrsd release, AccountAddress account)
+//	{
+//		Release		 = release;
+//		Account		 = account;
+//		Cryptography = cryptography;
+//	}
+//
+//	public bool Verify(byte[] hash)
+//	{
+//		return Release.Prove(Cryptography, Account, hash);
+//	}
+//}
 
 public delegate void PieceDelegate(FileDownload.Piece piece);
 

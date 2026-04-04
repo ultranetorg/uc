@@ -169,9 +169,9 @@ public class FairExecution : Execution
 		return base.AffectUser(id) as FairUser;
 	}
 
-	public override FairUser CreateUser(string name, AccountAddress address)
+	public override FairUser CreateUser(string name)
 	{
-		var a = base.CreateUser(name, address) as FairUser;
+		var a = base.CreateUser(name) as FairUser;
 
 		a.Reviews = [];
 		a.ModeratedSites = [];

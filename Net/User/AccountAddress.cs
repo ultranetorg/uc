@@ -7,13 +7,13 @@ namespace Uccs.Net;
 public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatable<AccountAddress>, IBinarySerializable
 {
 	public const string		Prefix = "0x";
-	public const int		Length = 20;
+	public const int		Length = 32;
 	public virtual byte[]	Bytes { get; protected set; }
 	public static readonly	AccountAddress Zero = new AccountAddress(new byte[Length]);
 	//public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
 
 	//public static implicit operator byte[] (AccountAddress d) => d.Bytes;
-	
+
 	public byte	this[int k] => Bytes[k];
  
 

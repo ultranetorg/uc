@@ -194,10 +194,13 @@ public class ChainReportApc : McvApc
 																	Confirmed = i.Confirmed,
 																	Time = i.ConsensusTime,
 																	Hash = i.Hash,
-																	Votes = i.Votes.Select(b => new Return.Vote{Generator = b.Signer, 
-																															IsPayload = b.Transactions.Any(), 
-																															/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/ }),
-																	JoinRequests = i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(i => i.Transaction.Signer),
+																	Votes = i.Votes.Select(b => new Return.Vote
+																								{	
+																									Generator = node.Mcv.Users.Latest(b.User).Name,
+																									IsPayload = b.Transactions.Any(),
+																									/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/
+																								}),
+																	JoinRequests = i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(i => i.Transaction.User),
 																})
 													.ToArray()}; 
 	}
@@ -206,9 +209,8 @@ public class ChainReportApc : McvApc
 	{
 		public class Vote
 		{
-			public AccountAddress	Generator {get; set;}
-			public bool				IsPayload {get; set;}
-			//public bool				Confirmed {get; set;}
+			public string	Generator {get; set;}
+			public bool		IsPayload {get; set;}
 		}
 
 		public class Round
@@ -220,9 +222,7 @@ public class ChainReportApc : McvApc
 			public byte[]						Hash {get; set;}
 			public byte[]						Summary {get; set;}
 			public IEnumerable<Vote>			Votes {get; set;}
-			public IEnumerable<AccountAddress>	JoinRequests {get; set;}
-			//public IEnumerable<AccountAddress>	HubJoinRequests {get; set;}
-			//public IEnumerable<AccountAddress>	AnalyzerJoinRequests {get; set;}
+			public IEnumerable<string>			JoinRequests {get; set;}
 		}
 
 		public IEnumerable<Round> Rounds {get; set;}
@@ -237,14 +237,14 @@ public class VotesReportApc : McvApc
 	{
 		lock(node.Mcv.Lock)
 			return new VotesReportResponse{Votes = node.Mcv	.FindRound(RoundId)?.Votes
-															.OrderBy(i => i.Signer)
+															.OrderBy(i => i.User)
 															.Take(Limit)
 															.Select(i => new VotesReportResponse.Vote
 															{
 																Try = i.Try,
 																ParentSummary = i.TargetHash,
 																Signature = i.Signature,
-																Generator = i.Signer
+																Generator = node.Mcv.Users.Latest(i.User).Name
 															})
 															.ToArray()}; 
 	}
@@ -257,7 +257,7 @@ public class VotesReportResponse
 		public int				Try { get; set; }
 		public byte[]			ParentSummary { get; set; }
 		public byte[]			Signature { get; set; }
-		public AccountAddress	Generator { get; set; }
+		public string			Generator { get; set; }
 	}
 
 	public IEnumerable<Vote> Votes {get; set;}

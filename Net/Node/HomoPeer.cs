@@ -31,9 +31,6 @@ public class HomoPeer : Peer, IHomoPeer
 	{
 		try
 		{
-			if(Writer == null)
-				throw new OperationCanceledException();
-
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Request);

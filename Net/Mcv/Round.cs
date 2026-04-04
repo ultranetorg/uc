@@ -32,7 +32,7 @@ public abstract class Round : IBinarySerializable
 	public List<Vote>									Payloads = [];
 	public List<Vote>									Selected = [];
 
-	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Signer).SelectMany(i => i.Transactions);
+	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.User).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
 
 	public Time											ConsensusTime;
