@@ -29,21 +29,11 @@ public class HomoPeer : Peer, IHomoPeer
 
 	void Request(int id, PeerRequest request)
 	{
-		try
+		lock(Writer)
 		{
-			lock(Writer)
-			{
-				Writer.Write((byte)PacketType.Request);
-				Writer.Write(id);
-				BinarySerializator.Serialize(Writer, request, Peering.Constructor.TypeToCode); 
-			}
-		}
-		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
-		{
-			lock(Peering.Lock)
-				Disconnect();
-
-			throw new OperationCanceledException();
+			Writer.Write((byte)PacketType.Request);
+			Writer.Write(id);
+			BinarySerializator.Serialize(Writer, request, Peering.Constructor.TypeToCode); 
 		}
 	}
 
@@ -51,7 +41,7 @@ public class HomoPeer : Peer, IHomoPeer
 	{
 		try
 		{
-			var r =  request.Execute();
+			var r = request.Execute();
 				
 			if(r != null)
 			{
@@ -72,22 +62,6 @@ public class HomoPeer : Peer, IHomoPeer
 				BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
 			}
 		}
-		catch(Exception) when(/*ex is SocketException || ex is IOException || ex is ObjectDisposedException ||*/ !Debugger.IsAttached)
-		{
-			lock(Peering.Lock)
-				Disconnect();
-
-			throw new OperationCanceledException();
-		}
-		///catch(Exception) when(!Debugger.IsAttached)
-		///{
-		///	lock(Writer)
-		///	{
-		///		Writer.Write((byte)PacketType.Failure);
-		///		Writer.Write(id);
-		///		BinarySerializator.Serialize(Writer, new NodeException(NodeError.Unknown), Peering.Constructor.TypeToCode);
-		///	}
-		///}
 	}
 
 	protected override void Listening()

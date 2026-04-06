@@ -41,7 +41,7 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 
 	public Author Create(string name)
 	{
-		var b = Execution.Mcv.Users.KeyToBucket(name);
+		var b = UserTable.KeyToBucket(name);
 		int e = Execution.GetNextEid(Table, b);
 
 		var a = Table.Create();

@@ -10,7 +10,7 @@ public class NetXonTextValueSerializator : XonTextValueSerializator
 			return null;
 
 		if(val is AccountKey k)
-			return k.PrivateKey.ToHex();
+			return k.Secret.ToHex();
 
 		if(	val is AccountAddress ||
 			val is Time ||

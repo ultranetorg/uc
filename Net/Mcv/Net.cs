@@ -127,14 +127,16 @@ public abstract class McvNet : Net
 
 
 	public Endpoint							Father0EP;
-	public readonly string					Father0Name		= "father000000";
-	public readonly AutoId					Father0Id		= new (287078, 0);
-	public readonly AccountAddress			Father0Signer	= AccountAddress.Parse("0x0000000AD6AFF35CF87E04E457A9395EAB7397D335C5B530F8CDBC9BD66EDF4D");
+	public readonly string					Father0Name		= "f000";
+	public readonly AutoId					Father0Id;
+	public readonly AccountAddress			Father0Signer	= new ("0000000AD6AFF35CF87E04E457A9395EAB7397D335C5B530F8CDBC9BD66EDF4D".FromHex());
 
 	public abstract int						TablesCount { get; }
 
 	public McvNet()
 	{
 		Constructor.Register<Operation>(Assembly.GetExecutingAssembly(), typeof(OperationClass), i => i);
+
+		Father0Id = new (UserTable.KeyToBucket(Father0Name), 0);
 	}
 }

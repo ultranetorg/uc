@@ -50,10 +50,7 @@ public class SeedSeeker
 																	Seeker.Seeds.AddRange(seeds);
 																}
 															}
-															catch(Exception ex) when (ex is NodeException || ex is EntityException)
-															{
-															}
-															catch(OperationCanceledException)
+															catch(Exception ex)
 															{
 															}
 

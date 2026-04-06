@@ -210,7 +210,7 @@ public partial class WalletsPage : Page
 
 	private void CreateAccount_Click(object sender, EventArgs e)
 	{
-		CurrentWallet.AddAccount(null, AccountKey.Create().PrivateKey);
+		CurrentWallet.AddAccount(null, AccountKey.Create().Secret);
 		LoadAccounts(CurrentWallet);
 	}
 
@@ -257,7 +257,7 @@ public partial class WalletsPage : Page
 							"Only use your key in trusted applications and official websites.\r\n\r\n" +
 							"Remember:\r\n\r\n" +
 							"Once exposed, a private key cannot be made safe again. Always keep it secret and secure.", 
-							CurrentAccout.Key.PrivateKey.ToHex());
+							CurrentAccout.Key.Secret.ToHex());
 	}
 
 	private void DeleteAccount_Click(object sender, EventArgs e)

@@ -60,7 +60,7 @@ public class WalletCommand : VaultCommand
 								{
 									Report($"Account {i.Index}:");
 									Report($"   Public Address - {i.Item.Address}");
-									Report($"   Private Key    - {i.Item.Key.PrivateKey.ToHex()}");
+									Report($"   Private Key    - {i.Item.Key.Secret.ToHex()}");
 								}
 
 								Api(new AddWalletApc {Name = GetString("name"), Raw = w.ToRaw()});
@@ -139,7 +139,7 @@ public class WalletCommand : VaultCommand
 								var k = new AccountKey(pk);
 
 								Report("Public Address - " + k); 
-								Report("Private Key    - " + k.PrivateKey.ToHex());
+								Report("Private Key    - " + k.Secret.ToHex());
 
 								return k;
 							};

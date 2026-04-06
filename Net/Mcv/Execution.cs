@@ -325,7 +325,7 @@ public class Execution : ITableExecution
 
 	public virtual User CreateUser(string name)
 	{
-		var b = Mcv.Users.KeyToBucket(name);
+		var b = UserTable.KeyToBucket(name);
 			
 		int e = GetNextEid(Mcv.Users, b);
 

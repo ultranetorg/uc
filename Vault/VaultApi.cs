@@ -138,7 +138,7 @@ public class AddAccountToWalletApc : AdminApc
 
 			var a = w.AddAccount(Name, Key);
 		
-			return a.Key.PrivateKey;
+			return a.Key.Secret;
 		}
 	}
 }

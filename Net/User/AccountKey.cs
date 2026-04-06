@@ -10,22 +10,15 @@ public class AccountKey
 	private readonly ECPrivKey			ECKey;
 	AccountAddress						_Address;
 
-	public byte[]						PrivateKey { get; protected set; }
-	public AccountAddress				Address => _Address ??= new AccountAddress(ECKey.CreateXOnlyPubKey().ToBytes());
-
-	static AccountKey()
+	public byte[]						Secret { get; protected set; }
+	public AccountAddress				Address => _Address ??= new AccountAddress(ECKey.CreateXOnlyPubKey().ToBytes(), Tag);
+	public string						Tag { get; protected set; }
+			
+	public AccountKey(byte[] secret, string tag = null)
 	{
-	}
-		
-	public AccountKey(byte[] vch)
-	{
-		PrivateKey = vch;
-		ECKey = ECPrivKey.Create(vch);
-	}
-
-	internal AccountKey(ECPrivKey ecKey)
-	{
-		ECKey = ecKey;
+		Secret = secret;
+		ECKey = ECPrivKey.Create(secret);
+		Tag = tag;
 	}
 
 	public static AccountKey Create()
@@ -54,6 +47,25 @@ public class AccountKey
 
 		return ECXOnlyPubKey.Create(publickey).SigVerifyBIP340(s, hash);
 	}
+
+	public override string ToString()
+	{
+		return Tag != null ? $"{Tag}/{Secret.ToHex()}" : Secret.ToHex();
+	}
+
+	public static AccountKey Parse(string text)
+	{
+		var i = text.IndexOf('/');
+
+		if(i == 0)
+		{
+			return new AccountKey(text.FromHex());
+		} 
+		else
+		{
+			return new AccountKey(text.AsSpan(i + 1).FromHex(), text.Substring(0, i));
+		}
+	}
 }
 
 
@@ -66,6 +78,6 @@ public class AccountKeyJsonConverter : JsonConverter<AccountKey>
 
 	public override void Write(Utf8JsonWriter writer, AccountKey value, JsonSerializerOptions options)
 	{
-		writer.WriteStringValue(value.PrivateKey.ToHex());
+		writer.WriteStringValue(value.Secret.ToHex());
 	}
 }

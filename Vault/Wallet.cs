@@ -140,7 +140,7 @@ public class WalletAccount : IBinarySerializable
 	public void Write(BinaryWriter writer)
 	{
 		writer.WriteUtf8(Name);
-		writer.Write(Key.PrivateKey);
+		writer.Write(Key.Secret);
 		writer.Write(Authentications);
 	}
 
@@ -219,10 +219,10 @@ public class Wallet
 		if(Encrypted != null)
 			throw new VaultException(VaultError.Locked);
 
-		if(key != null && Accounts.Any(i => Bytes.Comparer.Compare(i.Key.PrivateKey, key) == 0))
+		if(key != null && Accounts.Any(i => Bytes.Comparer.Compare(i.Key.Secret, key) == 0))
 			throw new VaultException(VaultError.AlreadyExists);
 
-		var a = new WalletAccount(this, name, key == null ? AccountKey.Create() : new AccountKey(key));
+		var a = new WalletAccount(this, name, key == null ? AccountKey.Create() : new AccountKey(key, name));
 		
 		Accounts.Add(a);
 

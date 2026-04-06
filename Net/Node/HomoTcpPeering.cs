@@ -302,10 +302,7 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 	
 		Connect(p, flow);
 	
-		call.Peering	= this;
-	
-		if(p.Status ==  ConnectionStatus.Disconnected)
-			Debugger.Break();
+		call.Peering = this;
 
 		return ((IHomoPeer)p).CallMe(call, flow);
 	}

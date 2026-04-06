@@ -228,6 +228,10 @@ public abstract class JsonServer
 		catch(ObjectDisposedException)
 		{ 
 		}
+//		catch(OperationCanceledException)
+//		{
+//			RespondError(rp, "text/plain", new NodeException(NodeError.a), HttpStatusCode.UnprocessableEntity);
+//		}
 		catch(CodeException ex)
 		{
 			RespondError(rp, "application/json", JsonSerializer.Serialize(ex, Options), HttpStatusCode.UnprocessableEntity);

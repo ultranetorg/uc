@@ -1202,6 +1202,9 @@ public abstract class McvPeering : HomoTcpPeering
 			catch(ContinueException)
 			{
 			}
+			catch(OperationCanceledException)
+			{
+			}
 		}
 
 		throw new OperationCanceledException();
