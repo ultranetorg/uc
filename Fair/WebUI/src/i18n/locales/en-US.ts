@@ -413,6 +413,7 @@ export const enUS = {
     "category-movement": `Move "<CategoryLink/>" category inside "<ParentLink/>" category`,
     "category-movement_root": `Move "<CategoryLink/>" category to root`,
     "category-type-change": `Change "<CategoryLink/>" category type from "{{categoryType}}" to "{{type}}"`,
+    "publication-publish": `Publish unpublished "<PublicationLink/>" publication in "<CategoryLink/>" category.`,
     "site-avatar-change": "Change site avatar",
     "site-name-change": `Change site name from "{{siteName}}" to "{{name}}"`,
     "site-name-change_empty": `Set site name "{{name}}"`,

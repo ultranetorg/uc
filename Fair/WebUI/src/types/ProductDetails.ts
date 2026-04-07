@@ -3,16 +3,16 @@ import { ProductType } from "./ProductType"
 
 export type ProductDetails = {
   id: string
-  productType: ProductType
+
+  type: ProductType
 
   title?: string
-  description?: string
-  logoFileId?: string
+  logoId?: string
   updated: number
 
   authorId: string
   authorTitle: string
-  authorFileId?: string
+  authorLogoId?: string
 
-  productFields: FieldValue[]
+  fields: FieldValue[]
 }

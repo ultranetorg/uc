@@ -9,6 +9,7 @@ import {
   CategoryMovement,
   CategoryTypeChange,
   ProposalOption,
+  PublicationPublish,
   SiteAuthorRemoval,
   SiteAvatarChange,
   SiteModeratorAddition,
@@ -132,6 +133,26 @@ const getCategoryTypeChange = (siteId: string, operation: CategoryTypeChange): J
   />
 )
 
+const getPublicationPublish = (siteId: string, operation: PublicationPublish): JSX.Element => (
+  <Trans
+    ns="proposalView"
+    i18nKey={`${operation.$type}`}
+    components={{
+      PublicationLink: (
+        <Link to={`/${siteId}/m/c/u/${operation.publicationId}`} className="underline">
+          {operation.publicationTitle}
+        </Link>
+      ),
+      CategoryLink: (
+        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+          {operation.categoryTitle}
+        </Link>
+      ),
+    }}
+    parent={"p"}
+  />
+)
+
 const getSiteAvatarChange = (operation: SiteAvatarChange): JSX.Element => (
   <>
     <Trans ns="proposalView" i18nKey={operation.$type} parent={"p"} />
@@ -189,6 +210,9 @@ export const renderDescription = (siteId: string, option: ProposalOption): React
       return getCategoryMovement(siteId, option.operation as CategoryMovement)
     case "category-type-change":
       return getCategoryTypeChange(siteId, option.operation as CategoryTypeChange)
+
+    case "publication-publish":
+      return getPublicationPublish(siteId, option.operation as PublicationPublish)
 
     case "site-avatar-change":
       return getSiteAvatarChange(option.operation as SiteAvatarChange)

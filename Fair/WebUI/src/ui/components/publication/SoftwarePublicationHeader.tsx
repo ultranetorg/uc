@@ -4,7 +4,7 @@ import { ModeratorOptionsMenu, SoftwarePublicationLogo } from "ui/components/spe
 
 export type SoftwarePublicationHeaderProps = {
   id?: string
-  title: string
+  title?: string
   logoFileId?: string
   categories?: string[]
   components?: ReactNode

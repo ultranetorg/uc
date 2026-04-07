@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useGetModeratorDiscussion } from "entities"
-import { PublicationProposalView } from "ui/views"
+import { ProposalView } from "ui/views"
 
 export const ModeratorPublicationPage = () => {
   const { t } = useTranslation()
@@ -11,7 +11,7 @@ export const ModeratorPublicationPage = () => {
   const { isFetching, data: proposal } = useGetModeratorDiscussion(siteId, proposalId)
 
   return (
-    <PublicationProposalView
+    <ProposalView
       parentBreadcrumb={{ title: t("common:publications"), path: `/${siteId}/m/c` }}
       isFetching={isFetching}
       proposal={proposal}

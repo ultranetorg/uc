@@ -40,7 +40,6 @@ import {
   StatusResult,
   TotalItemsResult,
   UnpublishedProduct,
-  UnpublishedProductDetails,
   ProductDetails,
 } from "types"
 
@@ -155,10 +154,7 @@ const getChangedPublications = async (
   return await toTotalItemsResult(res)
 }
 
-const getUnpublishedSiteProduct = async (
-  siteId: string,
-  unpublishedProductId: string,
-): Promise<UnpublishedProductDetails> => {
+const getUnpublishedSiteProduct = async (siteId: string, unpublishedProductId: string): Promise<ProductDetails> => {
   const res = await fetch(`${BASE_URL}/sites/${siteId}/products/unpublished/${unpublishedProductId}`)
   if (!res.ok) {
     throw new Error()
@@ -167,7 +163,7 @@ const getUnpublishedSiteProduct = async (
   return await res.json()
 }
 
-const getUnpublishedPublication = (siteId: string, publicationId: string): Promise<UnpublishedProductDetails> =>
+const getUnpublishedPublication = (siteId: string, publicationId: string): Promise<ProductDetails> =>
   fetch(`${BASE_URL}/sites/${siteId}/publications/unpublished/${publicationId}`).then(res => res.json())
 
 const getUnpublishedPublications = async (
@@ -390,7 +386,7 @@ const api: Api = {
   getCategory,
   getCategoryPublications,
   getDefaultSites,
-  getPublication,
+  getPublicationDetails: getPublication,
   getPublicationVersions,
 
   getChangedPublication,

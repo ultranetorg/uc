@@ -1,17 +1,11 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationDetailsModel(Publication publication, Product product, Author author, Category category, byte[]? logo)
-	: PublicationExtendedModel(publication, product, author, category, logo)
+public class PublicationDetailsModel : ProductDetailsModel
 {
-	public ProductType ProductType { get; } = product.Type;
+	// NOTE: Fields can be null for unpublished publication. Unpublished publication have no category.
+	public string? CategoryId { get; init; }
+	public string? CategoryTitle { get; init; }
 
-	public IEnumerable<FieldValueModel> ProductFields { get; set; }
-
-	public int Rating { get; set; } = publication.Rating;
-
-	public int ReviewsCount { get; set;} = publication.Reviews.Count();
-
-	public string Description { get; set; } = PublicationUtils.GetDescription(publication, product);	
-
-	public int Updated { get; set; } = product.Updated.Hours;
+	// NOTE: Field can be null for unpublished publication. Unpublished publication have no rating.
+	public int? Rating { get; init; }
 }

@@ -1,10 +1,10 @@
-import { useCallback } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useModerationContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetUnpublishedPublication } from "entities"
+import { OperationClass } from "types"
 import { ModerationHeader, ProductFieldsTree } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 
@@ -17,14 +17,12 @@ export const UnpublishedPublicationPage = () => {
 
   const { isLoading, data: publication } = useGetUnpublishedPublication(siteId, publicationId)
 
-  const handlePublishPublication = useCallback(() => alert("preview"), [])
-
   if (isLoading || !publication) return <div>LOADING</div>
 
   return (
     <div className="flex flex-col gap-6">
       <ModerationHeader
-        title={publication.title}
+        title={publication.title ?? publication.id}
         // TODO: show id
         //logoFileId={publication.publication.imageId}
         parentBreadcrumbs={[
@@ -35,7 +33,12 @@ export const UnpublishedPublicationPage = () => {
           <>
             {!!voterId && (
               <ButtonBar className="items-center">
-                <ButtonPrimary className="h-11 w-43.75" label="Publish" onClick={handlePublishPublication} />
+                <Link
+                  to={`/${siteId}/m/new`}
+                  state={{ type: "publication-publish" as OperationClass, publicationId: publication.id }}
+                >
+                  <ButtonPrimary className="h-11 w-43.75" label="Publish" />
+                </Link>
                 <Link
                   to={`/${siteId}/m/v`}
                   state={{

@@ -10,18 +10,17 @@ public class UnpublishedPublicationsService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<UnpublishedProductModel> Get([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<UnpublishedProductModel> GetAll([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(UnpublishedPublicationsService), nameof(Get), siteId, page, pageSize);
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(UnpublishedPublicationsService), nameof(GetAll), siteId, page, pageSize);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(siteId);
-
 		lock(mcv.Lock)
 		{
+			AutoId id = AutoId.Parse(siteId);
 			Site site = mcv.Sites.Latest(id);
 			if(site == null)
 			{
@@ -66,7 +65,7 @@ public class UnpublishedPublicationsService
 		return result;
 	}
 
-	public UnpublishedProductDetailsModel GetDetails([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string publicationId)
+	public PublicationDetailsModel GetDetails([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string publicationId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {PublicationId}", nameof(UnpublishedPublicationsService), nameof(GetDetails), siteId, publicationId);
 
@@ -95,16 +94,21 @@ public class UnpublishedPublicationsService
 			}
 
 			Product product = mcv.Products.Latest(publication.Product);
-			FairUser author = (FairUser) mcv.Users.Latest(product.Author);
+			Author author = mcv.Authors.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 			IEnumerable<FieldValueModel> mappedFields = GetMappedValue(product, publication);
 
-			return new UnpublishedProductDetailsModel(publication.Id, product, author, fileId)
+			return new PublicationDetailsModel
 			{
+				Id = publication.Id.ToString(),
+				Type = product.Type,
 				Title = PublicationUtils.GetTitle(publication, product),
-				Description = PublicationUtils.GetDescription(publication, product),
 				LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
-				Fields = mappedFields
+				Updated = product.Updated.Hours,
+				Fields = mappedFields,
+				AuthorId = author.Id.ToString(),
+				AuthorTitle = author.Title,
+				AuthorLogoId = author.Avatar?.ToString(),
 			};
 		}
 

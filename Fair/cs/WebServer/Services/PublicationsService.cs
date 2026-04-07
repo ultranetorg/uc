@@ -10,16 +10,15 @@ public class PublicationsService
 	FairMcv mcv
 )
 {
-	public PublicationDetailsModel GetPublicationDetails([NotEmpty][NotNull] string publicationId)
+	public PublicationDetailsModel GetDetails([NotEmpty][NotNull] string publicationId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(GetPublicationDetails), publicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(GetDetails), publicationId);
 
 		Guard.Against.NullOrEmpty(publicationId);
 
-		AutoId id = AutoId.Parse(publicationId);
-
 		lock (mcv.Lock)
 		{
+			AutoId id = AutoId.Parse(publicationId);
 			Publication publication = mcv.Publications.Latest(id);
 			if (publication == null)
 			{
@@ -28,17 +27,29 @@ public class PublicationsService
 
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
-			Category category = mcv.Categories.Latest(publication.Category);
-			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+
+			// For unpublished publication Category is null.
+			bool isPublicationPublished = publication.Category != null;
+			Category? category = isPublicationPublished ? mcv.Categories.Latest(publication.Category) : null;
 
 			var fields = product.Versions.FirstOrDefault(i => i.Id == publication.ProductVersion)?.Fields;
 			Field[] declaration = Product.FindDeclaration(product.Type);
 			var mappedFields = fields != null ? ProductsService.MapValues(declaration, fields) : [];
 
-			return new PublicationDetailsModel(publication, product, author, category, logo)
+			return new PublicationDetailsModel
 			{
-				ProductFields = mappedFields
+				Id = publication.Id.ToString(),
+				Type = product.Type,
+				Title = PublicationUtils.GetTitle(publication, product),
+				LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
+				Updated = product.Updated.Hours,
+				Fields = mappedFields,
+				AuthorId = author.Id.ToString(),
+				AuthorTitle = author.Title,
+				AuthorLogoId = author.Avatar?.ToString(),
+				CategoryId = category?.Id.ToString(),
+				CategoryTitle = category?.Title,
+				Rating = isPublicationPublished ? publication.Rating : null
 			};
 		}
 	}
@@ -49,10 +60,9 @@ public class PublicationsService
 
 		Guard.Against.NullOrEmpty(publicationId);
 
-		AutoId id = AutoId.Parse(publicationId);
-
 		lock(mcv.Lock)
 		{
+			AutoId id = AutoId.Parse(publicationId);
 			Publication publication = mcv.Publications.Latest(id);
 			if(publication == null)
 			{
@@ -77,17 +87,16 @@ public class PublicationsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId siteAutoId = AutoId.Parse(siteId);
-		AutoId authorAutoId = AutoId.Parse(authorId);
-
 		lock (mcv.Lock)
 		{
+			AutoId siteAutoId = AutoId.Parse(siteId);
 			Site site = mcv.Sites.Latest(siteAutoId);
 			if (site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
+			AutoId authorAutoId = AutoId.Parse(authorId);
 			Author author = mcv.Authors.Latest(authorAutoId);
 			if (author == null)
 			{
@@ -171,10 +180,9 @@ public class PublicationsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(categoryId);
-
 		lock (mcv.Lock)
 		{
+			AutoId id = AutoId.Parse(categoryId);
 			Category category = mcv.Categories.Latest(id);
 			if (category == null)
 			{
@@ -233,10 +241,9 @@ public class PublicationsService
 		if (cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<CategoryPublicationsModel>();
 
-		AutoId id = AutoId.Parse(siteId);
-
 		lock (mcv.Lock)
 		{
+			AutoId id = AutoId.Parse(siteId);
 			Site site = mcv.Sites.Latest(id);
 			if (site == null)
 			{
@@ -330,16 +337,16 @@ public class PublicationsService
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(changedPublicationId);
 
-		AutoId entitySiteId = AutoId.Parse(siteId);
-		AutoId entityChangedPublicationId = AutoId.Parse(changedPublicationId);
-
 		lock(mcv.Lock)
 		{
+			AutoId entitySiteId = AutoId.Parse(siteId);
 			Site site = mcv.Sites.Latest(entitySiteId);
 			if(site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
+
+			AutoId entityChangedPublicationId = AutoId.Parse(changedPublicationId);
 			if(!site.ChangedPublications.Contains(entityChangedPublicationId))
 			{
 				throw new EntityNotFoundException(nameof(EntityNames.ChangedPublicationEntityName).ToLower(), changedPublicationId);
@@ -351,6 +358,7 @@ public class PublicationsService
 				Publication pub = mcv.Publications.Latest(x);
 			}
 
+			
 			Publication publication = mcv.Publications.Latest(entityChangedPublicationId);
 			Product product = mcv.Products.Latest(publication.Product);
 			if(product.Versions.Length < 2)
@@ -385,10 +393,9 @@ public class PublicationsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(siteId);
-
 		lock(mcv.Lock)
 		{
+			AutoId id = AutoId.Parse(siteId);
 			Site site = mcv.Sites.Latest(id);
 			if(site == null)
 			{
@@ -443,10 +450,9 @@ public class PublicationsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(siteId);
-
 		lock(mcv.Lock)
 		{
+			AutoId id = AutoId.Parse(siteId);
 			Site site = mcv.Sites.Latest(id);
 			if(site == null)
 			{
@@ -492,7 +498,7 @@ public class PublicationsService
 		return result;
 	}
 
-	private class PublicationsContext : SearchContext<PublicationAuthorModel>
+	class PublicationsContext : SearchContext<PublicationAuthorModel>
 	{
 		public AutoId AuthorId { get; set; }
 	}

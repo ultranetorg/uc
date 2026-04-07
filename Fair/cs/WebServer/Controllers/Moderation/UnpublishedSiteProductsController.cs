@@ -14,7 +14,7 @@ public class UnpublishedSiteProductsController
 	/// Returns Products that have not been published on the Site.
 	/// </summary>
 	[HttpGet("{productId}")]
-	public UnpublishedProductDetailsModel GetDetails(string siteId, string productId)
+	public ProductDetailsModel GetDetails(string siteId, string productId)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {ProductId}", nameof(UnpublishedSiteProductsController), nameof(GetDetails), siteId, productId);
 

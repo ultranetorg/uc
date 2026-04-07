@@ -140,12 +140,11 @@ public class ModeratorProposalsService
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 		Publication publication = mcv.Publications.Latest(publicationId);
 		Product product = mcv.Products.Latest(publication.Product);
-		Category category = mcv.Categories.Latest(publication.Category);
 		FairUser author = (FairUser) mcv.Users.Latest(product.Author);
 
 		AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
-		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, category.Title, fileId);
+		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, null, fileId);
 
 		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
 	}

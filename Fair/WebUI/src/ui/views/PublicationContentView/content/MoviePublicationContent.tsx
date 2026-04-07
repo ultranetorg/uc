@@ -17,16 +17,13 @@ const LONG_VALUE_CLASSNAME = "line-clamp-3 text-2sm leading-5"
 
 export const MoviePublicationContent = memo(
   ({ t, siteId, productOrPublication, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
-    const fields = productOrPublication.productFields
+    const fields = productOrPublication.fields
 
     const movieFields = useMemo(() => buildMovieFields(fields), [fields])
 
     const posterSrc = useMemo(() => buildFileUrl(movieFields.posterId), [movieFields.posterId])
 
-    const aboutText = useMemo(
-      () => movieFields.about ?? getMaxDescription(fields) ?? productOrPublication.description,
-      [movieFields.about, fields, productOrPublication.description],
-    )
+    const aboutText = useMemo(() => movieFields.about ?? getMaxDescription(fields), [movieFields.about, fields])
 
     const publisherAccountName = productOrPublication.authorTitle
 

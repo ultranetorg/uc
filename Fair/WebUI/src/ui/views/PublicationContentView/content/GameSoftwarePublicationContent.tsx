@@ -30,10 +30,7 @@ export const GameSoftwarePublicationContent = memo(
     const [platform, setPlatform] = useState<string | undefined>()
     const [version, setVersion] = useState<string | undefined>()
 
-    const releases = useMemo(
-      () => getReleases(productOrPublication.productFields!),
-      [productOrPublication.productFields],
-    )
+    const releases = useMemo(() => getReleases(productOrPublication.fields!), [productOrPublication.fields])
 
     const releasesByVersion = useMemo(() => {
       if (!releases) return undefined
@@ -46,40 +43,25 @@ export const GameSoftwarePublicationContent = memo(
       )
     }, [releases, version])
 
-    const descriptions = useMemo(
-      () => getDescriptions(productOrPublication.productFields!),
-      [productOrPublication.productFields],
-    )
+    const descriptions = useMemo(() => getDescriptions(productOrPublication.fields!), [productOrPublication.fields])
 
-    const eulaText = useMemo(
-      () => getValueFrom(productOrPublication.productFields!, "eula"),
-      [productOrPublication.productFields],
-    )
+    const eulaText = useMemo(() => getValueFrom(productOrPublication.fields!, "eula"), [productOrPublication.fields])
 
     const license = useMemo(
-      () => getValueFrom(productOrPublication.productFields!, "license-type"),
-      [productOrPublication.productFields],
+      () => getValueFrom(productOrPublication.fields!, "license-type"),
+      [productOrPublication.fields],
     )
 
     const licensingDetailsUrl = useMemo(
-      () => getUrlFrom(productOrPublication.productFields!, "licensing-details-url"),
-      [productOrPublication.productFields],
+      () => getUrlFrom(productOrPublication.fields!, "licensing-details-url"),
+      [productOrPublication.fields],
     )
 
-    const mediaItems = useMemo(
-      () => buildMediaItems(productOrPublication.productFields),
-      [productOrPublication.productFields],
-    )
+    const mediaItems = useMemo(() => buildMediaItems(productOrPublication.fields), [productOrPublication.fields])
 
-    const officialSite = useMemo(
-      () => getUrlFrom(productOrPublication.productFields!, "uri"),
-      [productOrPublication.productFields],
-    )
+    const officialSite = useMemo(() => getUrlFrom(productOrPublication.fields!, "uri"), [productOrPublication.fields])
 
-    const price = useMemo(
-      () => getValueFrom(productOrPublication.productFields!, "price"),
-      [productOrPublication.productFields],
-    )
+    const price = useMemo(() => getValueFrom(productOrPublication.fields!, "price"), [productOrPublication.fields])
 
     const softwareDownloads = useMemo(
       () =>
@@ -100,12 +82,9 @@ export const GameSoftwarePublicationContent = memo(
       return releasesByVersion !== undefined ? buildSystemRequirements(t, releasesByVersion) : undefined
     }, [releasesByVersion, t])
 
-    const tags = useMemo(() => getTags(productOrPublication.productFields!), [productOrPublication.productFields])
+    const tags = useMemo(() => getTags(productOrPublication.fields!), [productOrPublication.fields])
 
-    const uiLanguages = useMemo(
-      () => getUiLanguages(productOrPublication.productFields!),
-      [productOrPublication.productFields],
-    )
+    const uiLanguages = useMemo(() => getUiLanguages(productOrPublication.fields!), [productOrPublication.fields])
 
     const handleVersionChange = useCallback((version?: string) => setVersion(version), [])
     const handlePlatformChange = useCallback((platform: string) => setPlatform(platform), [])
@@ -125,9 +104,8 @@ export const GameSoftwarePublicationContent = memo(
               <Trans ns="publication" i18nKey={"noScreenshots"} components={{ br: <br /> }} className=" " />
             </div>
           )}
-          {descriptions && (
+          {descriptions && descriptions.length > 0 && (
             <Description
-              text={productOrPublication.description}
               descriptions={descriptions}
               showMoreLabel={t("showMore")}
               showLessLabel={t("showLess")}

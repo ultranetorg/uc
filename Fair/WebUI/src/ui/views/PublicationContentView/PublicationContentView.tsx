@@ -24,7 +24,7 @@ export const PublicationContentView = ({
   const { siteId } = useParams()
   const { t } = useTranslation("publication")
 
-  const ContentComponent = getPublicationContentByType(productOrPublication.productType)
+  const ContentComponent = getPublicationContentByType(productOrPublication.type)
 
   return (
     <ContentComponent

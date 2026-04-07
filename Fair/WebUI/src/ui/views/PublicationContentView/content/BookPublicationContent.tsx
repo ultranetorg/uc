@@ -17,7 +17,7 @@ const LONG_VALUE_CLASSNAME = "line-clamp-3 text-2sm leading-5"
 
 export const BookPublicationContent = memo(
   ({ t, siteId, productOrPublication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
-    const fields = productOrPublication.productFields
+    const fields = productOrPublication.fields
 
     const bookFields = useMemo(() => buildBookFields(fields), [fields])
 
@@ -26,10 +26,7 @@ export const BookPublicationContent = memo(
       return buildFileUrl(bookFields.coverId)
     }, [bookFields.coverId])
 
-    const aboutText = useMemo(() => {
-      const fromFields = bookFields.about ?? getMaxDescription(fields)
-      return fromFields ?? productOrPublication.description
-    }, [bookFields.about, fields, productOrPublication.description])
+    const aboutText = useMemo(() => bookFields.about ?? getMaxDescription(fields), [bookFields.about, fields])
 
     const publishedAt = useMemo(() => {
       if (bookFields.publicationDate) return bookFields.publicationDate
@@ -71,7 +68,7 @@ export const BookPublicationContent = memo(
             </div>
 
             {/* Ratings */}
-            {"rating" in productOrPublication && (
+            {"rating" in productOrPublication && productOrPublication.rating !== undefined && (
               <div className="flex items-center gap-6">
                 <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
                 <span className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1 whitespace-nowrap")}>

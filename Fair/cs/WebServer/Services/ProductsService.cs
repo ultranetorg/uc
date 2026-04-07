@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Ardalis.GuardClauses;
+using NativeImport;
 
 namespace Uccs.Fair;
 
@@ -24,7 +25,7 @@ public class ProductsService
 		}
 	}
 
-	public UnpublishedProductDetailsModel GetUnpublishedSiteProduct([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string productId)
+	public ProductDetailsModel GetUnpublishedSiteProduct([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string productId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProductId}", nameof(ProductsService), nameof(GetUnpublishedSiteProduct), siteId, productId);
 
@@ -52,16 +53,20 @@ public class ProductsService
 				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 			}
 
-			FairUser account = (FairUser) mcv.Users.Latest(product.Author);
-			AutoId? fileId = PublicationUtils.GetLatestLogo(product);
+			Author author = mcv.Authors.Latest(product.Author);
 			IEnumerable<FieldValueModel> mappedFields = GetMappedValue(product);
 
-			return new UnpublishedProductDetailsModel(product.Id, product, account, fileId)
+			return new ProductDetailsModel
 			{
+				Id = product.Id.ToString(),
+				Type = product.Type,
 				Title = PublicationUtils.GetLatestTitle(product),
-				Description = PublicationUtils.GetLatestDescription(product),
 				LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
-				Fields = mappedFields
+				Updated = product.Updated.Hours,
+				Fields = mappedFields,
+				AuthorId = author.Id.ToString(),
+				AuthorTitle = author.Title,
+				AuthorLogoId = author.Avatar?.ToString()
 			};
 		}
 	}
@@ -127,7 +132,18 @@ public class ProductsService
 				productFields = ProductsService.MapValues(declaration, fields);
 			}
 
-			return new ProductDetailsModel(product, author, productFields);
+			return new ProductDetailsModel
+			{
+				Id = product.Id.ToString(),
+				Type = product.Type,
+				Title = PublicationUtils.GetLatestTitle(product),
+				LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
+				Updated = product.Updated.Hours,
+				Fields = productFields,
+				AuthorId = author.Id.ToString(),
+				AuthorTitle = author.Title,
+				AuthorLogoId = author.Avatar?.ToString()
+			};
 		}
 	}
 

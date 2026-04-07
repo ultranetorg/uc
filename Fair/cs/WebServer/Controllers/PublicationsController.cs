@@ -16,13 +16,13 @@ public class PublicationsController
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
-	public PublicationDetailsModel Get(string publicationId)
+	public PublicationDetailsModel GetDetails(string publicationId)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.Get)} method called with {{PublicationId}}", publicationId);
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetDetails)} method called with {{PublicationId}}", publicationId);
 
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
-		return publicationsService.GetPublicationDetails(publicationId);
+		return publicationsService.GetDetails(publicationId);
 	}
 
 	[HttpGet("{publicationId}/versions")]
@@ -85,7 +85,7 @@ public class PublicationsController
 	[HttpGet("~/api/sites/{siteId}/authors/{authorId}/publications")]
 	public IEnumerable<PublicationAuthorModel> GetAuthorPublications(string siteId, string authorId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.Get)} method called with {{SiteId}}, {{AuthorId}}, {{Pagination}}", siteId, authorId, pagination);
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetDetails)} method called with {{SiteId}}, {{AuthorId}}, {{Pagination}}", siteId, authorId, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(authorId, nameof(Author).ToLower());

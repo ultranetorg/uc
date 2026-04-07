@@ -4,28 +4,22 @@ import { DropdownTertiary, ShowMoreButton } from "ui/components"
 import { Description as DescriptionType } from "types"
 
 export type DescriptionProps = {
-  text?: string
-  descriptions?: DescriptionType[]
+  descriptions: DescriptionType[]
   descriptionLabel: string
   showMoreLabel: string
   showLessLabel: string
 }
 
-export const Description = ({
-  text,
-  descriptions,
-  descriptionLabel,
-  showMoreLabel,
-  showLessLabel,
-}: DescriptionProps) => {
-  const hasMultipleLanguages = descriptions && descriptions.length > 1
-  const [selectedLanguage, setSelectedLanguage] = useState(descriptions?.[0]?.language ?? "en")
+export const Description = ({ descriptions, descriptionLabel, showMoreLabel, showLessLabel }: DescriptionProps) => {
+  const hasMultipleLanguages = descriptions.length > 1
+  const [selectedLanguage, setSelectedLanguage] = useState(descriptions[0].language ?? "en")
   const [expanded, setExpanded] = useState(false)
 
   const currentText = useMemo(
-    () => descriptions?.find(d => d.language === selectedLanguage)?.text ?? text ?? "",
-    [descriptions, selectedLanguage, text],
+    () => descriptions.find(d => d.language === selectedLanguage)?.text ?? "",
+    [descriptions, selectedLanguage],
   )
+
   const isLong = currentText.length > 400
   const displayedText = useMemo(
     () => (isLong && !expanded ? `${currentText.slice(0, 320)}...` : currentText),

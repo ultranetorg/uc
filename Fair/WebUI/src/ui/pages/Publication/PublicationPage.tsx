@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useDocumentTitle } from "usehooks-ts"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetPublication, useGetReviews } from "entities"
+import { useGetPublicationDetails, useGetReviews } from "entities"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, SoftwarePublicationHeader } from "ui/components/publication"
 import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
@@ -18,13 +18,19 @@ export const PublicationPage = () => {
 
   const [isReviewModalOpen, setReviewModalOpen] = useState(false)
 
-  const { isPending, data: publication } = useGetPublication(publicationId)
+  const { isPending, data: publication } = useGetPublicationDetails(publicationId)
   const { isPending: isPendingReviews, data: reviews, error } = useGetReviews(publicationId, 0, DEFAULT_PAGE_SIZE_20)
 
   const breadcrumbsItems = useMemo<BreadcrumbsItemProps[] | undefined>(
     () =>
       publication
-        ? createBreadcrumbs(siteId!, publication.categoryId, publication.categoryTitle, publication.title, t)
+        ? createBreadcrumbs(
+            siteId!,
+            publication.categoryId!,
+            publication.categoryTitle!,
+            publication.title ?? publication.id,
+            t,
+          )
         : undefined,
     [publication, siteId, t],
   )
@@ -40,7 +46,7 @@ export const PublicationPage = () => {
         <SoftwarePublicationHeader
           id={publicationId!}
           title={publication.title}
-          logoFileId={publication.logoFileId}
+          logoFileId={publication.logoId}
           categories={TEST_SOFTWARE_CATEGORIES}
         />
         <div className="flex gap-8">

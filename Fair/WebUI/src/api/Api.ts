@@ -8,14 +8,15 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
+  FieldValue,
+  FieldValueCompare,
   File,
   Moderator,
   ModeratorProposal,
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
-  FieldValue,
-  FieldValueCompare,
+  ProductDetails,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -36,8 +37,6 @@ import {
   StatusResult,
   TotalItemsResult,
   UnpublishedProduct,
-  UnpublishedProductDetails,
-  ProductDetails,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
@@ -69,7 +68,7 @@ export type Api = {
   getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategory(categoryId: string): Promise<Category>
   getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>
-  getPublication(publicationId: string): Promise<PublicationDetails>
+  getPublicationDetails(publicationId: string): Promise<PublicationDetails>
   getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
 
   getChangedPublication(siteId: string, changedPublicationId: string): Promise<ChangedPublicationDetails>
@@ -79,9 +78,9 @@ export type Api = {
     pageSize?: number,
   ): Promise<TotalItemsResult<ChangedPublication>>
 
-  getUnpublishedSiteProduct(siteId: string, unpublishedProductId: string): Promise<UnpublishedProductDetails>
+  getUnpublishedSiteProduct(siteId: string, unpublishedProductId: string): Promise<ProductDetails>
 
-  getUnpublishedPublication(siteId: string, publicationId: string): Promise<UnpublishedProductDetails>
+  getUnpublishedPublication(siteId: string, publicationId: string): Promise<ProductDetails>
   getUnpublishedPublications(
     siteId: string,
     page?: number,

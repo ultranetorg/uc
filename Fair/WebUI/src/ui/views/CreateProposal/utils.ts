@@ -17,6 +17,7 @@ const mapAuthorsToIds = (accounts?: AuthorBaseAvatar[]): string[] => accounts?.m
 const mapAccountsToIds = (accounts?: AccountBase[]): string[] => accounts?.map(x => x.id) ?? []
 
 const mapOptionOperation = (type: OperationType, data: CreateProposalData, option: CreateProposalDataOption) => {
+  console.log(data)
   switch (type) {
     // Category
     case "category-avatar-change":
@@ -36,7 +37,7 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
     case "publication-deletion":
       return { publicationId: data.publicationId }
     case "publication-publish":
-      return { publicationId: data.publicationId, categoryId: data.categoryId }
+      return { publication: data.publicationId, category: option.categoryId! }
     case "publication-updation":
       return { publicationId: data.publicationId, version: option.version }
 

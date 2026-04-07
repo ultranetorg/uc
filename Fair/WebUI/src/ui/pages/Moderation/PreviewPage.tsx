@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 
 import { SvgXSm } from "assets"
-import { useGetPublication } from "entities"
+import { useGetPublicationDetails } from "entities"
 import { useGetProductDetails } from "entities/Product"
 import { ButtonPrimary } from "ui/components"
 import { SoftwarePublicationHeader } from "ui/components/publication"
@@ -22,7 +22,7 @@ export const PreviewPage = () => {
   console.log(publicationId)
 
   const { data: product, isPending: isProductPending } = useGetProductDetails(productId)
-  const { data: publication, isPending: isPublicationPending } = useGetPublication(publicationId)
+  const { data: publication, isPending: isPublicationPending } = useGetPublicationDetails(publicationId)
 
   if (!previousPath || (!productId && !publicationId)) return <Navigate to={`/${siteId}`} />
 
@@ -34,7 +34,7 @@ export const PreviewPage = () => {
     <div className="flex flex-col gap-6">
       <SoftwarePublicationHeader
         title={product?.title ?? publication?.title ?? ""}
-        logoFileId={product?.logoFileId ?? publication?.logoFileId}
+        logoFileId={product?.logoId ?? publication?.logoId}
         components={
           previousPath && (
             <Link to={previousPath}>

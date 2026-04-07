@@ -65,7 +65,7 @@ export const SoftwareInfo = memo(
   }: SoftwareInfoProps) => {
     const [selectedVersion, setSelectedVersion] = useState<string | undefined>()
 
-    const fields = productOrPublication.productFields
+    const fields = productOrPublication.fields
 
     const versions = useMemo(() => {
       const releases = (fields ?? []).filter(x => nameEq(x.name, "release"))
@@ -150,7 +150,7 @@ export const SoftwareInfo = memo(
           </div>
         )}
 
-        {"rating" in productOrPublication && (
+        {"rating" in productOrPublication && productOrPublication.rating !== undefined && (
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{ratingLabel}</span>
             <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>

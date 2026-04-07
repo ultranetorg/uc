@@ -3,7 +3,7 @@ import { ImageFallback } from "ui/components"
 import { buildFileUrl, formatSoftwareCategories } from "utils"
 
 export type SoftwarePublicationLogoProps = {
-  title: string
+  title?: string
   showLogo?: boolean
   logoFileId?: string
   categories?: string[]
@@ -22,7 +22,7 @@ export const SoftwarePublicationLogo = ({
       </div>
     )}
     <div className="flex flex-col gap-2 text-gray-800">
-      <span className="text-3.5xl font-semibold leading-10">{title}</span>
+      {title && <span className="text-3.5xl font-semibold leading-10">{title}</span>}
       {categories && <span className="text-2xs font-medium leading-4">{formatSoftwareCategories(categories)}</span>}
     </div>
   </div>

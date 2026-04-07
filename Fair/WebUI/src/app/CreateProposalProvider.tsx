@@ -31,11 +31,11 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
       options: [],
       ...(searchParams.get("type") && { type: searchParams.get("type")! as OperationType }),
       ...(location.state?.type && { type: location.state.type as OperationType }),
+      ...(!!location.state.publicationId && { publicationId: location.state.publicationId }),
 
       ...(searchParams.get("moderatorId") && { moderatorId: searchParams.get("moderatorId")! }),
       ...(searchParams.get("publisherId") && { publisherId: searchParams.get("publisherId")! }),
       ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
-      ...(searchParams.get("publicationId") && { publicationId: searchParams.get("publicationId")! }),
       ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),
       ...(searchParams.get("userId") && { userId: searchParams.get("userId")! }),
     },

@@ -28,9 +28,9 @@ public static class ProposalUtils
 			CategoryDeletion operation => CreateCategoryDeletionModel(mcv, operation),
 			CategoryMovement operation => CreateCategoryMovementModel(mcv, operation),
 			CategoryTypeChange operation => CreateCategoryTypeChangeModel(mcv, operation),
+			PublicationPublish operation => CreatePublicationPublishModel(mcv, operation),
 			PublicationCreation operation => new PublicationCreationModel(operation),
 			PublicationDeletion operation => new PublicationDeletionModel(operation),
-			PublicationPublish operation => new PublicationPublishModel(operation),
 			PublicationUpdation operation => new PublicationUpdationModel(operation),
 			ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
@@ -82,5 +82,12 @@ public static class ProposalUtils
 	static SiteNameChangeModel CreateSiteNameChangeModel(SiteNameChange operation)
 	{
 		return new SiteNameChangeModel(operation, operation.Site.Name);
+	}
+
+	static PublicationPublishModel CreatePublicationPublishModel(FairMcv mcv, PublicationPublish operation)
+	{
+		Product product = mcv.Products.Latest(operation.Publication);
+		Category category = mcv.Categories.Latest(operation.Category);
+		return new PublicationPublishModel(operation, product, category);
 	}
 }

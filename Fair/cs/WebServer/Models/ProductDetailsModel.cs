@@ -1,19 +1,18 @@
 ﻿namespace Uccs.Fair;
 
-public class ProductDetailsModel(Product product, Author author, IEnumerable<FieldValueModel>? productFields)
+public class ProductDetailsModel
 {
-	public string Id { get; } = product.Id.ToString();
+	public string Id { get; init; }
 
-	public ProductType ProductType { get; } = product.Type;
+	public ProductType Type { get; init; }
 
-	public string? Title { get; } = PublicationUtils.GetLatestTitle(product);
-	public string? Description { get; } = PublicationUtils.GetLatestDescription(product);
-	public string? LogoFileId { get; } = PublicationUtils.GetLatestLogo(product)?.ToString();
-	public int Updated { get; } = product.Updated.Hours;
+	public string? Title { get; init; }
+	public string? LogoId { get; init; }
+	public int Updated { get; init; }
 
-	public string AuthorId { get; } = author.Id.ToString();
-	public string AuthorTitle { get; } = author.Title;
-	public string? AuthorFileId { get; } = author.Avatar?.ToString();
+	public string AuthorId { get; init; }
+	public string AuthorTitle { get; init; }
+	public string? AuthorLogoId { get; init; }
 
-	public IEnumerable<FieldValueModel>? ProductFields { get; } = productFields;
+	public IEnumerable<FieldValueModel>? Fields { get; init; }
 }
