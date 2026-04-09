@@ -5,7 +5,6 @@ namespace Uccs.Net;
 
 public enum AddressFormat : ushort
 {
-    Bech32b = (byte)'b'<<8 | (byte)'b',
 	Bech32t = (byte)'b'<<8 | (byte)'t',
 }
 
@@ -21,7 +20,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 	public virtual byte[]		Bytes { get; protected set; }
 	public string				Tag { get; protected set; }
 	string						Text;
-	AddressFormat 				Format;// = AddressEncoder.FormatBech32m_Raw; 
+	AddressFormat 				Format = AddressFormat.Bech32t; 
 
 	public AccountAddress()
 	{
@@ -32,7 +31,6 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 		if(bytes.Length != Length)
 			throw new IntegrityException("Wrong length");
 		
-		Format = AddressFormat.Bech32b;
 		Bytes = bytes;
  	}
 
@@ -41,16 +39,14 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 		if(bytes.Length != Length)
 			throw new ArgumentException("Wrong length");
 		
-        if(!string.IsNullOrEmpty(tag) && tag.Length != Bech32.TagLength) 
+        if(!string.IsNullOrEmpty(tag) && tag.Length > Bech32.MaxTagLength) 
             throw new ArgumentException("Invalid tag length.");
+
+        if(tag != null && tag.Any(i => !Bech32.Alphanumeric.Contains(i))) 
+            throw new ArgumentException("Invalid tag format");
 
 		Bytes = bytes;
 		Tag = tag;
-
-		if(Tag == null)
-			Format = AddressFormat.Bech32b;
-		else
-			Format = AddressFormat.Bech32t;
  	}
 
 	public void Write(BinaryWriter writer)
@@ -137,10 +133,10 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
         var f	= (AddressFormat)(char.ToLowerInvariant(address[address.Length-4]) << 8 | char.ToLowerInvariant(address[address.Length-3]));
         var a	= (Algorithm)	 (char.ToLowerInvariant(address[address.Length-2]) << 8 | char.ToLowerInvariant(address[address.Length-1]));
 
-        if(f != AddressFormat.Bech32t && f != AddressFormat.Bech32b)
+        if(f != AddressFormat.Bech32t)
             throw new FormatException("Unsupported address format.");
 
-        Bech32.TryDecode(address.AsSpan(0, address.Length-4), f == AddressFormat.Bech32t, out var data, out string tag);
+        Bech32.TryDecode(address.AsSpan(0, address.Length - 4), out var data, out string tag);
 
         return (f, a, tag, data);
     }

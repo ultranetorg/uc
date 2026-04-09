@@ -44,7 +44,6 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public IEnumerable<HomoPeer>			Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
 
-	public bool								MinimalPeersReached;
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
 	Thread									TransactingThread;
 	//public object							TransactingLock = new object();
@@ -125,39 +124,30 @@ public abstract class McvPeering : HomoTcpPeering
 		if(ex.Error == NodeError.NotChain)	peer.Roles  &= ~(long)Role.Chain;
 	}
 
-	protected override void ProcessMain()
+	protected override void Main()
 	{
 		lock(Lock)
 		{
-			base.ProcessMain();
-	
-			if(Mcv != null)
-			{
-				var needed = Settings.PermanentMin - Graphs.Count();
+			base.Main();
+
+			var needed = Settings.PermanentMin - Graphs.Count();
 		
-				foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
-										.OrderBy(i => i.Retries)
-										.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
-										.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
-										.Take(needed))
-				{
-					OutboundConnect(p, true);
-				}
+			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
+									.OrderBy(i => i.Retries)
+									.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
+									.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
+									.Take(needed))
+			{
+				OutboundConnect(p, true);
+			}
 	
-				if(!MinimalPeersReached && Connections.Count(i => i.Permanent) >= Settings.PermanentMin)
-				{
-					MinimalPeersReached = true;
-					Flow.Log?.Report(this, $"PermanentMin reached");
+			if(!MinimalPeersReached && Connections.Count(i => i.Permanent) >= Settings.PermanentMin)
+			{
+				MinimalPeersReached = true;
+				Flow.Log?.Report(this, $"{nameof(MinimalPeersReached)} reached");
 	
-					//if(IsListener)
-					//{
-					//	foreach(var c in Connections)
-					//		c.Send(new SharePeersPpc{Broadcast = true, 
-					//								 Peers = [new HomoPeer(EP) {Roles = Roles}]});
-					//}
-	
+				if(Mcv != null)
 					Synchronize();
-				}
 			}
 		}
 

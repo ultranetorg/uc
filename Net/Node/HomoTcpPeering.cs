@@ -11,7 +11,8 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 	public List<HomoPeer>						Peers = [];
 	public IEnumerable<HomoPeer>				Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
 	protected override IEnumerable<HomoPeer>	PeersToDisconnect => Peers;
-
+	public bool									MinimalPeersReached;
+	
 	public long									Roles;
 	public ColumnFamilyHandle					PeersFamily => Database.GetColumnFamily(PeersColumn);
 	string										PeersColumn => GetType().Name + nameof(Peers);
@@ -223,12 +224,11 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 		return affected;
 	}
 
-	protected override void ProcessMain()
+	protected override void Main()
 	{
-		var needed = 2 - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
+		var needed = Settings.PermanentMin - Peers.Count(i => i.Permanent && i.Status != ConnectionStatus.Disconnected);
 		
-		foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected &&
-											DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
+		foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
 								.OrderBy(i => i.Retries)
 								.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
 								.Take(needed))
@@ -241,6 +241,11 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 			OutboundConnect(p, false);
 		}
 
+		//if(!MinimalPeersReached && Connections.Count(i => i.Permanent) >= Settings.PermanentMin)
+		//{
+		//	MinimalPeersReached = true;
+		//	Flow.Log?.Report(this, $"{nameof(MinimalPeersReached)} reached");
+		//}
 	}
 
 	protected override void OnConnected(HomoPeer peer)

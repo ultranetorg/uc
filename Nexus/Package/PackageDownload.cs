@@ -2,7 +2,7 @@
 
 namespace Uccs.Nexus;
 
-public class PackageDownloadProgress : ResourceActivityProgress
+public class PackageDownloadProgress : PackageActivityProgress
 {
 	public bool							Succeeded { get; set; }
 	public int							DependenciesRecursiveCount { get; set; }
@@ -80,7 +80,7 @@ public class PackageDownload
 											{
 												last = node.Peering.Call(new ResourcePpc(package.Resource.Address), workflow).Resource;
 													
-												if(last.Data?.Type != new DataType(DataType.File, ContentType.Software_PackageManifest))
+												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_VersionManifest))
 												{
 													Package.Activity = null;
 													return;
@@ -88,7 +88,7 @@ public class PackageDownload
 
 												break;
 											}
-											catch(EntityException)
+											catch(EntityException ex)
 											{
 												Thread.Sleep(100);
 											}

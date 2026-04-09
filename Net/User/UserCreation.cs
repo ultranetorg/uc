@@ -10,7 +10,7 @@ public class UserCreation : Operation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return (Pow == null || Pow.Length <= 32);
+		return (Pow == null || Pow.Length <= 32) && Owner != null;
 	}
 
 	public override void Read(BinaryReader reader)

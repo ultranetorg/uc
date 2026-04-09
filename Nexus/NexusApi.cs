@@ -1,14 +1,95 @@
 ﻿using System.Net;
 using System.Reflection;
-using Uccs.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
-internal class NexusApiServer : JsonServer
+public class NexusJsonConfiguration : NetJsonConfiguration
+{
+	new public static JsonSerializerOptions CreateOptions()
+	{
+		var o = NetJsonConfiguration.CreateOptions();
+
+		o.TypeInfoResolver = new NexusTypeResolver();
+
+		o.Converters.Add(new UraJsonConverter());
+		o.Converters.Add(new UrrJsonConverter());
+		o.Converters.Add(new ResourceDataJsonConverter());
+
+		return o;
+	}
+}
+
+public class NexusTypeResolver : ApiTypeResolver
+{
+    public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
+    {
+        var ti = base.GetTypeInfo(type, options);
+
+        if(ti.Type == typeof(PackageActivityProgress))
+		{
+            ti.PolymorphismOptions = new JsonPolymorphismOptions
+									 {
+										TypeDiscriminatorPropertyName = "$type",
+										IgnoreUnrecognizedTypeDiscriminators = true,
+										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
+									 };
+
+			foreach(var i in typeof(PackageActivityProgress).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+				ti.PolymorphismOptions.DerivedTypes.Add(i);
+		}
+
+        return ti;
+    }
+}
+
+public class NexusApiClient : JsonApiClient
+{
+	public PackageInfo FindLocalPackage(Ura address, Flow flow) => Call<PackageInfo>(new LocalPackageApc { Address = address }, flow);
+
+	public NexusApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	{
+		Options = NexusJsonConfiguration.CreateOptions();
+	}
+
+	public PackageInfo DeployPackage(Ura address, string desination, Flow flow)
+	{
+		Send(new PackageDeployApc { Address = address, DeploymentPath = desination }, flow);
+
+		do
+		{
+			var d = Call<PackageActivityProgress>(new PackageActivityProgressApc { Package = address }, flow);
+
+			if(d is null)
+			{
+				return Call<PackageInfo>(new LocalPackageApc { Address = address }, flow);
+
+				//if(lrr.Availability == Availability.Full)
+				//{
+				//	return lrr;
+				//}
+				//else
+				//{
+				//	throw new ResourceException(ResourceError.);
+				//}
+			}
+
+			Thread.Sleep(100);
+		}
+		while(flow.Active);
+
+		throw new OperationCanceledException();
+	}
+}
+
+public class NexusApiServer : JsonServer
 {
 	Nexus Nexus;
 
-	public NexusApiServer(Nexus nexus, Flow flow) : base(nexus.Settings.Api.ToSystemSettings(nexus.Settings.Zone, Api.Nexus), NetJsonConfiguration.CreateOptions(), flow)
+	public NexusApiServer(Nexus nexus, Flow flow) : base(nexus.Settings.Api.ToSystemSettings(nexus.Settings.Zone, Api.Nexus), NexusJsonConfiguration.CreateOptions(), flow)
 	{
 		Nexus = nexus;
 	}

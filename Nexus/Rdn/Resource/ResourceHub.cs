@@ -277,18 +277,26 @@ public class ResourceHub
 		while(Node.Flow.Active)
 		{
 			Node.Peering.Statistics.Declaring.Begin();
+			RdnMembersPpr mr = null;
 
-			var cr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
-
-			if(cr == null) 
-			{	
-				Debugger.Break();
-				cr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
+			try
+			{
+				mr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
+	
+				if(mr == null) 
+				{	
+					Debugger.Break();
+					mr = Node.Peering.Call(new RdnMembersPpc(), Node.Flow);
+					continue;
+				}
+	
+				if(!mr.Members.Any())
+					continue;
+			}
+			catch(Exception)
+			{
 				continue;
 			}
-
-			if(!cr.Members.Any())
-				continue;
 
 			var ds = new Dictionary<RdnGenerator, Dictionary<LocalResource, LocalRelease>>();
 			var us = new List<LocalResource>();
@@ -311,7 +319,7 @@ public class ResourceHub
 
 						if(l != null && l.Availability != Availability.None)
 						{
-							foreach(var m in cr.Members	.OrderByHash(i => i.User.Raw, l.Address.MemberOrderKey)
+							foreach(var m in mr.Members	.OrderByHash(i => i.User.Raw, l.Address.MemberOrderKey)
 														.Take(MembersPerDeclaration)
 														.Where(m =>	{
 																		var d = l.DeclaredOn.Find(dm => dm.Member.User == m.User);

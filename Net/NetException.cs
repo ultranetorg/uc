@@ -89,7 +89,6 @@ public class NodeException : CodeException
 	{
 		Error = erorr;
 	}
-
 }
 
 public class RequestException : CodeException

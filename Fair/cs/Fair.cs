@@ -17,6 +17,8 @@ public abstract class Fair : McvNet
 	public const ushort				TitleLengthMaximum = 64;
 	public const ushort				SloganLengthMaximum = 128;
  		
+	public ushort					WebPort = 1080;
+
 	public static Dictionary<Type, uint>								OCodes = [];
 	public static Dictionary<Type, Dictionary<uint, ConstructorInfo>>	OContructors = [];
 

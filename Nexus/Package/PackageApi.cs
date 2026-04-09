@@ -4,17 +4,18 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
-[JsonDerivedType(typeof(PackageDownloadProgress),	typeDiscriminator: "PackageDownloadProgress")]
-[JsonDerivedType(typeof(DeploymentProgress),		typeDiscriminator: "DeploymentProgress")]
-public class PackageActivityProgress
+public abstract class PackageActivityProgress
 {
 }
 
 public class PackageInfo
 {
+	//public Ura				Address { get; set; }
+	//public ResourceData		Data { get; set; }
 	public bool				Available { get; set; }
-	public string			Path { get; set; }
+	//public string			Path { get; set; }
 	public PackageManifest	Manifest { get; set; }
+	//public LocalRelease		Release { get; set; }
 
 	public PackageInfo()
 	{
@@ -22,8 +23,11 @@ public class PackageInfo
 
 	public PackageInfo(LocalPackage package)
 	{
-		Available = package.Hub.IsAvailable(package.Resource.Address);
-		Manifest = package.Manifest;
+		Available	= package.Hub.IsAvailable(package.Resource.Address);
+		Manifest	= package.Manifest;
+		//Address		= package.Resource.Address;
+		//Data		= package.Resource.Last;
+		//Release		= package.Release;
 	}
 }
 
@@ -46,7 +50,7 @@ public class PackageAddApc : Apc, INexusApc
 			
 			lock(nexus.RdnNode.ResourceHub.Lock)
 			{
-				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Software_PackageManifest), a));
+				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Package_VersionManifest), a));
 				
 				var r = nexus.RdnNode.ResourceHub.Find(a) ?? nexus.RdnNode.ResourceHub.Add(a);
 
