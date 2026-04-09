@@ -99,6 +99,8 @@ public abstract class Net
 
 public abstract class McvNet : Net
 {
+	public int								P = 6; /// pitch
+
 	public const long						IdealRoundsPerSecond					= 1;
 	public const long						IdealRoundsPerDay						= IdealRoundsPerSecond * 60*60*24;
 	public const int						BandwidthRentMonthsMaximum				= 12;

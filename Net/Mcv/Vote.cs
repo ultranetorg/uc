@@ -2,7 +2,7 @@
 
 public class Vote : IBinarySerializable
 {
-	public int					ParentId => RoundId - Mcv.P;
+	public int					ParentId => RoundId - Mcv.Net.P;
 
 	//public List<Peer>			Peers;
 	public bool					BroadcastConfirmed;

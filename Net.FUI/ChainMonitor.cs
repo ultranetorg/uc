@@ -147,7 +147,7 @@ public partial class ChainMonitor : UserControl
 							{
 								nid = Math.Max(nid, i);
 								ntry = Math.Max(ntry, r.Try);
-								nv = r.Id >= Mcv.P ? Math.Max(nv, IntLength(r.Selected.Count()) + 1 + IntLength(r.MinimumForConsensus)) : 0;
+								nv = r.Id >= Mcv.Net.P ? Math.Max(nv, IntLength(r.Selected.Count()) + 1 + IntLength(r.MinimumForConsensus)) : 0;
 								//njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
 								nl = Math.Max(nl, r.ConsensusMemberLeavers?.Length ?? 0);
 	
@@ -211,7 +211,7 @@ public partial class ChainMonitor : UserControl
 															r.Id, 
 															r.Try,
 															r.Confirmed ? "c" : " ",
-															r.Id >= Mcv.P ? $"{r.Selected.Count()}/{r.MinimumForConsensus}" : null,
+															r.Id >= Mcv.Net.P ? $"{r.Selected.Count()}/{r.MinimumForConsensus}" : null,
 															r.Members?.Count,
 															//r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
 															r.ConsensusMemberLeavers?.Length,

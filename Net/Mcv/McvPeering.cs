@@ -311,7 +311,7 @@ public abstract class McvPeering : HomoTcpPeering
 								Mcv.Rocks.Write(w);
 							}
 
-							for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastConfirmedRound.Id + Mcv.P; i++)
+							for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastConfirmedRound.Id + Net.P; i++)
 							{
 								var vs = Mcv.FindRound(i);
 								
@@ -363,7 +363,7 @@ public abstract class McvPeering : HomoTcpPeering
 					lock(Mcv.Lock)
 						from = Mcv.LastConfirmedRound.Id + 1;
 		
-					to = from + Mcv.P;
+					to = from + Net.P;
 		
 					var rp = Call(peer, new DownloadRoundsPpc {From = from, To = to}, Flow);
 	
@@ -905,7 +905,7 @@ public abstract class McvPeering : HomoTcpPeering
 						t.Ppi		 = ppi;
 						t.Member	 = m.User;
 						t.Nonce		 = at.NextNonce;
-						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
+						t.Expiration = at.LastConfirmedRid + Net.P * 2;
 						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc
 															 {
 																Cryptography	= Net.Cryptography.Type,
