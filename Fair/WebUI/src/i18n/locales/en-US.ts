@@ -18,6 +18,7 @@ export const enUS = {
     banish: "Banish",
     category: "category",
     cancel: "Cancel",
+    close: "close",
     comments: "comments",
     confirm: "confirm",
     createdBy: "Created By",
@@ -43,6 +44,7 @@ export const enUS = {
     ok: "ok",
     operation: "operation",
     options: "Options",
+    preview: "preview",
     product: "Product",
     proposals: "proposals",
     publication: "Publication",
@@ -70,6 +72,7 @@ export const enUS = {
     votes: "votes",
     yes: "Yes",
     yesVotes: "Yes votes",
+    unpublished: "unpublished",
     unsupportedTag: "Your browser does not support the tag.",
     upload: "upload",
     invalidUrl: "Invalid URL",
@@ -235,7 +238,6 @@ export const enUS = {
     resetAll: "Reset all",
   },
   createPublication: {
-    createPublication: "Create publication",
     productNotFound: "We didn’t find anything. Try a different or shorter search.",
     productHasNoField: "Specified product has no fields.",
     searchProduct: "Search products by ID",
@@ -276,9 +278,6 @@ export const enUS = {
     "moderators-majority": "This action can be performed only if it is approved by a majority of moderators",
     "all-moderators": "This action can be performed only if it is approved unanimously by all moderators",
     "publishers-majority": "This action can be performed only if it is approved by a majority of publishers",
-  },
-  previewPage: {
-    closePreview: "Close preview publication",
   },
   profile: {
     authors: "My authors",
@@ -393,6 +392,10 @@ export const enUS = {
     starredSites: "Starred",
     title: "Explore Multiple\nDecentralized Stores",
   },
+  unpublishedPublicationPage: {
+    publish: `Publish "{{publicationTitle}}"`,
+    publishNoTitle: "Publish publication without title",
+  },
   usersPage: {
     title: "Users",
     newUsersTitle: "New users",
@@ -485,8 +488,8 @@ export const enUS = {
   tabPublications: {
     noPublications: "No publications",
   },
-  tabUnpublishedProducts: {
-    noProducts: "No unpublished products",
+  tabUnpublishedPublications: {
+    noPublications: "No unpublished publications",
   },
 
   /* Type literals names */

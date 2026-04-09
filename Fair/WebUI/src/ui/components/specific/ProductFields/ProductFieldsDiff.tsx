@@ -15,7 +15,7 @@ export type ProductFieldsDiffProps = {
 export const ProductFieldsDiff = memo(({ from, to }: ProductFieldsDiffProps) => {
   const [selected, setSelected] = useState<ProductFieldViewModel | undefined>()
 
-  const items = useMemo(() => mergeFields({ from: from ?? [], to: to ?? [] }), [from, to])
+  const items = useMemo(() => mergeFields(from ?? [], to ?? []), [from, to])
 
   return (
     <ProductFields items={items} selected={selected} onSelect={setSelected}>

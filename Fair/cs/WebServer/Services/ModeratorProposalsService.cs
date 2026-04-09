@@ -135,28 +135,28 @@ public class ModeratorProposalsService
 		return null;
 	}
 
+	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, AutoId productId)
+	{
+		FairUser by = (FairUser)mcv.Users.Latest(proposal.By);
+		Product product = mcv.Products.Latest(productId);
+		Author author = mcv.Authors.Latest(product.Author);
+		AutoId? fileId = PublicationUtils.GetLatestLogo(product);
+
+		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);
+
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
+	}
+
 	PublicationProposalModel CreatePublicationModel(Proposal proposal, AutoId publicationId)
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 		Publication publication = mcv.Publications.Latest(publicationId);
 		Product product = mcv.Products.Latest(publication.Product);
-		FairUser author = (FairUser) mcv.Users.Latest(product.Author);
+		Author author = mcv.Authors.Latest(product.Author);
 
 		AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, null, fileId);
-
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
-	}
-
-	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, AutoId productId)
-	{
-		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
-		Product product = mcv.Products.Latest(productId);
-		FairUser author = (FairUser) mcv.Users.Latest(product.Author);
-		AutoId? fileId = PublicationUtils.GetLatestLogo(product);
-
-		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);
 
 		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
 	}

@@ -24,6 +24,10 @@ import {
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
+export const renderAuthor2 = (authorTitle: string, authorLogoId?: string) => (
+  <AccountInfo title={authorTitle} fullTitle={authorTitle} avatarId={authorLogoId} />
+)
+
 export const renderAuthor = (author: AuthorBaseAvatar) => (
   <AccountInfo title={author.name || author.id} fullTitle={author.name || author.id} avatarId={author.avatarId} />
 )
@@ -92,6 +96,10 @@ export const renderLastsFor = (t: TFunction, creationTime: number) => {
 
 export const renderPublication = (publication: PublicationImageBase) => (
   <PublicationInfo avatarId={publication.imageId} categoryTitle={publication.categoryTitle} title={publication.title} />
+)
+
+export const renderPublication2 = (title?: string, logoId?: string) => (
+  <PublicationInfo avatarId={logoId} title={title} />
 )
 
 export const renderText = (text: string) => (

@@ -8,7 +8,7 @@ export type VoteStatus = "idle" | "voting" | "voted"
 
 export type VoteAction = "approve" | "reject"
 
-export type ProposalTypeViewProps = {
+export type ProposalViewContentProps = {
   t: TFunction
   pageState?: PageState
   proposal: ProposalDetails

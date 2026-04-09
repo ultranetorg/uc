@@ -12,22 +12,22 @@ import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components
 import { ModerationHeader } from "ui/components/specific"
 import { getVotedIndex, isVoted, showToast } from "utils"
 
-import { PublicationOwnerProvider } from "./providers/publicationOwner"
-import { PageState } from "./types"
-import { getProductId, getPublicationId } from "./utils"
 import {
-  ProposalCompareFieldsView,
-  ProposalDefaultView,
-  ProposalTypeViewProps,
-  PublicationCreationProposalView,
+  DefaultContent,
+  ProposalViewContentProps,
+  PublicationCreationContent,
+  PublicationDeletionContent,
+  PublicationUpdationContent,
   VoteAction,
   VoteStatus,
-} from "./views"
+} from "./content"
+import { PageState } from "./types"
+import { getProductId, getPublicationId } from "./utils"
 
-const renderByOperationType: Record<string, ComponentType<ProposalTypeViewProps>> = {
-  "publication-creation": PublicationCreationProposalView,
-  "publication-updation": ProposalCompareFieldsView,
-  "publication-deletion": PublicationCreationProposalView,
+const renderByOperationType: Record<string, ComponentType<ProposalViewContentProps>> = {
+  "publication-creation": PublicationCreationContent,
+  "publication-updation": PublicationUpdationContent,
+  "publication-deletion": PublicationDeletionContent,
 }
 
 // Set voted value in order to disable all buttons inside OptionsCollapsesList.
@@ -37,9 +37,10 @@ export type ProposalViewProps = {
   parentBreadcrumb?: BreadcrumbsItemProps
   isFetching: boolean
   proposal?: ProposalDetails
+  previousPath?: string
 }
 
-export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewProps) => {
+export const ProposalView = memo(({ parentBreadcrumb, proposal, previousPath }: ProposalViewProps) => {
   const { siteId } = useParams()
   const { getOperationVoterId } = useModerationContext()
   const navigate = useNavigate()
@@ -60,8 +61,8 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
     refetch: refetchComments,
   } = useGetModeratorDiscussionComments(siteId, proposal?.id)
 
-  const NestedView = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
-  const isPublicationMode = !!NestedView
+  const NestedContent = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
+  const isPublicationMode = !!NestedContent
 
   const productId = useMemo(
     () => (isPublicationMode ? getProductId(proposal) : undefined),
@@ -90,8 +91,8 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:voted"), "success")
-          navigate(`/${siteId}/m`)
           setVoteStatus("voted")
+          navigate(previousPath ?? `/${siteId}/m`)
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -100,7 +101,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
         onSettled: () => setVotedValue(undefined),
       })
     },
-    [mutate, navigate, proposal, siteId, t, voterId],
+    [mutate, navigate, previousPath, proposal, siteId, t, voterId],
   )
 
   const vote = useCallback(
@@ -180,7 +181,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
                 loading={voteAction === "approve"}
               />
               <ButtonOutline
-                className="h-11 w-40"
+                className="h-11 w-43.75"
                 label="Suggest to reject"
                 onClick={handleReject}
                 disabled={voteStatus === "voting"}
@@ -198,8 +199,8 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
               >
                 <ButtonOutline
                   disabled={voteStatus === "voting"}
-                  className="h-11 w-52"
-                  label="Preview publication"
+                  className="h-11 w-40 capitalize"
+                  label={t("common:preview")}
                   iconBefore={<SvgEyeSm className="fill-gray-800" />}
                 />
               </Link>
@@ -207,52 +208,50 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal }: ProposalViewPr
           ) : undefined
         }
       />
-      <PublicationOwnerProvider owner={proposal.by}>
-        {NestedView && <NestedView t={t} proposal={proposal} voteStatus={voteStatus} />}
-        <div className="flex gap-8">
-          <div className="flex w-full flex-col gap-8">
-            {!isPublicationMode && (
-              <ProposalDefaultView
-                t={t}
-                proposal={proposal}
-                pageState={pageState}
-                voteStatus={voteStatus}
-                votedValue={votedValue}
-                onVoteClick={handleVoteClick}
-              />
-            )}
-            {!isPublicationMode && !!voterId && (
-              <AlternativeOptions
-                hideVoteButton={voteStatus === "voted"}
-                votedValue={votedValue}
-                onVoteClick={handleVoteClick}
-              />
-            )}
-            <hr className="h-px border-0 bg-gray-300" />
-            <CommentsSection
-              inputDisabled={voteStatus === "voting" || commentSubmitting}
-              inputLoading={commentSubmitting}
-              showCommentInput={!!voterId}
-              isFetching={isCommentsFetching}
-              comments={comments}
-              onCommentSubmit={handleCommentSubmit}
+      {NestedContent && <NestedContent t={t} proposal={proposal} voteStatus={voteStatus} />}
+      <div className="flex gap-8">
+        <div className="flex w-full flex-col gap-8">
+          {!isPublicationMode && (
+            <DefaultContent
+              t={t}
+              proposal={proposal}
+              pageState={pageState}
+              voteStatus={voteStatus}
+              votedValue={votedValue}
+              onVoteClick={handleVoteClick}
             />
-          </div>
-          <div className="flex flex-col gap-6">
-            <ProposalInfo className="w-87.5" createdBy={proposal.by} createdAt={proposal.creationTime} daysLeft={7} />
-            {!isPublicationMode &&
-              (pageState === "voting" ? (
-                <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
-              ) : (
-                <ButtonPrimary
-                  label="Back to options"
-                  onClick={togglePageState}
-                  iconBefore={<SvgArrowLeft className="fill-white" />}
-                />
-              ))}
-          </div>
+          )}
+          {!isPublicationMode && !!voterId && (
+            <AlternativeOptions
+              hideVoteButton={voteStatus === "voted"}
+              votedValue={votedValue}
+              onVoteClick={handleVoteClick}
+            />
+          )}
+          <hr className="h-px border-0 bg-gray-300" />
+          <CommentsSection
+            inputDisabled={voteStatus === "voting" || commentSubmitting}
+            inputLoading={commentSubmitting}
+            showCommentInput={!!voterId}
+            isFetching={isCommentsFetching}
+            comments={comments}
+            onCommentSubmit={handleCommentSubmit}
+          />
         </div>
-      </PublicationOwnerProvider>
+        <div className="flex flex-col gap-6">
+          <ProposalInfo className="w-87.5" createdBy={proposal.by} createdAt={proposal.creationTime} daysLeft={7} />
+          {!isPublicationMode &&
+            (pageState === "voting" ? (
+              <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
+            ) : (
+              <ButtonPrimary
+                label="Back to options"
+                onClick={togglePageState}
+                iconBefore={<SvgArrowLeft className="fill-white" />}
+              />
+            ))}
+        </div>
+      </div>
     </div>
   )
 })

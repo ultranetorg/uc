@@ -33,6 +33,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<ModeratorProposalsService>();
 		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<UnpublishedPublicationsService>();
+		services.AddSingleton<UnpublishedSiteProductsService>();
 	}
 
 	private static void RegisterValidators(IServiceCollection services)

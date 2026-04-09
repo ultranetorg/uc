@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
+using NativeImport;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -10,7 +11,7 @@ public class UnpublishedPublicationsService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<UnpublishedProductModel> GetAll([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<UnpublishedPublicationModel> GetAll([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(UnpublishedPublicationsService), nameof(GetAll), siteId, page, pageSize);
 
@@ -28,13 +29,13 @@ public class UnpublishedPublicationsService
 			}
 			if(site.UnpublishedPublications.Length == 0)
 			{
-				return TotalItemsResult<UnpublishedProductModel>.Empty;
+				return TotalItemsResult<UnpublishedPublicationModel>.Empty;
 			}
 
 			IEnumerable<AutoId> publicationsIds = site.UnpublishedPublications.Skip(page * pageSize).Take(pageSize);
-			List<UnpublishedProductModel> result = LoadUnpublishedPublications(publicationsIds, pageSize, cancellationToken);
+			List<UnpublishedPublicationModel> result = LoadUnpublishedPublications(publicationsIds, pageSize, cancellationToken);
 
-			return new TotalItemsResult<UnpublishedProductModel>
+			return new TotalItemsResult<UnpublishedPublicationModel>
 			{
 				Items = result,
 				TotalItems = site.UnpublishedPublications.Length
@@ -42,12 +43,12 @@ public class UnpublishedPublicationsService
 		}
 	}
 
-	List<UnpublishedProductModel> LoadUnpublishedPublications(IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+	List<UnpublishedPublicationModel> LoadUnpublishedPublications(IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
 
-		List<UnpublishedProductModel> result = new(pageSize);
+		List<UnpublishedPublicationModel> result = new(pageSize);
 		foreach(var publicationId in publicationsIds)
 		{
 			if(cancellationToken.IsCancellationRequested)
@@ -55,10 +56,20 @@ public class UnpublishedPublicationsService
 
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);
-			FairUser account = (FairUser)mcv.Users.Latest(product.Author);
+			Author author = mcv.Authors.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
-			UnpublishedProductModel model = new UnpublishedProductModel(publicationId, product, account, fileId);
+			UnpublishedPublicationModel model = new UnpublishedPublicationModel
+			{
+				Id = publication.Id.ToString(),
+				Type = product.Type,
+				Title = PublicationUtils.GetLatestTitle(product),
+				LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
+				Updated = product.Updated.Hours,
+				AuthorId = author.Id.ToString(),
+				AuthorTitle = author.Title,
+				AuthorLogoId = author.Avatar?.ToString()
+			};
 			result.Add(model);
 		}
 
@@ -96,7 +107,7 @@ public class UnpublishedPublicationsService
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-			IEnumerable<FieldValueModel> mappedFields = GetMappedValue(product, publication);
+			IEnumerable<FieldValueModel> mappedFields = ProductFieldsUtils.GetMappedFields(product, publication);
 
 			return new PublicationDetailsModel
 			{
@@ -111,19 +122,5 @@ public class UnpublishedPublicationsService
 				AuthorLogoId = author.Avatar?.ToString(),
 			};
 		}
-
-		IEnumerable<FieldValueModel> GetMappedValue(Product product, Publication publication)
-		{
-			FieldValue[] fields = GetFieldsVersion(product, publication.ProductVersion);
-			if(fields != null)
-			{
-				Field[] declaration = Product.FindDeclaration(product.Type);
-				return ProductsService.MapValues(declaration, fields);
-			}
-
-			return null;
-		}
-
-		FieldValue[]? GetFieldsVersion(Product product, int publicationProductVersion) => product.Versions.First(x => x.Id == publicationProductVersion)?.Fields;
 	}
 }

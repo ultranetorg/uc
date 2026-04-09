@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from "react"
-import { Navigate, useNavigate, useParams } from "react-router-dom"
+import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 
@@ -7,7 +7,17 @@ import { useModerationContext, useSiteContext, useUserContext } from "app"
 import { useTransactMutationWithStatus } from "entities/node"
 import { CreateProposalData, OperationType, ProposalType, Role } from "types"
 import { ProposalCreation } from "types/fairOperations"
-import { ButtonOutline, ButtonPrimary, DebugPanel, Input, PageHeader, Textarea, ValidationWrapper } from "ui/components"
+import {
+  BreadcrumbsItemProps,
+  ButtonOutline,
+  ButtonPrimary,
+  Collapse,
+  DebugPanel,
+  Input,
+  PageHeader,
+  Textarea,
+  ValidationWrapper,
+} from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
 import { showToast } from "utils"
 
@@ -20,9 +30,10 @@ export type CreateProposalViewProps = {
 }
 
 export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProps) => {
-  const { t } = useTranslation("createProposal")
-  const { siteId } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
+  const { siteId } = useParams()
+  const { t } = useTranslation("createProposal")
 
   const { site } = useSiteContext()
   const { isModerator, isPublisher, policies } = useModerationContext()
@@ -40,6 +51,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
   const { mutate, isPending } = useTransactMutationWithStatus()
 
+  const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
   const parentPath = proposalType === "discussion" ? `/${siteId}/m` : `/${siteId}/g/r`
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])
@@ -58,7 +70,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
           }),
           "success",
         )
-        navigate(parentPath)
+        navigate(formData.previousPath !== undefined ? formData.previousPath : parentPath)
       },
       onError: err => {
         showToast(err.toString(), "error")
@@ -83,10 +95,14 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
         siteId={siteId!}
         homeLabel={t("common:home")}
         title={proposalType === "discussion" ? t("createDiscussion") : t("createReferendum")}
-        parentBreadcrumb={{
-          title: t(`${proposalType === "discussion" ? "moderation" : "governance"}:title`),
-          path: parentPath,
-        }}
+        parentBreadcrumbs={
+          parentBreadcrumbs
+            ? parentBreadcrumbs
+            : {
+                title: t(`${proposalType === "discussion" ? "moderation" : "governance"}:title`),
+                path: parentPath,
+              }
+        }
       />
 
       <form className="flex flex-col gap-6" onSubmit={handleSubmit(handleFormSubmit)}>
@@ -108,14 +124,13 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
             )}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <span className={LABEL_CLASSNAME}>{t("description")}:</span>
+        <Collapse className={LABEL_CLASSNAME} text={`${t("description")}:`}>
           <Controller
             control={control}
             name="description"
             render={({ field }) => <Textarea onChange={field.onChange} value={field.value} />}
           />
-        </div>
+        </Collapse>
 
         <OptionsEditor
           t={t}

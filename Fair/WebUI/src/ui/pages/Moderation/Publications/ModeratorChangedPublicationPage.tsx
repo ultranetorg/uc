@@ -1,13 +1,13 @@
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
-import { useCallback, useState } from "react"
 import { useModerationContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
-import { ModerationHeader, ProductFieldsDiff } from "ui/components/specific"
+import { ModerationHeader, ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { showToast } from "utils"
 
@@ -56,9 +56,7 @@ export const ModeratorChangedPublicationPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <ModerationHeader
-        title={publication.publication.title}
-        // TODO: show id
-        //logoFileId={publication.publication.imageId}
+        title={publication.id}
         parentBreadcrumbs={[
           { title: t("common:proposals"), path: `/${siteId}/m` },
           { title: t("common:publications"), path: `/${siteId}/m/c` },
@@ -83,8 +81,8 @@ export const ModeratorChangedPublicationPage = () => {
                 >
                   <ButtonOutline
                     disabled={!!isPending}
-                    className="h-11 w-52"
-                    label="Preview publication"
+                    className="h-11 w-40 capitalize"
+                    label={t("common:preview")}
                     iconBefore={<SvgEyeSm className="fill-gray-800" />}
                   />
                 </Link>
@@ -94,6 +92,12 @@ export const ModeratorChangedPublicationPage = () => {
         }
       />
 
+      <ModerationPublicationHeader
+        title={publication.publication.title}
+        logoId={publication.publication.imageId}
+        authorId={publication.author.id}
+        authorTitle={publication.author.nickname}
+      />
       <ProductFieldsDiff from={publication.from} to={publication.to} />
     </div>
   )

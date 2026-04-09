@@ -7,11 +7,11 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUnpublishedPublications } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { unpublishedProductItemRenderer } from "ui/renderers"
+import { unpublishedPublicationsItemRenderer } from "ui/renderers"
 import { parseInteger } from "utils"
 
 export const UnpublishedPublicationsTab = () => {
-  const { t } = useTranslation("tabUnpublishedProducts")
+  const { t } = useTranslation("tabUnpublishedPublications")
   const navigate = useNavigate()
   const { siteId } = useParams()
 
@@ -25,14 +25,16 @@ export const UnpublishedPublicationsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { data: products } = useGetUnpublishedPublications(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: publications } = useGetUnpublishedPublications(siteId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
-    products?.totalItems && products.totalItems > 0 ? Math.ceil(products.totalItems / DEFAULT_PAGE_SIZE_20) : 0
+    publications?.totalItems && publications.totalItems > 0
+      ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_20)
+      : 0
 
   const columns = useMemo(
     () => [
-      { accessor: "publication", label: t("common:product"), type: "publication", className: "w-[40%]" },
-      { accessor: "author", label: t("common:author"), type: "account", className: "w-[60%]" },
+      { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[40%]" },
+      { accessor: "author", label: t("common:author"), type: "author", className: "w-[60%]" },
     ],
     [t],
   )
@@ -51,10 +53,10 @@ export const UnpublishedPublicationsTab = () => {
     <div className="flex flex-col gap-6">
       <Table
         columns={columns}
-        items={products?.items}
-        itemRenderer={unpublishedProductItemRenderer}
+        items={publications?.items}
+        itemRenderer={unpublishedPublicationsItemRenderer}
         tableBodyClassName="text-2sm leading-5"
-        emptyState={<TableEmptyState message={t("noProducts")} />}
+        emptyState={<TableEmptyState message={t("noPublications")} />}
         onRowClick={handleTableRowClick}
       />
       <div className="flex w-full justify-end">

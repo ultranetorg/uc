@@ -7,7 +7,7 @@ public class UnpublishedSiteProductsController
 (
 	ILogger<UnpublishedSiteProductsController> logger,
 	IAutoIdValidator autoIdValidator,
-	ProductsService productsService
+	UnpublishedSiteProductsService unpublishedSiteProductsService
 ) : BaseController
 {
 	/// <summary>
@@ -21,6 +21,6 @@ public class UnpublishedSiteProductsController
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(productId, nameof(Product).ToLower());
 
-		return productsService.GetUnpublishedSiteProduct(siteId, productId);
+		return unpublishedSiteProductsService.GetDetails(siteId, productId);
 	}
 }

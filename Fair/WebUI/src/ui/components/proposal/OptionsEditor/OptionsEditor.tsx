@@ -10,7 +10,11 @@ import {
 } from "react-hook-form"
 
 import { useCreateProposalContext, useModerationContext } from "app"
-import { CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES, CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
+import {
+  CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES,
+  CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES,
+  CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES,
+} from "constants/"
 import { CreateProposalData, CreateProposalDataOption, OperationType, ProposalType } from "types"
 import { Dropdown, DropdownItem, MessageBox, ValidationWrapper } from "ui/components"
 import { getVisibleProposalOperations } from "utils"
@@ -60,10 +64,13 @@ export const OptionsEditor = memo(
     const isSingleOptionProposal =
       !isVotingRequired || (!!type && CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType))
 
-    const discussionHiddenType =
-      proposalType === "discussion" && CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES.includes(type as OperationType)
+    const isTypeDropdownHidden = CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES.includes(type as OperationType)
 
-    const typesItems = useMemo<DropdownItem[]>(() => {
+    const isTypeDropdownDisabled =
+      proposalType === "discussion" &&
+      CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES.includes(type as OperationType)
+
+    const typeDropdownItems = useMemo<DropdownItem[]>(() => {
       const operations = getVisibleProposalOperations(proposalType, policies)
       return operations.map(x => ({
         label: t(`operations:${x}`),
@@ -71,9 +78,9 @@ export const OptionsEditor = memo(
       }))
     }, [policies, proposalType, t])
 
-    const hiddenTypeItem = useMemo<DropdownItem[] | undefined>(
-      () => (discussionHiddenType ? [{ label: t(`operations:${type}`), value: type! }] : undefined),
-      [type, discussionHiddenType, t],
+    const disabledTypeDropdownItem = useMemo<DropdownItem[] | undefined>(
+      () => (isTypeDropdownDisabled ? [{ label: t(`operations:${type}`), value: type! }] : undefined),
+      [type, isTypeDropdownDisabled, t],
     )
 
     const operationFields = useMemo(() => getEditorOperationsFields(t), [t])
@@ -115,26 +122,28 @@ export const OptionsEditor = memo(
 
     return (
       <>
-        <div className="flex flex-col gap-2">
-          <span className={labelClassName}>{t("common:type")}:</span>
-          <Controller
-            control={control}
-            name="type"
-            rules={{ required: t("validation:requiredType") }}
-            render={({ field }) => (
-              <Dropdown
-                isMulti={false}
-                isDisabled={discussionHiddenType}
-                controlled={true}
-                items={!discussionHiddenType ? typesItems : hiddenTypeItem}
-                onChange={item => field.onChange(item.value)}
-                size="large"
-                value={field.value}
-                placeholder={t("placeholders:selectProposalType", { proposalType })}
-              />
-            )}
-          />
-        </div>
+        {!isTypeDropdownHidden && (
+          <div className="flex flex-col gap-2">
+            <span className={labelClassName}>{t("common:type")}:</span>
+            <Controller
+              control={control}
+              name="type"
+              rules={{ required: t("validation:requiredType") }}
+              render={({ field }) => (
+                <Dropdown
+                  isMulti={false}
+                  isDisabled={isTypeDropdownDisabled}
+                  controlled={true}
+                  items={!isTypeDropdownDisabled ? typeDropdownItems : disabledTypeDropdownItem}
+                  onChange={item => field.onChange(item.value)}
+                  size="large"
+                  value={field.value}
+                  placeholder={t("placeholders:selectProposalType", { proposalType })}
+                />
+              )}
+            />
+          </div>
+        )}
         {operationField?.parameterValueType && (
           <div className="flex flex-col gap-2">
             <span className={labelClassName}>{operationField.parameterLabel}:</span>

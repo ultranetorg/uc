@@ -1,4 +1,4 @@
-import { CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES } from "constants/"
+import { CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES } from "constants/"
 import { OperationType, Policy, ProposalType } from "types"
 
 const getProposalOperations = (proposalType: ProposalType, policies: Policy[]): OperationType[] => {
@@ -12,7 +12,9 @@ export const getVisibleProposalOperations = (
   policies: Policy[] | undefined = [],
 ): OperationType[] => {
   const allOperations = getProposalOperations(proposalType, policies)
-  return allOperations.filter(x => !(CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES as OperationType[]).includes(x))
+  return allOperations.filter(
+    x => !(CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES as OperationType[]).includes(x),
+  )
 }
 
 type GroupedOperations = {

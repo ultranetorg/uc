@@ -6,20 +6,20 @@ type PageHeaderBaseProps = {
   siteId: string
   title: string
   totalItems?: number
-  parentBreadcrumb?: BreadcrumbsItemProps
+  parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
   homeLabel: string
 }
 
 export type PageHeaderProps = PropsWithChildren & PageHeaderBaseProps
 
 export const PageHeader = memo(
-  ({ children, siteId, title, totalItems, parentBreadcrumb, homeLabel }: PageHeaderProps) => (
+  ({ children, siteId, title, totalItems, parentBreadcrumbs: parentBreadcrumbs, homeLabel }: PageHeaderProps) => (
     <div className="flex flex-col gap-2">
       <Breadcrumbs
         fullPath={true}
         items={[
           { path: `/${siteId}`, title: homeLabel },
-          ...(parentBreadcrumb ? [parentBreadcrumb] : []),
+          ...(parentBreadcrumbs ? (Array.isArray(parentBreadcrumbs) ? parentBreadcrumbs : [parentBreadcrumbs]) : []),
           { title: title },
         ]}
       />

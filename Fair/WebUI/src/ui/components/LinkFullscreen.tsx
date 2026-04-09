@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react"
-import { Link, To, useLocation, useParams } from "react-router-dom"
+import { Link, LinkProps, To, useLocation, useParams } from "react-router-dom"
 
 import { PropsWithClassName } from "types"
 
@@ -14,9 +14,12 @@ type LinkFullscreenBaseProps = {
   params?: Record<string, unknown>
 }
 
-export type LinkFullscreenProps = PropsWithChildren & PropsWithClassName & LinkFullscreenBaseProps
+export type LinkFullscreenProps = PropsWithChildren &
+  PropsWithClassName &
+  Pick<LinkProps, "title"> &
+  LinkFullscreenBaseProps
 
-export const LinkFullscreen = ({ children, className, location, to, params }: LinkFullscreenProps) => {
+export const LinkFullscreen = ({ children, className, title, location, to, params }: LinkFullscreenProps) => {
   const currentLocation = useLocation()
   const { siteId } = useParams()
 
@@ -25,6 +28,7 @@ export const LinkFullscreen = ({ children, className, location, to, params }: Li
       className={className}
       to={to}
       state={{ backgroundLocation: location ?? currentLocation, siteId, ...params } as LinkFullscreenState}
+      title={title}
     >
       {children}
     </Link>

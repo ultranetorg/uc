@@ -15,6 +15,7 @@ export type CreateProposalData = {
   publisherId?: string
   reviewId?: string
   userId?: string
+  previousPath?: string
 }
 
 export type CreateProposalDataOption = {

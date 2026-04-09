@@ -24,7 +24,7 @@ public class UnpublishedPublicationsController
 	}
 
 	[HttpGet]
-	public IEnumerable<UnpublishedProductModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<UnpublishedPublicationModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(GetAll), siteId, pagination);
 
@@ -32,7 +32,7 @@ public class UnpublishedPublicationsController
 		paginationValidator.Validate(pagination);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<UnpublishedProductModel> products = unpublishedPublicationsSerivce.GetAll(siteId, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<UnpublishedPublicationModel> products = unpublishedPublicationsSerivce.GetAll(siteId, pageValue, pageSizeValue, cancellationToken);
 
 		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
 	}

@@ -4,11 +4,11 @@ import { useParams } from "react-router-dom"
 import { useModerationContext } from "app"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 
-import { ProposalTypeViewProps } from "./types"
+import { ProposalViewContentProps } from "./types"
 import { renderDescription } from "./utils"
 
-export const ProposalDefaultView = memo(
-  ({ t, pageState, proposal, voteStatus, votedValue, onVoteClick }: ProposalTypeViewProps) => {
+export const DefaultContent = memo(
+  ({ t, pageState, proposal, voteStatus, votedValue, onVoteClick }: ProposalViewContentProps) => {
     const { getOperationVoterId } = useModerationContext()
     const { siteId } = useParams()
     const voterId = getOperationVoterId(proposal.operation)

@@ -10,7 +10,7 @@ import { useGetUnpublishedSiteProduct } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
-import { ModerationHeader, ProductFieldsTree } from "ui/components/specific"
+import { ModerationPublicationHeader, ModerationHeader, ProductFieldsTree } from "ui/components/specific"
 import { showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
@@ -25,7 +25,7 @@ export const ModeratorCreatePublicationPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get("productId") ?? "")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
-  const { data: product } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
+  const { data: product, isError } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
 
   useEffect(() => {
     setSearchParams(product?.id ? { productId: product.id } : {}, { replace: true })
@@ -54,6 +54,8 @@ export const ModeratorCreatePublicationPage = () => {
     })
   }, [isModerator, mutate, navigate, product, siteId, t, voterId])
 
+  const isProductValid = !isError && !!product && !!product.fields && product.fields.length > 0
+
   return (
     <div className="flex flex-col gap-6">
       <ModerationHeader
@@ -62,35 +64,6 @@ export const ModeratorCreatePublicationPage = () => {
           { title: t("common:proposals"), path: `/${siteId}/m` },
           { title: t("common:publications"), path: `/${siteId}/m/c` },
         ]}
-        components={
-          <>
-            {!!product && !!product.fields && !!voterId && (
-              <ButtonBar className="items-center">
-                <ButtonPrimary
-                  className="h-11 w-43.75"
-                  label={t("createPublication")}
-                  onClick={handleCreatePublication}
-                  disabled={isPending}
-                  loading={isPending}
-                />
-                <Link
-                  to={`/${siteId}/m/v`}
-                  state={{
-                    productId: product.id,
-                    previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
-                  }}
-                >
-                  <ButtonOutline
-                    disabled={isPending}
-                    className="h-11 w-52"
-                    label="Preview publication"
-                    iconBefore={<SvgEyeSm className="fill-gray-800" />}
-                  />
-                </Link>
-              </ButtonBar>
-            )}
-          </>
-        }
       />
       <div className="max-w-120">
         <Input
@@ -111,13 +84,48 @@ export const ModeratorCreatePublicationPage = () => {
         />
       </div>
 
-      {!!debouncedQuery && product && product.fields && product.fields.length ? (
-        <ProductFieldsTree productFields={product.fields} />
+      {!!debouncedQuery && isProductValid ? (
+        <>
+          <ModerationPublicationHeader
+            title={product.title}
+            logoId={product.logoId}
+            authorId={product.authorId}
+            authorTitle={product.authorTitle}
+            components={
+              <>
+                {isProductValid && !!voterId && (
+                  <ButtonBar className="items-center">
+                    <ButtonPrimary
+                      className="h-11 w-40 capitalize"
+                      label={t("common:create")}
+                      onClick={handleCreatePublication}
+                      disabled={isPending}
+                      loading={isPending}
+                    />
+                    <Link
+                      to={`/${siteId}/m/v`}
+                      state={{
+                        productId: product.id,
+                        previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
+                      }}
+                    >
+                      <ButtonOutline
+                        disabled={isPending}
+                        className="h-11 w-40 capitalize"
+                        label={t("common:preview")}
+                        iconBefore={<SvgEyeSm className="fill-gray-800" />}
+                      />
+                    </Link>
+                  </ButtonBar>
+                )}
+              </>
+            }
+          />
+          <ProductFieldsTree productFields={product.fields} />
+        </>
       ) : debouncedQuery ? (
-        <MessageBox className="p-6" message={!product ? t("productNotFound") : t("productHasNoField")} />
-      ) : (
-        <></>
-      )}
+        <MessageBox className="p-6" message={isError || !product ? t("productNotFound") : t("productHasNoField")} />
+      ) : null}
     </div>
   )
 }

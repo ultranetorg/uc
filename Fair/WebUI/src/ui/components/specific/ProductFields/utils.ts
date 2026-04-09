@@ -1,4 +1,4 @@
-import { FieldValueCompare, FieldValue } from "types"
+import { FieldValue } from "types"
 
 import { CompareStatus, ProductFieldCompareViewModel, ProductFieldViewModel } from "./types"
 
@@ -130,8 +130,8 @@ const isCompareNode = (n?: ProductFieldViewModel | ProductFieldCompareViewModel)
   return !!n && ("isRemoved" in n || "isAdded" in n || "isChanged" in n)
 }
 
-export const mergeFields = (compare: FieldValueCompare): ProductFieldCompareViewModel[] =>
-  mergeArrays(mapItems(compare.from), mapItems(compare.to))
+export const mergeFields = (from: FieldValue[], to: FieldValue[]): ProductFieldCompareViewModel[] =>
+  mergeArrays(mapItems(from), mapItems(to))
 
 export const mapFields = (items: FieldValue[]): ProductFieldViewModel[] => mapItems(items)
 

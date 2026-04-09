@@ -32,9 +32,7 @@ public class PublicationsService
 			bool isPublicationPublished = publication.Category != null;
 			Category? category = isPublicationPublished ? mcv.Categories.Latest(publication.Category) : null;
 
-			var fields = product.Versions.FirstOrDefault(i => i.Id == publication.ProductVersion)?.Fields;
-			Field[] declaration = Product.FindDeclaration(product.Type);
-			var mappedFields = fields != null ? ProductsService.MapValues(declaration, fields) : [];
+			var mappedFields = ProductFieldsUtils.GetMappedFields(product, publication);
 
 			return new PublicationDetailsModel
 			{
@@ -370,12 +368,8 @@ public class PublicationsService
 			Category category = mcv.Categories.Latest(publication.Category);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
-			var fieldsFrom = product.Versions.Single(x => x.Id == publication.ProductVersion).Fields;
-			var fieldsTo = product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields;
-
-			Field[] declaration = Product.FindDeclaration(product.Type);
-			var mappedFrom = ProductsService.MapValues(declaration, fieldsFrom);
-			var mappedTo = ProductsService.MapValues(declaration, fieldsTo);
+			var mappedFrom = ProductFieldsUtils.GetMappedFieldsVersion(product, publication.ProductVersion);
+			var mappedTo = ProductFieldsUtils.GetLatestMappedFields(product);
 
 			return new ChangedPublicationDetailsModel(publication.Id.ToString(), product, publication.ProductVersion, account, category, fileId)
 			{

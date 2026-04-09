@@ -7,7 +7,7 @@ import { buildFileUrl } from "utils"
 export type PublicationInfoProps = {
   avatarId?: string
   categoryTitle?: string
-  title: string
+  title?: string
 }
 
 export const PublicationInfo = memo(({ avatarId, categoryTitle, title }: PublicationInfoProps) => (
@@ -16,7 +16,7 @@ export const PublicationInfo = memo(({ avatarId, categoryTitle, title }: Publica
       <ImageFallback src={buildFileUrl(avatarId)} fallback={<SvgSoftwareLogo className="size-8" />} />
     </div>
     <div className="flex flex-col overflow-hidden">
-      <span className="truncate text-sm leading-4.25">{title}</span>
+      {title && <span className="truncate text-sm leading-4.25">{title}</span>}
       {categoryTitle && <span className="truncate text-xs leading-3.75 text-gray-500">{categoryTitle}</span>}
     </div>
   </div>

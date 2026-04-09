@@ -8,8 +8,6 @@ import {
   Category,
   CategoryParentBase,
   CategoryPublications,
-  FieldValue,
-  FieldValueCompare,
   File,
   Moderator,
   ModeratorProposal,
@@ -24,6 +22,7 @@ import {
   PublicationAuthor,
   PublicationBase,
   PublicationDetails,
+  PublicationDetailsDiff,
   PublicationExtended,
   PublicationProposal,
   PublicationVersionInfo,
@@ -36,7 +35,7 @@ import {
   SiteLiteSearch,
   StatusResult,
   TotalItemsResult,
-  UnpublishedProduct,
+  UnpublishedPublication,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
@@ -85,7 +84,7 @@ export type Api = {
     siteId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<UnpublishedProduct>>
+  ): Promise<TotalItemsResult<UnpublishedPublication>>
 
   getAuthorPublications(
     siteId: string,
@@ -142,10 +141,9 @@ export type Api = {
 
   getModeratorUser(name: string): Promise<AccountBase>
 
-  getProductFields(productId: string): Promise<FieldValue[]>
   getProductDetails(productId: string): Promise<ProductDetails>
 
-  getProductCompareFields(publicationId: string, version: number): Promise<FieldValueCompare>
+  getPublicationDetailsDiff(publicationId: string, version: number): Promise<PublicationDetailsDiff>
 
   getModeratorProposals(
     siteId: string,

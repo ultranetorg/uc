@@ -1,6 +1,8 @@
 import { OperationType } from "types"
 
-export const CREATE_PROPOSAL_HIDDEN_OPERATION_TYPES: OperationType[] = [
+export const CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES: OperationType[] = ["publication-publish"]
+
+export const CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES: OperationType[] = [
   "category-avatar-change",
   "category-creation",
   "category-deletion",
@@ -25,7 +27,6 @@ export const CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES: OperationType[] = [
   "category-deletion",
   "publication-creation",
   "publication-deletion",
-  "publication-publish",
   "publication-unpublish",
   "publication-updation",
   "review-status-change",

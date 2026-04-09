@@ -11,15 +11,11 @@ import { PublicationContentView } from "ui/views"
 export const PreviewPage = () => {
   const location = useLocation()
   const { siteId } = useParams()
-  const { t } = useTranslation("previewPage")
+  const { t } = useTranslation()
 
   const productId = location.state?.productId as string | undefined
   const publicationId = location.state?.publicationId as string | undefined
   const previousPath = location.state?.previousPath as string | undefined
-
-  console.log(previousPath)
-  console.log(productId)
-  console.log(publicationId)
 
   const { data: product, isPending: isProductPending } = useGetProductDetails(productId)
   const { data: publication, isPending: isPublicationPending } = useGetPublicationDetails(publicationId)
@@ -40,8 +36,8 @@ export const PreviewPage = () => {
             <Link to={previousPath}>
               <ButtonPrimary
                 iconBefore={<SvgXSm className="fill-white" />}
-                className="h-11 w-61"
-                label={t("closePreview")}
+                className="h-11 w-40 capitalize"
+                label={t("common:close")}
               />
             </Link>
           )

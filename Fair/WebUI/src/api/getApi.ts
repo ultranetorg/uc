@@ -18,8 +18,6 @@ import {
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
-  FieldValue,
-  FieldValueCompare,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -39,8 +37,9 @@ import {
   SiteLiteSearch,
   StatusResult,
   TotalItemsResult,
-  UnpublishedProduct,
+  UnpublishedPublication,
   ProductDetails,
+  PublicationDetailsDiff,
 } from "types"
 
 import { Api } from "./Api"
@@ -170,7 +169,7 @@ const getUnpublishedPublications = async (
   siteId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<UnpublishedProduct>> => {
+): Promise<TotalItemsResult<UnpublishedPublication>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications/unpublished` + params)
   return await toTotalItemsResult(res)
@@ -307,14 +306,11 @@ const getPublicationProposals = async (
 const getModeratorUser = (name: string): Promise<AccountBase> =>
   fetch(`${BASE_URL}/moderator/users/${name}`).then(res => res.json())
 
-const getProductFields = (productId: string): Promise<FieldValue[]> =>
-  fetch(`${BASE_URL}/products/${productId}/fields`).then(res => res.json())
-
 const getProductDetails = (productId: string): Promise<ProductDetails> =>
   fetch(`${BASE_URL}/products/${productId}`).then(res => res.json())
 
-const getProductCompareFields = (publicationId: string, version: number): Promise<FieldValueCompare> =>
-  fetch(`${BASE_URL}/publications/${publicationId}/updated-fields?version=${version}`).then(res => res.json())
+const getPublicationDetailsDiff = (publicationId: string, version: number): Promise<PublicationDetailsDiff> =>
+  fetch(`${BASE_URL}/publications/${publicationId}/diff?to=${version}`).then(res => res.json())
 
 const getModeratorProposals = async (
   siteId: string,
@@ -425,9 +421,8 @@ const api: Api = {
   getModeratorDiscussionComments,
   getPublicationProposals,
   getModeratorUser,
-  getProductFields,
   getProductDetails,
-  getProductCompareFields,
+  getPublicationDetailsDiff,
   getModeratorProposals,
   getPublisherProposals,
   getReviewProposals,

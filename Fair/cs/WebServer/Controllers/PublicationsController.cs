@@ -35,15 +35,15 @@ public class PublicationsController
 		return publicationsService.GetVersions(publicationId);
 	}
 
-	[HttpGet("{publicationId}/updated-fields")]
-	public FieldValueCompareModel GetUpdatedFields(string publicationId, int version)
+	[HttpGet("{publicationId}/diff")]
+	public PublicationDetailsDiffModel GetDiff(string publicationId, [FromQuery(Name = "to")] int version)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetUpdatedFields)} method called with {{PublicationId}}", publicationId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {PublicationId}, {Version}", nameof(PublicationsController), nameof(GetDiff), publicationId, version);
 
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 		versionValidator.Validate(publicationId, version);
 
-		return productsService.GetUpdatedFieldsByPublication(publicationId, version);
+		return productsService.GetDiff(publicationId, version);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/categories/publications")]
