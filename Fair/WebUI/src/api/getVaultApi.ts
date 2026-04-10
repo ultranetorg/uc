@@ -4,8 +4,6 @@ import { AuthenticationResult, Wallet } from "types/vault"
 import { VaultApi } from "./VaultApi"
 import { keysToCamelCase } from "./utils"
 
-const geSigner = (user: string, account: string) => `${user}${account}`
-
 const authenticate = async (baseUrl: string, user: string, account: string): Promise<AuthenticationResult | null> => {
   const response = await fetch(`${baseUrl}/Authenticate`, {
     method: "POST",

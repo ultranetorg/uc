@@ -36,10 +36,7 @@ import {
   StatusResult,
   TotalItemsResult,
   UnpublishedPublication,
-  UnpublishedProduct,
-  UnpublishedProductDetails,
   User,
-  UserProposal,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"

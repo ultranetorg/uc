@@ -39,11 +39,8 @@ import {
   SiteLiteSearch,
   StatusResult,
   TotalItemsResult,
-  UnpublishedProduct,
-  UnpublishedProductDetails,
   UnpublishedPublication,
   User,
-  UserProposal,
 } from "types"
 
 import { Api } from "./Api"
