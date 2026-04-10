@@ -76,7 +76,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	}
 
 	public static bool	IsNameValid(string name) =>	name.Length <= 32 
-													&& name.Length >= 5 
+													&& name.Length >= 4
 													&& Regex.Match(name, "^[a-z0-9_]+$").Success;
 	
 	public virtual void PreTransact(McvNode node, Flow flow)

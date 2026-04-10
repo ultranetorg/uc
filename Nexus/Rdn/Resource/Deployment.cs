@@ -32,7 +32,7 @@ public class DeploymentMergeProgress
 	}
 }
 
-public class DeploymentProgress : ResourceActivityProgress
+public class DeploymentProgress : PackageActivityProgress
 {
 	public DeploymentMergeProgress[]	Merges { get; set; }
 

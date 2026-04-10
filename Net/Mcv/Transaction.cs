@@ -34,9 +34,9 @@ public class Transaction : IBinarySerializable
 	
 	public long						EnergyConsumed;
 
-	AccountAddress					_Signer;
-	public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
-	public bool						IsSignerSet => _Signer != null;
+	//AccountAddress					_Signer;
+	//public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
+	//public bool						IsSignerSet => _Signer != null;
 	public TransactionStatus		Status;
 	public string					Error;
 	public string					OverallError => Error ?? Operations.FirstOrDefault(i => i.Error != null)?.Error;
@@ -59,12 +59,12 @@ public class Transaction : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"User={User}, Nonce={Nonce}, {Status}, Operations={Operations.FirstOrDefault()?.ToString() ?? $"{{{Operations.Length}}}"}, Expiration={Expiration}, Signer={Signer?.Bytes.ToHexPrefix()}, Signature={Signature?.ToHexPrefix()}";
+		return $"User={User}, Nonce={Nonce}, {Status}, Operations={Operations.FirstOrDefault()?.ToString() ?? $"{{{Operations.Length}}}"}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 	}
 
 	public void Sign(AccountKey signer)
 	{
-		Signer = signer.Address;
+		//Signer = signer.Address;
 		Signature = Net.Cryptography.Sign(signer, Hashify());
 	}
 
@@ -104,7 +104,7 @@ public class Transaction : IBinarySerializable
 		writer.Write(Member); /// Need  for migrations
 		
 		///if(Operations.Any(i => i is UserFreeCreation))
-			writer.Write(Signer); /// and for DomainMigratation
+		//	writer.Write(Signer); /// and for DomainMigratation
  	}
  		
  	public void	ReadConfirmed(BinaryReader reader)
@@ -123,7 +123,7 @@ public class Transaction : IBinarySerializable
 		Member		= reader.Read<AutoId>(); /// Need  for migrations
 
 		///if(Operations.Any(i => i is UserFreeCreation)) 
-			Signer = reader.Read<AccountAddress>(); /// and for DomainMigratation
+		//	Signer = reader.Read<AccountAddress>(); /// and for DomainMigratation
  	}
 
 	public void	WriteForVote(BinaryWriter writer)
@@ -213,7 +213,7 @@ public class Transaction : IBinarySerializable
 		return s.ToArray();
 	}
 
-	public static void Import(McvNet net, byte[] raw, Constructor constructor, out Operation[] operations, out string user, out AccountAddress account)
+	public static void Import(McvNet net, byte[] raw, Constructor constructor, out Operation[] operations, out string user)
 	{
 		var r = new BinaryReader(new MemoryStream(raw));
 
@@ -223,6 +223,6 @@ public class Transaction : IBinarySerializable
  											return o;
 										});
 		user = r.ReadUtf8();
-		account = net.Cryptography.AccountFrom(r.ReadSignature(), Cryptography.Hash(raw.AsSpan(0, raw.Length - Cryptography.SignatureLength)));
+		//account = net.Cryptography.AccountFrom(r.ReadSignature(), Cryptography.Hash(raw.AsSpan(0, raw.Length - Cryptography.SignatureLength)));
 	}
 }

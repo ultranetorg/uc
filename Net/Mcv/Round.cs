@@ -6,12 +6,12 @@ public abstract class Round : IBinarySerializable
 {
 	public int											Id;
 	public int											Try;
-	public int											TargetId	=> Id - Mcv.P;
-	public int											VotingId	=> Id + Mcv.P;
+	public int											TargetId	=> Id - Net.P;
+	public int											VotingId	=> Id + Net.P;
 	public Round										Previous	=> Mcv.FindRound(Id - 1);
 	public Round										Next		=> Mcv.FindRound(Id + 1);
 	public Round										Target		=> Mcv.FindRound(TargetId);
-	public Round										Voting		=> Mcv.FindRound(Id + Mcv.P);
+	public Round										Voting		=> Mcv.FindRound(Id + Net.P);
 	public long											PerVoteOperationsMaximum		=> Mcv.Net.OperationsPerRoundMaximum / (Id < Mcv.JoinToVote ? 1 : Senders.Count());
 	//public long										PerVoteTransactionsLimit		=> Mcv.Net.TransactionsPerRoundMaximum / Members.Count;
 	//public long										PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
@@ -32,7 +32,7 @@ public abstract class Round : IBinarySerializable
 	public List<Vote>									Payloads = [];
 	public List<Vote>									Selected = [];
 
-	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Signer).SelectMany(i => i.Transactions);
+	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.User).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
 
 	public Time											ConsensusTime;
@@ -263,7 +263,7 @@ public abstract class Round : IBinarySerializable
 
 		ConsensusTransactions = txs.Where(i => i.OverallError == null).ToArray();
 
-		if(Id < Mcv.P)
+		if(Id < Net.P)
 		{
 			ConsensusMemberLeavers = [];
 			ConsensusViolators = [];
@@ -306,7 +306,7 @@ public abstract class Round : IBinarySerializable
 		if(Id < Mcv.JoinToVote + Mcv.JoinToVote - 1)
 			return [];
 
-		var prevs = Enumerable.Range(TargetId - Mcv.P, Mcv.P).Select(Mcv.FindRound);
+		var prevs = Enumerable.Range(TargetId - Net.P, Net.P).Select(Mcv.FindRound);
 
 		if(prevs.Any(i => i == null)) /// if just synchronized
 			return [];
@@ -361,7 +361,7 @@ public abstract class Round : IBinarySerializable
 		foreach(var i in Mcv.Tables)
 			FindState<TableStateBase>(i)?.StartRoundExecution(this);
 
-		foreach(var t in transactions.Reverse())
+		foreach(var t in transactions)
 		{
 			var e = CreateExecution(t);
 			
@@ -488,7 +488,7 @@ public abstract class Round : IBinarySerializable
 			
 			Members.Remove(i);
 			var m = i .Clone();
-			m.Till = Id + Mcv.P;
+			m.Till = Id + Net.P;
 			Members.Add(m);
 
 			Mcv.Log?.Report(this, $"Left - Round {Id} - {a}");

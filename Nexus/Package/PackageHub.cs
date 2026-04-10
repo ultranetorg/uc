@@ -37,7 +37,7 @@ public class PackageHub
 												.Where(i => i is not null);
 	}
 
-	public bool IsAvailable(Ura package) 
+	public bool IsAvailable(Ura package)
 	{
 		var p = Find(package);
 		
@@ -351,7 +351,7 @@ public class PackageHub
 			r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				
 			var p = Get(resource);
-			p.Resource.AddData(new DataType(DataType.File, ContentType.Software_PackageManifest), a);
+			p.Resource.AddData(new DataType(DataType.File, ContentType.Package_VersionManifest), a);
 
 			flow.Log?.Report(this, $"Release added: {a}");
 

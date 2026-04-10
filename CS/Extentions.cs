@@ -27,6 +27,11 @@ public static class Extentions
 		return Convert.FromHexString(e);
 	}
 
+	public static byte[] FromHex(this ReadOnlySpan<char> e)
+	{
+		return Convert.FromHexString(e);
+	}
+
 	public static string ToHexPrefix(this byte[] e)
 	{
 		return Convert.ToHexString(e, 0, 4);

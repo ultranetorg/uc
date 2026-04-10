@@ -6,8 +6,8 @@ import { useGetVaultUrl } from "entities/node"
 const vaultApi = getVaultApi()
 
 type AuthenticateMutationArgs = {
-  userName: string
-  address: string
+  user: string
+  account: string
 }
 
 export const useAuthenticateMutation = () => {
@@ -18,7 +18,7 @@ export const useAuthenticateMutation = () => {
     isPending,
     error,
   } = useMutation({
-    mutationFn: ({ userName, address }: AuthenticateMutationArgs) => vaultApi.authenticate(baseUrl!, userName, address),
+    mutationFn: ({ user, account }: AuthenticateMutationArgs) => vaultApi.authenticate(baseUrl!, user, account),
   })
 
   return { mutate: authenticate, isFetching: isPending, isReady: !isLoading && !!baseUrl, error: error ?? undefined }

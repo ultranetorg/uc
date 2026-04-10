@@ -248,46 +248,46 @@ public class Execution : ITableExecution
  		if(Round.Id == 0)
  			return new User {Name = Mcv.GodName, Owner = Mcv.God.Address};
 
-		var u = Transaction.User;
+		var name = Transaction.User;
 
-		if(AffectedUsers.FirstOrDefault(i => i.Value.Name == u).Value is User s)
-			return s;
+		if(AffectedUsers.FirstOrDefault(i => i.Value.Name == name).Value is User u)
+			return u;
 		
 		if(Parent != null)
-			s = Parent.FindUser(u);
-		else if(Round.AffectedUsers.Values.FirstOrDefault(i => i.Name == u) is User x)
-			s = x;
+			u = Parent.FindUser(name);
+		else if(Round.AffectedUsers.Values.FirstOrDefault(i => i.Name == name) is User x)
+			u = x;
 		else
-			s = Mcv.Users.FindEntry(u);
+			u = Mcv.Users.FindEntry(name);
 
-		if(s == null)
+		if(u == null)
 		{	
-			if(!Operation.IsNameValid(u))
+			if(!Operation.IsNameValid(name))
 			{
 				Transaction.Error = Operation.InvalidName;
 				return null;
 			}
 		
-			s = CreateUser(u, Transaction.Signer);
+			u = CreateUser(name);
 		}
 		else
 		{	
-			if(Transaction.Signature != null && Transaction.Signer != s.Owner)
+			if(Transaction.Signature != null && !Net.Cryptography.Verify(u.Owner, Transaction.Hashify(), Transaction.Signature)) /// Transaction.Signature == null means synchronization
 			{
 				Transaction.Error = Operation.Denied;
 				return null;
 			}
 
-			if(Transaction.Nonce != s.LastNonce + 1)
+			if(Transaction.Nonce != u.LastNonce + 1)
 			{
 				Transaction.Error = Operation.NotSequential;
 				return null;
 			}
 
-			s = AffectUser(s.Id);
+			u = AffectUser(u.Id);
 		}
 
-		return s;
+		return u;
 	}
 
 	public User FindUser(AutoId id)
@@ -323,9 +323,9 @@ public class Execution : ITableExecution
 		return Mcv.Users.FindEntry(name);
 	}
 
-	public virtual User CreateUser(string name, AccountAddress owner)
+	public virtual User CreateUser(string name)
 	{
-		var b = Mcv.Users.KeyToBucket(name);
+		var b = UserTable.KeyToBucket(name);
 			
 		int e = GetNextEid(Mcv.Users, b);
 
@@ -333,7 +333,6 @@ public class Execution : ITableExecution
 
 		a.Id	= LastCreatedId = new AutoId(b, e);
 		a.Name	= name;
-		a.Owner	= owner;
 
 		AffectedUsers[a.Id] = a;
 

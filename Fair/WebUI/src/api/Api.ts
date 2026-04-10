@@ -36,6 +36,10 @@ import {
   StatusResult,
   TotalItemsResult,
   UnpublishedPublication,
+  UnpublishedProduct,
+  UnpublishedProductDetails,
+  User,
+  UserProposal,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
@@ -60,7 +64,7 @@ export type Api = {
   searchLiteAccounts(query?: string): Promise<AccountSearchLite[]>
 
   // User
-  getUser(name: string): Promise<StatusResult<AccountBase>>
+  getUser(name: string): Promise<StatusResult<User>>
   getUserDetails(name: string): Promise<Account>
 
   getAuthor(authorId: string): Promise<AuthorDetails>

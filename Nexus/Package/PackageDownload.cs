@@ -2,7 +2,7 @@
 
 namespace Uccs.Nexus;
 
-public class PackageDownloadProgress : ResourceActivityProgress
+public class PackageDownloadProgress : PackageActivityProgress
 {
 	public bool							Succeeded { get; set; }
 	public int							DependenciesRecursiveCount { get; set; }
@@ -80,7 +80,7 @@ public class PackageDownload
 											{
 												last = node.Peering.Call(new ResourcePpc(package.Resource.Address), workflow).Resource;
 													
-												if(last.Data?.Type != new DataType(DataType.File, ContentType.Software_PackageManifest))
+												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_VersionManifest))
 												{
 													Package.Activity = null;
 													return;
@@ -88,7 +88,7 @@ public class PackageDownload
 
 												break;
 											}
-											catch(EntityException)
+											catch(EntityException ex)
 											{
 												Thread.Sleep(100);
 											}
@@ -108,11 +108,11 @@ public class PackageDownload
 												itg = new DHIntegrity(u.Hash); 
 												break;
 
-											case Urrsd u:
-												var d = node.Peering.Call(new DomainPpc(package.Resource.Address.Domain), workflow).Domain;
-												var aa = node.Peering.Call(new UserPpc(d.Owner), workflow).User;
-												itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Owner);
-												break;
+											//case Urrsd u:
+											//	var d = node.Peering.Call(new DomainPpc(package.Resource.Address.Domain), workflow).Domain;
+											//	var aa = node.Peering.Call(new UserPpc(d.Owner), workflow).User;
+											//	itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Owner);
+											//	break;
 										};
 
 										Seeker = new SeedSeeker(node, package.Release.Address, workflow);

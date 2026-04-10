@@ -32,17 +32,18 @@ public class UserCommand : McvCommand
 
 	public CommandAction Create()
 	{
+		var owner = "owner";
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
 		a.Description = "Create a new user without fo free";
-		a.Arguments = [];
+		a.Arguments = [new (owner, AA, "Public address of a account owner")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								return new UserCreation {};
+								return new UserCreation {Owner = GetAccountAddress(owner)};
 							};
 		return a;
 	}

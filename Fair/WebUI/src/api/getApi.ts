@@ -18,6 +18,7 @@ import {
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
+  ProductDetails,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -25,6 +26,7 @@ import {
   PublicationAuthor,
   PublicationBase,
   PublicationDetails,
+  PublicationDetailsDiff,
   PublicationExtended,
   PublicationProposal,
   PublicationVersionInfo,
@@ -37,9 +39,11 @@ import {
   SiteLiteSearch,
   StatusResult,
   TotalItemsResult,
+  UnpublishedProduct,
+  UnpublishedProductDetails,
   UnpublishedPublication,
-  ProductDetails,
-  PublicationDetailsDiff,
+  User,
+  UserProposal,
 } from "types"
 
 import { Api } from "./Api"
@@ -102,14 +106,14 @@ const searchLitePublication = (siteId: string, query?: string): Promise<Publicat
 const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
   fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
 
-const getUser = async (name: string): Promise<StatusResult<AccountBase>> => {
+const getUser = async (name: string): Promise<StatusResult<User>> => {
   try {
     const res = await fetch(`${BASE_URL}/users/${name}`)
     if (!res.ok) {
       return { ok: res.ok, status: res.status }
     }
 
-    const data: AccountBase = await res.json()
+    const data: User = await res.json()
     return { ok: res.ok, status: res.status, data }
   } catch (error) {
     console.error(error)

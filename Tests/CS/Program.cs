@@ -5,7 +5,9 @@ class Program
 {
 	public static void Main(string[] args)
 	{
-		Array.Main();
+		AccountAddressTests.Main();
+		AccountAddressTests.ReadWrite();
+		//Array.Main();
 		//IdTests.Main();
 		//MoneyTests.Main();
 		//AccountKeyTests.Main();

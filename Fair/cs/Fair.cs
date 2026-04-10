@@ -17,14 +17,16 @@ public abstract class Fair : McvNet
 	public const ushort				TitleLengthMaximum = 64;
 	public const ushort				SloganLengthMaximum = 128;
  		
+	public ushort					WebPort = 1080;
+
 	public static Dictionary<Type, uint>								OCodes = [];
 	public static Dictionary<Type, Dictionary<uint, ConstructorInfo>>	OContructors = [];
 
- 	public static readonly Fair		Simulated = new FairSimulated();
- 	public static readonly Fair		Virtual = new FairVirtual();
- 	public static readonly Fair		Test = new FairTest();
- 	public static readonly Fair		Developer0 = new FairDeveloper0();
- 	public static readonly Fair		TA = new FairTA();
+ 	public static Fair				Simulated = new SimulationFair();
+ 	public static readonly Fair		Virtual = new VirtualFair();
+ 	public static readonly Fair		Test = new TestFair();
+ 	public static readonly Fair		Developer0 = new Developer0Fair();
+ 	public static readonly Fair		TA = new TaFair();
 	public static readonly Fair		Main = null;
 
 	public static Fair				ByZone(Zone name) => new Fair[]{Simulated, Virtual, Developer0, Test, TA}.First(i => i.Zone == name);
@@ -47,11 +49,11 @@ public abstract class Fair : McvNet
 	}
 }
 
-public class FairSimulated : Fair
+public class SimulationFair : Fair
 {	
 	public override	Zone	Zone => Zone.Simulation;
 	
-	public FairSimulated()
+	public SimulationFair()
 	{
 		Father0EP					= new (DefaultHost, PpiPort);
 		Cryptography				= Cryptography.No;
@@ -63,11 +65,11 @@ public class FairSimulated : Fair
 	}
 }
 
-public class FairVirtual : Fair
+public class VirtualFair : Fair
 {
 	public override	Zone	Zone => Zone.Virtual;
 
-	public FairVirtual()
+	public VirtualFair()
 	{
  		Father0EP					= new(VirtualInitials[0], PpiPort);
 		Initials					= VirtualInitials;
@@ -75,11 +77,11 @@ public class FairVirtual : Fair
 	}
 }
 
-public class FairDeveloper0 : Fair
+public class Developer0Fair : Fair
 {
 	public override	Zone	Zone => Zone.Developer0;
 
-	public FairDeveloper0()
+	public Developer0Fair()
 	{
 		var z = Test;
 
@@ -88,25 +90,25 @@ public class FairDeveloper0 : Fair
 	}
 }
 
-public class FairTest : Fair
+public class TestFair : Fair
 {
 	public override	Zone	Zone => Zone.Test;
 
-	public FairTest()
+	public TestFair()
 	{
  		Father0EP	= new (IPAddress.Parse("78.47.204.100"), PpiPort);
 		Initials	= UOInitials;
 	}
 }
 
-public class FairTA : Fair
+public class TaFair : Fair
 {	
 	public override	Zone	Zone => Zone.TA;
 	
-	public FairTA()
+	public TaFair()
 	{
-		Father0EP						= new (DefaultHost, PpiPort);
-		Initials						= LocalInitials;
+		Father0EP					= new (DefaultHost, PpiPort);
+		Initials					= LocalInitials;
 		UserCreationPoWDifficulity	= 0;
 	}
 }

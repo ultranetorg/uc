@@ -118,7 +118,7 @@ public class PackageCommand : NexusCommand
 								{
 									do
 									{
-										var d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+										var d = Api<PackageActivityProgress>(new PackageActivityProgressApc {Package = Package});
 						
 										if(d is null)
 										{	
@@ -164,7 +164,7 @@ public class PackageCommand : NexusCommand
 								{
 									do
 									{
-										var d = Api<ResourceActivityProgress>(new PackageActivityProgressApc {Package = Package});
+										var d = Api<PackageActivityProgress>(new PackageActivityProgressApc {Package = Package});
 						
 										if(d is null)
 										{	

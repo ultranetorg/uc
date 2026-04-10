@@ -79,24 +79,19 @@ public class RdnNode : McvNode
 
 																foreach(var i in a)
 																{
-	 																if(!NodeGlobals.ForceApproveOutwards)
-	 																{
-																		Task.Run(() =>	{
-																							if(i.Operation is DomainMigration am)
-																							{
-																								var approved = IsDnsValid(am);
+																	Task.Run(() =>	{
+																						if(i.Operation is DomainMigration am)
+																						{
+																							var approved = IsDnsValid(am);
 	
-																								lock(Mcv.Lock)
-																								{	
-																									Mcv.ApprovedOutwards.Add(new ForeignResult {User = i.User, Id = i.Id, Approved = approved});
+																							lock(Mcv.Lock)
+																							{	
+																								Mcv.ApprovedOutwards.Add(new ForeignResult {User = i.User, Id = i.Id, Approved = approved});
 
-																									CurrentOutwards.Remove(i);
-																								}
+																								CurrentOutwards.Remove(i);
 																							}
-																						});
-	 																}
-																	else
-																		Mcv.ApprovedOutwards.Add(new ForeignResult {User = i.User, Id = i.Id, Approved = true});
+																						}
+																					});
 																}
 															}
 														}
@@ -164,15 +159,18 @@ public class RdnNode : McvNode
 //			columns.Add(new (ResourceHub.ResourceFamilyName,new ()));
 //		}
 //
-	public bool IsDnsValid(DomainMigration am)
+	public bool IsDnsValid(DomainMigration migration)
 	{
+		if(NodeGlobals.ForceApproveOutwards)
+			return true;
+
 		try
 		{
-			var result = Dns.QueryAsync(am.Name + '.' + am.Tld, QueryType.TXT, QueryClass.IN, Flow.Cancellation);
+			var result = Dns.QueryAsync(migration.Name + '.' + migration.Tld, QueryType.TXT, QueryClass.IN, Flow.Cancellation);
 
-			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == am.Name + '.' + am.Tld + '.');
+			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == migration.Name + '.' + migration.Tld + '.');
 
-			if(txt != null && txt.Text.Any(i => Regex.Match(i, "0[xX][0-9a-fA-F]{40}").Success && AccountAddress.Parse(i) == am.Transaction.Signer))
+			if(txt != null && txt.Text.Any(i => Operation.IsNameValid(i) && i == migration.Transaction.User))
 			{
 				return true;
 			}

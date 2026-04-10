@@ -99,13 +99,15 @@ public abstract class Net
 
 public abstract class McvNet : Net
 {
+	public int								P = 6; /// pitch
+
 	public const long						IdealRoundsPerSecond					= 1;
 	public const long						IdealRoundsPerDay						= IdealRoundsPerSecond * 60*60*24;
 	public const int						BandwidthRentMonthsMaximum				= 12;
 	public const int						BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
 	public virtual int						FreeSpaceMaximum						=> 0;
 	public Time								ECLifetime								= Time.FromYears(1);
-	public ushort							UserCreationPoWDifficulity			= 172;
+	public ushort							UserCreationPoWDifficulity				= 172;
 	public int								EntityLength							= 100;
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
@@ -127,14 +129,16 @@ public abstract class McvNet : Net
 
 
 	public Endpoint							Father0EP;
-	public readonly string					Father0Name		= "father0000";
-	public readonly AutoId					Father0Id		= new (287078, 0);
-	public readonly AccountAddress			Father0Signer	= AccountAddress.Parse("0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68");
+	public readonly string					Father0Name		= "f000";
+	public readonly AutoId					Father0Id;
+	public readonly AccountAddress			Father0Signer	= new ("0000000AD6AFF35CF87E04E457A9395EAB7397D335C5B530F8CDBC9BD66EDF4D".FromHex());
 
 	public abstract int						TablesCount { get; }
 
 	public McvNet()
 	{
 		Constructor.Register<Operation>(Assembly.GetExecutingAssembly(), typeof(OperationClass), i => i);
+
+		Father0Id = new (UserTable.KeyToBucket(Father0Name), 0);
 	}
 }

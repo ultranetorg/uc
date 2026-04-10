@@ -44,7 +44,6 @@ public abstract class McvPeering : HomoTcpPeering
 
 	public IEnumerable<HomoPeer>			Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
 
-	public bool								MinimalPeersReached;
 	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
 	Thread									TransactingThread;
 	//public object							TransactingLock = new object();
@@ -125,39 +124,30 @@ public abstract class McvPeering : HomoTcpPeering
 		if(ex.Error == NodeError.NotChain)	peer.Roles  &= ~(long)Role.Chain;
 	}
 
-	protected override void ProcessMain()
+	protected override void Main()
 	{
 		lock(Lock)
 		{
-			base.ProcessMain();
-	
-			if(Mcv != null)
-			{
-				var needed = Settings.PermanentMin - Graphs.Count();
+			base.Main();
+
+			var needed = Settings.PermanentMin - Graphs.Count();
 		
-				foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
-										.OrderBy(i => i.Retries)
-										.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
-										.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
-										.Take(needed))
-				{
-					OutboundConnect(p, true);
-				}
+			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
+									.OrderBy(i => i.Retries)
+									.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
+									.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
+									.Take(needed))
+			{
+				OutboundConnect(p, true);
+			}
 	
-				if(!MinimalPeersReached && Connections.Count(i => i.Permanent) >= Settings.PermanentMin)
-				{
-					MinimalPeersReached = true;
-					Flow.Log?.Report(this, $"PermanentMin reached");
+			if(!MinimalPeersReached && Connections.Count(i => i.Permanent) >= Settings.PermanentMin)
+			{
+				MinimalPeersReached = true;
+				Flow.Log?.Report(this, $"{nameof(MinimalPeersReached)} reached");
 	
-					//if(IsListener)
-					//{
-					//	foreach(var c in Connections)
-					//		c.Send(new SharePeersPpc{Broadcast = true, 
-					//								 Peers = [new HomoPeer(EP) {Roles = Roles}]});
-					//}
-	
+				if(Mcv != null)
 					Synchronize();
-				}
 			}
 		}
 
@@ -321,7 +311,7 @@ public abstract class McvPeering : HomoTcpPeering
 								Mcv.Rocks.Write(w);
 							}
 
-							for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastConfirmedRound.Id + Mcv.P; i++)
+							for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastConfirmedRound.Id + Net.P; i++)
 							{
 								var vs = Mcv.FindRound(i);
 								
@@ -373,7 +363,7 @@ public abstract class McvPeering : HomoTcpPeering
 					lock(Mcv.Lock)
 						from = Mcv.LastConfirmedRound.Id + 1;
 		
-					to = from + Mcv.P;
+					to = from + Net.P;
 		
 					var rp = Call(peer, new DownloadRoundsPpc {From = from, To = to}, Flow);
 	
@@ -637,7 +627,7 @@ public abstract class McvPeering : HomoTcpPeering
 			
 						if(!isdeferred)
 						{
-							if(txs.Any(i => i.Signer == t.Signer && i.Nonce < t.Nonce)) /// any older tx left?
+							if(txs.Any(i => i.User == t.User && i.Nonce < t.Nonce)) /// any older tx left?
 							{
 								deferred.Add(t);
 								return true;
@@ -649,7 +639,7 @@ public abstract class McvPeering : HomoTcpPeering
 						t.Status = TransactionStatus.Placed;
 						v.AddTransaction(t);
 			
-						var next = deferred.Find(i => i.Signer == t.Signer && i.Nonce + 1 == t.Nonce);
+						var next = deferred.Find(i => i.User == t.User && i.Nonce + 1 == t.Nonce);
 			
 						if(next != null)
 						{
@@ -675,7 +665,7 @@ public abstract class McvPeering : HomoTcpPeering
 					if(v.Transactions.Any() || must)
 					{
 						///v.Sign(Vault.Find(g).Key);
-						v.Signer = gs.Signer;
+						//v.Signer = gs.Signer;
 						v.Signature	= VaultApi.Call<byte[]>(new AuthorizeApc
 															{
 																Cryptography= Net.Cryptography.Type,
@@ -915,7 +905,7 @@ public abstract class McvPeering : HomoTcpPeering
 						t.Ppi		 = ppi;
 						t.Member	 = m.User;
 						t.Nonce		 = at.NextNonce;
-						t.Expiration = at.LastConfirmedRid + Mcv.TransactionPlacingLifetime;
+						t.Expiration = at.LastConfirmedRid + Net.P * 2;
 						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc
 															 {
 																Cryptography	= Net.Cryptography.Type,
@@ -1124,13 +1114,13 @@ public abstract class McvPeering : HomoTcpPeering
 					Net				= Net,
 					Tag				= tag ?? Guid.NewGuid().ToByteArray(),
 					Session			= session ?? FindSession(user)?.Session,
-					Signer			= signer ?? FindSession(user)?.Signer,
+					//Signer			= signer ?? FindSession(user)?.Signer,
 					Flow			= flow,
 					Inquired		= DateTime.UtcNow,
 					ActionOnResult	= aor,
 				};
 		
-		if(t.Session == null || !t.IsSignerSet)
+		if(t.Session == null)
 			throw new NodeException(NodeError.NoSession);
 
 		foreach(var i in operations)
@@ -1200,6 +1190,9 @@ public abstract class McvPeering : HomoTcpPeering
 			{
 			}
 			catch(ContinueException)
+			{
+			}
+			catch(OperationCanceledException)
 			{
 			}
 		}

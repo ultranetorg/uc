@@ -33,8 +33,10 @@ public class Genesis : Operation
 			return;
 		}
 
-		var a = execution.CreateUser(execution.Net.Father0Name, execution.Net.Father0Signer);
+		var a = execution.CreateUser(execution.Net.Father0Name);
 
+		a.Owner = execution.Net.Father0Signer;
+		
 		a.Energy		+= execution.Net.EnergyEmission;
 		a.Spacetime		+= execution.Net.SpacetimeDayEmission;
 

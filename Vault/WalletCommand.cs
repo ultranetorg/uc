@@ -60,7 +60,7 @@ public class WalletCommand : VaultCommand
 								{
 									Report($"Account {i.Index}:");
 									Report($"   Public Address - {i.Item.Address}");
-									Report($"   Private Key    - {i.Item.Key.PrivateKey.ToHex()}");
+									Report($"   Private Key    - {i.Item.Key.Secret.ToHex()}");
 								}
 
 								Api(new AddWalletApc {Name = GetString("name"), Raw = w.ToRaw()});
@@ -134,12 +134,12 @@ public class WalletCommand : VaultCommand
 						new ("key", PRIVATEKEY, "Private key of account to import")];
 
 		a.Execute = () =>	{
-								var pk = Api<byte[]>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", false), Name = GetString("name", null) });
+								var pk = Api<byte[]>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", null), Name = GetString("name", null), Tag = GetString("tag", null)});
 								
 								var k = new AccountKey(pk);
 
 								Report("Public Address - " + k); 
-								Report("Private Key    - " + k.PrivateKey.ToHex());
+								Report("Private Key    - " + k.Secret.ToHex());
 
 								return k;
 							};

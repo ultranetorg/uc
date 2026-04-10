@@ -8,8 +8,9 @@ public class AutoId : EntityId
 	public override int					B { get; set; } /// bucket
 	public int							I { get; set; }
 
-	public static readonly AutoId		LastCreated = new AutoId {I = -1};
-	public static readonly AutoId		God = new AutoId {I = -2};
+	public static readonly AutoId		LastCreated = new () {I = -1};
+	public static readonly AutoId		God = new() { I = -2};
+	public static readonly AutoId		NewUser = new () {I = -3};
 
 	public AutoId()
 	{

@@ -122,9 +122,9 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
   )
 
   const authenticate = useCallback(
-    (userName: string, address: string, callbacks?: Callbacks) =>
+    (user: string, account: string, callbacks?: Callbacks) =>
       authenticateMutation(
-        { userName, address },
+        { user, account },
         {
           onSuccess: data => {
             callbacks?.onSuccess?.(data)
@@ -132,20 +132,20 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
             if (data === null) return
 
             setStorage(prev => {
-              const existingIndex = prev.users.findIndex(x => x.user.name === userName)
+              const existingIndex = prev.users.findIndex(x => x.user.name === user)
               if (existingIndex !== -1) {
                 return {
                   ...prev,
                   users: prev.users.map((acc, i) => (i === existingIndex ? { ...acc, session: data.session } : acc)),
-                  selectedUserName: userName,
+                  selectedUserName: user,
                 }
               }
 
-              const newUsers = [...prev.users, { session: data.session, user: { owner: data.signer, name: userName } }]
+              const newUsers = [...prev.users, { session: data.session, user: { owner: data.signer, name: user } }]
               return {
                 ...prev,
                 users: newUsers,
-                selectedUserName: userName,
+                selectedUserName: user,
               }
             })
           },

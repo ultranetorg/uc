@@ -88,9 +88,9 @@ public enum ContentType : uint
 	Audio							= 0030,
 	Video							= 0040,
 	Font							= 0050,
-	Software						= 1000,
-		Software_ProductManifest	= 1000_000_000,
-		Software_PackageManifest	= 1000_000_001,
+	Package							= 1000,
+		Package_ProductManifest		= 1000_000_000,
+		Package_VersionManifest		= 1000_000_001,
 		Ampp_Council				= 1000_001_000,
 		Ampp_Analysis				= 1000_001_001,
 }

@@ -16,7 +16,7 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 			if(Mcv.LastNonEmptyRound == null)	
 				throw new NodeException(NodeError.TooEearly);
 
-			if(From > Mcv.LastNonEmptyRound.Id || To - From > Mcv.P)
+			if(From > Mcv.LastNonEmptyRound.Id || To - From > Mcv.Net.P)
 				throw new RequestException(RequestError.OutOfRange);
 
 			var s = new MemoryStream();

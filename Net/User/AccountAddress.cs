@@ -1,60 +1,107 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Uccs.Net;
 
+public enum AddressFormat : ushort
+{
+	Bech32t = (byte)'b'<<8 | (byte)'t',
+}
+
+public enum Algorithm : ushort
+{
+   Secp256k1 = (byte)'e'<< 8 | (byte)'a',
+   Schnorr   = (byte)'e'<< 8 | (byte)'s',
+}
+
 public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatable<AccountAddress>, IBinarySerializable
 {
-	public const string		Prefix = "0x";
-	public const int		Length = 20;
-	public virtual byte[]	Bytes { get; protected set; }
-	public static readonly	AccountAddress Zero = new AccountAddress(new byte[Length]);
-	//public byte[]			Prefix => Bytes.Take(Consensus.PrefixLength).ToArray();
-
-	//public static implicit operator byte[] (AccountAddress d) => d.Bytes;
-	
-	public byte	this[int k] => Bytes[k];
- 
+	public const int			Length = 32;
+	public virtual byte[]		Bytes { get; protected set; }
+	public string				Tag { get; protected set; }
+	string						Text;
+	AddressFormat 				Format = AddressFormat.Bech32t; 
 
 	public AccountAddress()
 	{
 	}
 
- 	public AccountAddress(byte[] b)
+ 	public AccountAddress(byte[] bytes)
  	{
-		if(b.Length == Length)
-			Bytes = b;
-		else
+		if(bytes.Length != Length)
 			throw new IntegrityException("Wrong length");
+		
+		Bytes = bytes;
  	}
 
-	public void Write(BinaryWriter w)
+ 	public AccountAddress(byte[] bytes, string tag)
+ 	{
+		if(bytes.Length != Length)
+			throw new ArgumentException("Wrong length");
+		
+		if(tag != null)
+		{	
+			if(string.IsNullOrEmpty(tag) || tag.Length == 0 || tag.Length > Bech32.MaxTagLength) 
+				throw new ArgumentException("Invalid tag length.");
+
+			if(tag.Any(i => !Bech32.Alphanumeric.Contains(i))) 
+			    throw new ArgumentException("Invalid tag format");
+		}
+
+		Bytes = bytes;
+		Tag = tag;
+ 	}
+
+	public void Write(BinaryWriter writer)
 	{
-		w.Write(Bytes);
+		writer.Write(Format);
+		writer.Write(Algorithm.Schnorr);
+		writer.WriteASCII(Tag);
+		writer.Write(Bytes);
 	}
 
-	public void Read(BinaryReader r)
+	public void Read(BinaryReader reader)
 	{
-		Bytes = r.ReadBytes(Length);
+		Format = reader.Read<AddressFormat>();
+		reader.Read<Algorithm>();
+		Tag = reader.ReadASCII();
+		Bytes = reader.ReadBytes(Length);
 	}
 
-	public static AccountAddress Parse(string pubaddr)
+	public static AccountAddress Parse(string address)
 	{
-		if(pubaddr[0] == '0' && pubaddr[1] == 'x')
-			return new AccountAddress(pubaddr.Substring(2).FromHex());
-		else
-			throw new FormatException();
+        if(string.IsNullOrEmpty(address) || address.Length < 6) ///[data>1][taglength=1][format=2][algorithm=2]
+            throw new FormatException("Invalid address length");
+
+        var f	= (AddressFormat)(char.ToLowerInvariant(address[address.Length-4]) << 8 | char.ToLowerInvariant(address[address.Length-3]));
+        var a	= (Algorithm)	 (char.ToLowerInvariant(address[address.Length-2]) << 8 | char.ToLowerInvariant(address[address.Length-1]));
+
+        if(f != AddressFormat.Bech32t)
+            throw new FormatException("Unsupported address format");
+
+        if(a != Algorithm.Schnorr)
+            throw new FormatException("Unsupported address format");
+
+        if(!Bech32.TryDecode(address.AsSpan(0, address.Length - 4), out var data, out string tag))
+			throw new FormatException("Invalid address format");
+
+		return new AccountAddress(data, tag);
 	}
 
 	public override string ToString()
 	{
-		return Bytes != null ? Prefix + Bytes.ToHex() : "";
+		if(!Enum.IsDefined(Format))
+			throw new InvalidOperationException();
+
+		if(Text == null)
+			Text = Encode(Format, Algorithm.Schnorr, Bytes, Tag);
+		
+		return  Text;
 	}
 
 	public static bool operator == (AccountAddress a, AccountAddress b)
 	{
-		return a is null && b is null || a is not null && a.Equals(b);
+		return a is null && b is null || a.Equals(b);
 	}
 
 	public static bool operator != (AccountAddress a, AccountAddress b)
@@ -69,7 +116,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 
 	public bool Equals(AccountAddress a)
 	{
-		return a is not null && Uccs.Bytes.EqualityComparer.Equals(Bytes, a.Bytes);
+		return a is not null && Uccs.Bytes.EqualityComparer.Equals(Bytes, a.Bytes) && Format == a.Format;
 	}
 
 	public override int GetHashCode()
@@ -86,6 +133,13 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 	{
 		return Uccs.Bytes.Comparer.Compare(Bytes, address.Bytes);
 	}
+
+    public static string Encode(AddressFormat format, Algorithm algorithm, byte[] data, string tag = null)
+    {
+        string body = Bech32.Encode(data, tag);
+
+        return $"{body}{(char)((ushort)format >> 8)}{(char)(byte)format}{(char)((ushort)algorithm >> 8)}{(char)(byte)algorithm}";
+    }
 }
 
 public class AccountJsonConverter : JsonConverter<AccountAddress>

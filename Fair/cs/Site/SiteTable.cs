@@ -71,7 +71,7 @@ public class SiteExecution : TableExecution<AutoId, Site>
 	{
 		Execution.IncrementCount((int)FairMetaEntityType.SitesCount);
 
-		var b = Execution.Mcv.Users.KeyToBucket(signer.Name);
+		var b = UserTable.KeyToBucket(signer.Name);
 		int e = Execution.GetNextEid(Table, b);
 
 		var s = Table.Create();

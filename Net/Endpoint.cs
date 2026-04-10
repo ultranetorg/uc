@@ -14,9 +14,9 @@ public class Endpoint : IBinarySerializable, IEquatable<Endpoint>
 	{
 	}
 
-	public Endpoint(IPAddress iP, ushort port)
+	public Endpoint(IPAddress ip, ushort port)
 	{
-		IP = iP;
+		IP = ip;
 		Port = port;
 		//Roles = roles;
 	}

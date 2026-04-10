@@ -31,12 +31,9 @@ public enum VoteStatus
 
 public abstract class Mcv /// Mutual chain voting
 {
-	public const int							P = 6; /// pitch
 	public const int							RequiredVotersMaximum = 21; 
-	public const int							JoinToVote = P + 1;
-	public const int							LastGenesisRound = JoinToVote - 1;
-	public const int							TransactionPlacingLifetime = P*2;
-	public static readonly Unit					BalanceMin = new Unit(0.000_000_001);
+	public int									JoinToVote => Net.P + 1;
+	public int									LastGenesisRound => JoinToVote - 1;
 	public const int							EntityRentYearsMin = 1;
 	public const int							EntityRentYearsMax = 10;
 	public const int							TransactionQueueLimit = 1000;
@@ -87,14 +84,12 @@ public abstract class Mcv /// Mutual chain voting
 	public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
 	public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
 	public Round								NextTargetRound => GetRound(LastConfirmedRound.Id + 1);
-	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + P);
+	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + Net.P);
 
 	public List<NnpBlock>						NnBlocks = [];
 
 	public const string							ChainFamilyName = "Chain";
 	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);
-
-	public static int							GetValidityPeriod(int rid) => rid + P;
 
 	protected abstract void						CreateTables(string databasepath);
 	protected abstract void						GenesisInitilize(Round vote);
@@ -161,7 +156,7 @@ public abstract class Mcv /// Mutual chain voting
 				v.RoundId	 = i;
 				v.User		 = AutoId.God;
 				v.Time		 = Time.Zero;
-				v.TargetHash = i < P ? Net.Cryptography.ZeroHash : GetRound(i - P).Summarize();
+				v.TargetHash = i < Net.P ? Net.Cryptography.ZeroHash : GetRound(i - Net.P).Summarize();
 
 				if(i == 0)
 				{
@@ -399,8 +394,8 @@ public abstract class Mcv /// Mutual chain voting
 	
 			var u = Users.Latest(vote.User);
 							
-			if(u.Owner != vote.Signer)
-			{	
+			if(!Net.Cryptography.Verify(u.Owner, vote.Hash, vote.Signature))
+			{
 				vote.Status = VoteStatus.AccessDenied;
 				return;
 			}

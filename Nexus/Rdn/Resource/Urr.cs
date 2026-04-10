@@ -57,7 +57,7 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
 		var a = Enum.Parse<UrrScheme>(s, true)	switch
 												{
 													UrrScheme.Urrh => new Urrh() as Urr,
-													UrrScheme.Urrsd => new Urrsd(),
+													//UrrScheme.Urrsd => new Urrsd(),
 													_ => throw new FormatException()
 												};
 
@@ -98,7 +98,7 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
 		var a = (UrrScheme)reader.ReadByte()switch
 											{
 												UrrScheme.Urrh => new Urrh() as Urr,
-												UrrScheme.Urrsd => new Urrsd(),
+												//UrrScheme.Urrsd => new Urrsd(),
 												_ => throw new FormatException()
 											};
 		
@@ -183,65 +183,65 @@ public class Urrh : Urr
 	}
   }
 
-public class Urrsd : Urr
-{
-	public override UrrScheme	Scheme => UrrScheme.Urrsd;
-
-	public Ura					Resource { get; set; }
-	public byte[]				Signature { get; set; }
-	public override byte[]		MemberOrderKey => Signature;
-
- 	public override int			GetHashCode() => BitConverter.ToInt32(Signature);
- 	public override bool		Equals(object o) => Equals(o as Urrsd);
-	public override bool		Equals(Urr o) => o is Urrsd a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
- 
-	public override string ToString()
-	{
-		return Unel.ToString(Scheme.ToString(), Net, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
-	}
-	
-	public override void ParseSpecific(string t)
-	{
-		Resource	= Ura.ParseAR(t);
-
-		var s = Resource.Resource.LastIndexOf(':');
-		
-		Signature		  = Resource.Resource.Substring(s + 1).FromHex();
-		Resource.Resource = Resource.Resource.Substring(0, s);
-	}
-
-	public bool Prove(Cryptography cryptography, AccountAddress account, byte[] hash)
-	{
-		var s = new Blake2Stream();
-		var w = new BinaryWriter(s);
-		w.Write(Resource);
-		w.Write(hash);
-
-		return cryptography.AccountFrom(Signature, s.Hash) == account;
-	}
-
-	public static Urr Create(Cryptography cryptography, AccountKey key, Ura resource, byte[] hash)
-	{
-		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
-		w.Write(resource);
-		w.Write(hash);
-
-		return new Urrsd {Resource = resource, Signature = cryptography.Sign(key, Cryptography.Hash(s.ToArray()))};
-	}
-
-	protected override void WriteMore(BinaryWriter writer)
-	{
-		writer.Write(Resource);
-		writer.Write(Signature);
-	}
-
-	protected override void ReadMore(BinaryReader reader)
-	{
-		Resource = reader.Read<Ura>();
-		Signature = reader.ReadBytes(Cryptography.SignatureLength);
-	}
-}
+//public class Urrsd : Urr
+//{
+//	public override UrrScheme	Scheme => UrrScheme.Urrsd;
+//
+//	public Ura					Resource { get; set; }
+//	public byte[]				Signature { get; set; }
+//	public override byte[]		MemberOrderKey => Signature;
+//
+// 	public override int			GetHashCode() => BitConverter.ToInt32(Signature);
+// 	public override bool		Equals(object o) => Equals(o as Urrsd);
+//	public override bool		Equals(Urr o) => o is Urrsd a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
+// 
+//	public override string ToString()
+//	{
+//		return Unel.ToString(Scheme.ToString(), Net, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
+//	}
+//	
+//	public override void ParseSpecific(string t)
+//	{
+//		Resource	= Ura.ParseAR(t);
+//
+//		var s = Resource.Resource.LastIndexOf(':');
+//		
+//		Signature		  = Resource.Resource.Substring(s + 1).FromHex();
+//		Resource.Resource = Resource.Resource.Substring(0, s);
+//	}
+//
+//	public bool Prove(Cryptography cryptography, AccountAddress account, byte[] hash)
+//	{
+//		var s = new Blake2Stream();
+//		var w = new BinaryWriter(s);
+//		w.Write(Resource);
+//		w.Write(hash);
+//
+//		return cryptography.AccountFrom(Signature, s.Hash) == account;
+//	}
+//
+//	public static Urr Create(Cryptography cryptography, AccountKey key, Ura resource, byte[] hash)
+//	{
+//		var s = new MemoryStream();
+//		var w = new BinaryWriter(s);
+//		w.Write(resource);
+//		w.Write(hash);
+//
+//		return new Urrsd {Resource = resource, Signature = cryptography.Sign(key, Cryptography.Hash(s.ToArray()))};
+//	}
+//
+//	protected override void WriteMore(BinaryWriter writer)
+//	{
+//		writer.Write(Resource);
+//		writer.Write(Signature);
+//	}
+//
+//	protected override void ReadMore(BinaryReader reader)
+//	{
+//		Resource = reader.Read<Ura>();
+//		Signature = reader.ReadBytes(Cryptography.SignatureLength);
+//	}
+//}
 
 public class UrrJsonConverter : JsonConverter<Urr>
 {
