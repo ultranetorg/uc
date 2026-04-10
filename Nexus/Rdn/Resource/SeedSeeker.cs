@@ -133,6 +133,8 @@ public class SeedSeeker
 														WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 60 * 1000);
 													}
  												});
+
+		HubingThread.Name = Flow.Name;
 		HubingThread.Start();
 
 		for(int i=0; i<8; i++)

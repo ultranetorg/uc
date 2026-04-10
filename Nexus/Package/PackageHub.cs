@@ -543,7 +543,7 @@ public class PackageHub
 		}
 	}
 
-	public PackageDownload Download(Ura package, Flow workflow)
+	public PackageDownload Download(Ura package, Flow flow)
 	{
 		var p = Get(package);
 
@@ -552,7 +552,7 @@ public class PackageHub
 		else if(p.Activity != null)
 			throw new ResourceException(ResourceError.Busy);
 			
-		d = new PackageDownload(this, p, workflow);
+		d = new PackageDownload(this, p, flow);
 
 		return d;
 	}
