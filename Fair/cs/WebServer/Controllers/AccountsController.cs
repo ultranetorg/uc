@@ -13,26 +13,6 @@ public class AccountsController
 	UserNameValidator userNameValidator
 ) : BaseController
 {
-	//[HttpGet("address/{address}")]
-	//public AccountModel GetByAddress(string address)
-	//{
-	//	logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountAddress}", nameof(AccountsController), nameof(GetByAddress), address);
-
-	//	accountAddressValidator.Validate(address);
-
-	//	return accountsService.GetByAddress(address);
-	//}
-
-	[HttpGet("/api/users/{name}")]
-	public AccountBaseModel Get(string name)
-	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(AccountsController), nameof(Get), name);
-
-		userNameValidator.Validate(name);
-
-		return accountsService.Get(name);
-	}
-
 	[HttpGet("/api/users/{name}/details")]
 	public AccountModel GetDetails(string name)
 	{
@@ -44,7 +24,7 @@ public class AccountsController
 	}
 
 	[HttpGet("{accountId}")]
-	public UserModel GetById(string accountId)
+	public UserModel2 GetById(string accountId)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(GetById), accountId);
 

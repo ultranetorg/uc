@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
-using System.Security.Principal;
-using System.Xml.Linq;
 using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +11,9 @@ public class AccountsService
 	FairMcv mcv
 )
 {
-	public AccountBaseModel Get([NotNull][NotEmpty] string name)
+	public UserModel Get([NotNull][NotEmpty] string name)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountName}", nameof(AccountsService), nameof(Get), name);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(AccountsService), nameof(Get), name);
 
 		Guard.Against.NullOrEmpty(name);
 
@@ -27,7 +25,12 @@ public class AccountsService
 				throw new EntityNotFoundException(nameof(User), name);
 			}
 
-			return new AccountBaseModel(account);
+			return new UserModel
+			{
+				Id = account.Id.ToString(),
+				Name = account.Name,
+				Owner = account.Owner.ToString()
+			};
 		}
 	}
 
@@ -88,7 +91,7 @@ public class AccountsService
 		return sites;
 	}
 
-	public UserModel GetById([NotNull][NotEmpty] string userId)
+	public UserModel2 GetById([NotNull][NotEmpty] string userId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(AccountsService), nameof(GetById), userId);
 
@@ -118,7 +121,7 @@ public class AccountsService
 			publications = loadProductsResult.Products?.Length > 0 ? LoadPublications(loadProductsResult.Products) : [];
 		}
 
-		return new UserModel(account.Id.ToString())
+		return new UserModel2(account.Id.ToString())
 		{
 			Sites = sites,
 			Authors = authors,

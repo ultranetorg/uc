@@ -18,7 +18,7 @@ export * from "./SitesGrid"
 export * from "./UserCommentMenu"
 
 export * from "./AboutInfo"
-export * from "./ActiveAccount"
+export * from "./ActiveUser"
 export * from "./GovernanceModerationHeader"
 export * from "./ModeratorOptionsMenu"
 export * from "./ModeratorPublicationHeader"

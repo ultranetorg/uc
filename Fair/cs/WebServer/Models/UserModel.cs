@@ -1,18 +1,15 @@
-﻿namespace Uccs.Fair;
+﻿using System.Text.Json.Serialization;
+
+namespace Uccs.Fair;
 
 public class UserModel
 {
-	public string Id { get; set; }
+	[JsonPropertyOrder(-3)]
+	public string Id { get; init; }
 
-	public IEnumerable<UserSiteModel> Sites { get; set; }
+	[JsonPropertyOrder(-2)]
+	public string Name { get; init; }
 
-	public IEnumerable<UserAuthorModel> Authors { get; set; }
-
-	public IEnumerable<UserPublicationModel> Publications { get; set; }
-	public IEnumerable<UserProductModel> Products { get; set; }
-
-	public UserModel(string id)
-	{
-		Id = id;
-	}
+	[JsonPropertyOrder(-1)]
+	public string Owner { get; init; }
 }
