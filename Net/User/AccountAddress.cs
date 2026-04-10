@@ -39,11 +39,14 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 		if(bytes.Length != Length)
 			throw new ArgumentException("Wrong length");
 		
-        if(!string.IsNullOrEmpty(tag) && tag.Length > Bech32.MaxTagLength) 
-            throw new ArgumentException("Invalid tag length.");
+		if(tag != null)
+		{	
+			if(string.IsNullOrEmpty(tag) || tag.Length == 0 || tag.Length > Bech32.MaxTagLength) 
+				throw new ArgumentException("Invalid tag length.");
 
-        if(tag != null && tag.Any(i => !Bech32.Alphanumeric.Contains(i))) 
-            throw new ArgumentException("Invalid tag format");
+			if(tag.Any(i => !Bech32.Alphanumeric.Contains(i))) 
+			    throw new ArgumentException("Invalid tag format");
+		}
 
 		Bytes = bytes;
 		Tag = tag;
@@ -52,24 +55,37 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Format);
-		if(Format == AddressFormat.Bech32t)
-			writer.WriteASCII(Tag);
+		writer.Write(Algorithm.Schnorr);
+		writer.WriteASCII(Tag);
 		writer.Write(Bytes);
 	}
 
 	public void Read(BinaryReader reader)
 	{
 		Format = reader.Read<AddressFormat>();
-		if(Format == AddressFormat.Bech32t)
-			Tag = reader.ReadASCII();
+		reader.Read<Algorithm>();
+		Tag = reader.ReadASCII();
 		Bytes = reader.ReadBytes(Length);
 	}
 
-	public static AccountAddress Parse(string text)
+	public static AccountAddress Parse(string address)
 	{
-		var a = Decode(text);
+        if(string.IsNullOrEmpty(address) || address.Length < 6) ///[data>1][taglength=1][format=2][algorithm=2]
+            throw new FormatException("Invalid address length");
 
-		return new AccountAddress(a.data, a.tag);
+        var f	= (AddressFormat)(char.ToLowerInvariant(address[address.Length-4]) << 8 | char.ToLowerInvariant(address[address.Length-3]));
+        var a	= (Algorithm)	 (char.ToLowerInvariant(address[address.Length-2]) << 8 | char.ToLowerInvariant(address[address.Length-1]));
+
+        if(f != AddressFormat.Bech32t)
+            throw new FormatException("Unsupported address format");
+
+        if(a != Algorithm.Schnorr)
+            throw new FormatException("Unsupported address format");
+
+        if(!Bech32.TryDecode(address.AsSpan(0, address.Length - 4), out var data, out string tag))
+			throw new FormatException("Invalid address format");
+
+		return new AccountAddress(data, tag);
 	}
 
 	public override string ToString()
@@ -100,7 +116,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 
 	public bool Equals(AccountAddress a)
 	{
-		return a is not null && Uccs.Bytes.EqualityComparer.Equals(Bytes, a.Bytes);
+		return a is not null && Uccs.Bytes.EqualityComparer.Equals(Bytes, a.Bytes) && Format == a.Format;
 	}
 
 	public override int GetHashCode()
@@ -123,22 +139,6 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
         string body = Bech32.Encode(data, tag);
 
         return $"{body}{(char)((ushort)format >> 8)}{(char)(byte)format}{(char)((ushort)algorithm >> 8)}{(char)(byte)algorithm}";
-    }
-
-    public static (AddressFormat format, Algorithm algorithm, string tag, byte[] data) Decode(string address)
-    {
-        if(string.IsNullOrEmpty(address) || address.Length < 12)
-            throw new FormatException("Invalid address length.");
-
-        var f	= (AddressFormat)(char.ToLowerInvariant(address[address.Length-4]) << 8 | char.ToLowerInvariant(address[address.Length-3]));
-        var a	= (Algorithm)	 (char.ToLowerInvariant(address[address.Length-2]) << 8 | char.ToLowerInvariant(address[address.Length-1]));
-
-        if(f != AddressFormat.Bech32t)
-            throw new FormatException("Unsupported address format.");
-
-        Bech32.TryDecode(address.AsSpan(0, address.Length - 4), out var data, out string tag);
-
-        return (f, a, tag, data);
     }
 }
 

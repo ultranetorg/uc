@@ -310,17 +310,24 @@ public abstract class Command
 			return def;
 	}
 
-	public byte[] GetBytes(string paramenter, bool mandatory = true)
+	public byte[] GetBytes(string paramenter, byte[] def)
 	{
 		var p = One(paramenter);
 
 		if(p != null)
 			return p.Get<string>().FromHex();
 		else
-			if(mandatory)
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
-			else
-				return null;
+			return def;
+	}
+
+	public byte[] GetBytes(string paramenter)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+			return p.Get<string>().FromHex();
+		else
+			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
 	public Version GetVersion(string paramenter, bool mandatory = true)

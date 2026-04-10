@@ -134,7 +134,7 @@ public class WalletCommand : VaultCommand
 						new ("key", PRIVATEKEY, "Private key of account to import")];
 
 		a.Execute = () =>	{
-								var pk = Api<byte[]>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", false), Name = GetString("name", null) });
+								var pk = Api<byte[]>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", null), Name = GetString("name", null), Tag = GetString("tag", null)});
 								
 								var k = new AccountKey(pk);
 

@@ -21,12 +21,12 @@ public class AccountKey
 		Tag = tag;
 	}
 
-	public static AccountKey Create()
+	public static AccountKey Create(string tag = null)
 	{
 		var k = new byte[32];
 		RandomNumberGenerator.Fill(k);
 
-		return new AccountKey(k);
+		return new AccountKey(k){Tag = tag};
 	}
 
 	public byte[] Sign(byte[] hash)

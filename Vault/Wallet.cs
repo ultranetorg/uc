@@ -214,7 +214,7 @@ public class Wallet
 		File.WriteAllBytes(Path, ToRaw());
 	}
 
-	public WalletAccount AddAccount(string name, byte[] key)
+	public WalletAccount AddAccount(string name, byte[] key, string tag)
 	{
 		if(Encrypted != null)
 			throw new VaultException(VaultError.Locked);
@@ -222,7 +222,7 @@ public class Wallet
 		if(key != null && Accounts.Any(i => Bytes.Comparer.Compare(i.Key.Secret, key) == 0))
 			throw new VaultException(VaultError.AlreadyExists);
 
-		var a = new WalletAccount(this, name, key == null ? AccountKey.Create() : new AccountKey(key, name));
+		var a = new WalletAccount(this, name, key == null ? AccountKey.Create(tag) : new AccountKey(key, tag));
 		
 		Accounts.Add(a);
 

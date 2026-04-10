@@ -125,6 +125,7 @@ public class AddAccountToWalletApc : AdminApc
 {
 	public string		Wallet { get; set; } ///  Null means first
 	public string		Name { get; set; } ///  Null means first
+	public string		Tag { get; set; } ///  Null means first
 	public byte[]		Key { get; set; } ///  Null means create new
 
 	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -136,7 +137,7 @@ public class AddAccountToWalletApc : AdminApc
 			if(w == null)
 				throw new VaultException(VaultError.NotFound);
 
-			var a = w.AddAccount(Name, Key);
+			var a = w.AddAccount(Name, Key, Tag);
 		
 			return a.Key.Secret;
 		}
