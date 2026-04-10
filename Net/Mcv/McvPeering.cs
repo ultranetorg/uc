@@ -1189,6 +1189,9 @@ public abstract class McvPeering : HomoTcpPeering
 			catch(NodeException ex)
 			{
 			}
+			catch(ObjectDisposedException ex)
+			{
+			}
 			catch(ContinueException)
 			{
 			}

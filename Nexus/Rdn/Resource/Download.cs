@@ -159,9 +159,9 @@ public class FileDownload
 											SeedSeeker.Seed[] seeds;
 
 											lock(Seeker.Lock)
-												seeds = Seeker.Seeds	.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
-																		.OrderByDescending(i => Seeds.TryGetValue(i, out var v) ? v : 0)
-																		.ToArray(); /// skip currrently used
+												seeds = Seeker.Seeds.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
+																	.OrderByDescending(i => Seeds.TryGetValue(i, out var v) ? v : 0)
+																	.ToArray(); /// skip currrently used
 											
 											if(seeds.Any())
 											{
