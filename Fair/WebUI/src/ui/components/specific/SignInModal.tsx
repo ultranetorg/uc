@@ -5,13 +5,15 @@ import { useTranslation } from "react-i18next"
 import { useAuthenticationContext } from "app"
 import { SvgCheckCircle, SvgSpinner, SvgXCircleSm } from "assets"
 import { SEARCH_DELAY } from "config"
-import { USER_NAME_MAX_LENGTH, USER_NAME_MIN_LENGTH } from "constants/validation"
 import { useGetUser } from "entities"
 import { useEscapeKey } from "hooks"
 import { ButtonPrimary, Input, Modal, ModalProps, ValidationWrapper, ValidationWrapperBaseProps } from "ui/components"
 import { showToast, USER_NAME_REGEXP } from "utils"
 
-import { ActiveAccount } from "./ActiveAccount"
+import { ActiveUser } from "./ActiveUser"
+
+export const USER_NAME_MIN_LENGTH = 4
+export const USER_NAME_MAX_LENGTH = 32
 
 export type SignInModalState = "sign-in" | "sign-up"
 
@@ -57,15 +59,15 @@ export const SignInModal = (props: SignInModalProps) => {
   }, [t, user, userName])
 
   const authenticateUser = useCallback(
-    (userName: string, address: string) => {
-      authenticate(userName, address!, {
+    (user: string, account: string) => {
+      authenticate(user, account!, {
         onSuccess: data => {
           if (data === null) {
             showToast(t("authenticationCancelled"), "success")
             return
           }
 
-          showToast(t("successfullyAuthenticated", { userName }), "success")
+          showToast(t("successfullyAuthenticated", { userName: user }), "success")
           props.onClose?.()
         },
         onError: error => showToast(error.message, "error"),
@@ -93,7 +95,7 @@ export const SignInModal = (props: SignInModalProps) => {
   )
 
   const handleSubmit = useCallback(() => {
-    if (state === "sign-in") authenticateUser(userName, user!.data!.address)
+    if (state === "sign-in") authenticateUser(userName, user!.data!.owner)
     else registerUser(userName)
   }, [authenticateUser, registerUser, state, user, userName])
 
@@ -127,9 +129,7 @@ export const SignInModal = (props: SignInModalProps) => {
             />
           </ValidationWrapper>
         </div>
-        {state === "sign-in" && user?.ok && (
-          <ActiveAccount disabled={isPending} {...user.data!} onClick={handleSubmit} />
-        )}
+        {state === "sign-in" && user?.ok && <ActiveUser disabled={isPending} {...user.data!} onClick={handleSubmit} />}
         <div className="flex justify-end gap-6">
           <ButtonPrimary
             className="w-full px-6 capitalize"
