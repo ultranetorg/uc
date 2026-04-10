@@ -30,7 +30,7 @@ public class ModeratorUsersController
 	}
 
 	[HttpGet("/api/moderator/users/{name}")]
-	public AccountBaseModel Get(string name)
+	public UserModel Get(string name)
 	{
 		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(ModeratorUsersController), nameof(Get), name);
 
