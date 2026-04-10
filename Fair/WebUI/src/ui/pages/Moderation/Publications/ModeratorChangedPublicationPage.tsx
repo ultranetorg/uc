@@ -33,10 +33,11 @@ export const ModeratorChangedPublicationPage = () => {
         operation: {
           $type: "PublicationUpdation",
           Publication: publication!.id,
-          Version: publication?.latestVersion,
+          Version: publication!.latestVersion,
         } as unknown as BaseVotableOperation,
       },
     ] as ProposalOption[]
+
     const operation = new ProposalCreation(siteId!, voterId!, role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
@@ -60,6 +61,7 @@ export const ModeratorChangedPublicationPage = () => {
         parentBreadcrumbs={[
           { title: t("common:proposals"), path: `/${siteId}/m` },
           { title: t("common:publications"), path: `/${siteId}/m/c` },
+          { title: t("common:changed"), path: `/${siteId}/m/c/c` },
         ]}
         components={
           <>
@@ -75,8 +77,8 @@ export const ModeratorChangedPublicationPage = () => {
                 <Link
                   to={`/${siteId}/m/v`}
                   state={{
-                    productId: publication.productId,
-                    previousPath: `/${siteId}/m/c/c/${publicationId}`,
+                    publicationId: publication.id,
+                    previousPath: `/${siteId}/m/c/c/${publication.id}`,
                   }}
                 >
                   <ButtonOutline
@@ -93,12 +95,12 @@ export const ModeratorChangedPublicationPage = () => {
       />
 
       <ModerationPublicationHeader
-        title={publication.publication.title}
-        logoId={publication.publication.imageId}
-        authorId={publication.author.id}
-        authorTitle={publication.author.nickname}
+        title={publication.title}
+        logoId={publication.logoId}
+        authorId={publication.authorId}
+        authorTitle={publication.authorTitle}
       />
-      <ProductFieldsDiff from={publication.from} to={publication.to} />
+      <ProductFieldsDiff from={publication.fields} to={publication.fieldsTo} />
     </div>
   )
 }

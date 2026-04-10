@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Uccs.Net;
 
 namespace Uccs.Fair;
 
@@ -86,7 +85,8 @@ public static class ProposalUtils
 
 	static PublicationPublishModel CreatePublicationPublishModel(FairMcv mcv, PublicationPublish operation)
 	{
-		Product product = mcv.Products.Latest(operation.Publication);
+		Publication publication = mcv.Publications.Latest(operation.Publication);
+		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(operation.Category);
 		return new PublicationPublishModel(operation, product, category);
 	}

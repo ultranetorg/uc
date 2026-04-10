@@ -1,5 +1,6 @@
 ﻿namespace Uccs.Fair;
 
+// TODO: merge with ChangedPublicationModel and PublicationDetailsModel
 public class UnpublishedPublicationModel
 {
 	public string Id { get; init; }

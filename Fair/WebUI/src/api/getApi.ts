@@ -304,7 +304,7 @@ const getPublicationProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getModeratorUser = (name: string): Promise<AccountBase> =>
+const getModeratorUser = (name: string): Promise<User> =>
   fetch(`${BASE_URL}/moderator/users/${name}`).then(res => res.json())
 
 const getProductDetails = (productId: string): Promise<ProductDetails> =>

@@ -1,8 +1,9 @@
 ﻿namespace Uccs.Fair;
 
-public class ChangedPublicationDetailsModel(string publicationId, Product product, int publicationVersion, FairUser account, Category category, AutoId publicationImageId)
-	: ChangedPublicationModel(publicationId, product, publicationVersion, account, category, publicationImageId)
+public class ChangedPublicationDetailsModel : ChangedPublicationModel
 {
-	public IEnumerable<FieldValueModel> From { get; set; }
-	public IEnumerable<FieldValueModel> To { get; set; }
+	public int Rating { get; init; }
+
+	public IEnumerable<FieldValueModel> Fields { get; init; }
+	public IEnumerable<FieldValueModel> FieldsTo { get; init; }
 }

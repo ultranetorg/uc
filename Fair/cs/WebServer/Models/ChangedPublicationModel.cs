@@ -1,16 +1,23 @@
 ﻿namespace Uccs.Fair;
 
-public class ChangedPublicationModel(string publicationId, Product product, int publicationVersion, FairUser account, Category category, AutoId logoId)
+// TODO: merge with ChangedPublicationModel and PublicationDetailsModel
+public class ChangedPublicationModel
 {
-	public string Id { get; } = publicationId;
-	public string ProductId { get; } = product.Id.ToString();
+	public string Id { get; init; }
 
-	public PublicationImageBaseModel Publication { get; } = new PublicationImageBaseModel(product, logoId);
-	public AccountBaseAvatarModel Author { get; } = new AccountBaseAvatarModel(account);
+	public ProductType Type { get; init; }
 
-	public string CategoryId { get; } = category.Id.ToString();
-	public string CategoryTitle { get; } = category.Title;
+	public string? Title { get; init; }
+	public string? LogoId { get; init; }
+	public int Updated { get; init; }
 
-	public int CurrentVersion { get; } = publicationVersion;
-	public int LatestVersion { get; } = product.Versions.Length - 1;
+	public string AuthorId { get; init; }
+	public string AuthorTitle { get; init; }
+	public string? AuthorLogoId { get; init; }
+
+	public string CategoryId { get; init; }
+	public string CategoryTitle { get; init; }
+
+	public int CurrentVersion { get; init; }
+	public int LatestVersion { get; init; }
 }

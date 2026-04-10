@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
+using NativeImport;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -328,9 +329,9 @@ public class PublicationsService
 		}
 	}
 
-	public ChangedPublicationDetailsModel GetChangedPublication([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string changedPublicationId)
+	public ChangedPublicationDetailsModel GetChangedPublicationDetails([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string changedPublicationId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ChangedPublicationId}", nameof(PublicationsService), nameof(GetChangedPublication), siteId, changedPublicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ChangedPublicationId}", nameof(PublicationsService), nameof(GetChangedPublicationDetails), siteId, changedPublicationId);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(changedPublicationId);
@@ -347,41 +348,42 @@ public class PublicationsService
 			AutoId entityChangedPublicationId = AutoId.Parse(changedPublicationId);
 			if(!site.ChangedPublications.Contains(entityChangedPublicationId))
 			{
-				throw new EntityNotFoundException(nameof(EntityNames.ChangedPublicationEntityName).ToLower(), changedPublicationId);
+				throw new EntityNotFoundException(EntityNames.ChangedPublicationEntityName, changedPublicationId);
 			}
-
-			Product p = mcv.Products.Latest(AutoId.Parse(changedPublicationId));
-			foreach (var x in p.Publications)
-			{
-				Publication pub = mcv.Publications.Latest(x);
-			}
-
 			
 			Publication publication = mcv.Publications.Latest(entityChangedPublicationId);
 			Product product = mcv.Products.Latest(publication.Product);
-			if(product.Versions.Length < 2)
-			{
-				throw new InvalidPublicationVersionException(changedPublicationId);
-			}
-
-			FairUser account = (FairUser)mcv.Users.Latest(product.Author);
+			Author author = mcv.Authors.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
-			var mappedFrom = ProductFieldsUtils.GetMappedFieldsVersion(product, publication.ProductVersion);
-			var mappedTo = ProductFieldsUtils.GetLatestMappedFields(product);
+			var fields = ProductFieldsUtils.GetMappedFieldsVersion(product, publication.ProductVersion);
+			var fieldsTo = ProductFieldsUtils.GetLatestMappedFields(product);
 
-			return new ChangedPublicationDetailsModel(publication.Id.ToString(), product, publication.ProductVersion, account, category, fileId)
+			return new ChangedPublicationDetailsModel
 			{
-				From = mappedFrom,
-				To = mappedTo
+				Id = publication.Id.ToString(),
+				Type = product.Type,
+				Title = PublicationUtils.GetTitle(publication, product),
+				LogoId = fileId?.ToString(),
+				Updated = product.Updated.Hours,
+				AuthorId = author.Id.ToString(),
+				AuthorTitle = author.Title,
+				AuthorLogoId = author.Avatar?.ToString(),
+				CurrentVersion = publication.ProductVersion,
+				LatestVersion = product.Versions.Last().Id,
+				CategoryId = category.Id.ToString(),
+				CategoryTitle = category.Title,
+				Rating = publication.Rating,
+				Fields = fields,
+				FieldsTo = fieldsTo
 			};
 		}
 	}
 
-	public TotalItemsResult<ChangedPublicationModel> GetChangedPublications([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ChangedPublicationModel> GetChangedPublicationsAll([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetChangedPublications), siteId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetChangedPublicationsAll), siteId, page, pageSize);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.Negative(page);
@@ -406,7 +408,7 @@ public class PublicationsService
 			return new TotalItemsResult<ChangedPublicationModel>
 			{
 				Items = result,
-				TotalItems = site.UnpublishedPublications.Length
+				TotalItems = site.ChangedPublications.Length
 			};
 		}
 	}
@@ -424,11 +426,25 @@ public class PublicationsService
 
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);
-			FairUser account = (FairUser)mcv.Users.Latest(product.Author);
+			Author author = mcv.Authors.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
-			var model = new ChangedPublicationModel(publication.Id.ToString(), product, publication.ProductVersion, account, category, fileId);
+			var model = new ChangedPublicationModel
+			{
+				Id = publication.Id.ToString(),
+				Type = product.Type,
+				Title = PublicationUtils.GetTitle(publication, product),
+				LogoId = fileId?.ToString(),
+				Updated = product.Updated.Hours,
+				AuthorId = author.Id.ToString(),
+				AuthorTitle = author.Title,
+				AuthorLogoId = author.Avatar?.ToString(),
+				CategoryId = category.Id.ToString(),
+				CategoryTitle = category.Title,
+				CurrentVersion = publication.ProductVersion,
+				LatestVersion = product.Versions.Last().Id
+			};
 			result.Add(model);
 		}
 
