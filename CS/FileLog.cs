@@ -52,7 +52,7 @@ public class FileLog
 											Thread.Sleep(1000);
 										}
 									});
-		t.Name = name;
+		t.Name = name + " Log";
 		t.Start();
 
 		Log.Reported += m => {
