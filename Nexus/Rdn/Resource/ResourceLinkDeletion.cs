@@ -58,7 +58,7 @@ public class ResourceLinkDeletion : RdnOperation
 		sd = execution.Domains.Affect(sd.Id);
 		execution.Free(User, sd, execution.Net.EntityLength);
 
-		if(l.Type.HasFlag(ResourceLinkType.Dependency) && dr.IsLocked(execution))
+		if(l.Type.HasFlag(ResourceLinkType.Dependency) && dr.Flags.HasFlag(ResourceFlags.Dependable))
 			execution.Free(User, sd, dr.DataLength);
 
 		execution.PayOperationEnergy(User);

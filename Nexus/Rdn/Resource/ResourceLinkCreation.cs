@@ -66,7 +66,8 @@ public class ResourceLinkCreation : RdnOperation
 
 			l.Type = Type;
 
-			execution.Allocate(User, sd, d.DataLength);
+			if(d.Flags.HasFlag(ResourceFlags.Dependable))
+				execution.Allocate(User, sd, d.DataLength);
 
 			///var n = 0;
 			///
