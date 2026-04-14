@@ -88,8 +88,8 @@ public class TaRdn : Rdn
 	
 	public TaRdn()
 	{
-		Father0EP						= new(DefaultHost, PpiPort);
-		Initials						= LocalInitials;
+		Father0EP					= new(DefaultHost, PpiPort);
+		Initials					= LocalInitials;
 		UserCreationPoWDifficulity	= 0;
 	}
 }
