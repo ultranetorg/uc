@@ -38,11 +38,8 @@ export const ReferendumsPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <GovernanceHeader
-        proposalType="referendum"
-        siteId={siteId!}
         title={t("title")}
         onCreateButtonClick={handleCreateButtonClick}
-        homeLabel={t("common:home")}
         createButtonLabel={t("createReferendum")}
       />
       <TabsProvider defaultKey={key || "perpetual"}>

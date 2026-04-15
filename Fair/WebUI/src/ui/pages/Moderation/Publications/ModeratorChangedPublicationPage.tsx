@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
@@ -23,6 +23,15 @@ export const ModeratorChangedPublicationPage = () => {
   const voterId = getOperationVoterId("publication-updation")
 
   const { isLoading, data: publication } = useGetChangedPublication(siteId, publicationId)
+
+  const parentBreadcrumbs = useMemo(
+    () => [
+      { title: t("common:proposals"), path: `/${siteId}/m` },
+      { title: t("common:publications"), path: `/${siteId}/m/c` },
+      { title: t("common:changed"), path: `/${siteId}/m/c/c` },
+    ],
+    [siteId, t],
+  )
 
   const handleUpdatePublication = useCallback(() => {
     setPending(true)
@@ -58,11 +67,7 @@ export const ModeratorChangedPublicationPage = () => {
     <div className="flex flex-col gap-6">
       <ModerationHeader
         title={publication.id}
-        parentBreadcrumbs={[
-          { title: t("common:proposals"), path: `/${siteId}/m` },
-          { title: t("common:publications"), path: `/${siteId}/m/c` },
-          { title: t("common:changed"), path: `/${siteId}/m/c/c` },
-        ]}
+        parentBreadcrumbs={parentBreadcrumbs}
         components={
           <>
             {!!voterId && (
@@ -79,6 +84,7 @@ export const ModeratorChangedPublicationPage = () => {
                   state={{
                     publicationId: publication.id,
                     previousPath: `/${siteId}/m/c/c/${publication.id}`,
+                    parentBreadcrumbs,
                   }}
                 >
                   <ButtonOutline

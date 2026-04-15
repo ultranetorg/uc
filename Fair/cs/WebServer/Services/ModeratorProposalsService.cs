@@ -22,26 +22,26 @@ public class ModeratorProposalsService
 		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsReviewOperation, CreateReviewProposalModel<ReviewProposalModel>, cancellationToken);
 	}
 
-	T CreateReviewProposalModel<T>(Proposal proposal) where T : ReviewProposalModel
+	T CreateReviewProposalModel<T>(Proposal proposal, Site site) where T : ReviewProposalModel
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 
 		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
 		{
 			Publication publication = mcv.Publications.Latest(reviewCreation.Publication);
-			return CreateReviewModel<T>(proposal, by, publication, reviewCreation.Text);
+			return CreateReviewModel<T>(proposal, site, by, publication, reviewCreation.Text);
 		}
 		if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
 		{
 			Review review = mcv.Reviews.Latest(reviewEdit.Review);
 			Publication publication = mcv.Publications.Latest(review.Publication);
-			return CreateReviewModel<T>(proposal, by, publication, reviewEdit.Text);
+			return CreateReviewModel<T>(proposal, site, by, publication, reviewEdit.Text);
 		}
 
 		return null;
 	}
 
-	T CreateReviewModel<T>(Proposal proposal, FairUser by, Publication publication, string reviewText) where T : ReviewProposalModel
+	T CreateReviewModel<T>(Proposal proposal, Site site, FairUser by, Publication publication, string reviewText) where T : ReviewProposalModel
 	{
 		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(publication.Category);
@@ -50,6 +50,7 @@ public class ModeratorProposalsService
 		PublicationImageBaseModel model = new PublicationImageBaseModel(publication, product, category.Title, fileId);
 
 		T instance = (T) Activator.CreateInstance(typeof(T), proposal, by, model, reviewText);
+		instance.HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site);
 		return instance;
 	}
 
@@ -78,10 +79,13 @@ public class ModeratorProposalsService
 		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsUserOperation, CreateUserProposalModel, cancellationToken);
 	}
 
-	ProposalModel CreateUserProposalModel(Proposal proposal)
+	ProposalModel CreateUserProposalModel(Proposal proposal, Site site)
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
-		return new ProposalModel(proposal, by);
+		return new ProposalModel(proposal, by)
+		{
+			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+		};
 	}
 
 	public PublicationProposalModel GetPublicationProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
@@ -109,33 +113,33 @@ public class ModeratorProposalsService
 		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel, cancellationToken);
 	}
 
-	PublicationProposalModel CreatePublicationProposalModel(Proposal proposal)
+	PublicationProposalModel CreatePublicationProposalModel(Proposal proposal, Site site)
 	{
 		if(proposal.Options[0].Operation is PublicationCreation publicationCreation)
 		{
-			return CreatePublicationModelFromProduct(proposal, publicationCreation.Product);
+			return CreatePublicationModelFromProduct(proposal, site, publicationCreation.Product);
 		}
 		if(proposal.Options[0].Operation is PublicationDeletion publicationDeletion)
 		{
-			return CreatePublicationModel(proposal, publicationDeletion.Publication);
+			return CreatePublicationModel(proposal, site, publicationDeletion.Publication);
 		}
 		if(proposal.Options[0].Operation is PublicationPublish publicationPublish)
 		{
-			return CreatePublicationModel(proposal, publicationPublish.Publication);
+			return CreatePublicationModel(proposal, site, publicationPublish.Publication);
 		}
 		if(proposal.Options[0].Operation is PublicationUpdation publicationUpdation)
 		{
-			return CreatePublicationModel(proposal, publicationUpdation.Publication);
+			return CreatePublicationModel(proposal, site, publicationUpdation.Publication);
 		}
 		if(proposal.Options[0].Operation is PublicationUnpublish publicationUnpublish)
 		{
-			return CreatePublicationModel(proposal, publicationUnpublish.Publication);
+			return CreatePublicationModel(proposal, site, publicationUnpublish.Publication);
 		}
 
 		return null;
 	}
 
-	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, AutoId productId)
+	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, Site site, AutoId productId)
 	{
 		FairUser by = (FairUser)mcv.Users.Latest(proposal.By);
 		Product product = mcv.Products.Latest(productId);
@@ -144,10 +148,13 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);
 
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage)
+		{
+			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+		};
 	}
 
-	PublicationProposalModel CreatePublicationModel(Proposal proposal, AutoId publicationId)
+	PublicationProposalModel CreatePublicationModel(Proposal proposal, Site site, AutoId publicationId)
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 		Publication publication = mcv.Publications.Latest(publicationId);
@@ -158,10 +165,13 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, null, fileId);
 
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage)
+		{
+			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+		};
 	}
 
-	T GetProposalByType<T>(string siteId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc) where T : BaseProposalModel
+	T GetProposalByType<T>(string siteId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc) where T : BaseProposalModel
 	{
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
@@ -184,12 +194,12 @@ public class ModeratorProposalsService
 				throw new EntityNotFoundException(entityName, proposalId);
 			}
 
-			return createFunc(proposal);
+			return createFunc(proposal, site);
 		}
 	}
 
 	TotalItemsResult<T> GetProposalsByTypeNotOptimized<T>
-		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc, CancellationToken cancellationToken)
+		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc, CancellationToken cancellationToken)
 		where T : BaseProposalModel
 	{
 		AutoId siteEntityId = AutoId.Parse(siteId);
@@ -207,7 +217,7 @@ public class ModeratorProposalsService
 	}
 
 	TotalItemsResult<T> LoadProposalsByType<T>
-		(Site site, int page, int pageSize, string? query, Predicate<Proposal> checkFunc, Func<Proposal, T> createFunc, CancellationToken cancellationToken) where T : BaseProposalModel
+		(Site site, int page, int pageSize, string? query, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc, CancellationToken cancellationToken) where T : BaseProposalModel
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<T>.Empty;
@@ -215,7 +225,8 @@ public class ModeratorProposalsService
 		var items = new List<T>(pageSize);
 		int totalItems = 0;
 
-		foreach (AutoId proposalId in site.Proposals)
+		IEnumerable<AutoId> reversed = site.Proposals.Reverse();
+		foreach (AutoId proposalId in reversed)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return new TotalItemsResult<T>{Items = items, TotalItems = totalItems};
@@ -232,7 +243,7 @@ public class ModeratorProposalsService
 
 			if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
 			{
-				T model = createFunc(proposal);
+				T model = createFunc(proposal, site);
 				items.Add(model);
 			}
 
@@ -254,7 +265,7 @@ public class ModeratorProposalsService
 		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsModeratorOperation, CreateModeratorProposalModel, cancellationToken);
 	}
 
-	ModeratorProposalModel CreateModeratorProposalModel(Proposal proposal)
+	ModeratorProposalModel CreateModeratorProposalModel(Proposal proposal, Site site)
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 
@@ -262,13 +273,19 @@ public class ModeratorProposalsService
 		{
 			// NOTE: if there are multiple options, we won't load moderators.
 			IEnumerable<AccountBaseModel> moderators = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, addition.Candidates, CancellationToken.None) : null;
-			return new ModeratorProposalModel(proposal, by, moderators);
+			return new ModeratorProposalModel(proposal, by, moderators)
+			{
+				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+			};
 		}
 		if(proposal.Options[0].Operation is SiteModeratorRemoval removal)
 		{
 			// NOTE: if there are multiple options, we won't load moderators.
 			IEnumerable<AccountBaseModel> moderators = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, [removal.Moderator], CancellationToken.None) : null;
-			return new ModeratorProposalModel(proposal, by, moderators);
+			return new ModeratorProposalModel(proposal, by, moderators)
+			{
+				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+			};
 		}
 
 		return null;
@@ -286,7 +303,7 @@ public class ModeratorProposalsService
 		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsPublisherOperation, CreatePublisherProposalModel, cancellationToken);
 	}
 
-	PublisherProposalModel CreatePublisherProposalModel(Proposal proposal)
+	PublisherProposalModel CreatePublisherProposalModel(Proposal proposal, Site site)
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 
@@ -294,7 +311,10 @@ public class ModeratorProposalsService
 		{
 			// NOTE: if there are multiple options, we won't load publishers.
 			IEnumerable<AccountBaseModel> removals = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, removal.Authors, CancellationToken.None) : null;
-			return new PublisherProposalModel(proposal, by, removals);
+			return new PublisherProposalModel(proposal, by, removals)
+			{
+				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+			};
 		}
 
 		return null;

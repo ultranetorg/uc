@@ -195,6 +195,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal, previousPath }: 
                   publicationId,
                   proposalId: proposal.id,
                   previousPath: `/${siteId}/m/c/p/${proposal.id}`,
+                  parentBreadcrumbs,
                 }}
               >
                 <ButtonOutline
@@ -239,7 +240,12 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal, previousPath }: 
           />
         </div>
         <div className="flex flex-col gap-6">
-          <ProposalInfo className="w-87.5" createdBy={proposal.by} createdAt={proposal.creationTime} daysLeft={7} />
+          <ProposalInfo
+            className="w-87.5"
+            createdBy={proposal.by}
+            createdAt={proposal.creationTime}
+            hoursLeft={proposal.hoursLeft}
+          />
           {!isPublicationMode &&
             (pageState === "voting" ? (
               <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />

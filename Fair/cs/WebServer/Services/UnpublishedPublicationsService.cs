@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
-using NativeImport;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -33,7 +32,8 @@ public class UnpublishedPublicationsService
 			}
 
 			IEnumerable<AutoId> publicationsIds = site.UnpublishedPublications.Skip(page * pageSize).Take(pageSize);
-			List<UnpublishedPublicationModel> result = LoadUnpublishedPublications(publicationsIds, pageSize, cancellationToken);
+			IEnumerable<AutoId> reversed = publicationsIds.Reverse();
+			List<UnpublishedPublicationModel> result = LoadUnpublishedPublications(site, reversed, pageSize, cancellationToken);
 
 			return new TotalItemsResult<UnpublishedPublicationModel>
 			{
@@ -43,7 +43,7 @@ public class UnpublishedPublicationsService
 		}
 	}
 
-	List<UnpublishedPublicationModel> LoadUnpublishedPublications(IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+	List<UnpublishedPublicationModel> LoadUnpublishedPublications(Site site, IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
@@ -53,6 +53,11 @@ public class UnpublishedPublicationsService
 		{
 			if(cancellationToken.IsCancellationRequested)
 				return result;
+
+			if(HasProductPublicationProposalForPublication(site, publicationId))
+			{
+				continue;
+			}
 
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);
@@ -104,6 +109,11 @@ public class UnpublishedPublicationsService
 				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 			}
 
+			//if(HasProductPublicationProposalForPublication(site, entityPublicationId))
+			//{
+			//	throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
+			//}
+
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
@@ -122,5 +132,19 @@ public class UnpublishedPublicationsService
 				AuthorLogoId = author.Avatar?.ToString(),
 			};
 		}
+	}
+
+	bool HasProductPublicationProposalForPublication(Site site, AutoId publicationId)
+	{
+		return site.Proposals.Any(x =>
+		{
+			Proposal proposal = mcv.Proposals.Latest(x);
+			if(proposal.OptionClass != FairOperationClass.PublicationPublish)
+			{
+				return false;
+			}
+
+			return (proposal.Options[0].Operation as PublicationPublish).Publication == publicationId;
+		});
 	}
 }

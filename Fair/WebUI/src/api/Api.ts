@@ -140,7 +140,7 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
 
-  getModeratorUser(name: string): Promise<AccountBase>
+  getModeratorUser(name: string): Promise<User>
 
   getProductDetails(productId: string): Promise<ProductDetails>
 

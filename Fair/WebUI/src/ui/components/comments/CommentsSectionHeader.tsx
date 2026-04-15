@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react"
+import { memo, PropsWithChildren } from "react"
 
 type CommentsSectionHeaderBaseProps = {
   label: string
@@ -7,7 +7,7 @@ type CommentsSectionHeaderBaseProps = {
 
 export type CommentsSectionHeaderProps = PropsWithChildren & CommentsSectionHeaderBaseProps
 
-export const CommentsSectionHeader = ({ children, label, totalItems }: CommentsSectionHeaderProps) => (
+export const CommentsSectionHeader = memo(({ children, label, totalItems }: CommentsSectionHeaderProps) => (
   <div className="flex items-center justify-between">
     <div className="flex gap-2 text-xl font-semibold leading-6">
       <span className="capitalize text-gray-800">{label}</span>
@@ -15,4 +15,4 @@ export const CommentsSectionHeader = ({ children, label, totalItems }: CommentsS
     </div>
     {children}
   </div>
-)
+))

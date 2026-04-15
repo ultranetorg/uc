@@ -94,7 +94,13 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
       <PageHeader
         siteId={siteId!}
         homeLabel={t("common:home")}
-        title={proposalType === "discussion" ? t("createDiscussion") : t("createReferendum")}
+        title={
+          (location.state?.title as string)
+            ? location.state?.title
+            : proposalType === "discussion"
+              ? t("createDiscussion")
+              : t("createReferendum")
+        }
         parentBreadcrumbs={
           parentBreadcrumbs
             ? parentBreadcrumbs

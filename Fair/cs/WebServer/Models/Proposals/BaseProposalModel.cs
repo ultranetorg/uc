@@ -19,4 +19,6 @@ public abstract class BaseProposalModel(Proposal proposal, FairUser by)
 
 	public AccountBaseModel By { get; } = new AccountBaseModel(by);
 	public bool MultipleOptions { get; } = proposal.Options.Length > 1;
+
+	public int HoursLeft { get; set; } = -1;
 }

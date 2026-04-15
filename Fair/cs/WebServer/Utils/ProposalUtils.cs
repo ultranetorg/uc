@@ -90,4 +90,13 @@ public static class ProposalUtils
 		Category category = mcv.Categories.Latest(operation.Category);
 		return new PublicationPublishModel(operation, product, category);
 	}
+
+	public static int CalculateHoursLeft(Proposal proposal, Site site)
+	{
+		if (site.Policies.First(i => i.OperationClass == proposal.OptionClass).Approval == ApprovalRequirement.PublishersMajority)
+			return -1;
+		if (Site.Restrictions.First(i => i.OperationClass == proposal.OptionClass).Flags.HasFlag(PolicyFlag.Infinite))
+			return -1;
+		return (proposal.CreationTime - Time.FromDays(30)).Hours;
+	}
 }

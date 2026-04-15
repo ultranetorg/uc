@@ -2,7 +2,7 @@ import { memo, useMemo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { SvgStarXxs } from "assets"
-import { ButtonPrimary, LinkFullscreen } from "ui/components"
+import { LinkFullscreen } from "ui/components"
 import { ReviewsList } from "ui/components/specific"
 import { AuthorImageTitle } from "ui/components/publication/SoftwareInfo/components"
 import { buildFileUrl, formatAverageRating } from "utils"
@@ -39,11 +39,11 @@ export const MoviePublicationContent = memo(
             )}
           </div>
 
-          <div className="flex flex-col gap-4">
+          {/* <div className="flex flex-col gap-4">
             <ButtonPrimary className="w-full" label={t("downloadFromRdn")} />
             <ButtonPrimary className="w-full" label={t("downloadFromTorrent")} />
             <ButtonPrimary className="w-full" label={t("downloadFromIpfs")} />
-          </div>
+          </div> */}
         </div>
 
         {/* Right column: movie info + reviews */}

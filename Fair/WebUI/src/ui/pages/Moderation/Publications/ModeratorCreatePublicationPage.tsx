@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
@@ -26,6 +26,14 @@ export const ModeratorCreatePublicationPage = () => {
   const [query, setQuery] = useState(searchParams.get("productId") ?? "")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
   const { data: product, isError } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
+
+  const parentBreadcrumbs = useMemo(
+    () => [
+      { title: t("common:proposals"), path: `/${siteId}/m` },
+      { title: t("common:publications"), path: `/${siteId}/m/c` },
+    ],
+    [siteId, t],
+  )
 
   useEffect(() => {
     setSearchParams(product?.id ? { productId: product.id } : {}, { replace: true })
@@ -58,13 +66,7 @@ export const ModeratorCreatePublicationPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ModerationHeader
-        title={t("searchProduct")}
-        parentBreadcrumbs={[
-          { title: t("common:proposals"), path: `/${siteId}/m` },
-          { title: t("common:publications"), path: `/${siteId}/m/c` },
-        ]}
-      />
+      <ModerationHeader title={t("searchProduct")} parentBreadcrumbs={parentBreadcrumbs} />
       <div className="max-w-120">
         <Input
           value={query}
@@ -107,6 +109,10 @@ export const ModeratorCreatePublicationPage = () => {
                       state={{
                         productId: product.id,
                         previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
+                        parentBreadcrumbs: [
+                          ...parentBreadcrumbs,
+                          { title: t("searchProduct"), path: `/${siteId}/m/new-publication?productId=${product.id}` },
+                        ],
                       }}
                     >
                       <ButtonOutline

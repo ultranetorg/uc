@@ -3,17 +3,17 @@ import { twMerge } from "tailwind-merge"
 
 import { AccountBaseAvatar, PropsWithClassName } from "types"
 import { AccountInfo } from "ui/components"
-import { formatDate, shortenAddress } from "utils"
+import { formatDate, formatDaysLeft, shortenAddress } from "utils"
 
 type ProposalInfoBaseProps = {
   createdBy: AccountBaseAvatar
   createdAt: number
-  daysLeft: number
+  hoursLeft: number
 }
 
 export type ProposalInfoProps = ProposalInfoBaseProps & PropsWithClassName
 
-export const ProposalInfo = ({ className, createdBy, createdAt, daysLeft }: ProposalInfoProps) => {
+export const ProposalInfo = ({ className, createdBy, createdAt, hoursLeft }: ProposalInfoProps) => {
   const { siteId } = useParams()
 
   return (
@@ -37,10 +37,12 @@ export const ProposalInfo = ({ className, createdBy, createdAt, daysLeft }: Prop
         <span className="text-gray-500">Created At:</span>
         <span>{formatDate(createdAt)}</span>
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-gray-500">Days Left:</span>
-        <span>{daysLeft}</span>
-      </div>
+      {hoursLeft !== -1 && (
+        <div className="flex flex-col gap-2">
+          <span className="text-gray-500">Days Left:</span>
+          <span>{formatDaysLeft(createdAt, hoursLeft)}</span>
+        </div>
+      )}
     </div>
   )
 }

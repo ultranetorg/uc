@@ -4,8 +4,8 @@ import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 import { SvgXSm } from "assets"
 import { useGetPublicationDetails } from "entities"
 import { useGetProductDetails } from "entities/Product"
-import { ButtonPrimary } from "ui/components"
-import { SoftwarePublicationHeader } from "ui/components/publication"
+import { Breadcrumbs, BreadcrumbsItemProps, ButtonPrimary } from "ui/components"
+import { PublicationHeader } from "ui/components/publication"
 import { PublicationContentView } from "ui/views"
 
 export const PreviewPage = () => {
@@ -16,9 +16,18 @@ export const PreviewPage = () => {
   const productId = location.state?.productId as string | undefined
   const publicationId = location.state?.publicationId as string | undefined
   const previousPath = location.state?.previousPath as string | undefined
+  const parentBreadcrumbs = location.state?.parentBreadcrumbs as
+    | BreadcrumbsItemProps
+    | BreadcrumbsItemProps[]
+    | undefined
 
   const { data: product, isPending: isProductPending } = useGetProductDetails(productId)
   const { data: publication, isPending: isPublicationPending } = useGetPublicationDetails(publicationId)
+
+  // Show logo only for game or software.
+  const showLogo =
+    (product && (product.type === "game" || product.type === "software")) ||
+    (publication && (publication.type === "game" || publication.type === "software"))
 
   if (!previousPath || (!productId && !publicationId)) return <Navigate to={`/${siteId}`} />
 
@@ -28,9 +37,19 @@ export const PreviewPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <SoftwarePublicationHeader
+      {parentBreadcrumbs && (
+        <Breadcrumbs
+          fullPath={true}
+          items={[
+            { path: `/${siteId}`, title: t("common:home") },
+            ...(parentBreadcrumbs ? (Array.isArray(parentBreadcrumbs) ? parentBreadcrumbs : [parentBreadcrumbs]) : []),
+            { title: product?.id ?? publication?.id ?? "" },
+          ]}
+        />
+      )}
+      <PublicationHeader
         title={product?.title ?? publication?.title ?? ""}
-        logoFileId={product?.logoId ?? publication?.logoId}
+        logoFileId={showLogo ? (product?.logoId ?? publication?.logoId) : undefined}
         components={
           previousPath && (
             <Link to={previousPath}>

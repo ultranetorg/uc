@@ -141,7 +141,7 @@ export const enUS = {
     textChange: "Change text",
   },
   moderatorOptionsMenu: {
-    label: "Moderation options",
+    label: "Moderation",
     removePublication: "Remove publication",
   },
   moderatorCategoryMenu: {
@@ -393,7 +393,7 @@ export const enUS = {
     title: "Explore Multiple\nDecentralized Stores",
   },
   unpublishedPublicationPage: {
-    publish: `Publish "{{publicationTitle}}"`,
+    publish: `Publish "{{publicationTitle}}" product`,
     publishNoTitle: "Publish publication without title",
   },
   usersPage: {

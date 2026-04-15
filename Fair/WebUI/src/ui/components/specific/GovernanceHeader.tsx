@@ -4,42 +4,20 @@ import { useNavigate } from "react-router-dom"
 
 import { useModerationContext, useSiteContext } from "app"
 import { ProposalType } from "types"
-import {
-  Breadcrumbs,
-  BreadcrumbsItemProps,
-  ButtonBar,
-  ButtonOutline,
-  DropdownButton,
-  SimpleMenuItem,
-} from "ui/components"
+import { DropdownButton, SimpleMenuItem } from "ui/components"
 import { getVisibleProposalOperations, groupOperations } from "utils"
 
+import { ModerationHeader } from "./ModerationHeader"
+
 export type GovernanceHeaderProps = {
-  proposalType: ProposalType
-  siteId: string
+  proposalType?: ProposalType
   title: string
-  totalItems?: number
-  parentBreadcrumb?: BreadcrumbsItemProps
   onCreateButtonClick?: () => void
-  onSearchProduct?: () => void
   createButtonLabel?: string
-  homeLabel: string
-  searchProductLabel?: string
 }
 
 export const GovernanceHeader = memo(
-  ({
-    proposalType,
-    siteId,
-    title,
-    totalItems,
-    parentBreadcrumb,
-    onCreateButtonClick,
-    onSearchProduct,
-    createButtonLabel,
-    homeLabel,
-    searchProductLabel,
-  }: GovernanceHeaderProps) => {
+  ({ proposalType = "referendum", title, onCreateButtonClick, createButtonLabel }: GovernanceHeaderProps) => {
     const { t } = useTranslation()
     const { site } = useSiteContext()
     const navigate = useNavigate()
@@ -65,26 +43,15 @@ export const GovernanceHeader = memo(
     }, [navigate, policies, proposalType, site, t])
 
     return (
-      <div className="flex flex-col gap-2">
-        <Breadcrumbs
-          fullPath={true}
-          items={[
-            { path: `/${siteId}`, title: homeLabel },
-            ...(parentBreadcrumb ? [parentBreadcrumb] : []),
-            { title: title },
-          ]}
-        />
-        <div className="flex justify-between">
-          <div className="flex gap-2 text-3.5xl font-semibold leading-10">
-            <span>{title}</span>
-            {totalItems && <span className="text-gray-400">({totalItems})</span>}
-          </div>
-          {((proposalType === "referendum" && isPublisher) || (proposalType === "discussion" && isModerator)) && (
-            <ButtonBar>
-              {onSearchProduct && searchProductLabel && (
-                <ButtonOutline className="w-48" label={searchProductLabel} onClick={onSearchProduct} />
-              )}
-              {dropdownItems && dropdownItems.length > 0 && onCreateButtonClick && createButtonLabel && (
+      <ModerationHeader
+        title={title}
+        components={
+          <>
+            {((proposalType === "referendum" && isPublisher) || (proposalType === "discussion" && isModerator)) &&
+              dropdownItems &&
+              dropdownItems.length > 0 &&
+              onCreateButtonClick &&
+              createButtonLabel && (
                 <DropdownButton
                   className="first-letter:uppercase"
                   label={createButtonLabel}
@@ -93,10 +60,9 @@ export const GovernanceHeader = memo(
                   menuClassName="overflow-y-auto max-w-60 max-h-85"
                 />
               )}
-            </ButtonBar>
-          )}
-        </div>
-      </div>
+          </>
+        }
+      />
     )
   },
 )

@@ -64,7 +64,8 @@ public class ProposalService
 
 			return new ProposalDetailsModel(proposal, account, votesRequiredToWin)
 			{
-				Options = options
+				Options = options,
+				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
 			};
 		}
 	}

@@ -57,6 +57,7 @@ export const UnpublishedPublicationPage = () => {
                   state={{
                     publicationId: publication.id,
                     previousPath: `/${siteId}/m/c/u/${publication.id}`,
+                    parentBreadcrumbs,
                   }}
                 >
                   <ButtonOutline

@@ -24,9 +24,10 @@ export const formatNabbShort = (neither: number, any: number, ban: number, banis
 
 export const formatAverageRating = (value: number): string => (value / 10).toFixed(1)
 
-export const formatDate = (days: number): string => {
-  return dayjs(START_DATE).add(days, "day").startOf("day").format("DD.MM.YYYY")
-}
+export const formatDate = (hours: number): string =>
+  dayjs(START_DATE).add(hours, "hour").startOf("day").format("DD.MM.YYYY")
+
+export const formatDaysLeft = (createdAt: number, hoursLeft: number): number => Math.ceil((createdAt - hoursLeft) / 24)
 
 export const formatSupportedPlatforms = (platforms: string[]): string => platforms.join(" / ")
 

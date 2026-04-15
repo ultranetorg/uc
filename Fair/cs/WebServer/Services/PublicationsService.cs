@@ -403,7 +403,8 @@ public class PublicationsService
 			}
 
 			IEnumerable<AutoId> publicationsIds = site.ChangedPublications.Skip(page * pageSize).Take(pageSize);
-			List<ChangedPublicationModel> result = LoadChangedPublications<ChangedPublicationModel>(publicationsIds, pageSize, cancellationToken);
+			IEnumerable<AutoId> reversed = publicationsIds.Reverse();
+			List<ChangedPublicationModel> result = LoadChangedPublications<ChangedPublicationModel>(reversed, pageSize, cancellationToken);
 
 			return new TotalItemsResult<ChangedPublicationModel>
 			{

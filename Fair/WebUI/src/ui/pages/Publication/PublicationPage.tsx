@@ -6,7 +6,7 @@ import { useDocumentTitle } from "usehooks-ts"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublicationDetails, useGetReviews } from "entities"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
-import { ReviewModal, SoftwarePublicationHeader } from "ui/components/publication"
+import { ReviewModal, PublicationHeader } from "ui/components/publication"
 import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
 import { createBreadcrumbs } from "utils"
 import { PublicationContentView } from "ui/views"
@@ -43,7 +43,7 @@ export const PublicationPage = () => {
     <>
       <div className="flex flex-col gap-6">
         <Breadcrumbs items={breadcrumbsItems!} />
-        <SoftwarePublicationHeader
+        <PublicationHeader
           id={publicationId!}
           title={publication.title}
           logoFileId={publication.logoId}

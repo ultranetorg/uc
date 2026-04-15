@@ -23,4 +23,6 @@ export type BaseProposal = {
 
   by: AccountBase
   multipleOptions: boolean
+
+  hoursLeft: number
 }
