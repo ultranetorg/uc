@@ -48,6 +48,8 @@ public class ResourceLinkCreation : RdnOperation
 		d = execution.Resources.Affect(Destination);
 		d.AffectInbound(s.Id);
 
+		sd = execution.Domains.Affect(sd.Id);
+
 		if(Type.HasFlag(ResourceLinkType.Dependency))
 		{
 			if(s.IsLocked(execution)) 
@@ -64,38 +66,40 @@ public class ResourceLinkCreation : RdnOperation
 
 			l.Type = Type;
 
-			var n = 0;
+			if(d.Flags.HasFlag(ResourceFlags.Dependable))
+				execution.Allocate(User, sd, d.DataLength);
 
-			bool circular(ResourceLink[] outs)
-			{
-				n++;
-
-				if(n > execution.Net.CircularDependeciesChecksMaximum)
-				{
-					Error = LimitExceeded;
-					return false;
-				}
-
-				foreach(var i in outs.Where(i => i.Type.HasFlag(ResourceLinkType.Dependency)))
-				{
-					if(i.Destination == s.Id)
-						return true;
-
-					if(circular(execution.Resources.Find(i.Destination).Outbounds))
-						return true;
-				}
-
-				return false;
-			}
-
-			if(circular(d.Outbounds))
-			{
-				Error ??= CircularDependency;
-				return;
-			}
+			///var n = 0;
+			///
+			///bool circular(ResourceLink[] outs)
+			///{
+			///	n++;
+			///
+			///	if(n > execution.Net.CircularDependeciesChecksMaximum)
+			///	{
+			///		Error = LimitExceeded;
+			///		return false;
+			///	}
+			///
+			///	foreach(var i in outs.Where(i => i.Type.HasFlag(ResourceLinkType.Dependency)))
+			///	{
+			///		if(i.Destination == s.Id)
+			///			return true;
+			///
+			///		if(circular(execution.Resources.Find(i.Destination).Outbounds))
+			///			return true;
+			///	}
+			///
+			///	return false;
+			///}
+			///
+			///if(circular(d.Outbounds))
+			///{
+			///	Error ??= CircularDependency;
+			///	return;
+			///}
 		}
 
-		sd = execution.Domains.Affect(sd.Id);
 		execution.Allocate(User, sd, execution.Net.EntityLength);
 		execution.PayOperationEnergy(User);
 	}

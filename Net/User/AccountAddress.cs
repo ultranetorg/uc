@@ -5,6 +5,7 @@ namespace Uccs.Net;
 
 public enum AddressFormat : ushort
 {
+	Hex = (byte)'h'<<8 | (byte)'x',
 	Bech32t = (byte)'b'<<8 | (byte)'t',
 }
 
@@ -20,7 +21,8 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 	public virtual byte[]		Bytes { get; protected set; }
 	public string				Tag { get; protected set; }
 	string						Text;
-	AddressFormat 				Format = AddressFormat.Bech32t; 
+	AddressFormat 				Format = AddressFormat.Bech32t;
+	Algorithm	 				Algorithm = Algorithm.Schnorr;
 
 	public AccountAddress()
 	{
@@ -52,10 +54,18 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 		Tag = tag;
  	}
 
+ 	public AccountAddress(AddressFormat format, Algorithm algorithm, byte[] bytes, string tag)
+ 	{
+		Format = format;
+		Algorithm = algorithm;
+		Bytes = bytes;
+		Tag = tag;
+ 	}
+
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Format);
-		writer.Write(Algorithm.Schnorr);
+		writer.Write(Algorithm);
 		writer.WriteASCII(Tag);
 		writer.Write(Bytes);
 	}
@@ -63,7 +73,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 	public void Read(BinaryReader reader)
 	{
 		Format = reader.Read<AddressFormat>();
-		reader.Read<Algorithm>();
+		Algorithm = reader.Read<Algorithm>();
 		Tag = reader.ReadASCII();
 		Bytes = reader.ReadBytes(Length);
 	}
@@ -116,7 +126,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 
 	public bool Equals(AccountAddress a)
 	{
-		return a is not null && Uccs.Bytes.EqualityComparer.Equals(Bytes, a.Bytes) && Format == a.Format;
+		return a is not null && Uccs.Bytes.EqualityComparer.Equals(Bytes, a.Bytes) && Format == a.Format && Algorithm == a.Algorithm;
 	}
 
 	public override int GetHashCode()

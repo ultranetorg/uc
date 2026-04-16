@@ -291,7 +291,9 @@ public abstract class Round : IBinarySerializable
 			Elect(svotes, min);
 		}
 
-		Hashify(); /// depends on Mcv.BaseHash 
+		Hashify(); /// depends on Mcv.GraphHash 
+
+		Mcv.Log?.Report(this, $"Summarize {this} - Payloads={string.Join(" ", Payloads.Select(i => i.User))} - VotesOfTry={string.Join(" ", VotesOfTry.Select(i => i.User))} - Votes={string.Join(" ", Votes.Select(i => i.User))}");
 
 		return Hash;
 	}
@@ -314,7 +316,6 @@ public abstract class Round : IBinarySerializable
 		var l = Target.Senders.Where(i => !Target.VotesOfTry.Any(v => v.User == i.User) && /// did not sent a vote
 										 !prevs.Any(r => r.VotesOfTry.Any(v => v.User == generator && v.Leavers.Contains(i.User)))) /// not yet proposed in prev [Pitch-1] rounds
 							 .Select(i => i.User);
-
 		return l;
 	}
 
@@ -492,6 +493,9 @@ public abstract class Round : IBinarySerializable
 			Members.Add(m);
 
 			Mcv.Log?.Report(this, $"Left - Round {Id} - {a}");
+
+			///if(Mcv.Settings.Generators.Any(i => i.Id == a.Id))
+			///	Debugger.Break();
 		}
 
 		Members.RemoveAll(i => i.Till < Id);

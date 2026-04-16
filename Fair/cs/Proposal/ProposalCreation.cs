@@ -43,7 +43,7 @@ public class ProposalCreation : FairOperation
 	public string				Text { get; set; }
 	public Option[]				Options { get; set; }
 
-	public override string		Explanation => $"Site={Site}, By={By}, As={As}, Option={{{Options}}}, Text={Text}";
+	public override string		Explanation => $"Site={Site}, By={By}, As={As}, Options={{{Options.First().Operation.ToString()}{(Options.Length > 1 ? $", ..." : null)}}}, Text={Text}";
 
 	public ProposalCreation()
 	{

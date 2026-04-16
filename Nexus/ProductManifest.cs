@@ -9,14 +9,14 @@ public class PlatformExpression
 	public string				Operator;
 	public PlatformExpression[] Operands;
 
-	const string Greater = ">";
-	const string GreaterOrEqual = ">=";
-	const string Less = "<";
-	const string LessOrEqual = "<=";
-	const string Equal = "==";
-	const string Not = "NOT";
-	const string Or = "OR";
-	const string And = "AND";
+	public const string Greater = ">";
+	public const string GreaterOrEqual = ">=";
+	public const string Less = "<";
+	public const string LessOrEqual = "<=";
+	public const string Equal = "==";
+	public const string Not = "NOT";
+	public const string Or = "OR";
+	public const string And = "AND";
 
 	static bool IsOperation(string name) => name == Greater ||
 											name == GreaterOrEqual ||
@@ -34,6 +34,17 @@ public class PlatformExpression
 
 	public PlatformExpression()
 	{
+	}
+
+	public PlatformExpression(string @operator, PlatformExpression[] operands)
+	{
+		Operator = @operator;
+		Operands = operands;
+	}
+
+	public PlatformExpression(string @operator)
+	{
+		Operator = @operator;
 	}
 
 	public Xon ToXon(IXonValueSerializator serializator)

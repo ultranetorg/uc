@@ -16,22 +16,22 @@ public class AccountAddressTests
 		{
 			r.NextBytes(h);
 
-			var a = new AccountAddress(h);
+			var x = new AccountAddress(h);
 
-			Assert.True(AccountAddress.Parse(a.ToString()).Bytes.SequenceEqual(h));
+			Assert.True(AccountAddress.Parse(x.ToString()).Bytes.SequenceEqual(h));
 
 			r.NextBytes(h);
 
 			var tag = string.Concat(Enumerable.Range(0, 1000).Select(i => (char)(byte)r.Next()).Where(Bech32.Alphanumeric.Contains).Take(1 + r.Next() % (Bech32.MaxTagLength - 1)));
-			a = new AccountAddress(h, tag);
+			x = new AccountAddress(h, tag);
 
-			var t = a.ToString();
+			var t = x.ToString();
 			Assert.StartsWith(tag, t);
 
-			var x = AccountAddress.Parse(t);
+			var y = AccountAddress.Parse(t);
 
-			Assert.True(x.Bytes.SequenceEqual(h));
-			Assert.True(x.Tag == a.Tag);
+			Assert.True(y.Bytes.SequenceEqual(h));
+			Assert.True(y.Tag == x.Tag);
 		}
  	}
 
@@ -60,5 +60,26 @@ public class AccountAddressTests
 			Assert.True(x == y);
 			Assert.True(x.Tag == y.Tag);
 		}
+ 	}
+
+	[Fact]
+ 	public static void FormatAndAlgorithm()
+ 	{
+		var r = new Random();
+		var h = new byte[32];
+
+		r.NextBytes(h);
+
+		var items = new List<AccountAddress>();
+
+		foreach(var f in Enum.GetValues<AddressFormat>())
+		{
+			foreach(var a in Enum.GetValues<Algorithm>())
+			{
+				items.Add(new AccountAddress(f, a, h, null));
+			}
+		}
+
+		Assert.True(items.Distinct().Count() == items.Count);
  	}
 }

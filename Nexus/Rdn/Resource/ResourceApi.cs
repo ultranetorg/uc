@@ -204,7 +204,7 @@ public class LocalReleaseActivityProgressApc : RdnApc
 			}
 			else if(r.Activity is DirectoryDownload d)
 			{
-				var s = new ReleaseDownloadProgress(d.SeedSeeker);
+				var s = new ReleaseDownloadProgress(d.Seeker);
 
 				s.Succeeded	= d.Succeeded;
 				s.CurrentFiles = r.Files.Where(i => i.Activity is FileDownload).Select(i => new FileDownloadProgress(i.Activity as FileDownload)).ToArray();

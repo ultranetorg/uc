@@ -117,13 +117,12 @@ public class FileDownload
 	public PieceDelegate						PieceSucceeded;
 	Flow										Flow;
 
-	public FileDownload(RdnNode sun, LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow flow)
+	public FileDownload(RdnNode node, LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow flow)
 	{
-		Rdn			= sun;
+		Rdn			= node;
 		Release		= release;
 		File		= release.Find(path) ?? release.AddEmpty(path, localpath);
 		Flow		= flow;
-		Seeker		= seeker ?? new SeedSeeker(sun, release.Address, flow);
 
 		if(File.Status == LocalFileStatus.Completed)
 		{
@@ -140,7 +139,8 @@ public class FileDownload
 		if(single)
 			Release.Activity = this;
 		
-		File.Activity = this;
+		Seeker			= seeker ?? new SeedSeeker(node, release.Address, flow);
+		File.Activity	= this;
 
 		Task = Task.Run(() =>
 						{
@@ -159,9 +159,9 @@ public class FileDownload
 											SeedSeeker.Seed[] seeds;
 
 											lock(Seeker.Lock)
-												seeds = Seeker.Seeds	.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
-																		.OrderByDescending(i => Seeds.TryGetValue(i, out var v) ? v : 0)
-																		.ToArray(); /// skip currrently used
+												seeds = Seeker.Seeds.Where(i => i.Good && CurrentPieces.All(j => j.Seed != i))
+																	.OrderByDescending(i => Seeds.TryGetValue(i, out var v) ? v : 0)
+																	.ToArray(); /// skip currrently used
 											
 											if(seeds.Any())
 											{
@@ -276,17 +276,6 @@ public class FileDownload
 								}
 
 							end:
-
-								//var hubs = Hubs.Where(h => h.Seeds.Any(s => s.Peer != null && s.Failed == DateTime.MinValue)).SelectMany(i => i.IPs);
-
-								//foreach(var h in hubs)
-								//	h.HubRank++;
-
-								if(seeker == null)
-								{
-									Seeker.Stop();
-								}
-
 								if(Succeeded)
 								{
 									//var seeds = CompletedPieces.Select(i => i.Seed.Peer);
@@ -313,6 +302,9 @@ public class FileDownload
 							}
 							finally
 							{
+								if(seeker == null) /// dedicated?
+									Seeker.Stop();
+
 								lock(Rdn.ResourceHub.Lock)
 								{	
 									if(single)
@@ -341,7 +333,7 @@ public class DirectoryDownload
 	public int					TotalCount;
 	public List<FileDownload>	CurrentDownloads = new();
 	public Task					Task;
-	public SeedSeeker			SeedSeeker;
+	public SeedSeeker			Seeker;
 	Flow						Flow;
 
 	public DirectoryDownload(RdnNode sun, LocalRelease release, string localpath, IIntegrity integrity, Flow flow)
@@ -350,13 +342,13 @@ public class DirectoryDownload
 		LocalPath = localpath;
 		Release.Activity = this;
 		Flow = flow;
-		SeedSeeker = new SeedSeeker(sun, release.Address, Flow);
+		Seeker = new SeedSeeker(sun, release.Address, Flow);
 
 		void run()
 		{
 			try
 			{
-				sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, SeedSeeker, Flow);
+				sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, Seeker, Flow);
 
 				var index = new Xon(release.Find(LocalRelease.Index).Read());
 
@@ -388,7 +380,7 @@ public class DirectoryDownload
 
 						lock(sun.ResourceHub.Lock)
 						{
-							var dd = sun.ResourceHub.DownloadFile(release, false, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), SeedSeeker, Flow);
+							var dd = sun.ResourceHub.DownloadFile(release, false, f.Name, Path.Join(LocalPath, f.Name), new DHIntegrity(f.Value as byte[]), Seeker, Flow);
 
 							if(dd != null)
 							{
@@ -407,8 +399,6 @@ public class DirectoryDownload
 				}
 				while(Files.Any() && Flow.Active);
 
-				SeedSeeker.Stop();
-
 				lock(sun.ResourceHub.Lock)
 				{
 					Succeeded = true;
@@ -420,6 +410,8 @@ public class DirectoryDownload
 			}
 			finally
 			{
+				Seeker.Stop();
+
 				lock(sun.ResourceHub.Lock)
 					Release.Activity = null;
 			}

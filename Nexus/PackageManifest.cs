@@ -232,7 +232,7 @@ public class PackageManifest
 
 	public PackageManifest()
 	{
-  		}
+  	}
 
 	public static PackageManifest Parse(string text)
 	{

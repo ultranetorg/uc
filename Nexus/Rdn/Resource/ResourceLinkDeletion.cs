@@ -52,11 +52,14 @@ public class ResourceLinkDeletion : RdnOperation
 		sr = execution.Resources.Affect(Source);
 		sr.RemoveOutbound(l.Destination);
 
+		var dr = execution.Resources.Affect(l.Destination);
+		dr.RemoveInbound(Source);
+
 		sd = execution.Domains.Affect(sd.Id);
 		execution.Free(User, sd, execution.Net.EntityLength);
 
-		var dr = execution.Resources.Affect(l.Destination);
-		dr.RemoveInbound(Source);
+		if(l.Type.HasFlag(ResourceLinkType.Dependency) && dr.Flags.HasFlag(ResourceFlags.Dependable))
+			execution.Free(User, sd, dr.DataLength);
 
 		execution.PayOperationEnergy(User);
 	}

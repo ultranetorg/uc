@@ -327,7 +327,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 							Mcv.NextVotingRound.ReUpdate();
 
-							if(Mcv.TryReachConsensus(Mcv.NextVotingRound))
+							if(Mcv.TryConfirm(Mcv.NextVotingRound))
 							{
 								SynchronizingThread = null;
 								SynchronizationInfo = null;
@@ -408,7 +408,7 @@ public abstract class McvPeering : HomoTcpPeering
 
 						Mcv.NextVotingRound.ReUpdate();
 
-						if(Mcv.TryReachConsensus(Mcv.NextVotingRound))
+						if(Mcv.TryConfirm(Mcv.NextVotingRound))
 						{
 							SynchronizingThread = null;
 							SynchronizationInfo = null;
@@ -559,13 +559,7 @@ public abstract class McvPeering : HomoTcpPeering
 	
 				if(r.Target.Hash == null)
 				{
-					//r.Target.ReUpdate();
 					r.Target.Summarize();
-
-					Flow.Log?.Report(this, $"Summarize {r.Target} - Payloads={string.Join(" ", r.Target.Payloads.Select(i => i.User))} - VotesOfTry={string.Join(" ", r.Target.VotesOfTry.Select(i => i.User))} - Votes={string.Join(" ", r.Target.Votes.Select(i => i.User))}");
-
-					if(r.Target.Hash == null)
-						return;
 				}
 
 				Vote createvote(Round r)
@@ -591,7 +585,7 @@ public abstract class McvPeering : HomoTcpPeering
 	
 				var txs = CandidateTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
 			
-				var must = r.Senders.Any(i => i.User == gs.Id) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
+				var must = round != null || r.Senders.Any(i => i.User == gs.Id) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
 			
 				if(txs.Any() || must)
 				{
@@ -715,7 +709,7 @@ public abstract class McvPeering : HomoTcpPeering
 						Flow.Log?.Report(this, $"{nameof(Vote)} generated - {i} - {i.Round}");
 					}
 				
-					Mcv.TryReachConsensus(Mcv.FindRound(v.Key));
+					Mcv.TryConfirm(Mcv.FindRound(v.Key));
 				}
 	
 				//for(int i = Mcv.LastConfirmedRound.Id + 1; i <= Mcv.LastNonEmptyRound.Id; i++) /// better to start from votes.Min(i => i.Id) or last excuted
@@ -1187,6 +1181,12 @@ public abstract class McvPeering : HomoTcpPeering
 				return p.CallMe(call, flow);
 			}
 			catch(NodeException ex)
+			{
+			}
+			catch(ObjectDisposedException ex)
+			{
+			}
+			catch(IOException ex)
 			{
 			}
 			catch(ContinueException)

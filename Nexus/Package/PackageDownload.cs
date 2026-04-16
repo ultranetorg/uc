@@ -52,7 +52,7 @@ public class PackageDownload
 	public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 	public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Concat(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
-	public PackageDownload(PackageHub hub, LocalPackage package, Flow workflow)
+	public PackageDownload(PackageHub hub, LocalPackage package, Flow flow)
 	{
 		Package = package;
 
@@ -74,16 +74,15 @@ public class PackageDownload
 									{
 										Resource last = null;
 
-										while(workflow.Active)
+										while(flow.Active)
 										{
 											try
 											{
-												last = node.Peering.Call(new ResourcePpc(package.Resource.Address), workflow).Resource;
+												last = node.Peering.Call(new ResourcePpc(package.Resource.Address), flow).Resource;
 													
 												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_VersionManifest))
 												{
-													Package.Activity = null;
-													return;
+													throw new PackageException($"{package.Resource.Address} is not {ContentType.Package_VersionManifest}");
 												}
 
 												break;
@@ -113,11 +112,14 @@ public class PackageDownload
 											//	var aa = node.Peering.Call(new UserPpc(d.Owner), workflow).User;
 											//	itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Owner);
 											//	break;
+
+											default : 
+												throw new PackageException($"{package.Resource.Address} release address type is not supported");
 										};
 
-										Seeker = new SeedSeeker(node, package.Release.Address, workflow);
+										Seeker = new SeedSeeker(node, package.Release.Address, flow);
 
-										node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, Seeker, workflow);
+										node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, Seeker, flow);
 
 										bool incrementable;
 
@@ -129,7 +131,7 @@ public class PackageDownload
 											{
 												if(!hub.ExistsRecursively(i.Address))
 												{
-													var dd = hub.Download(i.Address, workflow);
+													var dd = hub.Download(i.Address, flow);
 													Dependencies.Add(dd);
 												}
 											}
@@ -142,12 +144,10 @@ public class PackageDownload
 																						Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
 																						new DHIntegrity(incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash),
 																						Seeker,
-																						workflow);
+																						flow);
 
 
 										Task.WaitAll(DependenciesRecursive.Select(i => i.Task).Append(FileDownload.Task).ToArray());
-
-										Seeker.Stop();
 
 										var a = Availability.None;
 
@@ -166,16 +166,21 @@ public class PackageDownload
 											IsDownloaded = true;
 										}
 									}
-									catch(Exception) when(workflow.Aborted)
+									catch(PackageException)
+									{
+									}
+									catch(Exception) when(flow.Aborted)
 									{
 									}
 									finally
 									{
+										Seeker?.Stop();
+
 										lock(hub.Lock)
 											Package.Activity = null;
 									}
 								},
-								workflow.Cancellation);
+								flow.Cancellation);
 	}
 
 	public override string ToString()
