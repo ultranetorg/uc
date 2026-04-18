@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Uccs.Net;
 using Uccs.Nexus;
+using Uccs.Nexus.Windows.Properties;
 using Uccs.Rdn;
 using Uccs.Vault;
 
@@ -18,15 +19,16 @@ public class Program: ApplicationContext
 	static void Main()
 	{
 		ApplicationConfiguration.Initialize();
-		System.Windows.Forms.Application.Run(new NexusSystem());
+		System.Windows.Forms.Application.Run(new NexusContext());
 	}
 
-	public class NexusSystem : ApplicationContext
+	public class NexusContext : ApplicationContext
 	{
 		public static string		ExeDirectory;
 		Nexus						Nexus;
+		private NotifyIcon TrayIcon;
 
-		public NexusSystem()
+		public NexusContext()
 		{
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
@@ -34,12 +36,37 @@ public class Program: ApplicationContext
 			var ns = new NexusSettings(b.Zone, b.Profile) {Name = Guid.NewGuid().ToString()};
 			var vs = new VaultSettings(b.Profile);
 		
-			Nexus = new Nexus(b, ns, vs, new Flow(nameof(Nexus), new Log()));
+			Nexus = new Nexus(b, ns, vs, new Flow(nameof(Program), new Log()));
+
+			Nexus.Stopped += n =>	{
+										TrayIcon.Visible = false;
+										TrayIcon.Dispose();
+										System.Windows.Forms.Application.Exit();
+									};
 
 			InitializeAuthUI(Nexus);
 
-			Nexus.RunRdn(null, new RealClock());
+			var contextMenu = new ContextMenuStrip();
+			contextMenu.Items.Add("Identity and Activity", null, (s, e) =>	{
+																				var f = new IamForm(Nexus);
+																				f.Show();
+																			});
+			contextMenu.Items.Add("-");
+			contextMenu.Items.Add("Exit", null, (s, e) => Nexus.Stop());
 
+			#pragma warning disable WFO5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+			TrayIcon =	new NotifyIcon()
+						{
+							Icon = Resources.IconWhite,
+							ContextMenuStrip = contextMenu,
+							Visible = true,
+							Text = "UOS Networking"
+						};
+			#pragma warning restore WFO5001
+
+			TrayIcon.DoubleClick += (s, e) => {};
+
+			Nexus.RunRdn(null, new RealClock());
 		}
 
 		public static void InitializeAuthUI(Nexus nexus)

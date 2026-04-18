@@ -4,8 +4,8 @@ namespace Uccs.Net.FUI;
 
 public partial class MainForm : Form
 {
-	public readonly McvNode		Node;
-	readonly Timer				Timer = new Timer();
+	public readonly McvNode			Node;
+	System.Windows.Forms.Timer		Timer = new ();
 
 	DashboardPanel				Dashboard;
 

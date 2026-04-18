@@ -70,12 +70,12 @@ public class Nexus : IProgram
 	{
 		Flow.Abort();
 
-		Stopped?.Invoke(this);
-
-		NnpPeering?.Stop();
-		RdnNode?.Stop();
-		Vault.Stop();
 		ApiServer?.Stop();
+		RdnNode?.Stop();
+		NnpPeering?.Stop();
+		Vault.Stop();
+
+		Stopped?.Invoke(this);
 	}
 
 	public Thread CreateThread(Action action)
