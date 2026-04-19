@@ -2,7 +2,7 @@
 using Uccs.Net;
 using Uccs.Rdn;
 
-namespace Uccs.Nexus;
+namespace Uccs.Nexus.CLI;
 
 public class PackageCommand : NexusCommand
 {

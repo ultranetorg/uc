@@ -9,9 +9,9 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>1.0.525.0</AssemblyVersion>
-    <FileVersion>1.0.525.0</FileVersion>
-    <Version>1.0.525.0</Version>
+    <AssemblyVersion>1.0.529.0</AssemblyVersion>
+    <FileVersion>1.0.529.0</FileVersion>
+    <Version>1.0.529.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>rdn</AssemblyName>
   </PropertyGroup>

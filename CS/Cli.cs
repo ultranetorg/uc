@@ -51,7 +51,9 @@ public abstract class Cli
 	protected void Execute(Boot boot)
 	{
 		if(!boot.Commnand.Nodes.Any())
-			return;
+		{
+			throw new SyntaxException("No command provided");
+		}
 
 		Flow = new Flow(GetType().Name, new Log()){WorkDirectory = boot.Profile}; 
 			

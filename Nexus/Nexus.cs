@@ -7,7 +7,7 @@ namespace Uccs.Nexus;
 
 public class Nexus : IProgram
 {
-	public delegate void			Delegate(Nexus d);
+	public const string				Protocol = "cccp";
 
 	public Flow						Flow;
 	public NexusSettings			Settings;
@@ -23,6 +23,8 @@ public class Nexus : IProgram
 	public NnpTcpPeering			NnpPeering;
 	public NnpIppServer				NnpIppServer;
 
+	public delegate void			Delegate(Nexus d);
+
 	static Nexus()
 	{
   	  	var h = new HttpClientHandler();
@@ -35,6 +37,11 @@ public class Nexus : IProgram
 		Settings = settings ?? new NexusSettings(boot.Zone, boot.Profile);
 		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
 		Flow = flow;
+
+		var mutex = new Mutex(false, $@"Global\Uos.{GetType().Name}.{boot.Profile.Replace(Path.DirectorySeparatorChar, '_').ToLower()}");
+
+		if(!mutex.WaitOne(0, false))
+			throw new Exception("Another instance is already running");
 
 		new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
 
@@ -155,5 +162,64 @@ public class Nexus : IProgram
 		Environment.SetEnvironmentVariable(Application.PackageAddressKey,	address.ToString());
 
 		Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, address);
+	}
+
+	public void Start(Unel address, Flow flow)
+	{
+	///	if(address.Net == Net.Net.Root || address.Net is null)
+	///	{
+	///		var ura = Ura.Parse(address.ToString());
+	///
+	///		var d = RdnNode.ResourceHub.Find(ura)?.Last
+	///				?? 
+	///				RdnNode.Peering.Call(new ResourcePpc {Identifier = new (ura)}, flow)?.Resource?.Data;
+	///
+	///		if(d == null)
+	///			throw new NexusException("Incorrect resource type");
+	///
+	///		//Ura apr = null;
+	///		Ura aprv = null;
+	///
+	///		if(d.Type.Content == ContentType.Package_ProductManifest)
+	///		{
+	///			var lrr = RdnApi.Download(ura, flow);
+	///
+	///			var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Call<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
+	///
+	///			aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
+	///		}
+	///		else if(d.Type.Content == ContentType.Package_VersionManifest)
+	///		{
+	///			aprv = ura;
+	///		}
+	///		else
+	///			throw new NexusException("Incorrect resource type");
+	///
+	///		NexusApi.DeployPackage(aprv, Settings.Packages, flow);
+	///
+	/// 		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + PackageManifest.Extension).First();
+	/// 
+	/// 		var vm = PackageManifest.Load(vmpath);
+	/// 
+	///		var exe = vm.MatchExecution(Platform.Current);
+	///
+	///		SetupApplicationEnvironemnt(aprv);
+	///
+	/// 		var ps = new Process();
+	/// 		ps.StartInfo.UseShellExecute = true;
+	/// 		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
+	/// 		ps.StartInfo.Arguments = exe.Arguments;
+	///
+	/// 		ps.Start();
+	///	}
+	///	else
+	///	{
+	///		///if(Find(address.Net) == null)
+	///		///{
+	///		///	ConnectNetwork(address.Net);
+	///		///}
+	///		///
+	///		///GetMcvNodeApi(address.Net).Send(new StartApc {Entity = address.Entity}, flow);
+	///	}
 	}
 }	

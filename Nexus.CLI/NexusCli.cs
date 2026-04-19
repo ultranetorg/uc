@@ -3,7 +3,7 @@ using Uccs.Net;
 using Uccs.Rdn;
 using Uccs.Vault;
 
-namespace Uccs.Nexus;
+namespace Uccs.Nexus.CLI;
 
 public class NodeInstance
 {
@@ -19,6 +19,7 @@ public class NodeInstance
 public class NexusCli : Cli
 {
 	public Nexus Nexus;
+	public NetBoot Boot;
 
 	public NexusCli()
 	{
@@ -26,19 +27,11 @@ public class NexusCli : Cli
 
 	public static void Main(string[] args)
 	{
-		var b = new NetBoot(ExeDirectory);
-		var ns = new NexusSettings(b.Zone, b.Profile);
-		var vs = new VaultSettings(b.Profile);
-		
 		var cli = new NexusCli();
+		cli.Boot = new NetBoot(ExeDirectory);
 
-		cli.Nexus = new Nexus(b, ns, vs, new Flow(nameof(Nexus), new Log()){WorkDirectory = b.Profile});
+		cli.Execute(cli.Boot);
 
-		cli.Nexus.RunRdn(null, new RealClock());
-
-		cli.Execute(b);
-
-		cli.Nexus.Stop();
 	}
 //
 //	public override NexusCommand Create(IEnumerable<Xon> commnad, Flow flow)

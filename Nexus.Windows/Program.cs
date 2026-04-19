@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 using Uccs.Net;
 using Uccs.Nexus;
 using Uccs.Nexus.Windows.Properties;
@@ -60,11 +61,14 @@ public class Program: ApplicationContext
 							Icon = Resources.IconWhite,
 							ContextMenuStrip = contextMenu,
 							Visible = true,
-							Text = "UOS Networking"
+							Text = "UOS"
 						};
 			#pragma warning restore WFO5001
 
 			TrayIcon.DoubleClick += (s, e) => {};
+
+			if(!IsProtocolRegistered())
+				RegisterProtocol();
 
 			Nexus.RunRdn(null, new RealClock());
 		}
@@ -180,6 +184,53 @@ public class Program: ApplicationContext
 			BindWallets(vault, wallets);
 
 			f(null, null);
+		}
+
+		string OpenCmd
+		{
+			get
+			{
+				var c = Assembly.GetExecutingAssembly().Location;
+				c = c.Remove(c.Length - 3) + "exe";
+				return $"\"{c}\" open \"%1\"";
+			}
+		}
+
+		public void RegisterProtocol()
+		{
+
+			using(var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{Nexus.Protocol}"))
+			{
+				key.SetValue("", $"{Nexus.Protocol} Protocol");
+				key.SetValue("URL Protocol", "");
+
+				using(var shellKey = key.CreateSubKey(@"shell\open\command"))
+				{
+					shellKey.SetValue("", OpenCmd);
+				}
+			}
+		}
+
+		public bool IsProtocolRegistered()
+		{
+			var p = Assembly.GetExecutingAssembly().Location;
+			p = p.Remove(p.Length - 3) + "exe";
+
+			using var key = Registry.CurrentUser.OpenSubKey($@"Software\Classes\{Nexus.Protocol}");
+
+			if(key == null)
+				return false;
+
+			if(key.GetValue("URL Protocol") == null)
+				return false;
+
+			using var commandKey = key.OpenSubKey(@"shell\open\command");
+			var commandValue = commandKey?.GetValue("")?.ToString();
+
+			if(string.IsNullOrEmpty(commandValue)) 
+				return false;
+
+			return commandValue.Equals(OpenCmd, StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

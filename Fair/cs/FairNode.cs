@@ -45,14 +45,15 @@ public class FairNode : McvNode
 
 	public override string ToString()
 	{
-		return string.Join(", ", new string[]{	GetType().Name,
-												Name,
-												(Settings.Mcv != null ? "G" : null) +
-												(Settings.Mcv?.Chain != null  ? "C" : null),
-												Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
-												Mcv != null ? $"{Peering.Synchronization}{(Peering.SynchronizationInfo != null ? $"-{Peering.SynchronizationInfo}" : null)}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
-												$"T(i/o)={Peering.CandidateTransactions.Count}/{Peering.OutgoingTransactions.Count}"}
-					.Where(i => !string.IsNullOrWhiteSpace(i)));
+		lock(Peering.Lock)
+			return string.Join(", ", new string[]{	GetType().Name,
+													Name,
+													(Settings.Mcv != null ? "G" : null) +
+													(Settings.Mcv?.Chain != null  ? "C" : null),
+													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
+													Mcv != null ? $"{Peering.Synchronization}{(Peering.SynchronizationInfo != null ? $"-{Peering.SynchronizationInfo}" : null)}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,
+													$"T(i/o)={Peering.CandidateTransactions.Count}/{Peering.OutgoingTransactions.Count}"}
+						.Where(i => !string.IsNullOrWhiteSpace(i)));
 	}
 
 	public override void Stop()
