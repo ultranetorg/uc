@@ -18,8 +18,20 @@ public class NodeInstance
 
 public class NexusCli : Cli
 {
-	public Nexus Nexus;
-	public NetBoot Boot;
+	public Nexus				Nexus;
+	public NetBoot				Boot;
+	public static HttpClient	ApiHttpClient;
+	public NexusSettings		Settings;
+
+	NexusApiClient				_Nexus;
+	public NexusApiClient		NexusApi => _Nexus ??= new NexusApiClient(Settings.Api.LocalSystemAddress(Settings.Zone, Api.Nexus), null, ApiHttpClient);
+
+	static NexusCli()
+	{
+  	  	var h = new HttpClientHandler();
+		h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
+	}
 
 	public NexusCli()
 	{
@@ -29,6 +41,7 @@ public class NexusCli : Cli
 	{
 		var cli = new NexusCli();
 		cli.Boot = new NetBoot(ExeDirectory);
+		cli.Settings = new NexusSettings(cli.Boot.Zone, cli.Boot.Profile);
 
 		cli.Execute(cli.Boot);
 

@@ -5,13 +5,13 @@ class Program
 {
 	public static void Main(string[] args)
 	{
-		AccountAddressTests.Main();
-		AccountAddressTests.ReadWrite();
+		//AccountAddressTests.Main();
+		//AccountAddressTests.ReadWrite();
 		//Array.Main();
 		//IdTests.Main();
 		//MoneyTests.Main();
 		//AccountKeyTests.Main();
-		//XonTest.Custom();
+		XonTest.Basic();
 		//ECTests.Move();
 
 		//UraTests.UAddresses();

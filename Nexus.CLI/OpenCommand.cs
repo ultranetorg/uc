@@ -13,13 +13,13 @@ public class OpenCommand : NexusCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Description = "Handles entity by its Unel address";
+		a.Description = "Handles entity by its address";
 		a.Arguments =	[
 							new (null, UNEL, "Address to open"),
 						];
 
 		a.Execute = () =>	{
-								//Open.Start(Unel.Parse(Args[0].Name), Flow);
+								Cli.NexusApi.Send(new NexusOpenApc {Request = Unel.Parse(Args[0].Name)}, Flow);
 
 								return null;
 							};

@@ -7,6 +7,7 @@ public static class XonTest
 	[Fact]
 	public static void Basic()
 	{
+		var y = new Xon(@"""a b""");
 		var x = new Xon(@"a b="""" c=""2 3 4""");
 	}
 

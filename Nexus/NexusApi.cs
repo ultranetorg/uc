@@ -140,6 +140,18 @@ public class NexusPropertyApc : Apc, INexusApc
 	}
 }
 
+public class NexusOpenApc : Apc, INexusApc
+{
+	public Unel Request { get; set; }
+
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		nexus.Start(Request, flow);
+
+		return null;
+	}
+}
+
 public class NnpNodeApc : Apc, INexusApc
 {
 	public string Net { get; set; }

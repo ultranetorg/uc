@@ -185,9 +185,7 @@ public class XonTextReader : IXonReader
 					if(!R)
 						break;
 					else if(C == '"')
-					{
 						value.Append(C);
-					}
 					else
 						break;
 				}
@@ -232,11 +230,11 @@ public class XonTextReader : IXonReader
 				if(C == '\"') /// closing ' or escaping
 				{
 					Move();
-					if(C == '\"')
-					{
+
+					if(!R)
+						break;
+					else if(C == '\"')
 						name.Append(C);
-						//c++;
-					}
 					else
 					{
 						Current = XonToken.NameEnd;
