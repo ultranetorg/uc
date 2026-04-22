@@ -33,6 +33,8 @@ public class RdnNodeSettings : McvNodeSettings
 	public List<AccountAddress>		ProposedFundJoiners = new();
 	public List<AccountAddress>		ProposedFundLeavers = new();
 
+	public string[]					ProposedSubnetAttachments { get; set; }
+
 	public SeedSettings				Seed { get; set; }
 	public SeedHubSettings			SeedHub { get; set; } = new ();
 

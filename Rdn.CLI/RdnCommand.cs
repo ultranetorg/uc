@@ -10,6 +10,7 @@ public abstract class RdnCommand : McvCommand
 	public static readonly ArgumentType TLD		= new ("TLD",	@"Web top-level domain",													[@"com"]);
 	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",															[$@"{UrrScheme.Urrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
 	public static readonly ArgumentType LT		= new ("RLT",	@"Resource link type",														[ResourceLinkType.Hierarchy.ToString()]);
+	public static readonly ArgumentType SNN		= new ("SNN",	@"Subnet name",																["fair"]);
 
 	protected RdnCli			Program;
 

@@ -7,13 +7,14 @@ public enum RdnTable : byte
 {
 	Meta = McvTable.Meta, 
 	User = McvTable.User,
-	Domain, Resource
+	Domain, Resource, Subnet 
 }
 
 public class RdnMcv : Mcv
 {
 	public DomainTable				Domains;
 	public ResourceTable			Resources;
+	public SubnetTable				Subnets;
 	public List<ForeignResult>		ApprovedOutwards = new();
 	Endpoint[]						GraphIPs;
 	Endpoint[]						SeedHubIPs;
@@ -61,8 +62,9 @@ public class RdnMcv : Mcv
 		Users = new (this);
 		Domains = new (this);
 		Resources = new (this);
+		Subnets = new (this);
 
-		Tables = [Metas, Users, Domains, Resources];
+		Tables = [Metas, Users, Domains, Resources, Subnets];
 	}
 
 	public override Round CreateRound()

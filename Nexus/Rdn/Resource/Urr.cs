@@ -52,7 +52,7 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
 
 	public static Urr Parse(string t)
 	{
-		Unel.Parse(t, out var s, out var z, out var o);
+		Snp.Parse(t, out var s, out var z, out var o);
 
 		var a = Enum.Parse<UrrScheme>(s, true)	switch
 												{
@@ -148,7 +148,7 @@ public class Urrh : Urr
 
 	public new static Urrh Parse(string t)
 	{
-		Unel.Parse(t, out var s, out var z, out var o);
+		Snp.Parse(t, out var s, out var z, out var o);
 
 		var a = new Urrh();
 
@@ -159,7 +159,7 @@ public class Urrh : Urr
 	}
 	public override string ToString()
 	{
-		return Unel.ToString(Scheme.ToString(), Net, Hash.ToHex());
+		return Snp.ToString(Scheme.ToString(), Net, Hash.ToHex());
 	}
 
 	public override void ParseSpecific(string t)

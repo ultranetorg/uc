@@ -21,7 +21,7 @@ public class Vote : IBinarySerializable
 	///public AccountAddress[]	FundJoiners = {};
 	///public AccountAddress[]	FundLeavers = {};
 	public AutoId[]				Violators = [];
-	public byte[][]				NntBlocks = [];
+	public byte[][]				NnBlocks = [];
 	public Transaction[]		Transactions = [];
 	public byte[]				Signature { get; set; }
 
@@ -145,7 +145,7 @@ public class Vote : IBinarySerializable
 		///writer.Write(FundJoiners);
 		///writer.Write(FundLeavers);
 		writer.Write(Violators);
-		writer.Write(NntBlocks, writer.WriteBytes);
+		writer.Write(NnBlocks, writer.WriteBytes);
 
 		writer.Write(Transactions, t => t.WriteForVote(writer));
 	}
@@ -160,7 +160,7 @@ public class Vote : IBinarySerializable
 		///FundJoiners		= reader.ReadArray<AccountAddress>();
 		///FundLeavers		= reader.ReadArray<AccountAddress>();
 		Violators			= reader.ReadArray<AutoId>();
-		NntBlocks			= reader.ReadArray(reader.ReadBytes);
+		NnBlocks			= reader.ReadArray(reader.ReadBytes);
 
 		Transactions = reader.ReadArray(() =>	{
 													var t = new Transaction {Net = Mcv.Net, Vote = this};

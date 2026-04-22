@@ -142,7 +142,7 @@ public class NexusPropertyApc : Apc, INexusApc
 
 public class NexusOpenApc : Apc, INexusApc
 {
-	public Unel Request { get; set; }
+	public Snp Request { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{

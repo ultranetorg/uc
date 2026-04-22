@@ -4,7 +4,7 @@ namespace Uccs.Rdn;
 
 public abstract class OutwardOperation : RdnOperation
 {	
-	public abstract void ConfirmedExecute(Execution execution, Outward task);
+	public abstract void ConfirmedExecute(RdnExecution execution, Outward task);
 }
 
 public class Outward
@@ -48,6 +48,7 @@ public class RdnRound : Round
 	public new RdnMcv						Mcv => base.Mcv as RdnMcv;
 	public TableState<AutoId, Domain>		Domains;
 	public TableState<AutoId, Resource>		Resources;
+	public TableState<AutoId, Subnet>		Subnets;
 	public List<Outward>					Outwards;
 	public ForeignResult[]					ConsensusOutwards = {};
 
@@ -55,6 +56,7 @@ public class RdnRound : Round
 	{
 		Domains		= new (mcv.Domains);
 		Resources	= new (mcv.Resources);
+		Subnets		= new (mcv.Subnets);
 	}
 
 	public override Execution CreateExecution(Transaction transaction)
@@ -71,6 +73,7 @@ public class RdnRound : Round
 	{
 		if(table == Mcv.Domains)	return Domains.Affected;
 		if(table == Mcv.Resources)	return Resources.Affected;
+		if(table == Mcv.Subnets)	return Subnets.Affected;
 
 		return base.AffectedByTable(table);
 	}
@@ -79,6 +82,7 @@ public class RdnRound : Round
 	{
 		if(table == Mcv.Domains)	return Domains as S;
 		if(table == Mcv.Resources)	return Resources as S;
+		if(table == Mcv.Subnets)	return Subnets as S;
 
 		return base.FindState<S>(table);
 	}
@@ -91,6 +95,7 @@ public class RdnRound : Round
 
 		Domains.Absorb(e.Domains);
 		Resources.Absorb(e.Resources);
+		Subnets.Absorb(e.Subnets);
 
 		Outwards = e.Outwards;
 	}
@@ -136,18 +141,18 @@ public class RdnRound : Round
 
 	public override void ConfirmForeign(Execution execution)
 	{
-		foreach(var i in ConsensusNnStates)
+		foreach(var i in ConsensusSubnetStates)
 		{
-			var b = Mcv.NnBlocks.Find(j => j.State.Hash.SequenceEqual(i));
+			var b = Mcv.SubnetBlocks.Find(j => j.State.Hash.SequenceEqual(i));
 
 			if(b == null)
 				throw new ConfirmationException(this, []);
 
-			var d = (execution as RdnExecution).Domains.Affect(b.Net);
-			d.NnSelfHash	= b.State.Hash;
-			d.NnChildNet	= b.State;
+			var s = (execution as RdnExecution).Subnets.Affect(b.Name);
+			s.State		= b.State;
+			s.StateHash = b.State.Hash;
 
-			Mcv.NnBlocks.Remove(b); /// ??????
+			Mcv.SubnetBlocks.Remove(b); /// ??????
 		}
 
 		foreach(var i in ConsensusOutwards)
@@ -156,7 +161,7 @@ public class RdnRound : Round
 
 			if(i.Approved)
 			{
-				e.Operation.ConfirmedExecute(execution, e);
+				e.Operation.ConfirmedExecute(execution as RdnExecution, e);
 				Outwards.Remove(e);
 			} 
 			else
@@ -189,7 +194,7 @@ public class RdnRound : Round
 		base.Write(writer);
 
 		writer.Write(ConsensusOutwards);
-		writer.Write(ConsensusNnStates, writer.Write);
+		writer.Write(ConsensusSubnetStates, writer.Write);
 	}
 
 	public override void Read(BinaryReader reader)
@@ -197,6 +202,6 @@ public class RdnRound : Round
 		base.Read(reader);
 		
 		ConsensusOutwards	= reader.ReadArray<ForeignResult>();
-		ConsensusNnStates = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashLength));
+		ConsensusSubnetStates = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashLength));
 	}
 }

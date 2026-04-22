@@ -28,7 +28,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 
 	public virtual Result Peers(IppConnection connection, PeersNna args)
 	{
-		if(Node.Mcv != null)
+		if(Node.Peering.Synchronization == Synchronization.Synchronized)
 		{
 			lock(Node.Mcv)
 				return new PeersNnr {Peers = Node.Mcv.LastConfirmedRound.Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
@@ -116,10 +116,9 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 
 		if(c == (byte)McvTable.User)
 		{
-			var a = Node.Mcv.Users.Latest(n);
-	
-			if(a == null)
-				throw new EntityException(EntityError.NotFound);
+			var a = Node.Mcv.Users.Latest(n)
+					??
+					throw new EntityException(EntityError.NotFound);
 	
 			sh = a;
 			eh = a;

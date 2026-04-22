@@ -7,7 +7,7 @@ public enum DomainFlag : byte
 	None, 
 	Owned		= 0b_______1, 
 	Free		= 0b______10, 
-	ChildNet	= 0b__100000, 
+	//ChildNet	= 0b__100000, 
 }
 
 public enum DomainChildPolicy : byte
@@ -16,14 +16,6 @@ public enum DomainChildPolicy : byte
 	FullOwnership	= 1, 
 	FullFreedom		= 2, 
 	Programmatic	= 0b11111111, 
-}
-
-public enum NnStatus
-{
-	None,
-	Initialized,
-	BlockRecieved,
-	BlockSent
 }
 
 public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirable
@@ -44,8 +36,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public long						Space { get; set; }
 	
 	public DomainChildPolicy		ParentPolicy { get; set; }
-	public NnpState					NnChildNet { get; set; }
-	public byte[]					NnSelfHash { get; set; }
 
 	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
@@ -73,14 +63,15 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 
 	public object Clone()
 	{
-		return new Domain(Mcv){	Id = Id,
-								Address = Address,
-								Owner = Owner,
-								Expiration = Expiration,
-								Free = Free,
-								Space = Space,
-								NnChildNet = NnChildNet,
-								NnSelfHash = NnSelfHash};
+		return new Domain(Mcv)
+				{	
+					Id = Id,
+					Address = Address,
+					Owner = Owner,
+					Expiration = Expiration,
+					Free = Free,
+					Space = Space,
+				};
 	}
 
 	public void WriteMain(BinaryWriter writer)
@@ -171,7 +162,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		
 		//if(LastWinner != null)	f |= DomainFlag.Auction;
 		if(Owner != null)		f |= DomainFlag.Owned;
-		if(NnChildNet != null)	f |= DomainFlag.ChildNet;
 		if(Free)				f |= DomainFlag.Free;
 
 		writer.Write((byte)f);
@@ -187,12 +177,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		if(IsChild(Address))
 		{
 			writer.Write((byte)ParentPolicy);
-		}
-
-		if(f.HasFlag(DomainFlag.ChildNet))
-		{
-			writer.Write(NnChildNet);
-			writer.Write(NnSelfHash);
 		}
 	}
 
@@ -213,12 +197,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		if(IsChild(Address))
 		{
 			ParentPolicy = (DomainChildPolicy)reader.ReadByte();
-		}
-
-		if(f.HasFlag(DomainFlag.ChildNet))
-		{
-			NnChildNet	= reader.Read<NnpState>();
-			NnSelfHash = reader.ReadHash();
 		}
 	}
 }

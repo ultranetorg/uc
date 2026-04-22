@@ -1,9 +1,9 @@
 ﻿namespace Uccs.Net;
 
-public class NnpBlock
+public class SubnetBlock
 {
-	public string		Net { get; set; }
-	public NnpState		State { get; set; }
+	public string		Name { get; set; }
+	public SubnetState	State { get; set; }
 
 	byte[]				_RawPayload;
 
@@ -19,7 +19,6 @@ public class NnpBlock
 				WritePayload(w);
 
 				_RawPayload = s.ToArray();
-
 			}
 		
 			return _RawPayload; 
@@ -30,14 +29,14 @@ public class NnpBlock
 
 	public void WritePayload(BinaryWriter writer)
 	{
-		writer.WriteUtf8(Net);
+		writer.WriteASCII(Name);
 		writer.Write(State);
 	}
 
 	public void ReadPayload(BinaryReader reader)
 	{
-		Net		= reader.ReadUtf8();
-		State	= reader.Read<NnpState>();
+		Name	= reader.ReadASCII();
+		State	= reader.Read<SubnetState>();
 	}
 
 	public void Restore()

@@ -91,6 +91,10 @@ public class RdnNode : McvNode
 																								CurrentOutwards.Remove(i);
 																							}
 																						}
+																						else if(i.Operation is SubnetAttachment sa)
+																						{
+																							Mcv.ApprovedOutwards.Add(new ForeignResult {User = i.User, Id = i.Id, Approved = Settings.ProposedSubnetAttachments.Contains(sa.Name)});
+																						}
 																					});
 																}
 															}

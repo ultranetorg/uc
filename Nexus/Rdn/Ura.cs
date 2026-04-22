@@ -52,7 +52,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public override string ToString()
 	{
-		return Unel.ToString(Scheme, Net, $"{Domain}/{Resource}");
+		return Snp.ToString(Scheme, Net, $"{Domain}/{Resource}");
 	}
 
 	public override bool Equals(object o)
@@ -113,7 +113,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 	{
 		int i;
 		
-		Unel.Parse(v, out scheme, out net, out string o);
+		Snp.Parse(v, out scheme, out net, out string o);
 
 		var e = o.IndexOf('/');
 			

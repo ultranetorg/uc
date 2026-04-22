@@ -254,7 +254,7 @@ public class NnpTcpPeering : TcpPeering<NnpPeer>
 		throw new OperationCanceledException();
 	}
 
-	public void Broadcast(NnpBlock block, NnpPeer skip = null)
+	public void Broadcast(SubnetBlock block, NnpPeer skip = null)
 	{
 ///		foreach(var i in Peers[block.Net].Where(i => i != skip))
 ///		{

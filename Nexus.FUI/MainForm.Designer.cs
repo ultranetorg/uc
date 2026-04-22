@@ -34,8 +34,6 @@
 			newToolStripMenuItem = new ToolStripMenuItem();
 			toolStripSeparator = new ToolStripSeparator();
 			exitToolStripMenuItem = new ToolStripMenuItem();
-			button1 = new Button();
-			comboBox1 = new ComboBox();
 			imageList1 = new ImageList(components);
 			listView1 = new ListView();
 			columnHeader1 = new ColumnHeader();
@@ -68,24 +66,6 @@
 			exitToolStripMenuItem.Size = new Size(176, 22);
 			exitToolStripMenuItem.Text = "E&xit";
 			// 
-			// button1
-			// 
-			button1.Location = new Point(313, 83);
-			button1.Name = "button1";
-			button1.Size = new Size(129, 32);
-			button1.TabIndex = 12;
-			button1.Text = "Go";
-			button1.UseVisualStyleBackColor = true;
-			// 
-			// comboBox1
-			// 
-			comboBox1.FormattingEnabled = true;
-			comboBox1.Location = new Point(85, 38);
-			comboBox1.Name = "comboBox1";
-			comboBox1.Size = new Size(585, 23);
-			comboBox1.TabIndex = 13;
-			comboBox1.Text = "rccp:domain/resource";
-			// 
 			// imageList1
 			// 
 			imageList1.ColorDepth = ColorDepth.Depth32Bit;
@@ -96,9 +76,10 @@
 			// listView1
 			// 
 			listView1.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2, columnHeader3 });
-			listView1.Location = new Point(10, 136);
+			listView1.Location = new Point(19, 21);
+			listView1.Margin = new Padding(6, 6, 6, 6);
 			listView1.Name = "listView1";
-			listView1.Size = new Size(734, 298);
+			listView1.Size = new Size(1360, 900);
 			listView1.TabIndex = 14;
 			listView1.UseCompatibleStateImageBehavior = false;
 			listView1.View = View.Details;
@@ -121,16 +102,14 @@
 			// 
 			// MainForm
 			// 
-			AutoScaleDimensions = new SizeF(7F, 15F);
+			AutoScaleDimensions = new SizeF(13F, 32F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(754, 444);
+			ClientSize = new Size(1400, 947);
 			Controls.Add(listView1);
-			Controls.Add(comboBox1);
-			Controls.Add(button1);
-			Margin = new Padding(4, 3, 4, 3);
+			Margin = new Padding(7, 6, 7, 6);
 			Name = "MainForm";
-			Padding = new Padding(7);
-			Text = "Connectivuty";
+			Padding = new Padding(13, 15, 13, 15);
+			Text = "Connectivity";
 			FormClosing += MainForm_FormClosing;
 			ResumeLayout(false);
 
@@ -141,8 +120,6 @@
 		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
 		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-		private Button button1;
-		private ComboBox comboBox1;
 		private ImageList imageList1;
 		private ListView listView1;
 		private ColumnHeader columnHeader1;

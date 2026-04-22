@@ -1,27 +1,27 @@
 ﻿namespace Uccs.Net;
 
-public class Unel : IBinarySerializable, IEquatable<Unel>  /// Universal Network/Entity Locator
+public class Snp : IBinarySerializable, IEquatable<Snp>  /// Universal Network/Entity Locator
 {
 	public string Scheme { get; set; }
 	public string Net { get; set; }
-	public string Entity { get; set; }
+	public string Path { get; set; }
 
 	//public bool Valid => !string.IsNullOrWhiteSpace(Scheme) && !string.IsNullOrWhiteSpace(Entity);
 
-	public Unel()
+	public Snp()
 	{
 	}
 
-	public Unel(string scheme, string net, string entity)
+	public Snp(string scheme, string net, string path)
 	{
 		Scheme = scheme;
 		Net = net;
-		Entity = entity;
+		Path = path;
 	}
 
 	public override string ToString()
 	{
-		return ToString(Scheme, Net, Entity);
+		return ToString(Scheme, Net, Path);
 	}
 
 	public static string ToString(string scheme, string net, string entity)
@@ -29,14 +29,14 @@ public class Unel : IBinarySerializable, IEquatable<Unel>  /// Universal Network
 		return $"{(scheme == null ? null : (scheme + ':'))}{net}{(entity == null ? null : ('/' + entity))}";
 	}
 
-	public static Unel Parse(string v)
+	public static Snp Parse(string v)
 	{
 		Parse(v, out var s, out var z, out var e);
 
-		return new Unel(s, z, e);
+		return new Snp(s, z, e);
 	}
 
-	public static void Parse(string v, out string scheme, out string net, out string entity)
+	public static void Parse(string v, out string scheme, out string net, out string path)
 	{
 		int s = 0;
 		var i = v.IndexOfAny([':', '/']);
@@ -66,32 +66,32 @@ public class Unel : IBinarySerializable, IEquatable<Unel>  /// Universal Network
 			net = v.Substring(s);
 
 		if(i != -1)
-			entity = v.Substring(s);
+			path = v.Substring(s);
 		else
-			entity = null;
+			path = null;
 	}
 
 	public override bool Equals(object o)
 	{
-		return o is Unel a && Equals(a);
+		return o is Snp a && Equals(a);
 	}
 
-	public bool Equals(Unel o)
+	public bool Equals(Snp o)
 	{
-		return Scheme == o.Scheme && Net == o.Net && Entity == o.Entity;
+		return o is not null && Scheme == o.Scheme && Net == o.Net && Path == o.Path;
 	}
 
 	public override int GetHashCode()
 	{
-		return Entity.GetHashCode();
+		return Path.GetHashCode();
 	}
 
 	public int CompareTo(object obj)
 	{
-		return CompareTo(obj as Unel);
+		return CompareTo(obj as Snp);
 	}
 
-	public int CompareTo(Unel other)
+	public int CompareTo(Snp other)
 	{
 		var c = Scheme.CompareTo(other.Scheme);
 		if(c != 0)
@@ -101,30 +101,34 @@ public class Unel : IBinarySerializable, IEquatable<Unel>  /// Universal Network
 		if(c != 0)
 			return c;
 
-		c = Entity.CompareTo(other.Entity);
+		c = Path.CompareTo(other.Path);
 		if(c != 0)
 			return c;
 
 		return 0;
 	}
 
-	public static bool operator ==(Unel a, Unel b)
+	public static bool operator ==(Snp a, Snp b)
 	{
 		return a is null && b is null || a is not null && a.Equals(b);
 	}
 
-	public static bool operator !=(Unel left, Unel right)
+	public static bool operator !=(Snp left, Snp right)
 	{
 		return !(left == right);
 	}
 
-	public void Write(BinaryWriter w)
+	public void Write(BinaryWriter writer)
 	{
-		throw new NotImplementedException();
+		writer.WriteUtf8(Scheme);
+		writer.WriteUtf8(Net);
+		writer.WriteUtf8(Path);
 	}
 
-	public void Read(BinaryReader r)
+	public void Read(BinaryReader reader)
 	{
-		throw new NotImplementedException();
+		Scheme	= reader.ReadUtf8();
+		Net		= reader.ReadUtf8();
+		Path	= reader.ReadUtf8();
 	}
 }

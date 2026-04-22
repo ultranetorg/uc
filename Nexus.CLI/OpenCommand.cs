@@ -19,7 +19,7 @@ public class OpenCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								Cli.NexusApi.Send(new NexusOpenApc {Request = Unel.Parse(Args[0].Name)}, Flow);
+								Cli.NexusApi.Send(new NexusOpenApc {Request = Snp.Parse(Args[0].Name)}, Flow);
 
 								return null;
 							};

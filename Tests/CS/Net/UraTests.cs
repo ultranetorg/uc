@@ -19,7 +19,7 @@ public static class UraTests
  		{
 		void check(string a)
 		{
-			Assert.True(Unel.Parse(a).ToString() == a);
+			Assert.True(Snp.Parse(a).ToString() == a);
 		}
 
 		check($"n");

@@ -20,9 +20,6 @@ public enum OperationClass : uint
 		UserOwnerChange			= 001_000_002, 
 		UserNameChange			= 001_000_003, 
 		UserBandwidthAllocation	= 001_000_004,
-
-	ChildNet					= 002, 
-		ChildNetInitialization	= 002_000_001,
 }
 
 
@@ -60,15 +57,15 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			NotReady = "Not ready";
 	public const string			PublicationsExist = "Existing publications must be removed first";
 	public const string			Rejected = "Rejected";
+	
+	public abstract bool		IsValid(McvNet net);
+	public abstract void		Execute(Execution execution);
+	public abstract void		Write(BinaryWriter w);
+	public abstract void		Read(BinaryReader r);
 
 	public Operation()
 	{
 	}
-	
-	public abstract bool IsValid(McvNet net);
-	public abstract void Execute(Execution execution);
-	public abstract void Write(BinaryWriter w);
-	public abstract void Read(BinaryReader r);
 	 
 	public override string ToString()
 	{

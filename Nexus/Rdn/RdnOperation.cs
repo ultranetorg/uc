@@ -5,6 +5,9 @@ public enum RdnOperationClass : uint
 	RdnGenesis					= OperationClass.Genesis, 
 	RdnCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
+	Subnet							= 002, 
+		SubnetAttachment			= 002_000_001,
+
 	Domain							= 100,
 		DomainRegistration			= 100_000_001, 
 		DomainMigration				= 100_000_002, 
