@@ -198,17 +198,12 @@ public class Program: ApplicationContext
 
 		public void RegisterProtocol()
 		{
+			using var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{Snp.Common}");
+			key.SetValue("", $"{Snp.Common} Protocol");
+			key.SetValue("URL Protocol", "");
 
-			using(var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{Nexus.Protocol}"))
-			{
-				key.SetValue("", $"{Nexus.Protocol} Protocol");
-				key.SetValue("URL Protocol", "");
-
-				using(var shellKey = key.CreateSubKey(@"shell\open\command"))
-				{
-					shellKey.SetValue("", OpenCmd);
-				}
-			}
+			var shell = key.CreateSubKey(@"shell\open\command");
+			shell.SetValue("", OpenCmd);
 		}
 
 		public bool IsProtocolRegistered()
@@ -216,7 +211,7 @@ public class Program: ApplicationContext
 			var p = Assembly.GetExecutingAssembly().Location;
 			p = p.Remove(p.Length - 3) + "exe";
 
-			using var key = Registry.CurrentUser.OpenSubKey($@"Software\Classes\{Nexus.Protocol}");
+			using var key = Registry.CurrentUser.OpenSubKey($@"Software\Classes\{Snp.Common}");
 
 			if(key == null)
 				return false;

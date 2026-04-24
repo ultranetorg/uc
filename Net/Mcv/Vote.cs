@@ -21,7 +21,8 @@ public class Vote : IBinarySerializable
 	///public AccountAddress[]	FundJoiners = {};
 	///public AccountAddress[]	FundLeavers = {};
 	public AutoId[]				Violators = [];
-	public byte[][]				NnBlocks = [];
+	public byte[][]				SubnetMessages = [];
+	public byte[][]				SubnetMessageConfirmations = [];
 	public Transaction[]		Transactions = [];
 	public byte[]				Signature { get; set; }
 
@@ -145,22 +146,24 @@ public class Vote : IBinarySerializable
 		///writer.Write(FundJoiners);
 		///writer.Write(FundLeavers);
 		writer.Write(Violators);
-		writer.Write(NnBlocks, writer.WriteBytes);
+		writer.Write(SubnetMessages, writer.WriteBytes);
+		writer.Write(SubnetMessageConfirmations, writer.WriteBytes);
 
 		writer.Write(Transactions, t => t.WriteForVote(writer));
 	}
 
 	protected virtual void ReadPayload(BinaryReader reader)
 	{
-		Try					= reader.Read7BitEncodedInt();
-		Time				= reader.Read<Time>();
-		TargetHash			= reader.ReadBytes(Cryptography.HashLength);
+		Try							= reader.Read7BitEncodedInt();
+		Time						= reader.Read<Time>();
+		TargetHash					= reader.ReadBytes(Cryptography.HashLength);
 
-		Leavers				= reader.ReadArray<AutoId>();
-		///FundJoiners		= reader.ReadArray<AccountAddress>();
-		///FundLeavers		= reader.ReadArray<AccountAddress>();
-		Violators			= reader.ReadArray<AutoId>();
-		NnBlocks			= reader.ReadArray(reader.ReadBytes);
+		Leavers						= reader.ReadArray<AutoId>();
+		///FundJoiners				= reader.ReadArray<AccountAddress>();
+		///FundLeavers				= reader.ReadArray<AccountAddress>();
+		Violators					= reader.ReadArray<AutoId>();
+		SubnetMessages				= reader.ReadArray(reader.ReadBytes);
+		SubnetMessageConfirmations	= reader.ReadArray(reader.ReadBytes);
 
 		Transactions = reader.ReadArray(() =>	{
 													var t = new Transaction {Net = Mcv.Net, Vote = this};

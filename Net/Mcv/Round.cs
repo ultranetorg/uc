@@ -43,7 +43,8 @@ public abstract class Round : IBinarySerializable
 	public AccountAddress[]								ConsensusFundLeavers = [];
 	public long											ConsensusEnergyCost;
 	//public int											ConsensusOverloadRound;
-	public byte[][]										ConsensusSubnetStates;
+	public byte[][]										ConsensusSubnetTransactions;
+	public byte[][]										ConsensusSubnetTransactionConfirmations;
 
 	public bool											Confirmed = false;
 	public byte[]										Hash;
@@ -267,7 +268,8 @@ public abstract class Round : IBinarySerializable
 		{
 			ConsensusMemberLeavers = [];
 			ConsensusViolators = [];
-			ConsensusSubnetStates = [];
+			ConsensusSubnetTransactions = [];
+			ConsensusSubnetTransactionConfirmations = [];
 			Funds = [];
 			//ConsensusFundJoiners = [];
 			//ConsensusFundLeavers = [];
@@ -284,9 +286,13 @@ public abstract class Round : IBinarySerializable
 										.Where(x => svotes.Count(b => b.Violators.Contains(x)) >= min)
 										.Order().ToArray();
 
-			ConsensusSubnetStates	= svotes.SelectMany(i => i.NnBlocks).Distinct(Bytes.EqualityComparer)
-										.Where(v => svotes.Count(i => i.NnBlocks.Contains(v, Bytes.EqualityComparer)) >= min)
-										.Order(Bytes.Comparer).ToArray();
+			ConsensusSubnetTransactions = svotes	.SelectMany(i => i.SubnetMessages).Distinct(Bytes.EqualityComparer)
+											.Where(v => svotes.Count(i => i.SubnetMessages.Contains(v, Bytes.EqualityComparer)) >= min)
+											.Order(Bytes.Comparer).ToArray();
+
+			ConsensusSubnetTransactionConfirmations = svotes.SelectMany(i => i.SubnetMessageConfirmations).Distinct(Bytes.EqualityComparer)
+														.Where(v => svotes.Count(i => i.SubnetMessageConfirmations.Contains(v, Bytes.EqualityComparer)) >= min)
+														.Order(Bytes.Comparer).ToArray();
 
 			Elect(svotes, min);
 		}

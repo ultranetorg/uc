@@ -6,7 +6,7 @@ using RocksDbSharp;
 
 namespace Uccs.Net;
 
-public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same type of peers
+public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same type of peers
 {
 	public List<HomoPeer>						Peers = [];
 	public IEnumerable<HomoPeer>				Connections => Peers.Where(i => i.Status == ConnectionStatus.OK);
@@ -22,7 +22,7 @@ public abstract class HomoTcpPeering : TcpPeering<HomoPeer>, IHomoPeer /// same 
 
 	protected override HomoPeer					CreatePeer() => new ();
 
-	public HomoTcpPeering(IProgram program, string name, Net net, RocksDb database, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
+	public HomoPeering(IProgram program, string name, Net net, RocksDb database, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
 	{
 		Roles = roles;
 		Database = database;

@@ -35,7 +35,7 @@ public class TransactionResult
 	public string	Error { set; get; }
 }
 
-public abstract class McvPeering : HomoTcpPeering
+public abstract class McvPeering : HomoPeering
 {
 	public McvNode							Node;
 	public McvNet							Net => Node.Net;
@@ -566,14 +566,15 @@ public abstract class McvPeering : HomoTcpPeering
 				{
 					var v = Mcv.CreateVote();
 
-					v.Try			= r.Try;
-					v.TargetHash	= r.Target.Hash;
-					v.User			= m.User;
-					v.RoundId		= r.Id;
-					v.Time			= Time.Now(Mcv.Clock);
-					v.Violators		= r.ProposeViolators().ToArray();
-					v.Leavers		= r.ProposeMemberLeavers(gs.Id).ToArray();
-					v.NnBlocks		= Mcv.SubnetBlocks.Select(i => i.State.Hash).ToArray();
+					v.Try							= r.Try;
+					v.TargetHash					= r.Target.Hash;
+					v.User							= m.User;
+					v.RoundId						= r.Id;
+					v.Time							= Time.Now(Mcv.Clock);
+					v.Violators						= r.ProposeViolators().ToArray();
+					v.Leavers						= r.ProposeMemberLeavers(gs.Id).ToArray();
+					v.SubnetMessages				= Mcv.SubnetTransactions.Select(i => i.Hash).ToArray();
+					v.SubnetMessageConfirmations	= Mcv.SubnetTransactionConfirmations.Select(i => i.Hash).ToArray();
 	
 					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 					//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();

@@ -86,7 +86,8 @@ public abstract class Mcv /// Mutual chain voting
 	public Round								NextTargetRound => GetRound(LastConfirmedRound.Id + 1);
 	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + Net.P);
 
-	public List<SubnetBlock>						SubnetBlocks = [];
+	public List<TransactionNna>					SubnetTransactions = [];
+	public List<TransactionConfirmationNna>		SubnetTransactionConfirmations = [];
 
 	public const string							ChainFamilyName = "Chain";
 	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);

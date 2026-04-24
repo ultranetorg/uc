@@ -141,18 +141,44 @@ public class RdnRound : Round
 
 	public override void ConfirmForeign(Execution execution)
 	{
-		foreach(var i in ConsensusSubnetStates)
+		foreach(var i in ConsensusSubnetTransactions)
 		{
-			var b = Mcv.SubnetBlocks.Find(j => j.State.Hash.SequenceEqual(i));
+			var t = Mcv.SubnetTransactions.Find(j => j.Hash.SequenceEqual(i));
+
+			if(t == null)
+				throw new ConfirmationException(this, []);
+
+			var s = (execution as RdnExecution).Subnets.Affect(t.Net);
+
+			if(s.InNonce != t.Nonce + 1)
+				throw new ConfirmationException(this, []);
+
+			s.Peers		= t.Peers;	
+			s.InNonce	= t.Nonce;
+
+			foreach(var o in t.Operations)
+			{
+				o.Execute(execution);
+			}
+
+			Mcv.SubnetTransactions.Remove(t);
+		}
+
+		foreach(var i in ConsensusSubnetTransactionConfirmations)
+		{
+			var b = Mcv.SubnetTransactionConfirmations.Find(j => j.Hash.SequenceEqual(i));
 
 			if(b == null)
 				throw new ConfirmationException(this, []);
 
-			var s = (execution as RdnExecution).Subnets.Affect(b.Name);
-			s.State		= b.State;
-			s.StateHash = b.State.Hash;
+			var s = (execution as RdnExecution).Subnets.Affect(b.Net);
 
-			Mcv.SubnetBlocks.Remove(b); /// ??????
+			if(!s.OutHash.SequenceEqual(i))
+				throw new ConfirmationException(this, []);
+
+			s.OutStatus = OutTransactionStatus.Confirmed;
+
+			Mcv.SubnetTransactionConfirmations.Remove(b);
 		}
 
 		foreach(var i in ConsensusOutwards)
@@ -194,14 +220,16 @@ public class RdnRound : Round
 		base.Write(writer);
 
 		writer.Write(ConsensusOutwards);
-		writer.Write(ConsensusSubnetStates, writer.Write);
+		writer.Write(ConsensusSubnetTransactions, writer.Write);
+		writer.Write(ConsensusSubnetTransactionConfirmations, writer.Write);
 	}
 
 	public override void Read(BinaryReader reader)
 	{
 		base.Read(reader);
 		
-		ConsensusOutwards	= reader.ReadArray<ForeignResult>();
-		ConsensusSubnetStates = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashLength));
+		ConsensusOutwards					= reader.ReadArray<ForeignResult>();
+		ConsensusSubnetTransactions				= reader.ReadArray(() => reader.ReadBytes(Cryptography.HashLength));
+		ConsensusSubnetTransactionConfirmations = reader.ReadArray(() => reader.ReadBytes(Cryptography.HashLength));
 	}
 }

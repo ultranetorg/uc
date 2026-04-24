@@ -2,30 +2,29 @@
 
 namespace Uccs.Rdn;
 
-public enum SubnetStatus
+public enum OutTransactionStatus : byte
 {
-	None,
-	Initialized,
-	BlockRecieved,
-	BlockSent
+	None, Sent, Confirmed
 }
 
 public class Subnet : IBinarySerializable, ITableEntry
 {
-	public const int				NameLengthMin = 1;
-	public const int				NameLengthMax = 256;
-	public const int				PeersMaximum = 1000;
-	public const int				RootHashLengthMaximum = 4096;
+	public const int			NameLengthMin = 1;
+	public const int			NameLengthMax = 256;
+	public const int			PeersMaximum = 1000;
+	public const int			RootHashLengthMaximum = 4096;
 
-	public AutoId					Id { get; set; }
-	public string					Address { get; set; }
-	public SubnetState				State { get; set; }
-	public byte[]					StateHash { get; set; }
-	public Snp						Client { get; set; }
+	public AutoId				Id { get; set; }
+	public string				Name { get; set; }
+	public int					InNonce { get; set; }
+	public Endpoint[]			Peers { get; set; }
+	public Snp					Client { get; set; }
+	public byte[]				OutHash { get; set; }
+	public OutTransactionStatus	OutStatus { get; set; }
 
-	public EntityId					Key => Id;
-	public bool						Deleted { get; set; }
-	Mcv								Mcv;
+	public EntityId				Key => Id;
+	public bool					Deleted { get; set; }
+	Mcv							Mcv;
 
 	public Subnet()
 	{
@@ -38,7 +37,7 @@ public class Subnet : IBinarySerializable, ITableEntry
 
 	public override string ToString()
 	{
-		return $"{Address}, {Id}";
+		return $"{Name}, {Id}";
 	}
 
 	public object Clone()
@@ -46,9 +45,12 @@ public class Subnet : IBinarySerializable, ITableEntry
 		return	new Subnet(Mcv)
 				{
 					Id = Id,
-					Address = Address,
-					State = State,
-					StateHash = StateHash,
+					Name = Name,
+					InNonce = InNonce,
+					Peers = Peers,
+					Client = Client,
+					OutHash = OutHash,
+					OutStatus = OutStatus,
 				};
 	}
 
@@ -66,9 +68,9 @@ public class Subnet : IBinarySerializable, ITableEntry
 		return true;
 	}
 
-	public static bool Valid(SubnetState state)
+	public static bool Valid(TransactionNna state)
 	{
-		return state.RootHash.Length > RootHashLengthMaximum || state.Peers.Length > PeersMaximum;
+		return state.Peers.Length > PeersMaximum;
 	}
 
 	public void WriteMain(BinaryWriter writer)
@@ -84,21 +86,23 @@ public class Subnet : IBinarySerializable, ITableEntry
 	public void Write(BinaryWriter writer)
 	{
 		writer.Write(Id);
-		writer.WriteASCII(Address);
-
-		writer.Write(State);
-		writer.Write(StateHash);
+		writer.WriteASCII(Name);
+		writer.Write7BitEncodedInt(InNonce);
+		writer.Write(Peers);
 		writer.Write(Client);
+		writer.Write(OutHash);
+		writer.Write(OutStatus);
 	}
 
 	public void Read(BinaryReader reader)
 	{
 		Id			= reader.Read<AutoId>();
-		Address		= reader.ReadASCII();
-
-		State		= reader.Read<SubnetState>();
-		StateHash	= reader.ReadHash();
+		Name		= reader.ReadASCII();
+		InNonce		= reader.Read7BitEncodedInt();
+		Peers		= reader.ReadArray<Endpoint>();
 		Client		= reader.Read<Snp>();
+		OutHash		= reader.ReadHash();
+		OutStatus	= reader.Read<OutTransactionStatus>();
 	}
 
 	public void Cleanup(Round lastInCommit)

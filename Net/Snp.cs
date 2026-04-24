@@ -2,9 +2,11 @@
 
 public class Snp : IBinarySerializable, IEquatable<Snp>  /// Universal Network/Entity Locator
 {
-	public string Scheme { get; set; }
-	public string Net { get; set; }
-	public string Path { get; set; }
+	public const string Common = "iccp";
+						
+	public string		Scheme { get; set; }
+	public string		Net { get; set; }
+	public string		Path { get; set; }
 
 	//public bool Valid => !string.IsNullOrWhiteSpace(Scheme) && !string.IsNullOrWhiteSpace(Entity);
 

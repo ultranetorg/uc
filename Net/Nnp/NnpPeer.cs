@@ -1,25 +1,16 @@
 ﻿using System.Diagnostics;
-using System.Net;
 using System.Net.Sockets;
 
 namespace Uccs.Net;
 
-public interface INnp
-{
-	public Result Request(NnpPeer peer, RequestNna call);
-	public Result HolderClasses(NnpPeer peer, HolderClassesNna call);
-	public Result HolderAssets(NnpPeer peer, HolderAssetsNna call);
-	public Result AssetBalance(NnpPeer peer, AssetBalanceNna call);
-}
-
 public class NnRequestPacket: RequestPacket
 {
-	public Argumentation			Argumentation { get ; set; }
+	public Argumentation	Argumentation { get ; set; }
 }
 
 public class NnpPeer : Peer, IBinarySerializable
 {
-	INnp		Nni;
+	LcpServer	Lcp;
 
 	public NnpPeer()
 	{
@@ -77,19 +68,7 @@ public class NnpPeer : Peer, IBinarySerializable
 						
 						try
 						{
-							///var r = request.Execute();
-							Result r = null;
-
-							switch((NnpClass)Peering.Constructor.TypeToCode(rq.GetType()))
-							{
-								case NnpClass.Request:			r = Nni.Request(this, rq as RequestNna); break;
-								case NnpClass.HolderClasses:	r = Nni.HolderClasses(this, rq as HolderClassesNna); break;
-								case NnpClass.HolderAssets:		r = Nni.HolderAssets(this, rq as HolderAssetsNna); break;
-								case NnpClass.AssetBalance:		r = Nni.AssetBalance(this, rq as AssetBalanceNna); break;
-								//case NnpClass.AssetTransfer:	r = Nni.AssetTransfer(this, rq as AssetTransferNna); break;
-								default:
-									break;
-							}
+							var r = Lcp.Relay(rq as NnpArgumentation);
 
 							if(r != null)
 							{
@@ -185,7 +164,7 @@ public class NnpPeer : Peer, IBinarySerializable
 		Request(IdCounter++, args);
 	}
 
-	public Result Call(Argumentation args)
+	public Result Call(Argumentation args, Flow flow)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
@@ -207,7 +186,7 @@ public class NnpPeer : Peer, IBinarySerializable
 
 		try
 		{
-			i = WaitHandle.WaitAny([p.Event, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
+			i = WaitHandle.WaitAny([p.Event, flow.Cancellation.WaitHandle, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
 		}
 		catch(ObjectDisposedException)
 		{
@@ -229,7 +208,6 @@ public class NnpPeer : Peer, IBinarySerializable
 			}
 			else
 			{
-
 				///if(p.Exception is NodeException e)
 				///{
 				///	Peering.OnRequestException(this, e);
@@ -238,7 +216,7 @@ public class NnpPeer : Peer, IBinarySerializable
 				throw p.Exception;
 			}
 		}
-		else if(i == 1)
+		else if(i == 1 || i == 2)
 			throw new OperationCanceledException();
 		else
 			throw new NodeException(NodeError.Timeout);

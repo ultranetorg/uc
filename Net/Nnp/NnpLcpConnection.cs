@@ -12,32 +12,31 @@ public enum NnpIppConnectionType : byte
 	Client
 }
 
-public abstract class NnpIppConnection : IppConnection
+public abstract class NnpLcpConnection : LcpConnection
 {
 	public static string GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();
 
-	protected NnpIppConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	protected NnpLcpConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 		//RegisterHandler(typeof(NnpClass), this);
 
-		Dictionary<Type, Func<IppConnection, NnpArgumentation, Result>> ms = [];
+		Dictionary<Type, Func<NnpArgumentation, Result>> ms = [];
 
-		Handler =	(c, a) =>
-					{
-						if(ms.TryGetValue(a.GetType(), out var e))
-						{
-							return e(c, a);
-						}
+		Handler = (c, a) =>	{
+								if(ms.TryGetValue(a.GetType(), out var e))
+								{
+									return e(a);
+								}
 
-						var m = CreateAdapter<Func<IppConnection, NnpArgumentation, Result>>(GetType().GetMethods().First(i => i.GetParameters().Length == 2 && i.GetParameters()[1].ParameterType == a.GetType() && i.ReturnType == typeof(Result)));
+								var m = CreateAdapter<Func<NnpArgumentation, Result>>(GetType().GetMethods().First(i => i.GetParameters().Length == 1 && i.GetParameters()[0].ParameterType == a.GetType() && i.ReturnType == typeof(Result)));
 
-						ms[a.GetType()] = m;
+								ms[a.GetType()] = m;
 
-						return m(c, a);
-					};
+								return m(a);
+							};
 	}
 
-	public TFunc CreateAdapter<TFunc>(MethodInfo mi) where TFunc : Delegate
+	TFunc CreateAdapter<TFunc>(MethodInfo mi) where TFunc : Delegate
 	{
 		var funcType = typeof(TFunc);
 		var invoke = funcType.GetMethod("Invoke")!;
@@ -61,11 +60,11 @@ public abstract class NnpIppConnection : IppConnection
 	}
 }
 
-public class NnpIppClientConnection : NnpIppConnection
+public class NnpLcpClientConnection : NnpLcpConnection
 {
 	public R Call<A, R>(Nnc<A, R> call, Flow flow) where A : NnpArgumentation, new() where R : Result => Call(call.Argumentation, flow) as R;
 
-	public NnpIppClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	public NnpLcpClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 		Constructor = new ();
 		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i.Remove(i.Length - 3));
@@ -111,13 +110,13 @@ public class NnpIppClientConnection : NnpIppConnection
 	}
 }
 
-public class NnpIppNodeConnection : NnpIppConnection
+public class NnpLcpNodeConnection : NnpLcpConnection
 {
-	public NnpIppNodeConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	public NnpLcpNodeConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 		Constructor = new ();
-		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i.Remove(i.Length - 3));
-		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i.Remove(i.Length - 3));
+		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
+		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
 		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 }

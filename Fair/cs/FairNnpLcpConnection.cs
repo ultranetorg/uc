@@ -4,9 +4,9 @@ using Uccs.Net;
 
 namespace Uccs.Fair;
 
-public class FairNnpIppConnection : McvNnpIppConnection<FairNode, FairTable>
+public class FairNnpLcpConnection : McvNnpLcpConnection<FairNode, FairTable>
 {
-	public FairNnpIppConnection(FairNode node, Flow flow) : base(node, [nameof(User), nameof(Author), nameof(Site)], flow)
+	public FairNnpLcpConnection(FairNode node, Flow flow) : base(node, [nameof(User), nameof(Author), nameof(Site)], flow)
 	{
 	}
 

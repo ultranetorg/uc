@@ -84,7 +84,7 @@ public class HomoPeer : Peer, IHomoPeer
 						var id = Reader.ReadInt32();
 						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Peering.Constructor.Construct);
 						rq.Peer = this;
-						rq.Peering = Peering as HomoTcpPeering;
+						rq.Peering = Peering as HomoPeering;
 						
 						Respond(id, rq);
 
@@ -207,11 +207,10 @@ public class HomoPeer : Peer, IHomoPeer
 			}
 			else
 			{
-
-				if(p.Exception is NodeException e)
-				{
-					Peering.OnRequestException(this, e);
-				}
+				///if(p.Exception is NodeException e)
+				///{
+				///	Peering.OnRequestException(this, e);
+				///}
 
 				throw p.Exception;
 			}

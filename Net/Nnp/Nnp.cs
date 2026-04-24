@@ -48,7 +48,8 @@ public enum NnpClass : uint
 	None = 0, 
 	
 	Peers,
-	Block,
+	Message,
+	StateHash,
 	Request,
 
 	HolderClasses,
@@ -75,57 +76,91 @@ public class Nnc<A, R> : ICall<A, R> where A : NnpArgumentation, new() where R :
 	}
 }
 
-public class BlockNna : NnpArgumentation
+public class TransactionNna : NnpArgumentation
 {
-	public byte[]			Raw { get; set; }
+	public int				Nonce { get; set; }
+	public Endpoint[]		Peers { get; set; }
+	public IccpOperation[]	Operations { get; set; }
 
-	public BlockNna()
+	public byte[]			Hash => _Hash ??= Cryptography.Hash(RawPayload);
+	byte[]					_Hash;
+	byte[]					_RawPayload;
+
+	public byte[] RawPayload
 	{
+		get
+		{ 
+			if(_RawPayload == null)
+			{
+				var s = new MemoryStream();
+				var w = new BinaryWriter(s);
+
+				WritePayload(w);
+
+				_RawPayload = s.ToArray();
+			}
+		
+			return _RawPayload; 
+		}
+
+		set { _RawPayload = value; }
 	}
-	
-//	public override Return Execute()
-//	{
-//		//var p = Peering as NnTcpPeering;
-//
-//		//lock(Peering.Lock)
-//		{
-//		///	var b = p.ProcessIncoming(Raw, Peer);
-//		///
-//		///	//if(Peering.Synchronization == Synchronization.Synchronized)
-//		///	//{
-//		///	//	//var r = sun.Mcv.FindRound(v.RoundId);
-//		///	//	var _v = v.Round?.Votes.Find(i => i.Signature.SequenceEqual(v.Signature)); 
-//		///	//
-//		///	//	if(_v != null) /// added or existed
-//		///	//	{
-//		///	//		if(accepted) /// for the added vote
-//		///	//		{
-//		///	//			var m = Mcv.LastConfirmedRound.Members.Find(i => i.Address == v.Generator);
-//		///	//					
-//		///	//			if(m != null)
-//		///	//			{
-//		///	//				//m.BaseRdcIPs	= v.BaseRdcIPs.ToArray();
-//		///	//				//m.SeedHubRdcIPs	= v.SeedHubRdcIPs.ToArray();
-//		///	//				m.Proxy			= Peer;
-//		///	//			}
-//		///	//		}
-//		///	//		else if(_v.Peers != null && !_v.Peers.Contains(Peer)) /// for the existing vote
-//		///	//			_v.BroadcastConfirmed = true;
-//		///	//	}
-//		///	//}
-//		///
-//		///	if(b != null)
-//		///	{
-//		///		p.Broadcast(b, Peer);
-//		///		//Peering.Statistics.AcceptedVotes++;
-//		///	}
-//		///	//else
-//		///		//Peering.Statistics.RejectedVotes++;
-//		///
-//		}
-//
-//		return null;
-//	}
+
+	public override string ToString()
+	{
+		return $"Nonce={Nonce}, Operations={Operations.Length}, Peers={Peers.Length}";
+	}
+
+	public void WritePayload(BinaryWriter writer)
+	{
+		writer.Write7BitEncodedInt(Nonce);
+		writer.Write(Peers);
+		writer.Write(Operations);
+	}
+
+	public void ReadPayload(BinaryReader reader)
+	{
+		Nonce		= reader.Read7BitEncodedInt();
+		Peers		= reader.ReadArray<Endpoint>();
+		Operations	= reader.ReadArray<IccpOperation>();
+	}
+
+	public void Restore()
+	{
+		ReadPayload(new BinaryReader(new MemoryStream(RawPayload)));
+	}
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		ReadPayload(reader);
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		WritePayload(writer);
+	}
+}
+
+public class TransactionConfirmationNna : NnpArgumentation
+{
+	public int		Nonce { get; set; }
+	public byte[]	Hash{ get; set; }
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		Nonce = reader.Read7BitEncodedInt();
+		Hash = reader.ReadBytes();
+	}
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.Write7BitEncodedInt(Nonce);
+		writer.WriteBytes(Hash);
+	}
 }
 
 public class PeersNna : NnpArgumentation, IBinarySerializable
@@ -384,76 +419,3 @@ public class AssetTransferNnr : Result, IBinarySerializable
 	public  void Write(BinaryWriter writer) => writer.WriteBytes(TransactionId);
 }
 
-
-//	public class Cluster
-//	{
-//		public string			Net {get; set;}
-//		public List<Endpoint>	Peers {get; set;}
-//	}
-
-// 	public class NnTcpPeering : TcpPeering
-// 	{
-// 
-// 		public List<Cluster>			Clusters = [];
-// 		public override long			Roles => 0;
-// 		//public new NnNodeSettings		Settings => base.Settings as NexusNodeSettings;
-// 		bool							MinimalPeersReached;
-// 
-// 		public NnTcpPeering(string name, string profile, NodeSettings settings, Flow workflow) : base(name, null, null, settings ?? new NodeSettings(profile), workflow)
-// 		{
-// 			if(Settings.Api != null)
-// 			{
-// 				ApiServer = new NodeApiServer(this, Flow);
-// 			}
-// 
-// 			RunPeer();
-// 		}
-// 
-// 		public override string ToString()
-// 		{
-// 			return string.Join(",", new string[] {Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
-// 												  Settings.Peering.IP?.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
-// 		}
-// 
-// 		protected override void Share(Peer peer)
-// 		{
-// 			peer.Post(new ShareNetsRequest {Broadcast = false,
-// 											Nets = Clusters.Select(i => new ShareNetsRequest.Z {Id = i.Net, 
-// 																								Peers = i.Peers.ToArray()}).ToArray()});
-// 		}
-// 
-// 		public Cluster GetNet(Guid id)
-// 		{
-// 			if(Clusters.Find(i => i.Net == id) is not Cluster z)
-// 			{ 
-// 				z = new Cluster {Net = id, Peers = []};
-// 				Clusters.Add(z);
-// 			}
-// 
-// 			return z;
-// 		}
-// 
-// 		public void Declare(Guid netid, long roles)
-// 		{
-// 			var n = GetNet(netid);
-// 			var p = new Endpoint(Settings.Peering.IP ?? IP, roles);
-// 			n.Peers.Add(p);
-// 
-// 			foreach(var c in Connections)
-// 			{
-// 				c.Post(new ShareNetsRequest {Broadcast = true, Nets = [new ShareNetsRequest.Z {Id = netid, Peers = [p]}]});
-// 			}
-// 		}
-// 
-// 		protected override void ProcessConnectivity()
-// 		{
-// 			base.ProcessConnectivity();
-// 
-// 			if(!MinimalPeersReached && 
-// 				Connections.Count(i => i.Permanent) >= Settings.Peering.PermanentMin)
-// 			{
-// 				MinimalPeersReached = true;
-// 				Flow.Log?.Report(this, $"Minimal peers reached");
-// 			}
-// 		}
-// 	}

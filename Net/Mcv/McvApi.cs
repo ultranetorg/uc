@@ -359,7 +359,7 @@ public class TransactionApe
 		Tag					= transaction.Tag;
 		Signature			= transaction.Signature;
 		   
-		MemberEndpoint		= (transaction.Ppi as Peer)?.EP ?? (transaction.Ppi as HomoTcpPeering)?.EP;
+		MemberEndpoint		= (transaction.Ppi as Peer)?.EP ?? (transaction.Ppi as HomoPeering)?.EP;
 		//Signer				= transaction.Signer;
 		Status				= transaction.Status;
 		Error				= transaction.Error;

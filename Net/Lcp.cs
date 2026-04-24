@@ -1,17 +1,13 @@
-﻿using System.Diagnostics;
-using System.IO.Pipes;
-using System.Linq.Expressions;
-using System.Net;
-using System.Reflection;
+﻿using System.IO.Pipes;
 
 namespace Uccs.Net;
 
-public abstract class IppPacket
+public abstract class LcpPacket
 {
 	public int					Id { get; set; }
 }
 
-public class IppRequest : IppPacket
+public class LcpRequest : LcpPacket
 {
 	public Result				Return;
 	public ManualResetEvent		Event;
@@ -19,21 +15,21 @@ public class IppRequest : IppPacket
 	public Argumentation		Argumentation { get; set; }
 }
 
-public class IppConnection
+public class LcpConnection
 {
 	protected IProgram				Program;
 	public PipeStream				Pipe;
 	public BinaryReader				Reader;
 	public BinaryWriter				Writer;
-	List<IppRequest>				OutRequests = new();
-	IppServer						Server;
+	List<LcpRequest>				OutRequests = new();
+	LcpServer						Server;
 	int								IdCounter = 0;
 	public Constructor				Constructor;
 	protected Flow					Flow;
 
-	public Func<IppConnection, NnpArgumentation, Result>	Handler;
+	public Func<LcpConnection, NnpArgumentation, Result>	Handler;
 
-	public IppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor)
+	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow, Constructor constructor)
 	{
 		Program		= program;
 		Pipe		= pipe;
@@ -45,7 +41,7 @@ public class IppConnection
 		Writer = new BinaryWriter(pipe);
 	}
 
-	public IppConnection(IProgram program, string name, Flow flow)
+	public LcpConnection(IProgram program, string name, Flow flow)
 	{
 		Program	= program;
 		Flow	= flow.CreateNested(name);
@@ -111,7 +107,7 @@ public class IppConnection
 		}
 	}
 
-	void Request(IppRequest request)
+	void Request(LcpRequest request)
 	{
 		lock(Writer)
 		{
@@ -123,7 +119,7 @@ public class IppConnection
 		}
 	}
 
-	void Respond(IppRequest request)
+	void Respond(LcpRequest request)
 	{
 		try
 		{
@@ -173,7 +169,7 @@ public class IppConnection
 				{
  					case PacketType.Request:
  					{
-						var rq = new IppRequest();
+						var rq = new LcpRequest();
 						rq.Id = Reader.ReadInt32();
 						rq.Argumentation = Constructor.Construct(typeof(Argumentation), Reader.ReadUInt32()) as Argumentation;
 						(rq.Argumentation as IBinarySerializable).Read(Reader);
@@ -195,7 +191,7 @@ public class IppConnection
 						{
 							var rq = OutRequests.Find(i => i.Id == id);
 
-							if(rq is IppRequest f)
+							if(rq is LcpRequest f)
 							{
 								f.Return = r;
 								f.Event.Set();
@@ -216,7 +212,7 @@ public class IppConnection
 						{
 							var rq = OutRequests.Find(i => i.Id == id);
 
-							if(rq is IppRequest f)
+							if(rq is LcpRequest f)
 							{
 								f.Exception = ex;
 								f.Event.Set();
@@ -258,9 +254,11 @@ public class IppConnection
 		if(!Pipe.IsConnected)
 			throw new IpcException(IpcError.ConnectionLost);
 
-		var rq = new IppRequest {Argumentation = argumentation};
-
-		rq.Id = IdCounter++;
+		var rq = new LcpRequest
+				 {
+					Argumentation = argumentation,
+					Id = IdCounter++
+				 };
 
 		lock(OutRequests)
 		{
@@ -306,17 +304,18 @@ public class IppConnection
 	}
 }
 
-public abstract class IppServer
+public abstract class LcpServer
 {
 	protected IProgram					Program;
 	protected Flow						Flow;
 	readonly string						Name;
-	public readonly List<IppConnection>	Clients = new();
+	public readonly List<LcpConnection>	Clients = new();
 	public Constructor					Constructor = new();
 
-	public virtual void					Accept(IppConnection connection){}
+	public virtual void					Accept(LcpConnection connection){}
+	public abstract Result				Relay(NnpArgumentation call);
 
-	public IppServer(IProgram program, string pipeName, Flow flow)
+	public LcpServer(IProgram program, string pipeName, Flow flow)
 	{
 		Program = program;
 		Name = pipeName;
@@ -335,7 +334,7 @@ public abstract class IppServer
 	
 												pipe.WaitForConnectionAsync(Flow.Cancellation).Wait();
 	
-												IppConnection c = CreateConnection(pipe);
+												LcpConnection c = CreateConnection(pipe);
 	
 												lock(Clients)
 													Clients.Add(c);
@@ -352,8 +351,8 @@ public abstract class IppServer
 									.Start();
 	}
 
-	protected virtual IppConnection CreateConnection(NamedPipeServerStream pipe)
+	protected virtual LcpConnection CreateConnection(NamedPipeServerStream pipe)
 	{
-		return new IppConnection(Program, pipe, this, Flow, Constructor);
+		return new LcpConnection(Program, pipe, this, Flow, Constructor);
 	}
 }

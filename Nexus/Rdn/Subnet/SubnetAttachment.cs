@@ -81,8 +81,9 @@ public class SubnetAttachment : OutwardOperation
 	{
 		var s = execution.Subnets.Affect(Name);
 
-		s.State = new SubnetState {Peers = Peers, RootHash = [0]};
-		s.StateHash = execution.Net.Cryptography.ZeroHash;
-		s.Client = Client;
+		s.Peers		= Peers;
+		s.Client	= Client;
+		s.OutHash	= execution.Net.Cryptography.ZeroHash;
+		s.OutStatus	= OutTransactionStatus.None;
 	}
 }

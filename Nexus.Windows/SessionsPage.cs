@@ -11,7 +11,7 @@ public partial class SessionsPage : Page
 		InitializeComponent();
 	}
 
-	public SessionsPage(Nexus nexus, NnpIppClientConnection nnp) : base(nexus, nnp)
+	public SessionsPage(Nexus nexus, NnpLcpClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 

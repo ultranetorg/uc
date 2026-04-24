@@ -7,8 +7,6 @@ namespace Uccs.Nexus;
 
 public class Nexus : IProgram
 {
-	public const string				Protocol = "cccp";
-
 	public Flow						Flow;
 	public NexusSettings			Settings;
 	internal NexusApiServer			ApiServer;
@@ -20,8 +18,8 @@ public class Nexus : IProgram
 	public Delegate					Stopped;
 	VoidDelegate					OpenIam;
 
-	public NnpTcpPeering			NnpPeering;
-	public NnpIppServer				NnpIppServer;
+	public NnpPeering				NnpPeering;
+	public NnpLcpServer				NnpIppServer;
 
 	public delegate void			Delegate(Nexus d);
 
@@ -53,10 +51,7 @@ public class Nexus : IProgram
 
 		if(Settings.NnPeering != null)
 		{
-			NnpPeering = new NnpTcpPeering(this, Settings.Name, Settings.NnPeering, 0, flow);
-			NnpIppServer = new NnpIppServer(this);
-
-			NnpPeering.Run();
+			NnpIppServer = new NnpLcpServer(this);
 		}
 
 		if(Settings.Api != null)
@@ -106,15 +101,15 @@ public class Nexus : IProgram
 								});
 	}
 
-	public NnpIppClientConnection CreateNnpClientConnection()
+	public NnpLcpClientConnection CreateNnpClientConnection()
 	{
-		var c = new	NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), Flow);
+		var c = new	NnpLcpClientConnection(this, NnpLcpConnection.GetName(Settings.Host), Flow);
 		return c;
 	}
 
-	public NnpIppClientConnection CreateNnpClientConnection(Constructor constructor)
+	public NnpLcpClientConnection CreateNnpClientConnection(Constructor constructor)
 	{
-		var c = new	NnpIppClientConnection(this, NnpIppConnection.GetName(Settings.Host), Flow);
+		var c = new	NnpLcpClientConnection(this, NnpLcpConnection.GetName(Settings.Host), Flow);
 		c.Constructor.Merge(constructor);
 		return c;
 	}
@@ -127,6 +122,12 @@ public class Nexus : IProgram
 		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
 		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
 		
+		if(Settings.NnPeering != null)
+		{
+			NnpPeering = new NnpPeering(this, RdnNode.Mcv, Settings.Name, Settings.NnPeering, 0, Flow);
+			NnpPeering.Run();
+		}
+
 		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
 	}
 

@@ -119,9 +119,9 @@ public static class Extentions
 		if(t == typeof(byte))	writer.Write((byte)(object)a); else
 		if(t == typeof(sbyte))	writer.Write((sbyte)(object)a); else
 		if(t == typeof(ushort))	writer.Write((ushort)(object)a); else
-		if(t == typeof(uint))	writer.Write((uint)(object)a); else
-		
-		writer.Write((ulong)(object)a);
+		if(t == typeof(uint))	writer.Write((uint)(object)a); 
+		else
+			writer.Write((ulong)(object)a);
 	}
 
 	public static E Read<E>(this BinaryReader reader, E _ignore = default) where E : unmanaged, System.Enum

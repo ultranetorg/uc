@@ -50,6 +50,7 @@ public enum EntityError : uint
 	UnknownEntity,
 	UnknownAsset,
 	NotHolder,
+	NotSequential,
 }
 
 public enum RequestError : uint

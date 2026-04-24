@@ -21,12 +21,12 @@ public class SubnetTable : Table<AutoId, Subnet>
  	{
 		var bid = KeyToBid(name);
 
-		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Address == name);
+		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Name == name);
  	}
 
 	public virtual Subnet Latest(string name)
 	{
-		var e = (Mcv.LastConfirmedRound as RdnRound).Subnets.Affected.Values.FirstOrDefault(i => i.Address == name);
+		var e = (Mcv.LastConfirmedRound as RdnRound).Subnets.Affected.Values.FirstOrDefault(i => i.Name == name);
 
 		if(e != null)
 			return e.Deleted ? null : e;
@@ -46,7 +46,7 @@ public class SubnetExecution : TableExecution<AutoId, Subnet>
 
 	public Subnet Find(string name)
 	{
-		var e = Affected.Values.FirstOrDefault(i => i.Address == name);
+		var e = Affected.Values.FirstOrDefault(i => i.Name == name);
 
 		if(e != null)
 			return e.Deleted ? null : e;
@@ -54,7 +54,7 @@ public class SubnetExecution : TableExecution<AutoId, Subnet>
 		if(Parent != null)
 			return (Parent as SubnetExecution).Find(name);
 
-		e = Execution.Round.Subnets.Affected.Values.FirstOrDefault(i => i.Address == name);
+		e = Execution.Round.Subnets.Affected.Values.FirstOrDefault(i => i.Name == name);
 
 		if(e != null)
 			return e.Deleted ? null : e;
@@ -64,12 +64,12 @@ public class SubnetExecution : TableExecution<AutoId, Subnet>
 
 	public Subnet Affect(string name)
 	{
-		if(Affected.Values.FirstOrDefault(i => i.Address == name) is Subnet d)
+		if(Affected.Values.FirstOrDefault(i => i.Name == name) is Subnet d)
 			return d;
 
 		if(Parent != null)
 			d = (Parent as SubnetExecution).Find(name);
-		else if(Execution.Round.Subnets.Affected.Values.FirstOrDefault(i => i.Address == name) is Subnet x)
+		else if(Execution.Round.Subnets.Affected.Values.FirstOrDefault(i => i.Name == name) is Subnet x)
 			d = x;
 		else
 			d = Table.Find(name);
@@ -84,7 +84,7 @@ public class SubnetExecution : TableExecution<AutoId, Subnet>
 
 			d = new Subnet(Execution.Mcv);
 			d.Id = LastCreatedId = new AutoId(b, e);
-			d.Address = name;
+			d.Name = name;
 
 			return Affected[d.Id] = d;
 		}
