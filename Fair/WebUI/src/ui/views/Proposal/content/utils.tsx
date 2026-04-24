@@ -17,6 +17,7 @@ import {
   SiteNameChange,
   SiteTextChange,
 } from "types"
+import { AccountsList } from "ui/components"
 import { buildFileUrl } from "utils"
 
 const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
@@ -191,11 +192,29 @@ const getSiteAuthorsRemoval = (operation: SiteAuthorRemoval): JSX.Element => {
 }
 
 const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element => {
-  return <b>{operation.candidatesIds.join(", ")}</b>
+  return (
+    <div className="flex flex-col gap-2">
+      <Trans
+        ns="proposalView"
+        i18nKey={`${operation.$type}`}
+        parent={"p"}
+        className="text-2sm leading-5"
+        count={operation.candidates.length}
+      />
+      <AccountsList items={operation.candidates.map(x => ({ id: x.id, title: x.name, avatarId: x.id }))} />
+    </div>
+  )
 }
 
 const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element => {
-  return <b>{operation.moderatorId.join(", ")}</b>
+  return (
+    <div className="flex flex-col gap-2">
+      <Trans ns="proposalView" i18nKey={`${operation.$type}`} parent={"p"} className="text-2sm leading-5" />
+      <AccountsList
+        items={[{ id: operation.moderator.id, title: operation.moderator.name, avatarId: operation.moderator.id }]}
+      />
+    </div>
+  )
 }
 
 export const renderDescription = (siteId: string, option: ProposalOption): ReactNode => {

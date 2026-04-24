@@ -48,11 +48,11 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
       const policy = policies?.find(x => x.operationClass === operation)
       if (!policy || !user) return undefined
 
-      return policy.approval !== "publishers-majority" && isModerator
-        ? user.id
-        : policy.approval === "publishers-majority" && isPublisher && user.authorsIds && user.authorsIds.length > 0
+      return policy.approval === "publishers-majority" && isModerator
+        ? policy.approval === "publishers-majority" && isPublisher && user.authorsIds && user.authorsIds.length > 0
           ? user.authorsIds[0]
           : undefined
+        : user.id
     },
     [isModerator, isPublisher, policies, user],
   )

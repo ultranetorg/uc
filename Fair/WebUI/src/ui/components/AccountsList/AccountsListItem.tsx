@@ -26,6 +26,6 @@ export const AccountsListItem = memo(({ title, avatarId, onRemove }: AccountsLis
     <span className="select-none text-2sm font-medium leading-4" title={title}>
       {title}
     </span>
-    <SvgX className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" onClick={onRemove} />
+    {onRemove && <SvgX className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" onClick={onRemove} />}
   </div>
 ))

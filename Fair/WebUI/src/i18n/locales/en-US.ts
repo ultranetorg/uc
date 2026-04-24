@@ -269,8 +269,10 @@ export const enUS = {
   },
   moderatorsPage: {
     title: "Moderators",
-    noModerators: "No moderators",
+    addModerator: "Add new moderator",
     bannedTill: "Banned till",
+    noModerators: "No moderators",
+    removeModerator: "Remove moderator",
   },
   perpetualSurvey: {
     title: "Change approval policy for {{operation}}",
@@ -422,8 +424,9 @@ export const enUS = {
     "site-name-change_empty": `Set site name "{{name}}"`,
     "site-text-change": `Set site title "{{title}}", description "{{description}}" and slogan "{{slogan}}"`,
     "site-author-removal": "",
-    "site-moderator-addition": "",
-    "site-moderator-removal": "",
+    "site-moderator-addition_one": "Add this moderator",
+    "site-moderator-addition_other": "Add this moderators",
+    "site-moderator-removal": "Remove this moderator",
   },
   createProposal: {
     addCount_one: "You can add {{count}} more answer option.",
@@ -482,6 +485,10 @@ export const enUS = {
   },
 
   /* Tabs */
+  moderatorsProposalsTab: {
+    multipleOptions: "Multiple options",
+    noProposals: "No moderator proposals",
+  },
   tabChangedPublications: {
     noPublications: "No changed publications",
   },
@@ -539,6 +546,8 @@ export const enUS = {
     "publication-updation": "Updation",
     "review-creation": "Creation",
     "review-edit": "Edit",
+    "site-moderator-addition": "Addition",
+    "site-moderator-removal": "Removal",
   },
   platforms: {
     linux: "Linux",

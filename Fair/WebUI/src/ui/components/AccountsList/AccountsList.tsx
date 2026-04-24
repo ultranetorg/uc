@@ -16,7 +16,7 @@ export const AccountsList = memo(({ className, items, onItemRemove }: AccountsLi
   return (
     <div className={twMerge("flex flex-wrap gap-3", className)}>
       {items.map(x => (
-        <AccountsListItem key={x.id} {...x} onRemove={() => onItemRemove?.(x.id)} />
+        <AccountsListItem key={x.id} {...x} onRemove={onItemRemove ? () => onItemRemove(x.id) : undefined} />
       ))}
     </div>
   )

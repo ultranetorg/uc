@@ -119,6 +119,7 @@ public class SitesService
 				return result;
 
 			Author author = mcv.Authors.Latest(publisher.Author);
+			//User user = mcv.Users.Latest(publisher.Author);
 			var model = new PublisherModel(author, publisher);
 			result.Add(model);
 		}
@@ -182,17 +183,7 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			List<PolicyModel> result = new List<PolicyModel>(site.Policies.Length);
-			foreach(Policy policy in site.Policies)
-			{
-				if(policy.OperationClass == FairOperationClass.SiteModeratorRemoval)
-					continue;
-
-				var model = new PolicyModel(policy);
-				result.Add(model);
-			}
-
-			return result;
+			return site.Policies.Select(x => new PolicyModel(x));
 		}
 	}
 }

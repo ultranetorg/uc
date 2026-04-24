@@ -29,6 +29,7 @@ import {
   UsersPage,
   ModeratorChangedPublicationPage,
   UnpublishedPublicationPage,
+  ModeratorProposalPage,
 } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
@@ -150,6 +151,10 @@ const routes: RouteObject[] = [
               {
                 path: "c/:tabKey?",
                 element: <PublicationsPage />,
+              },
+              {
+                path: "m/p/:proposalId",
+                element: <ModeratorProposalPage />,
               },
               {
                 path: "c/p/:proposalId",

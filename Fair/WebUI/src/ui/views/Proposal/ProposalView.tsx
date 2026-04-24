@@ -34,13 +34,13 @@ const renderByOperationType: Record<string, ComponentType<ProposalViewContentPro
 const ALREADY_VOTED = 100
 
 export type ProposalViewProps = {
-  parentBreadcrumb?: BreadcrumbsItemProps
+  parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
   isFetching: boolean
   proposal?: ProposalDetails
   previousPath?: string
 }
 
-export const ProposalView = memo(({ parentBreadcrumb, proposal, previousPath }: ProposalViewProps) => {
+export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
   const { siteId } = useParams()
   const { getOperationVoterId } = useModerationContext()
   const navigate = useNavigate()
@@ -73,12 +73,14 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal, previousPath }: 
     [isPublicationMode, proposal],
   )
 
-  const parentBreadcrumbs = useMemo(
+  const headerBreadcrumbs = useMemo(
     () =>
-      parentBreadcrumb
-        ? [{ path: `/${siteId}/m`, title: t("common:proposals") }, parentBreadcrumb]
-        : { path: `/${siteId}/m`, title: t("common:proposals") },
-    [parentBreadcrumb, siteId, t],
+      parentBreadcrumbs
+        ? Array.isArray(parentBreadcrumbs)
+          ? [{ title: t("common:proposals"), path: `/${siteId}/m` }, ...parentBreadcrumbs]
+          : [parentBreadcrumbs]
+        : { title: t("common:proposals"), path: `/${siteId}/m` },
+    [parentBreadcrumbs, siteId, t],
   )
 
   const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
@@ -169,7 +171,7 @@ export const ProposalView = memo(({ parentBreadcrumb, proposal, previousPath }: 
     <div className="flex flex-col gap-6">
       <ModerationHeader
         title={proposal.title ?? proposal.id}
-        parentBreadcrumbs={parentBreadcrumbs}
+        parentBreadcrumbs={headerBreadcrumbs}
         components={
           isPublicationMode && !!voterId && voteStatus !== "voted" ? (
             <ButtonBar className="items-center">

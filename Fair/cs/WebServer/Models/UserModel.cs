@@ -12,4 +12,15 @@ public class UserModel
 
 	[JsonPropertyOrder(-1)]
 	public string Owner { get; init; }
+
+	public UserModel()
+	{
+	}
+
+	public UserModel(User user)
+	{
+		Id = user.Id.ToString();
+		Name = user.Name;
+		Owner = user.Owner.ToString();
+	}
 }
