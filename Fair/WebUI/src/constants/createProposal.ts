@@ -1,6 +1,10 @@
 import { OperationType } from "types"
 
-export const CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES: OperationType[] = ["publication-publish"]
+export const CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES: OperationType[] = [
+  "publication-publish",
+  "site-moderator-addition",
+  "site-moderator-removal",
+]
 
 export const CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES: OperationType[] = [
   "category-avatar-change",

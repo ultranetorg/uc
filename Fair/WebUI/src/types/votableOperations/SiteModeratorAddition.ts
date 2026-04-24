@@ -1,5 +1,6 @@
+import { User } from "types/User"
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
 export type SiteModeratorAddition = {
-  candidatesIds: string[]
+  candidates: User[]
 } & BaseVotableOperation

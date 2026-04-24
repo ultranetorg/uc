@@ -1,5 +1,7 @@
+import { User } from "types/User"
+
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
 export type SiteModeratorRemoval = {
-  moderatorId: string[]
+  moderator: User
 } & BaseVotableOperation
