@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 
-import { TabsProvider } from "app"
+import { TabsProvider, useModerationContext } from "app"
 import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem } from "ui/components"
 
@@ -15,22 +15,21 @@ const routeToTabKey: Record<string, string> = {
 
 export const ModeratorsPage = () => {
   const navigate = useNavigate()
+  const { getOperationVoterId } = useModerationContext()
   const { siteId, tabKey } = useParams()
   const { t } = useTranslation("moderatorsPage")
 
+  const voterId = getOperationVoterId("site-moderator-addition")
+
   const key = routeToTabKey[tabKey!]
-
-  const handleAddModeratorClick = useCallback(() => {}, [])
-
-  // <Link to={`/${siteId}/g/new`} state={{ type: "site-moderator-removal", publisherId: publisher.user.id }}>
-  //   <ButtonOutline className="h-9 w-20 capitalize" label={t("common:remove")} />
-  // </Link>
 
   const handleTabSelect = useCallback(
     (item: TabsListItem & { route?: string }) =>
       navigate(item.route ? `/${siteId}/m/m/${item.route}` : `/${siteId}/m/m`),
     [navigate, siteId],
   )
+
+  const parentBreadcrumbs = useMemo(() => [{ path: `/${siteId}/m`, title: t("common:proposals") }], [siteId, t])
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
@@ -44,8 +43,24 @@ export const ModeratorsPage = () => {
     <>
       <ModerationHeader
         title={t("title")}
-        parentBreadcrumbs={{ path: `/${siteId}/m`, title: t("common:proposals") }}
-        components={<ButtonPrimary label="Add new moderator" onClick={handleAddModeratorClick} />}
+        parentBreadcrumbs={parentBreadcrumbs}
+        components={
+          <>
+            {voterId && (
+              <Link
+                to={`/${siteId}/g/new`}
+                state={{
+                  parentBreadcrumbs: [...parentBreadcrumbs, { path: `/${siteId}/m/m/`, title: t("title") }],
+                  title: t("addModerator"),
+                  type: "site-moderator-addition",
+                  previousPath: `/${siteId}/m/m/`,
+                }}
+              >
+                <ButtonPrimary label={t("addModerator")} />
+              </Link>
+            )}
+          </>
+        }
       />
       <TabsProvider defaultKey={key || "moderators"}>
         <div className="flex flex-col gap-6">

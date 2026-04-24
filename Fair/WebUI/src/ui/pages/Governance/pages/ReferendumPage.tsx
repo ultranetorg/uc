@@ -12,7 +12,7 @@ export const ReferendumPage = () => {
 
   return (
     <ProposalView
-      parentBreadcrumb={{ title: t("common:governance"), path: `/${siteId}/g` }}
+      parentBreadcrumbs={{ title: t("common:governance"), path: `/${siteId}/g` }}
       isFetching={isFetching}
       proposal={proposal}
     />

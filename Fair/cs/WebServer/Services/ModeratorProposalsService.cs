@@ -232,10 +232,10 @@ public class ModeratorProposalsService
 				return new TotalItemsResult<T>{Items = items, TotalItems = totalItems};
 
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
-			if (!ProposalUtils.IsDiscussion(site, proposal))
-			{
-				continue;
-			}
+			//if (!ProposalUtils.IsDiscussion(site, proposal))
+			//{
+			//	continue;
+			//}
 			if (!checkFunc(proposal) || !SearchUtils.IsMatch(proposal, query))
 			{
 				continue;
@@ -273,8 +273,9 @@ public class ModeratorProposalsService
 		{
 			// NOTE: if there are multiple options, we won't load moderators.
 			IEnumerable<AccountBaseModel> moderators = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, addition.Candidates, CancellationToken.None) : null;
-			return new ModeratorProposalModel(proposal, by, moderators)
+			return new ModeratorProposalModel(proposal, by)
 			{
+				Moderators = moderators,
 				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
 			};
 		}
@@ -282,8 +283,9 @@ public class ModeratorProposalsService
 		{
 			// NOTE: if there are multiple options, we won't load moderators.
 			IEnumerable<AccountBaseModel> moderators = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, [removal.Moderator], CancellationToken.None) : null;
-			return new ModeratorProposalModel(proposal, by, moderators)
+			return new ModeratorProposalModel(proposal, by)
 			{
+				Moderators = moderators,
 				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
 			};
 		}

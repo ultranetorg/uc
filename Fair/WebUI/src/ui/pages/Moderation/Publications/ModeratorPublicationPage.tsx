@@ -12,7 +12,7 @@ export const ModeratorPublicationPage = () => {
 
   return (
     <ProposalView
-      parentBreadcrumb={{ title: t("common:publications"), path: `/${siteId}/m/c` }}
+      parentBreadcrumbs={{ title: t("common:publications"), path: `/${siteId}/m/c` }}
       isFetching={isFetching}
       proposal={proposal}
       previousPath={`/${siteId}/m/c/p`}

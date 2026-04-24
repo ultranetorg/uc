@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Uccs.Net;
 
 namespace Uccs.Fair;
 
@@ -37,8 +38,8 @@ public static class ProposalUtils
 			SiteApprovalPolicyChange operation => new SiteApprovalPolicyChangeModel(operation),
 			SiteAuthorsRemoval operation => new SiteAuthorsChangeModel(operation),
 			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
-			SiteModeratorAddition operation => new SiteModeratorAdditionModel(operation),
-			SiteModeratorRemoval operation => new SiteModeratorRemovalModel(operation),
+			SiteModeratorAddition operation => CreateSiteModeratorAdditionModel(mcv, operation),
+			SiteModeratorRemoval operation => CreateSiteModeratorRemovalModel(mcv, operation),
 			SiteNameChange operation => CreateSiteNameChangeModel(operation),
 			SiteTextChange operation => new SiteTextChangeModel(operation),
 			UserUnregistration operation => new UserDeletionModel(operation),
@@ -76,6 +77,31 @@ public static class ProposalUtils
 	{
 		Category category = mcv.Categories.Latest(operation.Category);
 		return new CategoryTypeChangeModel(operation, category);
+	}
+
+	// TODO: split models on regular and details models. Need to avoid expensive operations with data loading.
+	static SiteModeratorAdditionModel CreateSiteModeratorAdditionModel(FairMcv mcv, SiteModeratorAddition operation)
+	{
+		IEnumerable<UserModel> candidates = operation.Candidates.Select(candidateId =>
+		{
+			User user = (FairUser) mcv.Users.Latest(candidateId);
+			return new UserModel(user);
+		});
+
+		return new SiteModeratorAdditionModel(operation)
+		{
+			Candidates = candidates,
+		};
+	}
+
+	// TODO: split models on regular and details models. Need to avoid expensive operations with data loading.
+	static SiteModeratorRemovalModel CreateSiteModeratorRemovalModel(FairMcv mcv, SiteModeratorRemoval operation)
+	{
+		User user = (FairUser) mcv.Users.Latest(operation.Moderator);
+		return new SiteModeratorRemovalModel(operation)
+		{
+			Moderator = new UserModel(user)
+		};
 	}
 
 	static SiteNameChangeModel CreateSiteNameChangeModel(SiteNameChange operation)
