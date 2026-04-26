@@ -36,11 +36,11 @@ public class RdnTypeResolver : ApiTypeResolver
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         if(ti.Type == typeof(CodeException))
-			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
+			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
          if(ti.Type == typeof(Operation))
- 			foreach(var i in typeof(RdnOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(RdnOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+ 			foreach(var i in typeof(RdnOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         return ti;

@@ -20,6 +20,9 @@ public enum OperationClass : uint
 		UserOwnerChange			= 001_000_002, 
 		UserNameChange			= 001_000_003, 
 		UserBandwidthAllocation	= 001_000_004,
+
+	Subnet						= 002, 
+		SubnetAttachment		= 002_000_001,
 }
 
 

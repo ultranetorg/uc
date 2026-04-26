@@ -8,28 +8,17 @@ public class RdnExecution : Execution
 
 	public DomainExecution		Domains;
 	public ResourceExecution	Resources;
-	public SubnetExecution		Subnets;
-
-	public List<Outward>		Outwards  { get => _Outwards ?? Round.Outwards; set => _Outwards = value; }
-	List<Outward>				_Outwards;
 
 	public RdnExecution(RdnMcv mcv, RdnRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
 		Domains = new(this);
 		Resources = new(this);
-		Subnets = new(this);
-	}
-
-	public void AffectOutwards()
-	{
-		_Outwards ??= [..Round.Outwards];
 	}
 
 	public override ITableExecution FindExecution(byte table)
 	{
 		if(table == Mcv.Domains.Id)		return Domains;
 		if(table == Mcv.Resources.Id)	return Resources;
-		if(table == Mcv.Subnets.Id)		return Subnets;
 
 		return base.FindExecution(table);
 	}
@@ -38,7 +27,6 @@ public class RdnExecution : Execution
 	{
 		if(Mcv.Domains.Id == table)		return Domains.Find(id as AutoId) != null ? Domains.Affect(id as AutoId) : null;
 		if(Mcv.Resources.Id == table)	return Resources.Find(id as AutoId) != null ? Resources.Affect(id as AutoId) : null;
-		if(Mcv.Subnets.Id == table)		return Subnets.Find(id as AutoId) != null ? Subnets.Affect(id as AutoId) : null;
 
 		return base.Affect(table, id);
 	}

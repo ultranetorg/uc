@@ -82,64 +82,28 @@ public class TransactionNna : NnpArgumentation
 	public Endpoint[]		Peers { get; set; }
 	public IccpOperation[]	Operations { get; set; }
 
-	public byte[]			Hash => _Hash ??= Cryptography.Hash(RawPayload);
+	public byte[]			Hash => _Hash ??= Cryptography.Hash((this as IBinarySerializable).Raw);
 	byte[]					_Hash;
-	byte[]					_RawPayload;
-
-	public byte[] RawPayload
-	{
-		get
-		{ 
-			if(_RawPayload == null)
-			{
-				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
-
-				WritePayload(w);
-
-				_RawPayload = s.ToArray();
-			}
-		
-			return _RawPayload; 
-		}
-
-		set { _RawPayload = value; }
-	}
 
 	public override string ToString()
 	{
 		return $"Nonce={Nonce}, Operations={Operations.Length}, Peers={Peers.Length}";
 	}
 
-	public void WritePayload(BinaryWriter writer)
+	public override void Read(BinaryReader reader)
 	{
-		writer.Write7BitEncodedInt(Nonce);
-		writer.Write(Peers);
-		writer.Write(Operations);
-	}
-
-	public void ReadPayload(BinaryReader reader)
-	{
+		base.Read(reader);
 		Nonce		= reader.Read7BitEncodedInt();
 		Peers		= reader.ReadArray<Endpoint>();
 		Operations	= reader.ReadArray<IccpOperation>();
 	}
 
-	public void Restore()
-	{
-		ReadPayload(new BinaryReader(new MemoryStream(RawPayload)));
-	}
-
-	public override void Read(BinaryReader reader)
-	{
-		base.Read(reader);
-		ReadPayload(reader);
-	}
-
 	public override void Write(BinaryWriter writer)
 	{
 		base.Write(writer);
-		WritePayload(writer);
+		writer.Write7BitEncodedInt(Nonce);
+		writer.Write(Peers);
+		writer.Write(Operations);
 	}
 }
 

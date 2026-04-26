@@ -25,6 +25,7 @@ public class Vote : IBinarySerializable
 	public byte[][]				SubnetMessageConfirmations = [];
 	public Transaction[]		Transactions = [];
 	public byte[]				Signature { get; set; }
+	public ForeignResult[]		ForeignResults = {};
 
 	public int					TransactionCountExcess;
 	public bool					Restored => TargetHash != null;
@@ -146,10 +147,12 @@ public class Vote : IBinarySerializable
 		///writer.Write(FundJoiners);
 		///writer.Write(FundLeavers);
 		writer.Write(Violators);
-		writer.Write(SubnetMessages, writer.WriteBytes);
-		writer.Write(SubnetMessageConfirmations, writer.WriteBytes);
 
 		writer.Write(Transactions, t => t.WriteForVote(writer));
+
+		writer.Write(SubnetMessages, writer.WriteBytes);
+		writer.Write(SubnetMessageConfirmations, writer.WriteBytes);
+		writer.Write(ForeignResults);
 	}
 
 	protected virtual void ReadPayload(BinaryReader reader)
@@ -162,14 +165,16 @@ public class Vote : IBinarySerializable
 		///FundJoiners				= reader.ReadArray<AccountAddress>();
 		///FundLeavers				= reader.ReadArray<AccountAddress>();
 		Violators					= reader.ReadArray<AutoId>();
-		SubnetMessages				= reader.ReadArray(reader.ReadBytes);
-		SubnetMessageConfirmations	= reader.ReadArray(reader.ReadBytes);
 
 		Transactions = reader.ReadArray(() =>	{
 													var t = new Transaction {Net = Mcv.Net, Vote = this};
 													t.ReadForVote(reader);
 													return t;
 												});
+
+		SubnetMessages				= reader.ReadArray(reader.ReadBytes);
+		SubnetMessageConfirmations	= reader.ReadArray(reader.ReadBytes);
+		ForeignResults				= reader.ReadArray<ForeignResult>();
 	}
 
 	public void Write(BinaryWriter writer)

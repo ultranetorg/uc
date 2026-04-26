@@ -575,7 +575,8 @@ public abstract class McvPeering : HomoPeering
 					v.Leavers						= r.ProposeMemberLeavers(gs.Id).ToArray();
 					v.SubnetMessages				= Mcv.SubnetTransactions.Select(i => i.Hash).ToArray();
 					v.SubnetMessageConfirmations	= Mcv.SubnetTransactionConfirmations.Select(i => i.Hash).ToArray();
-	
+					v.ForeignResults					= Mcv.ApprovedOutwards.ToArray();
+						
 					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 					//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
 	

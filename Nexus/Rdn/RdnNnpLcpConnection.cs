@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Text;
+using System.Threading.Tasks.Dataflow;
 using Uccs.Net;
 
 namespace Uccs.Rdn;
@@ -13,9 +14,6 @@ public class RdnNnpLcpConnection : McvNnpLcpConnection<RdnNode, RdnTable>
 		if(node.Mcv != null)
 		{
 			node.Mcv.Confirmed += r =>	{
-											foreach(var i in (r as RdnRound).Subnets.Affected)
-											{
-											}
 	
 											//foreach(var i in r.ConsensusSubnetHashes)
 											//{
@@ -35,7 +33,7 @@ public class RdnNnpLcpConnection : McvNnpLcpConnection<RdnNode, RdnTable>
 	{
 		lock(Node.Mcv.Lock)
 		{	
-			var m = Node.Mcv.SubnetTransactions.Find(i => i.Net == args.Net && i.RawPayload.SequenceEqual(args.RawPayload));
+			var m = Node.Mcv.SubnetTransactions.Find(i => i.Net == args.Net && i.Hash.SequenceEqual(args.Hash));
 
 			if(m != null)
 				return null;

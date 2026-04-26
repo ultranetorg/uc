@@ -3,7 +3,6 @@
 public class RdnVote : Vote
 {
 	//public ForeignResult[]		Emissions = {};
-	public ForeignResult[]		Migrations = {};
 
 	public RdnVote(Mcv mcv) : base(mcv)
 	{
@@ -14,7 +13,6 @@ public class RdnVote : Vote
 		base.WritePayload(writer);
 
 		//writer.Write(Emissions);
-		writer.Write(Migrations);
 	}
 
 	protected override void ReadPayload(BinaryReader reader)
@@ -22,6 +20,5 @@ public class RdnVote : Vote
 		base.ReadPayload(reader);
 
 		//Emissions	= reader.ReadArray<ForeignResult>();
-		Migrations	= reader.ReadArray<ForeignResult>();
 	}
 }

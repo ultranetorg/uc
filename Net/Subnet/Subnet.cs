@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Uccs.Rdn;
+namespace Uccs.Net;
 
 public enum OutTransactionStatus : byte
 {
@@ -16,9 +16,11 @@ public class Subnet : IBinarySerializable, ITableEntry
 
 	public AutoId				Id { get; set; }
 	public string				Name { get; set; }
-	public int					InNonce { get; set; }
-	public Endpoint[]			Peers { get; set; }
 	public Snp					Client { get; set; }
+	public Endpoint[]			Peers { get; set; }
+	public int					InNonce { get; set; }
+	public int					OutNonce { get; set; }
+	public IccpOperation[]		OutOperations { get; set; }
 	public byte[]				OutHash { get; set; }
 	public OutTransactionStatus	OutStatus { get; set; }
 
@@ -30,9 +32,9 @@ public class Subnet : IBinarySerializable, ITableEntry
 	{
 	}
 
-	public Subnet(Mcv chain)
+	public Subnet(Mcv mcv)
 	{
-		Mcv = chain;
+		Mcv = mcv;
 	}
 
 	public override string ToString()
@@ -46,9 +48,11 @@ public class Subnet : IBinarySerializable, ITableEntry
 				{
 					Id = Id,
 					Name = Name,
-					InNonce = InNonce,
-					Peers = Peers,
 					Client = Client,
+					Peers = Peers,
+					InNonce = InNonce,
+					OutNonce = OutNonce,
+					OutOperations = OutOperations,
 					OutHash = OutHash,
 					OutStatus = OutStatus,
 				};
@@ -87,22 +91,26 @@ public class Subnet : IBinarySerializable, ITableEntry
 	{
 		writer.Write(Id);
 		writer.WriteASCII(Name);
-		writer.Write7BitEncodedInt(InNonce);
-		writer.Write(Peers);
 		writer.Write(Client);
+		writer.Write(Peers);
+		writer.Write7BitEncodedInt(InNonce);
+		writer.Write7BitEncodedInt(OutNonce);
+		writer.Write(OutOperations);
 		writer.Write(OutHash);
 		writer.Write(OutStatus);
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Id			= reader.Read<AutoId>();
-		Name		= reader.ReadASCII();
-		InNonce		= reader.Read7BitEncodedInt();
-		Peers		= reader.ReadArray<Endpoint>();
-		Client		= reader.Read<Snp>();
-		OutHash		= reader.ReadHash();
-		OutStatus	= reader.Read<OutTransactionStatus>();
+		Id				= reader.Read<AutoId>();
+		Name			= reader.ReadASCII();
+		Client			= reader.Read<Snp>();
+		Peers			= reader.ReadArray<Endpoint>();
+		InNonce			= reader.Read7BitEncodedInt();
+		OutNonce		= reader.Read7BitEncodedInt();
+		OutOperations	= reader.ReadArray<IccpOperation>();
+		OutHash			= reader.ReadHash();
+		OutStatus		= reader.Read<OutTransactionStatus>();
 	}
 
 	public void Cleanup(Round lastInCommit)

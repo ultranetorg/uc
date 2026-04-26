@@ -7,15 +7,15 @@ public enum RdnTable : byte
 {
 	Meta = McvTable.Meta, 
 	User = McvTable.User,
-	Domain, Resource, Subnet 
+	Subnet = McvTable.Subnet,
+	Domain,
+	Resource, 
 }
 
 public class RdnMcv : Mcv
 {
 	public DomainTable				Domains;
 	public ResourceTable			Resources;
-	public SubnetTable				Subnets;
-	public List<ForeignResult>		ApprovedOutwards = new();
 	Endpoint[]						GraphIPs;
 	Endpoint[]						SeedHubIPs;
 
@@ -64,7 +64,7 @@ public class RdnMcv : Mcv
 		Resources = new (this);
 		Subnets = new (this);
 
-		Tables = [Metas, Users, Domains, Resources, Subnets];
+		Tables = [Metas, Users, Subnets, Domains, Resources];
 	}
 
 	public override Round CreateRound()
@@ -87,14 +87,6 @@ public class RdnMcv : Mcv
 		return new RdnCandidacyDeclaration {GraphEPs		= GraphIPs,
 											SeedHubRdcIPs	= SeedHubIPs};
 
-	}
-
-	public override void FillVote(Vote vote)
-	{
-		var v = vote as RdnVote;
-
-  			//v.Emissions	= ApprovedEmissions.ToArray();
-		v.Migrations	= ApprovedOutwards.ToArray();
 	}
 
 	public IEnumerable<Resource> SearchResources(string query)

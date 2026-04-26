@@ -1,14 +1,14 @@
 ﻿using System.Text;
 
-namespace Uccs.Rdn;
+namespace Uccs.Net;
 
 public class SubnetTable : Table<AutoId, Subnet>
 {
-	public override string			Name => RdnTable.Subnet.ToString();
+	public override string			Name => McvTable.Subnet.ToString();
 
 	public int						KeyToBid(string domain) => EntityId.BytesToBucket(Encoding.ASCII.GetBytes(domain.PadRight(3, '\0'), 0, 3));
 
-	public SubnetTable(RdnMcv rds) : base(rds)
+	public SubnetTable(Mcv rds) : base(rds)
 	{
 	}
 	
@@ -26,7 +26,7 @@ public class SubnetTable : Table<AutoId, Subnet>
 
 	public virtual Subnet Latest(string name)
 	{
-		var e = (Mcv.LastConfirmedRound as RdnRound).Subnets.Affected.Values.FirstOrDefault(i => i.Name == name);
+		var e = Mcv.LastConfirmedRound.Subnets.Affected.Values.FirstOrDefault(i => i.Name == name);
 
 		if(e != null)
 			return e.Deleted ? null : e;
@@ -38,9 +38,8 @@ public class SubnetTable : Table<AutoId, Subnet>
 public class SubnetExecution : TableExecution<AutoId, Subnet>
 {
 	new SubnetTable			Table => base.Table as SubnetTable;
-	new RdnExecution		Execution=> base.Execution as RdnExecution;
 		
-	public SubnetExecution(RdnExecution execution) : base(execution.Mcv.Subnets, execution)
+	public SubnetExecution(Execution execution) : base(execution.Mcv.Subnets, execution)
 	{
 	}
 
