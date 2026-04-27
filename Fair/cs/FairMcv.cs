@@ -18,7 +18,9 @@ public enum FairMetaEntityType : int
 
 public enum FairTable : byte
 {
-	Meta = McvTable.Meta, User = McvTable.User,
+	Meta = McvTable.Meta, 
+	User = McvTable.User,
+	Subnet = McvTable.Subnet,
 	Author, Product, Site, Category, Publication, Review, Proposal, ProposalComment, File, _Word, _PublicationTitle, _SiteTitle
 }
 
@@ -74,6 +76,7 @@ public class FairMcv : Mcv
 
 		Metas = new (this);
 		Users = new FairUserTable(this);
+		Subnets = new (this);
 		Authors = new (this);
 		Products = new (this);
 		Sites = new (this);
@@ -87,7 +90,7 @@ public class FairMcv : Mcv
 		PublicationTitles = new (this);
 		SiteTitles = new (this);
 
-		Tables = [Metas, Users, Authors, Products, Sites, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, PublicationTitles, SiteTitles];
+		Tables = [Metas, Users, Subnets, Authors, Products, Sites, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, PublicationTitles, SiteTitles];
 	}
 
 	public override Round CreateRound()

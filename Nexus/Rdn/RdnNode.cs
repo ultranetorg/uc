@@ -24,7 +24,7 @@ public class RdnNode : McvNode
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
 	//public RdnNnTcpPeering			NnPeering;
-	IppConnection					NnConnection;
+	public LcpConnection			NnConnection;
 	List<Outward>					CurrentOutwards = [];
 	Thread							OutwardThread;
 
@@ -108,7 +108,7 @@ public class RdnNode : McvNode
 
 		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
 
-		NnConnection = new RdnNnpIppConnection(this, flow);
+		NnConnection = new RdnNnpLcpConnection(this, flow);
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
 		if(Settings.Seed != null)

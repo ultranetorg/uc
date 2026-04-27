@@ -20,7 +20,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 	public string				Domain { get; set; }
 	public string				Resource { get; set; }
 
-	public const string			Scheme = "ura";
+	public const string			Scheme = Snp.Common;
 	//public string				Uri => $"{Scheme}:{Net}{(Net != null ? ":" : null)}{Domain}/{Resource}";
 	//public static ResourceType	SchemeToType(string s) => s[2] switch {'v' => ResourceType.Variable, 'c' => ResourceType.Constant};
 

@@ -54,9 +54,9 @@ public class DomainMigration : OutwardOperation
 	//	Generator	= reader.Read<AutoId>();
 	//}
 
-	public override void Execute(RdnExecution execution)
+	public override void Execute(Execution execution)
 	{
-		var a = execution.Domains.Find(Name);
+		var a = (execution as RdnExecution).Domains.Find(Name);
 
 		if(a?.Owner != null)
 		{
@@ -74,7 +74,7 @@ public class DomainMigration : OutwardOperation
 
 		if(existing.Key != Tld)
 		{
-			Error = OtherTldHasPriority;
+			Error = RdnOperation.OtherTldHasPriority;
 			return;
 		}
 
@@ -92,7 +92,7 @@ public class DomainMigration : OutwardOperation
 		execution.PayOperationEnergy(User);
 	}
 
-	public override void ConfirmedExecute(RdnExecution execution, Outward task)
+	public override void ConfirmedExecute(Execution execution, Outward task)
 	{
 		var e = execution as RdnExecution;
 		var a = e.Domains.Affect(Name);

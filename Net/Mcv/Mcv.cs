@@ -10,7 +10,7 @@ public delegate void RoundDelegate(Round b);
 
 public enum McvTable : byte
 {
-	Meta, User, _Last = User
+	Meta, User, Subnet, _Last = Subnet
 }
 
 public enum VoteStatus
@@ -59,12 +59,16 @@ public abstract class Mcv /// Mutual chain voting
 	static readonly byte[]						GenesisKey = [0x04];
 	public MetaTable							Metas;
 	public UserTable							Users;
+	public SubnetTable							Subnets;
 	public TableBase[] 							Tables;
 	public int									Size => Tables.Sum(i => i.Size);
 	public BlockDelegate						VoteAdded;
 	public RoundDelegate						ConsensusReached;
 	public RoundDelegate						ConsensusFailed;
 	public RoundDelegate						Confirmed;
+	public RoundDelegate						IcReady;
+
+	public List<ForeignResult>					ApprovedOutwards = new();
 
 	List<Round>									_Tail = [];
 	public List<Round>							Tail
@@ -86,7 +90,8 @@ public abstract class Mcv /// Mutual chain voting
 	public Round								NextTargetRound => GetRound(LastConfirmedRound.Id + 1);
 	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + Net.P);
 
-	public List<SubnetBlock>						SubnetBlocks = [];
+	public List<TransactionNna>					SubnetTransactions = [];
+	public List<TransactionConfirmationNna>		SubnetTransactionConfirmations = [];
 
 	public const string							ChainFamilyName = "Chain";
 	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);
@@ -97,7 +102,7 @@ public abstract class Mcv /// Mutual chain voting
 	public abstract Vote						CreateVote();
 	public abstract Generator					CreateGenerator();
 	public abstract CandidacyDeclaration		CreateCandidacyDeclaration();
-	public abstract void						FillVote(Vote vote);
+	public virtual void							FillVote(Vote vote){}
 
 	Genesis Genesis;
 

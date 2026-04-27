@@ -2,33 +2,21 @@
 using System.Numerics;
 using Uccs.Net;
 
-namespace Uccs.Rdn;
-
-//internal class  NnpIppConnection : IppConnection
-//{	
-//	public NnpIppConnection(IProgram program, NamedPipeServerStream pipe, IppServer server, Flow flow, Constructor constructor) : base(program, pipe, server, flow, constructor)
-//	{
-//	}
-//
-//	public override void Established()
-//	{
-//		
-//	}
-//}
+namespace Uccs.Nexus;
 
 public class NnpNode
 {
 	public string			Api { get; set; }
 	public string			Net;
-	public IppConnection	Connection;
+	public LcpConnection	Connection;
 }
 	
-public class NnpIppServer : IppServer
+public class NnpLcpServer : LcpServer
 {
-	Nexus.Nexus				Nexus;
+	Nexus					Nexus;
 	public List<NnpNode>	Locals = [];
 
-	public NnpIppServer(Nexus.Nexus nexus) : base(nexus, NnpIppConnection.GetName(nexus.Settings.Host), nexus.Flow)
+	public NnpLcpServer(Nexus nexus) : base(nexus, NnpLcpConnection.GetName(nexus.Settings.Host), nexus.Flow)
 	{
 		Nexus = nexus;
 
@@ -37,7 +25,7 @@ public class NnpIppServer : IppServer
 		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly,	typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
-	public override void Accept(IppConnection connection)
+	public override void Accept(LcpConnection connection)
 	{
 		var ct = connection.Reader.Read<NnpIppConnectionType>();
 
@@ -48,21 +36,32 @@ public class NnpIppServer : IppServer
 			Locals.Add(new NnpNode {Connection = connection, Net = net, Api = api});
 		}
 	
-		connection.Handler = Relay;
+		connection.Handler = (c, a) => Relay(a);  /// relay from local nodes
 	}
 
-	public Result Relay(IppConnection connection, NnpArgumentation call)
+	public override Result Relay(NnpArgumentation call)
 	{
-		var n = Locals.Find(i => i.Net == call.Net);
-
-		if(n != null)
+		if(call is not TransactionNna m)
 		{
-			var rp = n.Connection.Call(call, Flow);
-			return rp;
+			var n = Locals.Find(i => i.Net == call.Net);
+
+			if(n != null)
+			{
+				try
+				{
+					return n.Connection.Call(call, Flow); /// try to relay to local node
+				}
+				catch(CodeException ex)
+				{
+				}
+			}
+
+			return Nexus.NnpPeering.Call(call.Net, call, Flow); /// relay to peers
 		} 
 		else
 		{
-			return Nexus.NnpPeering.Call(call.Net, call, Flow);
+			Nexus.NnpPeering.Broadcast(m);
+			return null;
 		}
 	}
 }

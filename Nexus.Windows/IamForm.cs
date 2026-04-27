@@ -5,7 +5,7 @@ namespace Uccs.Nexus.Windows;
 
 public partial class IamForm : Form
 {
-	NnpIppClientConnection Nnp;
+	NnpLcpClientConnection Nnp;
 
 	public IamForm()
 	{

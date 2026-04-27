@@ -383,7 +383,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public TailGraphEnumerator(Table<ID, E> table)
 		{
 			Table = table;
-			Round = Table.Mcv.Tail.GetEnumerator();
+			Round = Table.Mcv.Tail.SkipWhile(i => i != Table.Mcv.LastConfirmedRound).GetEnumerator();
 		}
 
 		public void Dispose()
@@ -398,47 +398,44 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			{
 				if(Round != null)
 				{
-					if(Entity == null)
+					if(Entity == null) /// try next (previous) round
 					{	
-						if(!Round.MoveNext())
+						if(!Round.MoveNext()) /// if no more rounds, go table
 						{	
 							Round = null;
 							Entity = Table.GraphEntities.GetEnumerator();
 							continue;
 						}
-						else
-							while(!Round.Current.Confirmed)
-								Round.MoveNext();
+						//else
+						//	while(!Round.Current.Confirmed)
+						//		Round.MoveNext();
 								
 						Entity = Round.Current.AffectedByTable(Table).Values.GetEnumerator() as IEnumerator<E>;
 					}
 	
-					if(Entity.MoveNext())
-					{
-						if(!Unique.Contains(Entity.Current))
-						{
-							Unique.Add(Entity.Current);
-							return true;
-						}
-						else
-							continue;
-					}
-					else
-					{
-						Entity = null;
-					}
-				} 
-				else
-				{
+				rnext: 
 					if(Entity.MoveNext())
 					{
 						if(Unique.Add(Entity.Current))
 							return true;
 						else
-							continue;
+							goto rnext;
 					}
 					else
-						return false;
+						Entity = null; /// no more entities in the current round, go previous one
+				}
+				else
+				{
+				tnext: 
+					if(Entity.MoveNext()) /// enumerate table entities
+					{
+						if(Unique.Add(Entity.Current))
+							return true;
+						else
+							goto tnext;
+					}
+					else
+						return false; /// The End
 				}
 			}
 		}

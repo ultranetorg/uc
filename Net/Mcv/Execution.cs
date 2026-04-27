@@ -6,6 +6,8 @@ public class Execution : ITableExecution
 	public Dictionary<AutoId, User>				AffectedUsers = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	
+	public SubnetExecution						Subnets;
+
 	Dictionary<int, int>[]						_NextEids;
 	long[]										_Spaces;
 	long[]										_Bandwidths;
@@ -15,6 +17,9 @@ public class Execution : ITableExecution
 	public long[]								Spaces  { get => _Spaces ?? Round.Spacetimes; set => _Spaces = value; }
 	public long[]								Bandwidths  { get => _Bandwidths ?? Round.Bandwidths; set => _Bandwidths = value; }
 	public List<Generator>						Candidates  { get => _Candidates ?? Round.Candidates; set => _Candidates = value; }
+
+	public List<Outward>						Outwards  { get => _Outwards ?? Round.Outwards; set => _Outwards = value; }
+	List<Outward>								_Outwards;
 
 	public Time									Time => Round.ConsensusTime;
 	public McvNet								Net;
@@ -36,19 +41,26 @@ public class Execution : ITableExecution
 		Mcv = mcv;
 		Round = round;
 		Transaction = transaction;
+		Subnets = new(this);
+	}
+
+	public void AffectOutwards()
+	{
+		_Outwards ??= [..Round.Outwards];
 	}
 
 	public virtual ITableExecution FindExecution(byte table)
 	{
 		if(Mcv.Users.Id == table) return this;
+		if(table == Mcv.Subnets.Id)		return Subnets;
 
 		return null;
 	}
 
 	public virtual ITableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Users.Id == table)	
-			return FindUser(id as AutoId) != null ? AffectUser(id as AutoId) : null;
+		if(Mcv.Users.Id == table)		return FindUser(id as AutoId) != null ? AffectUser(id as AutoId) : null;
+		if(Mcv.Subnets.Id == table)		return Subnets.Find(id as AutoId) != null ? Subnets.Affect(id as AutoId) : null;
 
 		return null;
 	}

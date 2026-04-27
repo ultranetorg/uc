@@ -10,7 +10,7 @@ public partial class TransferPage : Page
 	{
 	}
 
-	public TransferPage(Nexus nexus, NnpIppClientConnection nnp) : base(nexus, nnp)
+	public TransferPage(Nexus nexus, NnpLcpClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 	}

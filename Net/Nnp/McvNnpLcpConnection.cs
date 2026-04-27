@@ -2,7 +2,7 @@
 
 namespace Uccs.Net;
 
-public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode where T : unmanaged, Enum
+public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode where T : unmanaged, Enum
 {
 	//public string		ApiAddress;
 	protected N			Node => Program as N;
@@ -11,7 +11,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 								  new () {Name = nameof(User.Energy),		Units = "Execution Cycles (EC)"},
 								  new () {Name = nameof(User.EnergyNext),	Units = "Execution Cycles (EC)"}];
 
-	public McvNnpIppConnection(N node, string [] classes, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
+	public McvNnpLcpConnection(N node, string [] classes, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
 	{
 		Classes = classes;
 	}
@@ -26,7 +26,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		}
 	}
 
-	public virtual Result Peers(IppConnection connection, PeersNna args)
+	public virtual Result Peers(PeersNna args)
 	{
 		if(Node.Peering.Synchronization == Synchronization.Synchronized)
 		{
@@ -39,7 +39,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		}
 	}
 
-//	public virtual Result Transact(IppConnection connection, TransactNna args)
+//	public virtual Result Transact(TransactNna args)
 //	{
 //		var f = Flow.CreateNested(args.Timeout);
 //				
@@ -55,7 +55,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 //		return new TransactNnr {Result = t.Tag};
 //	}
 	
-	public virtual Result Request(IppConnection connection, RequestNna args)
+	public virtual Result Request(RequestNna args)
 	{
 		var f = Flow.CreateNested(args.Timeout);
 		
@@ -68,7 +68,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		return new RequestNnr {Response = (w.BaseStream as MemoryStream).ToArray()};
 	}
 	
-//	public virtual Result JsonApi(IppConnection connection, JsonApiNna args)
+//	public virtual Result JsonApi(JsonApiNna args)
 //	{
 //		
 //		ConstructorInfo constuctor;
@@ -104,7 +104,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 //		return rp;
 //	}
 
-	public virtual Result HolderClasses(IppConnection connection, HolderClassesNna args)
+	public virtual Result HolderClasses(HolderClassesNna args)
 	{
 		return new HolderClassesNnr {Classes = Classes};
 	}
@@ -125,7 +125,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		}
 	}
 
-	public virtual Result AssetBalance(IppConnection connection, AssetBalanceNna args)
+	public virtual Result AssetBalance(AssetBalanceNna args)
 	{
 		Parse(args.Entity, out var c, out var n); 
 
@@ -151,7 +151,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 			
 		return	new AssetBalanceNnr
 				{
-					Balance = new BigInteger(args.Name switch
+					Balance = new BigInteger(args.Name	switch
 														{
 															nameof(User.Spacetime) => sh.Spacetime,
 															nameof(User.Energy) => eh.Energy,
@@ -160,7 +160,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 				};
 	}
 
-	public virtual Result HolderAssets(IppConnection connection, HolderAssetsNna args)
+	public virtual Result HolderAssets(HolderAssetsNna args)
 	{
 		Parse(args.Entity, out var c, out var n); 
 
@@ -170,7 +170,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 		}
 	}
 
-//	public virtual Result HoldersByAccount(IppConnection connection, HoldersByAccountNna args)
+//	public virtual Result HoldersByAccount(HoldersByAccountNna args)
 //	{
 //		lock(Node.Mcv.Lock)
 //		{	
@@ -200,7 +200,7 @@ public class McvNnpIppConnection<N, T> : NnpIppNodeConnection where N : McvNode 
 			throw new EntityException(EntityError.UnknownEntity);
 	}
 
-	public virtual Result AssetTransfer(IppConnection connection, AssetTransferNna args)
+	public virtual Result AssetTransfer(AssetTransferNna args)
 	{
 		if(args.ToNet == Node.Net.Name)
 		{

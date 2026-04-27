@@ -10,6 +10,9 @@ public class Endpoint : IBinarySerializable, IEquatable<Endpoint>
 
 	public byte[]		Raw => [..IP.GetAddressBytes(), ..BitConverter.GetBytes(Port)];
 
+	public static bool operator == (Endpoint a, Endpoint b) => a is null && b is null || a.Equals(b);
+	public static bool operator != (Endpoint a, Endpoint b) => !(a == b);
+
 	public Endpoint()
 	{
 	}
@@ -52,7 +55,7 @@ public class Endpoint : IBinarySerializable, IEquatable<Endpoint>
 
 	public bool Equals(Endpoint e)
 	{
-		return IP.Equals(e.IP) && Port == e.Port;
+		return  e != null && IP.Equals(e.IP) && Port == e.Port;
 	}
 
 	public static Endpoint Parse(string v)
@@ -61,6 +64,8 @@ public class Endpoint : IBinarySerializable, IEquatable<Endpoint>
 
 		return new Endpoint(IPAddress.Parse(v.AsSpan(0, i)), ushort.Parse(v.AsSpan(i + 1)));
 	}
+
+
 }
 
 

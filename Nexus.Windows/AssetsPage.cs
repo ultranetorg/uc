@@ -10,7 +10,7 @@ public partial class AssetsPage : Page
 	{
 	}
 
-	public AssetsPage(Nexus nexus, NnpIppClientConnection nnp) : base(nexus, nnp)
+	public AssetsPage(Nexus nexus, NnpLcpClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 	}

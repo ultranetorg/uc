@@ -1,4 +1,4 @@
-﻿namespace Uccs.Rdn;
+﻿namespace Uccs.Net;
 
 public class SubnetAttachment : OutwardOperation
 {
@@ -34,7 +34,7 @@ public class SubnetAttachment : OutwardOperation
 		writer.Write(Peers);
 	}
 
-	public override void Execute(RdnExecution execution)
+	public override void Execute(Execution execution)
 	{
 		if(execution.Subnets.Find(Name) != null)
 		{
@@ -77,12 +77,14 @@ public class SubnetAttachment : OutwardOperation
 // 		execution.PayOperationEnergy(User);
 	}
 
-	public override void ConfirmedExecute(RdnExecution execution, Outward task)
+	public override void ConfirmedExecute(Execution execution, Outward task)
 	{
 		var s = execution.Subnets.Affect(Name);
 
-		s.State = new SubnetState {Peers = Peers, RootHash = [0]};
-		s.StateHash = execution.Net.Cryptography.ZeroHash;
-		s.Client = Client;
+		s.Peers		= Peers;
+		s.Client	= Client;
+		s.OutHash	= execution.Net.Cryptography.ZeroHash;
+		s.OutStatus	= OutTransactionStatus.None;
+		s.OutOperations = [];
 	}
 }

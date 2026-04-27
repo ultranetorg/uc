@@ -4,7 +4,7 @@ public partial class NnNetworkPanel : MainPanel
 {
 	Flow Flow;
 
-	public NnNetworkPanel(HomoTcpPeering node)
+	public NnNetworkPanel(HomoPeering node)
 	{
 		InitializeComponent();
 	}
