@@ -34,7 +34,7 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
     case "publication-creation":
       return { productId: data.productId }
     case "publication-deletion":
-      return { publicationId: data.publicationId }
+      return { publication: data.publicationId }
     case "publication-publish":
       return { publication: data.publicationId, category: option.categoryId! }
     case "publication-updation":
