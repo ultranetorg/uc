@@ -4,7 +4,10 @@ import { useTranslation } from "react-i18next"
 export const useModeratorPublicationMenuItems = (publicationId: string) => {
   const { t } = useTranslation("moderatorPublicationMenu")
 
-  const handleRemovePublication = useCallback(() => alert("Remove publication" + publicationId), [publicationId])
+  const handleRemovePublication = useCallback(
+    () => alert("Remove publication useModeratorPublicationMenuItems" + publicationId),
+    [publicationId],
+  )
 
   const menuItems = useMemo(
     () => [

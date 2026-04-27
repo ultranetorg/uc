@@ -36,7 +36,7 @@ public static class ProposalUtils
 			ReviewCreation operation => new ReviewCreationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 			SiteApprovalPolicyChange operation => new SiteApprovalPolicyChangeModel(operation),
-			SiteAuthorsRemoval operation => new SiteAuthorsChangeModel(operation),
+			SiteAuthorsRemoval operation => new SiteAuthorsRemovalModel(operation),
 			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
 			SiteModeratorAddition operation => CreateSiteModeratorAdditionModel(mcv, operation),
 			SiteModeratorRemoval operation => CreateSiteModeratorRemovalModel(mcv, operation),

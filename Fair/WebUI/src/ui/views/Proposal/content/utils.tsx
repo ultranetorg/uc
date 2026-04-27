@@ -10,7 +10,7 @@ import {
   CategoryTypeChange,
   ProposalOption,
   PublicationPublish,
-  SiteAuthorRemoval,
+  SiteAuthorsRemoval,
   SiteAvatarChange,
   SiteModeratorAddition,
   SiteModeratorRemoval,
@@ -187,7 +187,7 @@ const getSiteTextChange = (operation: SiteTextChange): JSX.Element => (
   />
 )
 
-const getSiteAuthorsRemoval = (operation: SiteAuthorRemoval): JSX.Element => {
+const getSiteAuthorsRemoval = (operation: SiteAuthorsRemoval): JSX.Element => {
   return <b>{operation.authorId}</b>
 }
 
@@ -240,8 +240,8 @@ export const renderDescription = (siteId: string, option: ProposalOption): React
     case "site-text-change":
       return getSiteTextChange(option.operation as SiteTextChange)
 
-    case "site-author-removal":
-      return getSiteAuthorsRemoval(option.operation as SiteAuthorRemoval)
+    case "site-authors-removal":
+      return getSiteAuthorsRemoval(option.operation as SiteAuthorsRemoval)
     case "site-moderator-addition":
       return getSiteModeratorAddition(option.operation as SiteModeratorAddition)
     case "site-moderator-removal":

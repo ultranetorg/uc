@@ -1,5 +1,5 @@
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
-export type SiteAuthorRemoval = {
+export type SiteAuthorsRemoval = {
   authorId: string
 } & BaseVotableOperation

@@ -28,7 +28,10 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
     mode: "onChange",
     defaultValues: {
       title: "",
-      options: [...(location.state?.moderators ? [{ moderators: location.state.moderators }] : [])],
+      options: [
+        ...(location.state?.moderators ? [{ moderators: location.state.moderators }] : []),
+        ...(location.state?.authors ? [{ authors: location.state.authors }] : []),
+      ],
       ...(searchParams.get("type") && { type: searchParams.get("type")! as OperationType }),
       ...(location.state?.title && { title: location.state.title }),
       ...(location.state?.type && { type: location.state.type as OperationType }),

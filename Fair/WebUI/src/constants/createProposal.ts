@@ -1,7 +1,9 @@
 import { OperationType } from "types"
 
 export const CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES: OperationType[] = [
+  "publication-deletion",
   "publication-publish",
+  "site-authors-removal",
   "site-moderator-addition",
   "site-moderator-removal",
 ]

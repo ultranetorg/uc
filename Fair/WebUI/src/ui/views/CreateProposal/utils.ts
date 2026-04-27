@@ -45,8 +45,8 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
       return { reviewId: data.reviewId, status: option.status }
 
     // Site
-    case "site-author-removal":
-      return { additions: [], removals: mapAuthorsToIds(option.authors) }
+    case "site-authors-removal":
+      return { authors: mapAuthorsToIds(option.authors) }
     case "site-avatar-change":
       return { file: option.fileId }
     case "site-moderator-addition":

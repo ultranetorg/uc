@@ -1,4 +1,5 @@
 import { memo, useCallback, useMemo, useState } from "react"
+import { useParams } from "react-router-dom"
 import {
   FloatingPortal,
   offset,
@@ -25,8 +26,9 @@ type ModeratorOptionsMenuBaseProps = {
 export type ModeratorOptionsMenuProps = PropsWithClassName & ModeratorOptionsMenuBaseProps
 
 export const ModeratorOptionsMenu = memo(({ className, publicationId }: ModeratorOptionsMenuProps) => {
-  const { t } = useTranslation("moderatorOptionsMenu")
   const { isModerator } = useModerationContext()
+  const { siteId } = useParams()
+  const { t } = useTranslation("moderatorOptionsMenu")
 
   const [isExpanded, setExpanded] = useState(false)
 
@@ -43,17 +45,31 @@ export const ModeratorOptionsMenu = memo(({ className, publicationId }: Moderato
   const role = useRole(context)
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
-  const handleRemovePublication = useCallback(() => alert("Remove publication" + publicationId), [publicationId])
-
   const menuItems = useMemo(
     () => [
       {
-        onClick: handleRemovePublication,
         label: t("removePublication"),
+        to: `/${siteId}/m/new`,
+        state: {
+          title: "Remove publication",
+          type: "publication-deletion",
+          publicationId,
+        },
       },
     ],
-    [handleRemovePublication, t],
+    [publicationId, siteId, t],
   )
+
+  // <Link
+  //   state={{
+  //     parentBreadcrumbs: [...parentBreadcrumbs, { path: `/${siteId}/m/m/`, title: t("title") }],
+  //     title: t("addModerator"),
+  //     type: "site-moderator-addition",
+  //     previousPath: `/${siteId}/m/m/`,
+  //   }}
+  // >
+  //   <ButtonPrimary label={t("addModerator")} />
+  // </Link>
 
   const handleMenuClick = useCallback(() => setExpanded(false), [])
 
