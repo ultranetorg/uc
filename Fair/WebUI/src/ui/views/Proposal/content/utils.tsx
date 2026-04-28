@@ -18,6 +18,7 @@ import {
   SiteTextChange,
 } from "types"
 import { AccountsList } from "ui/components"
+import { MembersList } from "ui/components/MembersList"
 import { buildFileUrl } from "utils"
 
 const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
@@ -188,7 +189,20 @@ const getSiteTextChange = (operation: SiteTextChange): JSX.Element => (
 )
 
 const getSiteAuthorsRemoval = (operation: SiteAuthorsRemoval): JSX.Element => {
-  return <b>{operation.authorId}</b>
+  return (
+    <div className="flex flex-col gap-2">
+      <Trans
+        ns="proposalView"
+        i18nKey={`${operation.$type}`}
+        parent={"p"}
+        className="text-2sm leading-5"
+        count={operation.removals.length}
+      />
+      <MembersList
+        items={operation.removals.map(x => ({ id: x.id, title: x.nickname ?? x.title, avatarSrc: buildFileUrl(x.id) }))}
+      />
+    </div>
+  )
 }
 
 const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element => {

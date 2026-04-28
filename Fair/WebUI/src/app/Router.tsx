@@ -30,6 +30,7 @@ import {
   ModeratorChangedPublicationPage,
   UnpublishedPublicationPage,
   ModeratorProposalPage,
+  PublisherProposalPage,
 } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
@@ -145,16 +146,12 @@ const routes: RouteObject[] = [
                 element: <ProposalPage />,
               },
               {
-                path: "m/:tabKey?",
-                element: <ModeratorsPage />,
-              },
-              {
-                path: "c/:tabKey?",
-                element: <PublicationsPage />,
-              },
-              {
                 path: "m/p/:proposalId",
                 element: <ModeratorProposalPage />,
+              },
+              {
+                path: "m/:tabKey?",
+                element: <ModeratorsPage />,
               },
               {
                 path: "c/p/:proposalId",
@@ -167,6 +164,14 @@ const routes: RouteObject[] = [
               {
                 path: "c/u/:publicationId",
                 element: <UnpublishedPublicationPage />,
+              },
+              {
+                path: "c/:tabKey?",
+                element: <PublicationsPage />,
+              },
+              {
+                path: "a/r/:proposalId",
+                element: <PublisherProposalPage />,
               },
               {
                 path: "a/:tabKey?",

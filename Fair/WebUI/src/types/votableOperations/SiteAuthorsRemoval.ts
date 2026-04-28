@@ -1,5 +1,8 @@
+import { AuthorBase } from "types"
+
 import { BaseVotableOperation } from "./BaseVotableOperation"
 
 export type SiteAuthorsRemoval = {
-  authorId: string
+  removalsIds: string[]
+  removals: AuthorBase[]
 } & BaseVotableOperation
