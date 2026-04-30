@@ -64,6 +64,27 @@ public abstract class Cryptography
 	{
 		return Blake2b.ComputeHash(32, [..a, ..b]);
 	}
+	
+	public static byte[] Hash(Action<BinaryWriter> write)
+	{
+		var s = new Blake2Stream();
+		var w = new BinaryWriter(s);
+		
+		write(w);
+
+		return s.Hash;
+	}
+	
+	public static byte[] Hash(IEnumerable<IBinarySerializable> items)
+	{
+		var s = new Blake2Stream();
+		var w = new BinaryWriter(s);
+		
+		foreach(var i in items)
+			i.Write(w);
+
+		return s.Hash;
+	}
 
 	public byte[] HashFile(byte[] data)
 	{

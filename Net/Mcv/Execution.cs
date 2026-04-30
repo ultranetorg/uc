@@ -6,20 +6,21 @@ public class Execution : ITableExecution
 	public Dictionary<AutoId, User>				AffectedUsers = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	
-	public SubnetExecution						Subnets;
+	public SubnetExecution						Friends;
 
 	Dictionary<int, int>[]						_NextEids;
 	long[]										_Spaces;
 	long[]										_Bandwidths;
 	List<Generator>								_Candidates;
+	List<OutwardTransaction>					_OutwardTransactions;
+	List<IccTransaction>						_IccTransaction;
 	
 	public Dictionary<int, int>[]				NextEids => _NextEids ??= [..Mcv.Tables.Select(i => new Dictionary<int, int>())];
 	public long[]								Spaces  { get => _Spaces ?? Round.Spacetimes; set => _Spaces = value; }
 	public long[]								Bandwidths  { get => _Bandwidths ?? Round.Bandwidths; set => _Bandwidths = value; }
 	public List<Generator>						Candidates  { get => _Candidates ?? Round.Candidates; set => _Candidates = value; }
-
-	public List<Outward>						Outwards  { get => _Outwards ?? Round.Outwards; set => _Outwards = value; }
-	List<Outward>								_Outwards;
+	public List<OutwardTransaction>				OutwardTransactions  { get => _OutwardTransactions ?? Round.OutwardTransactions; set => _OutwardTransactions = value; }
+	public List<IccTransaction>					IccTransactions  { get => _IccTransaction ?? Round.IccTransactions; set => _IccTransaction = value; }
 
 	public Time									Time => Round.ConsensusTime;
 	public McvNet								Net;
@@ -41,18 +42,23 @@ public class Execution : ITableExecution
 		Mcv = mcv;
 		Round = round;
 		Transaction = transaction;
-		Subnets = new(this);
+		Friends = new(this);
 	}
 
 	public void AffectOutwards()
 	{
-		_Outwards ??= [..Round.Outwards];
+		_OutwardTransactions ??= [..Round.OutwardTransactions];
+	}
+
+	public void AffectIccTransactions()
+	{
+		_IccTransaction ??= [..Round.IccTransactions];
 	}
 
 	public virtual ITableExecution FindExecution(byte table)
 	{
 		if(Mcv.Users.Id == table) return this;
-		if(table == Mcv.Subnets.Id)		return Subnets;
+		if(table == Mcv.Friends.Id)		return Friends;
 
 		return null;
 	}
@@ -60,7 +66,7 @@ public class Execution : ITableExecution
 	public virtual ITableEntry Affect(byte table, EntityId id)
 	{
 		if(Mcv.Users.Id == table)		return FindUser(id as AutoId) != null ? AffectUser(id as AutoId) : null;
-		if(Mcv.Subnets.Id == table)		return Subnets.Find(id as AutoId) != null ? Subnets.Affect(id as AutoId) : null;
+		if(Mcv.Friends.Id == table)		return Friends.Find(id as AutoId) != null ? Friends.Affect(id as AutoId) : null;
 
 		return null;
 	}

@@ -1,19 +1,18 @@
 ﻿using System.Collections.Immutable;
 using System.Net;
 using System.Net.Sockets;
-using Uccs.Rdn;
 
-namespace Uccs.Nexus;
+namespace Uccs.Net;
 
 public class NnpPeering : TcpPeering<NnpPeer>
 {
-	RdnMcv										Mcv;
-	protected Dictionary<string, List<NnpPeer>>	Peers = [];
-	protected override IEnumerable<NnpPeer>		PeersToDisconnect => Peers.SelectMany(i => i.Value);
+	Mcv											Mcv;
+	protected List<NnpPeer>						Peers = [];
+	protected override IEnumerable<NnpPeer>		PeersToDisconnect => Peers;
 
 	protected override NnpPeer					CreatePeer() => new ();
 
-	public NnpPeering(IProgram program, RdnMcv mcv, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
+	public NnpPeering(IProgram program, Mcv mcv, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
 	{
 		Mcv = mcv;
 		///Register(typeof(NncClass), node);
@@ -28,19 +27,29 @@ public class NnpPeering : TcpPeering<NnpPeer>
 								}.Where(i => i != null));
 	}
 
+	public override Hello WaitHello(TcpClient client)
+	{
+		var r = new BinaryReader(client.GetStream());
+		var h = new NnHello();
+
+		h.Read(r);
+		
+		return h;
+	}
+
 	protected override void AddPeer(NnpPeer peer)
 	{
-		Peers[peer.Net].Add(peer);
+		Peers.Add(peer);
 	}
 
 	protected override void RemovePeer(NnpPeer peer)
 	{
-		Peers[peer.Net].Remove(peer);
+		Peers.Remove(peer);
 	}
 
 	protected override NnpPeer FindPeer(Endpoint ip)
 	{
-		return Peers.SelectMany(i => i.Value).FirstOrDefault(i => i.EP.Equals(ip));
+		return Peers.FirstOrDefault(i => i.EP.Equals(ip));
 	}
 
 	protected override bool Consider(TcpClient client)
@@ -52,9 +61,9 @@ public class NnpPeering : TcpPeering<NnpPeer>
 	{
 		lock(Lock)
 		{
-			var h = new Hello
+			var h = new NnHello
 					{
-						Net = peer.Net,
+						Nets = peer.Nets,
 						Name = Name,
 						Roles = 0,
 						Versions = Versions,
@@ -71,9 +80,9 @@ public class NnpPeering : TcpPeering<NnpPeer>
 	{
 		lock(Lock)
 		{
-			var h = new Hello
+			var h = new NnHello
 					{
-						Net = inbound.Net,
+						Nets = (inbound as NnHello).Nets,
 						Name = Name,
 						Roles = 0,
 						Versions = Versions,
@@ -90,11 +99,11 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		if(!hello.Versions.Any(i => Versions.Contains(i)))
 			return false;
 
-		if(!inbound)
-		{
-			if(hello.Net != peer.Net)
-				return false;
-		}
+		//if(!inbound)
+		//{
+		//	if(hello.Net != peer.Net)
+		//		return false;
+		//}
 
 		if(hello.Name == Name)
 		{
@@ -103,7 +112,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 			if(peer != null)
 			{	
 				IgnoredIPs.Add(peer.EP.IP);
-				Peers[hello.Net].Remove(peer);
+				Peers.Remove(peer);
 			}
 
 			return false;
@@ -118,19 +127,19 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		return true;
 	}
 
-	public NnpPeer GetPeer(string net, Endpoint endpoint)
+	public NnpPeer GetPeer(Endpoint endpoint, List<string> nets)
 	{
 		NnpPeer p = null;
 
 		lock(Lock)
 		{
-			p = Peers[net].Find(i => i.EP != endpoint);
+			p = Peers.Find(i => i.EP == endpoint);
 
 			if(p != null)
 				return p;
 
-			p = new NnpPeer(endpoint) {Net = net};
-			Peers[net].Add(p);
+			p = new NnpPeer(endpoint){Nets = nets};
+			Peers.Add(p);
 		}
 
 		return p;
@@ -168,7 +177,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 
 	protected override void Main()
 	{
-		foreach(var i in Peers.SelectMany(i => i.Value).Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
+		foreach(var i in Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
 		{
 			OutboundConnect(i, true);
 		}
@@ -176,37 +185,32 @@ public class NnpPeering : TcpPeering<NnpPeer>
 
 	public NnpPeer ChooseBestPeer(string net, HashSet<NnpPeer> exclusions)
 	{
-		NnpPeer p = null;
-		
-		if(Peers.TryGetValue(net, out var n)) /// try existing peers
-		{
-			p = n.Where(i => i.Net == net && (exclusions == null || !exclusions.Contains(i)))
-				 .OrderByDescending(i => i.Status == ConnectionStatus.OK)
-				 .FirstOrDefault();
-		}
+		/// try existing peers
+		var p = Peers.Where(i => i.Nets.Contains(net) && (exclusions == null || !exclusions.Contains(i)))
+					 .OrderByDescending(i => i.Status == ConnectionStatus.OK)
+					 .FirstOrDefault();
 
 		if(p == null) /// get a new ones from Mcv
 		{
 			lock(Mcv.Lock)
 			{	
-				Peers.TryGetValue(net, out var pers);
+				var pers = Peers.Where(i => i.Nets.Contains(net));
 
-				var s = Mcv.Subnets.Find(net);
+				var f = Mcv.Friends.Find(net)
+						??
+						throw new EntityException(EntityError.NotFound);
 
-				if(s == null)
-					throw new EntityException(EntityError.NotFound);
-
-				var a = s.Peers.OrderByRandom().FirstOrDefault(x => pers == null || !pers.Any(y => x != y.EP));
+				var a = f.Peers.OrderByRandom().FirstOrDefault(x => pers == null || !pers.Any(y => x != y.EP));
 
 				if(a != null)
-					p = GetPeer(net, a);
+					p = GetPeer(a, [net]);
 			}
 		}
 
 		return p;
 	}
 
-	public virtual Result Call(string net, Argumentation call, Flow flow)
+	public virtual Result Call(string from, string to, Argumentation call, Flow flow)
 	{
 		HashSet<NnpPeer> tried;
 		
@@ -227,7 +231,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 			{
 				lock(Lock)
 				{
-					p = ChooseBestPeer(net, tried);
+					p = ChooseBestPeer(to, tried);
 
 					if(p == null)
 					{
@@ -239,7 +243,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 				tried.Add(p);
 				Connect(p, flow);
 
-				return p.Call(call, flow);
+				return p.Call(from, to, call, flow);
 			}
 			catch(ContinueException)
 			{
@@ -261,13 +265,13 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		throw new OperationCanceledException();
 	}
 
-	public void Broadcast(TransactionNna message, NnpPeer skip = null)
+	public void Broadcast(string from, string to, TransferRequestNna message, NnpPeer skip = null)
 	{
-		foreach(var i in Peers[message.Net].Where(i => i != skip))
+		foreach(var i in Peers.Where(i => i.Nets.Contains(to) && i != skip))
 		{
 			try
 			{
-				i.Send(message);
+				i.Send(from, to, message);
 			}
 			catch(NodeException)
 			{

@@ -54,9 +54,9 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, Entity = entity}), f).Assets)
+			foreach(var a in (Nnp.Call(Nets.Text, new HolderAssetsNna {Entity = entity}, f) as HolderAssetsNnr).Assets)
 			{
-				var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, Entity = entity, Name = a.Name}), f).Balance;
+				var b = (Nnp.Call(Nets.Text, new AssetBalanceNna {Entity = entity, Name = a.Name}, f) as AssetBalanceNnr).Balance;
 			
 				var li = new ListViewItem(entity);
 				li.SubItems.Add(a.Name);

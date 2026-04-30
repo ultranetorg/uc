@@ -105,14 +105,8 @@ public partial class TransferPage : Page
 
 		try
 		{
-			foreach(var i in Nnp.Call(new Nnc<HolderClassesNna, HolderClassesNnr>(	new()
-																					{
-																						Net = net
-																					}),
-																					new Flow(5000)).Classes)
-																					{
-																						combobox.Items.Add(i);
-																					}
+			foreach(var i in (Nnp.Call(net, new HolderClassesNna{}, new Flow(5000)) as HolderClassesNnr).Classes)
+				combobox.Items.Add(i);
 		}
 		catch(Exception)
 		{
@@ -129,12 +123,7 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new()
-									{
-										Net = FromNet.Text,
-										Entity = FromEntity.Text,
-									}),
-									new Flow(5000)).Assets)
+		foreach(var a in (Nnp.Call(FromNet.Text, new HolderAssetsNna {Entity = FromEntity.Text}, new Flow(5000)) as HolderAssetsNnr).Assets)
 		{
 			Asset.Items.Add(a);
 		}
@@ -143,13 +132,12 @@ public partial class TransferPage : Page
 	void RefreshBalance()
 	{
 		Balance.Text = "Balance: ";
-		Balance.Text += Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(	new()
-																			{
-																				Net = FromNet.Text,
-																				Entity = FromEntity.Text,
-																				Name = (Asset.SelectedItem as Asset).Name
-																			}),
-																			new Flow(5000)).Balance.ToString();
+		Balance.Text += (Nnp.Call(FromNet.Text,	new AssetBalanceNna
+												{
+													Entity = FromEntity.Text,
+													Name = (Asset.SelectedItem as Asset).Name
+												},
+												new Flow(5000)) as AssetBalanceNnr).Balance.ToString();
 	}
 
 	private void FromNet_TextUpdate(object sender, EventArgs e)
@@ -165,7 +153,7 @@ public partial class TransferPage : Page
 
 	private void Any_Changed(object sender, EventArgs e)
 	{
-		Transfer.Enabled = !string.IsNullOrEmpty(FromNet.Text) &&
+		Transfer.Enabled =	!string.IsNullOrEmpty(FromNet.Text) &&
 							!string.IsNullOrEmpty(FromEntity.Text) &&
 							!string.IsNullOrEmpty(ToNet.Text) &&
 							!string.IsNullOrEmpty(ToEntity.Text) &&
@@ -175,23 +163,23 @@ public partial class TransferPage : Page
 
 	private void Transfer_Click(object sender, EventArgs e)
 	{
-		try
-		{
-			Nnp.Call(new Nnc<AssetTransferNna, AssetTransferNnr>(new()
-																 {
-																	Net = FromNet.Text,
-																	ToNet = ToNet.Text,
-																	FromEntity = FromEntity.Text,
-																	ToEntity = ToEntity.Text,
-																	Name = (Asset.SelectedItem as Asset).Name,
-																	Amount = Amount.Text,
-																	///Signer = Accounts.SelectedItem as AccountAddress,
-																 }),
-																 new Flow(5000));
-		}
-		catch(Exception ex)
-		{
-			ShowError(ex.Message);
-		}
+		///try
+		///{
+		///	Nnp.Call(ToNet.Text, new AssetTransferNna
+		///						 {
+		///							Net = FromNet.Text,
+		///							ToNet = ,
+		///							FromEntity = FromEntity.Text,
+		///							ToEntity = ToEntity.Text,
+		///							Name = (Asset.SelectedItem as Asset).Name,
+		///							Amount = Amount.Text,
+		///							///Signer = Accounts.SelectedItem as AccountAddress,
+		///						 },
+		///						 new Flow(5000));
+		///}
+		///catch(Exception ex)
+		///{
+		///	ShowError(ex.Message);
+		///}
 	}
 }

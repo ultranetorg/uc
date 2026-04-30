@@ -566,16 +566,16 @@ public abstract class McvPeering : HomoPeering
 				{
 					var v = Mcv.CreateVote();
 
-					v.Try							= r.Try;
-					v.TargetHash					= r.Target.Hash;
-					v.User							= m.User;
-					v.RoundId						= r.Id;
-					v.Time							= Time.Now(Mcv.Clock);
-					v.Violators						= r.ProposeViolators().ToArray();
-					v.Leavers						= r.ProposeMemberLeavers(gs.Id).ToArray();
-					v.SubnetMessages				= Mcv.SubnetTransactions.Select(i => i.Hash).ToArray();
-					v.SubnetMessageConfirmations	= Mcv.SubnetTransactionConfirmations.Select(i => i.Hash).ToArray();
-					v.ForeignResults					= Mcv.ApprovedOutwards.ToArray();
+					v.Try						= r.Try;
+					v.TargetHash				= r.Target.Hash;
+					v.User						= m.User;
+					v.RoundId					= r.Id;
+					v.Time						= Time.Now(Mcv.Clock);
+					v.Violators					= r.ProposeViolators().ToArray();
+					v.Leavers					= r.ProposeMemberLeavers(gs.Id).ToArray();
+					v.FriendBlocks				= Mcv.FriendTransferRequests.Select(i => i.Hash).ToArray();
+					v.FriendBlockConfirmations	= Mcv.FriendTransferConfirmations.Select(i => i.Hash).ToArray();
+					v.OutwardResults			= Mcv.OutwardResults.ToArray();
 						
 					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 					//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();

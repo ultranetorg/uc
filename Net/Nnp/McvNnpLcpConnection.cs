@@ -2,18 +2,50 @@
 
 namespace Uccs.Net;
 
-public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode where T : unmanaged, Enum
+public class McvNnpLcpConnection: NnpLcpNodeConnection
 {
-	//public string		ApiAddress;
-	protected N			Node => Program as N;
+	public McvNode		Node => Program as McvNode;
+	public Mcv			Mcv => Node.Mcv;
+
 	protected string[]	Classes; 
 	protected Asset[]	Assets = [new () {Name = nameof(User.Spacetime),	Units = "Byte-days (BD)"},
 								  new () {Name = nameof(User.Energy),		Units = "Execution Cycles (EC)"},
 								  new () {Name = nameof(User.EnergyNext),	Units = "Execution Cycles (EC)"}];
 
-	public McvNnpLcpConnection(N node, string [] classes, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
+	public McvNnpLcpConnection(McvNode node, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
 	{
-		Classes = classes;
+		Classes = [nameof(User)];
+
+		Mcv.FriendBlockFormed += (e, f) =>	{
+										 		foreach(var i in node.Settings.Mcv.Generators.Where(i => e.Round.Members.Any(j => j.User == i.Id)))
+										 		{
+													Task.Run(() =>	{
+										 								Call(f.Name, new TransferRequestNna {Hash = f.LastOutgoingTransfer.Hash
+																											/*
+																											 * , 
+																											 *	Signature = Net.Cryptography.ZeroSignature
+																											 *
+																											 */}, Flow);
+
+																		while(Flow.Active)
+																		{
+																			var rp = Call(f.Name, new LastAcceptedBlockNna {}, Flow) as LastAcceptedBlockNnr;
+
+																			if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Hash))
+																			{
+																				Mcv.FriendTransferConfirmations.Add(f.LastOutgoingTransfer);
+																				break;
+																			}
+
+																			if(rp.Id > f.LastOutgoingTransfer.Id) /// too late, next one is confirmed already
+																				break;
+
+																			Thread.Sleep(1000);
+																		}
+																	});
+										 		}
+											};
+
 	}
 
 	public override void Established()
@@ -26,7 +58,75 @@ public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode 
 		}
 	}
 
-	public virtual Result Peers(PeersNna args)
+ 	public Result TransferRequest(string from, TransferRequestNna args) /// A message from a subnet to vote for
+ 	{
+ 		lock(Node.Mcv.Lock)
+ 		{	
+ 			var t = Node.Mcv.FriendTransferRequests.Find(i => Bytes.Equal(i.Hash, args.Hash));
+ 
+ 			if(t != null)
+ 				return null;
+ 
+ 			//if(m.Nonce != args.Nonce - 1)
+ 			//	throw new EntityException(EntityError.NotSequential);
+			
+			var rp = Call(from, new LastOutgoingBlockNna {}, Flow) as LastOutgoingBlockNnr;
+			
+ 			///
+ 			/// TODO : Check signature
+ 			///
+
+			var s = Node.Mcv.Friends.Find(from);
+
+			if(Bytes.Equal(s.LastAcceptedTransfer, rp.Block.Hash))
+				return null;
+ 
+			t.From = from;
+ 			Node.Mcv.FriendTransferRequests.Add(t);
+// 
+// 			var e = Node.Mcv.
+// 
+// 			foreach(var tx in t.Transactions)
+// 				foreach(var i in tx.Operations)	
+// 					i.IncomingExecute()
+ 
+ 			return null;
+ 		}
+ 	}
+
+	public Result LastOutgoingBlock(string from, LastOutgoingBlockNna args)
+	{
+		lock(Node.Mcv.Lock)
+		{	
+			var s = Node.Mcv.Friends.Find(from);
+
+			if(s == null)
+				return null;
+
+			return new LastOutgoingBlockNnr {Block = s.LastOutgoingTransfer};
+		}
+	}
+
+	public Result LastAcceptedBlock(string from, LastAcceptedBlockNna args) /// Confirmation on our message to a subnet
+	{
+		lock(Node.Mcv.Lock)
+		{
+			var s = Node.Mcv.Friends.Find(from);
+
+			if(s == null)
+				return null;
+			//var m = Node.Mcv.FriendBlockConfirmations.Find(i => i. == args.Net && i.Hash.SequenceEqual(args.Hash));
+			//
+			//if(m != null)
+			//	return null;
+			//
+			//Node.Mcv.FriendBlockConfirmations.Add(m);
+
+			return new LastAcceptedBlockNnr {Hash = s.LastAcceptedTransfer};
+		}
+	}
+
+	public virtual Result Peers(string from, PeersNna args)
 	{
 		if(Node.Peering.Synchronization == Synchronization.Synchronized)
 		{
@@ -55,7 +155,7 @@ public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode 
 //		return new TransactNnr {Result = t.Tag};
 //	}
 	
-	public virtual Result Request(RequestNna args)
+	public virtual Result Request(string from, RequestNna args)
 	{
 		var f = Flow.CreateNested(args.Timeout);
 		
@@ -104,7 +204,7 @@ public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode 
 //		return rp;
 //	}
 
-	public virtual Result HolderClasses(HolderClassesNna args)
+	public virtual Result HolderClasses(string from, HolderClassesNna args)
 	{
 		return new HolderClassesNnr {Classes = Classes};
 	}
@@ -125,7 +225,7 @@ public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode 
 		}
 	}
 
-	public virtual Result AssetBalance(AssetBalanceNna args)
+	public virtual Result AssetBalance(string from, AssetBalanceNna args)
 	{
 		Parse(args.Entity, out var c, out var n); 
 
@@ -160,7 +260,7 @@ public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode 
 				};
 	}
 
-	public virtual Result HolderAssets(HolderAssetsNna args)
+	public virtual Result HolderAssets(string from, HolderAssetsNna args)
 	{
 		Parse(args.Entity, out var c, out var n); 
 
@@ -190,7 +290,7 @@ public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode 
 		table = 0;
 		name = null;
 
-		if(!Enum.TryParse<T>(text.AsSpan(0, i), true, out var t) && !Classes.Any(i => string.Compare(i, t.ToString(), true) == 0))
+		if(!Enum.TryParse<McvTable>(text.AsSpan(0, i), true, out var t) && !Classes.Any(i => string.Compare(i, t.ToString(), true) == 0))
 			throw new EntityException(EntityError.UnknownEntity);
 
 		table = (byte)(object)t;
@@ -200,46 +300,46 @@ public class McvNnpLcpConnection<N, T> : NnpLcpNodeConnection where N : McvNode 
 			throw new EntityException(EntityError.UnknownEntity);
 	}
 
-	public virtual Result AssetTransfer(AssetTransferNna args)
-	{
-		if(args.ToNet == Node.Net.Name)
-		{
-			Parse(args.FromEntity, out var ft, out var fn);
-			Parse(args.ToEntity, out var tt, out var tn);
-
-			if(ft == (byte)McvTable.User && tt == (byte)McvTable.User)
-			{
-				var fu = Node.Peering.Call(new UserPpc {Name = fn}, Flow).User;
-				var tu = Node.Peering.Call(new UserPpc {Name = tn}, Flow).User;
-		
-				var t = new TransactApc
-						{
-							Application = Node.Name,
-							User = fu.Name,
-							Tag = Guid.CreateVersion7().ToByteArray(),
-							Operations = [new UtilityTransfer
-										 {
-											From		= new EntityAddress(ft, fu.Id),
-											To			= new EntityAddress(tt, tu.Id),
-											Energy		= args.Name == nameof(User.Energy) ? long.Parse(args.Amount) : 0, 
-											EnergyNext	= args.Name == nameof(User.EnergyNext) ? long.Parse(args.Amount) : 0,
-											Spacetime	= args.Name == nameof(User.Spacetime) ? long.Parse(args.Amount) : 0,
-										 }] 
-						};
-		
-				t.Execute(Node, null, null, Flow);
-		
-				var otc = new OutgoingTransactionApc {Tag = t.Tag};
-		
-				while((otc.Execute(Node, null, null, Flow) as TransactionApe).Status != TransactionStatus.Confirmed)
-				{
-					Thread.Sleep(1000);
-				}
-		
-				return new AssetTransferNnr {TransactionId = t.Tag};
-			}
-		}
-
-		throw new NnpException(NnpError.Unavailable);
-	}
+	///public virtual Result AssetTransfer(string from, AssetTransferNna args)
+	///{
+	///	if(args.ToNet == Node.Net.Name)
+	///	{
+	///		Parse(args.FromEntity, out var ft, out var fn);
+	///		Parse(args.ToEntity, out var tt, out var tn);
+	///
+	///		if(ft == (byte)McvTable.User && tt == (byte)McvTable.User)
+	///		{
+	///			var fu = Node.Peering.Call(new UserPpc {Name = fn}, Flow).User;
+	///			var tu = Node.Peering.Call(new UserPpc {Name = tn}, Flow).User;
+	///	
+	///			var t = new TransactApc
+	///					{
+	///						Application = Node.Name,
+	///						User = fu.Name,
+	///						Tag = Guid.CreateVersion7().ToByteArray(),
+	///						Operations = [new UtilityTransfer
+	///									 {
+	///										From		= new EntityAddress(ft, fu.Id),
+	///										To			= new EntityAddress(tt, tu.Id),
+	///										Energy		= args.Name == nameof(User.Energy) ? long.Parse(args.Amount) : 0, 
+	///										EnergyNext	= args.Name == nameof(User.EnergyNext) ? long.Parse(args.Amount) : 0,
+	///										Spacetime	= args.Name == nameof(User.Spacetime) ? long.Parse(args.Amount) : 0,
+	///									 }] 
+	///					};
+	///	
+	///			t.Execute(Node, null, null, Flow);
+	///	
+	///			var otc = new OutgoingTransactionApc {Tag = t.Tag};
+	///	
+	///			while((otc.Execute(Node, null, null, Flow) as TransactionApe).Status != TransactionStatus.Confirmed)
+	///			{
+	///				Thread.Sleep(1000);
+	///			}
+	///	
+	///			return new AssetTransferNnr {TransactionId = t.Tag};
+	///		}
+	///	}
+	///
+	///	throw new NnpException(NnpError.Unavailable);
+	///}
 }

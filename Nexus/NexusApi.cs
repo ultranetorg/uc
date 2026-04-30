@@ -165,13 +165,13 @@ public class NnpNodeApc : Apc, INexusApc
 
 public class NnpCallApc : Apc, INexusApc
 {
-	public string			Net { get; set; }
+	public string			To { get; set; }
 	public Argumentation	Argumentation { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(nexus)
-			return nexus.NnpPeering.Call(Net, Argumentation, flow);
+			return nexus.NnpPeering.Call(null, To, Argumentation, flow);
 	}
 }
 

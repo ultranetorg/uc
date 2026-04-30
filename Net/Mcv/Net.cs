@@ -109,6 +109,7 @@ public abstract class McvNet : Net
 	public Time								ECLifetime								= Time.FromYears(1);
 	public ushort							UserCreationPoWDifficulity				= 172;
 	public int								EntityLength							= 100;
+	public const int						OutwardsMaximum							= 1000;
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
 	public int								AffectedCountMaximum					= 100_000;

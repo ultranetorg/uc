@@ -85,6 +85,8 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 	protected abstract P						CreatePeer();
 
+	public abstract Hello						WaitHello(TcpClient client);
+
 	public TcpPeering(IProgram program, string name, PeeringSettings settings, Flow flow)
 	{
 		Program = program;
@@ -145,6 +147,13 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	{
 		return string.Join(",", new string[] {	Name,
 												Settings.EP?.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
+	}
+
+	public void SendHello(TcpClient client, Hello h)
+	{
+		var w = new BinaryWriter(client.GetStream());
+
+		h.Write(w);
 	}
 
 	protected void Listening()
@@ -214,8 +223,8 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 								tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 								tcp.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
-								Peer.SendHello(tcp, CreateOutboundHello(peer, permanent));
-								h = Peer.WaitHello(tcp);
+								SendHello(tcp, CreateOutboundHello(peer, permanent));
+								h = WaitHello(tcp);
 							}
 							catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 							{
@@ -304,7 +313,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 								tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 								tcp.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
-								h = Peer.WaitHello(tcp);
+								h = WaitHello(tcp);
 							}
 							catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 							{
@@ -353,7 +362,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	
 								try
 								{
-									Peer.SendHello(tcp, CreateInboundHello(ip, h));
+									SendHello(tcp, CreateInboundHello(ip, h));
 								}
 								catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 								{

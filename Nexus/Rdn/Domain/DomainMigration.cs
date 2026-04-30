@@ -56,6 +56,12 @@ public class DomainMigration : OutwardOperation
 
 	public override void Execute(Execution execution)
 	{
+		if(execution.OutwardTransactions.Count >= McvNet.OutwardsMaximum)
+		{
+			Error = LimitExceeded;
+			return;
+		}
+
 		var a = (execution as RdnExecution).Domains.Find(Name);
 
 		if(a?.Owner != null)
@@ -79,20 +85,20 @@ public class DomainMigration : OutwardOperation
 		}
 
 		execution.AffectOutwards();
-		execution.Outwards.Add(	new Outward(execution.Net)
-								{
-									Id			= ++User.LastOutward,
-									User		= User.Id, 
-									Generator	= Transaction.Member,  
-									Operation	= this,
-									Expiration	= execution.Time + execution.Net.ForeignVerificationDurationLimit
-								 });
+		execution.OutwardTransactions.Add(	new OutwardTransaction(execution.Net)
+											{
+												Id			= ++User.LastOutward,
+												User		= User.Id, 
+												Generator	= Transaction.Member,  
+												Operation	= this,
+												Expiration	= execution.Time + execution.Net.ForeignVerificationDurationLimit
+											 });
 
 	
 		execution.PayOperationEnergy(User);
 	}
 
-	public override void ConfirmedExecute(Execution execution, Outward task)
+	public override void ConfirmedExecute(Execution execution, OutwardTransaction task)
 	{
 		var e = execution as RdnExecution;
 		var a = e.Domains.Affect(Name);

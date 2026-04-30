@@ -34,6 +34,16 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		LoadPeers();
 	}
 
+	public override Hello WaitHello(TcpClient client)
+	{
+		var r = new BinaryReader(client.GetStream());
+		var h = new HomoHello();
+
+		h.Read(r);
+		
+		return h;
+	}
+
 	protected override void AddPeer(HomoPeer peer)
 	{
 		Peers.Add(peer);
@@ -58,7 +68,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 	{
 		lock(Lock)
 		{
-			var h = new Hello();
+			var h = new HomoHello();
 
 			h.Net			= Net.Name;
 			h.Name			= Name;
@@ -76,7 +86,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 	{
 		lock(Lock)
 		{
-			var h = new Hello();
+			var h = new HomoHello();
 
 			h.Net			= Net.Name;
 			h.Name			= Name;
@@ -97,7 +107,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(!hello.Versions.Any(i => Versions.Contains(i)))
 			return false;
 
-		if(hello.Net != Net.Name)
+		if((hello as HomoHello).Net != Net.Name)
 			return false;
 
 		if(hello.Name == Name)

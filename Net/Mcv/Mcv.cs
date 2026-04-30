@@ -7,6 +7,7 @@ namespace Uccs.Net;
 
 public delegate void BlockDelegate(Vote b);
 public delegate void RoundDelegate(Round b);
+public delegate void SubnetDelegate(Execution execution, Friend friend);
 
 public enum McvTable : byte
 {
@@ -59,16 +60,16 @@ public abstract class Mcv /// Mutual chain voting
 	static readonly byte[]						GenesisKey = [0x04];
 	public MetaTable							Metas;
 	public UserTable							Users;
-	public SubnetTable							Subnets;
+	public SubnetTable							Friends;
 	public TableBase[] 							Tables;
 	public int									Size => Tables.Sum(i => i.Size);
 	public BlockDelegate						VoteAdded;
 	public RoundDelegate						ConsensusReached;
 	public RoundDelegate						ConsensusFailed;
 	public RoundDelegate						Confirmed;
-	public RoundDelegate						IcReady;
+	public SubnetDelegate						FriendBlockFormed;
 
-	public List<ForeignResult>					ApprovedOutwards = new();
+	public List<OutwardResult>					OutwardResults = new();
 
 	List<Round>									_Tail = [];
 	public List<Round>							Tail
@@ -90,8 +91,8 @@ public abstract class Mcv /// Mutual chain voting
 	public Round								NextTargetRound => GetRound(LastConfirmedRound.Id + 1);
 	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + Net.P);
 
-	public List<TransactionNna>					SubnetTransactions = [];
-	public List<TransactionConfirmationNna>		SubnetTransactionConfirmations = [];
+	public List<IccTransfer>					FriendTransferRequests = [];
+	public List<IccTransfer>					FriendTransferConfirmations = [];
 
 	public const string							ChainFamilyName = "Chain";
 	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);

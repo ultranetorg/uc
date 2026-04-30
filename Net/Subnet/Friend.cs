@@ -2,12 +2,12 @@
 
 namespace Uccs.Net;
 
-public enum OutTransactionStatus : byte
+public enum IccTransferStatus : byte
 {
-	None, Sent, Confirmed
+	None, FormedAndPending, Confirmed
 }
 
-public class Subnet : IBinarySerializable, ITableEntry
+public class Friend : IBinarySerializable, ITableEntry
 {
 	public const int			NameLengthMin = 1;
 	public const int			NameLengthMax = 256;
@@ -18,21 +18,19 @@ public class Subnet : IBinarySerializable, ITableEntry
 	public string				Name { get; set; }
 	public Snp					Client { get; set; }
 	public Endpoint[]			Peers { get; set; }
-	public int					InNonce { get; set; }
-	public int					OutNonce { get; set; }
-	public IccpOperation[]		OutOperations { get; set; }
-	public byte[]				OutHash { get; set; }
-	public OutTransactionStatus	OutStatus { get; set; }
+	public byte[]				LastAcceptedTransfer { get; set; }
+	public IccTransfer			LastOutgoingTransfer { get; set; }
+	public IccTransferStatus	OutStatus { get; set; }
 
 	public EntityId				Key => Id;
 	public bool					Deleted { get; set; }
 	Mcv							Mcv;
 
-	public Subnet()
+	public Friend()
 	{
 	}
 
-	public Subnet(Mcv mcv)
+	public Friend(Mcv mcv)
 	{
 		Mcv = mcv;
 	}
@@ -44,16 +42,14 @@ public class Subnet : IBinarySerializable, ITableEntry
 
 	public object Clone()
 	{
-		return	new Subnet(Mcv)
+		return	new Friend(Mcv)
 				{
 					Id = Id,
 					Name = Name,
 					Client = Client,
 					Peers = Peers,
-					InNonce = InNonce,
-					OutNonce = OutNonce,
-					OutOperations = OutOperations,
-					OutHash = OutHash,
+					LastAcceptedTransfer = LastAcceptedTransfer,
+					LastOutgoingTransfer = LastOutgoingTransfer,
 					OutStatus = OutStatus,
 				};
 	}
@@ -72,9 +68,9 @@ public class Subnet : IBinarySerializable, ITableEntry
 		return true;
 	}
 
-	public static bool Valid(TransactionNna state)
+	public static bool Valid(IccTransfer state)
 	{
-		return state.Peers.Length > PeersMaximum;
+		return true; //state.Peers.Length > PeersMaximum;
 	}
 
 	public void WriteMain(BinaryWriter writer)
@@ -93,24 +89,25 @@ public class Subnet : IBinarySerializable, ITableEntry
 		writer.WriteASCII(Name);
 		writer.Write(Client);
 		writer.Write(Peers);
-		writer.Write7BitEncodedInt(InNonce);
-		writer.Write7BitEncodedInt(OutNonce);
-		writer.Write(OutOperations);
-		writer.Write(OutHash);
+		writer.Write(LastAcceptedTransfer != null); if(LastAcceptedTransfer != null) writer.Write(LastAcceptedTransfer);
+		writer.Write(LastOutgoingTransfer != null); if(LastOutgoingTransfer != null) writer.Write(LastOutgoingTransfer);
 		writer.Write(OutStatus);
 	}
 
 	public void Read(BinaryReader reader)
 	{
-		Id				= reader.Read<AutoId>();
-		Name			= reader.ReadASCII();
-		Client			= reader.Read<Snp>();
-		Peers			= reader.ReadArray<Endpoint>();
-		InNonce			= reader.Read7BitEncodedInt();
-		OutNonce		= reader.Read7BitEncodedInt();
-		OutOperations	= reader.ReadArray<IccpOperation>();
-		OutHash			= reader.ReadHash();
-		OutStatus		= reader.Read<OutTransactionStatus>();
+		Id						= reader.Read<AutoId>();
+		Name					= reader.ReadASCII();
+		Client					= reader.Read<Snp>();
+		Peers					= reader.ReadArray<Endpoint>();
+		if(reader.ReadBoolean())
+			LastAcceptedTransfer	= reader.ReadHash();
+		if(reader.ReadBoolean())
+		{	
+			LastOutgoingTransfer = new (null); 
+			LastOutgoingTransfer.Read(reader);
+		}
+		OutStatus				= reader.Read<IccTransferStatus>();
 	}
 
 	public void Cleanup(Round lastInCommit)

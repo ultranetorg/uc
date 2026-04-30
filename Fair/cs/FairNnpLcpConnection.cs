@@ -4,10 +4,13 @@ using Uccs.Net;
 
 namespace Uccs.Fair;
 
-public class FairNnpLcpConnection : McvNnpLcpConnection<FairNode, FairTable>
+public class FairNnpLcpConnection : McvNnpLcpConnection
 {
-	public FairNnpLcpConnection(FairNode node, Flow flow) : base(node, [nameof(User), nameof(Author), nameof(Site)], flow)
+	public new FairNode		Node => base.Node as FairNode;
+
+	public FairNnpLcpConnection(FairNode node, Flow flow) : base(node, flow)
 	{
+		Classes = [nameof(User), nameof(Author), nameof(Site)];
 	}
 
 	protected override void GetHolder(byte table, string n, out ISpacetimeHolder sh, out IEnergyHolder eh)

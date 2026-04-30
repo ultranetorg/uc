@@ -2,7 +2,7 @@
 
 namespace Uccs.Net;
 
-public class SubnetTable : Table<AutoId, Subnet>
+public class SubnetTable : Table<AutoId, Friend>
 {
 	public override string			Name => McvTable.Subnet.ToString();
 
@@ -12,21 +12,21 @@ public class SubnetTable : Table<AutoId, Subnet>
 	{
 	}
 	
-	public override Subnet Create()
+	public override Friend Create()
 	{
-		return new Subnet(Mcv);
+		return new Friend(Mcv);
 	}
 	
- 	public Subnet Find(string name)
+ 	public Friend Find(string name)
  	{
 		var bid = KeyToBid(name);
 
 		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Name == name);
  	}
 
-	public virtual Subnet Latest(string name)
+	public virtual Friend Latest(string name)
 	{
-		var e = Mcv.LastConfirmedRound.Subnets.Affected.Values.FirstOrDefault(i => i.Name == name);
+		var e = Mcv.LastConfirmedRound.Friends.Affected.Values.FirstOrDefault(i => i.Name == name);
 
 		if(e != null)
 			return e.Deleted ? null : e;
@@ -35,15 +35,15 @@ public class SubnetTable : Table<AutoId, Subnet>
 	}
 }
 
-public class SubnetExecution : TableExecution<AutoId, Subnet>
+public class SubnetExecution : TableExecution<AutoId, Friend>
 {
 	new SubnetTable			Table => base.Table as SubnetTable;
 		
-	public SubnetExecution(Execution execution) : base(execution.Mcv.Subnets, execution)
+	public SubnetExecution(Execution execution) : base(execution.Mcv.Friends, execution)
 	{
 	}
 
-	public Subnet Find(string name)
+	public Friend Find(string name)
 	{
 		var e = Affected.Values.FirstOrDefault(i => i.Name == name);
 
@@ -53,7 +53,7 @@ public class SubnetExecution : TableExecution<AutoId, Subnet>
 		if(Parent != null)
 			return (Parent as SubnetExecution).Find(name);
 
-		e = Execution.Round.Subnets.Affected.Values.FirstOrDefault(i => i.Name == name);
+		e = Execution.Round.Friends.Affected.Values.FirstOrDefault(i => i.Name == name);
 
 		if(e != null)
 			return e.Deleted ? null : e;
@@ -61,27 +61,27 @@ public class SubnetExecution : TableExecution<AutoId, Subnet>
 		return Table.Find(name);
 	}
 
-	public Subnet Affect(string name)
+	public Friend Affect(string name)
 	{
-		if(Affected.Values.FirstOrDefault(i => i.Name == name) is Subnet d)
+		if(Affected.Values.FirstOrDefault(i => i.Name == name) is Friend d)
 			return d;
 
 		if(Parent != null)
 			d = (Parent as SubnetExecution).Find(name);
-		else if(Execution.Round.Subnets.Affected.Values.FirstOrDefault(i => i.Name == name) is Subnet x)
+		else if(Execution.Round.Friends.Affected.Values.FirstOrDefault(i => i.Name == name) is Friend x)
 			d = x;
 		else
 			d = Table.Find(name);
 
 		if(d != null)
-			return Affected[d.Id] = d.Clone() as Subnet;
+			return Affected[d.Id] = d.Clone() as Friend;
 		else
 		{
 			var b = Table.KeyToBid(name);
 			
 			int e = Execution.GetNextEid(Table, b);
 
-			d = new Subnet(Execution.Mcv);
+			d = new Friend(Execution.Mcv);
 			d.Id = LastCreatedId = new AutoId(b, e);
 			d.Name = name;
 

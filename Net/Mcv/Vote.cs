@@ -21,11 +21,11 @@ public class Vote : IBinarySerializable
 	///public AccountAddress[]	FundJoiners = {};
 	///public AccountAddress[]	FundLeavers = {};
 	public AutoId[]				Violators = [];
-	public byte[][]				SubnetMessages = [];
-	public byte[][]				SubnetMessageConfirmations = [];
+	public byte[][]				FriendBlocks = [];
+	public byte[][]				FriendBlockConfirmations = [];
 	public Transaction[]		Transactions = [];
 	public byte[]				Signature { get; set; }
-	public ForeignResult[]		ForeignResults = {};
+	public OutwardResult[]		OutwardResults = {};
 
 	public int					TransactionCountExcess;
 	public bool					Restored => TargetHash != null;
@@ -150,9 +150,9 @@ public class Vote : IBinarySerializable
 
 		writer.Write(Transactions, t => t.WriteForVote(writer));
 
-		writer.Write(SubnetMessages, writer.WriteBytes);
-		writer.Write(SubnetMessageConfirmations, writer.WriteBytes);
-		writer.Write(ForeignResults);
+		writer.Write(FriendBlocks, writer.WriteBytes);
+		writer.Write(FriendBlockConfirmations, writer.WriteBytes);
+		writer.Write(OutwardResults);
 	}
 
 	protected virtual void ReadPayload(BinaryReader reader)
@@ -172,9 +172,9 @@ public class Vote : IBinarySerializable
 													return t;
 												});
 
-		SubnetMessages				= reader.ReadArray(reader.ReadBytes);
-		SubnetMessageConfirmations	= reader.ReadArray(reader.ReadBytes);
-		ForeignResults				= reader.ReadArray<ForeignResult>();
+		FriendBlocks				= reader.ReadArray(reader.ReadBytes);
+		FriendBlockConfirmations	= reader.ReadArray(reader.ReadBytes);
+		OutwardResults				= reader.ReadArray<OutwardResult>();
 	}
 
 	public void Write(BinaryWriter writer)

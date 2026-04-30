@@ -10,7 +10,8 @@ public class NnRequestPacket: RequestPacket
 
 public class NnpPeer : Peer, IBinarySerializable
 {
-	LcpServer	Lcp;
+	LcpServer				Lcp;
+	public List<string>		Nets;
 
 	public NnpPeer()
 	{
@@ -26,13 +27,15 @@ public class NnpPeer : Peer, IBinarySerializable
 		return $"{Name}, {EP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 	}
  		
-	void Request(int id, Argumentation request)
+	void Request(string from, string to, int id, Argumentation request)
 	{
 		try
 		{
 			lock(Writer)
 			{
 				Writer.Write((byte)PacketType.Request);
+				Writer.WriteASCII(from);
+				Writer.WriteASCII(to);
 				Writer.Write(id);
 				BinarySerializator.Serialize(Writer, request, Peering.Constructor.TypeToCode); 
 			}
@@ -63,12 +66,14 @@ public class NnpPeer : Peer, IBinarySerializable
 				{
  					case PacketType.Request:
  					{
+						var from = Reader.ReadASCII();
+						var to = Reader.ReadASCII();
 						var id = Reader.ReadInt32();
 						var rq = BinarySerializator.Deserialize<Argumentation>(Reader, Peering.Constructor.Construct);
 						
 						try
 						{
-							var r = Lcp.Relay(rq as NnpArgumentation);
+							var r = Lcp.Relay(from, to, rq as NnpArgumentation);
 
 							if(r != null)
 							{
@@ -156,15 +161,15 @@ public class NnpPeer : Peer, IBinarySerializable
 		}
 	}
 
-	public void Send(Argumentation args)
+	public void Send(string from, string to, Argumentation args)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
 
-		Request(IdCounter++, args);
+		Request(from, to, IdCounter++, args);
 	}
 
-	public Result Call(Argumentation args, Flow flow)
+	public Result Call(string from, string to, Argumentation args, Flow flow)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
@@ -180,7 +185,7 @@ public class NnpPeer : Peer, IBinarySerializable
 			OutRequests.Add(p);
 		}
 
-		Request(p.Id, args);
+		Request(from, to, p.Id, args);
 
 		int i = -1;
 

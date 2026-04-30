@@ -8,7 +8,7 @@ public class NnpNode
 {
 	public string			Api { get; set; }
 	public string			Net;
-	public LcpConnection	Connection;
+	public NnpLcpConnection	Connection;
 }
 	
 public class NnpLcpServer : LcpServer
@@ -25,6 +25,11 @@ public class NnpLcpServer : LcpServer
 		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly,	typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
+	protected override LcpConnection CreateConnection(NamedPipeServerStream pipe)
+	{
+		return new NnpLcpConnection(Program, pipe, this, Flow, Constructor);
+	}
+
 	public override void Accept(LcpConnection connection)
 	{
 		var ct = connection.Reader.Read<NnpIppConnectionType>();
@@ -33,34 +38,34 @@ public class NnpLcpServer : LcpServer
 		{	
 			var net = connection.Reader.ReadUtf8();
 			var api = connection.Reader.ReadUtf8();
-			Locals.Add(new NnpNode {Connection = connection, Net = net, Api = api});
+			Locals.Add(new NnpNode {Connection = connection as NnpLcpConnection, Net = net, Api = api});
 		}
-	
-		connection.Handler = (c, a) => Relay(a);  /// relay from local nodes
+
+		connection.Handler = (from, to, a) => Relay(from, to, a);  /// relay from local nodes
 	}
 
-	public override Result Relay(NnpArgumentation call)
+	public override Result Relay(string from, string to, NnpArgumentation call)
 	{
-		if(call is not TransactionNna m)
+		if(call is not TransferRequestNna tr)
 		{
-			var n = Locals.Find(i => i.Net == call.Net);
+			var n = Locals.Find(i => i.Net == to);
 
 			if(n != null)
 			{
 				try
 				{
-					return n.Connection.Call(call, Flow); /// try to relay to local node
+					return n.Connection.Call(from, call, Flow); /// try to relay to local node
 				}
 				catch(CodeException ex)
 				{
 				}
 			}
 
-			return Nexus.NnpPeering.Call(call.Net, call, Flow); /// relay to peers
+			return Nexus.NnpPeering.Call(from, to, call, Flow); /// relay to peers
 		} 
 		else
 		{
-			Nexus.NnpPeering.Broadcast(m);
+			Nexus.NnpPeering.Broadcast(from, to, tr);
 			return null;
 		}
 	}

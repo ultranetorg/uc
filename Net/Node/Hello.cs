@@ -2,20 +2,18 @@
 
 namespace Uccs.Net;
 
-public class Hello
+public abstract class Hello
 {
 	public int[]						Versions;
 	public long							Roles;
-	public string						Net;
 	public IPAddress					YourIP;
 	public ushort						MyPort;
 	public bool							Permanent;
 	public string						Name;
 
-	public void Write(BinaryWriter w)
+	public virtual void Write(BinaryWriter w)
 	{
 		w.Write(Versions, i => w.Write7BitEncodedInt(i));
-		w.WriteUtf8(Net);
 		w.WriteUtf8(Name);
 		w.Write7BitEncodedInt64(Roles);
 		w.Write(YourIP);
@@ -23,14 +21,47 @@ public class Hello
 		w.Write(Permanent);
 	}
 
-	public void Read(BinaryReader r)
+	public virtual void Read(BinaryReader r)
 	{
 		Versions	= r.ReadArray(() => r.Read7BitEncodedInt());
-		Net			= r.ReadUtf8();
 		Name		= r.ReadUtf8();
 		Roles		= r.Read7BitEncodedInt64();
 		YourIP		= r.ReadIPAddress();
 		MyPort		= r.ReadUInt16();
 		Permanent	= r.ReadBoolean();
+	}
+}
+
+public class HomoHello : Hello
+{
+	public string	Net;
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.WriteASCII(Net);
+	}
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		Net	= reader.ReadASCII();
+	}
+}
+
+public class NnHello : Hello
+{
+	public List<string>	Nets;
+
+	public override void Write(BinaryWriter writer)
+	{
+		base.Write(writer);
+		writer.Write(Nets, writer.WriteASCII);
+	}
+
+	public override void Read(BinaryReader reader)
+	{
+		base.Read(reader);
+		Nets = reader.ReadList(reader.ReadASCII);
 	}
 }

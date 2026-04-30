@@ -14,7 +14,7 @@ public class SubnetAttachment : OutwardOperation
 		
 	public override bool IsValid(McvNet net)
 	{ 
-		if(!Subnet.Valid(Name))
+		if(!Friend.Valid(Name))
 			return false;
 
 		return true;
@@ -36,21 +36,21 @@ public class SubnetAttachment : OutwardOperation
 
 	public override void Execute(Execution execution)
 	{
-		if(execution.Subnets.Find(Name) != null)
+		if(execution.Friends.Find(Name) != null)
 		{
 			Error = AlreadyExists;
 			return;
 		}
 
 		execution.AffectOutwards();
-		execution.Outwards.Add(	new Outward(execution.Net)
-								{
-									Id			= ++User.LastOutward,
-									User		= User.Id, 
-									Generator	= Transaction.Member,  
-									Operation	= this,
-									Expiration	= execution.Time + execution.Net.ForeignVerificationDurationLimit
-								});
+		execution.OutwardTransactions.Add(	new OutwardTransaction(execution.Net)
+											{
+												Id			= ++User.LastOutward,
+												User		= User.Id, 
+												Generator	= Transaction.Member,  
+												Operation	= this,
+												Expiration	= execution.Time + execution.Net.ForeignVerificationDurationLimit
+											});
 
 	
 		execution.PayOperationEnergy(User);
@@ -77,14 +77,12 @@ public class SubnetAttachment : OutwardOperation
 // 		execution.PayOperationEnergy(User);
 	}
 
-	public override void ConfirmedExecute(Execution execution, Outward task)
+	public override void ConfirmedExecute(Execution execution, OutwardTransaction task)
 	{
-		var s = execution.Subnets.Affect(Name);
+		var s = execution.Friends.Affect(Name);
 
 		s.Peers		= Peers;
 		s.Client	= Client;
-		s.OutHash	= execution.Net.Cryptography.ZeroHash;
-		s.OutStatus	= OutTransactionStatus.None;
-		s.OutOperations = [];
+		s.OutStatus	= IccTransferStatus.None;
 	}
 }

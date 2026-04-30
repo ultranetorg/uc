@@ -19,7 +19,6 @@ public abstract class Peer : IBinarySerializable
 	public Endpoint					EP {get; set;} 
 	public long						Roles  {get; set;} 
 	public string					Name;
-	public string					Net;
 
 	public ConnectionStatus			Status = ConnectionStatus.Disconnected;
 
@@ -113,24 +112,6 @@ public abstract class Peer : IBinarySerializable
 	{
 		EP = reader.Read<Endpoint>();
 		Roles = reader.Read7BitEncodedInt64();
-	}
-
-	public static void SendHello(TcpClient client, Hello h)
-	{
-		var w = new BinaryWriter(client.GetStream());
-
-		h.Write(w);
-	}
-
-	public static Hello WaitHello(TcpClient client)
-	{
-		var r = new BinaryReader(client.GetStream());
-
-		var h = new Hello();
-
-		h.Read(r);
-		
-		return h;
 	}
 
 	public void Disconnect()

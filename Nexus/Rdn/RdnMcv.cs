@@ -62,9 +62,9 @@ public class RdnMcv : Mcv
 		Users = new (this);
 		Domains = new (this);
 		Resources = new (this);
-		Subnets = new (this);
+		Friends = new (this);
 
-		Tables = [Metas, Users, Subnets, Domains, Resources];
+		Tables = [Metas, Users, Friends, Domains, Resources];
 	}
 
 	public override Round CreateRound()
