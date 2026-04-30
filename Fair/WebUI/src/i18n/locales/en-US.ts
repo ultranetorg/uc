@@ -354,6 +354,8 @@ export const enUS = {
     title: "Publishers",
     addPublisher: "Add new publisher",
     bannedTill: "Banned till",
+    noPublishers: "No publishers",
+    removeAuthor: "Remove author",
   },
   referendum: {
     createdAt: "Created At:",
@@ -423,7 +425,8 @@ export const enUS = {
     "site-name-change": `Change site name from "{{siteName}}" to "{{name}}"`,
     "site-name-change_empty": `Set site name "{{name}}"`,
     "site-text-change": `Set site title "{{title}}", description "{{description}}" and slogan "{{slogan}}"`,
-    "site-author-removal": "",
+    "site-authors-removal_one": "Remove this author",
+    "site-authors-removal_other": "Remove this authors",
     "site-moderator-addition_one": "Add this moderator",
     "site-moderator-addition_other": "Add this moderators",
     "site-moderator-removal": "Remove this moderator",
@@ -489,6 +492,9 @@ export const enUS = {
     multipleOptions: "Multiple options",
     noProposals: "No moderator proposals",
   },
+  publishersProposalsTab: {
+    noProposals: "No publisher proposals",
+  },
   tabChangedPublications: {
     noPublications: "No changed publications",
   },
@@ -546,6 +552,7 @@ export const enUS = {
     "publication-updation": "Updation",
     "review-creation": "Creation",
     "review-edit": "Edit",
+    "site-authors-removal": "Removal",
     "site-moderator-addition": "Addition",
     "site-moderator-removal": "Removal",
   },

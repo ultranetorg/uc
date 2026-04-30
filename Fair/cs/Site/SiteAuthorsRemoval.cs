@@ -40,7 +40,7 @@ public class SiteAuthorsRemoval : VotableOperation
 
 			var a = execution.Authors.Find(i);
 
-			if(a.Products.Select(i => execution.Products.Find(i)).Any(i => i.Publications.Any(p => execution.Publications.Find(p).Site == Site.Id)))
+			if(a.Products.Select(i => execution.Products.Find(i)).Any(i => i.Publications.Any(p => execution.Publications.Find(p)?.Site == Site.Id)))
 			{	
 				error = PublicationsExist;
 				return false;

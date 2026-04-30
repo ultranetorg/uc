@@ -61,7 +61,7 @@ const operationTypeToFairOperationTypeMap: Record<OperationType, string> = {
   "review-creation": "ReviewCreation",
   "review-edit": "ReviewEdit",
   "review-status-change": "ReviewStatusChange",
-  "site-author-removal": "SiteAuthorRemoval",
+  "site-authors-removal": "SiteAuthorsRemoval",
   "site-avatar-change": "SiteAvatarChange",
   "site-moderator-addition": "SiteModeratorAddition",
   "site-moderator-removal": "SiteModeratorRemoval",

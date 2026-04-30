@@ -34,7 +34,7 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
     case "publication-creation":
       return { productId: data.productId }
     case "publication-deletion":
-      return { publicationId: data.publicationId }
+      return { publication: data.publicationId }
     case "publication-publish":
       return { publication: data.publicationId, category: option.categoryId! }
     case "publication-updation":
@@ -45,8 +45,8 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
       return { reviewId: data.reviewId, status: option.status }
 
     // Site
-    case "site-author-removal":
-      return { additions: [], removals: mapAuthorsToIds(option.authors) }
+    case "site-authors-removal":
+      return { authors: mapAuthorsToIds(option.authors) }
     case "site-avatar-change":
       return { file: option.fileId }
     case "site-moderator-addition":

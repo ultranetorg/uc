@@ -48,7 +48,7 @@ const normalizeAuthors = (authors?: AuthorBaseAvatar[]) =>
     .sort()
     .join("")
 
-export const validateSiteAuthorChange = (
+export const validateSiteAuthorsRemoval = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,

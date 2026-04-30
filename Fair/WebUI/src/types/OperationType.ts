@@ -12,7 +12,7 @@ export type OperationType =
   | "review-creation"
   | "review-edit"
   | "review-status-change"
-  | "site-author-removal"
+  | "site-authors-removal"
   | "site-avatar-change"
   | "site-moderator-addition"
   | "site-moderator-removal"

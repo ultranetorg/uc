@@ -6,13 +6,13 @@ import { useModerationContext } from "app"
 import { useGetSitePublishers } from "entities"
 import { Table, TableEmptyState } from "ui/components"
 
-import { getItemRenderer } from "./renderer"
+import { getPublishersTabItemRenderer } from "./publishersTabItemRenderer"
 
 export const PublishersTab = () => {
   const { siteId } = useParams()
   const { getOperationVoterId } = useModerationContext()
   const { t } = useTranslation("publishersPage")
-  const voterId = getOperationVoterId("site-author-removal")
+  const voterId = getOperationVoterId("site-authors-removal")
 
   const { data: publishers } = useGetSitePublishers(siteId)
 
@@ -34,7 +34,7 @@ export const PublishersTab = () => {
     [t, voterId],
   )
 
-  const itemRenderer = useMemo(() => getItemRenderer(t, siteId!), [siteId, t])
+  const itemRenderer = useMemo(() => getPublishersTabItemRenderer(t, siteId!), [siteId, t])
 
   const items = useMemo(
     () =>
@@ -51,7 +51,7 @@ export const PublishersTab = () => {
       items={items}
       itemRenderer={itemRenderer}
       tableBodyClassName="text-2sm leading-5"
-      emptyState={<TableEmptyState message={t("noModerators")} />}
+      emptyState={<TableEmptyState message={t("noPublishers")} />}
     />
   )
 }

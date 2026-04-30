@@ -10,7 +10,7 @@ import {
   CategoryTypeChange,
   ProposalOption,
   PublicationPublish,
-  SiteAuthorRemoval,
+  SiteAuthorsRemoval,
   SiteAvatarChange,
   SiteModeratorAddition,
   SiteModeratorRemoval,
@@ -18,6 +18,7 @@ import {
   SiteTextChange,
 } from "types"
 import { AccountsList } from "ui/components"
+import { MembersList } from "ui/components/MembersList"
 import { buildFileUrl } from "utils"
 
 const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
@@ -187,8 +188,21 @@ const getSiteTextChange = (operation: SiteTextChange): JSX.Element => (
   />
 )
 
-const getSiteAuthorsRemoval = (operation: SiteAuthorRemoval): JSX.Element => {
-  return <b>{operation.authorId}</b>
+const getSiteAuthorsRemoval = (operation: SiteAuthorsRemoval): JSX.Element => {
+  return (
+    <div className="flex flex-col gap-2">
+      <Trans
+        ns="proposalView"
+        i18nKey={`${operation.$type}`}
+        parent={"p"}
+        className="text-2sm leading-5"
+        count={operation.removals.length}
+      />
+      <MembersList
+        items={operation.removals.map(x => ({ id: x.id, title: x.nickname ?? x.title, avatarSrc: buildFileUrl(x.id) }))}
+      />
+    </div>
+  )
 }
 
 const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element => {
@@ -240,8 +254,8 @@ export const renderDescription = (siteId: string, option: ProposalOption): React
     case "site-text-change":
       return getSiteTextChange(option.operation as SiteTextChange)
 
-    case "site-author-removal":
-      return getSiteAuthorsRemoval(option.operation as SiteAuthorRemoval)
+    case "site-authors-removal":
+      return getSiteAuthorsRemoval(option.operation as SiteAuthorsRemoval)
     case "site-moderator-addition":
       return getSiteModeratorAddition(option.operation as SiteModeratorAddition)
     case "site-moderator-removal":

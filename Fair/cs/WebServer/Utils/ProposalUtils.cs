@@ -36,7 +36,7 @@ public static class ProposalUtils
 			ReviewCreation operation => new ReviewCreationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
 			SiteApprovalPolicyChange operation => new SiteApprovalPolicyChangeModel(operation),
-			SiteAuthorsRemoval operation => new SiteAuthorsChangeModel(operation),
+			SiteAuthorsRemoval operation => CreateSiteAuthorsRemovalModel(mcv, operation),
 			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
 			SiteModeratorAddition operation => CreateSiteModeratorAdditionModel(mcv, operation),
 			SiteModeratorRemoval operation => CreateSiteModeratorRemovalModel(mcv, operation),
@@ -77,6 +77,20 @@ public static class ProposalUtils
 	{
 		Category category = mcv.Categories.Latest(operation.Category);
 		return new CategoryTypeChangeModel(operation, category);
+	}
+
+	static SiteAuthorsRemovalModel CreateSiteAuthorsRemovalModel(FairMcv mcv, SiteAuthorsRemoval operation)
+	{
+		IEnumerable<AuthorBaseModel> removals = operation.Authors.Select(authorId =>
+		{
+			Author author = mcv.Authors.Latest(authorId);
+			return new AuthorBaseModel(author);
+		});
+
+		return new SiteAuthorsRemovalModel(operation)
+		{
+			Removals = removals
+		};
 	}
 
 	// TODO: split models on regular and details models. Need to avoid expensive operations with data loading.
