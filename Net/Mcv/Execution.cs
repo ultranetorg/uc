@@ -6,7 +6,7 @@ public class Execution : ITableExecution
 	public Dictionary<AutoId, User>				AffectedUsers = new();
 	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
 	
-	public SubnetExecution						Friends;
+	public FrientExecution						Friends;
 
 	Dictionary<int, int>[]						_NextEids;
 	long[]										_Spaces;

@@ -157,6 +157,22 @@ public class Writer : BinaryWriter
 			Write7BitEncodedInt(0);
 	}
 
+	public void WriteVirtual<T>(IEnumerable<T> items) where T : IBinarySerializable, ITypeCode
+	{
+		if(items != null)
+		{
+			Write7BitEncodedInt(items.Count());
+		
+			foreach(var i in items)
+			{	
+				Write(Constructor.TypeToCode(i.GetType())); 
+				i.Write(this);
+			}
+		}
+		else
+			Write7BitEncodedInt(0);
+	}
+
 	public void Write<K, V>(IDictionary<K, V> items, Action<K> writek, Action<V> writev)
 	{
 		if(items != null)
@@ -425,6 +441,21 @@ public class Reader : BinaryReader
 		for(int i = 0; i < n; i++)
 		{
 			o[i] = a();
+		}
+
+		return o;
+	}
+
+	public T[] ReadArrayVirtual<T>() where T : IBinarySerializable, ITypeCode
+	{
+		var n = Read7BitEncodedInt();
+
+		var o = new T[n];
+
+		for(int i = 0; i < n; i++)
+		{
+ 			o[i] = (T)Constructor.Construct(typeof(T), ReadUInt32());
+ 			o[i].Read(this); 
 		}
 
 		return o;

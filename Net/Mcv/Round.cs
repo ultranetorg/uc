@@ -88,8 +88,8 @@ public abstract class Round : IBinarySerializable
 	public AccountAddress[]								ConsensusFundLeavers = [];
 	public long											ConsensusEnergyCost;
 	//public int											ConsensusOverloadRound;
-	public byte[][]										ConsensusFriendTransferRequests;
-	public byte[][]										ConsensusFriendTransferConfirmations;
+	public byte[][]										ConsensusIncomingTransfers;
+	public IccTransferResult[]					ConsensusOutgoingTransfers;
 	public OutwardResult[]								ConsensusOutwards = {};
 
 	public bool											Confirmed = false;
@@ -318,8 +318,8 @@ public abstract class Round : IBinarySerializable
 		{
 			ConsensusMemberLeavers = [];
 			ConsensusViolators = [];
-			ConsensusFriendTransferRequests = [];
-			ConsensusFriendTransferConfirmations = [];
+			ConsensusIncomingTransfers = [];
+			ConsensusOutgoingTransfers = [];
 			Funds = [];
 			//ConsensusFundJoiners = [];
 			//ConsensusFundLeavers = [];
@@ -336,13 +336,13 @@ public abstract class Round : IBinarySerializable
 										.Where(x => svotes.Count(b => b.Violators.Contains(x)) >= min)
 										.Order().ToArray();
 
-			ConsensusFriendTransferRequests = svotes.SelectMany(i => i.FriendBlocks).Distinct(Bytes.EqualityComparer)
-													.Where(v => svotes.Count(i => i.FriendBlocks.Contains(v, Bytes.EqualityComparer)) >= min)
+			ConsensusIncomingTransfers = svotes.SelectMany(i => i.FriendTransferRequests).Distinct(Bytes.EqualityComparer)
+													.Where(v => svotes.Count(i => i.FriendTransferRequests.Contains(v, Bytes.EqualityComparer)) >= min)
 													.Order(Bytes.Comparer).ToArray();
 
-			ConsensusFriendTransferConfirmations = svotes.SelectMany(i => i.FriendBlockConfirmations).Distinct(Bytes.EqualityComparer)
-														 .Where(v => svotes.Count(i => i.FriendBlockConfirmations.Contains(v, Bytes.EqualityComparer)) >= min)
-														 .Order(Bytes.Comparer).ToArray();
+			ConsensusOutgoingTransfers = svotes.SelectMany(i => i.FriendTransferConfirmations).Distinct()
+														 .Where(v => svotes.Count(i => i.FriendTransferConfirmations.Contains(v)) >= min)
+														 .Order().ToArray();
 
 			ConsensusOutwards = svotes	.SelectMany(i => i.OutwardResults)
 										.Distinct()
@@ -624,56 +624,59 @@ public abstract class Round : IBinarySerializable
 	{
 		///	var ows = Outwards.Where(i => i.Operation is IccOperation o && execution.Friends.Find(o.ToNet).OutStatus != IccTransferStatus.FormedAndPending).ToArray();
 
-		foreach(var i in IccTransactions.GroupBy(i => i.ToNet))
+		foreach(var txs in IccTransactions.GroupBy(i => i.ToNet))
 		{
-			var s = execution.Friends.Affect(i.Key);
+			foreach(var i in txs)
+				i.OutgoingPrelock(execution);
+
+			var s = execution.Friends.Affect(txs.Key);
 
 			s.OutStatus = IccTransferStatus.FormedAndPending;
-			s.LastOutgoingTransfer = new IccTransfer(Net.Constructor)
+			s.LastOutgoingTransfer = new IccTransfer
 									 {
 									 	Id = s.LastOutgoingTransfer == null ? 0 : (s.LastOutgoingTransfer.Id + 1),
-									 	Transactions = [..i]
+									 	Transactions = [..txs]
 									 };
-
-			/// EXECUTE THIS IN Outward.Execution
-			//foreach(var tx in s.LastOutgoingTransfer.Transactions)
-			//	foreach(var o in tx.Operations)
-			//		o.Execute(execution);
 
 			Mcv.FriendBlockFormed?.Invoke(execution, s);
 		}
 
 
-		foreach(var i in ConsensusFriendTransferRequests)
+		foreach(var i in ConsensusIncomingTransfers)
 		{
 			var t = Mcv.FriendTransferRequests.Find(j => Bytes.Equal(j.Hash, i))
 					??
 					throw new ConfirmationException(this, []);
 
-			foreach(var tx in t.Transactions)
-				tx.IncomingExecute(execution);
-
 			var f = execution.Friends.Affect(t.From);
-			f.LastAcceptedTransfer = t.Hash;
+			f.LastIncomingTransfer = new IccTransferResult {Hash = t.Hash, Results = new bool[t.Transactions.Length]};
+
+			for(int j = 0; j < t.Transactions.Length; j++)
+			{	
+				f.LastIncomingTransfer.Results[j] = t.Transactions[j].IncomingExecute(execution);
+			}
 
 			Mcv.FriendTransferRequests.Remove(t);
 		}
 
- 		foreach(var i in ConsensusFriendTransferConfirmations)
+ 		foreach(var i in ConsensusOutgoingTransfers)
  		{
- 			var t = Mcv.FriendTransferConfirmations.Find(j => Bytes.Equal(j.Hash, i))
- 					??
- 					throw new ConfirmationException(this, []);
+ 			if(!Mcv.FriendTransferResults.TryGetValue(i, out var to))
+				throw new ConfirmationException(this, []);
 
-			foreach(var tx in t.Transactions)
-				tx.OutgoingExecute(execution);
+			var f = execution.Friends.Affect(to);
+
+			for(int j = 0; j < i.Results.Length; j++)
+			{
+				if(i.Results[j])
+					f.LastOutgoingTransfer.Transactions[j].OutgoingConfirm(execution);
+				else
+					f.LastOutgoingTransfer.Transactions[j].OutgoingRollback(execution);
+			}
  
- 			var f = execution.Friends.Affect(t.From);
-
 			f.OutStatus = IccTransferStatus.Confirmed;
- 			f.LastOutgoingTransfer = t;
  
- 			Mcv.FriendTransferConfirmations.Remove(t);
+ 			Mcv.FriendTransferResults.Remove(i);
  		}
 
 //		foreach(var i in Mcv.Subnets.TailGraphEntities.Where(i => i.OutStatus == OutTransactionStatus.Confirmed && i.OutOperations.Any()))
@@ -768,8 +771,8 @@ public abstract class Round : IBinarySerializable
 		writer.Write(ConsensusFundJoiners);
 		writer.Write(ConsensusFundLeavers);
 		writer.Write(ConsensusTransactions, i => i.WriteConfirmed(writer));
-		writer.Write(ConsensusFriendTransferRequests, writer.Write);
-		writer.Write(ConsensusFriendTransferConfirmations, writer.Write);
+		writer.Write(ConsensusIncomingTransfers, writer.Write);
+		writer.Write(ConsensusOutgoingTransfers);
 		writer.Write(ConsensusOutwards);
 	}
 
@@ -783,8 +786,8 @@ public abstract class Round : IBinarySerializable
 		ConsensusFundJoiners					= reader.ReadArray<AccountAddress>();
 		ConsensusFundLeavers					= reader.ReadArray<AccountAddress>();
 		ConsensusTransactions					= reader.Read(() =>	new Transaction {Net = Mcv.Net, Round = this}, t => t.ReadConfirmed(reader)).ToArray();
-		ConsensusFriendTransferRequests				= reader.ReadArray(reader.ReadHash);
-		ConsensusFriendTransferConfirmations = reader.ReadArray(reader.ReadHash);
+		ConsensusIncomingTransfers			= reader.ReadArray(reader.ReadHash);
+		ConsensusOutgoingTransfers	= reader.ReadArray<IccTransferResult>();
 		ConsensusOutwards						= reader.ReadArray<OutwardResult>();
 	}
 

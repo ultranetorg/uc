@@ -9,22 +9,22 @@ public enum IccTransferStatus : byte
 
 public class Friend : IBinarySerializable, ITableEntry
 {
-	public const int			NameLengthMin = 1;
-	public const int			NameLengthMax = 256;
-	public const int			PeersMaximum = 1000;
-	public const int			RootHashLengthMaximum = 4096;
+	public const int					NameLengthMin = 1;
+	public const int					NameLengthMax = 256;
+	public const int					PeersMaximum = 1000;
+	public const int					RootHashLengthMaximum = 4096;
 
-	public AutoId				Id { get; set; }
-	public string				Name { get; set; }
-	public Snp					Client { get; set; }
-	public Endpoint[]			Peers { get; set; }
-	public byte[]				LastAcceptedTransfer { get; set; }
-	public IccTransfer			LastOutgoingTransfer { get; set; }
-	public IccTransferStatus	OutStatus { get; set; }
+	public AutoId						Id { get; set; }
+	public string						Name { get; set; }
+	public Snp							Client { get; set; }
+	public Endpoint[]					Peers { get; set; }
+	public IccTransferResult			LastIncomingTransfer { get; set; }
+	public IccTransfer					LastOutgoingTransfer { get; set; }
+	public IccTransferStatus			OutStatus { get; set; }
 
-	public EntityId				Key => Id;
-	public bool					Deleted { get; set; }
-	Mcv							Mcv;
+	public EntityId						Key => Id;
+	public bool							Deleted { get; set; }
+	Mcv									Mcv;
 
 	public Friend()
 	{
@@ -48,7 +48,7 @@ public class Friend : IBinarySerializable, ITableEntry
 					Name = Name,
 					Client = Client,
 					Peers = Peers,
-					LastAcceptedTransfer = LastAcceptedTransfer,
+					LastIncomingTransfer = LastIncomingTransfer,
 					LastOutgoingTransfer = LastOutgoingTransfer,
 					OutStatus = OutStatus,
 				};
@@ -89,8 +89,8 @@ public class Friend : IBinarySerializable, ITableEntry
 		writer.WriteASCII(Name);
 		writer.Write(Client);
 		writer.Write(Peers);
-		writer.Write(LastAcceptedTransfer != null); if(LastAcceptedTransfer != null) writer.Write(LastAcceptedTransfer);
-		writer.Write(LastOutgoingTransfer != null); if(LastOutgoingTransfer != null) writer.Write(LastOutgoingTransfer);
+		writer.Write(LastIncomingTransfer);
+		writer.Write(LastOutgoingTransfer);
 		writer.Write(OutStatus);
 	}
 
@@ -100,13 +100,8 @@ public class Friend : IBinarySerializable, ITableEntry
 		Name					= reader.ReadASCII();
 		Client					= reader.Read<Snp>();
 		Peers					= reader.ReadArray<Endpoint>();
-		if(reader.ReadBoolean())
-			LastAcceptedTransfer	= reader.ReadHash();
-		if(reader.ReadBoolean())
-		{	
-			LastOutgoingTransfer = new (null); 
-			LastOutgoingTransfer.Read(reader);
-		}
+		LastIncomingTransfer	= reader.Read<IccTransferResult>();
+		LastOutgoingTransfer	= reader.Read<IccTransfer>(); 
 		OutStatus				= reader.Read<IccTransferStatus>();
 	}
 

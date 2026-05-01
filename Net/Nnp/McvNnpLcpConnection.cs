@@ -29,11 +29,11 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 
 																		while(Flow.Active)
 																		{
-																			var rp = Call(f.Name, new LastAcceptedBlockNna {}, Flow) as LastAcceptedBlockNnr;
+																			var rp = Call(f.Name, new LastIncomingTransferNna {}, Flow) as LastIncomingTransferNnr;
 
-																			if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Hash))
+																			if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Result.Hash))
 																			{
-																				Mcv.FriendTransferConfirmations.Add(f.LastOutgoingTransfer);
+																				Mcv.FriendTransferResults.Add(rp.Result, f.Name);
 																				break;
 																			}
 
@@ -70,31 +70,25 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
  			//if(m.Nonce != args.Nonce - 1)
  			//	throw new EntityException(EntityError.NotSequential);
 			
-			var rp = Call(from, new LastOutgoingBlockNna {}, Flow) as LastOutgoingBlockNnr;
+			var rp = Call(from, new LastOutgoingTransferNna {}, Flow) as LastOutgoingTransferNnr;
 			
  			///
  			/// TODO : Check signature
  			///
 
-			var s = Node.Mcv.Friends.Find(from);
+			var f = Node.Mcv.Friends.Find(from);
 
-			if(Bytes.Equal(s.LastAcceptedTransfer, rp.Block.Hash))
+			if(Bytes.Equal(f.LastIncomingTransfer.Hash, rp.Transfer.Hash)) /// no new transfer
 				return null;
  
 			t.From = from;
  			Node.Mcv.FriendTransferRequests.Add(t);
-// 
-// 			var e = Node.Mcv.
-// 
-// 			foreach(var tx in t.Transactions)
-// 				foreach(var i in tx.Operations)	
-// 					i.IncomingExecute()
  
  			return null;
  		}
  	}
 
-	public Result LastOutgoingBlock(string from, LastOutgoingBlockNna args)
+	public Result LastOutgoingTransfer(string from, LastOutgoingTransferNna args)
 	{
 		lock(Node.Mcv.Lock)
 		{	
@@ -103,11 +97,11 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 			if(s == null)
 				return null;
 
-			return new LastOutgoingBlockNnr {Block = s.LastOutgoingTransfer};
+			return new LastOutgoingTransferNnr {Transfer = s.LastOutgoingTransfer};
 		}
 	}
 
-	public Result LastAcceptedBlock(string from, LastAcceptedBlockNna args) /// Confirmation on our message to a subnet
+	public Result LastIncomingTransfer(string from, LastIncomingTransferNna args) /// Confirmation on our message to a subnet
 	{
 		lock(Node.Mcv.Lock)
 		{
@@ -115,14 +109,8 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 
 			if(s == null)
 				return null;
-			//var m = Node.Mcv.FriendBlockConfirmations.Find(i => i. == args.Net && i.Hash.SequenceEqual(args.Hash));
-			//
-			//if(m != null)
-			//	return null;
-			//
-			//Node.Mcv.FriendBlockConfirmations.Add(m);
 
-			return new LastAcceptedBlockNnr {Hash = s.LastAcceptedTransfer};
+			return new LastIncomingTransferNnr {Result = s.LastIncomingTransfer};
 		}
 	}
 

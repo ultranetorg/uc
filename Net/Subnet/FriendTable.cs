@@ -2,13 +2,13 @@
 
 namespace Uccs.Net;
 
-public class SubnetTable : Table<AutoId, Friend>
+public class FriendTable : Table<AutoId, Friend>
 {
 	public override string			Name => McvTable.Subnet.ToString();
 
 	public int						KeyToBid(string domain) => EntityId.BytesToBucket(Encoding.ASCII.GetBytes(domain.PadRight(3, '\0'), 0, 3));
 
-	public SubnetTable(Mcv rds) : base(rds)
+	public FriendTable(Mcv rds) : base(rds)
 	{
 	}
 	
@@ -35,11 +35,11 @@ public class SubnetTable : Table<AutoId, Friend>
 	}
 }
 
-public class SubnetExecution : TableExecution<AutoId, Friend>
+public class FrientExecution : TableExecution<AutoId, Friend>
 {
-	new SubnetTable			Table => base.Table as SubnetTable;
+	new FriendTable			Table => base.Table as FriendTable;
 		
-	public SubnetExecution(Execution execution) : base(execution.Mcv.Friends, execution)
+	public FrientExecution(Execution execution) : base(execution.Mcv.Friends, execution)
 	{
 	}
 
@@ -51,7 +51,7 @@ public class SubnetExecution : TableExecution<AutoId, Friend>
 			return e.Deleted ? null : e;
 
 		if(Parent != null)
-			return (Parent as SubnetExecution).Find(name);
+			return (Parent as FrientExecution).Find(name);
 
 		e = Execution.Round.Friends.Affected.Values.FirstOrDefault(i => i.Name == name);
 
@@ -67,7 +67,7 @@ public class SubnetExecution : TableExecution<AutoId, Friend>
 			return d;
 
 		if(Parent != null)
-			d = (Parent as SubnetExecution).Find(name);
+			d = (Parent as FrientExecution).Find(name);
 		else if(Execution.Round.Friends.Affected.Values.FirstOrDefault(i => i.Name == name) is Friend x)
 			d = x;
 		else

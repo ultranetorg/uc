@@ -115,7 +115,7 @@ public class TransferRequestNna : NnpArgumentation
 	}
 }
 
-public class LastOutgoingBlockNna : NnpArgumentation
+public class LastOutgoingTransferNna : NnpArgumentation
 {
 	//public byte[]	Hash { get; set; }
 	//public IccOperation[]	Operations { get; set; }
@@ -131,9 +131,9 @@ public class LastOutgoingBlockNna : NnpArgumentation
 	}
 }
 
-public class LastOutgoingBlockNnr : Result, IBinarySerializable
+public class LastOutgoingTransferNnr : Result, IBinarySerializable
 {
-	public IccTransfer		Block;
+	public IccTransfer		Transfer;
 
 	public void Read(Reader reader)
 	{
@@ -158,25 +158,25 @@ public class LastOutgoingBlockNnr : Result, IBinarySerializable
 	}
 }
 
-public class LastAcceptedBlockNna : NnpArgumentation
+public class LastIncomingTransferNna : NnpArgumentation
 {
 }
 
-public class LastAcceptedBlockNnr : Result
+public class LastIncomingTransferNnr : Result
 {
-	public int		Id { get; set; }
-	public byte[]	Hash { get; set; }
+	public int					Id { get; set; }
+	public IccTransferResult	Result { get; set; }
 
 	public void Read(Reader reader)
 	{
-		Id = reader.Read7BitEncodedInt();
-		Hash = reader.ReadBytes();
+		Id		= reader.Read7BitEncodedInt();
+		Result	= reader.Read<IccTransferResult>();
 	}
 
 	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Id);
-		writer.WriteBytes(Hash);
+		writer.Write(Result);
 	}
 }
 

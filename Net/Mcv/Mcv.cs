@@ -60,7 +60,7 @@ public abstract class Mcv /// Mutual chain voting
 	static readonly byte[]						GenesisKey = [0x04];
 	public MetaTable							Metas;
 	public UserTable							Users;
-	public SubnetTable							Friends;
+	public FriendTable							Friends;
 	public TableBase[] 							Tables;
 	public int									Size => Tables.Sum(i => i.Size);
 	public BlockDelegate						VoteAdded;
@@ -91,8 +91,8 @@ public abstract class Mcv /// Mutual chain voting
 	public Round								NextTargetRound => GetRound(LastConfirmedRound.Id + 1);
 	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + Net.P);
 
-	public List<IccTransfer>					FriendTransferRequests = [];
-	public List<IccTransfer>					FriendTransferConfirmations = [];
+	public List<IccTransfer>						FriendTransferRequests = [];
+	public Dictionary<IccTransferResult, string>	FriendTransferResults = [];
 
 	public const string							ChainFamilyName = "Chain";
 	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);

@@ -2,35 +2,35 @@
 
 public class Vote : IBinarySerializable
 {
-	public int					ParentId => RoundId - Mcv.Net.P;
+	public int							ParentId => RoundId - Mcv.Net.P;
 
-	//public List<Peer>			Peers;
-	public bool					BroadcastConfirmed;
-	public Round				Round;
-	byte[]						_Hash;
-	byte[]						_RawPayload;
-	Mcv							Mcv;
-	//AccountAddress				_Generator;
+	//public List<Peer>					Peers;
+	public bool							BroadcastConfirmed;
+	public Round						Round;
+	byte[]								_Hash;
+	byte[]								_RawPayload;
+	Mcv									Mcv;
+	//AccountAddress						_Generator;
 
-	public AutoId				User;
-	public int					RoundId;
-	public int					Try; /// revote if consensus not reached
-	public Time					Time;
-	public byte[]				TargetHash;
-	public AutoId[]				Leavers = [];
-	///public AccountAddress[]	FundJoiners = {};
-	///public AccountAddress[]	FundLeavers = {};
-	public AutoId[]				Violators = [];
-	public byte[][]				FriendBlocks = [];
-	public byte[][]				FriendBlockConfirmations = [];
-	public Transaction[]		Transactions = [];
-	public byte[]				Signature { get; set; }
-	public OutwardResult[]		OutwardResults = {};
+	public AutoId						User;
+	public int							RoundId;
+	public int							Try; /// revote if consensus not reached
+	public Time							Time;
+	public byte[]						TargetHash;
+	public AutoId[]						Leavers = [];
+	///public AccountAddress[]			FundJoiners = {};
+	///public AccountAddress[]			FundLeavers = {};
+	public AutoId[]						Violators = [];
+	public byte[][]						FriendTransferRequests = [];
+	public IccTransferResult[]	FriendTransferConfirmations = [];
+	public Transaction[]				Transactions = [];
+	public byte[]						Signature { get; set; }
+	public OutwardResult[]				OutwardResults = {};
 
-	public int					TransactionCountExcess;
-	public bool					Restored => TargetHash != null;
+	public int							TransactionCountExcess;
+	public bool							Restored => TargetHash != null;
 
-	public VoteStatus		Status;
+	public VoteStatus					Status;
 
 	public bool Valid
 	{
@@ -150,9 +150,9 @@ public class Vote : IBinarySerializable
 
 		writer.Write(Transactions, t => t.WriteForVote(writer));
 
-		writer.Write(FriendBlocks, writer.WriteBytes);
-		writer.Write(FriendBlockConfirmations, writer.WriteBytes);
 		writer.Write(OutwardResults);
+		writer.Write(FriendTransferRequests, writer.WriteBytes);
+		writer.Write(FriendTransferConfirmations);
 	}
 
 	protected virtual void ReadPayload(Reader reader)
@@ -166,15 +166,15 @@ public class Vote : IBinarySerializable
 		///FundLeavers				= reader.ReadArray<AccountAddress>();
 		Violators					= reader.ReadArray<AutoId>();
 
-		Transactions = reader.ReadArray(() =>	{
-													var t = new Transaction {Net = Mcv.Net, Vote = this};
-													t.ReadForVote(reader);
-													return t;
-												});
+		Transactions				 = reader.ReadArray(() =>	{
+																	var t = new Transaction {Net = Mcv.Net, Vote = this};
+																	t.ReadForVote(reader);
+																	return t;
+																});
 
-		FriendBlocks				= reader.ReadArray(reader.ReadBytes);
-		FriendBlockConfirmations	= reader.ReadArray(reader.ReadBytes);
 		OutwardResults				= reader.ReadArray<OutwardResult>();
+		FriendTransferRequests		= reader.ReadArray(reader.ReadBytes);
+		FriendTransferConfirmations	= reader.ReadArray<IccTransferResult>();
 	}
 
 	public void Write(Writer writer)
