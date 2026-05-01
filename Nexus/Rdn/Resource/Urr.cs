@@ -9,25 +9,15 @@ namespace Uccs.Rdn;
 
 public enum UrrScheme : uint
 {
-	None, Urrh, Urrsd
+	None, Rrrh, Rrrsd
 }
 
 public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITextSerialisable
 {
  	public abstract byte[]			MemberOrderKey { get; }
 	public string					Net { get; set; }
- 	public byte[]					Raw {
-										get
-										{
-											var s = new MemoryStream();
-											var w = new BinaryWriter(s);
-												
- 												w.Write((byte)Scheme);
-											Write(w);
-												
-											return s.ToArray();
-										}
-									}
+ 	public byte[]					Raw => _Raw ??= (this as IBinarySerializable).ToRaw();
+	byte[]							_Raw;
 
 	public abstract UrrScheme		Scheme { get; }
 	public override abstract bool	Equals(object other);
@@ -56,7 +46,7 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
 
 		var a = Enum.Parse<UrrScheme>(s, true)	switch
 												{
-													UrrScheme.Urrh => new Urrh() as Urr,
+													UrrScheme.Rrrh => new Rrrh() as Urr,
 													//UrrScheme.Urrsd => new Urrsd(),
 													_ => throw new FormatException()
 												};
@@ -69,38 +59,38 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
 
 	public abstract void ParseSpecific(string t);
 	
-	protected virtual void WriteMore(BinaryWriter writer)
+	protected virtual void WriteMore(Writer writer)
 	{
 	}
 
-	protected virtual void ReadMore(BinaryReader reader)
+	protected virtual void ReadMore(Reader reader)
 	{
 	}
 
-	public virtual void Write(BinaryWriter writer)
+	public virtual void Write(Writer writer)
 	{
 		WriteMore(writer);
 	}
 
-	public virtual void Read(BinaryReader reader)
+	public virtual void Read(Reader reader)
 	{
 		ReadMore(reader);
 	}
 
-	public void WriteVirtual(BinaryWriter writer)
+	public void WriteVirtual(Writer writer)
 	{
-		writer.Write((byte)Scheme);
+		writer.Write(Scheme);
 		WriteMore(writer);
 	}
 
-	public static Urr ReadVirtual(BinaryReader reader)
+	public static Urr ReadVirtual(Reader reader)
 	{
-		var a = (UrrScheme)reader.ReadByte()switch
-											{
-												UrrScheme.Urrh => new Urrh() as Urr,
-												//UrrScheme.Urrsd => new Urrsd(),
-												_ => throw new FormatException()
-											};
+		var a = reader.Read<UrrScheme>() switch
+										 {
+										 	UrrScheme.Rrrh => new Rrrh() as Urr,
+										 	//UrrScheme.Urrsd => new Urrsd(),
+										 	_ => throw new FormatException()
+										 };
 		
 		a.ReadMore(reader);
 		
@@ -109,8 +99,7 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
 
  	public static Urr FromRaw(byte[] bytes)
  	{
- 		var s = new MemoryStream(bytes);
- 		var r = new BinaryReader(s);
+ 		var r = new Reader(bytes);
  
  		return ReadVirtual(r);
  	}
@@ -126,15 +115,15 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
  	}
 }
  
-public class Urrh : Urr
+public class Rrrh : Urr /// Rdn Resource Release Hash
 {
-	public override UrrScheme	Scheme => UrrScheme.Urrh;
+	public override UrrScheme	Scheme => UrrScheme.Rrrh; 
 
-	public Urrh()
+	public Rrrh()
 	{
 	}
 
-	public Urrh(byte[] hash)
+	public Rrrh(byte[] hash)
 	{
 		Hash = hash;
 	}
@@ -143,14 +132,14 @@ public class Urrh : Urr
  	public override byte[]	MemberOrderKey => Hash;
  		
 	public override int		GetHashCode() => BitConverter.ToInt32(Hash);
- 	public override bool	Equals(object obj) => Equals(obj as Urrh);
-	public override bool	Equals(Urr o) => o is Urrh a && Hash.SequenceEqual(a.Hash);
+ 	public override bool	Equals(object obj) => Equals(obj as Rrrh);
+	public override bool	Equals(Urr o) => o is Rrrh a && Hash.SequenceEqual(a.Hash);
 
-	public new static Urrh Parse(string t)
+	public new static Rrrh Parse(string t)
 	{
 		Snp.Parse(t, out var s, out var z, out var o);
 
-		var a = new Urrh();
+		var a = new Rrrh();
 
 		a.Net = z;
 		a.ParseSpecific(o);
@@ -172,12 +161,12 @@ public class Urrh : Urr
 		return Hash.SequenceEqual(hash);
 	}
 
-	protected override void WriteMore(BinaryWriter writer)
+	protected override void WriteMore(Writer writer)
 	{
  		writer.Write(Hash);
 	}
 
-	protected override void ReadMore(BinaryReader reader)
+	protected override void ReadMore(Reader reader)
 	{
  		Hash = reader.ReadBytes(Cryptography.HashLength);
 	}
@@ -230,13 +219,13 @@ public class Urrh : Urr
 //		return new Urrsd {Resource = resource, Signature = cryptography.Sign(key, Cryptography.Hash(s.ToArray()))};
 //	}
 //
-//	protected override void WriteMore(BinaryWriter writer)
+//	protected override void WriteMore(Writer writer)
 //	{
 //		writer.Write(Resource);
 //		writer.Write(Signature);
 //	}
 //
-//	protected override void ReadMore(BinaryReader reader)
+//	protected override void ReadMore(Reader reader)
 //	{
 //		Resource = reader.Read<Ura>();
 //		Signature = reader.ReadBytes(Cryptography.SignatureLength);
@@ -266,7 +255,7 @@ public class ReleaseAddressCreator
 	{
 		return Type	switch
 					{
-						UrrScheme.Urrh => new Urrh {Hash = hash},
+						UrrScheme.Rrrh => new Rrrh {Hash = hash},
 						///UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.Find(Owner).Key, Resource, hash),
 						_ => throw new ResourceException(ResourceError.UnknownAddressType)
 					};

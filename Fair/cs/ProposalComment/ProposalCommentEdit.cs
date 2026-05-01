@@ -14,13 +14,13 @@ public class ProposalCommentEdit : FairOperation
 	{
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Comment	= reader.Read<AutoId>();
 		Text	= reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Comment);
 		writer.WriteUtf8(Text);

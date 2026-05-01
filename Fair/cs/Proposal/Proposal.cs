@@ -25,13 +25,13 @@ public class ProposalOption : Option
 		Yes			= [];
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
  		Yes = reader.ReadArray<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);	
  		writer.Write(Yes);
@@ -94,12 +94,12 @@ public class Proposal : IBinarySerializable, ITableEntry
 		return a;
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
@@ -108,7 +108,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	{
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id				= reader.Read<AutoId>();
 		Site			= reader.Read<AutoId>();
@@ -126,7 +126,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		Comments		= reader.ReadArray<AutoId>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write(Site);

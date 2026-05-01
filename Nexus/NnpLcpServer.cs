@@ -27,7 +27,7 @@ public class NnpLcpServer : LcpServer
 
 	protected override LcpConnection CreateConnection(NamedPipeServerStream pipe)
 	{
-		return new NnpLcpConnection(Program, pipe, this, Flow, Constructor);
+		return new NnpLcpConnection(Program, pipe, this, Constructor, Flow);
 	}
 
 	public override void Accept(LcpConnection connection)

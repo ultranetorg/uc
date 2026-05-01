@@ -1,17 +1,17 @@
 ﻿namespace Uccs;
 
 public class XonBinaryReader : IXonReader
-    {
+{
 	//IXonValueSerializator		Serializator;
 	public XonToken				Current { get; set; }
 	List<EBonHeader>			Flags = new();
 	Stream						Stream;
-	BinaryReader				Reader;
+	Reader						Reader;
 
 	public XonBinaryReader(Stream s)
 	{
 		Stream = s;
-		Reader = new BinaryReader(Stream);
+		Reader = new Reader(Stream);
 	}
 	
 	public XonToken Read(IXonValueSerializator serializator)

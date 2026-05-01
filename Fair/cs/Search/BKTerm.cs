@@ -33,12 +33,12 @@ public abstract class BKTerm : IBinarySerializable, ITableEntry
 	}
 
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
@@ -47,13 +47,13 @@ public abstract class BKTerm : IBinarySerializable, ITableEntry
 	{
 	}
 
-	public virtual void Read(BinaryReader reader)
+	public virtual void Read(Reader reader)
 	{
 		Id			= reader.Read<RawId>();
 		Children	= reader.ReadSortedDictionary(() => reader.ReadByte(), () => reader.Read<RawId>());
 	}
 
-	public virtual void Write(BinaryWriter writer)
+	public virtual void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write(Children, i => { writer.Write(i.Key); writer.Write(i.Value); });
@@ -81,14 +81,14 @@ public class EntityTerm : BKTerm
 		return a;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 
 		References = reader.ReadArray<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);
 
@@ -117,14 +117,14 @@ public class SiteTerm : BKTerm
 		return a;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 
 		References = reader.ReadSortedDictionary(() => reader.Read<AutoId>(), () => reader.ReadArray<AutoId>());
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);
 

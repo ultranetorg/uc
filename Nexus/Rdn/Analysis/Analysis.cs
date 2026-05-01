@@ -9,7 +9,7 @@ public class Consil : IBinarySerializable
 
 	public const int		AnalyzersMaximum = 256;
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		ResultEnergyFeeMinimum		= reader.Read7BitEncodedInt64();
 		SizeEnergyFeeMinimum		= reader.Read7BitEncodedInt64();
@@ -17,7 +17,7 @@ public class Consil : IBinarySerializable
 		Analyzers					= reader.ReadArray<AccountAddress>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt64(SizeEnergyFeeMinimum);
 		writer.Write7BitEncodedInt64(ResultEnergyFeeMinimum);
@@ -69,7 +69,7 @@ public class Analysis : IBinarySerializable
 		return $"{Release}, EnergyReward={EnergyReward}, SpacetimeReward={SpacetimeReward}, Consil={Consil}, Results={Results.Count}";
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Release			= Urr.ReadVirtual(reader);
 		Consil			= reader.Read<AutoId>();
@@ -82,7 +82,7 @@ public class Analysis : IBinarySerializable
 												});
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		Release.WriteVirtual(writer);
 		writer.Write(Consil);

@@ -7,13 +7,13 @@ namespace Uccs.Net;
 //	public string	Class { get; set; }
 //	public string	Id { get; set; }
 //
-//	public void Read(BinaryReader reader)
+//	public void Read(Reader reader)
 //	{
 //		Class = reader.ReadASCII();
 //		Id = reader.ReadASCII();
 //	}
 //
-//	public void Write(BinaryWriter writer)
+//	public void Write(Writer writer)
 //	{
 //		writer.WriteASCII(Class);
 //		writer.WriteASCII(Id);
@@ -30,13 +30,13 @@ public class Asset : IBinarySerializable
 		return $"{Name} ({Units})";
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Name = reader.ReadASCII();
 		Units = reader.ReadASCII();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.WriteASCII(Name);
 		writer.WriteASCII(Units);
@@ -62,10 +62,10 @@ public abstract class NnpArgumentation : Argumentation
 {
 	//public string		Net { get; set; }
 
-	//public virtual void	Read(BinaryReader reader) => Net = reader.ReadASCII();
-	//public virtual void	Write(BinaryWriter writer) => writer.WriteASCII(Net);
-	public virtual void		Read(BinaryReader reader){}
-	public virtual void		Write(BinaryWriter writer){}
+	//public virtual void	Read(Reader reader) => Net = reader.ReadASCII();
+	//public virtual void	Write(Writer writer) => writer.WriteASCII(Net);
+	public virtual void		Read(Reader reader){}
+	public virtual void		Write(Writer writer){}
 }
 
 public class Nnc<A, R> : ICall<A, R> where A : NnpArgumentation, new() where R : Result
@@ -90,7 +90,7 @@ public class TransferRequestNna : NnpArgumentation
 	///	return $"Nonce={Nonce}, Operations={Operations.Length}, Peers={Peers.Length}";
 	///}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Hash		= reader.ReadBytes(Cryptography.HashLength);
 		Signature	= reader.ReadBytes(Cryptography.SignatureLength);
@@ -103,7 +103,7 @@ public class TransferRequestNna : NnpArgumentation
  		///									 });
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Hash);
 		writer.Write(Signature);
@@ -120,12 +120,12 @@ public class LastOutgoingBlockNna : NnpArgumentation
 	//public byte[]	Hash { get; set; }
 	//public IccOperation[]	Operations { get; set; }
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		//Hash = reader.ReadBytes();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		//writer.WriteBytes(Hash);
 	}
@@ -135,7 +135,7 @@ public class LastOutgoingBlockNnr : Result, IBinarySerializable
 {
 	public IccTransfer		Block;
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		///Nonce		= reader.Read7BitEncodedInt();
 		///Peers		= reader.ReadArray<Endpoint>();
@@ -147,7 +147,7 @@ public class LastOutgoingBlockNnr : Result, IBinarySerializable
  		///									 });
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		///writer.Write7BitEncodedInt(Nonce);
 		///writer.Write(Peers);
@@ -167,13 +167,13 @@ public class LastAcceptedBlockNnr : Result
 	public int		Id { get; set; }
 	public byte[]	Hash { get; set; }
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id = reader.Read7BitEncodedInt();
 		Hash = reader.ReadBytes();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.WriteBytes(Hash);
@@ -188,8 +188,8 @@ public class PeersNnr : Result, IBinarySerializable
 {
 	public Endpoint[]	Peers { get; set; }
 
-	public void			Read(BinaryReader reader) => Peers = reader.ReadArray<Endpoint>();
-	public void			Write(BinaryWriter writer) => writer.Write(Peers);
+	public void			Read(Reader reader) => Peers = reader.ReadArray<Endpoint>();
+	public void			Write(Writer writer) => writer.Write(Peers);
 }
 
 
@@ -205,7 +205,7 @@ public class RequestNna : NnpArgumentation
 	public Endpoint			Node { get; set; }
 	public int				Timeout { get; set; } = 5000;
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Request		= reader.ReadBytes();
 		Format		= reader.Read<PacketFormat>();
@@ -213,7 +213,7 @@ public class RequestNna : NnpArgumentation
 		Timeout		= reader.Read7BitEncodedInt();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteBytes(Request);
 		writer.Write(Format);
@@ -226,8 +226,8 @@ public class RequestNnr : Result, IBinarySerializable
 {
 	public byte[]	Response { get; set; }
 
-	public void		Read(BinaryReader reader) => Response = reader.ReadBytes();
-	public void		Write(BinaryWriter writer) => writer.WriteBytes(Response);
+	public void		Read(Reader reader) => Response = reader.ReadBytes();
+	public void		Write(Writer writer) => writer.WriteBytes(Response);
 }
 
 public class JsonApiNna : NnpArgumentation
@@ -236,14 +236,14 @@ public class JsonApiNna : NnpArgumentation
 	public string			Request { get; set; }
 	public int				Timeout { get; set; } = 5000;
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Call		= reader.ReadUtf8();
 		Request		= reader.ReadUtf8();
 		Timeout		= reader.Read7BitEncodedInt();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteUtf8(Call);
 		writer.WriteUtf8(Request);
@@ -256,13 +256,13 @@ public class JsonApiNnr : Result, IBinarySerializable
 	public string	Response { get; set; }
 	public int		Status { get; set; }
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{ 
 		Response = reader.ReadUtf8();
 		Status = reader.Read7BitEncodedInt();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.WriteUtf8(Response);
 		writer.Write7BitEncodedInt(Status);
@@ -274,14 +274,14 @@ public class JsonApiNnr : Result, IBinarySerializable
 //	public byte[]		Operations { get; set; }
 //	public int			Timeout { get; set; } = 5000;
 //
-//	public override void Read(BinaryReader reader)
+//	public override void Read(Reader reader)
 //	{
 //		base.Read(reader);
 //		Operations	= reader.ReadBytes();
 //		Timeout		= reader.Read7BitEncodedInt();
 //	}
 //
-//	public override void Write(BinaryWriter writer)
+//	public override void Write(Writer writer)
 //	{
 //		base.Write(writer);
 //		writer.WriteBytes(Operations);
@@ -293,8 +293,8 @@ public class JsonApiNnr : Result, IBinarySerializable
 //{
 //	public byte[]	Result { get; set; }
 //
-//	public void		Read(BinaryReader reader) => Result = reader.ReadBytes();
-//	public void		Write(BinaryWriter writer) => writer.WriteBytes(Result);
+//	public void		Read(Reader reader) => Result = reader.ReadBytes();
+//	public void		Write(Writer writer) => writer.WriteBytes(Result);
 //}
 
 public class HolderClassesNna : NnpArgumentation
@@ -305,8 +305,8 @@ public class HolderClassesNnr : Result, IBinarySerializable
 {
 	public string[]			Classes { get; set; }
 
-	public void				Read(BinaryReader reader) => Classes = reader.ReadArray(reader.ReadASCII);
-	public void				Write(BinaryWriter writer) => writer.Write(Classes, writer.WriteASCII);
+	public void				Read(Reader reader) => Classes = reader.ReadArray(reader.ReadASCII);
+	public void				Write(Writer writer) => writer.Write(Classes, writer.WriteASCII);
 }
 
 //public class HolderClassesNnc : Nnc<HolderClassesNna, HolderClassesNnr>
@@ -321,13 +321,13 @@ public class HolderClassesNnr : Result, IBinarySerializable
 //{
 //	public byte[]	Address { get; set; }
 //
-//	public override void Read(BinaryReader reader)
+//	public override void Read(Reader reader)
 //	{
 //		base.Read(reader);
 //		Address = reader.ReadBytes();
 //	}
 //
-//	public override void Write(BinaryWriter writer)
+//	public override void Write(Writer writer)
 //	{
 //		base.Write(writer);
 //		writer.WriteBytes(Address);
@@ -338,20 +338,20 @@ public class HolderClassesNnr : Result, IBinarySerializable
 //{
 //	public string[] Holders { get; set; }
 //
-//	public void Read(BinaryReader reader) => Holders = reader.ReadArray(reader.ReadASCII);
-//	public void Write(BinaryWriter writer) => writer.Write(Holders, writer.WriteASCII);
+//	public void Read(Reader reader) => Holders = reader.ReadArray(reader.ReadASCII);
+//	public void Write(Writer writer) => writer.Write(Holders, writer.WriteASCII);
 //}
 
 public class HolderAssetsNna : NnpArgumentation
 {
 	public string	Entity { get; set; }
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Entity = reader.ReadASCII();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteASCII(Entity);
 	}
@@ -361,8 +361,8 @@ public class HolderAssetsNnr : Result, IBinarySerializable
 {
 	public Asset[]	Assets { get; set; }
 
-	public void Read(BinaryReader reader) => Assets = reader.ReadArray<Asset>();
-	public void Write(BinaryWriter writer) => writer.Write(Assets);
+	public void Read(Reader reader) => Assets = reader.ReadArray<Asset>();
+	public void Write(Writer writer) => writer.Write(Assets);
 }
 
 public class AssetBalanceNna : NnpArgumentation
@@ -370,13 +370,13 @@ public class AssetBalanceNna : NnpArgumentation
 	public string	Entity { get; set; }
 	public string	Name { get; set; }
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Entity = reader.ReadASCII();
 		Name	= reader.ReadASCII();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteASCII(Entity);
 		writer.WriteASCII(Name);
@@ -387,8 +387,8 @@ public class AssetBalanceNnr : Result, IBinarySerializable
 {
 	public BigInteger	Balance {get; set;}
 
-	public void			Read(BinaryReader reader) => Balance = reader.ReadBigInteger();
-	public void			Write(BinaryWriter writer) => writer.Write(Balance);
+	public void			Read(Reader reader) => Balance = reader.ReadBigInteger();
+	public void			Write(Writer writer) => writer.Write(Balance);
 }
 
 public class AssetTransferNna : NnpArgumentation
@@ -398,7 +398,7 @@ public class AssetTransferNna : NnpArgumentation
 	public string			Name { get; set; }
 	public string			Amount { get; set; }
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		FromEntity	= reader.ReadASCII();
 		ToEntity	= reader.ReadASCII();
@@ -406,7 +406,7 @@ public class AssetTransferNna : NnpArgumentation
 		Amount		= reader.ReadASCII();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteASCII(FromEntity);
 		writer.WriteASCII(ToEntity);
@@ -419,7 +419,7 @@ public class AssetTransferNnr : Result, IBinarySerializable
 {
 	public byte[]	TransactionId { get; set; }
 
-	public  void Read(BinaryReader reader) => TransactionId = reader.ReadBytes();
-	public  void Write(BinaryWriter writer) => writer.WriteBytes(TransactionId);
+	public  void Read(Reader reader) => TransactionId = reader.ReadBytes();
+	public  void Write(Writer writer) => writer.WriteBytes(TransactionId);
 }
 

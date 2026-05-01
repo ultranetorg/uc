@@ -29,7 +29,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 
 	public override Hello WaitHello(TcpClient client)
 	{
-		var r = new BinaryReader(client.GetStream());
+		var r = new Reader(client.GetStream());
 		var h = new NnHello();
 
 		h.Read(r);

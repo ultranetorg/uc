@@ -13,13 +13,13 @@ public class UserCreation : Operation
 		return (Pow == null || Pow.Length <= 32) && Owner != null;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Pow = reader.ReadBytes();
 		Owner = reader.Read<AccountAddress>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteBytes(Pow);
 		writer.Write(Owner);

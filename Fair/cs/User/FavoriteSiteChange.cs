@@ -16,13 +16,13 @@ public class FavoriteSiteChange : FairOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Site = reader.Read<AutoId>();
 		Action = reader.ReadBoolean();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Site);
 		writer.Write(Action);

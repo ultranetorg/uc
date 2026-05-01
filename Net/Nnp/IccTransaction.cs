@@ -7,12 +7,12 @@ public abstract class IccTransaction : IBinarySerializable
 	public abstract void	OutgoingExecute(Execution execution);
 	public abstract void	IncomingExecute(Execution execution);
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.WriteASCII(ToNet);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		ToNet = reader.ReadASCII();
 	}
@@ -22,11 +22,11 @@ public abstract class IccTransaction : IBinarySerializable
 // {
 // 	public IccOperation	Operations;
 // 
-// 	public void Write(BinaryWriter writer)
+// 	public void Write(Writer writer)
 // 	{
 // 	}
 // 
-// 	public void Read(BinaryReader reader)
+// 	public void Read(Reader reader)
 // 	{
 // 	}
 // }
@@ -47,7 +47,7 @@ public class IccTransfer : IBinarySerializable
 		Constructor = constructor;
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(Transactions, i =>	{
@@ -56,7 +56,7 @@ public class IccTransfer : IBinarySerializable
 										});
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id = reader.Read7BitEncodedInt();
 		Transactions = reader.ReadArray(() =>	{

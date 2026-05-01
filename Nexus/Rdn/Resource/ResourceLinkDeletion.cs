@@ -18,13 +18,13 @@ public class ResourceLinkDeletion : RdnOperation
 		Index = Index;
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Source);
 		writer.Write7BitEncodedInt(Index);
 	}
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Source	= reader.Read<AutoId>();
 		Index	= reader.Read7BitEncodedInt();

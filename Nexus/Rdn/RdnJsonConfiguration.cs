@@ -147,7 +147,7 @@ public class HttpGetApc : RdnApc
 
 			switch(ra)
 			{ 
-				case Urrh x :
+				case Rrrh x :
 					if(r.Data.Type.Control == DataType.File)
 					{
 						itg = new DHIntegrity(x.Hash); 

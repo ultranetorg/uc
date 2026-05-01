@@ -12,14 +12,14 @@ public class ProposalCommentCreation : FairOperation
 
 	public override bool		IsValid(McvNet net) => Text.Length <= Fair.PostLengthMaximum;
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Proposal	= reader.Read<AutoId>();
 		Author		= reader.ReadNullable<AutoId>();
 		Text		= reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Proposal);
 		writer.WriteNullable(Author);

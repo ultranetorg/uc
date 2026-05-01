@@ -78,7 +78,7 @@ public abstract class Cryptography
 	public static byte[] Hash(IEnumerable<IBinarySerializable> items)
 	{
 		var s = new Blake2Stream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 		
 		foreach(var i in items)
 			i.Write(w);

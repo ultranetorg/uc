@@ -120,14 +120,14 @@ public class Snp : IBinarySerializable, IEquatable<Snp>  /// Universal Network/E
 		return !(left == right);
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.WriteUtf8(Scheme);
 		writer.WriteUtf8(Net);
 		writer.WriteUtf8(Path);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Scheme	= reader.ReadUtf8();
 		Net		= reader.ReadUtf8();

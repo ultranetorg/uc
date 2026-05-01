@@ -11,8 +11,9 @@ class Program
 		//IdTests.Main();
 		//MoneyTests.Main();
 		//AccountKeyTests.Main();
-		XonTest.Basic();
+		//XonTest.Basic();
 		//ECTests.Move();
+		Serialization.Main();
 
 		//UraTests.UAddresses();
 		//UraTests.Resource();

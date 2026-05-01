@@ -23,13 +23,13 @@ public struct TransactionId : IBinarySerializable, IEquatable<TransactionId>, IC
 		return $"{Ri}-{Ti}";
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Ri	= reader.Read7BitEncodedInt();
 		Ti	= reader.Read7BitEncodedInt();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Ri);
 		writer.Write7BitEncodedInt(Ti);

@@ -64,7 +64,7 @@ public abstract class McvPeering : HomoPeering
 		VaultApi = vaultapi;
 
 		Constructor.Register<PeerRequest> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<Result> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<Result>	  (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 
 		Constructor.Register(() => new Transaction {Net = Net});
 		Constructor.Register(() => new Vote(Mcv));
@@ -288,7 +288,7 @@ public abstract class McvPeering : HomoPeering
 		
 					var r = Mcv.CreateRound();
 					r.Confirmed = true;
-					r.ReadGraphState(new BinaryReader(new MemoryStream(stamp.GraphState)));
+					r.ReadGraphState(new Reader(stamp.GraphState));
 		
 					var s = Call(peer, new StampPpc(), Flow);
 	

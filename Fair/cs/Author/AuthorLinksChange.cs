@@ -9,14 +9,14 @@ public class AuthorLinksChange : FairOperation
 	public override bool			IsValid(McvNet net) => Additions.Any() || Removals.Any();
 	public override string			Explanation => $"Author={Author} Additions={Additions.Length} Removals={Removals.Length}";
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Author		= reader.Read<AutoId>();
 		Additions	= reader.ReadStrings();
 		Removals	= reader.ReadStrings();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Author);
 		writer.Write(Additions);

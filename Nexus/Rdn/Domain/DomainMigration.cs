@@ -28,26 +28,26 @@ public class DomainMigration : OutwardOperation
 		return true;
 	}
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Name		= reader.ReadUtf8();
 		Tld			= reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Tld);
 	}
 
-	//public void WriteBaseState(BinaryWriter writer)
+	//public void WriteBaseState(Writer writer)
 	//{
 	//	writer.Write(UserId);
 	//	writer.WriteUtf8(Name);
 	//	writer.Write(Generator);
 	//}
 	//
-	//public void ReadBaseState(BinaryReader reader)
+	//public void ReadBaseState(Reader reader)
 	//{
 	//	UserId		= reader.Read<AutoId>();
 	//	Name		= reader.ReadUtf8();

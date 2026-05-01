@@ -29,14 +29,14 @@ public class Endpoint : IBinarySerializable, IEquatable<Endpoint>
 		return $"{IP}:{Port}";
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		IP = reader.ReadIPAddress();
 		Port = reader.ReadUInt16();
 		//Roles = reader.Read7BitEncodedInt64();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(IP);
 		writer.Write(Port);

@@ -66,13 +66,13 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 		return !(left == right);
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Control);
 		writer.Write7BitEncodedInt((int)Content);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Control	= reader.ReadUInt16();
 		Content = (ContentType)reader.Read7BitEncodedInt();
@@ -107,7 +107,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
  		get
  		{
  			var s = new MemoryStream();
- 			var w = new BinaryWriter(s);
+ 			var w = new Writer(s);
  			
 			Write(w);
  		
@@ -119,7 +119,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 	{
 	}
 
-	public ResourceData(BinaryReader reader)
+	public ResourceData(Reader reader)
 	{
 		Read(reader);
 	}
@@ -139,8 +139,8 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 			case Urr s:			return Encoding.UTF8.GetBytes(s.ToString());
 			case Ura s:			return Encoding.UTF8.GetBytes(s.ToString());
 			case AprvAddress s:	return Encoding.UTF8.GetBytes(s.ToString());
-			case Consil a:		return (a as IBinarySerializable).Raw;
-			case Analysis a:	return (a as IBinarySerializable).Raw;
+			case Consil a:		return (a as IBinarySerializable).ToRaw();
+			case Analysis a:	return (a as IBinarySerializable).ToRaw();
 
 			default :
 				throw new ResourceException(ResourceError.UnknownDataType);
@@ -154,7 +154,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 
 	public T Read<T>() where T : IBinarySerializable, new()
 	{
-		return new BinaryReader(new MemoryStream(Value)).Read<T>();
+		return new Reader(Value).Read<T>();
 	}
 
 	public T Parse<T>()
@@ -162,13 +162,13 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 		return (T) typeof(T).GetMethod("Parse", [typeof(string)]).Invoke(null, [Encoding.UTF8.GetString(Value)]);
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Type);
 		writer.WriteBytes(Value);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Type	= reader.Read<DataType>();
 		Value	= reader.ReadBytes();
@@ -205,7 +205,7 @@ public class ResourceDataJsonConverter : JsonConverter<ResourceData>
 {
 	public override ResourceData Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		return new ResourceData(new BinaryReader(new MemoryStream(reader.GetString().FromHex())));
+		return new ResourceData(new Reader(reader.GetString().FromHex()));
 	}
 
 	public override void Write(Utf8JsonWriter writer, ResourceData value, JsonSerializerOptions options)

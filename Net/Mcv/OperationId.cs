@@ -31,7 +31,7 @@ public struct OperationId : IBinarySerializable, IEquatable<OperationId>, ICompa
 			if(_Serial == null)
 			{
 				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
+				var w = new Writer(s);
 				Write(w);
 
 				_Serial = s.ToArray();
@@ -42,14 +42,14 @@ public struct OperationId : IBinarySerializable, IEquatable<OperationId>, ICompa
 	}
 
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Ri	= reader.Read7BitEncodedInt();
 		Ti	= reader.Read7BitEncodedInt();
 		Oi	= reader.Read7BitEncodedInt();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Ri);
 		writer.Write7BitEncodedInt(Ti);

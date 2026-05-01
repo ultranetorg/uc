@@ -39,7 +39,7 @@ public class ResourceUpdation : RdnOperation
 		Changes |= ResourceChanges.Recursive;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Resource	= reader.Read<AutoId>();
 		Changes		= (ResourceChanges)reader.ReadByte();
@@ -47,7 +47,7 @@ public class ResourceUpdation : RdnOperation
 		if(Changes.HasFlag(ResourceChanges.SetData))	Data = reader.Read<ResourceData>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Resource);
 		writer.Write((byte)Changes);

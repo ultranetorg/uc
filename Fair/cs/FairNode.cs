@@ -10,7 +10,6 @@ public class FairNode : McvNode
 
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
-	LcpConnection					NnConnection;
 
 	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
 	{
@@ -35,8 +34,6 @@ public class FairNode : McvNode
 				WebServer = new WebServer(this, null);
 			}
 		}
-
-		NnConnection = new FairNnpLcpConnection(this, Flow);
 		
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
@@ -63,7 +60,6 @@ public class FairNode : McvNode
 		WebServer?.Stop();
 		ApiServer?.Stop();
 		Peering.Stop();
-		NnConnection?.Disconnect();
 		Mcv?.Stop();
 
 		base.Stop();

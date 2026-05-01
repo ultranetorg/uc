@@ -80,12 +80,12 @@ public struct Time : IBinarySerializable
 		return new Time(days * (int)TimeSpan.SecondsPerDay);
 	}
 
-	public void Read(BinaryReader r)
+	public void Read(Reader r)
 	{
 		Seconds = r.Read7BitEncodedInt();
 	}
 
-	public void Write(BinaryWriter w)
+	public void Write(Writer w)
 	{
 		w.Write7BitEncodedInt(Seconds);
 	}

@@ -132,14 +132,14 @@ public class ApvAddress : IBinarySerializable, IComparable, IComparable<ApvAddre
 			return Version.CompareTo(o.Version);
 	}
 	
-	public virtual void Write(BinaryWriter w)
+	public virtual void Write(Writer w)
 	{
 		w.WriteUtf8(Author);
 		w.WriteUtf8(Product);
 		w.WriteUtf8(Version);
 	}
 
-	public virtual void Read(BinaryReader r)
+	public virtual void Read(Reader r)
 	{
 		Author = r.ReadUtf8();
 		Product = r.ReadUtf8();

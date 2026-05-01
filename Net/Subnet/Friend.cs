@@ -73,17 +73,17 @@ public class Friend : IBinarySerializable, ITableEntry
 		return true; //state.Peers.Length > PeersMaximum;
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.WriteASCII(Name);
@@ -94,7 +94,7 @@ public class Friend : IBinarySerializable, ITableEntry
 		writer.Write(OutStatus);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id						= reader.Read<AutoId>();
 		Name					= reader.ReadASCII();

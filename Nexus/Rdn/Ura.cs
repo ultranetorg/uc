@@ -153,7 +153,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 		return a;
 	}
 
-	public void Write(BinaryWriter w)
+	public void Write(Writer w)
 	{
 		w.Write((byte)(Net != null ? 0b1 : 0));
 		
@@ -164,7 +164,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 		w.WriteUtf8(Resource);
 	}
 
-	public void Read(BinaryReader r)
+	public void Read(Reader r)
 	{
 		var b = r.ReadByte();
 		

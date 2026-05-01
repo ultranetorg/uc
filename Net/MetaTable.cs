@@ -44,13 +44,13 @@ public class MetaId : EntityId
 		return Type;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Type = reader.Read7BitEncodedInt();
 		Index = reader.ReadBytes() ?? [];
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Type);
 		writer.WriteBytes(Index);
@@ -107,13 +107,13 @@ public class MetaEntity : IBinarySerializable, ITableEntry
 		return $"{Id}, {Value}";
 	}
 
-	public virtual void Write(BinaryWriter writer)
+	public virtual void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.WriteBytes(Value);
 	}
 
-	public virtual void Read(BinaryReader reader)
+	public virtual void Read(Reader reader)
 	{
 		Id		= reader.Read<MetaId>();
 		Value	= reader.ReadBytes();
@@ -138,14 +138,14 @@ public class MetaEntity : IBinarySerializable, ITableEntry
 		return a;
 	}
 
-	public virtual void WriteMain(BinaryWriter w)
+	public virtual void WriteMain(Writer writer)
 	{
-		Write(w);
+		Write(writer);
 	}
 
-	public virtual void ReadMain(BinaryReader r)
+	public virtual void ReadMain(Reader reader)
 	{
-		Read(r);
+		Read(reader);
 	}
 
 	public void Cleanup(Round lastInCommit)

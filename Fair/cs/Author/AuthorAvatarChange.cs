@@ -16,13 +16,13 @@ public class AuthorAvatarChange : FairOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Author	= reader.Read<AutoId>();
 		File	= reader.Read<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Author);
 		writer.Write(File);

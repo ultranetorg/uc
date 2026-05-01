@@ -46,12 +46,12 @@ public class Category : IBinarySerializable, ITableEntry
 				};
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
@@ -60,7 +60,7 @@ public class Category : IBinarySerializable, ITableEntry
 	{
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id				= reader.Read<AutoId>();
 		Site			= reader.Read<AutoId>();
@@ -72,7 +72,7 @@ public class Category : IBinarySerializable, ITableEntry
 		Avatar			= reader.ReadNullable<AutoId>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write(Site);

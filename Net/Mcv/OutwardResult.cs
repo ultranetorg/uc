@@ -6,14 +6,14 @@ public struct OutwardResult : IBinarySerializable, IEquatable<OutwardResult>, IC
 	public int			Id;
 	public bool			Approved;
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		User		= reader.Read<AutoId>();
 		Id			= reader.Read7BitEncodedInt();
 		Approved	= reader.ReadBoolean();	
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(User);
 		writer.Write7BitEncodedInt(Id);

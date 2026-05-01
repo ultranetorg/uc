@@ -103,7 +103,7 @@ public class PackageDownload
 
 										switch(last.Data.Parse<Urr>())
 										{ 
-											case Urrh u:
+											case Rrrh u:
 												itg = new DHIntegrity(u.Hash); 
 												break;
 

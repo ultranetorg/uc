@@ -12,14 +12,14 @@ public class AuthorTextChange : FairOperation
 														(Description == null || Description.Length <= Fair.PostLengthMaximum);
 	public override string		Explanation => $"Description={Description}, Description={Description}";
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Author		= reader.Read<AutoId>();
 		Title		= reader.ReadUtf8();
 		Description	= reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Author);
 		writer.WriteUtf8(Title);

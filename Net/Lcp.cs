@@ -19,8 +19,8 @@ public abstract class LcpConnection
 {
 	protected IProgram				Program;
 	public PipeStream				Pipe;
-	public BinaryReader				Reader;
-	public BinaryWriter				Writer;
+	public Reader					Reader;
+	public Writer					Writer;
 	protected List<LcpRequest>		OutRequests = new();
 	protected LcpServer				Server;
 	protected int					IdCounter = 0;
@@ -30,23 +30,26 @@ public abstract class LcpConnection
 	public Func<string, string, NnpArgumentation, Result>	Handler;
 
 	public abstract void			Listen();
+	public abstract void			BuildConstructor();
 
-	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow, Constructor constructor)
+	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Constructor constructor, Flow flow)
 	{
 		Program		= program;
 		Pipe		= pipe;
 		Server		= server; 
-		Constructor	= constructor;
+		Constructor = constructor;
 		Flow		= flow.CreateNested();;
 
-		Reader = new BinaryReader(pipe);
-		Writer = new BinaryWriter(pipe);
+		Reader = new Reader(Pipe, Constructor);
+		Writer = new Writer(Pipe, Constructor);
 	}
 
 	public LcpConnection(IProgram program, string name, Flow flow)
 	{
 		Program	= program;
 		Flow	= flow.CreateNested(name);
+
+		BuildConstructor();
 
 		var t = program.CreateThread(() =>	{ 
 												while(Flow.Active)
@@ -60,8 +63,8 @@ public abstract class LcpConnection
 	
 														pipe.ConnectAsync(Flow.Cancellation).Wait();
 	
-														Reader = new BinaryReader(pipe);
-														Writer = new BinaryWriter(pipe);
+														Reader = new Reader(pipe, Constructor);
+														Writer = new Writer(pipe, Constructor);
 	
 														Established();
 														Listen();

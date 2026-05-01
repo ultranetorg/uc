@@ -61,17 +61,17 @@ public static class Extentions
 // 			return e.OrderBy(i => Cryptography.Hash(i.Generator.Bytes, hash), Bytes.Comparer);
 // 		}
 
-	public static byte[] ReadHash(this BinaryReader r)
+	public static byte[] ReadHash(this Reader r)
 	{
 		return r.ReadBytes(Cryptography.HashLength);
 	}
 
-	public static byte[] ReadSignature(this BinaryReader r)
+	public static byte[] ReadSignature(this Reader r)
 	{
 		return r.ReadBytes(Cryptography.SignatureLength);
 	}
 
-	public static AccountAddress ReadAccount(this BinaryReader r)
+	public static AccountAddress ReadAccount(this Reader r)
 	{
 		var a = new AccountAddress();
 		a.Read(r);

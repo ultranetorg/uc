@@ -88,7 +88,7 @@ public class Vote : IBinarySerializable
 			if(_RawPayload == null)
 			{
 				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
+				var w = new Writer(s);
 
 				WritePayload(w);
 
@@ -126,7 +126,7 @@ public class Vote : IBinarySerializable
 	public byte[] Hashify()
 	{
 		var s = new Blake2Stream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 
 		w.Write((byte)Mcv.Net.Zone);
 		w.WriteUtf8(Mcv.Net.Address);
@@ -137,7 +137,7 @@ public class Vote : IBinarySerializable
 		return s.Hash;
 	}
 
-	protected virtual void WritePayload(BinaryWriter writer)
+	protected virtual void WritePayload(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Try);
 		writer.Write(Time);
@@ -155,7 +155,7 @@ public class Vote : IBinarySerializable
 		writer.Write(OutwardResults);
 	}
 
-	protected virtual void ReadPayload(BinaryReader reader)
+	protected virtual void ReadPayload(Reader reader)
 	{
 		Try							= reader.Read7BitEncodedInt();
 		Time						= reader.Read<Time>();
@@ -177,7 +177,7 @@ public class Vote : IBinarySerializable
 		OutwardResults				= reader.ReadArray<OutwardResult>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(RoundId);
 		writer.Write(User);
@@ -185,7 +185,7 @@ public class Vote : IBinarySerializable
 		writer.WriteBytes(RawPayload);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		RoundId		= reader.Read7BitEncodedInt();
 		User		= reader.Read<AutoId>();
@@ -193,14 +193,14 @@ public class Vote : IBinarySerializable
 		_RawPayload	= reader.ReadBytes();
 	}
 
-//	public void WriteForRoundUnconfirmed(BinaryWriter writer)
+//	public void WriteForRoundUnconfirmed(Writer writer)
 //	{
 //		writer.Write(Signature);
 //		writer.Write(Signer);
 //		WritePayload(writer);
 //	}
 //
-//	public void ReadForRoundUnconfirmed(BinaryReader reader)
+//	public void ReadForRoundUnconfirmed(Reader reader)
 //	{
 //		Signature	= reader.ReadSignature();
 //		_Generator	= reader.ReadAccount();
@@ -211,7 +211,7 @@ public class Vote : IBinarySerializable
 	{
 		if(!Restored)
 		{
-			ReadPayload(new BinaryReader(new MemoryStream(RawPayload)));
+			ReadPayload(new Reader(RawPayload));
 		}
 	}
 

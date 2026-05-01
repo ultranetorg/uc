@@ -138,7 +138,7 @@ public abstract class Mcv /// Mutual chain voting
 			}
 			else
 			{
-				if(g.SequenceEqual((new Genesis() as IBinarySerializable).Raw))
+				if(g.SequenceEqual((new Genesis() as IBinarySerializable).ToRaw()))
 				{
 					Load();
 				}
@@ -196,7 +196,7 @@ public abstract class Mcv /// Mutual chain voting
 				throw new IntegrityException("Genesis construction failed");
 		}
 	
-		Rocks.Put(GenesisKey, (new Genesis() as IBinarySerializable).Raw);
+		Rocks.Put(GenesisKey, (new Genesis() as IBinarySerializable).ToRaw());
 	}
 
 	public void Load()
@@ -205,7 +205,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(GraphState != null)
 		{
-			var r = new BinaryReader(new MemoryStream(GraphState));
+			var r = new Reader(GraphState);
 	
 			LastCommitedRound = CreateRound();
 			LastCommitedRound.ReadGraphState(r);
@@ -552,7 +552,7 @@ if(round.VotesOfTry.Count() < round.MinimumForConsensus)
 			r.Id			= rid; 
 			r.Confirmed		= true;
 
-			r.Load(new BinaryReader(new MemoryStream(d)));
+			r.Load(new Reader(d));
 
 			InsertRound(r);
 			
@@ -655,7 +655,7 @@ if(round.VotesOfTry.Count() < round.MinimumForConsensus)
 			LastCommitedRound = round;
 					
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 	
 			LastCommitedRound.WriteGraphState(w);
 	
@@ -670,14 +670,14 @@ if(round.VotesOfTry.Count() < round.MinimumForConsensus)
 		if(Settings.Chain != null)
 		{
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 
 			w.Write7BitEncodedInt(round.Id);
 
 			b.Put(ChainStateKey, s.ToArray());
 
 			s = new MemoryStream();
-			w = new BinaryWriter(s);
+			w = new Writer(s);
 	
 			round.Save(w);
 	

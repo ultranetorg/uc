@@ -29,7 +29,7 @@ public class ReleaseCommand : RdnCommand
 															 {	
 																Sources = Args.Where(i => i.Name == "source").Select(i => i.Get<string>()),
 																AddressCreator = new()	{	
-																							Type = GetEnum("addresstype", UrrScheme.Urrh),
+																							Type = GetEnum("addresstype", UrrScheme.Rrrh),
 																							//Owner = GetAccountAddress("owner", false),
 																							//Resource = Ura.Parse(Args[0].Name)
 																						}

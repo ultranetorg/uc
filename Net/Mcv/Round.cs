@@ -22,7 +22,7 @@ public class OutwardTransaction
 		Net = net;
 	}
 
-	public virtual void WriteBaseState(BinaryWriter writer)
+	public virtual void WriteBaseState(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(User);
@@ -32,7 +32,7 @@ public class OutwardTransaction
 		Operation.Write(writer); 
 	}
 
-	public virtual void ReadBaseState(BinaryReader reader)
+	public virtual void ReadBaseState(Reader reader)
 	{
 		Id			= reader.Read7BitEncodedInt();
 		User		= reader.Read<AutoId>();
@@ -710,7 +710,7 @@ public abstract class Round : IBinarySerializable
 	public void Hashify()
 	{
 		var s = new Blake2Stream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 
 		w.Write(Mcv.GraphHash);
 		w.Write(Id > 0 ? Previous.Hash : Mcv.Net.Cryptography.ZeroHash);
@@ -719,7 +719,7 @@ public abstract class Round : IBinarySerializable
 		Hash = s.Hash;
 	}
 
-	public virtual void WriteGraphState(BinaryWriter writer)
+	public virtual void WriteGraphState(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(Hash);
@@ -736,7 +736,7 @@ public abstract class Round : IBinarySerializable
 											});
 	}
 
-	public virtual void ReadGraphState(BinaryReader reader)
+	public virtual void ReadGraphState(Reader reader)
 	{
 		Id						= reader.Read7BitEncodedInt();
 		Hash					= reader.ReadHash();
@@ -758,7 +758,7 @@ public abstract class Round : IBinarySerializable
  														});
 	}
 
-	public virtual void Write(BinaryWriter writer)
+	public virtual void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(ConsensusTime);
@@ -773,7 +773,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write(ConsensusOutwards);
 	}
 
-	public virtual void Read(BinaryReader reader)
+	public virtual void Read(Reader reader)
 	{
 		Id										= reader.Read7BitEncodedInt();
 		ConsensusTime							= reader.Read<Time>();
@@ -788,13 +788,13 @@ public abstract class Round : IBinarySerializable
 		ConsensusOutwards						= reader.ReadArray<OutwardResult>();
 	}
 
-	public void Save(BinaryWriter writer)
+	public void Save(Writer writer)
 	{
 		Write(writer);
 		writer.Write(Hash);
 	}
 
-	public void Load(BinaryReader reader)
+	public void Load(Reader reader)
 	{
 		Read(reader);
 		Hash = reader.ReadHash();

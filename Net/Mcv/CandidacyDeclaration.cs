@@ -14,12 +14,12 @@ public class CandidacyDeclaration : Operation
 
 	public override bool IsValid(McvNet net) => true;
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		GraphEPs = reader.ReadArray<Endpoint>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(GraphEPs);
 	}

@@ -46,13 +46,13 @@ public class ResourceLink : IBinarySerializable
 		return new ResourceLink {Destination = Destination, Type = Type};
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Destination	= reader.Read<AutoId>();
 		Type		= reader.Read<ResourceLinkType>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Destination);
 		writer.Write(Type);
@@ -109,7 +109,7 @@ public class Resource : ITableEntry
 				};
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write7BitEncodedInt(Domain.I);
@@ -124,7 +124,7 @@ public class Resource : ITableEntry
 		writer.Write(Inbounds);
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Id		= reader.Read<AutoId>();
 		Domain	= new (Id.B, reader.Read7BitEncodedInt());

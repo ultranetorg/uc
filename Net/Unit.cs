@@ -121,7 +121,7 @@ public struct Unit : IComparable, IComparable<Unit>, IEquatable<Unit>, IBinarySe
 		return m; 
 	}
 
-	public Unit(BinaryReader r)
+	public Unit(Reader r)
 	{
 		if (r == null)
 		{
@@ -152,7 +152,7 @@ public struct Unit : IComparable, IComparable<Unit>, IEquatable<Unit>, IBinarySe
 		return Attos.Equals(o.Attos);
 	}
 
-	public void Write(BinaryWriter w)
+	public void Write(Writer w)
 	{
 		if(w == null)
 		{
@@ -163,7 +163,7 @@ public struct Unit : IComparable, IComparable<Unit>, IEquatable<Unit>, IBinarySe
 		w.Write(Attos.ToByteArray());
 	}
 
-	public void Read(BinaryReader r)
+	public void Read(Reader r)
 	{
 		if(r == null)
 		{

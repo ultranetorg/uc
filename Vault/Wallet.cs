@@ -24,7 +24,7 @@ public class Authentication : IBinarySerializable
 	{
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		User		= reader.ReadUtf8();
 		Application = reader.ReadUtf8();
@@ -34,7 +34,7 @@ public class Authentication : IBinarySerializable
 		Session		= reader.ReadBytes();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.WriteUtf8(User);
 		writer.WriteUtf8(Application);
@@ -47,7 +47,7 @@ public class Authentication : IBinarySerializable
 	public byte[] Hashify()
 	{
 		var s = new Blake2Stream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 
 		w.WriteUtf8(User);
 		w.WriteUtf8(Application);
@@ -137,14 +137,14 @@ public class WalletAccount : IBinarySerializable
 		Wallet.Save();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.WriteUtf8(Name);
 		writer.Write(Key.Secret);
 		writer.Write(Authentications);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Name			= reader.ReadUtf8();
 		Key				= new AccountKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
@@ -171,7 +171,7 @@ public class Wallet
 		Name = name ?? Default;
 		Vault = vault;
 
-		var r = new BinaryReader(new MemoryStream(data));
+		var r = new Reader(data);
 		
 		AuthenticationHashes = r.ReadList(() => r.ReadBytes(Cryptography.HashLength));
 		Encrypted			 = r.ReadBytes();
@@ -191,7 +191,7 @@ public class Wallet
 			throw new VaultException(VaultError.Locked);
 
 		var es = new MemoryStream();
-		var ew = new BinaryWriter(es);
+		var ew = new Writer(es);
 
 		ew.Write(Accounts);
 
@@ -201,7 +201,7 @@ public class Wallet
 	public byte[] ToRaw()
 	{
 		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 
 		w.Write(AuthenticationHashes, w.Write);
 		w.WriteBytes(Encrypted ?? Encrypt());
@@ -266,7 +266,7 @@ public class Wallet
 
 		var de = Vault.Decrypt(Encrypted, password);
 
-		var r = new BinaryReader(new MemoryStream(de));
+		var r = new Reader(de);
 
 		Accounts = r.ReadList(() => { var a = new WalletAccount(this); a.Read(r); return a; });
 

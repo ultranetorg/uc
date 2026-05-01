@@ -39,7 +39,7 @@ public class Version : IEquatable<Version>, IComparable, IBinarySerializable, IT
 		return v;
 	}
 
-// 		public static Version Read(BinaryReader r)
+// 		public static Version Read(Reader r)
 // 		{
 // 			return new Version
 // 					{	
@@ -80,14 +80,14 @@ public class Version : IEquatable<Version>, IComparable, IBinarySerializable, IT
 			return 0;
 	}
 
-	public void Read(BinaryReader r)
+	public void Read(Reader r)
 	{
 		Era = r.Read7BitEncodedInt();
 		Upgrade = r.Read7BitEncodedInt(); 
 		Bugfix = r.Read7BitEncodedInt();
 	}
 
-	public void Write(BinaryWriter w)
+	public void Write(Writer w)
 	{
 		w.Write7BitEncodedInt(Era);
 		w.Write7BitEncodedInt(Upgrade);

@@ -12,13 +12,13 @@ public enum ReviewStatus : byte
 //	public EntityId		Review { get; set; }
 //	public byte			Version { get; set; }
 //
-//	public void Read(BinaryReader reader)
+//	public void Read(Reader reader)
 //	{
 //		Review = reader.Read<EntityId>();
 //		Version = reader.ReadByte();
 //	}
 //
-//	public void Write(BinaryWriter writer)
+//	public void Write(Writer writer)
 //	{
 //		writer.Write(Review);
 //		writer.Write(Version);
@@ -60,12 +60,12 @@ public class Review : IBinarySerializable, ITableEntry
 	}
 		
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
@@ -74,25 +74,25 @@ public class Review : IBinarySerializable, ITableEntry
 	{
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id			= reader.Read<AutoId>();
 		Publication	= reader.Read<AutoId>();
 		Creator		= reader.Read<AutoId>();
 		Status		= reader.Read<ReviewStatus>();
 		Rating		= reader.ReadByte();
-		Text		= reader.ReadString();
+		Text		= reader.ReadUtf8();
 		Created		= reader.Read<Time>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write(Publication);
 		writer.Write(Creator);
 		writer.Write(Status);
 		writer.Write(Rating);
-		writer.Write(Text);
+		writer.WriteUtf8(Text);
 		writer.Write(Created);
 	}
 }

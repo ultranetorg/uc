@@ -17,7 +17,7 @@ public class NnpLcpConnection : LcpConnection
 	public static string GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();
 	public string Net;
 
-	public NnpLcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow, Constructor constructor) : base(program, pipe, server, flow, constructor)
+	public NnpLcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Constructor constructor, Flow flow) : base(program, pipe, server, constructor, flow)
 	{
 	}
 
@@ -42,6 +42,14 @@ public class NnpLcpConnection : LcpConnection
 
 										return m(to, a);
 									};
+	}
+
+	public override void BuildConstructor()
+	{
+		Constructor = new ();
+		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
+		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
+		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	TFunc CreateAdapter<TFunc>(MethodInfo mi) where TFunc : Delegate
@@ -90,7 +98,7 @@ public class NnpLcpConnection : LcpConnection
 	
 			lock(Writer)
 			{
-				Writer.Write((byte)PacketType.Response);
+				Writer.Write(PacketType.Response);
 				Writer.Write(request.Id);
 				Writer.Write(Constructor.TypeToCode(r.GetType()));
 				(r as IBinarySerializable).Write(Writer); 
@@ -101,16 +109,16 @@ public class NnpLcpConnection : LcpConnection
 		{
 			lock(Writer)
 			{
-				Writer.Write((byte)PacketType.Failure);
+				Writer.Write(PacketType.Failure);
 				Writer.Write(request.Id);
 				
 				if(ex is CodeException)
 				{
-					BinarySerializator.Serialize(Writer, ex, Constructor.TypeToCode);
+					BinarySerializator.Serialize(Writer, ex);
 				} 
 				else
 				{
-					BinarySerializator.Serialize(Writer, new NnpException(NnpError.ExcutionFailed), Constructor.TypeToCode);
+					BinarySerializator.Serialize(Writer, new NnpException(NnpError.ExcutionFailed));
 				}
 			}
 		}
@@ -170,7 +178,7 @@ public class NnpLcpConnection : LcpConnection
  					case PacketType.Failure:
  					{
 						var id = Reader.ReadInt32();
-						var ex = BinarySerializator.Deserialize<CodeException>(Reader, Constructor.Construct);
+						var ex = BinarySerializator.Deserialize<CodeException>(Reader);
 
 						lock(OutRequests)
 						{
@@ -274,10 +282,6 @@ public class NnpLcpClientConnection : NnpLcpConnection
 
 	public NnpLcpClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
-		Constructor = new ();
-		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
-		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
-		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	public override void Established()
@@ -299,9 +303,9 @@ public class NnpLcpClientConnection : NnpLcpConnection
 	public virtual Result Request(string to, PeerRequest request, Flow flow)
 	{
 		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s, Constructor);
 
-		BinarySerializator.Serialize(w, request, Constructor.TypeToCode);
+		BinarySerializator.Serialize(w, request);
 
 		var rp = Call(	to,
 						new RequestNna()
@@ -312,9 +316,9 @@ public class NnpLcpClientConnection : NnpLcpConnection
 						flow) as RequestNnr;
 
 		
-		var r = new BinaryReader(new MemoryStream(rp.Response));
+		var r = new Reader(new MemoryStream(rp.Response), Constructor);
 		
-		return BinarySerializator.Deserialize<Result>(r, Constructor.Construct);
+		return BinarySerializator.Deserialize<Result>(r);
 	}
 }
 
@@ -322,9 +326,5 @@ public class NnpLcpNodeConnection : NnpLcpConnection
 {
 	public NnpLcpNodeConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
-		Constructor = new ();
-		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
-		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
-		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 }

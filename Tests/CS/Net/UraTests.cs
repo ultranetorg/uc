@@ -62,9 +62,9 @@ public static class UraTests
 	[Fact]
 	public static void Release()
 	{
-		var a = new Urrh { Hash = RandomBytes(32) };
-		var ac = new Urrh{ Hash = a.Hash.ToArray() };
-		var b = new Urrh { Hash = RandomBytes(32) };
+		var a = new Rrrh { Hash = RandomBytes(32) };
+		var ac = new Rrrh{ Hash = a.Hash.ToArray() };
+		var b = new Rrrh { Hash = RandomBytes(32) };
 		 
 		//var x = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = RandomBytes(65) };
 		//var xc = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = x.Signature.ToArray() };

@@ -63,8 +63,8 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	
 	public abstract bool		IsValid(McvNet net);
 	public abstract void		Execute(Execution execution);
-	public abstract void		Write(BinaryWriter w);
-	public abstract void		Read(BinaryReader r);
+	public abstract void		Write(Writer w);
+	public abstract void		Read(Reader r);
 
 	public Operation()
 	{

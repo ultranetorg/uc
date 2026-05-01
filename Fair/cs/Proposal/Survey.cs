@@ -16,14 +16,14 @@ public class SurveyOption : IBinarySerializable
 		Yes			= [];
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Operation = Fair.OContructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as SiteOperation;
  		Operation.Read(reader); 
  		Yes = reader.ReadArray<AutoId>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Fair.OCodes[Operation.GetType()]);
 		Operation.Write(writer);
@@ -55,24 +55,24 @@ public class PerpetualSurvey : IBinarySerializable
 		return a;
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		LastWin			= reader.ReadSByte();
 		Options			= reader.ReadArray<SurveyOption>();
 		Comments		= reader.ReadArray<AutoId>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(LastWin);
 		writer.Write(Options);
@@ -104,24 +104,24 @@ public class PerpetualSurvey : IBinarySerializable
 //		return a;
 //	}
 //
-//	public void ReadMain(BinaryReader reader)
+//	public void ReadMain(Reader reader)
 //	{
 //		Read(reader);
 //	}
 //
-//	public void WriteMain(BinaryWriter writer)
+//	public void WriteMain(Writer writer)
 //	{
 //		Write(writer);
 //	}
 //
-//	public void Read(BinaryReader reader)
+//	public void Read(Reader reader)
 //	{
 //		LastWin			= reader.ReadSByte();
 //		Options			= reader.ReadArray<SurveyOption>();
 //		Comments		= reader.ReadArray<AutoId>();
 //	}
 //
-//	public void Write(BinaryWriter writer)
+//	public void Write(Writer writer)
 //	{
 //		writer.Write(LastWin);
 //		writer.Write(Options);

@@ -49,7 +49,7 @@ public class ResourceDownloadApc : RdnApc
 
 		switch(urr)
 		{ 
-			case Urrh a :
+			case Rrrh a :
 				itg = new DHIntegrity(a.Hash); 
 				break;
 

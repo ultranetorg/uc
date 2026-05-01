@@ -18,12 +18,12 @@ public class UserAvatarChange : FairOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Image = reader.ReadBytes();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteBytes(Image);
 	}

@@ -36,7 +36,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 
 	public override Hello WaitHello(TcpClient client)
 	{
-		var r = new BinaryReader(client.GetStream());
+		var r = new Reader(client.GetStream());
 		var h = new HomoHello();
 
 		h.Read(r);
@@ -159,7 +159,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
  				var p = new HomoPeer();
 				//p.EP = new IPAddress(i.Key());
 				p.Recent = false;
- 				p.LoadNode(new BinaryReader(new MemoryStream(i.Value())));
+ 				p.LoadNode(new Reader(i.Value()));
  				Peers.Add(p);
 			}
 		}
@@ -183,18 +183,17 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 
 	public void SavePeers(IEnumerable<Peer> peers)
 	{
-		using(var b = new WriteBatch())
-		{
-			foreach(var i in peers)
-			{
-				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
-				i.SaveNode(w);
-				b.Put(i.EP.Raw, s.ToArray(), PeersFamily);
-			}
+		using var b = new WriteBatch();
 
-			Database.Write(b);
+		foreach(var i in peers)
+		{
+			var s = new MemoryStream();
+			var w = new Writer(s);
+			i.SaveNode(w);
+			b.Put(i.EP.Raw, s.ToArray(), PeersFamily);
 		}
+
+		Database.Write(b);
 	}
 
 	public List<HomoPeer> RefreshPeers(IEnumerable<HomoPeer> peers, Peer source)
@@ -342,10 +341,10 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(request.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
+			BinarySerializator.Serialize(new Writer(s, Constructor), request);
 			s.Position = 0;
 			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
+			rq = BinarySerializator.Deserialize<PeerRequest>(new Reader(s, Constructor));
 			rq.Peering = this;
 		}
 
@@ -359,10 +358,10 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(rq.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), rq, Constructor.TypeToCode);
+			BinarySerializator.Serialize(new Writer(s, Constructor), rq);
 			s.Position = 0;
 			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
+			rq = BinarySerializator.Deserialize<PeerRequest>(new Reader(s, Constructor));
 			rq.Peering = this;
 		}
 

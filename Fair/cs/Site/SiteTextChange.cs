@@ -13,14 +13,14 @@ public class SiteTextChange : VotableOperation
 														(Description == null || Description.Length <= Fair.PostLengthMaximum);
 	public override string		Explanation => $"Description={Description}, Slogan={Slogan}, Description={Description}";
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Title		= reader.ReadUtf8();
 		Slogan		= reader.ReadUtf8();
 		Description	= reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteUtf8(Title);
 		writer.WriteUtf8(Slogan);

@@ -29,14 +29,14 @@ public class FileCreation : FairOperation
 		Mime = mime;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Owner	= reader.Read<EntityAddress>();
 		Data	= reader.ReadBytes();
 		Mime	= reader.Read<MimeType>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Owner);
 		writer.WriteBytes(Data);

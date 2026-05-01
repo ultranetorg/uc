@@ -6,8 +6,8 @@ public abstract class EntityId : IBinarySerializable, IEquatable<EntityId>, ICom
 
 	public abstract int		CompareTo(EntityId other);
 	public abstract bool	Equals(EntityId other);
-	public abstract void	Read(BinaryReader reader);
-	public abstract void	Write(BinaryWriter writer);
+	public abstract void	Read(Reader reader);
+	public abstract void	Write(Writer writer);
 
 	public static byte[]	BucketToBytes(int id) => [(byte)id, (byte)(id >> 8), (byte)(id >> 16)];
 	
@@ -21,7 +21,7 @@ public abstract class EntityId : IBinarySerializable, IEquatable<EntityId>, ICom
 				return _Raw;
 
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 								
 			Write(w);
 								
@@ -64,13 +64,13 @@ public interface ITableEntry
 	object		Clone();
 	void		Cleanup(Round lastInCommit);
 
-	void		ReadMain(BinaryReader r);
-	void		WriteMain(BinaryWriter r);
+	void		ReadMain(Reader reader);
+	void		WriteMain(Writer writer);
 
 	public byte[] ToMain()
 	{
 		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 								
 		WriteMain(w);
 								

@@ -16,7 +16,7 @@ public class Generator
 		return $"Id={User}, Since={Since}, Till={Till}, BaseRdcIPs={{{GraphPpcIPs.Length}}}";
 	}
 
-  	public virtual void WriteMember(BinaryWriter writer)
+  	public virtual void WriteMember(Writer writer)
  	{
  		writer.Write(User);
 		writer.Write(GraphPpcIPs);
@@ -24,7 +24,7 @@ public class Generator
 		writer.Write7BitEncodedInt(Till);
  	}
  
- 	public virtual void ReadMember(BinaryReader reader)
+ 	public virtual void ReadMember(Reader reader)
  	{
 		User			= reader.Read<AutoId>();
 		GraphPpcIPs		= reader.ReadArray<Endpoint>();
@@ -32,13 +32,13 @@ public class Generator
  		Till			= reader.Read7BitEncodedInt();
 	}
 
-  	public virtual void WriteCandidate(BinaryWriter writer)
+  	public virtual void WriteCandidate(Writer writer)
  	{
  		writer.Write(User);
 		writer.Write(GraphPpcIPs, i => writer.Write(i));
  	}
  
- 	public virtual void ReadCandidate(BinaryReader reader)
+ 	public virtual void ReadCandidate(Reader reader)
  	{
 		User		= reader.Read<AutoId>();
 		GraphPpcIPs	= reader.ReadArray<Endpoint>();

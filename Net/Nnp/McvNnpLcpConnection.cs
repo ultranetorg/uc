@@ -159,11 +159,11 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 	{
 		var f = Flow.CreateNested(args.Timeout);
 		
-		var r = new BinaryReader(new MemoryStream(args.Request));
-		var rq = BinarySerializator.Deserialize<PeerRequest>(r, Node.Peering.Constructor.Construct);
+		var r = new Reader(new MemoryStream(args.Request), Node.Peering.Constructor);
+		var rq = BinarySerializator.Deserialize<PeerRequest>(r);
 		
-		var w = new BinaryWriter(new MemoryStream());
-		BinarySerializator.Serialize(w, Node.Peering.Call(rq, f, null), Node.Peering.Constructor.TypeToCode);
+		var w = new Writer(new MemoryStream(), Node.Peering.Constructor);
+		BinarySerializator.Serialize(w, Node.Peering.Call(rq, f, null));
 
 		return new RequestNnr {Response = (w.BaseStream as MemoryStream).ToArray()};
 	}

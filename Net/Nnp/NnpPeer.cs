@@ -33,11 +33,11 @@ public class NnpPeer : Peer, IBinarySerializable
 		{
 			lock(Writer)
 			{
-				Writer.Write((byte)PacketType.Request);
+				Writer.Write(PacketType.Request);
 				Writer.WriteASCII(from);
 				Writer.WriteASCII(to);
 				Writer.Write(id);
-				BinarySerializator.Serialize(Writer, request, Peering.Constructor.TypeToCode); 
+				BinarySerializator.Serialize(Writer, request); 
 			}
 		}
 		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
@@ -69,7 +69,7 @@ public class NnpPeer : Peer, IBinarySerializable
 						var from = Reader.ReadASCII();
 						var to = Reader.ReadASCII();
 						var id = Reader.ReadInt32();
-						var rq = BinarySerializator.Deserialize<Argumentation>(Reader, Peering.Constructor.Construct);
+						var rq = BinarySerializator.Deserialize<Argumentation>(Reader);
 						
 						try
 						{
@@ -79,9 +79,9 @@ public class NnpPeer : Peer, IBinarySerializable
 							{
 								lock(Writer)
 								{
-									Writer.Write((byte)PacketType.Response);
+									Writer.Write(PacketType.Response);
 									Writer.Write(id);
-									BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
+									BinarySerializator.Serialize(Writer, r);
 								}
 							}
 						}
@@ -89,9 +89,9 @@ public class NnpPeer : Peer, IBinarySerializable
 						{
 							lock(Writer)
 							{
-								Writer.Write((byte)PacketType.Failure);
+								Writer.Write(PacketType.Failure);
 								Writer.Write(id);
-								BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
+								BinarySerializator.Serialize(Writer, ex);
 							}
 						}
 
@@ -101,7 +101,7 @@ public class NnpPeer : Peer, IBinarySerializable
 					case PacketType.Response:
  					{
 						var id = Reader.ReadInt32();
-						var r = BinarySerializator.Deserialize<Result>(Reader, Peering.Constructor.Construct);
+						var r = BinarySerializator.Deserialize<Result>(Reader);
 
 						lock(OutRequests)
 						{
@@ -122,7 +122,7 @@ public class NnpPeer : Peer, IBinarySerializable
  					case PacketType.Failure:
  					{
 						var id = Reader.ReadInt32();
-						var ex = BinarySerializator.Deserialize<CodeException>(Reader, Peering.Constructor.Construct);
+						var ex = BinarySerializator.Deserialize<CodeException>(Reader);
 
 						lock(OutRequests)
 						{

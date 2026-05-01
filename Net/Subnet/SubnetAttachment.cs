@@ -20,14 +20,14 @@ public class SubnetAttachment : OutwardOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Name	= reader.ReadASCII();
 		Client	= reader.Read<Snp>();
 		Peers	= reader.ReadArray<Endpoint>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteASCII(Name);
 		writer.Write(Client);

@@ -62,7 +62,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 		Tag = tag;
  	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Format);
 		writer.Write(Algorithm);
@@ -70,7 +70,7 @@ public class AccountAddress : IComparable, IComparable<AccountAddress>, IEquatab
 		writer.Write(Bytes);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Format = reader.Read<AddressFormat>();
 		Algorithm = reader.Read<Algorithm>();

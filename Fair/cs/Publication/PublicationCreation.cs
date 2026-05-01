@@ -16,12 +16,12 @@ public class PublicationCreation : VotableOperation
 		Product = product;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Product = reader.Read<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Product);
 	}

@@ -8,18 +8,18 @@ public class Analyzer
 	public byte						Id;
 	public int						JoinedAt;
 
-  	public void WriteGraphState(BinaryWriter w)
+  	public void WriteGraphState(Writer writer)
  	{
- 		w.Write(Account);
-		w.Write(Id); /// negative if inactive
-		w.Write7BitEncodedInt(JoinedAt); /// negative if inactive
+ 		writer.Write(Account);
+		writer.Write(Id); /// negative if inactive
+		writer.Write7BitEncodedInt(JoinedAt); /// negative if inactive
  	}
  
- 	public void ReadGraphState(BinaryReader r)
+ 	public void ReadGraphState(Reader reader)
  	{
-		Account		= r.ReadAccount();
-		Id			= r.ReadByte();
-		JoinedAt	= r.Read7BitEncodedInt();
+		Account		= reader.ReadAccount();
+		Id			= reader.ReadByte();
+		JoinedAt	= reader.Read7BitEncodedInt();
 	}
 
 	public override string ToString()

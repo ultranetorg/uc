@@ -12,14 +12,14 @@ public class SiteApprovalPolicyChange : SiteOperation
 
 	public override string		Explanation => $"Site={Site}, Operation+{Operation}, Approval={Approval}";
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Operation	= reader.Read<FairOperationClass>();
 		//Creators	= reader.Read<Role>();
 		Approval	= reader.Read<ApprovalRequirement>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Operation);
 		//writer.Write(Creators);

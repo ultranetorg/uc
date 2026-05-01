@@ -5,11 +5,11 @@ public abstract class TableStateBase
 	public abstract void	Absorb(TableStateBase execution);
 	public abstract void	StartRoundExecution(Round round);
 
-	public virtual void Write(BinaryWriter writer)
+	public virtual void Write(Writer writer)
 	{
 	}
 
-	public virtual void Read(BinaryReader reader)
+	public virtual void Read(Reader reader)
 	{
 	}
 }

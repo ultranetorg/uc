@@ -20,14 +20,14 @@ public class ResourceLinkCreation : RdnOperation
 		Type = flags;
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Source);
 		writer.Write(Destination);
 		writer.Write(Type);
 	}
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Source		= reader.Read<AutoId>();
 		Destination	= reader.Read<AutoId>();

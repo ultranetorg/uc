@@ -7,12 +7,12 @@ public class SiteModeratorAddition : VotableOperation
 	public override bool		IsValid(McvNet net) => Candidates.Length > 0 && Candidates.Length <= 10;
 	public override string		Explanation => $"Site={Site}, Additions={Candidates.Length}";
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Candidates	= reader.ReadArray<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Candidates);
 	}

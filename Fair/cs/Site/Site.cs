@@ -19,13 +19,13 @@ public class Moderator : IBinarySerializable
 	public AutoId		User { get; set; }
 	public Time			BannedTill { get; set; }
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		User		= reader.Read<AutoId>();
 		BannedTill	= reader.Read<Time>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(User);
 		writer.Write(BannedTill);
@@ -41,7 +41,7 @@ public class Publisher : IBinarySerializable
 
 	public const long	Unlimit = -1;
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Author			= reader.Read<AutoId>();
 		BannedTill		= reader.Read<Time>();
@@ -49,7 +49,7 @@ public class Publisher : IBinarySerializable
 		SpacetimeLimit	= reader.Read7BitEncodedInt64();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Author);
 		writer.Write(BannedTill);
@@ -85,14 +85,14 @@ public class Policy : IBinarySerializable
 		Approval = approval;
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		OperationClass	= reader.Read<FairOperationClass>();
 		Creators	= reader.Read<Role>();
 		Approval	= reader.Read<ApprovalRequirement>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(OperationClass);
 		writer.Write(Creators);
@@ -254,12 +254,12 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		return a;
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
@@ -269,7 +269,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	}
 
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id							= reader.Read<AutoId>();
 		Name					= reader.ReadUtf8();
@@ -302,7 +302,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.WriteUtf8(Name);

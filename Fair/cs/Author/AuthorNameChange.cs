@@ -14,13 +14,13 @@ public class AuthorNameChange : FairOperation
 	{
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Author	= reader.Read<AutoId>();
 		Name	= reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Author);
 		writer.WriteUtf8(Name);

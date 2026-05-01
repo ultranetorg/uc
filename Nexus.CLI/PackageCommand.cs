@@ -46,7 +46,7 @@ public class PackageCommand : NexusCommand
 																Previous		 = GetResourceAddress("previous", false),
 																AddressCreator	 =	new()
 																					{
-																						Type = GetEnum("addresstype", UrrScheme.Urrh),
+																						Type = GetEnum("addresstype", UrrScheme.Rrrh),
 																						Owner = GetAccountAddress("owner", false),
 																						Resource = Ura.Parse(Args[0].Name)
 																					}

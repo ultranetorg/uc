@@ -20,14 +20,14 @@ public class ProposalVoting : FairOperation
 		Choice = choice;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Proposal	= reader.Read<AutoId>();
 		Voter		= reader.ReadNullable<AutoId>();
 		Choice		= reader.ReadSByte();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Proposal);
 		writer.WriteNullable(Voter);

@@ -151,7 +151,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 	public void SendHello(TcpClient client, Hello h)
 	{
-		var w = new BinaryWriter(client.GetStream());
+		var w = new Writer(client.GetStream());
 
 		h.Write(w);
 	}

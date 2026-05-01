@@ -19,14 +19,14 @@ public interface ISpaceConsumer
 	short		Expiration { get; set; }
 	bool		Free { get; set; }
 
-	public void WriteSpaceConsumer(BinaryWriter writer)
+	public void WriteSpaceConsumer(Writer writer)
 	{
 		writer.Write7BitEncodedInt64(Space);
 		writer.Write(Expiration);
 		writer.Write(Free);
 	}
 
-	public void ReadSpaceConsumer(BinaryReader reader)
+	public void ReadSpaceConsumer(Reader reader)
 	{
 		Space	 	= reader.Read7BitEncodedInt64();
 		Expiration 	= reader.ReadInt16();
@@ -57,7 +57,7 @@ public interface IEnergyHolder : IHolder
 		a.BandwidthExpiration	= BandwidthExpiration;
 	}
 
-	public void WriteEnergyHolder(BinaryWriter writer)
+	public void WriteEnergyHolder(Writer writer)
 	{
 		writer.Write7BitEncodedInt64(Energy);
 		writer.Write(EnergyThisPeriod);
@@ -69,7 +69,7 @@ public interface IEnergyHolder : IHolder
 		writer.Write7BitEncodedInt(BandwidthExpiration);
 	}
 
-	public void ReadEnergyHolder(BinaryReader reader)
+	public void ReadEnergyHolder(Reader reader)
 	{
 		Energy	 			= reader.Read7BitEncodedInt64();
 		EnergyThisPeriod 	= reader.ReadByte();
@@ -132,7 +132,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		return Id == signer;
 	}
 
-	public virtual void Write(BinaryWriter writer)
+	public virtual void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write(Owner);
@@ -146,7 +146,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}
 
-	public virtual void Read(BinaryReader reader)
+	public virtual void Read(Reader reader)
 	{
 		Id					= reader.Read<AutoId>();
 		Owner				= reader.ReadAccount();
@@ -186,14 +186,14 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		return a;
 	}
 
-	public virtual void WriteMain(BinaryWriter w)
+	public virtual void WriteMain(Writer writer)
 	{
-		Write(w);
+		Write(writer);
 	}
 
-	public virtual void ReadMain(BinaryReader r)
+	public virtual void ReadMain(Reader reader)
 	{
-		Read(r);
+		Read(reader);
 	}
 
 	public void Cleanup(Round lastInCommit)

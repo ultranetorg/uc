@@ -11,12 +11,12 @@ namespace Uccs.Fair;
 //	{
 //	}
 //
-//	public override void Read(BinaryReader reader)
+//	public override void Read(Reader reader)
 //	{
 //		Site = reader.Read<AutoId>();
 //	}
 //
-//	public override void Write(BinaryWriter writer)
+//	public override void Write(Writer writer)
 //	{
 //		writer.Write(Site);
 //	}

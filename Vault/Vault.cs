@@ -214,7 +214,7 @@ public class Vault : Cli
 			}
 
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 			
 			//w.WriteBytes(key.GetPublicAddressAsBytes());
 			w.WriteBytes(iv);
@@ -226,8 +226,7 @@ public class Vault : Cli
 
 	public static byte[] Decrypt(byte[] data, string password)
 	{
-		var s = new MemoryStream(data);
-		var r = new BinaryReader(s);
+		var r = new Reader(data);
 			
 		//var pub = r.ReadBytes();
 		var iv = r.ReadBytes();

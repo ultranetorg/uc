@@ -138,7 +138,7 @@ public class FieldValue : IBinarySerializable
 		{
 			var a = new AutoId();
 			
-			using BinaryReader reader = new(new MemoryStream(Value));
+			var reader = new Reader(Value);
 			a.Read(reader);
 			
 			return a;
@@ -182,14 +182,14 @@ public class FieldValue : IBinarySerializable
 		return Fields.All(i => i.IsValid(net));
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Name	= reader.Read<Token>();
 		Value	= reader.ReadBytes();
 		Fields	= reader.ReadArray<FieldValue>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Name);
 		writer.WriteBytes(Value);
@@ -229,14 +229,14 @@ public class ProductVersion  : IBinarySerializable
 		return $"Fields={Fields.Length}, Version={Id}, Refs={Refs}";
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Fields	= reader.ReadArray<FieldValue>();
 		Id		= reader.Read7BitEncodedInt();
 		Refs	= reader.Read7BitEncodedInt();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Fields);
 		writer.Write7BitEncodedInt(Id);
@@ -367,12 +367,12 @@ public class Product : IBinarySerializable, ITableEntry
 				};
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
@@ -381,7 +381,7 @@ public class Product : IBinarySerializable, ITableEntry
 	{
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write(Author);
@@ -391,7 +391,7 @@ public class Product : IBinarySerializable, ITableEntry
 		writer.Write(Publications);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id				= reader.Read<AutoId>();
 		Author			= reader.Read<AutoId>();

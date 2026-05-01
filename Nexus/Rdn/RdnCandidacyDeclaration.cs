@@ -16,14 +16,14 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 		SeedHubRdcIPs = seedHubRdcIPs;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 
 		SeedHubRdcIPs = reader.ReadArray<Endpoint>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);
 

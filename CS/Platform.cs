@@ -64,17 +64,17 @@ public class Platform// : IBinarySerializable
 		return f;
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
-		Family			= (PlatformFamily)reader.ReadByte();
+		Family			= reader.Read<PlatformFamily>();
 		Brand			= reader.Read7BitEncodedInt();
 		Version			= reader.Read7BitEncodedInt();
 		Architecture	= (Architecture)reader.ReadByte();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
-		writer.Write((byte)Family);
+		writer.Write(Family);
 		writer.Write7BitEncodedInt((int)Brand);
 		writer.Write7BitEncodedInt((int)Version);
 		writer.Write((byte)Architecture);

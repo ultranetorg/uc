@@ -111,7 +111,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		return	time.Days > Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 		
@@ -120,7 +120,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		writer.Write(Links);
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 		
@@ -133,7 +133,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	{
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.WriteUtf8(Name);
@@ -152,7 +152,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id					= reader.Read<AutoId>();
 		Name			= reader.ReadUtf8();
