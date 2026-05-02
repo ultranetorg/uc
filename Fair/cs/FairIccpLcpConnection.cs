@@ -4,11 +4,11 @@ using Uccs.Net;
 
 namespace Uccs.Fair;
 
-public class FairNnpLcpConnection : McvNnpLcpConnection
+public class FairIccpLcpConnection : McvIccpLcpConnection
 {
 	public new FairNode		Node => base.Node as FairNode;
 
-	public FairNnpLcpConnection(FairNode node, Flow flow) : base(node, flow)
+	public FairIccpLcpConnection(FairNode node, Flow flow) : base(node, flow)
 	{
 		Classes = [nameof(User), nameof(Author), nameof(Site)];
 	}

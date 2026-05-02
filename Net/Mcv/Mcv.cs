@@ -91,8 +91,8 @@ public abstract class Mcv /// Mutual chain voting
 	public Round								NextTargetRound => GetRound(LastConfirmedRound.Id + 1);
 	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + Net.P);
 
-	public List<IccTransfer>						FriendTransferRequests = [];
-	public Dictionary<IccTransferResult, string>	FriendTransferResults = [];
+	public List<IccpTransfer>						FriendTransferRequests = [];
+	public Dictionary<IccpTransferResult, string>	FriendTransferResults = [];
 
 	public const string							ChainFamilyName = "Chain";
 	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);

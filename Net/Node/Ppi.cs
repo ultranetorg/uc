@@ -32,7 +32,7 @@ public class HomoRequestPacket: RequestPacket
 
 public abstract class PeerRequest : ITypeCode
 {
-	public HomoPeer				Peer;
+	public HomoPeer			Peer;
 	public HomoPeering		Peering;
 	//public CallArgumentation	Argumentation { get ; set; }
 	

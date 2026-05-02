@@ -2,7 +2,7 @@
 
 namespace Uccs.Net;
 
-public class McvNnpLcpConnection: NnpLcpNodeConnection
+public class McvIccpLcpConnection: IccpLcpNodeConnection
 {
 	public McvNode		Node => Program as McvNode;
 	public Mcv			Mcv => Node.Mcv;
@@ -12,7 +12,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 								  new () {Name = nameof(User.Energy),		Units = "Execution Cycles (EC)"},
 								  new () {Name = nameof(User.EnergyNext),	Units = "Execution Cycles (EC)"}];
 
-	public McvNnpLcpConnection(McvNode node, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
+	public McvIccpLcpConnection(McvNode node, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
 	{
 		Classes = [nameof(User)];
 
@@ -20,7 +20,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 										 		foreach(var i in node.Settings.Mcv.Generators.Where(i => e.Round.Members.Any(j => j.User == i.Id)))
 										 		{
 													Task.Run(() =>	{
-										 								Call(f.Name, new TransferRequestNna {Hash = f.LastOutgoingTransfer.Hash
+										 								Call(f.Name, new TransferRequestIcca {Hash = f.LastOutgoingTransfer.Hash
 																											/*
 																											 * , 
 																											 *	Signature = Net.Cryptography.ZeroSignature
@@ -29,7 +29,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 
 																		while(Flow.Active)
 																		{
-																			var rp = Call(f.Name, new LastIncomingTransferNna {}, Flow) as LastIncomingTransferNnr;
+																			var rp = Call(f.Name, new LastIncomingTransferIcca {}, Flow) as LastIncomingTransferIccr;
 
 																			if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Result.Hash))
 																			{
@@ -58,7 +58,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 		}
 	}
 
- 	public Result TransferRequest(string from, TransferRequestNna args) /// A message from a subnet to vote for
+ 	public Result TransferRequest(string from, TransferRequestIcca args) /// A message from a subnet to vote for
  	{
  		lock(Node.Mcv.Lock)
  		{	
@@ -70,7 +70,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
  			//if(m.Nonce != args.Nonce - 1)
  			//	throw new EntityException(EntityError.NotSequential);
 			
-			var rp = Call(from, new LastOutgoingTransferNna {}, Flow) as LastOutgoingTransferNnr;
+			var rp = Call(from, new LastOutgoingTransferIcca {}, Flow) as LastOutgoingTransferIccr;
 			
  			///
  			/// TODO : Check signature
@@ -88,7 +88,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
  		}
  	}
 
-	public Result LastOutgoingTransfer(string from, LastOutgoingTransferNna args)
+	public Result LastOutgoingTransfer(string from, LastOutgoingTransferIcca args)
 	{
 		lock(Node.Mcv.Lock)
 		{	
@@ -97,11 +97,11 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 			if(s == null)
 				return null;
 
-			return new LastOutgoingTransferNnr {Transfer = s.LastOutgoingTransfer};
+			return new LastOutgoingTransferIccr {Transfer = s.LastOutgoingTransfer};
 		}
 	}
 
-	public Result LastIncomingTransfer(string from, LastIncomingTransferNna args) /// Confirmation on our message to a subnet
+	public Result LastIncomingTransfer(string from, LastIncomingTransferIcca args) /// Confirmation on our message to a subnet
 	{
 		lock(Node.Mcv.Lock)
 		{
@@ -110,24 +110,24 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 			if(s == null)
 				return null;
 
-			return new LastIncomingTransferNnr {Result = s.LastIncomingTransfer};
+			return new LastIncomingTransferIccr {Result = s.LastIncomingTransfer};
 		}
 	}
 
-	public virtual Result Peers(string from, PeersNna args)
+	public virtual Result Peers(string from, PeersIcca args)
 	{
 		if(Node.Peering.Synchronization == Synchronization.Synchronized)
 		{
 			lock(Node.Mcv)
-				return new PeersNnr {Peers = Node.Mcv.LastConfirmedRound.Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
+				return new PeersIccr {Peers = Node.Mcv.LastConfirmedRound.Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
 		}
 		else
 		{
-			return new PeersNnr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
+			return new PeersIccr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
 		}
 	}
 
-//	public virtual Result Transact(TransactNna args)
+//	public virtual Result Transact(TransactIcca args)
 //	{
 //		var f = Flow.CreateNested(args.Timeout);
 //				
@@ -140,10 +140,10 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 //			Thread.Sleep(10);
 //		}
 //		
-//		return new TransactNnr {Result = t.Tag};
+//		return new TransactIccr {Result = t.Tag};
 //	}
 	
-	public virtual Result Request(string from, RequestNna args)
+	public virtual Result Request(string from, RequestIcca args)
 	{
 		var f = Flow.CreateNested(args.Timeout);
 		
@@ -153,15 +153,15 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 		var w = new Writer(new MemoryStream(), Node.Peering.Constructor);
 		BinarySerializator.Serialize(w, Node.Peering.Call(rq, f, null));
 
-		return new RequestNnr {Response = (w.BaseStream as MemoryStream).ToArray()};
+		return new RequestIccr {Response = (w.BaseStream as MemoryStream).ToArray()};
 	}
 	
-//	public virtual Result JsonApi(JsonApiNna args)
+//	public virtual Result JsonApi(JsonApiIcca args)
 //	{
 //		
 //		ConstructorInfo constuctor;
 //		
-//		var rp = new JsonApiNnr();
+//		var rp = new JsonApiIccr();
 //
 //		lock(Calls)
 //			if(!Calls.TryGetValue(args.Call, out constuctor))
@@ -192,9 +192,9 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 //		return rp;
 //	}
 
-	public virtual Result HolderClasses(string from, HolderClassesNna args)
+	public virtual Result HolderClasses(string from, HolderClassesIcca args)
 	{
-		return new HolderClassesNnr {Classes = Classes};
+		return new HolderClassesIccr {Classes = Classes};
 	}
 
 	protected virtual void GetHolder(byte c, string n, out ISpacetimeHolder sh, out IEnergyHolder eh)
@@ -213,7 +213,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 		}
 	}
 
-	public virtual Result AssetBalance(string from, AssetBalanceNna args)
+	public virtual Result AssetBalance(string from, AssetBalanceIcca args)
 	{
 		Parse(args.Entity, out var c, out var n); 
 
@@ -237,7 +237,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 				throw new EntityException(EntityError.NotHolder);
 		}
 			
-		return	new AssetBalanceNnr
+		return	new AssetBalanceIccr
 				{
 					Balance = new BigInteger(args.Name	switch
 														{
@@ -248,26 +248,26 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 				};
 	}
 
-	public virtual Result HolderAssets(string from, HolderAssetsNna args)
+	public virtual Result HolderAssets(string from, HolderAssetsIcca args)
 	{
 		Parse(args.Entity, out var c, out var n); 
 
 		lock(Node.Mcv.Lock)
 		{	
-			return new HolderAssetsNnr{Assets = Assets};
+			return new HolderAssetsIccr{Assets = Assets};
 		}
 	}
 
-//	public virtual Result HoldersByAccount(HoldersByAccountNna args)
+//	public virtual Result HoldersByAccount(HoldersByAccountIcca args)
 //	{
 //		lock(Node.Mcv.Lock)
 //		{	
 //			var a = Node.Mcv.Users.Latest(User.BytesToName(args.Address));
 //
 //			if(a != null)
-//				return new HoldersByAccountNnr {Holders = [EntityAddress.ToString(McvTable.User, a.Id)]};
+//				return new HoldersByAccountIccr {Holders = [EntityAddress.ToString(McvTable.User, a.Id)]};
 //			else
-//				return new HoldersByAccountNnr {Holders = []};
+//				return new HoldersByAccountIccr {Holders = []};
 //		}
 //	}
 
@@ -288,7 +288,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 			throw new EntityException(EntityError.UnknownEntity);
 	}
 
-	///public virtual Result AssetTransfer(string from, AssetTransferNna args)
+	///public virtual Result AssetTransfer(string from, AssetTransferIcca args)
 	///{
 	///	if(args.ToNet == Node.Net.Name)
 	///	{
@@ -324,7 +324,7 @@ public class McvNnpLcpConnection: NnpLcpNodeConnection
 	///				Thread.Sleep(1000);
 	///			}
 	///	
-	///			return new AssetTransferNnr {TransactionId = t.Tag};
+	///			return new AssetTransferIccr {TransactionId = t.Tag};
 	///		}
 	///	}
 	///

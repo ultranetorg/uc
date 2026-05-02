@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public abstract class IccTransaction : IBinarySerializable, ITypeCode
+public abstract class IccpTransaction : IBinarySerializable, ITypeCode
 {
 	public string			ToNet { get; set; }
 	
@@ -34,12 +34,12 @@ public abstract class IccTransaction : IBinarySerializable, ITypeCode
 // }
 
 
-public class IccTransfer : IBinarySerializable
+public class IccpTransfer : IBinarySerializable
 {
 	public string				From;
 
 	public int					Id { get; set; }
-	public IccTransaction[]		Transactions { get; set; }
+	public IccpTransaction[]		Transactions { get; set; }
 	public byte[]				Hash => _Hash ??= Cryptography.Hash(Transactions);
 	byte[]						_Hash;
 
@@ -52,6 +52,6 @@ public class IccTransfer : IBinarySerializable
 	public void Read(Reader reader)
 	{
 		Id = reader.Read7BitEncodedInt();
-		Transactions = reader.ReadArrayVirtual<IccTransaction>();
+		Transactions = reader.ReadArrayVirtual<IccpTransaction>();
 	}
 }

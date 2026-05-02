@@ -18,8 +18,8 @@ public class Nexus : IProgram
 	public Delegate					Stopped;
 	VoidDelegate					OpenIam;
 
-	public NnpPeering				NnpPeering;
-	public NnpLcpServer				NnpIppServer;
+	public IccpPeering				NnpPeering;
+	public IccpLcpServer				NnpIppServer;
 
 	public delegate void			Delegate(Nexus d);
 
@@ -51,7 +51,7 @@ public class Nexus : IProgram
 
 		if(Settings.NnPeering != null)
 		{
-			NnpIppServer = new NnpLcpServer(this);
+			NnpIppServer = new IccpLcpServer(this);
 		}
 
 		if(Settings.Api != null)
@@ -101,15 +101,15 @@ public class Nexus : IProgram
 								});
 	}
 
-	public NnpLcpClientConnection CreateNnpClientConnection()
+	public IccpLcpClientConnection CreateIccpClientConnection()
 	{
-		var c = new	NnpLcpClientConnection(this, NnpLcpConnection.GetName(Settings.Host), Flow);
+		var c = new	IccpLcpClientConnection(this, IccpLcpConnection.GetName(Settings.Host), Flow);
 		return c;
 	}
 
-	public NnpLcpClientConnection CreateNnpClientConnection(Constructor constructor)
+	public IccpLcpClientConnection CreateIccpClientConnection(Constructor constructor)
 	{
-		var c = new	NnpLcpClientConnection(this, NnpLcpConnection.GetName(Settings.Host), Flow);
+		var c = new	IccpLcpClientConnection(this, IccpLcpConnection.GetName(Settings.Host), Flow);
 		c.Constructor.Merge(constructor);
 		return c;
 	}
@@ -124,7 +124,7 @@ public class Nexus : IProgram
 		
 		if(Settings.NnPeering != null)
 		{
-			NnpPeering = new NnpPeering(this, RdnNode.Mcv, Settings.Name, Settings.NnPeering, 0, Flow);
+			NnpPeering = new IccpPeering(this, RdnNode.Mcv, Settings.Name, Settings.NnPeering, () => NnpIppServer.Locals.Select(i => i.Net).ToList(), Flow);
 			NnpPeering.Run();
 		}
 

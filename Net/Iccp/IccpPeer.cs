@@ -8,16 +8,16 @@ public class NnRequestPacket: RequestPacket
 	public Argumentation	Argumentation { get ; set; }
 }
 
-public class NnpPeer : Peer, IBinarySerializable
+public class IccpPeer : Peer, IBinarySerializable
 {
 	LcpServer				Lcp;
 	public List<string>		Nets;
 
-	public NnpPeer()
+	public IccpPeer()
 	{
 	}
 
-	public NnpPeer(Endpoint endpoint)
+	public IccpPeer(Endpoint endpoint)
 	{
 		EP = endpoint;
 	}
@@ -73,7 +73,7 @@ public class NnpPeer : Peer, IBinarySerializable
 						
 						try
 						{
-							var r = Lcp.Relay(from, to, rq as NnpArgumentation);
+							var r = Lcp.Relay(from, to, rq as IccpArgumentation);
 
 							if(r != null)
 							{

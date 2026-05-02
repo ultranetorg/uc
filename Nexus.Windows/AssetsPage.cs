@@ -10,7 +10,7 @@ public partial class AssetsPage : Page
 	{
 	}
 
-	public AssetsPage(Nexus nexus, NnpLcpClientConnection nnp) : base(nexus, nnp)
+	public AssetsPage(Nexus nexus, IccpLcpClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 	}
@@ -54,9 +54,9 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			foreach(var a in (Nnp.Call(Nets.Text, new HolderAssetsNna {Entity = entity}, f) as HolderAssetsNnr).Assets)
+			foreach(var a in (Nnp.Call(Nets.Text, new HolderAssetsIcca {Entity = entity}, f) as HolderAssetsIccr).Assets)
 			{
-				var b = (Nnp.Call(Nets.Text, new AssetBalanceNna {Entity = entity, Name = a.Name}, f) as AssetBalanceNnr).Balance;
+				var b = (Nnp.Call(Nets.Text, new AssetBalanceIcca {Entity = entity, Name = a.Name}, f) as AssetBalanceIccr).Balance;
 			
 				var li = new ListViewItem(entity);
 				li.SubItems.Add(a.Name);

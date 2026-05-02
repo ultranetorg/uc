@@ -43,7 +43,7 @@ public class Asset : IBinarySerializable
 	}
 }
 
-public enum NnpClass : uint
+public enum IccpClass : uint
 {
 	None = 0, 
 	
@@ -58,7 +58,7 @@ public enum NnpClass : uint
 	AssetTransfer
 }
 
-public abstract class NnpArgumentation : Argumentation
+public abstract class IccpArgumentation : Argumentation
 {
 	//public string		Net { get; set; }
 
@@ -68,7 +68,7 @@ public abstract class NnpArgumentation : Argumentation
 	public virtual void		Write(Writer writer){}
 }
 
-public class Nnc<A, R> : ICall<A, R> where A : NnpArgumentation, new() where R : Result
+public class Nnc<A, R> : ICall<A, R> where A : IccpArgumentation, new() where R : Result
 {
 	public A Argumentation;
 
@@ -78,7 +78,7 @@ public class Nnc<A, R> : ICall<A, R> where A : NnpArgumentation, new() where R :
 	}
 }
 
-public class TransferRequestNna : NnpArgumentation
+public class TransferRequestIcca : IccpArgumentation
 {
 	public byte[]			Hash { get; set; }
 	public byte[]			Signature { get; set; }
@@ -115,7 +115,7 @@ public class TransferRequestNna : NnpArgumentation
 	}
 }
 
-public class LastOutgoingTransferNna : NnpArgumentation
+public class LastOutgoingTransferIcca : IccpArgumentation
 {
 	//public byte[]	Hash { get; set; }
 	//public IccOperation[]	Operations { get; set; }
@@ -131,9 +131,9 @@ public class LastOutgoingTransferNna : NnpArgumentation
 	}
 }
 
-public class LastOutgoingTransferNnr : Result, IBinarySerializable
+public class LastOutgoingTransferIccr : Result, IBinarySerializable
 {
-	public IccTransfer		Transfer;
+	public IccpTransfer		Transfer;
 
 	public void Read(Reader reader)
 	{
@@ -158,19 +158,19 @@ public class LastOutgoingTransferNnr : Result, IBinarySerializable
 	}
 }
 
-public class LastIncomingTransferNna : NnpArgumentation
+public class LastIncomingTransferIcca : IccpArgumentation
 {
 }
 
-public class LastIncomingTransferNnr : Result
+public class LastIncomingTransferIccr : Result
 {
 	public int					Id { get; set; }
-	public IccTransferResult	Result { get; set; }
+	public IccpTransferResult	Result { get; set; }
 
 	public void Read(Reader reader)
 	{
 		Id		= reader.Read7BitEncodedInt();
-		Result	= reader.Read<IccTransferResult>();
+		Result	= reader.Read<IccpTransferResult>();
 	}
 
 	public void Write(Writer writer)
@@ -180,11 +180,11 @@ public class LastIncomingTransferNnr : Result
 	}
 }
 
-public class PeersNna : NnpArgumentation
+public class PeersIcca : IccpArgumentation
 {
 }
 
-public class PeersNnr : Result, IBinarySerializable
+public class PeersIccr : Result, IBinarySerializable
 {
 	public Endpoint[]	Peers { get; set; }
 
@@ -198,7 +198,7 @@ public enum PacketFormat : byte
 	None, Binary, JsonUtf8
 }
 
-public class RequestNna : NnpArgumentation
+public class RequestIcca : IccpArgumentation
 {
 	public byte[]			Request { get; set; }
 	public PacketFormat		Format { get; set; }
@@ -222,7 +222,7 @@ public class RequestNna : NnpArgumentation
 	}
 }
 
-public class RequestNnr : Result, IBinarySerializable
+public class RequestIccr : Result, IBinarySerializable
 {
 	public byte[]	Response { get; set; }
 
@@ -230,7 +230,7 @@ public class RequestNnr : Result, IBinarySerializable
 	public void		Write(Writer writer) => writer.WriteBytes(Response);
 }
 
-public class JsonApiNna : NnpArgumentation
+public class JsonApiIcca : IccpArgumentation
 {
 	public string			Call { get; set; }
 	public string			Request { get; set; }
@@ -251,7 +251,7 @@ public class JsonApiNna : NnpArgumentation
 	}
 }
 
-public class JsonApiNnr : Result, IBinarySerializable
+public class JsonApiIccr : Result, IBinarySerializable
 {
 	public string	Response { get; set; }
 	public int		Status { get; set; }
@@ -269,7 +269,7 @@ public class JsonApiNnr : Result, IBinarySerializable
 	}
 }
 
-//public class McvTransactNna : NnpArgumentation
+//public class McvTransactIcca : NnpArgumentation
 //{
 //	public byte[]		Operations { get; set; }
 //	public int			Timeout { get; set; } = 5000;
@@ -289,7 +289,7 @@ public class JsonApiNnr : Result, IBinarySerializable
 //	}
 //}
 //
-//public class McvTransactNnr : Result, IBinarySerializable
+//public class McvTransactIccr : Result, IBinarySerializable
 //{
 //	public byte[]	Result { get; set; }
 //
@@ -297,11 +297,11 @@ public class JsonApiNnr : Result, IBinarySerializable
 //	public void		Write(Writer writer) => writer.WriteBytes(Result);
 //}
 
-public class HolderClassesNna : NnpArgumentation
+public class HolderClassesIcca : IccpArgumentation
 {
 }
 
-public class HolderClassesNnr : Result, IBinarySerializable
+public class HolderClassesIccr : Result, IBinarySerializable
 {
 	public string[]			Classes { get; set; }
 
@@ -309,7 +309,7 @@ public class HolderClassesNnr : Result, IBinarySerializable
 	public void				Write(Writer writer) => writer.Write(Classes, writer.WriteASCII);
 }
 
-//public class HolderClassesNnc : Nnc<HolderClassesNna, HolderClassesNnr>
+//public class HolderClassesNnc : Nnc<HolderClassesIcca, HolderClassesIccr>
 //{
 //	public HolderClassesNnc(string net)
 //	{
@@ -317,7 +317,7 @@ public class HolderClassesNnr : Result, IBinarySerializable
 //	}
 //}
 
-//public class HoldersByAccountNna : NnpArgumentation
+//public class HoldersByAccountIcca : NnpArgumentation
 //{
 //	public byte[]	Address { get; set; }
 //
@@ -334,7 +334,7 @@ public class HolderClassesNnr : Result, IBinarySerializable
 //	}
 //}
 //
-//public class HoldersByAccountNnr : Result, IBinarySerializable
+//public class HoldersByAccountIccr : Result, IBinarySerializable
 //{
 //	public string[] Holders { get; set; }
 //
@@ -342,7 +342,7 @@ public class HolderClassesNnr : Result, IBinarySerializable
 //	public void Write(Writer writer) => writer.Write(Holders, writer.WriteASCII);
 //}
 
-public class HolderAssetsNna : NnpArgumentation
+public class HolderAssetsIcca : IccpArgumentation
 {
 	public string	Entity { get; set; }
 
@@ -357,7 +357,7 @@ public class HolderAssetsNna : NnpArgumentation
 	}
 }
 
-public class HolderAssetsNnr : Result, IBinarySerializable
+public class HolderAssetsIccr : Result, IBinarySerializable
 {
 	public Asset[]	Assets { get; set; }
 
@@ -365,7 +365,7 @@ public class HolderAssetsNnr : Result, IBinarySerializable
 	public void Write(Writer writer) => writer.Write(Assets);
 }
 
-public class AssetBalanceNna : NnpArgumentation
+public class AssetBalanceIcca : IccpArgumentation
 {
 	public string	Entity { get; set; }
 	public string	Name { get; set; }
@@ -383,7 +383,7 @@ public class AssetBalanceNna : NnpArgumentation
 	}
 }
 
-public class AssetBalanceNnr : Result, IBinarySerializable
+public class AssetBalanceIccr : Result, IBinarySerializable
 {
 	public BigInteger	Balance {get; set;}
 
@@ -391,7 +391,7 @@ public class AssetBalanceNnr : Result, IBinarySerializable
 	public void			Write(Writer writer) => writer.Write(Balance);
 }
 
-public class AssetTransferNna : NnpArgumentation
+public class AssetTransferIcca : IccpArgumentation
 {
 	public string			FromEntity { get; set; }
 	public string			ToEntity { get; set; }
@@ -415,7 +415,7 @@ public class AssetTransferNna : NnpArgumentation
 	}
 }
 
-public class AssetTransferNnr : Result, IBinarySerializable
+public class AssetTransferIccr : Result, IBinarySerializable
 {
 	public byte[]	TransactionId { get; set; }
 

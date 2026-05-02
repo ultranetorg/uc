@@ -298,7 +298,7 @@ public class NnHoldersByAccountApc : RdnApc
 			if(a != null)
 				return new string[] {EntityAddress.ToString(McvTable.User, a.Id)};
 			else
-				throw new NnpException(NnpError.NotFound);
+				throw new IccpException(IccpError.NotFound);
 		}
 	}
 }
@@ -311,7 +311,7 @@ public class NnHolderAssetsApc : RdnApc
 	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		if(HolderClass != nameof(User))
-			throw new NnpException(NnpError.Unknown);
+			throw new IccpException(IccpError.Unknown);
 
 		lock(rdn.Mcv.Lock)
 		{	
@@ -323,7 +323,7 @@ public class NnHolderAssetsApc : RdnApc
 										new () {Name = nameof(User.Energy), Units = "Execution Cycles (EC)"},
 									};
 			else
-				throw new NnpException(NnpError.NotFound);
+				throw new IccpException(IccpError.NotFound);
 		}
 	}
 }
@@ -337,10 +337,10 @@ public class NnAssetBalanceApc : RdnApc
 	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
 		if(HolderClass != nameof(User))
-			throw new NnpException(NnpError.Unknown);
+			throw new IccpException(IccpError.Unknown);
 
 		if(Name != nameof(User.Spacetime) && Name != nameof(User.Energy))
-			throw new NnpException(NnpError.Unknown);
+			throw new IccpException(IccpError.Unknown);
 
 		lock(rdn.Mcv.Lock)
 		{	
@@ -353,7 +353,7 @@ public class NnAssetBalanceApc : RdnApc
 												nameof(User.Energy) => a.Energy,
 											});
 			else
-				throw new NnpException(NnpError.NotFound);
+				throw new IccpException(IccpError.NotFound);
 		}
 	}
 }

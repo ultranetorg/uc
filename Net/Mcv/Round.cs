@@ -62,7 +62,7 @@ public abstract class Round : IBinarySerializable
 	public virtual int									AffectedCount => AffectedMetas.Count + AffectedUsers.Count + Mcv.Tables.Sum(i => AffectedByTable(i).Count);
 
 	public List<OutwardTransaction>						OutwardTransactions;
-	public List<IccTransaction>							IccTransactions;
+	public List<IccpTransaction>							IccTransactions;
 
 	public List<Generator>								Candidates;
 	public List<Generator>								Members;
@@ -89,7 +89,7 @@ public abstract class Round : IBinarySerializable
 	public long											ConsensusEnergyCost;
 	//public int											ConsensusOverloadRound;
 	public byte[][]										ConsensusIncomingTransfers;
-	public IccTransferResult[]					ConsensusOutgoingTransfers;
+	public IccpTransferResult[]					ConsensusOutgoingTransfers;
 	public OutwardResult[]								ConsensusOutwards = {};
 
 	public bool											Confirmed = false;
@@ -632,7 +632,7 @@ public abstract class Round : IBinarySerializable
 			var s = execution.Friends.Affect(txs.Key);
 
 			s.OutStatus = IccTransferStatus.FormedAndPending;
-			s.LastOutgoingTransfer = new IccTransfer
+			s.LastOutgoingTransfer = new IccpTransfer
 									 {
 									 	Id = s.LastOutgoingTransfer == null ? 0 : (s.LastOutgoingTransfer.Id + 1),
 									 	Transactions = [..txs]
@@ -649,7 +649,7 @@ public abstract class Round : IBinarySerializable
 					throw new ConfirmationException(this, []);
 
 			var f = execution.Friends.Affect(t.From);
-			f.LastIncomingTransfer = new IccTransferResult {Hash = t.Hash, Results = new bool[t.Transactions.Length]};
+			f.LastIncomingTransfer = new IccpTransferResult {Hash = t.Hash, Results = new bool[t.Transactions.Length]};
 
 			for(int j = 0; j < t.Transactions.Length; j++)
 			{	
@@ -681,7 +681,7 @@ public abstract class Round : IBinarySerializable
 
 //		foreach(var i in Mcv.Subnets.TailGraphEntities.Where(i => i.OutStatus == OutTransactionStatus.Confirmed && i.OutOperations.Any()))
 //		{
-//			//Call(new TransactionNna
+//			//Call(new TransactionIcca
 //			//		{ 
 //			//		Net			= i.Name,
 //			//		Nonce		= i.OutNonce + 1,
@@ -755,7 +755,7 @@ public abstract class Round : IBinarySerializable
 															return o;
 														});
 		IccTransactions			= reader.ReadList(() => {
- 										 					var o = Net.Constructor.Construct(typeof(IccTransaction), reader.ReadUInt32()) as IccTransaction;
+ 										 					var o = Net.Constructor.Construct(typeof(IccpTransaction), reader.ReadUInt32()) as IccpTransaction;
  										 					o.Read(reader); 
  										 					return o; 
  														});
@@ -787,7 +787,7 @@ public abstract class Round : IBinarySerializable
 		ConsensusFundLeavers					= reader.ReadArray<AccountAddress>();
 		ConsensusTransactions					= reader.Read(() =>	new Transaction {Net = Mcv.Net, Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		ConsensusIncomingTransfers			= reader.ReadArray(reader.ReadHash);
-		ConsensusOutgoingTransfers	= reader.ReadArray<IccTransferResult>();
+		ConsensusOutgoingTransfers	= reader.ReadArray<IccpTransferResult>();
 		ConsensusOutwards						= reader.ReadArray<OutwardResult>();
 	}
 

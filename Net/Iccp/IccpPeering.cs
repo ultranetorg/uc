@@ -4,17 +4,19 @@ using System.Net.Sockets;
 
 namespace Uccs.Net;
 
-public class NnpPeering : TcpPeering<NnpPeer>
+public class IccpPeering : TcpPeering<IccpPeer>
 {
 	Mcv											Mcv;
-	protected List<NnpPeer>						Peers = [];
-	protected override IEnumerable<NnpPeer>		PeersToDisconnect => Peers;
+	protected List<IccpPeer>					Peers = [];
+	protected override IEnumerable<IccpPeer>	PeersToDisconnect => Peers;
+	Func<List<string>>							GetNets;
 
-	protected override NnpPeer					CreatePeer() => new ();
+	protected override IccpPeer					CreatePeer() => new ();
 
-	public NnpPeering(IProgram program, Mcv mcv, string name, PeeringSettings settings, long roles, Flow flow) : base(program, name, settings, flow)
+	public IccpPeering(IProgram program, Mcv mcv, string name, PeeringSettings settings, Func<List<string>> nets, Flow flow) : base(program, name, settings, flow)
 	{
 		Mcv = mcv;
+		GetNets = nets;
 		///Register(typeof(NncClass), node);
 	}
 
@@ -37,17 +39,17 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		return h;
 	}
 
-	protected override void AddPeer(NnpPeer peer)
+	protected override void AddPeer(IccpPeer peer)
 	{
 		Peers.Add(peer);
 	}
 
-	protected override void RemovePeer(NnpPeer peer)
+	protected override void RemovePeer(IccpPeer peer)
 	{
 		Peers.Remove(peer);
 	}
 
-	protected override NnpPeer FindPeer(Endpoint ip)
+	protected override IccpPeer FindPeer(Endpoint ip)
 	{
 		return Peers.FirstOrDefault(i => i.EP.Equals(ip));
 	}
@@ -57,13 +59,13 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		return true;
 	}
 
-	protected override Hello CreateOutboundHello(NnpPeer peer, bool permanent)
+	protected override Hello CreateOutboundHello(IccpPeer peer, bool permanent)
 	{
 		lock(Lock)
 		{
 			var h = new NnHello
 					{
-						Nets = peer.Nets,
+						Nets = GetNets(),
 						Name = Name,
 						Roles = 0,
 						Versions = Versions,
@@ -94,7 +96,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		}
 	}
 
-	protected override bool Consider(bool inbound, Hello hello, NnpPeer peer)
+	protected override bool Consider(bool inbound, Hello hello, IccpPeer peer)
 	{
 		if(!hello.Versions.Any(i => Versions.Contains(i)))
 			return false;
@@ -127,9 +129,9 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		return true;
 	}
 
-	public NnpPeer GetPeer(Endpoint endpoint, List<string> nets)
+	public IccpPeer GetPeer(Endpoint endpoint, List<string> nets)
 	{
-		NnpPeer p = null;
+		IccpPeer p = null;
 
 		lock(Lock)
 		{
@@ -138,7 +140,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 			if(p != null)
 				return p;
 
-			p = new NnpPeer(endpoint){Nets = nets};
+			p = new IccpPeer(endpoint){Nets = nets};
 			Peers.Add(p);
 		}
 
@@ -183,7 +185,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		}
 	}
 
-	public NnpPeer ChooseBestPeer(string net, HashSet<NnpPeer> exclusions)
+	public IccpPeer ChooseBestPeer(string net, HashSet<IccpPeer> exclusions)
 	{
 		/// try existing peers
 		var p = Peers.Where(i => i.Nets.Contains(net) && (exclusions == null || !exclusions.Contains(i)))
@@ -210,9 +212,9 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		return p;
 	}
 
-	public virtual Result Call(string from, string to, Argumentation call, Flow flow)
+	public virtual Result Call(string from, string to, IccpArgumentation call, Flow flow)
 	{
-		HashSet<NnpPeer> tried;
+		HashSet<IccpPeer> tried;
 		
 		void reset()
 		{
@@ -221,7 +223,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 
 		reset();
 
-		NnpPeer p;
+		IccpPeer p;
 
 		while(flow.Active)
 		{
@@ -265,7 +267,7 @@ public class NnpPeering : TcpPeering<NnpPeer>
 		throw new OperationCanceledException();
 	}
 
-	public void Broadcast(string from, string to, TransferRequestNna message, NnpPeer skip = null)
+	public void Broadcast(string from, string to, TransferRequestIcca message, IccpPeer skip = null)
 	{
 		foreach(var i in Peers.Where(i => i.Nets.Contains(to) && i != skip))
 		{

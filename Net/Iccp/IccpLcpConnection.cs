@@ -12,20 +12,20 @@ public enum NnpIppConnectionType : byte
 	Client
 }
 
-public class NnpLcpConnection : LcpConnection
+public class IccpLcpConnection : LcpConnection
 {
 	public static string GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();
 	public string Net;
 
-	public NnpLcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Constructor constructor, Flow flow) : base(program, pipe, server, constructor, flow)
+	public IccpLcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Constructor constructor, Flow flow) : base(program, pipe, server, constructor, flow)
 	{
 	}
 
-	public NnpLcpConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	public IccpLcpConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 		//RegisterHandler(typeof(NnpClass), this);
 
-		Dictionary<Type, Func<string, NnpArgumentation, Result>> ms = [];
+		Dictionary<Type, Func<string, IccpArgumentation, Result>> ms = [];
 
 		Handler = (from, to, a) =>	{
 										if(ms.TryGetValue(a.GetType(), out var e))
@@ -33,7 +33,7 @@ public class NnpLcpConnection : LcpConnection
 											return e(to, a);
 										}
 
-										var m = CreateAdapter<Func<string, NnpArgumentation, Result>>(GetType().GetMethods().First(i => i.GetParameters().Length == 2 && 
+										var m = CreateAdapter<Func<string, IccpArgumentation, Result>>(GetType().GetMethods().First(i => i.GetParameters().Length == 2 && 
 																																		i.GetParameters()[0].ParameterType == typeof(string) && 
 																																		i.GetParameters()[1].ParameterType == a.GetType() && 
 																																		i.ReturnType == typeof(Result)));
@@ -47,8 +47,8 @@ public class NnpLcpConnection : LcpConnection
 	public override void BuildConstructor()
 	{
 		Constructor = new ();
-		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
-		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(NnpClass), i => i[..^3]);
+		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(IccpClass), i => i[..^4]);
+		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(IccpClass), i => i[..^4]);
 		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
@@ -94,7 +94,7 @@ public class NnpLcpConnection : LcpConnection
 		try
 		{
 			///var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Result;
-			var r = Handler(Net, to, request.Argumentation as NnpArgumentation);
+			var r = Handler(Net, to, request.Argumentation as IccpArgumentation);
 	
 			lock(Writer)
 			{
@@ -118,7 +118,7 @@ public class NnpLcpConnection : LcpConnection
 				} 
 				else
 				{
-					BinarySerializator.Serialize(Writer, new NnpException(NnpError.ExcutionFailed));
+					BinarySerializator.Serialize(Writer, new IccpException(IccpError.ExcutionFailed));
 				}
 			}
 		}
@@ -224,7 +224,7 @@ public class NnpLcpConnection : LcpConnection
 	public Result Call(string to, Argumentation argumentation, Flow flow)
 	{
 		if(!Pipe.IsConnected)
-			throw new IpcException(IpcError.ConnectionLost);
+			throw new LcpException(LcpError.ConnectionLost);
 
 		var rq = new LcpRequest
 				 {
@@ -272,15 +272,15 @@ public class NnpLcpConnection : LcpConnection
 		else if(i == 1 || i == 2)
 			throw new OperationCanceledException();
 		else
-			throw new IpcException(IpcError.ConnectionLost);
+			throw new LcpException(LcpError.ConnectionLost);
 	}
 }
 
-public class NnpLcpClientConnection : NnpLcpConnection
+public class IccpLcpClientConnection : IccpLcpConnection
 {
 	//public R Call<A, R>(Nnc<A, R> call, Flow flow) where A : NnpArgumentation, new() where R : Result => Call(call.Argumentation, flow) as R;
 
-	public NnpLcpClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	public IccpLcpClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 	}
 
@@ -291,7 +291,7 @@ public class NnpLcpClientConnection : NnpLcpConnection
 
 	//public virtual byte[] Transact(Net net, byte[] transaction, Endpoint node, Flow flow)
 	//{
-	//	return Call(new Nnc<TransactNna, TransactNnr>(	new()
+	//	return Call(new Nnc<TransactIcca, TransactIccr>(	new()
 	//													{
 	//														Format = PacketFormat.Binary,
 	//														Transaction = transaction,
@@ -308,12 +308,12 @@ public class NnpLcpClientConnection : NnpLcpConnection
 		BinarySerializator.Serialize(w, request);
 
 		var rp = Call(	to,
-						new RequestNna()
+						new RequestIcca()
 						{
 							Format = PacketFormat.Binary,
 							Request = s.ToArray(),
 						},
-						flow) as RequestNnr;
+						flow) as RequestIccr;
 
 		
 		var r = new Reader(new MemoryStream(rp.Response), Constructor);
@@ -322,9 +322,9 @@ public class NnpLcpClientConnection : NnpLcpConnection
 	}
 }
 
-public class NnpLcpNodeConnection : NnpLcpConnection
+public class IccpLcpNodeConnection : IccpLcpConnection
 {
-	public NnpLcpNodeConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	public IccpLcpNodeConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 	}
 }

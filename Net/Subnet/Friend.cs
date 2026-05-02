@@ -18,8 +18,8 @@ public class Friend : IBinarySerializable, ITableEntry
 	public string						Name { get; set; }
 	public Snp							Client { get; set; }
 	public Endpoint[]					Peers { get; set; }
-	public IccTransferResult			LastIncomingTransfer { get; set; }
-	public IccTransfer					LastOutgoingTransfer { get; set; }
+	public IccpTransferResult			LastIncomingTransfer { get; set; }
+	public IccpTransfer					LastOutgoingTransfer { get; set; }
 	public IccTransferStatus			OutStatus { get; set; }
 
 	public EntityId						Key => Id;
@@ -68,7 +68,7 @@ public class Friend : IBinarySerializable, ITableEntry
 		return true;
 	}
 
-	public static bool Valid(IccTransfer state)
+	public static bool Valid(IccpTransfer state)
 	{
 		return true; //state.Peers.Length > PeersMaximum;
 	}
@@ -100,8 +100,8 @@ public class Friend : IBinarySerializable, ITableEntry
 		Name					= reader.ReadASCII();
 		Client					= reader.Read<Snp>();
 		Peers					= reader.ReadArray<Endpoint>();
-		LastIncomingTransfer	= reader.Read<IccTransferResult>();
-		LastOutgoingTransfer	= reader.Read<IccTransfer>(); 
+		LastIncomingTransfer	= reader.Read<IccpTransferResult>();
+		LastOutgoingTransfer	= reader.Read<IccpTransfer>(); 
 		OutStatus				= reader.Read<IccTransferStatus>();
 	}
 

@@ -4,30 +4,30 @@ using Uccs.Net;
 
 namespace Uccs.Nexus;
 
-public class NnpNode
+public class IccpNode
 {
 	public string			Api { get; set; }
 	public string			Net;
-	public NnpLcpConnection	Connection;
+	public IccpLcpConnection	Connection;
 }
 	
-public class NnpLcpServer : LcpServer
+public class IccpLcpServer : LcpServer
 {
 	Nexus					Nexus;
-	public List<NnpNode>	Locals = [];
+	public List<IccpNode>	Locals = [];
 
-	public NnpLcpServer(Nexus nexus) : base(nexus, NnpLcpConnection.GetName(nexus.Settings.Host), nexus.Flow)
+	public IccpLcpServer(Nexus nexus) : base(nexus, IccpLcpConnection.GetName(nexus.Settings.Host), nexus.Flow)
 	{
 		Nexus = nexus;
 
-		Constructor.Register<Argumentation>	(typeof(NnpClass).Assembly,			typeof(NnpClass),		i => i.Remove(i.Length - 3));
-		Constructor.Register<Result>		(typeof(NnpClass).Assembly,			typeof(NnpClass),		i => i.Remove(i.Length - 3));
+		Constructor.Register<Argumentation>	(typeof(IccpClass).Assembly,		typeof(IccpClass),		i => i.Remove(i.Length - 4));
+		Constructor.Register<Result>		(typeof(IccpClass).Assembly,		typeof(IccpClass),		i => i.Remove(i.Length - 4));
 		Constructor.Register<CodeException>	(typeof(ExceptionClass).Assembly,	typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	protected override LcpConnection CreateConnection(NamedPipeServerStream pipe)
 	{
-		return new NnpLcpConnection(Program, pipe, this, Constructor, Flow);
+		return new IccpLcpConnection(Program, pipe, this, Constructor, Flow);
 	}
 
 	public override void Accept(LcpConnection connection)
@@ -38,15 +38,15 @@ public class NnpLcpServer : LcpServer
 		{	
 			var net = connection.Reader.ReadUtf8();
 			var api = connection.Reader.ReadUtf8();
-			Locals.Add(new NnpNode {Connection = connection as NnpLcpConnection, Net = net, Api = api});
+			Locals.Add(new IccpNode {Connection = connection as IccpLcpConnection, Net = net, Api = api});
 		}
 
 		connection.Handler = (from, to, a) => Relay(from, to, a);  /// relay from local nodes
 	}
 
-	public override Result Relay(string from, string to, NnpArgumentation call)
+	public override Result Relay(string from, string to, IccpArgumentation call)
 	{
-		if(call is not TransferRequestNna tr)
+		if(call is not TransferRequestIcca tr)
 		{
 			var n = Locals.Find(i => i.Net == to);
 

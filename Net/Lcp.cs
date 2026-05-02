@@ -27,7 +27,7 @@ public abstract class LcpConnection
 	public Constructor				Constructor;
 	protected Flow					Flow;
 
-	public Func<string, string, NnpArgumentation, Result>	Handler;
+	public Func<string, string, IccpArgumentation, Result>	Handler;
 
 	public abstract void			Listen();
 	public abstract void			BuildConstructor();
@@ -122,7 +122,7 @@ public abstract class LcpServer
 	public Constructor					Constructor = new();
 
 	public virtual void					Accept(LcpConnection connection){}
-	public abstract Result				Relay(string from, string to, NnpArgumentation call);
+	public abstract Result				Relay(string from, string to, IccpArgumentation call);
 
 	protected abstract LcpConnection	CreateConnection(NamedPipeServerStream pipe);
 

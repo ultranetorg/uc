@@ -1,11 +1,11 @@
 ﻿namespace Uccs.Net;
 
-public class IccTransferResult : IBinarySerializable, IEquatable<IccTransferResult>, IComparable<IccTransferResult>
+public class IccpTransferResult : IBinarySerializable, IEquatable<IccpTransferResult>, IComparable<IccpTransferResult>
 {
 	public byte[] Hash { get; set; }
 	public bool[] Results { get; set; }
 
-	public int CompareTo(IccTransferResult other)
+	public int CompareTo(IccpTransferResult other)
 	{
 		var r = Bytes.Comparer.Compare(Hash, other.Hash);
 		
@@ -26,10 +26,10 @@ public class IccTransferResult : IBinarySerializable, IEquatable<IccTransferResu
 
 	public override bool Equals(object obj)
 	{
-		return obj is IccTransferResult c && Equals(obj);
+		return obj is IccpTransferResult c && Equals(obj);
 	}
 
-	public bool Equals(IccTransferResult c)
+	public bool Equals(IccpTransferResult c)
 	{
 		return Bytes.Equals(Hash, c.Hash) && Results.SequenceEqual(c.Results);
 		

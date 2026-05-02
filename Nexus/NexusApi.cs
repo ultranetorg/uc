@@ -152,7 +152,7 @@ public class NexusOpenApc : Apc, INexusApc
 	}
 }
 
-public class NnpNodeApc : Apc, INexusApc
+public class IccpNodeApc : Apc, INexusApc
 {
 	public string Net { get; set; }
 
@@ -163,10 +163,10 @@ public class NnpNodeApc : Apc, INexusApc
 	}
 }
 
-public class NnpCallApc : Apc, INexusApc
+public class IccpCallApc : Apc, INexusApc
 {
-	public string			To { get; set; }
-	public Argumentation	Argumentation { get; set; }
+	public string				To { get; set; }
+	public IccpArgumentation	Argumentation { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
@@ -177,7 +177,7 @@ public class NnpCallApc : Apc, INexusApc
 
 //public class TransactNncApc : Apc, INexusApc
 //{
-//	public TransactNna	Argumentation { get; set; }
+//	public TransactIcca	Argumentation { get; set; }
 //
 //	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 //	{

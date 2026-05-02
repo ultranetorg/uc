@@ -22,7 +22,7 @@ public class Vote : IBinarySerializable
 	///public AccountAddress[]			FundLeavers = {};
 	public AutoId[]						Violators = [];
 	public byte[][]						FriendTransferRequests = [];
-	public IccTransferResult[]	FriendTransferConfirmations = [];
+	public IccpTransferResult[]	FriendTransferConfirmations = [];
 	public Transaction[]				Transactions = [];
 	public byte[]						Signature { get; set; }
 	public OutwardResult[]				OutwardResults = {};
@@ -174,7 +174,7 @@ public class Vote : IBinarySerializable
 
 		OutwardResults				= reader.ReadArray<OutwardResult>();
 		FriendTransferRequests		= reader.ReadArray(reader.ReadBytes);
-		FriendTransferConfirmations	= reader.ReadArray<IccTransferResult>();
+		FriendTransferConfirmations	= reader.ReadArray<IccpTransferResult>();
 	}
 
 	public void Write(Writer writer)
