@@ -5,10 +5,10 @@ namespace Uccs.Net;
 public class NexusSettings : SavableSettings
 {
 	public string			Name { get; set; }
-	public IPAddress		Host { get; set; } = Net.DefaultHost;
+	public IPAddress		Host { get; set; }
 	public IpApiSettings	Api { get; set; }
 	public string			Packages { get; set; }
-	public PeeringSettings	NnPeering { get; set; }
+	public PeeringSettings	IccpPeering { get; set; }
 
 	public Zone				Zone;
 

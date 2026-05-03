@@ -2,7 +2,7 @@
 
 namespace Uccs.Net;
 
-public class McvIccpLcpConnection: IccpLcpNodeConnection
+public class McvIccpLcpConnection: IccpLcpConnection
 {
 	public McvNode		Node => Program as McvNode;
 	public Mcv			Mcv => Node.Mcv;
@@ -16,35 +16,35 @@ public class McvIccpLcpConnection: IccpLcpNodeConnection
 	{
 		Classes = [nameof(User)];
 
-		Mcv.FriendBlockFormed += (e, f) =>	{
-										 		foreach(var i in node.Settings.Mcv.Generators.Where(i => e.Round.Members.Any(j => j.User == i.Id)))
-										 		{
-													Task.Run(() =>	{
-										 								Call(f.Name, new TransferRequestIcca {Hash = f.LastOutgoingTransfer.Hash
-																											/*
-																											 * , 
-																											 *	Signature = Net.Cryptography.ZeroSignature
-																											 *
-																											 */}, Flow);
+		Mcv.FriendTransferFormed += (e, f) =>	{
+										 			foreach(var i in node.Settings.Mcv.Generators.Where(i => e.Round.Members.Any(j => j.User == i.Id)))
+										 			{
+														Task.Run(() =>	{
+										 									Call(Net, f.Name, new TransferRequestIcca {Hash = f.LastOutgoingTransfer.Hash
+																												/*
+																												 * , 
+																												 *	Signature = Net.Cryptography.ZeroSignature
+																												 *
+																												 */}, Flow);
 
-																		while(Flow.Active)
-																		{
-																			var rp = Call(f.Name, new LastIncomingTransferIcca {}, Flow) as LastIncomingTransferIccr;
-
-																			if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Result.Hash))
+																			while(Flow.Active)
 																			{
-																				Mcv.FriendTransferResults.Add(rp.Result, f.Name);
-																				break;
+																				var rp = Call(Net, f.Name, new LastIncomingTransferIcca {}, Flow) as LastIncomingTransferIccr;
+
+																				if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Result.Hash))
+																				{
+																					Mcv.FriendTransferResults.Add(rp.Result, f.Name);
+																					break;
+																				}
+
+																				if(rp.Id > f.LastOutgoingTransfer.Id) /// too late, next one is confirmed already
+																					break;
+
+																				Thread.Sleep(1000);
 																			}
-
-																			if(rp.Id > f.LastOutgoingTransfer.Id) /// too late, next one is confirmed already
-																				break;
-
-																			Thread.Sleep(1000);
-																		}
-																	});
-										 		}
-											};
+																		});
+										 			}
+												};
 
 	}
 
@@ -52,7 +52,7 @@ public class McvIccpLcpConnection: IccpLcpNodeConnection
 	{
 		lock(Writer)
 		{
-			Writer.Write(NnpIppConnectionType.Node);
+			Writer.Write(IccpLcpConnectionType.Node);
 			Writer.WriteUtf8(Node.Net.Address);
 			Writer.WriteUtf8(Node.Settings.Api.LocalNodeAddress(Node.Net));
 		}
@@ -70,7 +70,7 @@ public class McvIccpLcpConnection: IccpLcpNodeConnection
  			//if(m.Nonce != args.Nonce - 1)
  			//	throw new EntityException(EntityError.NotSequential);
 			
-			var rp = Call(from, new LastOutgoingTransferIcca {}, Flow) as LastOutgoingTransferIccr;
+			var rp = Call(Net, from, new LastOutgoingTransferIcca {}, Flow) as LastOutgoingTransferIccr;
 			
  			///
  			/// TODO : Check signature
@@ -119,7 +119,7 @@ public class McvIccpLcpConnection: IccpLcpNodeConnection
 		if(Node.Peering.Synchronization == Synchronization.Synchronized)
 		{
 			lock(Node.Mcv)
-				return new PeersIccr {Peers = Node.Mcv.LastConfirmedRound.Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
+				return new PeersIccr {Peers = [..Node.Mcv.LastConfirmedRound.Members.Select(i => i.GraphPpcIPs[0])]};
 		}
 		else
 		{

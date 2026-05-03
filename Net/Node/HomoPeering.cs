@@ -1,10 +1,26 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using RocksDbSharp;
 
 namespace Uccs.Net;
+
+public class HomoHello : Hello
+{
+	public string	Net;
+
+	public override void Write(Writer writer)
+	{
+		base.Write(writer);
+		writer.WriteASCII(Net);
+	}
+
+	public override void Read(Reader reader)
+	{
+		base.Read(reader);
+		Net	= reader.ReadASCII();
+	}
+}
 
 public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same type of peers
 {

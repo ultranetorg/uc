@@ -67,7 +67,7 @@ public abstract class Mcv /// Mutual chain voting
 	public RoundDelegate						ConsensusReached;
 	public RoundDelegate						ConsensusFailed;
 	public RoundDelegate						Confirmed;
-	public SubnetDelegate						FriendBlockFormed;
+	public SubnetDelegate						FriendTransferFormed;
 
 	public List<OutwardResult>					OutwardResults = new();
 

@@ -33,17 +33,16 @@ public class Port
 public abstract class Net
 {
 	public const string					Root = "rdn";
-	public readonly static IPAddress	DefaultHost = new IPAddress([127, 1, 0, 0]);
+	public IPAddress					DefaultHost => Initials[0];
 
 	public abstract string				Address { get; }
 	public abstract string				Name { get; }
 	public abstract	Zone				Zone { get; }
 	public abstract ushort				PpiPort { get; }
 	public abstract ushort				ApiPort { get; }
-	public ushort						NniPort => Port.Map(Zone, KnownProtocol.Nni);
+	public ushort						IccpPort => Port.Map(Zone, KnownProtocol.Nni);
 
 	public IPAddress[]					Initials;
-	public static readonly  IPAddress[]	LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
 	public static readonly  IPAddress[]	UOInitials = @" 78.47.204.100	
 														185.208.159.160	
 														5.42.221.102	

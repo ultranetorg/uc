@@ -10,7 +10,6 @@ public class NnRequestPacket: RequestPacket
 
 public class IccpPeer : Peer, IBinarySerializable
 {
-	LcpServer				Lcp;
 	public List<string>		Nets;
 
 	public IccpPeer()
@@ -73,7 +72,7 @@ public class IccpPeer : Peer, IBinarySerializable
 						
 						try
 						{
-							var r = Lcp.Relay(from, to, rq as IccpArgumentation);
+							var r = (Peering as IccpPeering).Lcp.Relay(from, to, rq as IccpArgumentation);
 
 							if(r != null)
 							{

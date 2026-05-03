@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Reflection;
 
 namespace Uccs.Net;
 //
@@ -19,6 +20,20 @@ namespace Uccs.Net;
 //		writer.WriteASCII(Id);
 //	}
 //}
+
+public class Iccp
+{
+	public static Constructor	Constructor;
+
+	static Iccp()
+	{
+ 		Constructor = new ();
+		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(IccpClass), i => i[..^4]);
+		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(IccpClass), i => i[..^4]);
+		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
+	}
+}
+
 
 public class Asset : IBinarySerializable
 {
@@ -58,7 +73,7 @@ public enum IccpClass : uint
 	AssetTransfer
 }
 
-public abstract class IccpArgumentation : Argumentation
+public abstract class IccpArgumentation : Argumentation, IBinarySerializable
 {
 	//public string		Net { get; set; }
 
@@ -66,16 +81,6 @@ public abstract class IccpArgumentation : Argumentation
 	//public virtual void	Write(Writer writer) => writer.WriteASCII(Net);
 	public virtual void		Read(Reader reader){}
 	public virtual void		Write(Writer writer){}
-}
-
-public class Nnc<A, R> : ICall<A, R> where A : IccpArgumentation, new() where R : Result
-{
-	public A Argumentation;
-
-	public Nnc(A argumentation)
-	{
-		Argumentation = argumentation;
-	}
 }
 
 public class TransferRequestIcca : IccpArgumentation

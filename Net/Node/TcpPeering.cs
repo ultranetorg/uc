@@ -97,8 +97,6 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 		Flow.Log?.Report(this, $"Version: {Version}");
 		Flow.Log?.Report(this, $"Runtime: {Environment.Version}");
 		Flow.Log?.Report(this, $"Protocols: {string.Join(',', Versions)}");
-
-		Constructor.Register<CodeException>(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 
 	public virtual void Run()

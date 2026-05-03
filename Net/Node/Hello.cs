@@ -31,37 +31,3 @@ public abstract class Hello
 		Permanent	= r.ReadBoolean();
 	}
 }
-
-public class HomoHello : Hello
-{
-	public string	Net;
-
-	public override void Write(Writer writer)
-	{
-		base.Write(writer);
-		writer.WriteASCII(Net);
-	}
-
-	public override void Read(Reader reader)
-	{
-		base.Read(reader);
-		Net	= reader.ReadASCII();
-	}
-}
-
-public class NnHello : Hello
-{
-	public List<string>	Nets;
-
-	public override void Write(Writer writer)
-	{
-		base.Write(writer);
-		writer.Write(Nets, writer.WriteASCII);
-	}
-
-	public override void Read(Reader reader)
-	{
-		base.Read(reader);
-		Nets = reader.ReadList(reader.ReadASCII);
-	}
-}

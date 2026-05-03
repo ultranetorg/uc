@@ -638,7 +638,7 @@ public abstract class Round : IBinarySerializable
 									 	Transactions = [..txs]
 									 };
 
-			Mcv.FriendBlockFormed?.Invoke(execution, s);
+			Mcv.FriendTransferFormed?.Invoke(execution, s);
 		}
 
 

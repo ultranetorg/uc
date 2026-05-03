@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Uccs.Net;
 
-public enum NnpIppConnectionType : byte
+public enum IccpLcpConnectionType : byte
 {
 	Unknown = 0,
 	Node,
@@ -17,7 +17,7 @@ public class IccpLcpConnection : LcpConnection
 	public static string GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();
 	public string Net;
 
-	public IccpLcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Constructor constructor, Flow flow) : base(program, pipe, server, constructor, flow)
+	public IccpLcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow) : base(program, pipe, server, flow)
 	{
 	}
 
@@ -44,14 +44,6 @@ public class IccpLcpConnection : LcpConnection
 									};
 	}
 
-	public override void BuildConstructor()
-	{
-		Constructor = new ();
-		Constructor.Register<Argumentation>	(Assembly.GetExecutingAssembly(), typeof(IccpClass), i => i[..^4]);
-		Constructor.Register<Result>		(Assembly.GetExecutingAssembly(), typeof(IccpClass), i => i[..^4]);
-		Constructor.Register<CodeException>	(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
-	}
-
 	TFunc CreateAdapter<TFunc>(MethodInfo mi) where TFunc : Delegate
 	{
 		var funcType = typeof(TFunc);
@@ -75,32 +67,32 @@ public class IccpLcpConnection : LcpConnection
 		return Expression.Lambda<TFunc>(body, lp).Compile();
 	}
 
-	void Request(string to, LcpRequest request)
+	void Request(string from, string to, LcpRequest request)
 	{
 		lock(Writer)
 		{
-			Writer.Write((byte)PacketType.Request);
-			Writer.WriteASCII(Net);
+			Writer.Write(PacketType.Request);
+			Writer.WriteASCII(from);
 			Writer.WriteASCII(to);
 			Writer.Write(request.Id);
-			Writer.Write(Constructor.TypeToCode(request.Argumentation.GetType()));
+			Writer.Write(Iccp.Constructor.TypeToCode(request.Argumentation.GetType()));
 			(request.Argumentation as IBinarySerializable).Write(Writer);
 			///BinarySerializator.Serialize(Writer, request.Argumentation, Constructor.TypeToCode);
 		}
 	}
 
-	void Respond(string to, LcpRequest request)
+	void Respond(string from, string to, LcpRequest request)
 	{
 		try
 		{
 			///var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Result;
-			var r = Handler(Net, to, request.Argumentation as IccpArgumentation);
+			var r = Handler(from, to, request.Argumentation as IccpArgumentation);
 	
 			lock(Writer)
 			{
 				Writer.Write(PacketType.Response);
 				Writer.Write(request.Id);
-				Writer.Write(Constructor.TypeToCode(r.GetType()));
+				Writer.Write(Iccp.Constructor.TypeToCode(r.GetType()));
 				(r as IBinarySerializable).Write(Writer); 
 				///BinarySerializator.Serialize(Writer, r, Constructor.TypeToCode);
 			}
@@ -130,7 +122,7 @@ public class IccpLcpConnection : LcpConnection
 		{
 			while(Pipe.IsConnected && Flow.Active)
 			{
-				var pk = (PacketType)Reader.ReadByte();
+				var pk = Reader.Read<PacketType>();
 
 //				if(Pipeing.Flow.Aborted || Status != ConnectionStatus.OK)
 //					return;
@@ -141,13 +133,13 @@ public class IccpLcpConnection : LcpConnection
  					{
 						var rq = new LcpRequest();
 						var from = Reader.ReadASCII();
-						var me = Reader.ReadASCII();
+						var to = Reader.ReadASCII();
 						rq.Id = Reader.ReadInt32();
-						rq.Argumentation = Constructor.Construct(typeof(Argumentation), Reader.ReadUInt32()) as Argumentation;
-						(rq.Argumentation as IBinarySerializable).Read(Reader);
+						rq.Argumentation = Iccp.Constructor.Construct(typeof(Argumentation), Reader.ReadUInt32()) as Argumentation;
+						(rq.Argumentation as IccpArgumentation).Read(Reader);
 						///rq.Argumentation = BinarySerializator.Deserialize<Argumentation>(Reader, Constructor.Construct);
 						
-						Respond(from, rq);
+						Respond(from, to,  rq);
 
  						break;
  					}
@@ -155,7 +147,7 @@ public class IccpLcpConnection : LcpConnection
 					case PacketType.Response:
  					{
 						var id = Reader.ReadInt32();
-						var r = Constructor.Construct(typeof(Result), Reader.ReadUInt32()) as Result;
+						var r = Iccp.Constructor.Construct(typeof(Result), Reader.ReadUInt32()) as Result;
 						(r as IBinarySerializable).Read(Reader);
 						///var r = BinarySerializator.Deserialize<Result>(Reader, Constructor.Construct);
 
@@ -221,7 +213,7 @@ public class IccpLcpConnection : LcpConnection
 ///		Request(rq);
 ///	}
 
-	public Result Call(string to, Argumentation argumentation, Flow flow)
+	public Result Call(string from, string to, Argumentation argumentation, Flow flow)
 	{
 		if(!Pipe.IsConnected)
 			throw new LcpException(LcpError.ConnectionLost);
@@ -238,7 +230,7 @@ public class IccpLcpConnection : LcpConnection
 			OutRequests.Add(rq);
 		}
 
-		Request(to, rq);
+		Request(from, to, rq);
 
 		int i = -1;
 
@@ -286,7 +278,7 @@ public class IccpLcpClientConnection : IccpLcpConnection
 
 	public override void Established()
 	{
-		Writer.Write(NnpIppConnectionType.Client);
+		Writer.Write(IccpLcpConnectionType.Client);
 	}
 
 	//public virtual byte[] Transact(Net net, byte[] transaction, Endpoint node, Flow flow)
@@ -300,14 +292,15 @@ public class IccpLcpClientConnection : IccpLcpConnection
 	//													flow).Result;
 	//}
 	
-	public virtual Result Request(string to, PeerRequest request, Flow flow)
+	public virtual Result Request(string from, string to, PeerRequest request, Flow flow)
 	{
 		var s = new MemoryStream();
-		var w = new Writer(s, Constructor);
+		var w = new Writer(s, Iccp.Constructor);
 
 		BinarySerializator.Serialize(w, request);
 
-		var rp = Call(	to,
+		var rp = Call(	from,
+						to,
 						new RequestIcca()
 						{
 							Format = PacketFormat.Binary,
@@ -316,15 +309,8 @@ public class IccpLcpClientConnection : IccpLcpConnection
 						flow) as RequestIccr;
 
 		
-		var r = new Reader(new MemoryStream(rp.Response), Constructor);
+		var r = new Reader(new MemoryStream(rp.Response), Iccp.Constructor);
 		
 		return BinarySerializator.Deserialize<Result>(r);
-	}
-}
-
-public class IccpLcpNodeConnection : IccpLcpConnection
-{
-	public IccpLcpNodeConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
-	{
 	}
 }

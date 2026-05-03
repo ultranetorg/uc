@@ -24,8 +24,8 @@ public class RdnNode : McvNode
 	public ResourceHub				ResourceHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
-	//public RdnNnTcpPeering			NnPeering;
-	//public NnpLcpConnection			NnConnection;
+	//public RdnNnTcpPeering		NnPeering;
+	public McvIccpLcpConnection		Iccp;
 	List<OutwardTransaction>		CurrentOutwards = [];
 
 	public RdnNode(Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), profile, nexussettings, flow)
@@ -74,11 +74,12 @@ public class RdnNode : McvNode
 															});
 										}
 									};
+
+			Iccp = new McvIccpLcpConnection(this, flow);
 		}
 
 		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
 
-		//NnConnection = new McvNnpLcpConnection(this, flow);
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
 		if(Settings.Seed != null)
@@ -118,7 +119,7 @@ public class RdnNode : McvNode
 
 		ApiServer?.Stop();
 		Peering.Stop();
-		//NnConnection?.Disconnect();
+		Iccp?.Disconnect();
 		//NnPeering?.Stop();
 		Mcv?.Stop();
 

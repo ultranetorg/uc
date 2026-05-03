@@ -337,7 +337,7 @@ public class Reader : BinaryReader
 
 	public T ReadVirtual<T>() where T : class, IBinarySerializable
 	{
-		var o = Constructor.Construct(typeof(T), ReadByte()) as T;
+		var o = Constructor.Construct(typeof(T), ReadUInt32()) as T;
 		o.Read(this);
 		return o;
 	}

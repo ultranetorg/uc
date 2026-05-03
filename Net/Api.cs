@@ -41,7 +41,7 @@ public class NetJsonConfiguration : JsonConfiguration
 
 public class IpApiSettings : Settings
 {
-	public IPAddress		LocalIP { get; set; } = Net.DefaultHost;
+	public IPAddress		LocalIP { get; set; }
 	public IPAddress		PublicIP { get; set; }
 	public string			PublicAccessKey { get; set; }
 	public bool				Ssl { get; set; }

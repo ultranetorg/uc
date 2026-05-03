@@ -272,7 +272,7 @@ public class CostApc : RdnApc
 	}
 }
 
-public class NnHolderClassesApc : RdnApc
+public class HolderClassesIccpApc : RdnApc
 {
 	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -283,7 +283,7 @@ public class NnHolderClassesApc : RdnApc
 	}
 }
 
-public class NnHoldersByAccountApc : RdnApc
+public class HoldersByAccountIccpApc : RdnApc
 {
 	public byte[]	Address { get; set; }
 
@@ -303,7 +303,7 @@ public class NnHoldersByAccountApc : RdnApc
 	}
 }
 
-public class NnHolderAssetsApc : RdnApc
+public class HolderAssetsIccpApc : RdnApc
 {
 	public string	HolderClass { get; set; }
 	public string	HolderId { get; set; }
@@ -328,7 +328,7 @@ public class NnHolderAssetsApc : RdnApc
 	}
 }
 
-public class NnAssetBalanceApc : RdnApc
+public class AssetBalanceIccpApc : RdnApc
 {
 	public string	HolderClass { get; set; }
 	public string	HolderId { get; set; }
@@ -358,7 +358,7 @@ public class NnAssetBalanceApc : RdnApc
 	}
 }
 
-public class NnTransferApc : RdnApc
+public class TransferIccpApc : RdnApc
 {
 	public string	FromClass { get; set; }
 	public string	FromId { get; set; }

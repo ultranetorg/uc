@@ -18,8 +18,8 @@ public class Nexus : IProgram
 	public Delegate					Stopped;
 	VoidDelegate					OpenIam;
 
-	public IccpPeering				NnpPeering;
-	public IccpLcpServer				NnpIppServer;
+	public IccpPeering				IccpPeering;
+	public IccpLcpServer			IccpLcpServer;
 
 	public delegate void			Delegate(Nexus d);
 
@@ -49,9 +49,12 @@ public class Nexus : IProgram
 
 		Vault = new Vault.Vault(boot.Profile, boot.Zone, vaultsettings, flow);		
 
-		if(Settings.NnPeering != null)
+		if(Settings.IccpPeering != null)
 		{
-			NnpIppServer = new IccpLcpServer(this);
+			IccpLcpServer = new IccpLcpServer(this);
+	
+			IccpPeering = new IccpPeering(this, Settings.Name, Settings.IccpPeering, IccpLcpServer, () => IccpLcpServer.Locals.Select(i => i.Net).ToList(), Flow);
+			IccpPeering.Run();
 		}
 
 		if(Settings.Api != null)
@@ -74,10 +77,25 @@ public class Nexus : IProgram
 
 		ApiServer?.Stop();
 		RdnNode?.Stop();
-		NnpPeering?.Stop();
+		IccpPeering?.Stop();
 		Vault.Stop();
 
 		Stopped?.Invoke(this);
+	}
+	
+	public void RunRdn(RdnNodeSettings rdnsettings, IClock clock)
+	{
+		var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
+		Directory.CreateDirectory(d);
+		
+		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
+		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
+
+		if(IccpPeering != null)
+		{
+			IccpPeering.Mcv = RdnNode.Mcv;
+		}
+		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
 	}
 
 	public Thread CreateThread(Action action)
@@ -107,29 +125,12 @@ public class Nexus : IProgram
 		return c;
 	}
 
-	public IccpLcpClientConnection CreateIccpClientConnection(Constructor constructor)
-	{
-		var c = new	IccpLcpClientConnection(this, IccpLcpConnection.GetName(Settings.Host), Flow);
-		c.Constructor.Merge(constructor);
-		return c;
-	}
-	
-	public void RunRdn(RdnNodeSettings rdnsettings, IClock clock)
-	{
-		var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
-		Directory.CreateDirectory(d);
-		
-		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
-		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
-		
-		if(Settings.NnPeering != null)
-		{
-			NnpPeering = new IccpPeering(this, RdnNode.Mcv, Settings.Name, Settings.NnPeering, () => NnpIppServer.Locals.Select(i => i.Net).ToList(), Flow);
-			NnpPeering.Run();
-		}
-
-		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
-	}
+	//public IccpLcpClientConnection CreateIccpClientConnection(Constructor constructor)
+	//{
+	//	var c = new	IccpLcpClientConnection(this, IccpLcpConnection.GetName(Settings.Host), Flow);
+	//	c.Constructor.Merge(constructor);
+	//	return c;
+	//}
 
 	public void RunApi()
 	{

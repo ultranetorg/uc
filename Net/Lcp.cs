@@ -19,37 +19,33 @@ public abstract class LcpConnection
 {
 	protected IProgram				Program;
 	public PipeStream				Pipe;
+	public bool						Connected => Pipe != null && Pipe.IsConnected;
 	public Reader					Reader;
 	public Writer					Writer;
 	protected List<LcpRequest>		OutRequests = new();
 	protected LcpServer				Server;
 	protected int					IdCounter = 0;
-	public Constructor				Constructor;
 	protected Flow					Flow;
 
 	public Func<string, string, IccpArgumentation, Result>	Handler;
 
 	public abstract void			Listen();
-	public abstract void			BuildConstructor();
 
-	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Constructor constructor, Flow flow)
+	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow)
 	{
 		Program		= program;
 		Pipe		= pipe;
 		Server		= server; 
-		Constructor = constructor;
 		Flow		= flow.CreateNested();;
 
-		Reader = new Reader(Pipe, Constructor);
-		Writer = new Writer(Pipe, Constructor);
+		Reader = new Reader(Pipe, Iccp.Constructor);
+		Writer = new Writer(Pipe, Iccp.Constructor);
 	}
 
 	public LcpConnection(IProgram program, string name, Flow flow)
 	{
 		Program	= program;
 		Flow	= flow.CreateNested(name);
-
-		BuildConstructor();
 
 		var t = program.CreateThread(() =>	{ 
 												while(Flow.Active)
@@ -63,8 +59,8 @@ public abstract class LcpConnection
 	
 														pipe.ConnectAsync(Flow.Cancellation).Wait();
 	
-														Reader = new Reader(pipe, Constructor);
-														Writer = new Writer(pipe, Constructor);
+														Reader = new Reader(pipe, Iccp.Constructor);
+														Writer = new Writer(pipe, Iccp.Constructor);
 	
 														Established();
 														Listen();
@@ -119,7 +115,6 @@ public abstract class LcpServer
 	protected Flow						Flow;
 	readonly string						Name;
 	public readonly List<LcpConnection>	Clients = new();
-	public Constructor					Constructor = new();
 
 	public virtual void					Accept(LcpConnection connection){}
 	public abstract Result				Relay(string from, string to, IccpArgumentation call);

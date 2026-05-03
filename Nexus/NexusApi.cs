@@ -159,7 +159,7 @@ public class IccpNodeApc : Apc, INexusApc
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(nexus)
-			return nexus.NnpIppServer.Locals.Find(i => i.Net == Net);
+			return nexus.IccpLcpServer.Locals.Find(i => i.Net == Net);
 	}
 }
 
@@ -171,7 +171,7 @@ public class IccpCallApc : Apc, INexusApc
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(nexus)
-			return nexus.NnpPeering.Call(null, To, Argumentation, flow);
+			return nexus.IccpPeering.Call(null, To, Argumentation, flow);
 	}
 }
 

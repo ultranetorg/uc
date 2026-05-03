@@ -4,20 +4,39 @@ using System.Net.Sockets;
 
 namespace Uccs.Net;
 
+
+public class IccpHello : Hello
+{
+	public List<string>	Nets;
+
+	public override void Write(Writer writer)
+	{
+		base.Write(writer);
+		writer.Write(Nets, writer.WriteASCII);
+	}
+
+	public override void Read(Reader reader)
+	{
+		base.Read(reader);
+		Nets = reader.ReadList(reader.ReadASCII);
+	}
+}
+
 public class IccpPeering : TcpPeering<IccpPeer>
 {
-	Mcv											Mcv;
+	public Mcv									Mcv;
 	protected List<IccpPeer>					Peers = [];
 	protected override IEnumerable<IccpPeer>	PeersToDisconnect => Peers;
 	Func<List<string>>							GetNets;
+	public LcpServer							Lcp;
 
 	protected override IccpPeer					CreatePeer() => new ();
 
-	public IccpPeering(IProgram program, Mcv mcv, string name, PeeringSettings settings, Func<List<string>> nets, Flow flow) : base(program, name, settings, flow)
+	public IccpPeering(IProgram program, string name, PeeringSettings settings, LcpServer lcp, Func<List<string>> nets, Flow flow) : base(program, name, settings, flow)
 	{
-		Mcv = mcv;
+		Lcp = lcp;
 		GetNets = nets;
-		///Register(typeof(NncClass), node);
+		Constructor = Iccp.Constructor;
 	}
 
 	public override string ToString()
@@ -32,7 +51,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 	public override Hello WaitHello(TcpClient client)
 	{
 		var r = new Reader(client.GetStream());
-		var h = new NnHello();
+		var h = new IccpHello();
 
 		h.Read(r);
 		
@@ -63,7 +82,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 	{
 		lock(Lock)
 		{
-			var h = new NnHello
+			var h = new IccpHello
 					{
 						Nets = GetNets(),
 						Name = Name,
@@ -82,9 +101,9 @@ public class IccpPeering : TcpPeering<IccpPeer>
 	{
 		lock(Lock)
 		{
-			var h = new NnHello
+			var h = new IccpHello
 					{
-						Nets = (inbound as NnHello).Nets,
+						Nets = (inbound as IccpHello).Nets,
 						Name = Name,
 						Roles = 0,
 						Versions = Versions,
@@ -194,18 +213,21 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 		if(p == null) /// get a new ones from Mcv
 		{
-			lock(Mcv.Lock)
-			{	
-				var pers = Peers.Where(i => i.Nets.Contains(net));
-
-				var f = Mcv.Friends.Find(net)
-						??
-						throw new EntityException(EntityError.NotFound);
-
-				var a = f.Peers.OrderByRandom().FirstOrDefault(x => pers == null || !pers.Any(y => x != y.EP));
-
-				if(a != null)
-					p = GetPeer(a, [net]);
+			if(Mcv != null)
+			{
+				lock(Mcv.Lock)
+				{	
+					var pers = Peers.Where(i => i.Nets.Contains(net));
+	
+					var f = Mcv.Friends.Latest(net)
+							??
+							throw new EntityException(EntityError.NotFound);
+	
+					var a = f.Peers.OrderByRandom().FirstOrDefault(x => pers == null || !pers.Any(y => x == y.EP));
+	
+					if(a != null)
+						p = GetPeer(a, [net]);
+				}
 			}
 		}
 
