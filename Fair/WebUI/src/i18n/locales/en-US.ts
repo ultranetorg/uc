@@ -143,6 +143,7 @@ export const enUS = {
   moderatorOptionsMenu: {
     label: "Moderation",
     removePublication: "Remove publication",
+    unpublishPublication: "Unpublish publication",
   },
   moderatorCategoryMenu: {
     avatarChange: "Change avatar",
@@ -313,6 +314,7 @@ export const enUS = {
     isbn: "ISBN",
     languages: "Languages",
     lastUpdated: "Last Updated",
+    editReview: "Edit Review",
     leaveReview: "Leave a Review",
     licenseType: "License Type",
     noReviews: "No reviews yet. Be the first to share your experience",
@@ -581,6 +583,7 @@ export const enUS = {
     enterYourNickname: "Enter your nickname",
     enterOptionTitle: "Enter option title",
     enterProductId: "Enter product ID",
+    enterPublisherNameOrId: "Enter publisher name or ID",
     enterSlogan: "Enter slogan",
     enterTitle: "Enter title",
     enterUserNameOrId: "Enter user name or id",

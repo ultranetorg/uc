@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback, useMemo, useState } from "react"
 import {
   FloatingPortal,
   offset,
@@ -9,22 +9,19 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
+import { t } from "i18next"
 
 import { SvgThreeDotsVertical } from "assets"
 import { useScrollOrResize } from "hooks"
-import { SimpleMenu } from "ui/components"
+import { CommentContextMenuProps, SimpleMenu } from "ui/components"
 
-import { useUserCommentMenuItems } from "./useUserCommentMenuItems"
-
-type UserCommentContextMenuBaseProps = {
-  commentId: string
+type CommentContextMenuBaseProps = {
+  onEditReview: (id: string, text: string) => void
 }
 
-export type UserCommentContextMenuProps = UserCommentContextMenuBaseProps
+export type CommentContextMenu = CommentContextMenuProps & CommentContextMenuBaseProps
 
-export const UserCommentContextMenu = memo(({ commentId }: UserCommentContextMenuProps) => {
-  const { menuItems } = useUserCommentMenuItems(commentId)
-
+export const CommentContextMenu = memo(({ id, text, onEditReview }: CommentContextMenu) => {
   const [isExpanded, setExpanded] = useState(false)
 
   useScrollOrResize(() => setExpanded(false), isExpanded)
@@ -39,6 +36,21 @@ export const UserCommentContextMenu = memo(({ commentId }: UserCommentContextMen
   const hover = useHover(context, { handleClose: safePolygon() })
   const role = useRole(context)
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
+
+  const handleEditClick = useCallback(() => {
+    setExpanded(false)
+    onEditReview(id, text)
+  }, [id, onEditReview, text])
+
+  const menuItems = useMemo(
+    () => [
+      {
+        onClick: handleEditClick,
+        label: t("common:edit"),
+      },
+    ],
+    [handleEditClick],
+  )
 
   const handleMenuClick = useCallback(() => setExpanded(false), [])
 

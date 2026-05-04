@@ -1,11 +1,19 @@
 import { OperationType } from "types"
 
 export const CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES: OperationType[] = [
+  "category-creation",
+  "category-deletion",
+  "category-movement",
+  "category-type-change",
   "publication-deletion",
   "publication-publish",
+  "publication-unpublish",
   "site-authors-removal",
+  "site-avatar-change",
   "site-moderator-addition",
   "site-moderator-removal",
+  "site-name-change",
+  "site-text-change",
 ]
 
 export const CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES: OperationType[] = [
@@ -22,9 +30,6 @@ export const CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES: OperationTy
   "review-creation",
   "review-edit",
   "review-status-change",
-  "site-avatar-change",
-  "site-name-change",
-  "site-text-change",
   "user-registration",
   "user-unregistration",
 ]

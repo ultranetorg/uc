@@ -55,11 +55,11 @@ export const useGetSiteModerators = (siteId?: string) => {
   return { isFetching, error: error ?? undefined, data, refetch }
 }
 
-export const useGetSitePublishers = (siteId?: string) => {
-  const queryFn = () => api.getSitePublishers(siteId!)
+export const useGetSitePublishers = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
+  const queryFn = () => api.getSitePublishers(siteId!, page, pageSize, search)
 
   const { isFetching, error, data, refetch } = useQuery({
-    queryKey: ["sites", siteId, "publishers"],
+    queryKey: ["sites", siteId, "publishers", { page, pageSize, search }],
     queryFn: queryFn,
     enabled: !!siteId,
   })

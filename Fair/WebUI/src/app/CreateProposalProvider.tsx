@@ -36,8 +36,9 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
       ...(location.state?.title && { title: location.state.title }),
       ...(location.state?.type && { type: location.state.type as OperationType }),
       ...(location.state?.publicationId && { publicationId: location.state.publicationId }),
+      ...(location.state?.categoryId && { categoryId: location.state.categoryId }),
 
-      ...(!!location.state.previousPath && { previousPath: location.state.previousPath }),
+      ...(!!location.state?.previousPath && { previousPath: location.state.previousPath }),
 
       ...(searchParams.get("publisherId") && { publisherId: searchParams.get("publisherId")! }),
       ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
@@ -46,7 +47,6 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
     },
     shouldUnregister: false,
   })
-
   const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
   const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)

@@ -29,7 +29,13 @@ export const renderAuthor2 = (authorTitle: string, authorLogoId?: string) => (
 )
 
 export const renderAuthor = (author: AuthorBaseAvatar) => (
-  <AccountInfo title={author.name || author.id} fullTitle={author.name || author.id} avatarId={author.avatarId} />
+  <AccountInfo
+    title={
+      author.title && author.name ? `${author.title} (${author.name})` : (author.title ?? author.name ?? author.id)
+    }
+    fullTitle={author.name || author.id}
+    avatarId={author.avatarId}
+  />
 )
 
 export const renderAccount = (account: AccountBaseAvatar) => (

@@ -19,6 +19,6 @@ export const DefaultPublicationCard = ({ id, title, logo, authorTitle, categoryT
       <span className="truncate text-2xs leading-3.75 text-gray-500">{categoryTitle}</span>
     </div>
 
-    <ModeratorPublicationContextMenu publicationId={id} className="absolute right-1 top-1" />
+    <ModeratorPublicationContextMenu publicationId={id} publicationTitle={title} className="absolute right-1 top-1" />
   </div>
 )

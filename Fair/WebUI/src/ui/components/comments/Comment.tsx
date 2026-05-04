@@ -1,11 +1,14 @@
-import { memo } from "react"
+import { ComponentType, memo } from "react"
 
-import { useUserContext } from "app"
 import { TEST_REVIEW_SRC } from "testConfig"
 import { AccountBaseAvatar } from "types"
 import { RatingBar } from "ui/components"
-import { UserCommentContextMenu } from "ui/components/specific"
 import { buildSrc, formatDate } from "utils"
+
+export type CommentContextMenuProps = {
+  id: string
+  text: string
+}
 
 export type CommentProps = {
   account: AccountBaseAvatar
@@ -13,11 +16,10 @@ export type CommentProps = {
   created: number
   rating?: number
   text: string
+  contextMenu?: ComponentType<CommentContextMenuProps>
 }
 
-export const Comment = memo(({ account, id, created, rating, text }: CommentProps) => {
-  const { user } = useUserContext()
-
+export const Comment = memo(({ account, id, created, rating, text, contextMenu: ContextMenu }: CommentProps) => {
   const displayName = account.nickname ?? account.id
 
   return (
@@ -33,7 +35,7 @@ export const Comment = memo(({ account, id, created, rating, text }: CommentProp
                 <span className="text-2sm font-semibold leading-4.5 text-gray-800" title={displayName}>
                   {displayName}
                 </span>
-                {user && user.id === account.id && <UserCommentContextMenu commentId={id} />}
+                {ContextMenu && <ContextMenu id={id} text={text} />}
               </div>
               <span className="text-2xs font-medium leading-4 text-gray-500">{formatDate(created)}</span>
             </div>

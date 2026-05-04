@@ -24,13 +24,17 @@ public class SitesController
 	}
 
 	[HttpGet("{siteId}/publishers")]
-	public IEnumerable<PublisherModel> GetPublishers(string siteId, CancellationToken cancellationToken)
+	public IEnumerable<PublisherModel> GetPublishers(string siteId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPublishers), siteId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Search}, {Pagination}", nameof(SitesController), nameof(GetPublishers), siteId, search, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
 
-		return sitesService.GetPublishers(siteId, cancellationToken);
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<PublisherModel> publishers = sitesService.GetPublishers(siteId, page, pageSize, search, cancellationToken);
+
+		return this.OkPaged(publishers.Items, page, pageSize, publishers.TotalItems);
 	}
 
 	[HttpGet("{siteId}/moderators")]

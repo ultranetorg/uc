@@ -5,6 +5,7 @@ public enum ApprovalRequirement : byte
 	None, AnyModerator, ModeratorsMajority, AllModerators, PublishersMajority
 }
 
+[Flags]
 public enum Role : byte
 {
 	None, 

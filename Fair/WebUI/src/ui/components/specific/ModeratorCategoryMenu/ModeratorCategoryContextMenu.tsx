@@ -20,52 +20,55 @@ import { useModeratorCategoryMenuItems } from "./useModeratorCategoryMenuItems"
 
 type ModeratorCategoryContextMenuBaseProps = {
   categoryId: string
+  categoryTitle: string
 }
 
 export type ModeratorCategoryContextMenuProps = PropsWithClassName & ModeratorCategoryContextMenuBaseProps
 
-export const ModeratorCategoryContextMenu = memo(({ className, categoryId }: ModeratorCategoryContextMenuProps) => {
-  const { isModerator } = useModerationContext()
-  const { menuItems } = useModeratorCategoryMenuItems(categoryId)
+export const ModeratorCategoryContextMenu = memo(
+  ({ className, categoryId, categoryTitle }: ModeratorCategoryContextMenuProps) => {
+    const { isModerator } = useModerationContext()
+    const { menuItems } = useModeratorCategoryMenuItems(categoryId, categoryTitle)
 
-  const [isExpanded, setExpanded] = useState(false)
+    const [isExpanded, setExpanded] = useState(false)
 
-  useScrollOrResize(() => setExpanded(false), isExpanded)
+    useScrollOrResize(() => setExpanded(false), isExpanded)
 
-  const { context, floatingStyles, refs } = useFloating({
-    middleware: [offset(4)],
-    open: isExpanded,
-    placement: "bottom-end",
-    onOpenChange: setExpanded,
-  })
-  const dismiss = useDismiss(context)
-  const hover = useHover(context, { handleClose: safePolygon() })
-  const role = useRole(context)
-  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
+    const { context, floatingStyles, refs } = useFloating({
+      middleware: [offset(4)],
+      open: isExpanded,
+      placement: "bottom-end",
+      onOpenChange: setExpanded,
+    })
+    const dismiss = useDismiss(context)
+    const hover = useHover(context, { handleClose: safePolygon() })
+    const role = useRole(context)
+    const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
-  const handleMenuClick = useCallback(() => setExpanded(false), [])
+    const handleMenuClick = useCallback(() => setExpanded(false), [])
 
-  if (!isModerator) {
-    return null
-  }
+    if (!isModerator) {
+      return null
+    }
 
-  return (
-    <>
-      <div className={className} ref={refs.setReference} {...getReferenceProps()}>
-        <SvgThreeDotsSm className="hove:opacity-80 size-5 cursor-pointer rounded bg-white fill-gray-500 opacity-50 hover:fill-gray-800" />
-      </div>
-      {isExpanded && (
-        <FloatingPortal>
-          <SimpleMenu
-            ref={refs.setFloating}
-            menuItemClassName="w-auto"
-            items={menuItems}
-            style={floatingStyles}
-            onClick={handleMenuClick}
-            {...getFloatingProps()}
-          />
-        </FloatingPortal>
-      )}
-    </>
-  )
-})
+    return (
+      <>
+        <div className={className} ref={refs.setReference} {...getReferenceProps()}>
+          <SvgThreeDotsSm className="hove:opacity-80 size-5 cursor-pointer rounded bg-white fill-gray-500 opacity-50 hover:fill-gray-800" />
+        </div>
+        {isExpanded && (
+          <FloatingPortal>
+            <SimpleMenu
+              ref={refs.setFloating}
+              menuItemClassName="w-auto"
+              items={menuItems}
+              style={floatingStyles}
+              onClick={handleMenuClick}
+              {...getFloatingProps()}
+            />
+          </FloatingPortal>
+        )}
+      </>
+    )
+  },
+)

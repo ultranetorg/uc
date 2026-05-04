@@ -32,17 +32,19 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
 
     // Publication
     case "publication-creation":
-      return { productId: data.productId }
+      return { product: data.productId }
     case "publication-deletion":
       return { publication: data.publicationId }
     case "publication-publish":
       return { publication: data.publicationId, category: option.categoryId! }
     case "publication-updation":
-      return { publicationId: data.publicationId, version: option.version }
+      return { publication: data.publicationId, version: option.version }
+    case "publication-unpublish":
+      return { publication: data.publicationId }
 
     // Review
     case "review-status-change":
-      return { reviewId: data.reviewId, status: option.status }
+      return { review: data.reviewId, status: option.status }
 
     // Site
     case "site-authors-removal":

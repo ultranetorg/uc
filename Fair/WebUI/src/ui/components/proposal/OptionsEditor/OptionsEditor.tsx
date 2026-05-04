@@ -89,7 +89,9 @@ export const OptionsEditor = memo(
       const field = operationFields?.find(x => x.operationType === type)
       setOperationField(field)
 
-      unregister("categoryId")
+      if (field?.parameterName !== "categoryId") {
+        unregister("categoryId")
+      }
 
       if (field?.fields?.length) {
         replace([{ title: "" }])

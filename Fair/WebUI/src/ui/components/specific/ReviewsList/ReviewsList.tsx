@@ -2,11 +2,11 @@ import { memo } from "react"
 
 import { TotalItemsResult, Review } from "types"
 import { ButtonOutline } from "ui/components"
-import { Comment } from "ui/components/comments/Comment"
+import { Comment, CommentProps } from "ui/components/comments/Comment"
 
 import { ReviewsListEmptyState } from "./ReviewsListEmptyState"
 
-export type ReviewsListProps = {
+export type ReviewsListBaseProps = {
   isPending: boolean
   reviews?: TotalItemsResult<Review>
   error?: Error
@@ -16,6 +16,8 @@ export type ReviewsListProps = {
   showMoreReviewsLabel: string
   reviewLabel: string
 }
+
+export type ReviewsListProps = ReviewsListBaseProps & Pick<CommentProps, "contextMenu">
 
 export const ReviewsList = memo(
   ({
@@ -27,6 +29,7 @@ export const ReviewsList = memo(
     noReviewsLabel,
     showMoreReviewsLabel,
     reviewLabel,
+    contextMenu,
   }: ReviewsListProps) => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -52,6 +55,7 @@ export const ReviewsList = memo(
               rating={r.rating}
               account={r.creatorAccount}
               created={r.created}
+              contextMenu={contextMenu}
             />
           ))}
           <ButtonOutline className="mx-auto" label={showMoreReviewsLabel} />

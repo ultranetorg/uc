@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDocumentTitle } from "usehooks-ts"
 
+import { useModerationContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublicationDetails, useGetReviews } from "entities"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
@@ -13,10 +14,17 @@ import { PublicationContentView } from "ui/views"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
+  const { getOperationCreatorId } = useModerationContext()
   const { siteId, publicationId } = useParams()
   useDocumentTitle(t("title", { publicationId }))
 
+  const create = getOperationCreatorId("review-creation")
+  const edit = getOperationCreatorId("review-edit")
+
   const [isReviewModalOpen, setReviewModalOpen] = useState(false)
+  const [editReview, setEditReview] = useState<{ id: string; text: string } | null>(null)
+
+  const handleEditReview = useCallback((id: string, text: string) => setEditReview({ id, text }), [])
 
   const { isPending, data: publication } = useGetPublicationDetails(publicationId)
   const { isPending: isPendingReviews, data: reviews, error } = useGetReviews(publicationId, 0, DEFAULT_PAGE_SIZE_20)
@@ -56,17 +64,35 @@ export const PublicationPage = () => {
             productOrPublication={publication}
             error={error}
             reviews={reviews}
-            onLeaveReview={() => setReviewModalOpen(true)}
+            onLeaveReview={create ? () => setReviewModalOpen(true) : undefined}
+            onEditReview={edit ? handleEditReview : undefined}
           />
         </div>
       </div>
       {isReviewModalOpen && (
         <ReviewModal
+          publicationId={publication.id}
           title={t("leaveReview")}
           onClose={() => setReviewModalOpen(false)}
           onSubmit={() => setReviewModalOpen(false)}
           cancelLabel={t("common:cancel")}
           submitLabel={t("submitReview")}
+          thankYouLabel={t("thankYou")}
+          writeReviewLabel={t("writeReview")}
+          yourRatingLabel={t("yourRating")}
+          yourReviewLabel={t("yourReview")}
+        />
+      )}
+      {editReview && (
+        <ReviewModal
+          publicationId={publication.id}
+          reviewId={editReview.id}
+          initialText={editReview.text}
+          title={t("editReview")}
+          onClose={() => setEditReview(null)}
+          onSubmit={() => setEditReview(null)}
+          cancelLabel={t("common:cancel")}
+          submitLabel={t("common:saveChanges")}
           thankYouLabel={t("thankYou")}
           writeReviewLabel={t("writeReview")}
           yourRatingLabel={t("yourRating")}

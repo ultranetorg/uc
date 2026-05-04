@@ -48,6 +48,8 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       parameterName: "categoryId",
       parameterLabel: t("common:category"),
       parameterPlaceholder: t("placeholders:selectCategory"),
+      parameterRules: { required: false },
+      parameterHasRoot: true,
       fields: [
         {
           valueType: "string",

@@ -23,15 +23,16 @@ type ContextMenuButtonSize = "medium" | "large"
 
 type ModeratorPublicationContextMenuBaseProps = {
   publicationId: string
+  publicationTitle?: string
   size?: ContextMenuButtonSize
 }
 
 export type ModeratorPublicationContextMenuProps = PropsWithClassName & ModeratorPublicationContextMenuBaseProps
 
 export const ModeratorPublicationContextMenu = memo(
-  ({ className, publicationId, size = "medium" }: ModeratorPublicationContextMenuProps) => {
+  ({ className, publicationId, publicationTitle, size = "medium" }: ModeratorPublicationContextMenuProps) => {
     const { isModerator } = useModerationContext()
-    const { menuItems } = useModeratorPublicationMenuItems(publicationId)
+    const { menuItems } = useModeratorPublicationMenuItems(publicationId, publicationTitle)
 
     const [isExpanded, setExpanded] = useState(false)
 

@@ -19,6 +19,6 @@ export const CategoryCard = memo(({ id, active, title }: CategoryCardProps) => (
     title={title}
   >
     {formatTitle(title)}
-    <ModeratorCategoryContextMenu categoryId={id} />
+    <ModeratorCategoryContextMenu categoryTitle={title} categoryId={id} />
   </div>
 ))

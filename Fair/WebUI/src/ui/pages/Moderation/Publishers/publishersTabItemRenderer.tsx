@@ -18,7 +18,6 @@ export const getPublishersTabItemRenderer =
         )
       case "banned":
         return publisher.bannedTill !== 0 ? publisher.bannedTill : ""
-
       case "actions":
         return (
           <Link

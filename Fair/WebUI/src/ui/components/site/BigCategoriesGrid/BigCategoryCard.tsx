@@ -22,6 +22,6 @@ export const BigCategoryCard = ({ id, title, avatar }: BigCategoryCardProps) => 
     </div>
     <span className="w-40 truncate text-center text-2sm leading-4.5 text-gray-800">{title}</span>
 
-    <ModeratorCategoryContextMenu categoryId={id} className="absolute right-1 top-1" />
+    <ModeratorCategoryContextMenu categoryId={id} categoryTitle={title} className="absolute right-1 top-1" />
   </div>
 )

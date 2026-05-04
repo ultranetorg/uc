@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
+using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -86,45 +87,65 @@ public class SitesService
 		}).ToArray();
 	}
 
-	public IEnumerable<PublisherModel> GetPublishers([NotEmpty][NotNull] string siteId, CancellationToken cancellationToken)
+	public TotalItemsResult<PublisherModel> GetPublishers([NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetPublishers), siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}, {Search}", nameof(SitesService), nameof(GetPublishers), siteId, page, pageSize, search);
 
 		Guard.Against.NullOrEmpty(siteId);
 
-		AutoId id = AutoId.Parse(siteId);
-
 		lock(mcv.Lock)
 		{
+			AutoId id = AutoId.Parse(siteId);
 			Site site = mcv.Sites.Latest(id);
 			if(site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			return LoadPublishers(site.Publishers, cancellationToken);
+			if(!string.IsNullOrEmpty(search) && AutoId.TryParse(search, out AutoId parsedId))
+			{
+				Publisher publisher = site.Publishers.FirstOrDefault(x => x.Author == parsedId);
+				if(publisher == null)
+				{
+					return TotalItemsResult<PublisherModel>.Empty;
+				}
+
+				Author author = mcv.Authors.Latest(publisher.Author);
+				var model = new PublisherModel(author, publisher);
+				return new TotalItemsResult<PublisherModel> {Items = [model], TotalItems = site.Publishers.Length};
+			}
+
+			return LoadPublishers(site.Publishers, page, pageSize, search, cancellationToken);
 		}
 	}
 
-	public IEnumerable<PublisherModel> LoadPublishers(Publisher[] publishers, CancellationToken cancellationToken)
+	TotalItemsResult<PublisherModel> LoadPublishers(IEnumerable<Publisher> publishers, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
-			return [];
+			return TotalItemsResult<PublisherModel>.Empty;
 
-		List<PublisherModel> result = new(publishers.Length);
+		List<PublisherModel> items = new(pageSize);
+		int totalItems = 0;
 
 		foreach(Publisher publisher in publishers)
 		{
 			if(cancellationToken.IsCancellationRequested)
-				return result;
+				return new TotalItemsResult<PublisherModel> { Items = items, TotalItems = totalItems };
 
 			Author author = mcv.Authors.Latest(publisher.Author);
-			//User user = mcv.Users.Latest(publisher.Author);
-			var model = new PublisherModel(author, publisher);
-			result.Add(model);
+			if (!SearchUtils.IsMatch(author, search))
+				continue;
+
+			if(totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
+			{
+				var model = new PublisherModel(author, publisher);
+				items.Add(model);
+			}
+
+			++totalItems;
 		}
 
-		return result;
+		return new TotalItemsResult<PublisherModel> { Items = items, TotalItems = totalItems };
 	}
 
 	public IEnumerable<ModeratorModel> GetModerators([NotEmpty] string siteId, CancellationToken cancellationToken)

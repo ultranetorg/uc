@@ -23,8 +23,28 @@ internal class SearchUtils
 			return true;
 		}
 
-		if (proposal.Title?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1 ||
-			proposal.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		if (proposal.Title != null && proposal.Title.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1 ||
+			proposal.Text != null && proposal.Text.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	internal static bool IsMatch(Author author, string? search)
+	{
+		if(string.IsNullOrEmpty(search))
+		{
+			return true;
+		}
+
+		if (author.Name != null && author.Name.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		{
+			return true;
+		}
+
+		if (author.Title != null && author.Title.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
 		{
 			return true;
 		}
@@ -63,7 +83,7 @@ internal class SearchUtils
 			return true;
 		}
 
-		if (review.Text?.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
+		if (review.Text != null && review.Text.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
 		{
 			return true;
 		}

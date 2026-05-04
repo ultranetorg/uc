@@ -12,7 +12,6 @@ export const ModeratorsTab = () => {
   const { getOperationVoterId } = useModerationContext()
   const { t } = useTranslation("moderatorsPage")
   const voterId = getOperationVoterId("site-moderator-removal")
-  console.log("voter", voterId)
 
   const { data: moderators } = useGetSiteModerators(siteId)
 

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useSiteContext } from "app"
 import { useGetCategoriesPublications } from "entities"
 import { BigCategoriesGrid } from "ui/components/site"
-import { CategoriesPublicationsList } from "ui/components/specific"
+import { CategoriesPublicationsList, ModeratorSiteMenu } from "ui/components/specific"
 
 export const SitePage = () => {
   const { siteId } = useParams()
@@ -19,14 +19,17 @@ export const SitePage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <BigCategoriesGrid isLoading={isPending} siteId={siteId} items={site.categories} />
-      <CategoriesPublicationsList
-        siteId={siteId!}
-        isPending={isCategoriesPublicationsPending}
-        categoriesPublications={categoriesPublications}
-        seeAllLabel={t("seeAll")}
-      />
+    <div className="flex flex-col gap-6">
+      <ModeratorSiteMenu className="self-end" />
+      <div className="flex flex-col gap-6">
+        <BigCategoriesGrid isLoading={isPending} siteId={siteId} items={site.categories} />
+        <CategoriesPublicationsList
+          siteId={siteId!}
+          isPending={isCategoriesPublicationsPending}
+          categoriesPublications={categoriesPublications}
+          seeAllLabel={t("seeAll")}
+        />
+      </div>
     </div>
   )
 }

@@ -80,7 +80,7 @@ export const ModeratorCreatePublicationPage = () => {
                   <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
                 </div>
               )}
-              <SvgSearchMd className="size-5 stroke-gray-500" />
+              <SvgSearchMd className="size-5 shrink-0 stroke-gray-500" />
             </>
           }
         />
