@@ -43,7 +43,7 @@ public class SubnetAttachment : OutwardOperation
 		}
 
 		execution.AffectOutwards();
-		execution.OutwardTransactions.Add(	new OutwardTransaction(execution.Net)
+		execution.OutwardTransactions.Add(	new OutwardTransaction
 											{
 												Id			= ++User.LastOutward,
 												User		= User.Id, 

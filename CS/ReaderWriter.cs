@@ -461,6 +461,21 @@ public class Reader : BinaryReader
 		return o;
 	}
 
+	public List<T> ReadListVirtual<T>() where T : IBinarySerializable, ITypeCode
+	{
+		var n = Read7BitEncodedInt();
+
+		var o = new List<T>(n);
+
+		for(int i = 0; i < n; i++)
+		{
+ 			o[i] = (T)Constructor.Construct(typeof(T), ReadUInt32());
+ 			o[i].Read(this); 
+		}
+
+		return o;
+	}
+
 	public Dictionary<K, V> ReadDictionary<K, V>(Func<K> k, Func<V> v)
 	{
 		var n = Read7BitEncodedInt();

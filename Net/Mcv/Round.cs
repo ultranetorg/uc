@@ -7,7 +7,7 @@ public abstract class OutwardOperation : Operation
 	public abstract void ConfirmedExecute(Execution execution, OutwardTransaction task);
 }
 
-public class OutwardTransaction
+public class OutwardTransaction : IBinarySerializable
 {
 	public int				Id;
 	public Time				Expiration;
@@ -15,30 +15,23 @@ public class OutwardTransaction
 	public AutoId			User;
 	public OutwardOperation	Operation;
 
-	Net						Net;
-
-	public OutwardTransaction(Net net)
-	{
-		Net = net;
-	}
-
-	public virtual void WriteBaseState(Writer writer)
+	public virtual void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(User);
 		writer.Write(Generator);
 		writer.Write(Expiration);
-		writer.Write(Net.Constructor.TypeToCode(Operation.GetType())); 
+		writer.Write(writer.Constructor.TypeToCode(Operation.GetType())); 
 		Operation.Write(writer); 
 	}
 
-	public virtual void ReadBaseState(Reader reader)
+	public virtual void Read(Reader reader)
 	{
 		Id			= reader.Read7BitEncodedInt();
 		User		= reader.Read<AutoId>();
 		Generator	= reader.Read<AutoId>();
 		Expiration	= reader.Read<Time>();
-		Operation	= Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as OutwardOperation;
+		Operation	= reader.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as OutwardOperation;
 		Operation.Read(reader); 
 	}
 }
@@ -62,7 +55,7 @@ public abstract class Round : IBinarySerializable
 	public virtual int									AffectedCount => AffectedMetas.Count + AffectedUsers.Count + Mcv.Tables.Sum(i => AffectedByTable(i).Count);
 
 	public List<OutwardTransaction>						OutwardTransactions;
-	public List<IccpTransaction>							IccTransactions;
+	public List<IccpTransaction>						IccTransactions;
 
 	public List<Generator>								Candidates;
 	public List<Generator>								Members;
@@ -89,7 +82,7 @@ public abstract class Round : IBinarySerializable
 	public long											ConsensusEnergyCost;
 	//public int											ConsensusOverloadRound;
 	public byte[][]										ConsensusIncomingTransfers;
-	public IccpTransferResult[]					ConsensusOutgoingTransfers;
+	public IccpTransferResult[]							ConsensusOutgoingTransfers;
 	public OutwardResult[]								ConsensusOutwards = {};
 
 	public bool											Confirmed = false;
@@ -732,11 +725,8 @@ public abstract class Round : IBinarySerializable
 
 		writer.Write(ConsensusTime);
 		writer.Write7BitEncodedInt64(ConsensusEnergyCost);
-		writer.Write(OutwardTransactions, i => i.WriteBaseState(writer));
-		writer.Write(IccTransactions, i =>	{ 
-												writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
-												i.Write(writer);
-											});
+		writer.Write(OutwardTransactions);
+		writer.Write(IccTransactions);
 	}
 
 	public virtual void ReadGraphState(Reader reader)
@@ -749,16 +739,8 @@ public abstract class Round : IBinarySerializable
 
 		ConsensusTime			= reader.Read<Time>();
 		ConsensusEnergyCost		= reader.Read7BitEncodedInt64();
-		OutwardTransactions		= reader.ReadList(() =>	{ 
-															var o =	new OutwardTransaction(Net);
-															o.ReadBaseState(reader);
-															return o;
-														});
-		IccTransactions			= reader.ReadList(() => {
- 										 					var o = Net.Constructor.Construct(typeof(IccpTransaction), reader.ReadUInt32()) as IccpTransaction;
- 										 					o.Read(reader); 
- 										 					return o; 
- 														});
+		OutwardTransactions		= reader.ReadList<OutwardTransaction>();
+		IccTransactions			= reader.ReadListVirtual<IccpTransaction>();
 	}
 
 	public virtual void Write(Writer writer)
@@ -778,17 +760,17 @@ public abstract class Round : IBinarySerializable
 
 	public virtual void Read(Reader reader)
 	{
-		Id										= reader.Read7BitEncodedInt();
-		ConsensusTime							= reader.Read<Time>();
-		ConsensusEnergyCost						= reader.Read7BitEncodedInt64();
-		ConsensusMemberLeavers					= reader.ReadArray<AutoId>();
-		ConsensusViolators						= reader.ReadArray<AutoId>();
-		ConsensusFundJoiners					= reader.ReadArray<AccountAddress>();
-		ConsensusFundLeavers					= reader.ReadArray<AccountAddress>();
-		ConsensusTransactions					= reader.Read(() =>	new Transaction {Net = Mcv.Net, Round = this}, t => t.ReadConfirmed(reader)).ToArray();
-		ConsensusIncomingTransfers			= reader.ReadArray(reader.ReadHash);
+		Id							= reader.Read7BitEncodedInt();
+		ConsensusTime				= reader.Read<Time>();
+		ConsensusEnergyCost			= reader.Read7BitEncodedInt64();
+		ConsensusMemberLeavers		= reader.ReadArray<AutoId>();
+		ConsensusViolators			= reader.ReadArray<AutoId>();
+		ConsensusFundJoiners		= reader.ReadArray<AccountAddress>();
+		ConsensusFundLeavers		= reader.ReadArray<AccountAddress>();
+		ConsensusTransactions		= reader.Read(() =>	new Transaction {Net = Mcv.Net, Round = this}, t => t.ReadConfirmed(reader)).ToArray();
+		ConsensusIncomingTransfers	= reader.ReadArray(reader.ReadHash);
 		ConsensusOutgoingTransfers	= reader.ReadArray<IccpTransferResult>();
-		ConsensusOutwards						= reader.ReadArray<OutwardResult>();
+		ConsensusOutwards			= reader.ReadArray<OutwardResult>();
 	}
 
 	public void Save(Writer writer)
