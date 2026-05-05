@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { TabsProvider } from "app"
 import { TabContent, TabsList, TabsListItem } from "ui/components"
-import { GovernanceHeader } from "ui/components/specific"
+import { ModerationHeader } from "ui/components/specific"
 
 import { PerpetualSurveysTab } from "./PerpetualSurveysTab"
 import { ReferendumsTab } from "./ReferendumsTab"
@@ -19,8 +19,6 @@ export const ReferendumsPage = () => {
   const key = routeToTabKey[tabKey!]
   const { t } = useTranslation("governance")
   const navigate = useNavigate()
-
-  const handleCreateButtonClick = useCallback(() => navigate(`/${siteId}/g/new`), [navigate, siteId])
 
   const handleTabSelect = useCallback(
     (item: TabsListItem & { route?: string }) => navigate(item.route ? `/${siteId}/g/${item.route}` : `/${siteId}/g`),
@@ -37,11 +35,7 @@ export const ReferendumsPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <GovernanceHeader
-        title={t("title")}
-        onCreateButtonClick={handleCreateButtonClick}
-        createButtonLabel={t("createReferendum")}
-      />
+      <ModerationHeader title={t("title")} />
       <TabsProvider defaultKey={key || "perpetual"}>
         <div className="flex flex-col gap-6">
           <TabsList
