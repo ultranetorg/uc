@@ -109,19 +109,6 @@ export const OptionsEditor = memo(
 
     useEffect(() => onProposalTypeChange(type), [onProposalTypeChange, type])
 
-    // useEffect(() => {
-    //   if (isHiddenType) {
-    //     const field = operationFields?.find(x => x.operationType === type)
-    //     setOperationField(field)
-
-    //     const options = field?.fields?.length ? [{ title: "" }] : undefined
-    //     setData(p => ({
-    //       ...p,
-    //       ...{ options: options },
-    //     }))
-    //   }
-    // }, [type, operationFields, isHiddenType, setData])
-
     return (
       <>
         {!isTypeDropdownHidden && (

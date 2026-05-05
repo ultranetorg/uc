@@ -10,6 +10,10 @@ export const AboutPage = () => {
   const { t } = useTranslation("about")
   const { site } = useSiteContext()
 
+  if (!site) {
+    return <>LOADING 🕐</>
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <Breadcrumbs items={[{ path: `/${siteId}`, title: t("common:home") }, { title: t("about") }]} />
