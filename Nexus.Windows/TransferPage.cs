@@ -123,7 +123,9 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		foreach(var a in (Nnp.Call(null, FromNet.Text, new HolderAssetsIcca {Entity = FromEntity.Text}, new Flow(5000)) as HolderAssetsIccr).Assets)
+		var e = Nnp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
+
+		foreach(var a in (Nnp.Call(null, FromNet.Text, new HolderAssetsIcca {Entity = e.Universal}, new Flow(5000)) as HolderAssetsIccr).Assets)
 		{
 			Asset.Items.Add(a);
 		}
@@ -131,13 +133,15 @@ public partial class TransferPage : Page
 
 	void RefreshBalance()
 	{
+		var e = Nnp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
+
 		Balance.Text = "Balance: ";
 		Balance.Text += (Nnp.Call(	null,
 									FromNet.Text,	
 									new AssetBalanceIcca
 									{
-										Entity = FromEntity.Text,
-										Name = (Asset.SelectedItem as Asset).Name
+										Entity = e.Universal,
+										Asset = (Asset.SelectedItem as Asset).Id
 									},
 									new Flow(5000)) as AssetBalanceIccr).Balance.ToString();
 	}

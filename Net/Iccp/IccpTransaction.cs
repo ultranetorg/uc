@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Numerics;
+
+namespace Uccs.Net;
 
 public abstract class IccpTransaction : IBinarySerializable, ITypeCode
 {
@@ -22,15 +24,17 @@ public abstract class IccpTransaction : IBinarySerializable, ITypeCode
 
 public class AssetTransfer : IccpTransaction
 {
-	public byte[]	SourceHolder { get; set; }
-	public byte[]	SourceAsset { get; set; } /// May define not only a type but also other properties like Expiration for Energy
-	public byte[]	DestinationHolder { get; set; }
+	public byte[]		SourceHolder { get; set; }
+	public byte[]		SourceAsset { get; set; } /// May define not only a type but also other properties like Expiration for Energy
+	public byte[]		DestinationHolder { get; set; }
+	public BigInteger	Amount { get; set; }
 
 	public override void Write(Writer writer)
 	{
 		writer.Write(SourceHolder);
 		writer.Write(SourceAsset);
 		writer.Write(DestinationHolder);
+		writer.Write(Amount);
 	}
 
 	public override void Read(Reader reader)
@@ -38,6 +42,7 @@ public class AssetTransfer : IccpTransaction
 		SourceHolder			= reader.ReadBytes();
 		SourceAsset				= reader.ReadBytes();
 		DestinationHolder		= reader.ReadBytes();
+		Amount					= reader.ReadBigInteger();
 	}
 
 	public override bool IncomingExecute(Execution execution)

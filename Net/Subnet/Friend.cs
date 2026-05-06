@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace Uccs.Net;
 
@@ -9,22 +10,23 @@ public enum IccTransferStatus : byte
 
 public class Friend : IBinarySerializable, ITableEntry
 {
-	public const int					NameLengthMin = 1;
-	public const int					NameLengthMax = 256;
-	public const int					PeersMaximum = 1000;
-	public const int					RootHashLengthMaximum = 4096;
+	public const int								NameLengthMin = 1;
+	public const int								NameLengthMax = 256;
+	public const int								PeersMaximum = 1000;
+	public const int								RootHashLengthMaximum = 4096;
 
-	public AutoId						Id { get; set; }
-	public string						Name { get; set; }
-	public Snp							Client { get; set; }
-	public Endpoint[]					Peers { get; set; }
-	public IccpTransferResult			LastIncomingTransfer { get; set; }
-	public IccpTransfer					LastOutgoingTransfer { get; set; }
-	public IccTransferStatus			OutStatus { get; set; }
+	public AutoId									Id { get; set; }
+	public string									Name { get; set; }
+	public Snp										Client { get; set; }
+	public Endpoint[]								Peers { get; set; }
+	public IccpTransferResult						LastIncomingTransfer { get; set; }
+	public IccpTransfer								LastOutgoingTransfer { get; set; }
+	public IccTransferStatus						OutStatus { get; set; }
+	public OrderedDictionary<byte[], BigInteger>	Balances { get; set; }
 
-	public EntityId						Key => Id;
-	public bool							Deleted { get; set; }
-	Mcv									Mcv;
+	public EntityId									Key => Id;
+	public bool										Deleted { get; set; }
+	Mcv												Mcv;
 
 	public Friend()
 	{
@@ -51,6 +53,7 @@ public class Friend : IBinarySerializable, ITableEntry
 					LastIncomingTransfer = LastIncomingTransfer,
 					LastOutgoingTransfer = LastOutgoingTransfer,
 					OutStatus = OutStatus,
+					Balances = Balances,
 				};
 	}
 
@@ -92,6 +95,7 @@ public class Friend : IBinarySerializable, ITableEntry
 		writer.Write(LastIncomingTransfer);
 		writer.Write(LastOutgoingTransfer);
 		writer.Write(OutStatus);
+		writer.Write(Balances, writer.WriteBytes, writer.Write);
 	}
 
 	public void Read(Reader reader)
@@ -103,6 +107,7 @@ public class Friend : IBinarySerializable, ITableEntry
 		LastIncomingTransfer	= reader.Read<IccpTransferResult>();
 		LastOutgoingTransfer	= reader.Read<IccpTransfer>(); 
 		OutStatus				= reader.Read<IccTransferStatus>();
+		Balances				= reader.ReadOrderedDictionary(reader.ReadBytes, reader.ReadBigInteger);
 	}
 
 	public void Cleanup(Round lastInCommit)

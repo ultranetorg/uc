@@ -38,7 +38,28 @@ public class Iccp
 public class Asset : IBinarySerializable
 {
 	public string	Name { get; set; }
+	public byte[]	Id { get; set; }
 	public string	Units { get; set; }
+
+	public static Asset Energy(byte year)
+	{
+		var a = new Asset();
+		a.Name = $"Energy for {Time.FirstYear + year} year";
+		a.Id = [0, year];
+		a.Units = "Execution Cycles (EC)";
+
+		return a;
+	}
+
+	public static Asset Spacetime()
+	{
+		var a = new Asset();
+		a.Name = $"Space-time";
+		a.Id = [1];
+		a.Units = "Byte-days (BD)";
+
+		return a;
+	}
 
 	public override string ToString()
 	{
@@ -47,13 +68,15 @@ public class Asset : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Name = reader.ReadASCII();
-		Units = reader.ReadASCII();
+		Name	= reader.ReadASCII();
+		Id		= reader.ReadBytes();
+		Units	= reader.ReadASCII();
 	}
 
 	public void Write(Writer writer)
 	{
 		writer.WriteASCII(Name);
+		writer.WriteBytes(Id);
 		writer.WriteASCII(Units);
 	}
 }
@@ -302,6 +325,23 @@ public class JsonApiIccr : Result, IBinarySerializable
 //	public void		Write(Writer writer) => writer.WriteBytes(Result);
 //}
 
+public class AddressTextToUniversalIcca : IccpArgumentation
+{
+	public string			Text { get; set; }
+
+	public override void	Read(Reader reader) => Text = reader.ReadASCII();
+	public override void	Write(Writer writer) => writer.WriteASCII(Text);
+}
+
+public class AddressTextToUniversalIccr : Result, IBinarySerializable
+{
+	public byte[]	Universal { get; set; }
+
+	public void		Read(Reader reader) => Universal = reader.ReadBytes();
+	public void		Write(Writer writer) => writer.WriteBytes(Universal);
+}
+
+
 public class HolderClassesIcca : IccpArgumentation
 {
 }
@@ -349,16 +389,16 @@ public class HolderClassesIccr : Result, IBinarySerializable
 
 public class HolderAssetsIcca : IccpArgumentation
 {
-	public string	Entity { get; set; }
+	public byte[]	Entity { get; set; }
 
 	public override void Read(Reader reader)
 	{
-		Entity = reader.ReadASCII();
+		Entity = reader.ReadBytes();
 	}
 
 	public override void Write(Writer writer)
 	{
-		writer.WriteASCII(Entity);
+		writer.WriteBytes(Entity);
 	}
 }
 
@@ -372,19 +412,19 @@ public class HolderAssetsIccr : Result, IBinarySerializable
 
 public class AssetBalanceIcca : IccpArgumentation
 {
-	public string	Entity { get; set; }
-	public string	Name { get; set; }
+	public byte[]	Entity { get; set; }
+	public byte[]	Asset { get; set; }
 
 	public override void Read(Reader reader)
 	{
-		Entity = reader.ReadASCII();
-		Name	= reader.ReadASCII();
+		Entity	= reader.ReadBytes();
+		Asset	= reader.ReadBytes();
 	}
 
 	public override void Write(Writer writer)
 	{
-		writer.WriteASCII(Entity);
-		writer.WriteASCII(Name);
+		writer.WriteBytes(Entity);
+		writer.WriteBytes(Asset);
 	}
 }
 

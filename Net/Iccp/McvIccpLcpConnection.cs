@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Text;
 
 namespace Uccs.Net;
 
@@ -8,9 +9,6 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	public Mcv			Mcv => Node.Mcv;
 
 	protected string[]	Classes; 
-	protected Asset[]	Assets = [new () {Name = nameof(User.Spacetime),	Units = "Byte-days (BD)"},
-								  new () {Name = nameof(User.Energy),		Units = "Execution Cycles (EC)"},
-								  new () {Name = nameof(User.EnergyNext),	Units = "Execution Cycles (EC)"}];
 
 	public McvIccpLcpConnection(McvNode node, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
 	{
@@ -197,14 +195,14 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		return new HolderClassesIccr {Classes = Classes};
 	}
 
-	protected virtual void GetHolder(byte c, string n, out ISpacetimeHolder sh, out IEnergyHolder eh)
+	protected virtual void GetHolder(byte @class, AutoId entity, out ISpacetimeHolder sh, out IEnergyHolder eh)
 	{
 		sh = null;
 		eh = null;
 
-		if(c == (byte)McvTable.User)
+		if(@class == (byte)McvTable.User)
 		{
-			var a = Node.Mcv.Users.Latest(n)
+			var a = Node.Mcv.Users.Latest(entity)
 					??
 					throw new EntityException(EntityError.NotFound);
 	
@@ -215,46 +213,56 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 	public virtual Result AssetBalance(string from, AssetBalanceIcca args)
 	{
-		Parse(args.Entity, out var c, out var n); 
+		Read(args.Entity, out var c, out var n); 
 
-		if(!Assets.Any(i => i.Name == args.Name))
+		if(!args.Asset.SequenceEqual(Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years).Id) && 
+		   !args.Asset.SequenceEqual(Asset.Spacetime().Id))
 			throw new EntityException(EntityError.UnknownAsset);
 
 		ISpacetimeHolder sh;
 		IEnergyHolder eh;
 
+		Asset e, en;
+
 		lock(Node.Mcv.Lock)
 		{	
 			GetHolder(c, n, out sh, out eh);
 
-			if(string.Compare(args.Name, nameof(User.Spacetime),  true) == 0 && sh == null)
+			e = Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years);
+			en = Asset.Energy((byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1));
+
+			if(args.Asset.SequenceEqual(Asset.Spacetime().Id) && sh == null)
 				throw new EntityException(EntityError.NotHolder);
 
-			if(string.Compare(args.Name, nameof(User.Energy),  true) == 0 && eh == null)
+			if(args.Asset.SequenceEqual(e.Id) && eh == null)
 				throw new EntityException(EntityError.NotHolder);
 
-			if(string.Compare(args.Name, nameof(User.EnergyNext), true) == 0 && eh == null)
+			if(args.Asset.SequenceEqual(en.Id) && eh == null)
 				throw new EntityException(EntityError.NotHolder);
 		}
+
+		BigInteger b = 0;
+		if(args.Asset.SequenceEqual(Asset.Spacetime().Id))	b = sh.Spacetime; else
+		if(args.Asset.SequenceEqual(e.Id))					b = sh.Spacetime; else
+		if(args.Asset.SequenceEqual(en.Id))					b = sh.Spacetime;
 			
 		return	new AssetBalanceIccr
 				{
-					Balance = new BigInteger(args.Name	switch
-														{
-															nameof(User.Spacetime) => sh.Spacetime,
-															nameof(User.Energy) => eh.Energy,
-															nameof(User.EnergyNext) => eh.EnergyNext,
-														})
+					Balance = b
 				};
 	}
 
 	public virtual Result HolderAssets(string from, HolderAssetsIcca args)
 	{
-		Parse(args.Entity, out var c, out var n); 
+		Read(args.Entity, out var c, out var n); 
 
 		lock(Node.Mcv.Lock)
 		{	
-			return new HolderAssetsIccr{Assets = Assets};
+			return new HolderAssetsIccr {
+											Assets = [Asset.Spacetime(),
+											Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
+											Asset.Energy((byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
+										]};
 		}
 	}
 
@@ -271,21 +279,20 @@ public class McvIccpLcpConnection: IccpLcpConnection
 //		}
 //	}
 
-	public void Parse(string text, out byte table, out string name)
+	public virtual Result AddressTextToUniversal(AddressTextToUniversalIcca args)
 	{
-		var i = text.IndexOf('/');
+		var i = args.Text.IndexOf('/');
 
-		table = 0;
-		name = null;
-
-		if(!Enum.TryParse<McvTable>(text.AsSpan(0, i), true, out var t) && !Classes.Any(i => string.Compare(i, t.ToString(), true) == 0))
+		if(!Enum.TryParse<McvTable>(args.Text.AsSpan(0, i), true, out var t) && !Classes.Any(i => string.Compare(i, t.ToString(), true) == 0))
 			throw new EntityException(EntityError.UnknownEntity);
 
-		table = (byte)(object)t;
-		name = text.Substring(i + 1);
+		return new AddressTextToUniversalIccr {Universal = [(byte)(object)t, ..Encoding.ASCII.GetBytes(args.Text, 1, args.Text.Length - 1)]};
+	}
 
-		if(name.Length == 0)
-			throw new EntityException(EntityError.UnknownEntity);
+	public void Read(byte[] holder, out byte table, out AutoId name)
+	{
+		table = holder[0];
+		name = new Reader(holder[1..]).Read<AutoId>();
 	}
 
 	///public virtual Result AssetTransfer(string from, AssetTransferIcca args)
