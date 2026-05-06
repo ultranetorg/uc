@@ -130,6 +130,13 @@ public class Writer : BinaryWriter
 
 		o.Write(this);
 	}
+	
+	public void WriteVirtual<T>(T item) where T : IBinarySerializable, ITypeCode
+	{
+		Write(Constructor.TypeToCode(item.GetType())); 
+		item.Write(this);
+	}
+
 
 	public void Write<T>(IEnumerable<T> items, Action<T> a)
 	{

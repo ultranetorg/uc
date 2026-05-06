@@ -4,8 +4,6 @@ namespace Uccs.Net;
 
 public abstract class IccpTransaction : IBinarySerializable, ITypeCode
 {
-	public string			ToNet { get; set; }
-	
 	public abstract bool	IncomingExecute(Execution execution);
 	public abstract void	OutgoingPrelock(Execution execution);
 	public abstract void	OutgoingConfirm(Execution execution);
@@ -13,12 +11,10 @@ public abstract class IccpTransaction : IBinarySerializable, ITypeCode
 
 	public virtual void Write(Writer writer)
 	{
-		writer.WriteASCII(ToNet);
 	}
 
 	public virtual void Read(Reader reader)
 	{
-		ToNet = reader.ReadASCII();
 	}
 }
 
@@ -47,9 +43,6 @@ public class AssetTransfer : IccpTransaction
 
 	public override bool IncomingExecute(Execution execution)
 	{
-// 		var suid = new Reader(SourceHolder).Read<AutoId>();
-// 		execution.AffectUser(suid);
-
 		return true;
 	}
 

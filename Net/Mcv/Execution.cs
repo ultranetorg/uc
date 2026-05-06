@@ -13,14 +13,14 @@ public class Execution : ITableExecution
 	long[]										_Bandwidths;
 	List<Generator>								_Candidates;
 	List<OutwardTransaction>					_OutwardTransactions;
-	List<IccpTransaction>						_IccTransaction;
+	OrderedDictionary<IccpTransaction, string>	_IccTransaction;
 	
 	public Dictionary<int, int>[]				NextEids => _NextEids ??= [..Mcv.Tables.Select(i => new Dictionary<int, int>())];
 	public long[]								Spaces  { get => _Spaces ?? Round.Spacetimes; set => _Spaces = value; }
 	public long[]								Bandwidths { get => _Bandwidths ?? Round.Bandwidths; set => _Bandwidths = value; }
 	public List<Generator>						Candidates { get => _Candidates ?? Round.Candidates; set => _Candidates = value; }
 	public List<OutwardTransaction>				OutwardTransactions { get => _OutwardTransactions ?? Round.OutwardTransactions; set => _OutwardTransactions = value; }
-	public List<IccpTransaction>				IccTransactions { get => _IccTransaction ?? Round.IccTransactions; set => _IccTransaction = value; }
+	public OrderedDictionary<IccpTransaction, string>	IccTransactions { get => _IccTransaction ?? Round.IccTransactions; set => _IccTransaction = value; }
 
 	public Time									Time => Round.ConsensusTime;
 	public McvNet								Net;
@@ -52,7 +52,7 @@ public class Execution : ITableExecution
 
 	public void AffectIccTransactions()
 	{
-		_IccTransaction ??= [..Round.IccTransactions];
+		_IccTransaction ??= new (Round.IccTransactions);
 	}
 
 	public virtual ITableExecution FindExecution(byte table)

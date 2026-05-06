@@ -55,7 +55,7 @@ public abstract class Round : IBinarySerializable
 	public virtual int									AffectedCount => AffectedMetas.Count + AffectedUsers.Count + Mcv.Tables.Sum(i => AffectedByTable(i).Count);
 
 	public List<OutwardTransaction>						OutwardTransactions;
-	public List<IccpTransaction>						IccTransactions;
+	public OrderedDictionary<IccpTransaction, string>	IccTransactions;
 
 	public List<Generator>								Candidates;
 	public List<Generator>								Members;
@@ -514,7 +514,7 @@ public abstract class Round : IBinarySerializable
 		Execute(ConsensusTransactions);
 
 		OutwardTransactions	= [..OutwardTransactions];
-		IccTransactions		= [..IccTransactions];
+		IccTransactions		= new(IccTransactions);
 
 		CopyConfirmed();
 		
@@ -617,10 +617,10 @@ public abstract class Round : IBinarySerializable
 	{
 		///	var ows = Outwards.Where(i => i.Operation is IccOperation o && execution.Friends.Find(o.ToNet).OutStatus != IccTransferStatus.FormedAndPending).ToArray();
 
-		foreach(var txs in IccTransactions.GroupBy(i => i.ToNet))
+		foreach(var txs in IccTransactions.GroupBy(i => i.Value))
 		{
 			foreach(var i in txs)
-				i.OutgoingPrelock(execution);
+				i.Key.OutgoingPrelock(execution);
 
 			var s = execution.Friends.Affect(txs.Key);
 
@@ -628,7 +628,7 @@ public abstract class Round : IBinarySerializable
 			s.LastOutgoingTransfer = new IccpTransfer
 									 {
 									 	Id = s.LastOutgoingTransfer == null ? 0 : (s.LastOutgoingTransfer.Id + 1),
-									 	Transactions = [..txs]
+									 	Transactions = [..txs.Select(i => i.Key)]
 									 };
 
 			Mcv.FriendTransferFormed?.Invoke(execution, s);
@@ -726,7 +726,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write(ConsensusTime);
 		writer.Write7BitEncodedInt64(ConsensusEnergyCost);
 		writer.Write(OutwardTransactions);
-		writer.Write(IccTransactions);
+		writer.Write(IccTransactions, writer.WriteVirtual, writer.WriteASCII);
 	}
 
 	public virtual void ReadGraphState(Reader reader)
@@ -740,7 +740,7 @@ public abstract class Round : IBinarySerializable
 		ConsensusTime			= reader.Read<Time>();
 		ConsensusEnergyCost		= reader.Read7BitEncodedInt64();
 		OutwardTransactions		= reader.ReadList<OutwardTransaction>();
-		IccTransactions			= reader.ReadListVirtual<IccpTransaction>();
+		IccTransactions			= reader.ReadOrderedDictionary(reader.ReadVirtual<IccpTransaction>,  reader.ReadASCII);
 	}
 
 	public virtual void Write(Writer writer)

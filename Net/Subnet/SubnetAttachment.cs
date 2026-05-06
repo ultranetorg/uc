@@ -86,5 +86,6 @@ public class SubnetAttachment : OutwardOperation
 		s.OutStatus				= IccTransferStatus.None;
 		s.LastIncomingTransfer	= new() {Hash = execution.Net.Cryptography.ZeroHash, Results = []};
 		s.LastOutgoingTransfer	= new() {Transactions = []};
+		s.Balances				= [];
 	}
 }
