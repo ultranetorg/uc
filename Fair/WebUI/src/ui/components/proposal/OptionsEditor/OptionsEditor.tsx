@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react"
+import { memo, useEffect, useMemo } from "react"
 import { TFunction } from "i18next"
 import {
   Controller,
@@ -9,20 +9,14 @@ import {
   useWatch,
 } from "react-hook-form"
 
-import { useCreateProposalContext, useModerationContext } from "app"
-import {
-  CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES,
-  CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES,
-  CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES,
-} from "constants/"
-import { CreateProposalData, CreateProposalDataOption, OperationType, ProposalType } from "types"
-import { Dropdown, DropdownItem, MessageBox, ValidationWrapper } from "ui/components"
-import { getVisibleProposalOperations } from "utils"
+import { useCreateProposalContext } from "app"
+import { CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
+import { CreateProposalData, CreateProposalDataOption, OperationType } from "types"
+import { MessageBox, ValidationWrapper } from "ui/components"
 
 import { getEditorOperationsFields } from "./constants"
 import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
-import { EditorOperationFields } from "./types"
 import { validateSiteAuthorsRemoval, validateSiteModeratorChange, validateSiteTextChange } from "./validations"
 
 const validationMap: Record<
@@ -44,134 +38,72 @@ const validationMap: Record<
 
 export type OptionsEditorProps = {
   t: TFunction
-  proposalType: ProposalType
   labelClassName: string
   isVotingRequired: boolean
-  onProposalTypeChange: (type?: OperationType) => void
 }
 
-export const OptionsEditor = memo(
-  ({ t, proposalType, labelClassName, isVotingRequired, onProposalTypeChange }: OptionsEditorProps) => {
-    const { lastEditedOptionIndex } = useCreateProposalContext()
-    const { policies } = useModerationContext()
-    const { control, clearErrors, setError, unregister } = useFormContext<CreateProposalData>()
-    const { fields, append, remove, replace } = useFieldArray<CreateProposalData>({ control, name: "options" })
-    const type = useWatch({ control, name: "type" })
-    const options = useWatch({ control, name: "options" })
+export const OptionsEditor = memo(({ t, labelClassName, isVotingRequired }: OptionsEditorProps) => {
+  const { lastEditedOptionIndex } = useCreateProposalContext()
+  const { control, clearErrors, setError } = useFormContext<CreateProposalData>()
+  const { fields, append, remove } = useFieldArray<CreateProposalData>({ control, name: "options" })
+  const type = useWatch({ control, name: "type" })
+  const options = useWatch({ control, name: "options" })
 
-    const [operationField, setOperationField] = useState<EditorOperationFields | undefined>(undefined)
+  const operationField = useMemo(() => {
+    const fields = getEditorOperationsFields(t)
+    return fields?.find(x => x.operationType === type)
+  }, [t, type])
 
-    const isSingleOptionProposal =
-      !isVotingRequired || (!!type && CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType))
+  const isSingleOptionProposal =
+    !isVotingRequired || CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES.includes(type as OperationType)
 
-    const isTypeDropdownHidden = CREATE_PROPOSAL_HIDE_TYPE_SELECTION_OPERATION_TYPES.includes(type as OperationType)
+  useEffect(() => {
+    if (lastEditedOptionIndex === undefined || type === undefined) return
 
-    const isTypeDropdownDisabled =
-      proposalType === "discussion" &&
-      CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES.includes(type as OperationType)
+    clearErrors()
+    validationMap[type]?.(t, options, clearErrors, setError, lastEditedOptionIndex)
+  }, [clearErrors, lastEditedOptionIndex, options, setError, t, type])
 
-    const typeDropdownItems = useMemo<DropdownItem[]>(() => {
-      const operations = getVisibleProposalOperations(proposalType, policies)
-      return operations.map(x => ({
-        label: t(`operations:${x}`),
-        value: x as string,
-      }))
-    }, [policies, proposalType, t])
-
-    const disabledTypeDropdownItem = useMemo<DropdownItem[] | undefined>(
-      () => (isTypeDropdownDisabled ? [{ label: t(`operations:${type}`), value: type! }] : undefined),
-      [type, isTypeDropdownDisabled, t],
-    )
-
-    const operationFields = useMemo(() => getEditorOperationsFields(t), [t])
-
-    useEffect(() => {
-      const field = operationFields?.find(x => x.operationType === type)
-      setOperationField(field)
-
-      if (field?.parameterName !== "categoryId") {
-        unregister("categoryId")
-      }
-
-      if (field?.fields?.length) {
-        replace([{ title: "" }])
-      } else {
-        remove()
-      }
-    }, [operationFields, remove, replace, type, unregister])
-
-    useEffect(() => {
-      if (lastEditedOptionIndex === undefined || type === undefined) return
-
-      clearErrors()
-      validationMap[type]?.(t, options, clearErrors, setError, lastEditedOptionIndex)
-    }, [clearErrors, lastEditedOptionIndex, options, setError, t, type])
-
-    useEffect(() => onProposalTypeChange(type), [onProposalTypeChange, type])
-
-    return (
-      <>
-        {!isTypeDropdownHidden && (
-          <div className="flex flex-col gap-2">
-            <span className={labelClassName}>{t("common:type")}:</span>
-            <Controller
-              control={control}
-              name="type"
-              rules={{ required: t("validation:requiredType") }}
-              render={({ field }) => (
-                <Dropdown
-                  isMulti={false}
-                  isDisabled={isTypeDropdownDisabled}
-                  controlled={true}
-                  items={!isTypeDropdownDisabled ? typeDropdownItems : disabledTypeDropdownItem}
-                  onChange={item => field.onChange(item.value)}
-                  size="large"
-                  value={field.value}
-                  placeholder={t("placeholders:selectProposalType", { proposalType })}
-                />
-              )}
+  return (
+    <>
+      {operationField?.parameterValueType && (
+        <div className="flex flex-col gap-2">
+          <span className={labelClassName}>{operationField.parameterLabel}:</span>
+          <Controller
+            control={control}
+            name={operationField.parameterName!}
+            // @ts-expect-error fix
+            rules={{ required: true, ...operationField?.parameterRules }}
+            render={({ field, fieldState }) => (
+              <ValidationWrapper message={operationField?.parameterRules && fieldState.error?.message}>
+                {renderByParameterValueType[operationField!.parameterValueType!](
+                  operationField,
+                  field.value as string | undefined,
+                  field.onChange,
+                )}
+              </ValidationWrapper>
+            )}
+          />
+        </div>
+      )}
+      {fields.length > 0 && (
+        <>
+          <div className="flex flex-col gap-4">
+            {!isSingleOptionProposal && (
+              <span className="text-2xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}</span>
+            )}
+            <OptionsEditorList
+              t={t}
+              singleOption={isSingleOptionProposal}
+              operationFields={operationField!}
+              fields={fields}
+              append={append}
+              remove={remove}
             />
           </div>
-        )}
-        {operationField?.parameterValueType && (
-          <div className="flex flex-col gap-2">
-            <span className={labelClassName}>{operationField.parameterLabel}:</span>
-            <Controller
-              control={control}
-              name={operationField.parameterName!}
-              // @ts-expect-error fix
-              rules={{ required: true, ...operationField?.parameterRules }}
-              render={({ field, fieldState }) => (
-                <ValidationWrapper message={operationField?.parameterRules && fieldState.error?.message}>
-                  {renderByParameterValueType[operationField!.parameterValueType!](
-                    operationField,
-                    field.value as string | undefined,
-                    field.onChange,
-                  )}
-                </ValidationWrapper>
-              )}
-            />
-          </div>
-        )}
-        {fields.length > 0 && (
-          <>
-            <div className="flex flex-col gap-4">
-              {!isSingleOptionProposal && (
-                <span className="text-2xl font-semibold leading-6 first-letter:uppercase">{t("common:options")}</span>
-              )}
-              <OptionsEditorList
-                t={t}
-                singleOption={isSingleOptionProposal}
-                operationFields={operationField!}
-                fields={fields}
-                append={append}
-                remove={remove}
-              />
-            </div>
-          </>
-        )}
-        {type && <MessageBox message={t("addedAnswers")} type="warning" />}
-      </>
-    )
-  },
-)
+        </>
+      )}
+      {type && <MessageBox message={t("addedAnswers")} type="warning" />}
+    </>
+  )
+})

@@ -1,7 +1,11 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { useLocation } from "react-router-dom"
+
+import { sitesKeys } from "entities"
 
 export const useStoreDropdownMenuItems = (siteId: string) => {
+  const location = useLocation()
   const { t } = useTranslation("storeDropdownMenu")
 
   const menuItems = useMemo(
@@ -24,7 +28,8 @@ export const useStoreDropdownMenuItems = (siteId: string) => {
               type: "site-avatar-change",
               siteId,
               parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-              previousPath: `/${siteId}/m/`,
+              previousPath: location.pathname,
+              invalidateQueryKeys: sitesKeys.detail(siteId),
             },
           },
           {
@@ -35,7 +40,8 @@ export const useStoreDropdownMenuItems = (siteId: string) => {
               type: "site-name-change",
               siteId,
               parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-              previousPath: `/${siteId}/m/`,
+              previousPath: location.pathname,
+              invalidateQueryKeys: sitesKeys.detail(siteId),
             },
           },
           {
@@ -47,6 +53,7 @@ export const useStoreDropdownMenuItems = (siteId: string) => {
               siteId,
               parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
               previousPath: `/${siteId}/m/`,
+              invalidateQueryKeys: sitesKeys.detail(siteId),
             },
           },
         ],
@@ -54,7 +61,7 @@ export const useStoreDropdownMenuItems = (siteId: string) => {
       { separator: true },
       { label: t("common:about"), to: `/${siteId}/i` },
     ],
-    [siteId, t],
+    [location.pathname, siteId, t],
   )
 
   return { menuItems }

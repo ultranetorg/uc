@@ -1,8 +1,9 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
+import { useLocation, useParams } from "react-router-dom"
 
 export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle: string) => {
+  const location = useLocation()
   const { t } = useTranslation("moderatorCategoryMenu")
   const { siteId } = useParams()
 
@@ -16,7 +17,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           type: "category-avatar-change",
           categoryId,
           parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-          previousPath: `/${siteId}/m/`,
+          previousPath: location.pathname,
         },
       },
       {
@@ -73,7 +74,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
         },
       },
     ],
-    [t, siteId, categoryTitle, categoryId],
+    [t, siteId, categoryTitle, categoryId, location.pathname],
   )
 
   return { menuItems }

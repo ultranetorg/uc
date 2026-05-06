@@ -1,15 +1,16 @@
-import { Link, useParams } from "react-router-dom"
+import { useMemo } from "react"
+import { Link, useLocation, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-import { useMemo } from "react"
 import { useModerationContext } from "app"
 import { SvgEyeSm } from "assets"
-import { useGetUnpublishedPublication } from "entities"
+import { unpublishedPublicationsKeys, useGetUnpublishedPublication } from "entities"
 import { OperationClass } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 
 export const UnpublishedPublicationPage = () => {
+  const location = useLocation()
   const { siteId, publicationId } = useParams()
   const { getOperationVoterId } = useModerationContext()
   const { t } = useTranslation("unpublishedPublicationPage")
@@ -47,7 +48,8 @@ export const UnpublishedPublicationPage = () => {
                       : t("publishNoTitle"),
                     type: "publication-publish" as OperationClass,
                     publicationId: publication.id,
-                    previousPath: `/${siteId}/m/c`,
+                    previousPath: `/${siteId}/m/c/u`,
+                    invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
                   }}
                 >
                   <ButtonPrimary className="h-11 w-40 capitalize" label={t("common:publish")} />

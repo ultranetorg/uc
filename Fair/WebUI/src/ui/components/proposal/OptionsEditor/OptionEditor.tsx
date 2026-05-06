@@ -39,22 +39,24 @@ export const OptionEditor = memo(({ index, t, editorTitle, editorFields, onRemov
       )}
 
       <div className="flex flex-col gap-4">
-        <Controller
-          control={control}
-          name={`options.${index}.title`}
-          rules={{ required: t("validation:requiredTitle"), validate: validateUniqueTitle(t) }}
-          render={({ field, fieldState }) => (
-            <ValidationWrapper message={fieldState.error?.message}>
-              <Input
-                onChange={field.onChange}
-                value={field.value}
-                className="h-10 placeholder:text-gray-500"
-                placeholder={t("placeholders:enterOptionTitle")}
-                error={!!fieldState.error?.message}
-              />
-            </ValidationWrapper>
-          )}
-        />
+        {editorTitle && (
+          <Controller
+            control={control}
+            name={`options.${index}.title`}
+            rules={{ required: t("validation:requiredTitle"), validate: validateUniqueTitle(t) }}
+            render={({ field, fieldState }) => (
+              <ValidationWrapper message={fieldState.error?.message}>
+                <Input
+                  onChange={field.onChange}
+                  value={field.value}
+                  className="h-10 placeholder:text-gray-500"
+                  placeholder={t("placeholders:enterOptionTitle")}
+                  error={!!fieldState.error?.message}
+                />
+              </ValidationWrapper>
+            )}
+          />
+        )}
 
         <ValidationWrapper
           className="flex flex-col gap-4"

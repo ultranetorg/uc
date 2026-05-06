@@ -1,16 +1,18 @@
 import { memo, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
+import { useLocation, useParams } from "react-router-dom"
 import { FloatingPortal } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
 import { useModerationContext } from "app"
 import { SvgThreeDotsSm } from "assets"
+import { sitesKeys } from "entities"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
 
 export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
+  const location = useLocation()
   const { isModerator } = useModerationContext()
   const { siteId } = useParams()
   const { t } = useTranslation()
@@ -24,17 +26,18 @@ export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
         label: t("moderatorCategoryMenu:categoryCreate"),
         to: `/${siteId}/m/new`,
         state: {
-          title: "Create new category",
+          title: "Create category",
           type: "category-creation",
           parentBreadcrumbs: [
             { path: `/${siteId}/m/`, title: t("common:proposals") },
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
-          previousPath: `/${siteId}/m/c/`,
+          previousPath: location.pathname,
+          invalidateQueryKeys: sitesKeys.detail(siteId!),
         },
       },
     ],
-    [siteId, t],
+    [location.pathname, siteId, t],
   )
 
   const handleMenuClick = useCallback(() => menu.setOpen(false), [menu])

@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useMemo, useState } from "react"
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react"
 import { useLocation, useParams, useSearchParams } from "react-router-dom"
 import { FormProvider, useForm } from "react-hook-form"
 
@@ -24,29 +24,37 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
   const [searchParams] = useSearchParams()
   const location = useLocation()
 
-  const methods = useForm<CreateProposalData>({
-    mode: "onChange",
-    defaultValues: {
+  const buildDefaultValues = () => {
+    const prePopulatedOptions = [
+      ...(location.state?.moderators ? [{ moderators: location.state.moderators }] : []),
+      ...(location.state?.authors ? [{ authors: location.state.authors }] : []),
+    ]
+    return {
       title: "",
-      options: [
-        ...(location.state?.moderators ? [{ moderators: location.state.moderators }] : []),
-        ...(location.state?.authors ? [{ authors: location.state.authors }] : []),
-      ],
-      ...(searchParams.get("type") && { type: searchParams.get("type")! as OperationType }),
+      options: prePopulatedOptions.length > 0 ? prePopulatedOptions : [{ title: "" }],
       ...(location.state?.title && { title: location.state.title }),
       ...(location.state?.type && { type: location.state.type as OperationType }),
       ...(location.state?.publicationId && { publicationId: location.state.publicationId }),
       ...(location.state?.categoryId && { categoryId: location.state.categoryId }),
-
       ...(!!location.state?.previousPath && { previousPath: location.state.previousPath }),
-
       ...(searchParams.get("publisherId") && { publisherId: searchParams.get("publisherId")! }),
       ...(searchParams.get("productId") && { productId: searchParams.get("productId")! }),
       ...(searchParams.get("reviewId") && { reviewId: searchParams.get("reviewId")! }),
       ...(searchParams.get("userId") && { userId: searchParams.get("userId")! }),
-    },
+    }
+  }
+
+  const methods = useForm<CreateProposalData>({
+    mode: "onChange",
+    defaultValues: buildDefaultValues(),
     shouldUnregister: false,
   })
+
+  useEffect(() => {
+    methods.reset(buildDefaultValues())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state?.type])
+
   const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
   const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)

@@ -7,7 +7,7 @@ import { ButtonPrimary, LinkFullscreen, TableColumn, TableItem } from "ui/compon
 import { renderAuthor } from "ui/renderers/utils"
 
 export const getPublishersTabItemRenderer =
-  (t: TFunction, siteId: string) =>
+  (t: TFunction, siteId: string, pathname: string) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const publisher = item as unknown as Publisher
 
@@ -16,8 +16,10 @@ export const getPublishersTabItemRenderer =
         return (
           <LinkFullscreen to={`/${siteId}/a/${publisher.author.id}`}> {renderAuthor(publisher.author)}</LinkFullscreen>
         )
+
       case "banned":
         return publisher.bannedTill !== 0 ? publisher.bannedTill : ""
+
       case "actions":
         return (
           <Link
@@ -27,7 +29,7 @@ export const getPublishersTabItemRenderer =
                 { path: `/${siteId}/m/a`, title: t("common:proposals") },
                 { path: `/${siteId}/m/a/p/`, title: t("title") },
               ],
-              previousPath: `/${siteId}/m/a/`,
+              previousPath: pathname,
               title: t("removeAuthor"),
               type: "site-authors-removal",
               authors: [publisher.author],

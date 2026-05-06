@@ -57,7 +57,7 @@ export const PublishersTab = () => {
     [t, voterId],
   )
 
-  const itemRenderer = useMemo(() => getPublishersTabItemRenderer(t, siteId!), [siteId, t])
+  const itemRenderer = useMemo(() => getPublishersTabItemRenderer(t, siteId!, location.pathname), [siteId, t])
 
   const items = useMemo(
     () =>

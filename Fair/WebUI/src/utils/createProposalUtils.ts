@@ -1,21 +1,4 @@
-import { CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES } from "constants/"
-import { OperationType, Policy, ProposalType } from "types"
-
-const getProposalOperations = (proposalType: ProposalType, policies: Policy[]): OperationType[] => {
-  return proposalType === "discussion"
-    ? policies.filter(x => x.approval !== "publishers-majority").map(x => x.operationClass)
-    : policies.filter(x => x.approval === "publishers-majority").map(x => x.operationClass)
-}
-
-export const getVisibleProposalOperations = (
-  proposalType: ProposalType,
-  policies: Policy[] | undefined = [],
-): OperationType[] => {
-  const allOperations = getProposalOperations(proposalType, policies)
-  return allOperations.filter(
-    x => !(CREATE_PROPOSAL_DISABLE_TYPE_SELECTION_OPERATION_TYPES as OperationType[]).includes(x),
-  )
-}
+import { OperationType } from "types"
 
 const operationTypeToFairOperationTypeMap: Record<OperationType, string> = {
   "category-avatar-change": "CategoryAvatarChange",

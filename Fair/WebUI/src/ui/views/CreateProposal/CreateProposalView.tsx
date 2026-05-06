@@ -1,11 +1,13 @@
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback } from "react"
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
+import { useQueryClient } from "@tanstack/react-query"
 
+import { twMerge } from "tailwind-merge"
 import { useModerationContext, useSiteContext, useUserContext } from "app"
 import { useTransactMutationWithStatus } from "entities/node"
-import { CreateProposalData, OperationType, ProposalType, Role } from "types"
+import { CreateProposalData, ProposalType, Role } from "types"
 import { ProposalCreation } from "types/fairOperations"
 import {
   BreadcrumbsItemProps,
@@ -33,6 +35,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const location = useLocation()
   const navigate = useNavigate()
   const { siteId } = useParams()
+  const queryClient = useQueryClient()
   const { t } = useTranslation("createProposal")
 
   const { isModerator, isPublisher, policies } = useModerationContext()
@@ -47,12 +50,11 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   } = useFormContext<CreateProposalData>()
   const formData: CreateProposalData = watch() // TODO: should be removed.
 
-  const [type, setOperationType] = useState<OperationType | undefined>()
-
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
   const parentPath = proposalType === "discussion" ? `/${siteId}/m` : `/${siteId}/g/r`
+  const isRequiredVoting = isVotingRequired(proposalType, site, formData.type, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])
 
@@ -64,12 +66,12 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     const operation = new ProposalCreation(siteId!, by, role, data.title, options, data.description)
     mutate(operation, {
       onSuccess: () => {
-        showToast(
-          t("toast:proposalCreated", {
-            proposal: t(`operations:${data.type}`),
-          }),
-          "success",
-        )
+        if (Array.isArray(location.state?.invalidateQueryKeys)) {
+          queryClient.invalidateQueries({ queryKey: location.state.invalidateQueryKeys })
+        }
+
+        const translationKey = isRequiredVoting ? "toast:proposalCreated" : "toast:operationExecuted"
+        showToast(t(translationKey, { operation: t(`operations:${data.type}`) }), "success")
         navigate(formData.previousPath !== undefined ? formData.previousPath : parentPath)
       },
       onError: err => {
@@ -78,16 +80,18 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     })
   }
 
-  const isRequired = isVotingRequired(proposalType, site, type, policies)
-
-  const handleProposalTypeChange = useCallback((operationType?: OperationType) => setOperationType(operationType), [])
-
   const validRole = (proposalType === "discussion" && isModerator) || (proposalType === "referendum" && isPublisher)
   if (!user || !validRole) {
     return <Navigate to={parentPath} />
   }
 
-  const title = proposalType === "discussion" ? t("createDiscussion") : t("createReferendum")
+  const title = isRequiredVoting
+    ? proposalType === "discussion"
+      ? t("createDiscussion")
+      : t("createReferendum")
+    : t("common:ok")
+
+  if (!formData.type) return <Navigate to={`/${siteId}`} />
 
   return (
     <div className="flex max-w-[648px] flex-col gap-6">
@@ -138,20 +142,14 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
           />
         </Collapse>
 
-        <OptionsEditor
-          t={t}
-          proposalType={proposalType}
-          labelClassName={LABEL_CLASSNAME}
-          isVotingRequired={isRequired}
-          onProposalTypeChange={handleProposalTypeChange}
-        />
+        <OptionsEditor t={t} labelClassName={LABEL_CLASSNAME} isVotingRequired={isRequiredVoting} />
         <DebugPanel data={formData} />
 
         <div className="flex items-center justify-end gap-6">
           <ButtonOutline label={t("common:cancel")} className="h-11 w-25" onClick={handleCancelClick} />
           <ButtonPrimary
             label={title}
-            className={"h-11 w-42.5"}
+            className={twMerge("h-11 w-42.5", !isRequiredVoting && "w-25 uppercase")}
             disabled={!isValid || Object.keys(errors).length > 0 || isPending}
             type="submit"
           />

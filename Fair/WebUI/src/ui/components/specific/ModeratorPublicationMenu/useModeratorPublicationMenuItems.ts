@@ -2,6 +2,8 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { unpublishedPublicationsKeys } from "entities"
+
 export const useModeratorPublicationMenuItems = (publicationId: string, publicationTitle?: string) => {
   const { siteId } = useParams()
   const { t } = useTranslation("moderatorPublicationMenu")
@@ -19,7 +21,8 @@ export const useModeratorPublicationMenuItems = (publicationId: string, publicat
             { path: `/${siteId}/m/`, title: t("common:proposals") },
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
-          previousPath: `/${siteId}/m/c/`,
+          previousPath: `/${siteId}/m/c/u`,
+          invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
         },
       },
       { separator: true },

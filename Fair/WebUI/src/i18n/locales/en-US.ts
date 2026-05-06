@@ -142,8 +142,6 @@ export const enUS = {
   },
   moderatorOptionsMenu: {
     label: "Moderation",
-    removePublication: "Remove publication",
-    unpublishPublication: "Unpublish publication",
   },
   moderatorCategoryMenu: {
     avatarChange: "Change avatar",
@@ -154,6 +152,7 @@ export const enUS = {
   },
   moderatorPublicationMenu: {
     removePublication: "Remove publication",
+    unpublishPublication: "Unpublish publication",
   },
   pageBanner: {
     text: "You’re browsing through the legacy Web2. Switch to the fully decentralized Web3 with <1>Ultranet</1> — install <2>Ultranet Client Software</2> to join the new paradigm.",
@@ -207,8 +206,9 @@ export const enUS = {
     fileDeleted: `File "{{fileId}}" successfully deleted`,
     fileUploaded: `File "{{fileName}}" successfully uploaded`,
     nicknameChanged: "Nickname changed successfully",
+    operationExecuted: `Operation "{{operation}}" successfully executed`,
     perpetualVoted: `Publisher "{{publisher}}" successfully voted`,
-    proposalCreated: `Proposal "{{proposal}}" created successfully`,
+    proposalCreated: `Proposal "{{operation}}" created successfully`,
     publicationCreated: "Publication successfully created",
     publicationUpdated: "Publication successfully updated",
     publicationVoted: "You have successfully voted for publication",

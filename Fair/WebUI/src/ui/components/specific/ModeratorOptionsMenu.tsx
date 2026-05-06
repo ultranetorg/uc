@@ -1,5 +1,4 @@
-import { memo, useCallback, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
+import { memo, useCallback, useState } from "react"
 import {
   FloatingPortal,
   offset,
@@ -19,6 +18,8 @@ import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
 import { PropsWithClassName } from "types"
 
+import { useModeratorPublicationMenuItems } from "./ModeratorPublicationMenu"
+
 type ModeratorOptionsMenuBaseProps = {
   publicationId: string
   publicationTitle?: string
@@ -28,9 +29,10 @@ export type ModeratorOptionsMenuProps = PropsWithClassName & ModeratorOptionsMen
 
 export const ModeratorOptionsMenu = memo(
   ({ className, publicationId, publicationTitle }: ModeratorOptionsMenuProps) => {
-    const { isModerator } = useModerationContext()
-    const { siteId } = useParams()
     const { t } = useTranslation("moderatorOptionsMenu")
+
+    const { isModerator } = useModerationContext()
+    const { menuItems } = useModeratorPublicationMenuItems(publicationId, publicationTitle)
 
     const [isExpanded, setExpanded] = useState(false)
 
@@ -46,43 +48,6 @@ export const ModeratorOptionsMenu = memo(
     const hover = useHover(context, { handleClose: safePolygon() })
     const role = useRole(context)
     const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
-
-    const menuItems = useMemo(
-      () => [
-        {
-          label: t("unpublishPublication"),
-          to: `/${siteId}/m/new`,
-          state: {
-            title: publicationTitle ? `Unpublish publication "${publicationTitle}"` : "Unpublish publication",
-            type: "publication-unpublish",
-            publicationId,
-            parentBreadcrumbs: [
-              { path: `/${siteId}/m/`, title: t("common:proposals") },
-              { path: `/${siteId}/m/c/`, title: t("common:publications") },
-            ],
-            previousPath: `/${siteId}/m/c/`,
-          },
-        },
-        {
-          separator: true,
-        },
-        {
-          label: t("removePublication"),
-          to: `/${siteId}/m/new`,
-          state: {
-            title: publicationTitle ? `Remove publication "${publicationTitle}"` : "Remove publication",
-            type: "publication-deletion",
-            publicationId,
-            parentBreadcrumbs: [
-              { path: `/${siteId}/m/`, title: t("common:proposals") },
-              { path: `/${siteId}/m/c/`, title: t("common:publications") },
-            ],
-            previousPath: `/${siteId}/m/c/`,
-          },
-        },
-      ],
-      [publicationId, publicationTitle, siteId, t],
-    )
 
     const handleMenuClick = useCallback(() => setExpanded(false), [])
 

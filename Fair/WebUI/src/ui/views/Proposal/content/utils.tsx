@@ -171,12 +171,7 @@ const getSiteNameChange = (operation: SiteNameChange): JSX.Element =>
       parent={"p"}
     />
   ) : (
-    <Trans
-      ns="proposalView"
-      i18nKey={`${operation.$type}_empty`}
-      values={{ siteName: operation.siteName }}
-      parent={"p"}
-    />
+    <Trans ns="proposalView" i18nKey={`${operation.$type}_empty`} values={{ name: operation.name }} parent={"p"} />
   )
 
 const getSiteTextChange = (operation: SiteTextChange): JSX.Element => (
