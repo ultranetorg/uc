@@ -6,13 +6,13 @@ import { categoriesKeys } from "./categoriesKeys"
 
 const api = getApi()
 
-export const useGetCategory = (categoryId?: string) => {
-  const queryFn = () => api.getCategory(categoryId!)
+export const useGetCategoryDetails = (siteId?: string, categoryId?: string) => {
+  const queryFn = () => api.getCategoryDetails(categoryId!)
 
   const { isPending, error, data } = useQuery({
-    queryKey: categoriesKeys.detail(categoryId!),
+    queryKey: categoriesKeys.detail(siteId!, categoryId!),
     queryFn: queryFn,
-    enabled: !!categoryId,
+    enabled: !!siteId && !!categoryId,
   })
 
   return { isPending, error: error ?? undefined, data }

@@ -47,9 +47,9 @@ public class SitesService
 		return result;
 	}
 
-	public SiteModel GetSite([NotEmpty] string siteId)
+	public SiteModel GetDetails([NotEmpty] string siteId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetSite), siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(SitesService), nameof(GetDetails), siteId);
 
 		Guard.Against.NullOrEmpty(siteId);
 
@@ -63,28 +63,15 @@ public class SitesService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			IEnumerable<SiteCategoryModel> categories = site.Categories.Length > 0 ? LoadCategories(site.Categories) : [];
-
 			IEnumerable<string> moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.User.ToString());
 			IEnumerable<string> authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(x => x.Author.ToString());
 
 			return new SiteModel(site)
 			{
-				Categories = categories,
 				ModeratorsIds = moderatorsIds,
 				AuthorsIds = authorsIds,
 			};
 		}
-	}
-
-	IEnumerable<SiteCategoryModel> LoadCategories(AutoId[] categoriesIds)
-	{
-		return categoriesIds.Select(id =>
-		{
-			Category category = mcv.Categories.Latest(id);
-			byte[]? avatar = category.Avatar != null ? mcv.Files.Latest(category.Avatar).Data : null;
-			return new SiteCategoryModel(category, avatar);
-		}).ToArray();
 	}
 
 	public TotalItemsResult<PublisherModel> GetPublishers([NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)

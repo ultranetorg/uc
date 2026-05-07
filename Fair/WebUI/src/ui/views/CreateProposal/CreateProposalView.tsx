@@ -1,3 +1,4 @@
+import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants"
 import { memo, useCallback } from "react"
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -121,7 +122,13 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
           <Controller
             control={control}
             name="title"
-            rules={{ required: t("validation:requiredTitle") }}
+            rules={{
+              required: t("validation:requiredTitle"),
+              maxLength: {
+                value: PROPOSAL_TITLE_MAX_LENGTH,
+                message: t("validation:maxLength", { count: PROPOSAL_TITLE_MAX_LENGTH }),
+              },
+            }}
             render={({ field, fieldState }) => (
               <ValidationWrapper message={fieldState.error?.message}>
                 <Input
@@ -138,6 +145,12 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
           <Controller
             control={control}
             name="description"
+            rules={{
+              maxLength: {
+                value: PROPOSAL_TEXT_MAX_LENGTH,
+                message: t("validation:maxLength", { count: PROPOSAL_TEXT_MAX_LENGTH }),
+              },
+            }}
             render={({ field }) => <Textarea onChange={field.onChange} value={field.value} />}
           />
         </Collapse>

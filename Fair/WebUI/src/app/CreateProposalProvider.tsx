@@ -2,7 +2,7 @@ import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useSt
 import { useLocation, useParams, useSearchParams } from "react-router-dom"
 import { FormProvider, useForm } from "react-hook-form"
 
-import { useGetCategories } from "entities"
+import { useGetCategoriesTree } from "entities"
 import { CategoryParentBaseWithChildren, CreateProposalData, OperationType } from "types"
 import { buildCategoryTree } from "utils"
 
@@ -57,7 +57,7 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
 
   const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
-  const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategories(siteId)
+  const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategoriesTree(siteId)
 
   const value = useMemo(
     () => ({

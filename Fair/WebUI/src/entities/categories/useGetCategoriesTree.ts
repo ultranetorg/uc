@@ -5,11 +5,11 @@ import { categoriesKeys } from "./categoriesKeys"
 
 const api = getApi()
 
-export const useGetCategories = (siteId?: string, depth?: number) => {
-  const queryFn = () => api.getCategories(siteId!, depth)
+export const useGetCategoriesTree = (siteId?: string, depth?: number) => {
+  const queryFn = () => api.getCategoriesTree(siteId!, depth)
 
   const { isPending, error, data, isFetching, refetch } = useQuery({
-    queryKey: categoriesKeys.siteCategories(siteId!, depth),
+    queryKey: categoriesKeys.tree(siteId!, depth),
     queryFn: queryFn,
     enabled: !!siteId && depth !== undefined,
   })

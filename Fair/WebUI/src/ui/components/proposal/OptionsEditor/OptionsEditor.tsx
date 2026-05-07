@@ -86,7 +86,7 @@ export const OptionsEditor = memo(({ t, labelClassName, isVotingRequired }: Opti
           />
         </div>
       )}
-      {fields.length > 0 && (
+      {!!operationField?.fields && (
         <>
           <div className="flex flex-col gap-4">
             {!isSingleOptionProposal && (

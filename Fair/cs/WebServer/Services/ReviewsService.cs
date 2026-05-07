@@ -11,7 +11,7 @@ public class ReviewsService
 {
 	public TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized(string publicationId, int page, int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ReviewsService)}.{nameof(ReviewsService.GetPublicationReviewsNotOptimized)} method called with {{ReviewId}}, {{Page}}, {{PageSize}}", publicationId, page, pageSize);
+		logger.LogDebug($"{nameof(ReviewsService)}.{nameof(ReviewsService.GetPublicationReviewsNotOptimized)} method called with {{ReviewId}}, {{Page}}, {{PageSize}}", publicationId, page, pageSize);
 
 		Guard.Against.NullOrEmpty(publicationId);
 		Guard.Against.Negative(page, nameof(page));

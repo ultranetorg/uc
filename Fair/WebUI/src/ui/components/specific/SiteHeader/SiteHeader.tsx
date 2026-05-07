@@ -22,12 +22,12 @@ export const SiteHeader = () => {
   const { t } = useTranslation("site")
 
   const { setQuery: setSiteQuery } = useSearchQueryContext()
-  const { site } = useSiteContext()
+  const { site, categoriesRoot } = useSiteContext()
 
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
-    () => (site?.categories && siteId ? toSimpleMenuItems(site?.categories, siteId) : undefined),
-    [site, siteId],
+    () => (categoriesRoot && siteId ? toSimpleMenuItems(categoriesRoot, siteId) : undefined),
+    [categoriesRoot, siteId],
   )
 
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)

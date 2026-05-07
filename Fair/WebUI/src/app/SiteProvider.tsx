@@ -1,8 +1,8 @@
 import { createContext, PropsWithChildren, useContext, useMemo } from "react"
 import { useLocation, useParams } from "react-router-dom"
 
-import { useGetCategories, useGetSite } from "entities"
-import { CategoryParentBaseWithChildren, Site } from "types"
+import { useGetCategoriesRoot, useGetCategoriesTree, useGetSite } from "entities"
+import { CategoryBase, CategoryParentBaseWithChildren, Site } from "types"
 import { buildCategoryTree } from "utils"
 
 import { LinkFullscreenState } from "ui/components"
@@ -13,6 +13,7 @@ type SiteContextType = {
   error?: Error
   isCategoriesPending: boolean
   categories?: CategoryParentBaseWithChildren[]
+  categoriesRoot?: CategoryBase[]
 }
 
 const SiteContext = createContext<SiteContextType>({
@@ -30,7 +31,8 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
   const effectiveSiteId = siteId || state?.siteId
 
   const { data: site, isPending, error } = useGetSite(effectiveSiteId)
-  const { data: categories, isPending: isCategoriesPending } = useGetCategories(effectiveSiteId, 2)
+  const { data: categoriesRoot } = useGetCategoriesRoot(effectiveSiteId)
+  const { data: categories, isPending: isCategoriesPending } = useGetCategoriesTree(effectiveSiteId, 2)
 
   const categoriesTree = useMemo(() => (Array.isArray(categories) ? buildCategoryTree(categories) : []), [categories])
 
@@ -41,8 +43,9 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
       error,
       isCategoriesPending,
       categories: categoriesTree,
+      categoriesRoot: categoriesRoot,
     }
-  }, [categoriesTree, error, isCategoriesPending, isPending, site])
+  }, [categoriesRoot, categoriesTree, error, isCategoriesPending, isPending, site])
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>
 }

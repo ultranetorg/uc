@@ -3,17 +3,17 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { useLocalStorage } from "usehooks-ts"
 
-import { useGetCategory, useGetCategoryPublications } from "entities"
+import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
 import { Pagination } from "ui/components"
 import { CategoriesList, PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
 
 import { CategoryHeader } from "./CategoryHeader"
 
 export const CategoryPage = () => {
+  const { siteId, categoryId } = useParams()
   const { t } = useTranslation("category")
 
-  const { siteId, categoryId } = useParams()
-  const { data: category, isPending } = useGetCategory(categoryId)
+  const { data: category, isPending } = useGetCategoryDetails(siteId, categoryId)
   const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, 0)
 
   const [localStorageView, setLocalStorageView] = useLocalStorage<ViewType>("categoryPage.view", "grid")

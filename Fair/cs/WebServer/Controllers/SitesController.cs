@@ -82,12 +82,12 @@ public class SitesController
 	}
 
 	[HttpGet("{siteId}")]
-	public SiteModel Get(string siteId)
+	public SiteModel GetDetails(string siteId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(Get), siteId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetDetails), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
-		return sitesService.GetSite(siteId);
+		return sitesService.GetDetails(siteId);
 	}
 }

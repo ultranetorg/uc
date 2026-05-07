@@ -6,6 +6,7 @@ import {
   AuthorDetails,
   BaseProposal,
   Category,
+  CategoryBase,
   CategoryParentBase,
   CategoryPublications,
   File,
@@ -70,8 +71,9 @@ export type Api = {
   getUserDetails(name: string): Promise<Account>
 
   getAuthor(authorId: string): Promise<AuthorDetails>
-  getCategories(siteId: string, depth?: number): Promise<CategoryParentBase[]>
-  getCategory(categoryId: string): Promise<Category>
+  getCategoriesTree(siteId: string, depth?: number): Promise<CategoryParentBase[]>
+  getCategoryDetails(categoryId: string): Promise<Category>
+  getCategoriesRoot(siteId: string): Promise<CategoryBase[]>
   getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>
   getPublicationDetails(publicationId: string): Promise<PublicationDetails>
   getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>

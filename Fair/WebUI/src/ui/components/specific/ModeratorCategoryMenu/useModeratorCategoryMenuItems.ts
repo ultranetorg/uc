@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation, useParams } from "react-router-dom"
+import { categoriesKeys } from "entities"
 
 export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle: string) => {
   const location = useLocation()
@@ -18,6 +19,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           categoryId,
           parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
           previousPath: location.pathname,
+          invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
       {
@@ -29,6 +31,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           categoryId,
           parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
           previousPath: `/${siteId}/m/`,
+          invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
       {
@@ -43,6 +46,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
           previousPath: `/${siteId}/m/c/`,
+          invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
       {
@@ -57,6 +61,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
           previousPath: `/${siteId}/m/c/`,
+          invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
       {
@@ -71,6 +76,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           categoryId,
           parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
           previousPath: `/${siteId}/m/`,
+          invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
     ],

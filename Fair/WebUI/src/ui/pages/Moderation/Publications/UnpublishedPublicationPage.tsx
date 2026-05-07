@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { Link, useLocation, useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useModerationContext } from "app"
@@ -10,7 +10,6 @@ import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 
 export const UnpublishedPublicationPage = () => {
-  const location = useLocation()
   const { siteId, publicationId } = useParams()
   const { getOperationVoterId } = useModerationContext()
   const { t } = useTranslation("unpublishedPublicationPage")

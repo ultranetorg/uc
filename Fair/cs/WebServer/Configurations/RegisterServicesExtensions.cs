@@ -20,7 +20,7 @@ public static class RegisterServicesExtensions
 	private static void RegisterServicesInternal(IServiceCollection services, FairNode node)
 	{
 		services.AddSingleton<IAuthorsService, AuthorsService>();
-		services.AddSingleton<ICategoriesService, CategoriesService>();
+		services.AddSingleton<CategoriesService>();
 		services.AddSingleton<FilesService>();
 		services.AddSingleton<ProposalService>();
 		services.AddSingleton<PublicationsService>();

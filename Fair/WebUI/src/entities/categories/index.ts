@@ -1,4 +1,5 @@
 export * from "./categoriesKeys"
 
-export * from "./useGetCategories"
-export * from "./useGetCategory"
+export * from "./useGetCategoriesTree"
+export * from "./useGetCategoryDetails"
+export * from "./useGetCategoryRoot"

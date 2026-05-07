@@ -1,5 +1,6 @@
 export const categoriesKeys = {
-  all: ["categories"] as const,
-  detail: (categoryId: string) => [...categoriesKeys.all, categoryId] as const,
-  siteCategories: (siteId: string, depth?: number) => ["sites", siteId, "categories", { depth }],
+  all: (siteId: string) => ["sites", siteId, "categories"] as const,
+  root: (siteId: string) => [...categoriesKeys.all(siteId), "root"] as const,
+  detail: (siteId: string, categoryId: string) => [...categoriesKeys.all(siteId), categoryId] as const,
+  tree: (siteId: string, depth?: number) => [...categoriesKeys.all(siteId), "tree", { depth }] as const,
 }
