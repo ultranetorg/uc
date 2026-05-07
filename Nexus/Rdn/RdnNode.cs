@@ -78,7 +78,7 @@ public class RdnNode : McvNode
 			Iccp = new McvIccpLcpConnection(this, flow);
 		}
 
-		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
+		ApiServer = new RdnApiServer(this, new IpApiSettings {LocalIP = nexussettings.Host}.ToNodeSettings(Net), Flow);
 
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		

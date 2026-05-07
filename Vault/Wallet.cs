@@ -219,7 +219,10 @@ public class Wallet
 		if(Encrypted != null)
 			throw new VaultException(VaultError.Locked);
 
-		if(key != null && Accounts.Any(i => Bytes.Comparer.Compare(i.Key.Secret, key) == 0))
+		if(key != null && key.Length != Cryptography.PrivateKeyLength)
+			throw new VaultException(VaultError.IncorrectArgumets);
+
+		if(key != null && Accounts.Any(i => Bytes.Equal(i.Key.Secret, key)))
 			throw new VaultException(VaultError.AlreadyExists);
 
 		var a = new WalletAccount(this, name, key == null ? AccountKey.Create(tag) : new AccountKey(key, tag));
