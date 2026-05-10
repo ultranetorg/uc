@@ -13,6 +13,12 @@ public class FairIccpLcpConnection : McvIccpLcpConnection
 		Classes = [nameof(User), nameof(Author), nameof(Site)];
 	}
 
+	public virtual Result Info(string from, InfoIcca args)
+	{
+		return new InfoIccr {Wayins = [new (){Software = "iccp:/fns", Arguments = "https://fair.net"}]};
+	}
+
+
 	//protected override void GetHolder(byte table, string n, out ISpacetimeHolder sh, out IEnergyHolder eh)
 	//{
 	//	if(table == (byte)FairTable.Author)

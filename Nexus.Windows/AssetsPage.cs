@@ -26,7 +26,7 @@ public partial class AssetsPage : Page
 
 			if(Nexus.Settings.Zone == Zone.Simulation)
 			{
-				Entity.Text = "user/father0000";
+				Entity.Text = "user/f000";
 			}
 		}
 	}

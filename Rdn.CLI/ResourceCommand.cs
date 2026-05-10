@@ -57,7 +57,7 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var r = Ppc(new ResourcePpc(First)).Resource;
+								var r = Ppc(new ResourceByAddressPpc(First)).Resource;
 
 								return new ResourceDeletion {Resource = r.Id};
 							};
@@ -81,7 +81,7 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var	r = Ppc(new ResourcePpc(First)).Resource;
+								var	r = Ppc(new ResourceByAddressPpc(First)).Resource;
 
 								Transacted = () =>	{
 														Api(new LocalResourceUpdateApc {Address = First,
@@ -112,7 +112,7 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var	r = Ppc(new ResourcePpc(First)).Resource;
+								var	r = Ppc(new ResourceByAddressPpc(First)).Resource;
 				
 								Flow.Log.Dump(r);
 
@@ -189,13 +189,15 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								var r = Api<ResourcePpr>(new ResourceDownloadApc{Identifier = new(First), LocalPath = GetString("localpath", null)});
+								var	r = Ppc(new ResourceByAddressPpc(First)).Resource;
+
+								Api(new ResourceDownloadApc{Id = r.Id, LocalPath = GetString("localpath", null)});
 
 								if(!Has("nowait"))
 								{
 									while(Flow.Active)
 									{
-										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Resource.Data.Parse<Urr>()});
+										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()});
 	
 										if(p is null)
 											break;

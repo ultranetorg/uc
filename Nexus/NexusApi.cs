@@ -50,7 +50,7 @@ public class NexusApiClient : JsonApiClient
 {
 	public PackageInfo FindLocalPackage(Ura address, Flow flow) => Call<PackageInfo>(new LocalPackageApc { Address = address }, flow);
 
-	public NexusApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	public NexusApiClient(string address, string accesskey = null, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 		Options = NexusJsonConfiguration.CreateOptions();
 	}

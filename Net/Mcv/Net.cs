@@ -43,7 +43,7 @@ public abstract class Net
 	public ushort						IccpPort => Port.Map(Zone, KnownProtocol.Nni);
 
 	public IPAddress[]					Initials;
-	public static readonly  IPAddress[]	UOInitials = @" 78.47.204.100	
+	public static readonly IPAddress[]	UOInitials = @" 78.47.204.100	
 														185.208.159.160	
 														5.42.221.102	
 														139.99.94.185	
@@ -58,7 +58,7 @@ public abstract class Net
 													.Select(i => IPAddress.Parse(i))
 													.ToArray();
 
-	public static readonly  IPAddress[]	VirtualInitials	= [	new([192, 168, 88, 100]),
+	public static readonly IPAddress[]	VirtualInitials	= [	new([192, 168, 88, 100]),
 															new([192, 168, 88, 101]),
 															new([192, 168, 88, 102]),
 															new([192, 168, 88, 103]),

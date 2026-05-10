@@ -234,7 +234,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 		return p;
 	}
 
-	public virtual Result Call(string from, string to, IccpArgumentation call, Flow flow)
+	public virtual IccpResult Call(string from, string to, IccpArgumentation call, Flow flow)
 	{
 		HashSet<IccpPeer> tried;
 		

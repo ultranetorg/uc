@@ -78,7 +78,7 @@ public class PackageDownload
 										{
 											try
 											{
-												last = node.Peering.Call(new ResourcePpc(package.Resource.Address), flow).Resource;
+												last = node.Peering.Call(new ResourceByAddressPpc(package.Resource.Address), flow).Resource;
 													
 												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_VersionManifest))
 												{

@@ -13,6 +13,23 @@ public abstract class Api
 
 	public static string					ForSystem(Zone zone, IPAddress ip, string path, bool ssl = false) => $"http{(ssl ? "s" : "")}://{ip}:{Port.Map(zone, KnownProtocol.SystemApi)}/{path}";
 	public static string					ForNode(Net net, IPAddress ip, bool ssl = false) => $"http{(ssl ? "s" : "")}://{ip}:{net.ApiPort}";
+
+	static HttpClient						_HttpClient;
+
+	public static HttpClient HttpClient 
+	{
+		get
+		{
+			if(_HttpClient != null)
+				return _HttpClient;
+
+			var h = new HttpClientHandler();
+			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
+			_HttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
+
+			return _HttpClient;
+		}
+	}
 }
 
 public class NetJsonConfiguration : JsonConfiguration
@@ -178,7 +195,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 
 public class JsonApiClient : JsonClient
 {
-	public JsonApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	public JsonApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http ?? Api.HttpClient, timeout)
 	{
 		Options = NetJsonConfiguration.CreateOptions();
 	}

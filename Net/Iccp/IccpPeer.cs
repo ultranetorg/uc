@@ -3,9 +3,9 @@ using System.Net.Sockets;
 
 namespace Uccs.Net;
 
-public class NnRequestPacket: RequestPacket
+public class IccpRequestPacket: RequestPacket
 {
-	public Argumentation	Argumentation { get ; set; }
+	public IccpArgumentation	Argumentation { get ; set; }
 }
 
 public class IccpPeer : Peer, IBinarySerializable
@@ -26,7 +26,7 @@ public class IccpPeer : Peer, IBinarySerializable
 		return $"{Name}, {EP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 	}
  		
-	void Request(string from, string to, int id, Argumentation request)
+	void Request(string from, string to, int id, IccpArgumentation request)
 	{
 		try
 		{
@@ -36,7 +36,7 @@ public class IccpPeer : Peer, IBinarySerializable
 				Writer.WriteASCII(from);
 				Writer.WriteASCII(to);
 				Writer.Write(id);
-				BinarySerializator.Serialize(Writer, request); 
+				Writer.WriteVirtual(request);
 			}
 		}
 		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
@@ -68,11 +68,11 @@ public class IccpPeer : Peer, IBinarySerializable
 						var from = Reader.ReadASCII();
 						var to = Reader.ReadASCII();
 						var id = Reader.ReadInt32();
-						var rq = BinarySerializator.Deserialize<Argumentation>(Reader);
+						var rq = Reader.ReadVirtual<IccpArgumentation>();
 						
 						try
 						{
-							var r = (Peering as IccpPeering).Lcp.Relay(from, to, rq as IccpArgumentation);
+							var r = (Peering as IccpPeering).Lcp.Relay(from, to, rq);
 
 							if(r != null)
 							{
@@ -80,7 +80,7 @@ public class IccpPeer : Peer, IBinarySerializable
 								{
 									Writer.Write(PacketType.Response);
 									Writer.Write(id);
-									BinarySerializator.Serialize(Writer, r);
+									Writer.WriteVirtual(r);
 								}
 							}
 						}
@@ -90,7 +90,7 @@ public class IccpPeer : Peer, IBinarySerializable
 							{
 								Writer.Write(PacketType.Failure);
 								Writer.Write(id);
-								BinarySerializator.Serialize(Writer, ex);
+								Writer.WriteVirtual(ex);
 							}
 						}
 
@@ -100,7 +100,7 @@ public class IccpPeer : Peer, IBinarySerializable
 					case PacketType.Response:
  					{
 						var id = Reader.ReadInt32();
-						var r = BinarySerializator.Deserialize<Result>(Reader);
+						var r = Reader.ReadVirtual<IccpResult>();
 
 						lock(OutRequests)
 						{
@@ -121,7 +121,7 @@ public class IccpPeer : Peer, IBinarySerializable
  					case PacketType.Failure:
  					{
 						var id = Reader.ReadInt32();
-						var ex = BinarySerializator.Deserialize<CodeException>(Reader);
+						var ex = Reader.ReadVirtual<CodeException>();
 
 						lock(OutRequests)
 						{
@@ -160,7 +160,7 @@ public class IccpPeer : Peer, IBinarySerializable
 		}
 	}
 
-	public void Send(string from, string to, Argumentation args)
+	public void Send(string from, string to, IccpArgumentation args)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
@@ -168,12 +168,12 @@ public class IccpPeer : Peer, IBinarySerializable
 		Request(from, to, IdCounter++, args);
 	}
 
-	public Result Call(string from, string to, Argumentation args, Flow flow)
+	public IccpResult Call(string from, string to, IccpArgumentation args, Flow flow)
 	{
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
 
-		var p = new NnRequestPacket();
+		var p = new IccpRequestPacket();
 
 		p.Argumentation = args;
 		p.Id = IdCounter++;
@@ -208,7 +208,7 @@ public class IccpPeer : Peer, IBinarySerializable
 				if(p.Return == null)
 					throw new NodeException(NodeError.Connectivity);
 
-				return p.Return;
+				return p.Return as IccpResult;
 			}
 			else
 			{

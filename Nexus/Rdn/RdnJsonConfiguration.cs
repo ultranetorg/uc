@@ -75,22 +75,22 @@ public class RdnApiClient : McvApiClient
 	public LocalResource	FindLocalResource(Ura address, Flow flow) => Call<LocalResource>(new LocalResourceApc {Address = address}, flow);
 	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Call<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
 
-	public RdnApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	public RdnApiClient(string address, string accesskey = null, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
 	{
 		Options = RdnJsonConfiguration.CreateOptions();
 	}
 
-	public LocalReleaseApe Download(Ura address, Flow flow)
+	public LocalReleaseApe Download(Resource r, Flow flow)
 	{
-		var r = Call<ResourcePpr>(new ResourceDownloadApc {Identifier = new(address)}, flow);
+		Send(new ResourceDownloadApc {Id = r.Id}, flow);
 
 		do
 		{
-			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Resource.Data.Parse<Urr>()}, flow);
+			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
 
 			if(d is null)
 			{
-				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Resource.Data.Parse<Urr>()}, flow);
+				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{
@@ -129,7 +129,7 @@ public class HttpGetApc : RdnApc
 			var a = Ura.Parse(request.QueryString["address"]);
 			var path = request.QueryString["path"] ?? "";
 
-			var r = rdn.Peering.Call(new ResourcePpc(a), workflow).Resource;
+			var r = rdn.Peering.Call(new ResourceByAddressPpc(a), workflow).Resource;
 			var ra = r.Data?.Parse<Urr>()
 					 ??	
 					 throw new ResourceException(ResourceError.NotFound);

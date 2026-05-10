@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class Snp : IBinarySerializable, IEquatable<Snp>  /// Universal Network/Entity Locator
+public class Snp : IBinarySerializable, IEquatable<Snp>  /// Scheme Net Path
 {
 	public const string Common = "iccp";
 						

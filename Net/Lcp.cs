@@ -2,6 +2,14 @@
 
 namespace Uccs.Net;
 
+public abstract class Argumentation : ITypeCode
+{
+}
+
+public abstract class Result : ITypeCode
+{
+}
+
 public abstract class LcpPacket
 {
 	public int					Id { get; set; }
@@ -27,7 +35,7 @@ public abstract class LcpConnection
 	protected int					IdCounter = 0;
 	protected Flow					Flow;
 
-	public Func<string, string, IccpArgumentation, Result>	Handler;
+	public Func<string, string, IccpArgumentation, IccpResult>	Handler;
 
 	public abstract void			Listen();
 
@@ -117,7 +125,7 @@ public abstract class LcpServer
 	public readonly List<LcpConnection>	Clients = new();
 
 	public virtual void					Accept(LcpConnection connection){}
-	public abstract Result				Relay(string from, string to, IccpArgumentation call);
+	public abstract IccpResult			Relay(string from, string to, IccpArgumentation call);
 
 	protected abstract LcpConnection	CreateConnection(NamedPipeServerStream pipe);
 

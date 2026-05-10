@@ -34,7 +34,7 @@ public class FairNode : McvNode
 				WebServer = new WebServer(this, null);
 			}
 	
-			Iccp = new McvIccpLcpConnection(this, flow);
+			Iccp = new FairIccpLcpConnection(this, flow);
 		}
 		
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);

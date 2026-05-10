@@ -40,7 +40,7 @@ public class IccpLcpServer : LcpServer
 		connection.Handler = (from, to, a) => Relay(from, to, a);  /// relay from local nodes
 	}
 
-	public override Result Relay(string from, string to, IccpArgumentation call)
+	public override IccpResult Relay(string from, string to, IccpArgumentation call)
 	{
 		if(call is not TransferRequestIcca tr)
 		{

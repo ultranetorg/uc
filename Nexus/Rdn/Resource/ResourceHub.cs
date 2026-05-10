@@ -356,12 +356,12 @@ public class ResourceHub
 					var t = new Task(() =>	{
 												try
 												{
-													var cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
+													var cr = Node.Peering.Call(new ResourceByAddressPpc(r.Address), Node.Flow);
 													
 													if(cr == null) 
 													{	
 														Debugger.Break();
-														cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
+														cr = Node.Peering.Call(new ResourceByAddressPpc(r.Address), Node.Flow);
 														return;
 													}
 
