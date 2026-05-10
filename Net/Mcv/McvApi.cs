@@ -63,6 +63,12 @@ public class McvApiClient : JsonApiClient
 	{
 		Options = NetJsonConfiguration.CreateOptions();
 	}
+	
+	public R Ppc<R>(McvPpc<R> request, Flow flow) where R : Result
+	{
+		return Call<R>(new PpcApc {Request = request}, flow);
+	}
+
 }
 
 public abstract class McvApc : NodeApc

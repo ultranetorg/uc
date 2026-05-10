@@ -57,15 +57,15 @@ public class NexusApiClient : JsonApiClient
 
 	public PackageInfo DeployPackage(Ura address, string desination, Flow flow)
 	{
-		Send(new PackageDeployApc { Address = address, DeploymentPath = desination }, flow);
+		Send(new PackageDeployApc {Address = address, DeploymentPath = desination}, flow);
 
 		do
 		{
-			var d = Call<PackageActivityProgress>(new PackageActivityProgressApc { Package = address }, flow);
+			var d = Call<PackageActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
 
 			if(d is null)
 			{
-				return Call<PackageInfo>(new LocalPackageApc { Address = address }, flow);
+				return Call<PackageInfo>(new LocalPackageApc {Address = address}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{

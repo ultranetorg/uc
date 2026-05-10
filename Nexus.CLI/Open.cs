@@ -26,7 +26,7 @@ public class Open : Cli
 		{
 			var ura = Ura.Parse(address.ToString());
 
-			var r = RdnApi.Call<ResourceByAddressPpr>(new PpcApc {Request = new ResourceByAddressPpc(ura)}, flow)?.Resource;
+			var r = RdnApi.Ppc(new ResourceByAddressPpc(ura), flow)?.Resource;
 			
 			if(r.Data == null)
 				throw new NexusException("No data");

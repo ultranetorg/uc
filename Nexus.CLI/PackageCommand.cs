@@ -66,10 +66,10 @@ public class PackageCommand : NexusCommand
 								{
 									var pm = PackageManifest.Load(dp);
 
-									var id = Has(a.Arguments[4].Name) ? AutoId.LastCreated : rdn.Call<ResourceByAddressPpr>(new PpcApc(new ResourceByAddressPpc(Ura.Parse(Args[0].Name))), Flow).Resource.Id;
+									var id = Has(a.Arguments[4].Name) ? AutoId.LastCreated : rdn.Ppc(new ResourceByAddressPpc(Ura.Parse(Args[0].Name)), Flow).Resource.Id;
 	
 									ops.AddRange(pm.CompleteDependencies.Select(i => new ResourceLinkCreation(id, 
-																											  rdn.Call<ResourceByAddressPpr>(new PpcApc(new ResourceByAddressPpc(i.Address)), Flow).Resource.Id,
+																											  rdn.Ppc(new ResourceByAddressPpc(i.Address), Flow).Resource.Id,
 																											  ResourceLinkType.Dependency)));
 								}
 								
