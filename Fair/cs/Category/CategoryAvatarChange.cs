@@ -43,6 +43,9 @@ public class CategoryAvatarChange : VotableOperation
 		if(!FileExists(execution, File, out var f, out error))
 			return false;
 
+		if(!IsImage(f, out error))
+			return false;
+
 		if(f.Owner.Id != Site.Id || (FairTable)f.Owner.Table != FairTable.Site)
 		{
 			error = DoesNotBelogToSite;

@@ -36,6 +36,9 @@ public class AuthorAvatarChange : FairOperation
 		if(!CanAccessFile(execution, File, new EntityAddress((byte)FairTable.Author, Author), out var f, out Error))
 			return;
 
+		if(!IsImage(f, out Error))
+			return;
+			
 		a = execution.Authors.Affect(Author);
 		f = execution.Files.Affect(File);
 			

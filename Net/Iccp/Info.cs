@@ -5,18 +5,18 @@ public class Wayin : IBinarySerializable
 	public string	Software { get; set; }	/// iccp:rdn/fns, 
 											///	https://company.com/installer.exe
 											
-	public string	Arguments { get; set; } /// https://fair.net
+	public string	Command { get; set; } /// https://fair.net
 
 	public void Read(Reader reader)
 	{
 		Software = reader.ReadUtf8();
-		Arguments = reader.ReadUtf8();
+		Command = reader.ReadUtf8();
 	}
 
 	public void Write(Writer writer)
 	{
 		writer.WriteUtf8(Software);
-		writer.WriteUtf8(Arguments);
+		writer.WriteUtf8(Command);
 	}
 }
 

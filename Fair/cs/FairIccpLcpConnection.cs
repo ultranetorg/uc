@@ -15,7 +15,7 @@ public class FairIccpLcpConnection : McvIccpLcpConnection
 
 	public virtual Result Info(string from, InfoIcca args)
 	{
-		return new InfoIccr {Wayins = [new (){Software = "iccp:/fns", Arguments = "https://fair.net"}]};
+		return new InfoIccr {Wayins = [new (){Software = "iccp:/fns", Command = "https://fair.net"}]};
 	}
 
 

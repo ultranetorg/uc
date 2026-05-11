@@ -50,7 +50,7 @@ public class PackageAddApc : Apc, INexusApc
 			
 			lock(nexus.RdnNode.ResourceHub.Lock)
 			{
-				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Package_VersionManifest), a));
+				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Package_Software_VersionManifest), a));
 				
 				var r = nexus.RdnNode.ResourceHub.Find(a) ?? nexus.RdnNode.ResourceHub.Add(a);
 

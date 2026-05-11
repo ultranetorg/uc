@@ -146,7 +146,7 @@ public class NexusOpenApc : Apc, INexusApc
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		nexus.Start(Request, flow);
+		nexus.Open(Request, flow);
 
 		return null;
 	}

@@ -198,8 +198,8 @@ public class Program: ApplicationContext
 
 		public void RegisterProtocol()
 		{
-			using var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{Snp.Common}");
-			key.SetValue("", $"{Snp.Common} Protocol");
+			using var key = Registry.CurrentUser.CreateSubKey($@"Software\Classes\{Iccp.Scheme}");
+			key.SetValue("", $"{Iccp.Scheme} Protocol");
 			key.SetValue("URL Protocol", "");
 
 			var shell = key.CreateSubKey(@"shell\open\command");
@@ -211,7 +211,7 @@ public class Program: ApplicationContext
 			var p = Assembly.GetExecutingAssembly().Location;
 			p = p.Remove(p.Length - 3) + "exe";
 
-			using var key = Registry.CurrentUser.OpenSubKey($@"Software\Classes\{Snp.Common}");
+			using var key = Registry.CurrentUser.OpenSubKey($@"Software\Classes\{Iccp.Scheme}");
 
 			if(key == null)
 				return false;

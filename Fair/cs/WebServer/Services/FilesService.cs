@@ -123,12 +123,12 @@ public class FilesService
 		}
 	}
 
-	string GetMimeType(MimeType mimeType)
+	string GetMimeType(FairMime mimeType)
 	{
 		switch (mimeType)
 		{
-			case MimeType.ImageJpg: return MediaTypeNames.Image.Jpeg;
-			case MimeType.ImagePng: return MediaTypeNames.Image.Png;
+			case FairMime.ImageJpg: return MediaTypeNames.Image.Jpeg;
+			case FairMime.ImagePng: return MediaTypeNames.Image.Png;
 			default: return MediaTypeNames.Application.Octet;
 		}
 	}

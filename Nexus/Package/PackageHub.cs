@@ -351,7 +351,7 @@ public class PackageHub
 			r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				
 			var p = Get(resource);
-			p.Resource.AddData(new DataType(DataType.File, ContentType.Package_VersionManifest), a);
+			p.Resource.AddData(new DataType(DataType.File, ContentType.Package_Software_VersionManifest), a);
 
 			flow.Log?.Report(this, $"Release added: {a}");
 

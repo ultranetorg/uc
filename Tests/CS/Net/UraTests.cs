@@ -37,13 +37,13 @@ public static class UraTests
  		[Fact]
  		public static void Resource()
  		{
- 			var s = new List<Ura>(){Ura.Parse($"{Ura.Scheme}:/a/r"),
-								Ura.Parse($"{Ura.Scheme}:/aa/rr"),
-								Ura.Parse($"{Ura.Scheme}:net/aaa/rrr")};
+ 			var s = new List<Ura>(){Ura.Parse($"{Iccp.Scheme}:/a/r"),
+									Ura.Parse($"{Iccp.Scheme}:/aa/rr"),
+									Ura.Parse($"{Iccp.Scheme}:net/aaa/rrr")};
 
-		Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:/a/r")) == 1);
-		Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:/aa/rr")) == 1);
-		Assert.True(s.Count(i => i == Ura.Parse($"{Ura.Scheme}:net/aaa/rrr")) == 1);
+		Assert.True(s.Count(i => i == Ura.Parse($"{Iccp.Scheme}:/a/r")) == 1);
+		Assert.True(s.Count(i => i == Ura.Parse($"{Iccp.Scheme}:/aa/rr")) == 1);
+		Assert.True(s.Count(i => i == Ura.Parse($"{Iccp.Scheme}:net/aaa/rrr")) == 1);
 
 		Assert.DoesNotContain(Ura.Parse("ura:absent/aaa/rrr"), s);
  		}
@@ -51,12 +51,12 @@ public static class UraTests
  		[Fact]
  		public static void Package()
  		{
- 			var p = new HashSet<AprvAddress>(){AprvAddress.Parse($"{Ura.Scheme}:/a/p/r/v")};
-		Assert.Contains(AprvAddress.Parse($"{Ura.Scheme}:/a/p/r/v"), p);
-		Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:/a/p/r/v-"), p);
-		Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:/a/p/r-/v"), p);
-		Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:/a/p-/r/v"), p);
-		Assert.DoesNotContain(AprvAddress.Parse($"{Ura.Scheme}:/a-/p/r/v"), p);
+ 			var p = new HashSet<AprvAddress>(){AprvAddress.Parse($"{Iccp.Scheme}:/a/p/r/v")};
+		Assert.Contains(AprvAddress.Parse($"{Iccp.Scheme}:/a/p/r/v"), p);
+		Assert.DoesNotContain(AprvAddress.Parse($"{Iccp.Scheme}:/a/p/r/v-"), p);
+		Assert.DoesNotContain(AprvAddress.Parse($"{Iccp.Scheme}:/a/p/r-/v"), p);
+		Assert.DoesNotContain(AprvAddress.Parse($"{Iccp.Scheme}:/a/p-/r/v"), p);
+		Assert.DoesNotContain(AprvAddress.Parse($"{Iccp.Scheme}:/a-/p/r/v"), p);
  		}
 
 	[Fact]

@@ -1,6 +1,10 @@
-﻿namespace Uccs.Fair;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
 
-public enum MimeType : byte
+namespace Uccs.Fair;
+
+public enum FairMime : byte
 {
 	None, ImageJpg, ImagePng
 }
@@ -9,7 +13,7 @@ public class File : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
 	public EntityAddress	Owner { get; set; }
-	public MimeType			Mime { get; set; }
+	public FairMime			Mime { get; set; }
     public int				Refs { get; set; }
 	public byte[]			Data { get; set; }
 
@@ -56,7 +60,7 @@ public class File : IBinarySerializable, ITableEntry
 	{
 		Id		= reader.Read<AutoId>();
 		Owner	= reader.Read<EntityAddress>();
-		Mime	= reader.Read<MimeType>();
+		Mime	= reader.Read<FairMime>();
 		Refs	= reader.Read7BitEncodedInt();
 		Data	= reader.ReadBytes();
 	}
@@ -68,5 +72,20 @@ public class File : IBinarySerializable, ITableEntry
 		writer.Write(Mime);
 		writer.Write7BitEncodedInt(Refs);
 		writer.WriteBytes(Data);
+	}
+
+	public static FairMime GetImageFormat(byte[] data)
+	{
+		var image = Image.Identify(data);
+			
+		if(image == null)
+			return FairMime.None;
+        
+		var format = image.Metadata.DecodedImageFormat;
+
+		if(format == JpegFormat.Instance)	return FairMime.ImageJpg;
+		if(format == PngFormat.Instance)	return FairMime.ImagePng;
+
+		return FairMime.None;
 	}
 }

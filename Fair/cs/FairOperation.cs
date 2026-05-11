@@ -99,6 +99,7 @@ public abstract class FairOperation : Operation
 	public const string			NotEmptyReferencies = "Not Empty References";
 	public const string			TypeAlreadyDefined = "Type already defined";
 	public const string			NotPublished = "Not published";
+	public const string			NotSupported = "Not supported";
 
 	public new FairUser			User { get => base.User as FairUser; set => base.User = value; }
 
@@ -471,6 +472,18 @@ public abstract class FairOperation : Operation
 		{
 			error = NotFound;
 			return false; 
+		}
+
+		error = null;
+		return true;
+	}
+
+	public bool IsImage(File file, out string error)
+	{
+ 		if(file.Mime != FairMime.ImageJpg && file.Mime != FairMime.ImagePng)
+		{
+			error = NotSupported;
+			return false;
 		}
 
 		error = null;

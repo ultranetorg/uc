@@ -2,8 +2,7 @@
 
 public class Snp : IBinarySerializable, IEquatable<Snp>  /// Scheme Net Path
 {
-	public const string Common = "iccp";
-						
+					
 	public string		Scheme { get; set; }
 	public string		Net { get; set; }
 	public string		Path { get; set; }

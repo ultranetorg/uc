@@ -80,9 +80,9 @@ public class PackageDownload
 											{
 												last = node.Peering.Call(new ResourceByAddressPpc(package.Resource.Address), flow).Resource;
 													
-												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_VersionManifest))
+												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_Software_VersionManifest))
 												{
-													throw new PackageException($"{package.Resource.Address} is not {ContentType.Package_VersionManifest}");
+													throw new PackageException($"{package.Resource.Address} is not {ContentType.Package_Software_VersionManifest}");
 												}
 
 												break;

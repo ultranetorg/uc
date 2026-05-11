@@ -11,7 +11,7 @@ public class LocalPackage
 	public const string		Renamings = ".renamings"; /// TODO
 
 	public LocalResource	Resource;
-	public LocalRelease		Release => Resource.Last != null && Resource.Last.Type.Content == ContentType.Package_VersionManifest ? Hub.Node.ResourceHub.Find(Resource.Last.Parse<Urr>()) : null;
+	public LocalRelease		Release => Resource.Last != null && Resource.Last.Type.Content == ContentType.Package_Software_VersionManifest ? Hub.Node.ResourceHub.Find(Resource.Last.Parse<Urr>()) : null;
 	public PackageHub		Hub;
 	public object			Activity;
 	PackageManifest			_Manifest;
