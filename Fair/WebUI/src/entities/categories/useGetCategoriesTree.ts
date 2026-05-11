@@ -12,6 +12,10 @@ export const useGetCategoriesTree = (siteId?: string, depth?: number) => {
     queryKey: categoriesKeys.tree(siteId!, depth),
     queryFn: queryFn,
     enabled: !!siteId && depth !== undefined,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    staleTime: Infinity,
   })
 
   return { isPending, error: error ?? undefined, data, isFetching, refetch }

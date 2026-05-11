@@ -103,7 +103,6 @@ export const OptionsEditor = memo(({ t, labelClassName, isVotingRequired }: Opti
           </div>
         </>
       )}
-      {type && <MessageBox message={t("addedAnswers")} type="warning" />}
     </>
   )
 })

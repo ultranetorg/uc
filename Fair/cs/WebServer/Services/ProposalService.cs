@@ -155,7 +155,8 @@ public class ProposalService
 		var proposals = new List<Proposal>(pageSize);
 		int totalItems = 0;
 
-		foreach (var proposalId in site.Proposals)
+		IEnumerable<AutoId> reversedIds = site.Proposals.Reverse();
+		foreach (var proposalId in reversedIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return ToTotalItemsResult(proposals, totalItems);

@@ -2,11 +2,12 @@ import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
+import { useQueryClient } from "@tanstack/react-query"
 import { useModerationContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
-import { useGetModeratorDiscussionComments } from "entities"
+import { categoriesKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
-import { ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
+import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
 import { ModerationHeader } from "ui/components/specific"
@@ -24,7 +25,7 @@ import {
 import { PageState } from "./types"
 import { getProductId, getPublicationId } from "./utils"
 
-const renderByOperationType: Record<string, ComponentType<ProposalViewContentProps>> = {
+const renderByOperationType: Partial<Record<OperationType, ComponentType<ProposalViewContentProps>>> = {
   "publication-creation": PublicationCreationContent,
   "publication-updation": PublicationUpdationContent,
   "publication-deletion": PublicationDeletionContent,
@@ -44,6 +45,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const { siteId } = useParams()
   const { getOperationVoterId } = useModerationContext()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { mutate } = useTransactMutationWithStatus()
   const { t } = useTranslation("proposalView")
 
@@ -54,6 +56,16 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const [votedValue, setVotedValue] = useState<number | undefined>()
   const [voteAction, setVoteAction] = useState<VoteAction | undefined>()
   const [commentSubmitting, setCommentSubmitting] = useState(false)
+
+  const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly string[]>> = useMemo(
+    () => ({
+      "site-avatar-change": sitesKeys.detail(siteId!),
+      "site-name-change": sitesKeys.detail(siteId!),
+      "site-text-change": sitesKeys.detail(siteId!),
+      "category-creation": categoriesKeys.all(siteId!),
+    }),
+    [siteId],
+  )
 
   const {
     isFetching: isCommentsFetching,
@@ -94,6 +106,12 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         onSuccess: () => {
           showToast(t("toast:voted"), "success")
           setVoteStatus("voted")
+
+          const invalidateKeys = invalidateQueryKeysByOperationType[proposal!.operation]
+          if (invalidateKeys) {
+            queryClient.invalidateQueries({ queryKey: invalidateKeys })
+          }
+
           navigate(previousPath ?? `/${siteId}/m`)
         },
         onError: err => {
@@ -103,7 +121,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         onSettled: () => setVotedValue(undefined),
       })
     },
-    [mutate, navigate, previousPath, proposal, siteId, t, voterId],
+    [invalidateQueryKeysByOperationType, mutate, navigate, previousPath, proposal, queryClient, siteId, t, voterId],
   )
 
   const vote = useCallback(

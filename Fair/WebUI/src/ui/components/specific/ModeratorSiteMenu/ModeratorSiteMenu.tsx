@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge"
 
 import { useModerationContext } from "app"
 import { SvgThreeDotsSm } from "assets"
-import { sitesKeys } from "entities"
+import { categoriesKeys, sitesKeys } from "entities"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
@@ -32,8 +32,10 @@ export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
             { path: `/${siteId}/m/`, title: t("common:proposals") },
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
-          previousPath: location.pathname,
-          invalidateQueryKeys: sitesKeys.detail(siteId!),
+          categoryId: null,
+          redirectAfterProposalCreation: `/${siteId}/m/`,
+          redirectAfterProposalExecution: location.pathname,
+          invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
     ],

@@ -115,3 +115,24 @@ export const isVotingRequired = (
 
   return true
 }
+
+// export const isVotingRequired2 = (operation?: OperationType, site?: Site, policies?: Policy[]) => {
+//   if (!operation || !site || !policies) return true
+
+//   const policy = policies.find(x => x.operationClass === operation)
+//   if (!policy) return true
+
+//   const siteVoters = policy.approval !== "publishers-majority" ? site.authorsIds.length : site.moderatorsIds.length
+
+//   switch (policy.approval) {
+//     case "any-moderator":
+//       return false
+//     case "moderators-majority":
+//     case "publishers-majority":
+//       return siteVoters > 2
+//     case "all-moderators":
+//       return siteVoters > 1
+//     default:
+//       return true
+//   }
+// }

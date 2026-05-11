@@ -135,8 +135,11 @@ public static class ProposalUtils
 	{
 		if (site.Policies.First(i => i.OperationClass == proposal.OptionClass).Approval == ApprovalRequirement.PublishersMajority)
 			return -1;
-		if (Site.Restrictions.First(i => i.OperationClass == proposal.OptionClass).Flags.HasFlag(PolicyFlag.Infinite))
+
+		Restiction? restriction = Site.Restrictions.FirstOrDefault(x => x.OperationClass == proposal.OptionClass);
+		if(restriction == null || restriction.Flags.HasFlag(PolicyFlag.Infinite))
 			return -1;
+
 		return (proposal.CreationTime - Time.FromDays(30)).Hours;
 	}
 }

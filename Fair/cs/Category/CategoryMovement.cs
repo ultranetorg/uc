@@ -46,7 +46,11 @@ public class CategoryMovement : VotableOperation
 	{
 		var c = execution.Categories.Affect(Category);
 
-		if(c.Parent != null)
+		if(c.Parent == null)
+		{
+			Site.Categories = Site.Categories.Where(i => i != c.Id).ToArray();
+		}
+		else
 		{
 			var p = execution.Categories.Affect(c.Parent);
 

@@ -1,12 +1,14 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation, useParams } from "react-router-dom"
+import { truncate } from "lodash"
+
 import { categoriesKeys } from "entities"
 
 export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle: string) => {
   const location = useLocation()
   const { t } = useTranslation("moderatorCategoryMenu")
-  const { siteId } = useParams()
+  const { siteId, categoryId: paramCategoryId } = useParams()
 
   const menuItems = useMemo(
     () => [
@@ -14,38 +16,41 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
         label: t("moderatorCategoryMenu:avatarChange"),
         to: `/${siteId}/m/new`,
         state: {
-          title: `Change category "${categoryTitle}" avatar`,
+          title: `Change category "${truncate(categoryTitle, { length: 39 })}" avatar`,
           type: "category-avatar-change",
           categoryId,
           parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-          previousPath: location.pathname,
-          invalidateQueryKeys: categoriesKeys.all(siteId!),
+          redirectAfterProposalCreation: `/${siteId}/m/`,
+          redirectAfterProposalExecution: location.pathname,
+          invalidateQueryKeys: categoriesKeys.all(siteId!), // TODO: update all except tree
         },
       },
       {
         label: t("moderatorCategoryMenu:typeChange"),
         to: `/${siteId}/m/new`,
         state: {
-          title: `Change category "${categoryTitle}" type`,
+          title: `Change category "${truncate(categoryTitle, { length: 41 })}" type`,
           type: "category-type-change",
           categoryId,
           parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-          previousPath: `/${siteId}/m/`,
-          invalidateQueryKeys: categoriesKeys.all(siteId!),
+          redirectAfterProposalCreation: `/${siteId}/m/`,
+          redirectAfterProposalExecution: location.pathname,
+          invalidateQueryKeys: categoriesKeys.all(siteId!), // TODO: update all except tree
         },
       },
       {
         label: t("moderatorCategoryMenu:move"),
         to: `/${siteId}/m/new`,
         state: {
-          title: `Move "${categoryTitle}" category`,
+          title: `Move "${truncate(categoryTitle, { length: 48 })}" category`,
           type: "category-movement",
           categoryId,
           parentBreadcrumbs: [
             { path: `/${siteId}/m/`, title: t("common:proposals") },
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
-          previousPath: `/${siteId}/m/c/`,
+          redirectAfterProposalCreation: `/${siteId}/m/`,
+          redirectAfterProposalExecution: paramCategoryId === categoryId ? `/${siteId}/` : location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
@@ -60,7 +65,8 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
             { path: `/${siteId}/m/`, title: t("common:proposals") },
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
-          previousPath: `/${siteId}/m/c/`,
+          redirectAfterProposalCreation: `/${siteId}/m/`,
+          redirectAfterProposalExecution: location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
@@ -71,16 +77,17 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
         label: t("moderatorCategoryMenu:remove"),
         to: `/${siteId}/m/new`,
         state: {
-          title: `Remove category "${categoryTitle}"`,
+          title: `Remove category "${truncate(categoryTitle, { length: 46 })}"`,
           type: "category-deletion",
           categoryId,
           parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-          previousPath: `/${siteId}/m/`,
+          redirectAfterProposalCreation: `/${siteId}/m/`,
+          redirectAfterProposalExecution: paramCategoryId === categoryId ? `/${siteId}/` : location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
     ],
-    [t, siteId, categoryTitle, categoryId, location.pathname],
+    [t, siteId, categoryTitle, categoryId, location.pathname, paramCategoryId],
   )
 
   return { menuItems }

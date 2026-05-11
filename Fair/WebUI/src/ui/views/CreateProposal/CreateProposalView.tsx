@@ -17,6 +17,7 @@ import {
   Collapse,
   DebugPanel,
   Input,
+  MessageBox,
   PageHeader,
   Textarea,
   ValidationWrapper,
@@ -67,13 +68,17 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     const operation = new ProposalCreation(siteId!, by, role, data.title, options, data.description)
     mutate(operation, {
       onSuccess: () => {
-        if (Array.isArray(location.state?.invalidateQueryKeys)) {
+        if (!isRequiredVoting && Array.isArray(location.state?.invalidateQueryKeys)) {
           queryClient.invalidateQueries({ queryKey: location.state.invalidateQueryKeys })
         }
 
-        const translationKey = isRequiredVoting ? "toast:proposalCreated" : "toast:operationExecuted"
+        const translationKey = isRequiredVoting ? "toast:proposalCreated" : "toast:proposalExecuted"
         showToast(t(translationKey, { operation: t(`operations:${data.type}`) }), "success")
-        navigate(formData.previousPath !== undefined ? formData.previousPath : parentPath)
+
+        const navigateTo = isRequiredVoting
+          ? location.state.redirectAfterProposalCreation
+          : location.state.redirectAfterProposalExecution
+        navigate(navigateTo)
       },
       onError: err => {
         showToast(err.toString(), "error")
@@ -92,7 +97,13 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
       : t("createReferendum")
     : t("common:ok")
 
-  if (!formData.type) return <Navigate to={`/${siteId}`} />
+  if (
+    !formData.type ||
+    !location.state?.redirectAfterProposalCreation ||
+    !location.state?.redirectAfterProposalExecution
+  ) {
+    return <Navigate to={`/${siteId}`} />
+  }
 
   return (
     <div className="flex max-w-[648px] flex-col gap-6">
@@ -156,6 +167,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
         </Collapse>
 
         <OptionsEditor t={t} labelClassName={LABEL_CLASSNAME} isVotingRequired={isRequiredVoting} />
+        {isRequiredVoting && <MessageBox message={t("addedAnswers")} type="warning" />}
         <DebugPanel data={formData} />
 
         <div className="flex items-center justify-end gap-6">
