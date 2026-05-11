@@ -62,10 +62,10 @@ public class SiteCreation : FairOperation
 						new (FairOperationClass.CategoryAvatarChange,	Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 																																						
 						new (FairOperationClass.PublicationCreation,	Role.Moderator|Role.Publisher|Role.Candidate, 	ApprovalRequirement.AnyModerator),
-						new (FairOperationClass.PublicationDeletion,	Role.Moderator|Role.Publisher,					ApprovalRequirement.ModeratorsMajority),
+						new (FairOperationClass.PublicationDeletion,	Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.PublicationUpdation,	Role.Moderator, 								ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.PublicationPublish,		Role.Moderator, 								ApprovalRequirement.AnyModerator),
-						new (FairOperationClass.PublicationUnpublish,	Role.Moderator, 								ApprovalRequirement.ModeratorsMajority),
+						new (FairOperationClass.PublicationUnpublish,	Role.Moderator, 								ApprovalRequirement.AnyModerator),
 																																						
 						new (FairOperationClass.UserRegistration,		Role.User, 										ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.UserUnregistration,		Role.Moderator, 								ApprovalRequirement.AnyModerator),
