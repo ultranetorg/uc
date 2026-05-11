@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge"
 
 import { useModerationContext } from "app"
 import { SvgThreeDotsSm } from "assets"
-import { categoriesKeys, sitesKeys } from "entities"
+import { categoriesKeys } from "entities"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"

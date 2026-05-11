@@ -32,6 +32,7 @@ public static class ProposalUtils
 			PublicationCreation operation => new PublicationCreationModel(operation),
 			PublicationDeletion operation => new PublicationDeletionModel(operation),
 			PublicationUpdation operation => new PublicationUpdationModel(operation),
+			PublicationUnpublish operation => CreatePublicationUnpublishModel(mcv, operation),
 			ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
@@ -129,6 +130,14 @@ public static class ProposalUtils
 		Product product = mcv.Products.Latest(publication.Product);
 		Category category = mcv.Categories.Latest(operation.Category);
 		return new PublicationPublishModel(operation, product, category);
+	}
+
+	static PublicationUnpublishModel CreatePublicationUnpublishModel(FairMcv mcv, PublicationUnpublish operation)
+	{
+		Publication publication = mcv.Publications.Latest(operation.Publication);
+		Product product = mcv.Products.Latest(publication.Product);
+		Category category = mcv.Categories.Latest(publication.Category);
+		return new PublicationUnpublishModel(operation, product, category);
 	}
 
 	public static int CalculateHoursLeft(Proposal proposal, Site site)

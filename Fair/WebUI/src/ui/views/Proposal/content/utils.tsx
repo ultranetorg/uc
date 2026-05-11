@@ -10,6 +10,7 @@ import {
   CategoryTypeChange,
   ProposalOption,
   PublicationPublish,
+  PublicationUnpublish,
   SiteAuthorsRemoval,
   SiteAvatarChange,
   SiteModeratorAddition,
@@ -155,6 +156,26 @@ const getPublicationPublish = (siteId: string, operation: PublicationPublish): J
   />
 )
 
+const getPublicationUnpublish = (siteId: string, operation: PublicationPublish): JSX.Element => (
+  <Trans
+    ns="proposalView"
+    i18nKey={`${operation.$type}`}
+    components={{
+      PublicationLink: (
+        <Link to={`/${siteId}/p/${operation.publicationId}`} className="underline">
+          {operation.publicationTitle}
+        </Link>
+      ),
+      CategoryLink: (
+        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+          {operation.categoryTitle}
+        </Link>
+      ),
+    }}
+    parent={"p"}
+  />
+)
+
 const getSiteAvatarChange = (operation: SiteAvatarChange): JSX.Element => (
   <>
     <Trans ns="proposalView" i18nKey={operation.$type} parent={"p"} />
@@ -241,6 +262,8 @@ export const renderDescription = (siteId: string, option: ProposalOption): React
 
     case "publication-publish":
       return getPublicationPublish(siteId, option.operation as PublicationPublish)
+    case "publication-unpublish":
+      return getPublicationUnpublish(siteId, option.operation as PublicationUnpublish)
 
     case "site-avatar-change":
       return getSiteAvatarChange(option.operation as SiteAvatarChange)

@@ -32,7 +32,7 @@ export type ModeratorPublicationContextMenuProps = PropsWithClassName & Moderato
 export const ModeratorPublicationContextMenu = memo(
   ({ className, publicationId, publicationTitle, size = "medium" }: ModeratorPublicationContextMenuProps) => {
     const { isModerator } = useModerationContext()
-    const { menuItems } = useModeratorPublicationMenuItems(publicationId, publicationTitle)
+    const { menuItems } = useModeratorPublicationMenuItems(publicationId, publicationTitle, true)
 
     const [isExpanded, setExpanded] = useState(false)
 

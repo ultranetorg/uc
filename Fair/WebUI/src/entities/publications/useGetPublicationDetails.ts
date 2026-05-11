@@ -2,13 +2,15 @@ import { useQuery } from "@tanstack/react-query"
 
 import { getApi } from "api"
 
+import { publicationsKeys } from "./publicationsKeys"
+
 const api = getApi()
 
 export const useGetPublicationDetails = (publicationId?: string) => {
   const queryFn = () => api.getPublicationDetails(publicationId!)
 
   const { isPending, isError, data } = useQuery({
-    queryKey: ["publications", publicationId],
+    queryKey: publicationsKeys.detail(publicationId!),
     queryFn: queryFn,
     enabled: !!publicationId,
   })

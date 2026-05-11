@@ -23,7 +23,7 @@ import {
   ValidationWrapper,
 } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
-import { showToast } from "utils"
+import { isArrayOfArrays, showToast } from "utils"
 
 import { isVotingRequired, prepareProposalOptions } from "./utils"
 
@@ -69,7 +69,13 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     mutate(operation, {
       onSuccess: () => {
         if (!isRequiredVoting && Array.isArray(location.state?.invalidateQueryKeys)) {
-          queryClient.invalidateQueries({ queryKey: location.state.invalidateQueryKeys })
+          if (isArrayOfArrays(location.state.invalidateQueryKeys)) {
+            location.state.invalidateQueryKeys.each((x: readonly unknown[]) =>
+              queryClient.invalidateQueries({ queryKey: x }),
+            )
+          } else {
+            queryClient.invalidateQueries({ queryKey: location.state.invalidateQueryKeys })
+          }
         }
 
         const translationKey = isRequiredVoting ? "toast:proposalCreated" : "toast:proposalExecuted"

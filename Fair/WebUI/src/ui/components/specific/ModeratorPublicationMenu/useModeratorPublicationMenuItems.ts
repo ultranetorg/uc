@@ -5,7 +5,11 @@ import { truncate } from "lodash"
 
 import { unpublishedPublicationsKeys } from "entities"
 
-export const useModeratorPublicationMenuItems = (publicationId: string, publicationTitle?: string) => {
+export const useModeratorPublicationMenuItems = (
+  publicationId: string,
+  publicationTitle?: string,
+  isFromContextMenu: boolean = false,
+) => {
   const { siteId } = useParams()
   const { t } = useTranslation("moderatorPublicationMenu")
 
@@ -24,7 +28,8 @@ export const useModeratorPublicationMenuItems = (publicationId: string, publicat
             { path: `/${siteId}/m/`, title: t("common:proposals") },
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
-          previousPath: `/${siteId}/m/c/u`,
+          redirectAfterProposalCreation: `/${siteId}/m/c/`,
+          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : `/${siteId}/`,
           invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
         },
       },
@@ -42,11 +47,12 @@ export const useModeratorPublicationMenuItems = (publicationId: string, publicat
             { path: `/${siteId}/m/`, title: t("common:proposals") },
             { path: `/${siteId}/m/c/`, title: t("common:publications") },
           ],
-          previousPath: `/${siteId}/m/c/`,
+          redirectAfterProposalCreation: `/${siteId}/m/c/`,
+          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : `/${siteId}/`,
         },
       },
     ],
-    [publicationId, publicationTitle, siteId, t],
+    [isFromContextMenu, publicationId, publicationTitle, siteId, t],
   )
 
   return { menuItems }

@@ -48,13 +48,13 @@ public class CategoryMovement : VotableOperation
 
 		if(c.Parent == null)
 		{
-			Site.Categories = Site.Categories.Where(i => i != c.Id).ToArray();
+			Site.Categories = Site.Categories.Remove(c.Id);
 		}
 		else
 		{
 			var p = execution.Categories.Affect(c.Parent);
 
-			p.Categories = p.Categories.Where(i => i != c.Id).ToArray();
+			p.Categories = p.Categories.Remove(c.Id);
 		}
 
 		if(Parent == null)

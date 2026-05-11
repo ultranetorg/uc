@@ -13,6 +13,7 @@ import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components
 import { ModerationHeader } from "ui/components/specific"
 import { getVotedIndex, isVoted, showToast } from "utils"
 
+import { publicationsKeys } from "entities/publications/publicationsKeys"
 import {
   DefaultContent,
   ProposalViewContentProps,
@@ -57,12 +58,14 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const [voteAction, setVoteAction] = useState<VoteAction | undefined>()
   const [commentSubmitting, setCommentSubmitting] = useState(false)
 
-  const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly string[]>> = useMemo(
+  const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({
-      "site-avatar-change": sitesKeys.detail(siteId!),
-      "site-name-change": sitesKeys.detail(siteId!),
-      "site-text-change": sitesKeys.detail(siteId!),
-      "category-creation": categoriesKeys.all(siteId!),
+      "site-avatar-change": [sitesKeys.detail(siteId!)],
+      "site-name-change": [sitesKeys.detail(siteId!)],
+      "site-text-change": [sitesKeys.detail(siteId!)],
+      "category-creation": [categoriesKeys.all(siteId!)],
+      "publication-deletion": [publicationsKeys.categoriesPublications(siteId!)],
+      "publication-unpublish": [publicationsKeys.categoriesPublications(siteId!)],
     }),
     [siteId],
   )
@@ -109,7 +112,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
 
           const invalidateKeys = invalidateQueryKeysByOperationType[proposal!.operation]
           if (invalidateKeys) {
-            queryClient.invalidateQueries({ queryKey: invalidateKeys })
+            invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
           }
 
           navigate(previousPath ?? `/${siteId}/m`)
