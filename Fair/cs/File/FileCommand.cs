@@ -46,7 +46,10 @@ public class FileCommand : FairCommand
 
 		a.Name = "x";
 		a.Description = "Destroys existing file and all its associated data";
-		a.Arguments = [new (null, EID, "Id of a file to delete", Flag.First)];
+		a.Arguments =	[
+							new (null, EID, "Id of a file to delete", Flag.First),
+							ByArgument()
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
