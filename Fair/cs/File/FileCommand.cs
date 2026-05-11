@@ -16,7 +16,7 @@ public class FileCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		var path = "path";
-		var mime = "path";
+		var mime = "mime";
 
 		a.Name = "c";
 		a.Description = "Creates a file entity in the MCV database";
@@ -34,7 +34,7 @@ public class FileCommand : FairCommand
 										{
 											Owner = EntityAddress.Parse<FairTable>(Args[0].Name), 
 											Data = System.IO.File.ReadAllBytes(GetString(path)),
-											Mime = GetEnum<FairMime>("mime", FairMime.None)
+											Mime = GetEnum<FairMime>(mime, FairMime.None)
 										};
 							};
 		return a;
