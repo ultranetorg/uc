@@ -34,7 +34,7 @@ public class FileCreation : FairOperation
 
 		if(Mime == FairMime.ImageJpg || Mime == FairMime.ImagePng)
 		{
-			if(File.GetImageFormat(Data) == FairMime.None)
+			if(File.GetImageFormat(Data) != Mime)
 				return false;
 		}
 
