@@ -1,0 +1,2 @@
+1. Git Workflow: Always work in the current branch. Never create new branches or worktrees.
+2. Context: Before starting any task, check git diff --cached to see staged changes. Always take staged files into account as they represent the current work-in-progress state.

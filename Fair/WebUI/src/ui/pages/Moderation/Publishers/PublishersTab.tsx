@@ -71,9 +71,7 @@ export const PublishersTab = () => {
   const handleInputClear = useCallback(() => setQuery(""), [])
 
   const handlePageChange = useCallback(
-    (page: number) => {
-      setState({ query: debouncedQuery, page })
-    },
+    (page: number) => setState({ query: debouncedQuery, page }),
     [debouncedQuery, setState],
   )
 

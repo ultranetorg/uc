@@ -4,7 +4,8 @@ import { capitalize } from "lodash"
 
 import { MembersChangeType } from "types"
 import { AccountsList, AccountsListItemProps } from "ui/components/AccountsList"
-import { DropdownItem, DropdownSearchAccount } from "ui/components/proposal"
+import { DropdownItem, DropdownSearchMember } from "ui/components/proposal"
+import { buildAccountAvatarUrl, buildFileUrl } from "utils"
 
 type PanelListModeType = "add" | "remove"
 
@@ -37,9 +38,10 @@ export const MembersPanelList = memo(
         {t(modeType === "add" ? "selectMembersToAdd" : "selectMembersToRemove", { memberType: capitalize(memberType) })}
       </span>
       <div className="flex flex-col gap-3 p-4">
-        <DropdownSearchAccount
+        <DropdownSearchMember
           placeholder={memberType === "author" ? t("enterAuthorName") : t("enterModeratorName")}
           items={searchItems}
+          getAvatarUrl={memberType === "author" ? buildFileUrl : buildAccountAvatarUrl}
           inputValue={search}
           onInputChange={onSearchChange}
           onSelect={onSearchItemSelect}

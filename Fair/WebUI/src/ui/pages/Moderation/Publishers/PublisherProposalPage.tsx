@@ -16,7 +16,7 @@ export const PublisherProposalPage = memo(() => {
       parentBreadcrumbs={[{ title: t("common:publishers"), path: `/${siteId}/m/a/r` }]}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={`/${siteId}/m/m/p`}
+      previousPath={`/${siteId}/m/a/r`}
     />
   )
 })

@@ -5,10 +5,7 @@ import {
   CreateProposalData,
   CreateProposalDataOption,
   OperationType,
-  Policy,
   ProposalOption,
-  ProposalType,
-  Site,
 } from "types"
 import { getFairOperationType } from "utils"
 
@@ -89,50 +86,3 @@ export const prepareProposalOptions = (data: CreateProposalData): ProposalOption
     operation: { $type, ...mapOptionOperation(type, data, option) },
   }))
 }
-
-export const isVotingRequired = (
-  proposalType: ProposalType,
-  site?: Site,
-  operation?: OperationType,
-  policies?: Policy[],
-): boolean => {
-  if (!site || !operation || !policies) return true
-
-  const votersCount = proposalType === "discussion" ? site.moderatorsIds.length : site.authorsIds.length
-  const policy = policies.find(x => x.operationClass === operation)
-
-  if (policy) {
-    switch (policy.approval) {
-      case "any-moderator":
-        return false
-      case "moderators-majority":
-      case "publishers-majority":
-        return votersCount > 2
-      case "all-moderators":
-        return votersCount > 1
-    }
-  }
-
-  return true
-}
-
-// export const isVotingRequired2 = (operation?: OperationType, site?: Site, policies?: Policy[]) => {
-//   if (!operation || !site || !policies) return true
-
-//   const policy = policies.find(x => x.operationClass === operation)
-//   if (!policy) return true
-
-//   const siteVoters = policy.approval !== "publishers-majority" ? site.authorsIds.length : site.moderatorsIds.length
-
-//   switch (policy.approval) {
-//     case "any-moderator":
-//       return false
-//     case "moderators-majority":
-//     case "publishers-majority":
-//       return siteVoters > 2
-//     case "all-moderators":
-//       return siteVoters > 1
-//     default:
-//       return true
-//   }
-// }

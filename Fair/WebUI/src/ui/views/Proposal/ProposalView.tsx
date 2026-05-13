@@ -5,7 +5,7 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 import { useModerationContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
-import { categoriesKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
+import { categoriesKeys, proposalsKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
@@ -44,13 +44,13 @@ export type ProposalViewProps = {
 
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
   const { siteId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
+  const { getOperationApprovalId } = useModerationContext()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { mutate } = useTransactMutationWithStatus()
   const { t } = useTranslation("proposalView")
 
-  const voterId = getOperationVoterId(proposal?.operation)
+  const approval = getOperationApprovalId(proposal?.operation)
 
   const [voteStatus, setVoteStatus] = useState<VoteStatus>("idle")
   const [pageState, setPageState] = useState<PageState>("voting")
@@ -60,9 +60,13 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
 
   const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({
+      "site-moderator-removal": [sitesKeys.moderators(siteId!), proposalsKeys.moderators(siteId!)],
+      "site-authors-removal": [sitesKeys.publishers(siteId!), proposalsKeys.publishers(siteId!)],
+
       "site-avatar-change": [sitesKeys.detail(siteId!)],
       "site-name-change": [sitesKeys.detail(siteId!)],
       "site-text-change": [sitesKeys.detail(siteId!)],
+
       "category-creation": [categoriesKeys.all(siteId!)],
       "publication-deletion": [publicationsKeys.categoriesPublications(siteId!)],
       "publication-unpublish": [publicationsKeys.categoriesPublications(siteId!)],
@@ -104,7 +108,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
     (value: number) => {
       setVotedValue(value)
       setVoteStatus("voting")
-      const operation = new ProposalVoting(proposal!.id, voterId!, value)
+      const operation = new ProposalVoting(proposal!.id, approval!.id, value)
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:voted"), "success")
@@ -124,14 +128,14 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         onSettled: () => setVotedValue(undefined),
       })
     },
-    [invalidateQueryKeysByOperationType, mutate, navigate, previousPath, proposal, queryClient, siteId, t, voterId],
+    [invalidateQueryKeysByOperationType, mutate, navigate, previousPath, proposal, queryClient, siteId, t, approval],
   )
 
   const vote = useCallback(
     (action: VoteAction) => {
       setVoteStatus("voting")
       setVoteAction(action)
-      const operation = new ProposalVoting(proposal!.id, voterId!, action === "approve" ? 0 : SpecialChoice.Neither)
+      const operation = new ProposalVoting(proposal!.id, approval!.id, action === "approve" ? 0 : SpecialChoice.Neither)
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:publicationVoted"), "success")
@@ -144,7 +148,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         },
       })
     },
-    [mutate, navigate, proposal, siteId, t, voterId],
+    [mutate, navigate, proposal, siteId, t, approval],
   )
 
   const handleApprove = useCallback(() => vote("approve"), [vote])
@@ -154,7 +158,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
     (comment: string) => {
       setCommentSubmitting(true)
       if (!isPublicationMode) setVotedValue(ALREADY_VOTED)
-      const operation = new ProposalCommentCreation(proposal!.id, voterId!, comment)
+      const operation = new ProposalCommentCreation(proposal!.id, approval!.id, comment)
       mutate(operation, {
         onSuccess: () => {
           refetchComments()
@@ -167,22 +171,24 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         },
       })
     },
-    [isPublicationMode, mutate, proposal, refetchComments, t, voterId],
+    [isPublicationMode, mutate, proposal, refetchComments, t, approval],
   )
 
   useEffect(() => {
+    if (!approval) return
+
     if (isPublicationMode) {
-      if (isVoted(voterId, proposal)) {
+      if (isVoted(approval!.id, proposal)) {
         setVoteStatus("voted")
       }
     } else {
-      const votedIndex = getVotedIndex(voterId, proposal)
+      const votedIndex = getVotedIndex(approval!.id, proposal)
       if (votedIndex !== undefined) {
         setVoteStatus("voted")
         setVotedValue(votedIndex)
       }
     }
-  }, [isPublicationMode, proposal, voterId])
+  }, [isPublicationMode, proposal, approval])
 
   if (!proposal || !comments) {
     return <>LOADING</>
@@ -194,7 +200,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         title={proposal.title ?? proposal.id}
         parentBreadcrumbs={headerBreadcrumbs}
         components={
-          isPublicationMode && !!voterId && voteStatus !== "voted" ? (
+          isPublicationMode && !!approval && voteStatus !== "voted" ? (
             <ButtonBar className="items-center">
               <ButtonPrimary
                 className="h-11 w-43.75"
@@ -245,7 +251,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
               onVoteClick={handleVoteClick}
             />
           )}
-          {!isPublicationMode && !!voterId && (
+          {!isPublicationMode && !!approval && (
             <AlternativeOptions
               hideVoteButton={voteStatus === "voted"}
               votedValue={votedValue}
@@ -256,7 +262,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           <CommentsSection
             inputDisabled={voteStatus === "voting" || commentSubmitting}
             inputLoading={commentSubmitting}
-            showCommentInput={!!voterId}
+            showCommentInput={!!approval}
             isFetching={isCommentsFetching}
             comments={comments}
             onCommentSubmit={handleCommentSubmit}

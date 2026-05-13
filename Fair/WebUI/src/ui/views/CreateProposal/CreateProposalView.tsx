@@ -23,9 +23,9 @@ import {
   ValidationWrapper,
 } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
-import { isArrayOfArrays, showToast } from "utils"
+import { isArrayOfArrays, isVotingRequired, showToast } from "utils"
 
-import { isVotingRequired, prepareProposalOptions } from "./utils"
+import { prepareProposalOptions } from "./utils"
 
 const LABEL_CLASSNAME = "first-letter:uppercase font-medium leading-4 text-2xs"
 
@@ -56,7 +56,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
   const parentPath = proposalType === "discussion" ? `/${siteId}/m` : `/${siteId}/g/r`
-  const isRequiredVoting = isVotingRequired(proposalType, site, formData.type, policies)
+  const isRequiredVoting = isVotingRequired(formData.type, site, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])
 

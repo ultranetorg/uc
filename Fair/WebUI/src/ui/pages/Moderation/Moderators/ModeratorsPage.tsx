@@ -6,6 +6,7 @@ import { TabsProvider, useModerationContext } from "app"
 import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem } from "ui/components"
 
+import { sitesKeys } from "entities"
 import { ModeratorsTab } from "./ModeratorsTab"
 import { ModeratorsProposalsTab } from "./ModeratorsProposalsTab"
 
@@ -53,7 +54,9 @@ export const ModeratorsPage = () => {
                   parentBreadcrumbs: [...parentBreadcrumbs, { path: `/${siteId}/m/m/`, title: t("title") }],
                   title: t("addModerator"),
                   type: "site-moderator-addition",
-                  previousPath: `/${siteId}/m/m/`,
+                  redirectAfterProposalCreation: `/${siteId}/m/m/p/`,
+                  redirectAfterProposalExecution: location.pathname,
+                  invalidateQueryKeys: sitesKeys.publishers(siteId!),
                 }}
               >
                 <ButtonPrimary label={t("addModerator")} />

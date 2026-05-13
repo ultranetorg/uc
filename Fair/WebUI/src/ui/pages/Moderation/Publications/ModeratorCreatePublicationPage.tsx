@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useModerationContext } from "app"
+import { useModerationContext, useSiteContext } from "app"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
@@ -11,16 +11,18 @@ import { useTransactMutationWithStatus } from "entities/node"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
 import { ModerationPublicationHeader, ModerationHeader, ProductFieldsTree } from "ui/components/specific"
-import { showToast } from "utils"
+import { isVotingRequired, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const { siteId } = useParams()
-  const { getOperationVoterId, isModerator } = useModerationContext()
+  const { getOperationVoterId, isModerator, policies } = useModerationContext()
+  const { site } = useSiteContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
   const navigate = useNavigate()
   const { t } = useTranslation("createPublication")
 
   const voterId = getOperationVoterId("publication-creation")
+  const isRequiredVoting = isVotingRequired("publication-creation", site, policies)
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get("productId") ?? "")
@@ -56,11 +58,16 @@ export const ModeratorCreatePublicationPage = () => {
     mutate(operation, {
       onSuccess: () => {
         showToast(t("toast:publicationCreated"), "success")
-        navigate(`/${siteId}/m/c`)
+
+        if (isRequiredVoting) {
+          navigate(`/${siteId}/m/c`)
+        } else {
+          navigate(`/${siteId}/m/c/u`)
+        }
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [isModerator, mutate, navigate, product, siteId, t, voterId])
+  }, [isModerator, isRequiredVoting, mutate, navigate, product, siteId, t, voterId])
 
   const isProductValid = !isError && !!product && !!product.fields && product.fields.length > 0
 

@@ -267,7 +267,8 @@ public class ModeratorProposalsService
 
 	ModeratorProposalModel CreateModeratorProposalModel(Proposal proposal, Site site)
 	{
-		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+		Author author = mcv.Authors.Latest(proposal.By);
+		FairUser by = (FairUser) mcv.Users.Latest(author.Owners[0]); // TODO: handle multiple Authors.
 
 		if(proposal.Options[0].Operation is SiteModeratorAddition addition)
 		{

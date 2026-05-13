@@ -404,7 +404,7 @@ public class PublicationsService
 
 			IEnumerable<AutoId> publicationsIds = site.ChangedPublications.Skip(page * pageSize).Take(pageSize);
 			IEnumerable<AutoId> reversed = publicationsIds.Reverse();
-			List<ChangedPublicationModel> result = LoadChangedPublications<ChangedPublicationModel>(reversed, pageSize, cancellationToken);
+			List<ChangedPublicationModel> result = LoadChangedPublications<ChangedPublicationModel>(site, reversed, pageSize, cancellationToken);
 
 			return new TotalItemsResult<ChangedPublicationModel>
 			{
@@ -414,7 +414,21 @@ public class PublicationsService
 		}
 	}
 
-	List<ChangedPublicationModel> LoadChangedPublications<T>(IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+	bool HasProductUpdationProposalForProduct(Site site, AutoId publicationId)
+	{
+		return site.Proposals.Any(x =>
+		{
+			Proposal proposal = mcv.Proposals.Latest(x);
+			if(proposal.OptionClass != FairOperationClass.PublicationUpdation)
+			{
+				return false;
+			}
+
+			return (proposal.Options[0].Operation as PublicationUpdation).Publication == publicationId;
+		});
+	}
+
+	List<ChangedPublicationModel> LoadChangedPublications<T>(Site site, IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
@@ -424,6 +438,9 @@ public class PublicationsService
 		{
 			if(cancellationToken.IsCancellationRequested)
 				return result;
+
+			if (HasProductUpdationProposalForProduct(site, publicationId))
+				continue;
 
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);

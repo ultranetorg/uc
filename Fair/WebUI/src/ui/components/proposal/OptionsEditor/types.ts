@@ -3,7 +3,6 @@ import { UseControllerProps } from "react-hook-form"
 import { AccountBase, AuthorBaseAvatar, CreateProposalData, OperationType } from "types"
 
 export type FieldValueType =
-  | "authors-additions"
   | "authors-removals"
   | "category"
   | "category-root"

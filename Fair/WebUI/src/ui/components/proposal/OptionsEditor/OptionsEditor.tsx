@@ -12,7 +12,7 @@ import {
 import { useCreateProposalContext } from "app"
 import { CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
 import { CreateProposalData, CreateProposalDataOption, OperationType } from "types"
-import { MessageBox, ValidationWrapper } from "ui/components"
+import { ValidationWrapper } from "ui/components"
 
 import { getEditorOperationsFields } from "./constants"
 import { OptionsEditorList } from "./OptionsEditorList"

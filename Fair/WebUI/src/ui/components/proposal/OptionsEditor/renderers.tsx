@@ -2,7 +2,6 @@ import { AccountBase, AuthorBaseAvatar } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
-  AddAuthorPanelList,
   AddModeratorPanelList,
   DropdownSearchCategory,
   DropdownWithTranslation,
@@ -67,11 +66,6 @@ export const renderByParameterValueType: Record<
 }
 
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
-  "authors-additions": ({ errorMessage, value, onChange }) => (
-    <ValidationWrapper message={errorMessage}>
-      <AddAuthorPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
-    </ValidationWrapper>
-  ),
   "authors-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <RemoveAuthorPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />

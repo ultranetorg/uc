@@ -9,26 +9,28 @@ import { DropdownItem } from "./types"
 
 const COMPONENTS = { Control, DropdownIndicator: null, IndicatorsContainer, Option }
 
-export type DropdownSearchAccountBaseProps = {
+export type DropdownSearchMemberBaseProps = {
   items: DropdownItem[]
+  getAvatarUrl?: (avatarId?: string) => string | undefined
   onSelect?: (value: DropdownItem) => void
   onInputChange?: (inputValue: string) => void
   noOptionsLabel?: string
 }
 
-export type DropdownSearchAccountProps = Pick<SearchDropdownProps, "className" | "inputValue" | "placeholder"> &
-  DropdownSearchAccountBaseProps
+export type DropdownSearchMemberProps = Pick<SearchDropdownProps, "className" | "inputValue" | "placeholder"> &
+  DropdownSearchMemberBaseProps
 
-export const DropdownSearchAccount = memo(
+export const DropdownSearchMember = memo(
   ({
     className,
     inputValue,
     placeholder,
     items,
+    getAvatarUrl,
     onSelect,
     onInputChange,
     noOptionsLabel,
-  }: DropdownSearchAccountProps) => {
+  }: DropdownSearchMemberProps) => {
     const handleChange = (selectedItem: SingleValue<DropdownItem>) => {
       onSelect?.(selectedItem!)
     }
@@ -42,6 +44,7 @@ export const DropdownSearchAccount = memo(
         className={className}
         components={COMPONENTS}
         filterOption={() => true}
+        getAvatarUrl={getAvatarUrl}
         inputValue={inputValue}
         options={items}
         placeholder={placeholder}

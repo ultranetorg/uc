@@ -2,13 +2,15 @@ import { useQuery } from "@tanstack/react-query"
 
 import { getApi } from "api"
 
+import { proposalsKeys } from "./proposalsKeys"
+
 const api = getApi()
 
 export const useGetPublisherProposals = (siteId?: string, search?: string, page?: number, pageSize?: number) => {
   const queryFn = () => api.getPublisherProposals(siteId!, search, page, pageSize)
 
   const { isPending, isFetching, error, data } = useQuery({
-    queryKey: ["sites", siteId, "proposals", "publisher", { page, pageSize }],
+    queryKey: [...proposalsKeys.publishers(siteId!), { page, pageSize }],
     queryFn: queryFn,
     enabled: !!siteId,
   })

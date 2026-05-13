@@ -88,8 +88,6 @@ export const UsersPage = () => {
     [handleApprove, handleReject, loadingItem, t],
   )
 
-  //const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/u/${id}`), [navigate, siteId])
-
   const handlePageChange = useCallback(
     (page: number) => {
       setState({ page: page })
@@ -106,7 +104,6 @@ export const UsersPage = () => {
         tableBodyClassName="text-2sm leading-5"
         itemRenderer={itemRenderer}
         emptyState={<TableEmptyState message={t("noUsers")} />}
-        //onRowClick={handleTableRowClick}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { truncate } from "lodash"
 
 import { useModerationContext } from "app"
 import { SvgEyeSm } from "assets"
@@ -43,11 +44,12 @@ export const UnpublishedPublicationPage = () => {
                   state={{
                     parentBreadcrumbs,
                     title: publication.title
-                      ? t("publish", { publicationTitle: publication.title })
+                      ? `Publish "${truncate(publication.title, { length: 46 })}" product`
                       : t("publishNoTitle"),
                     type: "publication-publish" as OperationClass,
                     publicationId: publication.id,
-                    previousPath: `/${siteId}/m/c/u`,
+                    redirectAfterProposalCreation: `/${siteId}/m/c/p/`,
+                    redirectAfterProposalExecution: `/${siteId}/m/c/u/`,
                     invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
                   }}
                 >

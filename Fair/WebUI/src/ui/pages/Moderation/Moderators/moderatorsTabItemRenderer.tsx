@@ -1,22 +1,24 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 import { Link } from "react-router-dom"
+import { truncate } from "lodash"
 
 import { Moderator } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { renderAccount } from "ui/renderers/utils"
+import { sitesKeys } from "entities"
 
 export const moderatorsTabItemRenderer =
   (t: TFunction, siteId: string) =>
   (item: TableItem, column: TableColumn): ReactNode => {
-    const publisher = item as unknown as Moderator
+    const moderator = item as unknown as Moderator
 
     switch (column.type) {
       case "account":
-        return renderAccount(publisher.user)
+        return renderAccount(moderator.user)
 
       case "banned":
-        return publisher.bannedTill !== 0 ? publisher.bannedTill : ""
+        return moderator.bannedTill !== 0 ? moderator.bannedTill : ""
 
       case "actions":
         return (
@@ -27,10 +29,12 @@ export const moderatorsTabItemRenderer =
                 { path: `/${siteId}/m`, title: t("common:proposals") },
                 { path: `/${siteId}/m/m/`, title: t("title") },
               ],
-              previousPath: `/${siteId}/m/m/`,
-              title: t("removeModerator"),
+              title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
               type: "site-moderator-removal",
-              moderators: [publisher.user],
+              moderators: [moderator.user],
+              redirectAfterProposalCreation: `/${siteId}/m/m/p/`,
+              redirectAfterProposalExecution: location.pathname,
+              invalidateQueryKeys: sitesKeys.moderators(siteId),
             }}
           >
             <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />
