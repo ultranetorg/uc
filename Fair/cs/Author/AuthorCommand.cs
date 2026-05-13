@@ -132,9 +132,9 @@ public class AuthorCommand : FairCommand
 		var file = "file";
 
 		a.Name = "avatar";
-		a.Description = "Sets an avatar for a specified author";
+		a.Description = "Sets an avatar for a specified author. Only files with correct media type(MIME) are accepted.";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
-						new (file, EID, "A file"),
+						new (file, EID, "Id of a file entity"),
 						ByArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
