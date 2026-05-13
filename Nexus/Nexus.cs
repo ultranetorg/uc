@@ -149,21 +149,15 @@ public class Nexus : IProgram
 		//ApiStarted?.Invoke(this);
 	}
 
-	public void Open(Snp address, Flow flow)
+	public void Open(Snp snp, Flow flow)
 	{
-		//var addr = address.Net ?? Net.Net.Root;
-		//var nets = addr.Split('.').Reverse().ToArray();
-		//
-		//if(nets.Last() != Net.Net.Root)
-		//	nets = [..nets, Net.Net.Root];
-		
-		if(address.Net == null || address.Net == Net.Net.Root)
+		if(snp.Net == null || snp.Net == Net.Net.Root)
 		{
-			ActivatePackage(new Ura(address), flow);
+			ActivatePackage(new Ura(snp), flow);
 		}
 		else
 		{
-			var r = IccpPeering.Call(null, address.Net, new InfoIcca(), flow) as InfoIccr;
+			var r = IccpPeering.Call(null, snp.Net, new InfoIcca(), flow) as InfoIccr;
 
 			foreach(var wi in r.Wayins)
 			{
@@ -173,7 +167,7 @@ public class Nexus : IProgram
 
 					if(s == Iccp.Scheme)
 					{
-						ActivatePackage(new Ura(address), flow);
+						ActivatePackage(Ura.Parse(wi.Software), flow);
 					}
 				}
 				
@@ -190,12 +184,6 @@ public class Nexus : IProgram
 		}
 	}
 
-	RdnApiClient				_Rdn;
-	public RdnApiClient			RdnApi => _Rdn ??= new RdnApiClient(Settings.Api.LocalNodeAddress(Rdn.Rdn.ByZone(Settings.Zone)));
-
-	NexusApiClient				_Nexus;
-	public NexusApiClient		NexusApi => _Nexus ??= new NexusApiClient(Settings.Api.LocalSystemAddress(Settings.Zone, Api.Nexus));
-
 	void ActivatePackage(Ura ura, Flow flow)
 	{
 		var r = RdnNode.Peering.Call(new ResourceByAddressPpc(ura), flow)?.Resource;
@@ -209,7 +197,7 @@ public class Nexus : IProgram
 	
 		if(r.Data.Type.Content == ContentType.Package_Software_ProductManifest)
 		{
-			var lrr = RdnApi.Download(r, flow);
+			var lrr = RdnNode.Download(r, flow);
 	
 			lock(RdnNode.ResourceHub.Lock)
 			{
@@ -225,7 +213,7 @@ public class Nexus : IProgram
 		else
 			throw new NexusException("Incorrect resource type");
 	
-		NexusApi.DeployPackage(aprv, Settings.Packages, flow);
+		PackageHub.Deploy(aprv, flow);
 	
 		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + PackageManifest.Extension).First();
 	

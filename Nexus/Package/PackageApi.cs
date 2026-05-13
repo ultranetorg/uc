@@ -89,7 +89,7 @@ public class PackageBuildApc : Apc, INexusApc
 	}
 }
 
-public class PackageDownloadApc : Apc, INexusApc
+public class StartPackageDownloadApc : Apc, INexusApc
 {
 	public Ura		Package { get; set; }
 
@@ -97,7 +97,7 @@ public class PackageDownloadApc : Apc, INexusApc
 	{
 		lock(node.PackageHub.Lock)
 		{	
-			node.PackageHub.Download(Package, workflow);
+			node.PackageHub.StartDownload(Package, workflow);
 			return null;
 		}
 	}
@@ -149,7 +149,7 @@ public class PackageDeployApc : Apc, INexusApc
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		nexus.PackageHub.Deploy(Address, DeploymentPath ?? nexus.PackageHub.DeploymentPath, flow);
+		nexus.PackageHub.StartDeploy(Address, DeploymentPath ?? nexus.PackageHub.DeploymentPath, flow);
 		return null;
 	}
 }

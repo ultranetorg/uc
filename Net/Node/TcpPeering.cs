@@ -428,4 +428,50 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 			Thread.Sleep(1);
 		}
 	}
+
+	
+	public P Connect(IEnumerable<P> peers, Flow flow)
+	{
+		lock(Lock)
+		{
+			foreach(var peer in peers)
+			{
+				if(peer.Status == ConnectionStatus.OK)
+					return peer;
+				else if(peer.Status == ConnectionStatus.Disconnected)
+					OutboundConnect(peer, false);
+				else if(peer.Status == ConnectionStatus.Disconnecting)
+				{	
+					while(peer.Status != ConnectionStatus.Disconnected)
+					{
+						flow.ThrowIfAborted();
+						Thread.Sleep(1);
+					}
+					
+					OutboundConnect(peer, false);
+				}
+			}
+		}
+
+		var t = DateTime.Now;
+
+		while(flow.Active)
+		{
+			lock(Lock)
+			{	
+				var p = peers.FirstOrDefault(i => i.Status == ConnectionStatus.OK);
+
+				if(p != null)
+					return p;
+			}
+
+			if(!NodeGlobals.InfiniteTimeouts)
+				if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
+					throw new NodeException(NodeError.Timeout);
+			
+			Thread.Sleep(1);
+		}
+
+		throw new OperationCanceledException();
+	}
 }

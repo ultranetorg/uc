@@ -4,17 +4,17 @@ using Uccs.Net;
 
 namespace Uccs.Nexus;
 
-public class IccpNode
-{
-	public string				Api { get; set; }
-	public string				Net;
-	public IccpLcpConnection	Connection;
-}
+//public class IccpNode
+//{
+//	public string				Api { get; set; }
+//	public string				Net;
+//	public IccpLcpConnection	Connection;
+//}
 	
 public class IccpLcpServer : LcpServer
 {
-	Nexus					Nexus;
-	public List<IccpNode>	Locals = [];
+	Nexus									Nexus;
+	public IEnumerable<IccpLcpConnection>	Locals => Connections.Cast<IccpLcpConnection>();
 
 	public IccpLcpServer(Nexus nexus) : base(nexus, IccpLcpConnection.GetName(nexus.Settings.Host), nexus.Flow)
 	{
@@ -32,9 +32,9 @@ public class IccpLcpServer : LcpServer
 
 		if(ct == IccpLcpConnectionType.Node)
 		{	
-			var net = connection.Reader.ReadUtf8();
-			var api = connection.Reader.ReadUtf8();
-			Locals.Add(new IccpNode {Connection = connection as IccpLcpConnection, Net = net, Api = api});
+			var c = connection as IccpLcpConnection;
+			c.Net = connection.Reader.ReadUtf8();
+			c.Api = connection.Reader.ReadUtf8();
 		}
 
 		connection.Handler = (from, to, a) => Relay(from, to, a);  /// relay from local nodes
@@ -44,13 +44,13 @@ public class IccpLcpServer : LcpServer
 	{
 		if(call is not TransferRequestIcca tr)
 		{
-			var n = Locals.Find(i => i.Net == to);
+			var c = Locals.FirstOrDefault(i => i.Net == to);
 
-			if(n != null)
+			if(c != null)
 			{
 				try
 				{
-					return n.Connection.Call(from, to, call, Flow); /// try to relay to local node
+					return c.Call(from, to, call, Flow); /// try to relay to local node
 				}
 				catch(CodeException ex)
 				{

@@ -74,9 +74,9 @@ public class RdnNode : McvNode
 															});
 										}
 									};
-
-			Iccp = new McvIccpLcpConnection(this, flow);
 		}
+
+		Iccp = new McvIccpLcpConnection(this, flow);
 
 		ApiServer = new RdnApiServer(this, new IpApiSettings {LocalIP = nexussettings.Host}.ToNodeSettings(Net), Flow);
 
@@ -174,4 +174,26 @@ public class RdnNode : McvNode
 		return false;
 	}
 
+	public LocalRelease Download(Resource resource, Flow flow)
+	{
+		new ResourceDownloadApc {Id = resource.Id}.Execute(this, null, null, flow);
+
+		LocalRelease l;
+
+		lock(ResourceHub.Lock)
+			l = ResourceHub.Find(resource.Data.Parse<Urr>());
+
+		do
+		{
+			if(l.Activity is null)
+			{
+				return l;
+			}
+
+			Thread.Sleep(100);
+		}
+		while(flow.Active);
+
+		throw new OperationCanceledException();
+	}
 }

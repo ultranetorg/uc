@@ -112,7 +112,7 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								Api(new PackageDownloadApc {Package = Package});
+								Api(new StartPackageDownloadApc {Package = Package});
 
 								try
 								{

@@ -55,9 +55,9 @@ public class NexusApiClient : JsonApiClient
 		Options = NexusJsonConfiguration.CreateOptions();
 	}
 
-	public PackageInfo DeployPackage(Ura address, string desination, Flow flow)
+	public PackageInfo DeployPackage(Ura address, string destination, Flow flow)
 	{
-		Send(new PackageDeployApc {Address = address, DeploymentPath = desination}, flow);
+		Send(new PackageDeployApc {Address = address, DeploymentPath = destination}, flow);
 
 		do
 		{
@@ -159,7 +159,7 @@ public class IccpNodeApc : Apc, INexusApc
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(nexus)
-			return nexus.IccpLcpServer.Locals.Find(i => i.Net == Net);
+			return nexus.IccpLcpServer.Locals.FirstOrDefault(i => i.Net == Net);
 	}
 }
 

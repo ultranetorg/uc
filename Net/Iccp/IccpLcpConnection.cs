@@ -15,6 +15,7 @@ public enum IccpLcpConnectionType : byte
 public class IccpLcpConnection : LcpConnection
 {
 	public string													Net;
+	public string													Api { get; set; }
 	Dictionary<Type, Func<string, IccpArgumentation, IccpResult>>	Calls = [];
 	
 	public static string GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();

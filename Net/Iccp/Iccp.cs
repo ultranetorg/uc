@@ -24,6 +24,7 @@ public enum IccpClass : uint
 	
 	Info,
 	Peers,
+	SubnetPeers,
 	TransferRequest,
 	LastOutgoingTransfer,
 	LastIncomingTransfer,
@@ -155,7 +156,7 @@ public class AddressTextToUniversalIccr : IccpResult
 	public override void	Write(Writer writer) => writer.WriteBytes(Universal);
 }
 
-public class SubnetIcca : IccpArgumentation
+public class SubnetPeersIcca : IccpArgumentation
 {
 	public string			Name { get; set; }
 
@@ -163,7 +164,7 @@ public class SubnetIcca : IccpArgumentation
 	public override void	Write(Writer writer) => writer.WriteASCII(Name);
 }
 
-public class SubnetIccr : IccpResult
+public class SubnetPeersIccr : IccpResult
 {
 	public Endpoint[]		Peers { get; set; }
 

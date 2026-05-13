@@ -131,7 +131,7 @@ public class PackageDownload
 											{
 												if(!hub.ExistsRecursively(i.Address))
 												{
-													var dd = hub.Download(i.Address, flow);
+													var dd = hub.StartDownload(i.Address, flow);
 													Dependencies.Add(dd);
 												}
 											}

@@ -10,6 +10,7 @@ public enum McvPpcClass : uint
 	None = 0, 
 	SharePeers = PpcClass._Last + 1, 
 	Info,
+	SubnetPeers,
 	Vote, Time, Members, Funds, Pretransacting, PlaceTransactions, TransactionStatus, User, 
 	Stamp, TableStamp, DownloadCluster, DownloadBucket, DownloadRounds,
 	Cost,
@@ -42,11 +43,8 @@ public abstract class McvPeering : HomoPeering
 	public Mcv								Mcv => Node.Mcv; 
 	public VaultApiClient					VaultApi; 
 
-	public IEnumerable<HomoPeer>			Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
-
-	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
+	AutoResetEvent							TransactingWakeup = new (true);
 	Thread									TransactingThread;
-	//public object							TransactingLock = new object();
 	public List<Transaction>				OutgoingTransactions = [];
 	public List<Transaction>				CandidateTransactions = [];
 	public List<Transaction>				ConfirmedTransactions = [];
@@ -57,6 +55,12 @@ public abstract class McvPeering : HomoPeering
 	public string							SynchronizationInfo;
 
 	public static List<McvPeering>			All = [];
+
+	public IEnumerable<HomoPeer>			Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
+	public bool								IsMember => Synchronization == Synchronization.Synchronized &&
+														Mcv.LastConfirmedRound != null && 
+														Mcv.LastConfirmedRound.Members.Any(i => Mcv.Settings.Generators.Any(j => j.Id == i.User));
+
 
 	public McvPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Name, node.Net, node.Database, settings, roles, flow)
 	{

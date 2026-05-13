@@ -6,6 +6,7 @@ namespace Uccs.Net;
 public class McvIccpLcpConnection: IccpLcpConnection
 {
 	public McvNode		Node => Program as McvNode;
+	public McvPeering	Peering => Node.Peering;
 	public Mcv			Mcv => Node.Mcv;
 
 	protected string[]	Classes; 
@@ -14,36 +15,54 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	{
 		Classes = [nameof(User)];
 
-		Mcv.FriendTransferFormed += (e, f) =>	{
-										 			foreach(var i in node.Settings.Mcv.Generators.Where(i => e.Round.Members.Any(j => j.User == i.Id)))
-										 			{
-														Task.Run(() =>	{
-										 									Call(Net, f.Name, new TransferRequestIcca {Hash = f.LastOutgoingTransfer.Hash
-																												/*
-																												 * , 
-																												 *	Signature = Net.Cryptography.ZeroSignature
-																												 *
-																												 */}, Flow);
-
-																			while(Flow.Active)
-																			{
-																				var rp = Call(Net, f.Name, new LastIncomingTransferIcca {}, Flow) as LastIncomingTransferIccr;
-
-																				if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Result.Hash))
+		if(Mcv != null)
+		{
+			Mcv.FriendTransferFormed += (e, f) =>	{
+											 			foreach(var i in node.Settings.Mcv.Generators.Where(i => e.Round.Members.Any(j => j.User == i.Id)))
+											 			{
+															Task.Run(() =>	{
+											 									Call(Net, f.Name, new TransferRequestIcca {Hash = f.LastOutgoingTransfer.Hash
+																													/*
+																													 * , 
+																													 *	Signature = Net.Cryptography.ZeroSignature
+																													 *
+																													 */}, Flow);
+	
+																				while(Flow.Active)
 																				{
-																					Mcv.FriendTransferResults.Add(rp.Result, f.Name);
-																					break;
+																					var rp = Call(Net, f.Name, new LastIncomingTransferIcca {}, Flow) as LastIncomingTransferIccr;
+	
+																					if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Result.Hash))
+																					{
+																						Mcv.FriendTransferResults.Add(rp.Result, f.Name);
+																						break;
+																					}
+	
+																					if(rp.Id > f.LastOutgoingTransfer.Id) /// too late, next one is confirmed already
+																						break;
+	
+																					Thread.Sleep(1000);
 																				}
+																			});
+											 			}
+													};
+		}
 
-																				if(rp.Id > f.LastOutgoingTransfer.Id) /// too late, next one is confirmed already
-																					break;
+	}
 
-																				Thread.Sleep(1000);
-																			}
-																		});
-										 			}
-												};
+	void RequireSynchronized()
+	{
+		if(Mcv == null)
+			throw new IccpException(IccpError.Unavailable);
 
+		if(Peering.Synchronization != Synchronization.Synchronized)
+			throw new IccpException(IccpError.NotReady);
+	}
+
+	void RequireMembership()
+	{
+		if(!Peering.IsMember)
+			throw new IccpException(IccpError.NotReady);
 	}
 
 	public override void Established()
@@ -56,11 +75,43 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		}
 	}
 
+	public virtual Result Peers(string from, PeersIcca args)
+	{
+		if(Peering.Synchronization == Synchronization.Synchronized)
+		{
+			lock(Node.Mcv)
+				return new PeersIccr {Peers = [..Node.Mcv.LastConfirmedRound.Members.SelectMany(i => i.GraphPpcIPs)]};
+		}
+		else
+			return new PeersIccr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.SelectMany(i => i.GraphPpcIPs).ToArray()};
+	}
+
+	public Result SubnetPeers(string from, SubnetPeersIcca args)
+	{
+ 		if(Peering.Synchronization == Synchronization.Synchronized)
+ 		{
+	 		lock(Mcv.Lock)
+			{
+				var f = Mcv.Friends.Latest(args.Name)
+						??
+						throw new IccpException(IccpError.NotFound);
+	
+				return new SubnetPeersIccr {Peers = f.Peers};
+			}
+ 		} 
+ 		else
+	 		return new SubnetPeersIccr {Peers = Peering.Call(new SubnetPeersPpc {Name = args.Name}, Flow).Endpoints};
+	}
+
  	public Result TransferRequest(string from, TransferRequestIcca args) /// A message from a subnet to vote for
  	{
- 		lock(Node.Mcv.Lock)
+		RequireSynchronized();
+
+ 		lock(Mcv.Lock)
  		{	
- 			var t = Node.Mcv.FriendTransferRequests.Find(i => Bytes.Equal(i.Hash, args.Hash));
+			RequireMembership();
+
+ 			var t = Mcv.FriendTransferRequests.Find(i => Bytes.Equal(i.Hash, args.Hash));
  
  			if(t != null)
  				return null;
@@ -74,7 +125,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
  			/// TODO : Check signature
  			///
 
-			var f = Node.Mcv.Friends.Find(from);
+			var f = Mcv.Friends.Latest(from);
 
 			if(Bytes.Equal(f.LastIncomingTransfer.Hash, rp.Transfer.Hash)) /// no new transfer
 				return null;
@@ -88,12 +139,15 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 	public Result LastOutgoingTransfer(string from, LastOutgoingTransferIcca args)
 	{
-		lock(Node.Mcv.Lock)
-		{	
-			var s = Node.Mcv.Friends.Find(from);
+		RequireSynchronized();
 
-			if(s == null)
-				return null;
+		lock(Mcv.Lock)
+		{	
+			RequireMembership();
+
+			var s = Node.Mcv.Friends.Latest(from)
+					??
+					throw new IccpException(IccpError.NotFound);
 
 			return new LastOutgoingTransferIccr {Transfer = s.LastOutgoingTransfer};
 		}
@@ -101,27 +155,17 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 	public Result LastIncomingTransfer(string from, LastIncomingTransferIcca args) /// Confirmation on our message to a subnet
 	{
-		lock(Node.Mcv.Lock)
-		{
-			var s = Node.Mcv.Friends.Find(from);
+		RequireSynchronized();
 
-			if(s == null)
-				return null;
+		lock(Mcv.Lock)
+		{
+			RequireMembership();
+
+			var s = Node.Mcv.Friends.Find(from)
+					??
+					throw new IccpException(IccpError.NotFound);
 
 			return new LastIncomingTransferIccr {Result = s.LastIncomingTransfer};
-		}
-	}
-
-	public virtual Result Peers(string from, PeersIcca args)
-	{
-		if(Node.Peering.Synchronization == Synchronization.Synchronized)
-		{
-			lock(Node.Mcv)
-				return new PeersIccr {Peers = [..Node.Mcv.LastConfirmedRound.Members.Select(i => i.GraphPpcIPs[0])]};
-		}
-		else
-		{
-			return new PeersIccr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.Select(i => i.GraphPpcIPs[0]).ToArray()};
 		}
 	}
 
@@ -197,6 +241,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 	protected virtual void GetHolder(byte @class, AutoId entity, out ISpacetimeHolder sh, out IEnergyHolder eh)
 	{
+		RequireSynchronized();
+
 		sh = null;
 		eh = null;
 
@@ -213,6 +259,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 	public virtual Result AssetBalance(string from, AssetBalanceIcca args)
 	{
+		RequireSynchronized();
+
 		Read(args.Entity, out var c, out var n); 
 
 		if(!args.Asset.SequenceEqual(Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years).Id) && 
@@ -255,6 +303,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 	public virtual Result HolderAssets(string from, HolderAssetsIcca args)
 	{
+		RequireSynchronized();
+
 		Read(args.Entity, out var c, out var n); 
 
 		lock(Node.Mcv.Lock)
@@ -282,6 +332,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 	public virtual Result AddressTextToUniversal(string from, AddressTextToUniversalIcca args)
 	{
+		RequireSynchronized();
+
 		var i = args.Text.IndexOf('/');
 
 		if(!Enum.TryParse<McvTable>(args.Text.AsSpan(0, i), true, out var t) && !Classes.Any(i => string.Compare(i, t.ToString(), true) == 0))

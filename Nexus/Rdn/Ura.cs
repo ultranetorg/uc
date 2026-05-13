@@ -58,7 +58,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public override string ToString()
 	{
-		return Snp.ToString(Iccp.Scheme, Net, $"{Domain}/{Resource}");
+		return Snp.ToString(Iccp.Scheme, Net, Domain + (Resource != null ? $"/{Resource}" : null));
 	}
 
 	public override bool Equals(object o)

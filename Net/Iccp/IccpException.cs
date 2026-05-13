@@ -5,6 +5,7 @@ public enum IccpError : byte
 	None,
 	ExcutionFailed,
 	NotFound,
+	NotReady,
 	Unavailable,
 	Unknown,
 }

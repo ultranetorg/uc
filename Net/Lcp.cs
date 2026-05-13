@@ -109,9 +109,9 @@ public abstract class LcpConnection
 
 		if(Server != null)
 		{
-			lock(Server.Clients)
+			lock(Server.Connections)
 			{
-				Server.Clients.Remove(this);
+				Server.Connections.Remove(this);
 			}
 		}
 	}
@@ -122,7 +122,7 @@ public abstract class LcpServer
 	protected IProgram					Program;
 	protected Flow						Flow;
 	readonly string						Name;
-	public readonly List<LcpConnection>	Clients = new();
+	public readonly List<LcpConnection>	Connections = new();
 
 	public virtual void					Accept(LcpConnection connection){}
 	public abstract IccpResult			Relay(string from, string to, IccpArgumentation call);
@@ -150,8 +150,8 @@ public abstract class LcpServer
 	
 												LcpConnection c = CreateConnection(pipe);
 	
-												lock(Clients)
-													Clients.Add(c);
+												lock(Connections)
+													Connections.Add(c);
 	
 												Accept(c);
 												program.CreateThread(() => c.Listen()).Start();

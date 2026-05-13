@@ -29,6 +29,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 	protected override IEnumerable<IccpPeer>	PeersToDisconnect => Peers;
 	Func<List<string>>							GetNets;
 	public LcpServer							Lcp;
+	const int									SubnetPeerBunch = 16;
 
 	protected override IccpPeer					CreatePeer() => new ();
 
@@ -198,40 +199,15 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 	protected override void Main()
 	{
-		foreach(var i in Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected))
+		IccpPeer[] peers;
+		
+		lock(Lock)
+			peers = Peers.Where(i => i.Forced && i.Status == ConnectionStatus.Disconnected).ToArray();
+
+		foreach(var i in peers)
 		{
 			OutboundConnect(i, true);
 		}
-	}
-
-	public IccpPeer ChooseBestPeer(string net, HashSet<IccpPeer> exclusions)
-	{
-		/// try existing peers
-		var p = Peers.Where(i => i.Nets.Contains(net) && (exclusions == null || !exclusions.Contains(i)))
-					 .OrderByDescending(i => i.Status == ConnectionStatus.OK)
-					 .FirstOrDefault();
-
-		if(p == null) /// get a new ones from Mcv
-		{
-			if(Mcv != null)
-			{
-				lock(Mcv.Lock)
-				{	
-					var pers = Peers.Where(i => i.Nets.Contains(net));
-	
-					var f = Mcv.Friends.Latest(net)
-							??
-							throw new EntityException(EntityError.NotFound);
-	
-					var a = f.Peers.OrderByRandom().FirstOrDefault(x => pers == null || !pers.Any(y => x == y.EP));
-	
-					if(a != null)
-						p = GetPeer(a, [net]);
-				}
-			}
-		}
-
-		return p;
 	}
 
 	public virtual IccpResult Call(string from, string to, IccpArgumentation call, Flow flow)
@@ -245,27 +221,76 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 		reset();
 
-		IccpPeer p;
-
 		while(flow.Active)
 		{
 			Thread.Sleep(1);
 
 			try
 			{
-				lock(Lock)
-				{
-					p = ChooseBestPeer(to, tried);
+				IccpPeer p;
 
-					if(p == null)
+				lock(Lock)
+					p = Peers.Where(i => i.Nets.Contains(to) && (tried == null || !tried.Contains(i)))
+							 .OrderByDescending(i => i.Status == ConnectionStatus.OK)
+							 .FirstOrDefault();
+
+				if(p == null) /// get a new ones from Mcv
+				{
+					if(to == Net.Root)
 					{
-						reset();
-						continue;
+						var l = Lcp.Connections.Cast<IccpLcpConnection>().FirstOrDefault(i => i.Net == to);
+
+						lock(Lock)
+							p = GetPeer((l.Call(null, to, new PeersIcca {}, flow) as PeersIccr).Peers.Random(), [to]);
+					} 
+					else
+					{
+						string x = to;
+
+						if(!x.EndsWith($".{Net.Root}"))
+							x += $".{Net.Root}";
+
+						var nets = x.Split('.').ToArray();
+						int d = nets.Length;
+
+						string take(int depth) => string.Join('.', nets[^depth..]);
+
+						IccpLcpConnection l = null;
+
+						while(flow.Active)
+						{
+							l = Lcp.Connections.Cast<IccpLcpConnection>().FirstOrDefault(c => c.Net == take(d));
+
+							if(l != null)
+								break;
+							else
+								Thread.Sleep(100);
+					
+							if(d == 1)
+								break;
+
+
+							d--;
+						}
+
+						var peers = (l.Call(null, take(d), new SubnetPeersIcca {Name = nets[^(d+1)]}, flow) as SubnetPeersIccr).Peers;
+				
+						p = Connect(peers.Take(SubnetPeerBunch).Select(i => GetPeer(i, [nets[^(d+1)]])), flow);
+
+						for(int i = d+1; i < nets.Length; i++)
+						{
+							p = Connect((p.Call(null, take(d), new SubnetPeersIcca {Name = nets[^(d+1)]}, flow) as SubnetPeersIccr).Peers.Take(SubnetPeerBunch).Select(i => GetPeer(i, [nets[^(d+1)]])), flow);
+						}
 					}
 				}
 
+				if(p == null)
+				{
+					reset();
+					continue;
+				}
+
 				tried.Add(p);
-				Connect(p, flow);
 
 				return p.Call(from, to, call, flow);
 			}
