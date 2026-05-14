@@ -52,8 +52,12 @@ public class IccpLcpServer : LcpServer
 				{
 					return c.Call(from, to, call, Flow); /// try to relay to local node
 				}
-				catch(CodeException ex)
+				catch(IccpException ex)
 				{
+				}
+				catch(EntityException)
+				{
+					throw;
 				}
 			}
 

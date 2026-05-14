@@ -15,33 +15,30 @@ public class FairIccpLcpConnection : McvIccpLcpConnection
 
 	public virtual Result Info(string from, InfoIcca args)
 	{
-		return new InfoIccr {Wayins = [new (){Software = "iccp:/fns", Command = "https://fair.net"}]};
+		return new InfoIccr {Wayins = [new (){Software = "iccp:/ultranetorg/fns", Command = "https://fair.net"}]};
 	}
 
-
-	//protected override void GetHolder(byte table, string n, out ISpacetimeHolder sh, out IEnergyHolder eh)
-	//{
-	//	if(table == (byte)FairTable.Author)
-	//	{
-	//		var a = Node.Mcv.Authors.Latest(AutoId.Parse(n));
-	//
-	//		if(a == null)
-	//			throw new EntityException(EntityError.NotFound);
-	//
-	//		sh = a;
-	//		eh = a;
-	//	}
-	//	else if(table == (byte)FairTable.Author)
-	//	{
-	//		var a = Node.Mcv.Sites.Latest(AutoId.Parse(n));
-	//
-	//		if(a == null)
-	//			throw new EntityException(EntityError.NotFound);
-	//
-	//		sh = a;
-	//		eh = a;
-	//	}
-	//	else
-	//		base.GetHolder(table, n, out sh, out eh);
-	//}
+	protected override void GetHolder(byte @class, AutoId entity, out ISpacetimeHolder sh, out IEnergyHolder eh)
+	{
+		if(@class == (byte)FairTable.Author)
+		{
+			var a = Node.Mcv.Authors.Latest(entity)
+					??
+					throw new EntityException(EntityError.NotFound);
+	
+			sh = a;
+			eh = a;
+		}
+		else if(@class == (byte)FairTable.Author)
+		{
+			var a = Node.Mcv.Sites.Latest(entity)
+					??
+					throw new EntityException(EntityError.NotFound);
+	
+			sh = a;
+			eh = a;
+		}
+		else
+			base.GetHolder(@class, entity, out sh, out eh);
+	}
 }

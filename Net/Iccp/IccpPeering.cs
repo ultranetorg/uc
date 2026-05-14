@@ -224,10 +224,10 @@ public class IccpPeering : TcpPeering<IccpPeer>
 		while(flow.Active)
 		{
 			Thread.Sleep(1);
+			IccpPeer p = null;
 
 			try
 			{
-				IccpPeer p;
 
 				lock(Lock)
 					p = Peers.Where(i => i.Nets.Contains(to) && (tried == null || !tried.Contains(i)))

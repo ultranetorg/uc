@@ -8,6 +8,7 @@ public enum IccpError : byte
 	NotReady,
 	Unavailable,
 	Unknown,
+	PpcFailure,
 }
 
 public class IccpException : CodeException
