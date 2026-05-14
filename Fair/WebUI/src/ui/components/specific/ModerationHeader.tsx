@@ -17,7 +17,7 @@ export const ModerationHeader = memo(
     const { t } = useTranslation()
 
     return (
-      <div className="flex min-w-0 flex-col gap-2 overflow-hidden">
+      <div className="flex min-w-0 flex-col gap-2">
         <Breadcrumbs
           fullPath={true}
           items={[

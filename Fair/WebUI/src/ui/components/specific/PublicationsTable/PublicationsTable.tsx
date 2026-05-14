@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { PropsWithClassName, PublicationAuthor } from "types"
@@ -11,7 +12,7 @@ export type PublicationsTableBaseProps = {
 
 export type PublicationsTableProps = PropsWithClassName & PublicationsTableBaseProps
 
-export const PublicationsTable = ({ className, items, onPublicationStoresClick }: PublicationsTableProps) => {
+export const PublicationsTable = memo(({ className, items, onPublicationStoresClick }: PublicationsTableProps) => {
   const { t } = useTranslation("profile")
 
   return (
@@ -28,4 +29,4 @@ export const PublicationsTable = ({ className, items, onPublicationStoresClick }
       </div>
     </div>
   )
-}
+})

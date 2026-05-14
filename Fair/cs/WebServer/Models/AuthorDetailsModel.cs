@@ -1,14 +1,12 @@
-﻿using NativeImport;
+﻿namespace Uccs.Fair;
 
-namespace Uccs.Fair;
-
-public class AuthorDetailsModel(Author author, byte[]? avatar) : AuthorBaseModel(author)
+public class AuthorDetailsModel(Author author) : AuthorBaseModel(author)
 {
-	public string Description { get; set; } = author.Description;
+	public string Description { get; init; }
 
-	public byte[] Avatar { get; set; } = avatar;
+	public string? AvatarId { get; init; }
 
-	public IEnumerable<string> OwnersIds { get; set; } = author.Owners.Select(x => x.ToString());
+	public IEnumerable<UserModel> OwnersIds { get; init; }
 
-	public IEnumerable<string> Links { get; set; } = author.Links.Select(x => x.ToString());
+	public IEnumerable<string> Links { get; init; }
 }

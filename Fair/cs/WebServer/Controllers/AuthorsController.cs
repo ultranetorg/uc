@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class AuthorsController
 (
 	ILogger<AuthorsController> logger,
-	IAuthorsService authorsService,
+	AuthorsService authorsService,
 	SearchService searchService,
 	IAutoIdValidator autoIdValidator,
 	ISearchQueryValidator searchQueryValidator,
@@ -13,9 +13,9 @@ public class AuthorsController
 ) : BaseController
 {
 	[HttpGet("{authorId}")]
-	public AuthorDetailsModel Get(string authorId)
+	public AuthorDetailsModel GetDetails(string authorId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AuthorId}", nameof(AuthorsController), nameof(Get), authorId);
+		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AuthorId}", nameof(AuthorsController), nameof(GetDetails), authorId);
 
 		autoIdValidator.Validate(authorId, nameof(Author).ToLower());
 

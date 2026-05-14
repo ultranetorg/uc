@@ -20,7 +20,7 @@ import {
 } from "types"
 import { AccountsList } from "ui/components"
 import { MembersList } from "ui/components/MembersList"
-import { buildFileUrl } from "utils"
+import { buildFileUrl, buildUserAvatarUrl } from "utils"
 
 const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
   <>
@@ -241,7 +241,13 @@ const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element =
     <div className="flex flex-col gap-2">
       <Trans ns="proposalView" i18nKey={`${operation.$type}`} parent={"p"} className="text-2sm leading-5" />
       <AccountsList
-        items={[{ id: operation.moderator.id, title: operation.moderator.name, avatarId: operation.moderator.id }]}
+        items={[
+          {
+            id: operation.moderator.id,
+            title: operation.moderator.name,
+            avatarSrc: buildUserAvatarUrl(operation.moderator.id),
+          },
+        ]}
       />
     </div>
   )

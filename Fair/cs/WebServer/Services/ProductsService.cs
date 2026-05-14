@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.GuardClauses;
+using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -110,5 +111,59 @@ public class ProductsService
 				FieldsTo = fieldsTo
 			};
 		}
+	}
+
+	public TotalItemsResult<ProductStoreModel> GetProductStores([NotNull][NotEmpty] string productId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(GetProductStores), productId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(productId);
+		Guard.Against.Negative(page);
+		Guard.Against.Negative(pageSize);
+
+		AutoId id = AutoId.Parse(productId);
+
+		lock(mcv.Lock)
+		{
+			Product product = mcv.Products.Latest(id);
+			if(product == null)
+			{
+				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+			}
+
+			IEnumerable<AutoId> publicationsIds = product.Publications.Skip(page * pageSize).Take(pageSize);
+			return LoadProductStores(publicationsIds, product.Publications.Length, cancellationToken);
+		}
+	}
+
+	TotalItemsResult<ProductStoreModel> LoadProductStores(IEnumerable<AutoId> publicationsIds, int totalItems, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return TotalItemsResult<ProductStoreModel>.Empty;
+
+		var result = new List<ProductStoreModel>(publicationsIds.Count());
+
+		foreach(var publicationId in publicationsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return new TotalItemsResult<ProductStoreModel> {Items = result, TotalItems = totalItems};
+
+			Publication publication = mcv.Publications.Latest(publicationId);
+			Site store = mcv.Sites.Latest(publication.Site);
+
+			var model = new ProductStoreModel
+			{
+				Id = store.Id.ToString(),
+				Title = store.Title,
+				AvatarId = store.Avatar?.ToString()
+			};
+			result.Add(model);
+		}
+
+		return new TotalItemsResult<ProductStoreModel>
+		{
+			Items = result,
+			TotalItems = totalItems
+		};
 	}
 }

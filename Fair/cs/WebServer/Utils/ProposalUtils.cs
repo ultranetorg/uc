@@ -13,7 +13,7 @@ public static class ProposalUtils
 
 	public static bool IsReviewOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;
 
-	public static bool IsUserOperation(Proposal proposal) => proposal.Options[0].Operation is UserUnregistration or UserRegistration;
+	public static bool IsUserOperation(Proposal proposal) => proposal.Options[0].Operation is UserRegistration or UserUnregistration;
 
 	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is SiteModeratorAddition or SiteModeratorRemoval;
 

@@ -152,19 +152,27 @@ public class PublicationsService
 			{
 				publication = mcv.Publications.Latest(publicationId);
 				product = mcv.Products.Latest(publication.Product);
-			}
 
-			if (product.Author != context.AuthorId)
-			{
-				continue;
-			}
+				if (product.Author != context.AuthorId)
+				{
+					continue;
+				}
 
-			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
-			{
-				AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-				byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
-				var resultItem = new PublicationAuthorModel(publication, product, logo);
-				context.Items.Add(resultItem);
+				if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
+				{
+					Category category = mcv.Categories.Latest(publication.Category);
+
+					AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+					byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+					var resultItem = new PublicationAuthorModel(publication, product)
+					{
+						ProductId = product.Id.ToString(),
+						LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
+						CategoryId = publication.Category.ToString(),
+						CategoryTitle = category.Title
+					};
+					context.Items.Add(resultItem);
+				}
 			}
 
 			++context.TotalItems;

@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 
 import { SvgXSm } from "assets"
 import { useGetPublicationDetails } from "entities"
-import { useGetProductDetails } from "entities/Product"
+import { useGetProductDetails } from "entities/products"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonPrimary } from "ui/components"
 import { PublicationHeader } from "ui/components/publication"
 import { PublicationContentView } from "ui/views"

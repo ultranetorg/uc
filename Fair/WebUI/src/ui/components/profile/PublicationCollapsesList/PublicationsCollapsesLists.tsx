@@ -24,10 +24,14 @@ export type PublicationsCollapsesListsProps = {
 export const PublicationsCollapsesLists = ({ items }: PublicationsCollapsesListsProps) => {
   const [activeCollapseId, setActiveCollapseId] = useState("")
   const [isModalOpen, setModalOpen] = useState(false)
+  const [selectedPublicationId, setPublicationId] = useState<string | undefined>()
 
   const handleExpand = useCallback((id: string) => setActiveCollapseId(prev => (prev !== id ? id : "")), [])
 
-  const handlePublicationStoresClick = useCallback((_id: string) => setModalOpen(true), [])
+  const handlePublicationStoresClick = useCallback((id: string) => {
+    setModalOpen(true)
+    setPublicationId(id)
+  }, [])
 
   const handleModalClose = useCallback(() => setModalOpen(false), [])
 
@@ -44,7 +48,7 @@ export const PublicationsCollapsesLists = ({ items }: PublicationsCollapsesLists
           />
         ))}
       </div>
-      {isModalOpen && <PublicationStoresModal items={TEST_ITEMS} onClose={handleModalClose} />}
+      {isModalOpen && <PublicationStoresModal onClose={handleModalClose} publicationId={selectedPublicationId!} />}
     </>
   )
 }

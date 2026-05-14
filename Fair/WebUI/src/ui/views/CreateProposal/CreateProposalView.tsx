@@ -1,11 +1,11 @@
-import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants"
 import { memo, useCallback } from "react"
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 import { useQueryClient } from "@tanstack/react-query"
-
 import { twMerge } from "tailwind-merge"
+
+import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useModerationContext, useSiteContext, useUserContext } from "app"
 import { useTransactMutationWithStatus } from "entities/node"
 import { CreateProposalData, ProposalType, Role } from "types"

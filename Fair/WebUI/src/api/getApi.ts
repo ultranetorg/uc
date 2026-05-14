@@ -20,6 +20,7 @@ import {
   PerpetualSurveyDetails,
   Policy,
   ProductDetails,
+  ProductStore,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -326,6 +327,19 @@ const getModeratorUser = (name: string): Promise<User> =>
 const getProductDetails = (productId: string): Promise<ProductDetails> =>
   fetch(`${BASE_URL}/products/${productId}`).then(res => res.json())
 
+const getProductStores = async (
+  productId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<ProductStore>> => {
+  const params = buildUrlParams(
+    { page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/products/${productId}/stores` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getPublicationDetailsDiff = (publicationId: string, version: number): Promise<PublicationDetailsDiff> =>
   fetch(`${BASE_URL}/publications/${publicationId}/diff?to=${version}`).then(res => res.json())
 
@@ -439,7 +453,10 @@ const api: Api = {
   getModeratorDiscussionComments,
   getPublicationProposals,
   getModeratorUser,
+
   getProductDetails,
+  getProductStores,
+
   getPublicationDetailsDiff,
   getModeratorProposals,
   getPublisherProposals,

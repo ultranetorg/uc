@@ -33,6 +33,7 @@ import {
   PublisherProposalPage,
 } from "ui/pages"
 
+import { PublisherPage } from "ui/pages/Moderation/Publishers/PublisherPage"
 import { AuthenticationProvider } from "./AuthenticationProvider"
 import { CreateProposalProvider } from "./CreateProposalProvider"
 import { ModerationProvider } from "./ModerationProvider"
@@ -176,6 +177,10 @@ const routes: RouteObject[] = [
               {
                 path: "a/:tabKey?",
                 element: <PublishersPage />,
+              },
+              {
+                path: "a/p/:publisherId",
+                element: <PublisherPage />,
               },
               {
                 path: "r",

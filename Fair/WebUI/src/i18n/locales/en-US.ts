@@ -224,14 +224,6 @@ export const enUS = {
   about: {
     about: "About",
   },
-  author: {
-    about: "About",
-    author: "Author",
-    links: "Links",
-    official: "Official site",
-    readLess: "Read Less",
-    readMore: "Read More",
-  },
   category: {
     empty: "This category is empty.",
     filters: "Filters",
@@ -411,6 +403,14 @@ export const enUS = {
   },
 
   /* Views */
+  authorPublicationsView: {
+    about: "About",
+    author: "Author",
+    links: "Links",
+    official: "Official site",
+    readLess: "Read Less",
+    readMore: "Read More",
+  },
   proposalView: {
     addComment: "Add your comment",
     noComments: "No comments",

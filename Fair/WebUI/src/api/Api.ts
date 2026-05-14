@@ -16,6 +16,7 @@ import {
   PerpetualSurveyDetails,
   Policy,
   ProductDetails,
+  ProductStore,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -150,6 +151,7 @@ export type Api = {
   getModeratorUser(name: string): Promise<User>
 
   getProductDetails(productId: string): Promise<ProductDetails>
+  getProductStores(productId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<ProductStore>>
 
   getPublicationDetailsDiff(publicationId: string, version: number): Promise<PublicationDetailsDiff>
 

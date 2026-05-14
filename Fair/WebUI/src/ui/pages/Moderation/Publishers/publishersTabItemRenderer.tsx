@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 
 import { truncate } from "lodash"
 import { Publisher } from "types"
-import { ButtonPrimary, LinkFullscreen, TableColumn, TableItem } from "ui/components"
+import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { renderAuthor } from "ui/renderers/utils"
 import { sitesKeys } from "entities"
 
@@ -15,9 +15,7 @@ export const getPublishersTabItemRenderer =
 
     switch (column.type) {
       case "author":
-        return (
-          <LinkFullscreen to={`/${siteId}/a/${publisher.author.id}`}> {renderAuthor(publisher.author)}</LinkFullscreen>
-        )
+        return <Link to={`/${siteId}/m/a/p/${publisher.author.id}`}> {renderAuthor(publisher.author)}</Link>
 
       case "banned":
         return publisher.bannedTill !== 0 ? publisher.bannedTill : ""
