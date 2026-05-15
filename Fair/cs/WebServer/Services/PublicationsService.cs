@@ -212,13 +212,16 @@ public class PublicationsService
 			return new TotalItemsResult<PublicationModel>
 			{
 				Items = context.Items,
-				TotalItems = context.TotalItems
+				TotalItems = category.Publications.Length
 			};
 		}
 	}
 
 	void LoadPublications(Category category, SearchContext<PublicationModel> context, CancellationToken cancellationToken)
 	{
+		if (cancellationToken.IsCancellationRequested)
+			return;
+
 		foreach(AutoId publicationId in category.Publications)
 		{
 			if(cancellationToken.IsCancellationRequested)

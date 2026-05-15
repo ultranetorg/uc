@@ -2,10 +2,14 @@ import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { useLocalStorage } from "usehooks-ts"
+import { isNumber } from "lodash"
 
+import { DEFAULT_PAGE_SIZE_24 } from "config"
 import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
+import { useUrlParamsState } from "hooks"
 import { Pagination } from "ui/components"
 import { CategoriesList, PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
+import { parseInteger } from "utils"
 
 import { CategoryHeader } from "./CategoryHeader"
 
@@ -13,11 +17,30 @@ export const CategoryPage = () => {
   const { siteId, categoryId } = useParams()
   const { t } = useTranslation("category")
 
+  const [state, setState] = useUrlParamsState({
+    page: {
+      defaultValue: 0,
+      parse: v => parseInteger(v),
+      validate: v => isNumber(v) && v >= 0,
+    },
+  })
+
   const { data: category, isPending } = useGetCategoryDetails(siteId, categoryId)
-  const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, 0)
+  const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, state.page)
+  const pagesCount =
+    publications?.totalItems && publications.totalItems > 0
+      ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_24)
+      : 0
 
   const [localStorageView, setLocalStorageView] = useLocalStorage<ViewType>("categoryPage.view", "grid")
   const [view, setView] = useState<ViewType>(localStorageView)
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setState({ page })
+    },
+    [setState],
+  )
 
   const handleViewChange = useCallback(
     (name: string) => {
@@ -51,7 +74,7 @@ export const CategoryPage = () => {
       )}
 
       <div className="flex justify-end">
-        <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={10} />
+        <Pagination onPageChange={handlePageChange} page={state.page} pagesCount={pagesCount} />
       </div>
     </div>
   )

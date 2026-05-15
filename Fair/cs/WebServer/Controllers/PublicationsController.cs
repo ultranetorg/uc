@@ -105,7 +105,7 @@ public class PublicationsController
 		autoIdValidator.Validate(categoryId, nameof(Category).ToLower());
 		paginationValidator.Validate(page);
 
-		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
+		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page, CategoriesPublications.DefaultCategoryPageSize);
 		TotalItemsResult<PublicationModel> publications = publicationsService.GetCategoryPublicationsNotOptimized(categoryId, pageValue, pageSizeValue, cancellationToken);
 
 		return this.OkPaged(publications.Items, pageValue, pageSizeValue, publications.TotalItems);
