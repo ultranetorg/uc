@@ -3,7 +3,7 @@ import { useLocalStorage } from "usehooks-ts"
 
 import { LOCAL_STORAGE_KEYS } from "constants/"
 import { useAuthenticateMutation, useIsAuthenticatedMutation, useRegisterMutation } from "entities/vault"
-import { UserFreeCreation } from "types"
+import { UserCreation } from "types"
 import { AuthenticationResult } from "types/vault"
 import { useTransactMutationWithStatus } from "entities/node"
 
@@ -14,8 +14,8 @@ type Callbacks = {
 }
 
 type StoredUser = {
-  name: string
   owner: string
+  name: string
 }
 
 type StoredUserSession = {
@@ -90,7 +90,7 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
               return
             }
 
-            const operation = new UserFreeCreation()
+            const operation = new UserCreation(data.signer)
             transactMutation(
               operation,
               {
@@ -112,6 +112,8 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
                 onError: error => callbacks?.onError?.(error),
               },
               userName,
+              data.session,
+              data.signer,
             )
           },
           onError: error => callbacks?.onError?.(error),

@@ -13,6 +13,8 @@ const api = getNodeApi()
 type TransactMutationArgs = {
   operations: BaseFairOperation[]
   userName?: string
+  session?: string
+  signer?: string
 }
 
 type TransactMutationCallbacks = {
@@ -33,13 +35,13 @@ export const useTransactMutationWithStatus = () => {
   const currentUser = users.find(x => x.user.name === selectedUserName)
 
   const mutation = useMutation({
-    mutationFn: ({ operations, userName = undefined }: TransactMutationArgs) =>
+    mutationFn: ({ operations, userName = undefined, session = undefined, signer = undefined }: TransactMutationArgs) =>
       api.transact(
         node.data!,
         operations,
         userName || selectedUserName!,
-        currentUser?.session ?? "",
-        currentUser?.user.owner ?? "",
+        currentUser?.session ?? session ?? "",
+        currentUser?.user.owner ?? signer ?? "",
       ),
 
     onSuccess: tx => {
@@ -86,10 +88,17 @@ export const useTransactMutationWithStatus = () => {
       operations: BaseFairOperation | BaseFairOperation[],
       callbacks?: TransactMutationCallbacks,
       userName: string | undefined = undefined,
+      session: string | undefined = undefined,
+      signer: string | undefined = undefined,
     ) => {
       isPendingRef.current = true
       callbacksRef.current = callbacks ?? null
-      return mutation.mutateAsync({ operations: Array.isArray(operations) ? operations : [operations], userName })
+      return mutation.mutateAsync({
+        operations: Array.isArray(operations) ? operations : [operations],
+        userName,
+        session,
+        signer,
+      })
     },
     [mutation],
   )
