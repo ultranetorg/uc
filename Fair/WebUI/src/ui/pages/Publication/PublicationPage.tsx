@@ -14,7 +14,7 @@ import { PublicationContentView } from "ui/views"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
-  const { getOperationCreatorId } = useModerationContext()
+  const { getOperationCreator: getOperationCreatorId } = useModerationContext()
   const { siteId, publicationId } = useParams()
   useDocumentTitle(t("title", { publicationId }))
 

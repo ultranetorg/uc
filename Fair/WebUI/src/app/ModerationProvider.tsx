@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useMemo } from "react"
 
 import { useGetSitePolicies } from "entities"
-import { OperationType, Policy, Role } from "types"
+import { OperationCreator, OperationType, OperationVoter, Policy, Role } from "types"
 
 import { useSiteContext } from "./SiteProvider"
 import { useUserContext } from "./UserProvider"
@@ -13,8 +13,8 @@ type ModerationContextType = {
   publishersIds?: string[]
   isOperationAllowed(operation: OperationType): boolean
   getOperationVoterId(operation?: OperationType): string | undefined
-  getOperationCreatorId(operation?: OperationType): { id: string; role: Role } | undefined
-  getOperationApprovalId(operation?: OperationType): { id: string; role: Role } | undefined
+  getOperationCreator(operation?: OperationType): { id: string; role: Role } | undefined
+  getOperationVoter(operation?: OperationType): { id: string; role: Role } | undefined
 }
 
 const ModerationContext = createContext<ModerationContextType>({
@@ -22,8 +22,8 @@ const ModerationContext = createContext<ModerationContextType>({
   isModerator: false,
   isOperationAllowed: () => false,
   getOperationVoterId: () => undefined,
-  getOperationCreatorId: () => undefined,
-  getOperationApprovalId: () => undefined,
+  getOperationCreator: () => undefined,
+  getOperationVoter: () => undefined,
 })
 
 export const ModerationProvider = ({ children }: PropsWithChildren) => {
@@ -33,7 +33,7 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
   const isPublisher = Boolean(site?.authorsIds?.some(x => user?.authorsIds?.includes(x)))
   const isModerator = Boolean(site?.moderatorsIds?.some(x => user?.id === x))
 
-  const { data: policies } = useGetSitePolicies(isPublisher || isModerator, site?.id)
+  const { data: policies } = useGetSitePolicies(true, site?.id)
 
   const isOperationAllowed = useCallback(
     (operation: OperationType) => {
@@ -61,8 +61,8 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
     [isModerator, isPublisher, policies, user],
   )
 
-  const getOperationCreatorId = useCallback(
-    (operation?: OperationType): { role: Role; id: string } | undefined => {
+  const getOperationCreator = useCallback(
+    (operation?: OperationType): OperationCreator | undefined => {
       if (!user) return undefined
       if (!operation) return undefined
 
@@ -79,8 +79,8 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
     [isModerator, isPublisher, policies, user],
   )
 
-  const getOperationApprovalId = useCallback(
-    (operation?: OperationType): { role: Role; id: string } | undefined => {
+  const getOperationVoter = useCallback(
+    (operation?: OperationType): OperationVoter | undefined => {
       if (!user) return undefined
       if (!operation) return undefined
 
@@ -110,12 +110,12 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
       publishersIds: site && user ? user.authorsIds.filter(x => site.authorsIds.includes(x)) : undefined,
       isOperationAllowed,
       getOperationVoterId,
-      getOperationCreatorId,
-      getOperationApprovalId,
+      getOperationCreator,
+      getOperationVoter,
     }),
     [
-      getOperationApprovalId,
-      getOperationCreatorId,
+      getOperationVoter,
+      getOperationCreator,
       getOperationVoterId,
       isModerator,
       isOperationAllowed,

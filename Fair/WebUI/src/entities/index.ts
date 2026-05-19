@@ -1,6 +1,7 @@
 export * from "./accounts"
 export * from "./authors"
 export * from "./categories"
+export * from "./perpetualSurveys"
 export * from "./products"
 export * from "./publications"
 export * from "./reviews"

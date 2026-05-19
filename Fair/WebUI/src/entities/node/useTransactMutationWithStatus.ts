@@ -29,10 +29,17 @@ export const useTransactMutationWithStatus = () => {
   const { selectedUserName, users } = useAuthenticationContext()
 
   const [tag, setTag] = useState<string | undefined>()
+  const [isPending, setIsPending] = useState(false)
+
   const callbacksRef = useRef<TransactMutationCallbacks | null>(null)
   const isPendingRef = useRef(false)
 
   const currentUser = users.find(x => x.user.name === selectedUserName)
+
+  const setNotPending = useCallback(() => {
+    isPendingRef.current = false
+    setIsPending(false)
+  }, [])
 
   const mutation = useMutation({
     mutationFn: ({ operations, userName = undefined, session = undefined, signer = undefined }: TransactMutationArgs) =>
@@ -50,7 +57,7 @@ export const useTransactMutationWithStatus = () => {
 
     onError: err => {
       if (isPendingRef.current) {
-        isPendingRef.current = false
+        setNotPending()
         callbacksRef.current?.onError?.(err)
         callbacksRef.current?.onSettled?.()
       }
@@ -75,13 +82,13 @@ export const useTransactMutationWithStatus = () => {
     if (query.data.status === TransactionStatus.Confirmed) {
       callbacksRef.current?.onSuccess?.(query.data)
       callbacksRef.current?.onSettled?.()
-      isPendingRef.current = false
+      setNotPending()
     } else if (query.data.status === TransactionStatus.FailedOrNotFound) {
       callbacksRef.current?.onError?.(new Error("Transaction failed or not found"))
       callbacksRef.current?.onSettled?.()
-      isPendingRef.current = false
+      setNotPending()
     }
-  }, [query.data])
+  }, [query.data, setNotPending])
 
   const mutate = useCallback(
     (
@@ -92,6 +99,7 @@ export const useTransactMutationWithStatus = () => {
       signer: string | undefined = undefined,
     ) => {
       isPendingRef.current = true
+      setIsPending(true)
       callbacksRef.current = callbacks ?? null
       return mutation.mutateAsync({
         operations: Array.isArray(operations) ? operations : [operations],
@@ -106,7 +114,7 @@ export const useTransactMutationWithStatus = () => {
   return {
     mutate,
     data: query.data,
-    isPending: isPendingRef.current,
+    isPending,
     isReady: !!node.data && !!selectedUserName,
     error: mutation.error || query.error,
   }

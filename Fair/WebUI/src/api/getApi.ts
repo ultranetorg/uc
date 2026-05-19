@@ -134,6 +134,13 @@ const getUser = async (name: string): Promise<StatusResult<User>> => {
 const getUserDetails = (name: string): Promise<Account> =>
   fetch(`${BASE_URL}/users/${name}/details`).then(res => res.json())
 
+const getUserSiteExists = async (userId: string, siteId: string): Promise<boolean> => {
+  const res = await fetch(`${BASE_URL}/users/${userId}/sites/${siteId}`, { method: "HEAD" })
+  if (res.status === 404) return false
+  if (res.ok) return true
+  throw new Error(`Failed to check registration: ${res.status}`)
+}
+
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
 
@@ -405,6 +412,7 @@ const api: Api = {
 
   getUser,
   getUserDetails,
+  getUserSiteExists,
 
   getAuthor,
   getAuthorPublications,

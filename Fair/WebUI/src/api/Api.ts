@@ -70,6 +70,7 @@ export type Api = {
   // User
   getUser(name: string): Promise<StatusResult<User>>
   getUserDetails(name: string): Promise<Account>
+  getUserSiteExists(userId: string, siteId: string): Promise<boolean>
 
   getAuthor(authorId: string): Promise<AuthorDetails>
   getCategoriesTree(siteId: string, depth?: number): Promise<CategoryParentBase[]>

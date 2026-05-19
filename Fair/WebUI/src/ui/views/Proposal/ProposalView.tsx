@@ -44,7 +44,7 @@ export type ProposalViewProps = {
 
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
   const { siteId } = useParams()
-  const { getOperationApprovalId } = useModerationContext()
+  const { getOperationVoter: getOperationApprovalId } = useModerationContext()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { mutate } = useTransactMutationWithStatus()

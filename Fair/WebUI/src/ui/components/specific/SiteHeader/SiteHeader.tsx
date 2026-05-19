@@ -2,22 +2,26 @@ import { KeyboardEvent, useCallback, useMemo, useState } from "react"
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
+import { twMerge } from "tailwind-merge"
 
-import { useSiteContext, useSearchQueryContext } from "app"
+import { useSiteContext, useSearchQueryContext, useModerationContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 
 import { CategoriesDropdownButton } from "./CategoriesDropdownButton"
-import { LinkCounter } from "./LinkCounter"
+import { GovernanceDropdownButton } from "./GovernanceDropdownButton"
 import { LogoDropdownButton } from "./LogoDropdownButton"
-import { StoreDropdownButton } from "./StoreDropdownButton"
+import { ModerationDropdownButton } from "./ModerationDropdownButton"
+import { MENU_ITEM_STYLE } from "./styles"
+import { UserProfileButton } from "./UserProfileButton"
 import { toSimpleMenuItems } from "./utils"
 
 export const SiteHeader = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:siteId/s")
+  const { isModerator, isPublisher } = useModerationContext()
 
   const { t } = useTranslation("site")
 
@@ -100,10 +104,14 @@ export const SiteHeader = () => {
         />
       </div>
       <div className="flex items-center gap-8">
-        <LinkCounter to={`/${siteId}/g`} className="w-22.5 justify-center">
-          {t("governance")}
-        </LinkCounter>
-        <StoreDropdownButton site={site} className="w-17" />
+        <GovernanceDropdownButton className="w-28" />
+        {isModerator && <ModerationDropdownButton className="w-28" />}
+        {isPublisher && (
+          <Link to={``} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
+            {t("common:member")}
+          </Link>
+        )}
+        <UserProfileButton t={t} />
       </div>
     </div>
   )

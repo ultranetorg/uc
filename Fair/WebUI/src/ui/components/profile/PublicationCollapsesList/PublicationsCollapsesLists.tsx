@@ -1,21 +1,8 @@
 import { useCallback, useState } from "react"
 
-import { PublicationStoresItem, PublicationStoresModal } from "ui/components/specific"
+import { PublicationStoresModal } from "ui/components/specific"
 
 import { PublicationsCollapse, PublicationsCollapseProps } from "./PublicationsCollapse"
-
-const TEST_ITEMS: PublicationStoresItem[] = [
-  { siteTitle: "GameNest", publicationDate: 1 },
-  { siteTitle: "PixelPioneers", publicationDate: 2 },
-  { siteTitle: "QuestCraft", publicationDate: 3 },
-  { siteTitle: "CodeCrafters", publicationDate: 4 },
-  { siteTitle: "LevelUpAcademy", publicationDate: 5 },
-  { siteTitle: "EpicVentures", publicationDate: 6 },
-  { siteTitle: "PixelVerse", publicationDate: 7 },
-  { siteTitle: "DreamForge", publicationDate: 8 },
-  { siteTitle: "FlyBear", publicationDate: 9 },
-  { siteTitle: "Prussia", publicationDate: 10 },
-]
 
 export type PublicationsCollapsesListsProps = {
   items: PublicationsCollapseProps[]

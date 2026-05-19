@@ -6,13 +6,13 @@ import { usersKeys } from "./usersKeys"
 
 const api = getApi()
 
-export const useGetUserDetails = (name?: string) => {
-  const queryFn = () => api.getUserDetails(name!)
+export const useGetUserSiteExists = (userId?: string, siteId?: string) => {
+  const queryFn = () => api.getUserSiteExists(userId!, siteId!)
 
   const { isFetching, isError, data, refetch } = useQuery({
-    queryKey: usersKeys.detail(name!),
+    queryKey: usersKeys.site(userId!, siteId!),
     queryFn: queryFn,
-    enabled: !!name,
+    enabled: !!userId && !!siteId,
   })
 
   return { isFetching, isError, data, refetch }

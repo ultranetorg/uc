@@ -50,7 +50,7 @@ public class SiteCreation : FairOperation
 
 		s.Policies =   [new (FairOperationClass.SiteModeratorAddition,	Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),	
 						new (FairOperationClass.SiteModeratorRemoval,	Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),
-						new (FairOperationClass.SiteNameChange,			Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.SiteNameChange,			Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),
 						new (FairOperationClass.SiteTextChange,			Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.SiteAvatarChange,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.SiteAuthorsRemoval,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),

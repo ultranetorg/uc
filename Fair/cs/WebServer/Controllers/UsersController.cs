@@ -6,7 +6,9 @@ public class UsersController
 (
 	ILogger<UsersController> logger,
 	UserNameValidator userNameValidator,
-	AccountsService accountsService
+	IAutoIdValidator autoIdValidator,
+	AccountsService accountsService,
+	UsersService usersService
 ) : BaseController
 {
 	[HttpGet("{name}")]
@@ -17,5 +19,16 @@ public class UsersController
 		userNameValidator.Validate(name);
 
 		return accountsService.Get(name);
+	}
+
+	[HttpHead("{userId}/sites/{siteId}")]
+	public IActionResult SiteExists(string userId, string siteId)
+	{
+		logger.LogInformation("HEAD {ControllerName}.{MethodName} called with {UserId} and {SiteId}", nameof(UsersController), nameof(SiteExists), userId, siteId);
+
+		autoIdValidator.Validate(userId, nameof(User));
+		autoIdValidator.Validate(siteId, nameof(Site));
+
+		return usersService.SiteExists(userId, siteId) ? Ok() : NotFound();
 	}
 }

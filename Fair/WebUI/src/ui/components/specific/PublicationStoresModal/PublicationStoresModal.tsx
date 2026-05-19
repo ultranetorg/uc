@@ -21,9 +21,7 @@ type PublicationStoresModalBaseProps = {
 export type PublicationStoresModalProps = Pick<ModalProps, "onClose"> & PublicationStoresModalBaseProps
 
 export const PublicationStoresModal = memo(({ onClose, publicationId }: PublicationStoresModalProps) => {
-  const [page, setPage] = useState(0)
-
-  const { data: sites } = useGetProductSites(publicationId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: sites } = useGetProductSites(publicationId, 0, DEFAULT_PAGE_SIZE_20)
 
   if (!sites) {
     return <>LOADING</>

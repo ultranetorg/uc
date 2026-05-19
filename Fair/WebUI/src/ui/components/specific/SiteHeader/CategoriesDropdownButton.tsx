@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import {
   FloatingPortal,
@@ -11,8 +11,11 @@ import {
   useRole,
 } from "@floating-ui/react"
 
+import { useCloseOnScrollOrResize } from "hooks"
 import { ChevronDownButton, SimpleMenu, SimpleMenuItem } from "ui/components"
 import { PropsWithClassName } from "types"
+
+import { MENU_ITEM_STYLE } from "./styles"
 
 type CategoriesDropdownButtonBaseProps = {
   label: string
@@ -38,25 +41,13 @@ export const CategoriesDropdownButton = memo(({ className, label, items }: Categ
 
   const handleMenuClick = useCallback(() => setExpanded(false), [])
 
-  useEffect(() => {
-    const handler = () => setExpanded(false)
-    window.addEventListener("resize", handler)
-    window.addEventListener("scroll", handler, true)
-    return () => {
-      window.removeEventListener("resize", handler)
-      window.removeEventListener("scroll", handler, true)
-    }
-  }, [])
+  useCloseOnScrollOrResize(() => setExpanded(false))
 
   return (
     <>
       <div
         ref={refs.setReference}
-        className={twMerge(
-          "flex cursor-pointer items-center text-2sm font-medium leading-6 text-gray-800 hover:font-semibold",
-          className,
-          isExpanded && "font-semibold",
-        )}
+        className={twMerge(MENU_ITEM_STYLE, "flex items-center", className, isExpanded && "font-semibold")}
         {...getReferenceProps()}
       >
         {label} <ChevronDownButton />

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
 import { useModerationContext } from "app"
-import { useGetPerpetualSurveyDetails } from "entities/PerpetualSurveys"
+import { useGetPerpetualSurveyDetails } from "entities/perpetualSurveys"
 import { useTransactMutationWithStatus } from "entities/node"
 import { PerpetualVoting, SiteApprovalPolicyChange } from "types"
 import { Breadcrumbs } from "ui/components"
@@ -13,7 +13,7 @@ import { showToast } from "utils"
 export type PageState = "voting" | "results"
 
 export const PerpetualSurveyPage = () => {
-  const { t } = useTranslation("perpetualSurvey")
+  const { t } = useTranslation("perpetualSurveyPage")
   const { siteId, perpetualSurveyId } = useParams()
 
   const { isPublisher, publishersIds } = useModerationContext()

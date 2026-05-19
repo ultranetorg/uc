@@ -1,16 +1,16 @@
 import { useCallback, useMemo } from "react"
-import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { useNavigate, useParams } from "react-router-dom"
 
-import { useGetPerpetualSurveys } from "entities/PerpetualSurveys"
+import { useGetSitePolicies, useGetPerpetualSurveys } from "entities"
 import { Table, TableEmptyState } from "ui/components"
+import { ModerationHeader } from "ui/components/specific"
 import { perpetualSurveysItemRenderer } from "ui/renderers"
-import { useGetSitePolicies } from "entities"
 
-export const PerpetualSurveysTab = () => {
+export const PerpetualSurveysPage = () => {
   const { siteId } = useParams()
-  const { t } = useTranslation("governance")
   const navigate = useNavigate()
+  const { t } = useTranslation("perpetualSurveysPage")
 
   const columns = useMemo(
     () => [
@@ -55,6 +55,7 @@ export const PerpetualSurveysTab = () => {
 
   return (
     <div className="flex flex-col gap-6">
+      <ModerationHeader title={t("title")} breadcrumbTitle={t("common:governance")} />
       <Table
         columns={columns}
         items={surveys}

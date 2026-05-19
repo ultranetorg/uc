@@ -44,7 +44,7 @@ export const ReviewModal = memo(
     yourReviewLabel,
     ...rest
   }: ReviewModalProps) => {
-    const { getOperationCreatorId } = useModerationContext()
+    const { getOperationCreator: getOperationCreatorId } = useModerationContext()
     const { siteId } = useParams()
     const { mutate } = useTransactMutationWithStatus()
 
