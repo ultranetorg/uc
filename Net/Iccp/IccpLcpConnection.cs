@@ -195,6 +195,11 @@ public class IccpLcpConnection : LcpConnection
 		}
 	}
 
+	public R Call<R>(string from, string to, IccpArgumentation argumentation, Flow flow) where R : IccpResult
+	{
+		return Call(from, to, argumentation, flow) as R;
+	}
+
 	public IccpResult Call(string from, string to, IccpArgumentation argumentation, Flow flow)
 	{
 		if(!Pipe.IsConnected)
@@ -248,6 +253,8 @@ public class IccpLcpConnection : LcpConnection
 		else
 			throw new LcpException(LcpError.ConnectionLost);
 	}
+
+	public byte[] AddressTextToUniversal(string from, string to, string text, Flow flow) => Call<AddressTextToUniversalIccr>(from, to, new AddressTextToUniversalIcca {Text = text}, flow).Universal;
 }
 
 public class IccpLcpClientConnection : IccpLcpConnection

@@ -19,11 +19,11 @@ public partial class TransferPage : Page
 	{
 		if(first)
 		{
-			FromNet.Items.Insert(0, "rdn");
+			FromNet.Items.Insert(0, Rdn.Rdn.Test.Name);
 			FromNet.SelectedIndex = 0;
 			RefreshClasses(FromNet.Text, FromEntity);
 
-			ToNet.Items.Insert(0, "rdn");
+			ToNet.Items.Insert(0, Rdn.Rdn.Test.Name);
 			ToNet.SelectedIndex = 0;
 			RefreshClasses(ToNet.Text, ToEntity);
 //
@@ -32,8 +32,8 @@ public partial class TransferPage : Page
 
 			if(Nexus.Settings.Zone == Zone.Simulation)
 			{
-				FromEntity.Text = "user/father0000";
-				ToEntity.Text = "user/father0000";
+				FromEntity.Text = $"{McvTable.User}/{Rdn.Rdn.Test.Father0Name}";
+				ToEntity.Text = $"{McvTable.User}/{Rdn.Rdn.Test.Father0Name}";
 			}
 		}
 
@@ -105,7 +105,7 @@ public partial class TransferPage : Page
 
 		try
 		{
-			foreach(var i in (Nnp.Call(null, net, new HolderClassesIcca{}, new Flow(5000)) as HolderClassesIccr).Classes)
+			foreach(var i in (Iccp.Call(null, net, new HolderClassesIcca{}, new Flow(5000)) as HolderClassesIccr).Classes)
 				combobox.Items.Add(i);
 		}
 		catch(Exception)
@@ -123,9 +123,9 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		var e = Nnp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
+		var e = Iccp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
 
-		foreach(var a in (Nnp.Call(null, FromNet.Text, new HolderAssetsIcca {Entity = e.Universal}, new Flow(5000)) as HolderAssetsIccr).Assets)
+		foreach(var a in (Iccp.Call(null, FromNet.Text, new HolderAssetsIcca {Entity = e.Universal}, new Flow(5000)) as HolderAssetsIccr).Assets)
 		{
 			Asset.Items.Add(a);
 		}
@@ -133,10 +133,10 @@ public partial class TransferPage : Page
 
 	void RefreshBalance()
 	{
-		var e = Nnp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
+		var e = Iccp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
 
 		Balance.Text = "Balance: ";
-		Balance.Text += (Nnp.Call(	null,
+		Balance.Text += (Iccp.Call(	null,
 									FromNet.Text,	
 									new AssetBalanceIcca
 									{
@@ -169,23 +169,24 @@ public partial class TransferPage : Page
 
 	private void Transfer_Click(object sender, EventArgs e)
 	{
-		///try
-		///{
-		///	Nnp.Call(ToNet.Text, new AssetTransferIcca
-		///						 {
-		///							Net = FromNet.Text,
-		///							ToNet = ,
-		///							FromEntity = FromEntity.Text,
-		///							ToEntity = ToEntity.Text,
-		///							Name = (Asset.SelectedItem as Asset).Name,
-		///							Amount = Amount.Text,
-		///							///Signer = Accounts.SelectedItem as AccountAddress,
-		///						 },
-		///						 new Flow(5000));
-		///}
-		///catch(Exception ex)
-		///{
-		///	ShowError(ex.Message);
-		///}
+		try
+		{
+			var f = new Flow(5000);
+
+			Iccp.Call(null, FromNet.Text,	new AssetTransferIcca
+											{
+												FromEntity	= Iccp.AddressTextToUniversal(null, FromNet.Text, FromEntity.Text, f),
+												ToNet		= ToNet.Text,
+												ToEntity	= Iccp.AddressTextToUniversal(null, ToNet.Text, ToEntity.Text, f),
+												Asset		= (Asset.SelectedItem as Asset).Id,
+												Amount		= BigInteger.Parse(Amount.Text),
+												//Signer		= ,
+											},
+											f);
+		}
+		catch(Exception ex)
+		{
+			ShowError(ex.Message);
+		}
 	}
 }

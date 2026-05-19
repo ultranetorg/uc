@@ -62,8 +62,8 @@ public class Publisher : IBinarySerializable
 public enum PolicyFlag : byte
 {
 	None, 
-	ChangableCreators	= 0b0000_0001,
-	ChangableApproval	= 0b0000_0010,
+	VariableCreators	= 0b0000_0001,
+	VariableApproval	= 0b0000_0010,
 	Infinite			= 0b0000_0100,
 	Options				= 0b0000_1000,
 }
@@ -180,31 +180,41 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 
 	static Site()
 	{
-		Restrictions = [new (FairOperationClass.SiteModeratorAddition,	Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 |PolicyFlag.Options),	
-						new (FairOperationClass.SiteModeratorRemoval,	Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators							 					|PolicyFlag.Infinite),
-						new (FairOperationClass.SiteNameChange,			Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
-						new (FairOperationClass.SiteTextChange,			Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
-						new (FairOperationClass.SiteAvatarChange,		Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
-						new (FairOperationClass.SiteAuthorsRemoval,		Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
-																																												 
-						new (FairOperationClass.CategoryCreation,		Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						new (FairOperationClass.CategoryDeletion,		Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						new (FairOperationClass.CategoryTypeChange,		Role.Moderator|Role.Publisher,					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						new (FairOperationClass.CategoryAvatarChange,	Role.Moderator|Role.Publisher, 					PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval|PolicyFlag.Options),
-																																												 
-						new (FairOperationClass.PublicationCreation,	Role.Moderator|Role.Publisher|Role.Candidate, 	PolicyFlag.ChangableCreators|PolicyFlag.ChangableApproval),
-						new (FairOperationClass.PublicationDeletion,	Role.Moderator|Role.Publisher,												 PolicyFlag.ChangableApproval),
-						new (FairOperationClass.PublicationUpdation,	Role.Moderator, 															 PolicyFlag.ChangableApproval),
-						new (FairOperationClass.PublicationPublish,		Role.Moderator, 															 PolicyFlag.ChangableApproval),
-						new (FairOperationClass.PublicationUnpublish,	Role.Moderator, 															 PolicyFlag.ChangableApproval),
-																																												 
-						new (FairOperationClass.UserRegistration,		Role.User, 																	 PolicyFlag.ChangableApproval),
-						new (FairOperationClass.UserUnregistration,		Role.Moderator, 															 PolicyFlag.ChangableApproval),
-																																					  							 
-						new (FairOperationClass.ReviewCreation,			Role.User, 																	 PolicyFlag.ChangableApproval),
-						new (FairOperationClass.ReviewEdit,				Role.User, 																	 PolicyFlag.ChangableApproval),
-						new (FairOperationClass.ReviewStatusChange,		Role.Moderator, 															 PolicyFlag.ChangableApproval)];
-	}																															
+		var p = Role.Publisher;
+		var m = Role.Moderator;
+		var u = Role.User;
+		var c = Role.Candidate;
+
+		var vc = PolicyFlag.VariableCreators;
+		var va = PolicyFlag.VariableApproval;
+		var o = PolicyFlag.Options;
+		var i = PolicyFlag.Infinite;
+		
+		Restrictions = [new (FairOperationClass.SiteModeratorAddition,	m|p,	vc	 |o),	
+						new (FairOperationClass.SiteModeratorRemoval,	m|p,	vc	   |i),
+						new (FairOperationClass.SiteNameChange,			m|p,	vc|va|o),
+						new (FairOperationClass.SiteTextChange,			m|p, 	vc|va|o),
+						new (FairOperationClass.SiteAvatarChange,		m|p, 	vc|va|o),
+						new (FairOperationClass.SiteAuthorsRemoval,		m|p,	vc|va|o),
+																																								 
+						new (FairOperationClass.CategoryCreation,		m|p, 	vc|va),
+						new (FairOperationClass.CategoryDeletion,		m|p, 	vc|va),
+						new (FairOperationClass.CategoryTypeChange,		m|p,	vc|va),
+						new (FairOperationClass.CategoryAvatarChange,	m|p, 	vc|va|o),
+																																								 
+						new (FairOperationClass.PublicationCreation,	m|p|c,	vc|va),
+						new (FairOperationClass.PublicationDeletion,	m|p,	   va),
+						new (FairOperationClass.PublicationUpdation,	m, 		   va),
+						new (FairOperationClass.PublicationPublish,		m, 		   va),
+						new (FairOperationClass.PublicationUnpublish,	m, 		   va),
+																																 
+						new (FairOperationClass.UserRegistration,		u, 		   va),
+						new (FairOperationClass.UserUnregistration,		m, 		   va),
+																									  							 
+						new (FairOperationClass.ReviewCreation,			u, 		   va),
+						new (FairOperationClass.ReviewEdit,				u, 		   va),
+						new (FairOperationClass.ReviewStatusChange,		m, 		   va)];
+	}																									
 
 	public Site()
 	{

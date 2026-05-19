@@ -83,7 +83,7 @@ public class FileCreation : FairOperation
 
 				a = execution.Authors.Affect(a.Id);
 				a.Files = [..a.Files, f.Id];
-				execution.Allocate(a, a, Data.Length);
+				execution.Allocate(a, a, execution.Net.EntityLength + Data.Length);
 				break;
 			}
 
@@ -94,7 +94,7 @@ public class FileCreation : FairOperation
 
 				a = execution.Sites.Affect(a.Id);
 				a.Files = [..a.Files, f.Id];
-				execution.Allocate(a, a, Data.Length);
+				execution.Allocate(a, a, execution.Net.EntityLength + Data.Length);
 				break;
 			}
 

@@ -60,9 +60,10 @@ partial class TransferPage
 		label3.Font = new Font("Segoe UI", 12F);
 		label3.ForeColor = SystemColors.Control;
 		label3.Location = new Point(0, 0);
+		label3.Margin = new Padding(6, 0, 6, 0);
 		label3.Name = "label3";
-		label3.Padding = new Padding(8, 0, 0, 0);
-		label3.Size = new Size(800, 32);
+		label3.Padding = new Padding(15, 0, 0, 0);
+		label3.Size = new Size(1486, 68);
 		label3.TabIndex = 14;
 		label3.Text = "Transfer";
 		label3.TextAlign = ContentAlignment.MiddleLeft;
@@ -71,9 +72,10 @@ partial class TransferPage
 		// 
 		Transfers.Columns.AddRange(new ColumnHeader[] { CFromNet, CFromEntity, CToNet, CToEntity, CAsset, CAmount });
 		Transfers.FullRowSelect = true;
-		Transfers.Location = new Point(3, 262);
+		Transfers.Location = new Point(6, 628);
+		Transfers.Margin = new Padding(6);
 		Transfers.Name = "Transfers";
-		Transfers.Size = new Size(794, 335);
+		Transfers.Size = new Size(1471, 641);
 		Transfers.TabIndex = 8;
 		Transfers.UseCompatibleStateImageBehavior = false;
 		Transfers.View = View.Details;
@@ -110,10 +112,10 @@ partial class TransferPage
 		// 
 		// Transfer
 		// 
-		Transfer.Location = new Point(299, 202);
-		Transfer.Margin = new Padding(3, 6, 3, 6);
+		Transfer.Location = new Point(487, 497);
+		Transfer.Margin = new Padding(6, 13, 6, 13);
 		Transfer.Name = "Transfer";
-		Transfer.Size = new Size(209, 32);
+		Transfer.Size = new Size(512, 68);
 		Transfer.TabIndex = 9;
 		Transfer.Text = "Transfer";
 		Transfer.UseVisualStyleBackColor = true;
@@ -122,10 +124,10 @@ partial class TransferPage
 		// FromNet
 		// 
 		FromNet.FormattingEnabled = true;
-		FromNet.Location = new Point(149, 45);
-		FromNet.Margin = new Padding(3, 6, 3, 6);
+		FromNet.Location = new Point(277, 96);
+		FromNet.Margin = new Padding(6, 13, 6, 13);
 		FromNet.Name = "FromNet";
-		FromNet.Size = new Size(209, 23);
+		FromNet.Size = new Size(385, 40);
 		FromNet.TabIndex = 11;
 		FromNet.DropDown += Open_DropDown;
 		FromNet.TextUpdate += FromNet_TextUpdate;
@@ -135,19 +137,20 @@ partial class TransferPage
 		// 
 		label4.AutoSize = true;
 		label4.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label4.Location = new Point(89, 48);
+		label4.Location = new Point(210, 99);
+		label4.Margin = new Padding(6, 0, 6, 0);
 		label4.Name = "label4";
-		label4.Size = new Size(54, 15);
+		label4.Size = new Size(55, 32);
 		label4.TabIndex = 13;
-		label4.Text = "Net/CCP";
+		label4.Text = "Net";
 		// 
 		// FromEntity
 		// 
 		FromEntity.FormattingEnabled = true;
-		FromEntity.Location = new Point(67, 80);
-		FromEntity.Margin = new Padding(3, 6, 3, 6);
+		FromEntity.Location = new Point(123, 162);
+		FromEntity.Margin = new Padding(6, 13, 6, 13);
 		FromEntity.Name = "FromEntity";
-		FromEntity.Size = new Size(292, 23);
+		FromEntity.Size = new Size(539, 40);
 		FromEntity.TabIndex = 10;
 		FromEntity.DropDown += Open_DropDown;
 		FromEntity.TextChanged += Any_Changed;
@@ -156,10 +159,10 @@ partial class TransferPage
 		// 
 		Asset.DropDownStyle = ComboBoxStyle.DropDownList;
 		Asset.FormattingEnabled = true;
-		Asset.Location = new Point(299, 132);
-		Asset.Margin = new Padding(3, 6, 3, 6);
+		Asset.Location = new Point(329, 260);
+		Asset.Margin = new Padding(6, 13, 6, 13);
 		Asset.Name = "Asset";
-		Asset.Size = new Size(209, 23);
+		Asset.Size = new Size(852, 40);
 		Asset.TabIndex = 10;
 		Asset.DropDown += Open_DropDown;
 		Asset.SelectionChangeCommitted += Asset_SelectionChangeCommitted;
@@ -169,9 +172,10 @@ partial class TransferPage
 		// 
 		label5.AutoSize = true;
 		label5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label5.Location = new Point(256, 135);
+		label5.Location = new Point(242, 263);
+		label5.Margin = new Padding(6, 0, 6, 0);
 		label5.Name = "label5";
-		label5.Size = new Size(37, 15);
+		label5.Size = new Size(75, 32);
 		label5.TabIndex = 12;
 		label5.Text = "Asset";
 		// 
@@ -179,28 +183,29 @@ partial class TransferPage
 		// 
 		label6.AutoSize = true;
 		label6.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label6.Location = new Point(241, 170);
+		label6.Location = new Point(446, 393);
+		label6.Margin = new Padding(6, 0, 6, 0);
 		label6.Name = "label6";
-		label6.Size = new Size(52, 15);
+		label6.Size = new Size(107, 32);
 		label6.TabIndex = 12;
 		label6.Text = "Amount";
 		// 
 		// Amount
 		// 
-		Amount.Location = new Point(299, 167);
-		Amount.Margin = new Padding(3, 6, 3, 6);
+		Amount.Location = new Point(565, 390);
+		Amount.Margin = new Padding(6, 13, 6, 13);
 		Amount.Name = "Amount";
-		Amount.Size = new Size(209, 23);
+		Amount.Size = new Size(385, 39);
 		Amount.TabIndex = 15;
 		Amount.TextChanged += Any_Changed;
 		// 
 		// ToNet
 		// 
 		ToNet.FormattingEnabled = true;
-		ToNet.Location = new Point(419, 45);
-		ToNet.Margin = new Padding(3, 6, 3, 6);
+		ToNet.Location = new Point(778, 96);
+		ToNet.Margin = new Padding(6, 13, 6, 13);
 		ToNet.Name = "ToNet";
-		ToNet.Size = new Size(209, 23);
+		ToNet.Size = new Size(385, 40);
 		ToNet.TabIndex = 11;
 		ToNet.DropDown += Open_DropDown;
 		ToNet.TextUpdate += ToNet_TextUpdate;
@@ -209,10 +214,10 @@ partial class TransferPage
 		// ToEntity
 		// 
 		ToEntity.FormattingEnabled = true;
-		ToEntity.Location = new Point(419, 80);
-		ToEntity.Margin = new Padding(3, 6, 3, 6);
+		ToEntity.Location = new Point(778, 162);
+		ToEntity.Margin = new Padding(6, 13, 6, 13);
 		ToEntity.Name = "ToEntity";
-		ToEntity.Size = new Size(302, 23);
+		ToEntity.Size = new Size(557, 40);
 		ToEntity.TabIndex = 10;
 		ToEntity.DropDown += Open_DropDown;
 		ToEntity.TextChanged += Any_Changed;
@@ -221,18 +226,20 @@ partial class TransferPage
 		// 
 		label7.AutoSize = true;
 		label7.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label7.Location = new Point(634, 48);
+		label7.Location = new Point(1175, 99);
+		label7.Margin = new Padding(6, 0, 6, 0);
 		label7.Name = "label7";
-		label7.Size = new Size(54, 15);
+		label7.Size = new Size(55, 32);
 		label7.TabIndex = 13;
-		label7.Text = "Net/CCP";
+		label7.Text = "Net";
 		// 
 		// pictureBox1
 		// 
 		pictureBox1.Image = Properties.Resources.right_arrow;
-		pictureBox1.Location = new Point(365, 45);
+		pictureBox1.Location = new Point(678, 96);
+		pictureBox1.Margin = new Padding(6);
 		pictureBox1.Name = "pictureBox1";
-		pictureBox1.Size = new Size(48, 58);
+		pictureBox1.Size = new Size(89, 106);
 		pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
 		pictureBox1.TabIndex = 16;
 		pictureBox1.TabStop = false;
@@ -240,9 +247,10 @@ partial class TransferPage
 		// Balance
 		// 
 		Balance.AutoSize = true;
-		Balance.Location = new Point(514, 135);
+		Balance.Location = new Point(457, 326);
+		Balance.Margin = new Padding(6, 13, 6, 13);
 		Balance.Name = "Balance";
-		Balance.Size = new Size(48, 15);
+		Balance.Size = new Size(96, 32);
 		Balance.TabIndex = 13;
 		Balance.Text = "Balance";
 		// 
@@ -250,9 +258,10 @@ partial class TransferPage
 		// 
 		label11.AutoSize = true;
 		label11.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label11.Location = new Point(14, 83);
+		label11.Location = new Point(18, 165);
+		label11.Margin = new Padding(6, 0, 6, 0);
 		label11.Name = "label11";
-		label11.Size = new Size(47, 15);
+		label11.Size = new Size(93, 32);
 		label11.TabIndex = 13;
 		label11.Text = "Sender";
 		// 
@@ -260,15 +269,16 @@ partial class TransferPage
 		// 
 		label12.AutoSize = true;
 		label12.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label12.Location = new Point(727, 83);
+		label12.Location = new Point(1347, 165);
+		label12.Margin = new Padding(6, 0, 6, 0);
 		label12.Name = "label12";
-		label12.Size = new Size(60, 15);
+		label12.Size = new Size(120, 32);
 		label12.TabIndex = 12;
 		label12.Text = "Recipient";
 		// 
 		// TransferPage
 		// 
-		AutoScaleDimensions = new SizeF(7F, 15F);
+		AutoScaleDimensions = new SizeF(13F, 32F);
 		AutoScaleMode = AutoScaleMode.Font;
 		Controls.Add(pictureBox1);
 		Controls.Add(Amount);
@@ -288,8 +298,9 @@ partial class TransferPage
 		Controls.Add(FromNet);
 		Controls.Add(Transfer);
 		Font = new Font("Segoe UI", 9F);
+		Margin = new Padding(6);
 		Name = "TransferPage";
-		Size = new Size(800, 600);
+		Size = new Size(1486, 1280);
 		((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
 		ResumeLayout(false);
 		PerformLayout();

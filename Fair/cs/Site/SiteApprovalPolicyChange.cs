@@ -47,7 +47,7 @@ public class SiteApprovalPolicyChange : SiteOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		if(!Site.Restrictions.First(i => i.OperationClass == Operation).Flags.HasFlag(PolicyFlag.ChangableApproval))
+		if(!Site.Restrictions.First(i => i.OperationClass == Operation).Flags.HasFlag(PolicyFlag.VariableApproval))
 		{
 			Error = Denied;
 			return;

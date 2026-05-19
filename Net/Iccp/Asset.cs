@@ -111,25 +111,28 @@ public class AssetBalanceIccr : IccpResult
 
 public class AssetTransferIcca : IccpArgumentation
 {
-	public string			FromEntity { get; set; }
-	public string			ToEntity { get; set; }
-	public string			Name { get; set; }
-	public string			Amount { get; set; }
+	public byte[]		FromEntity { get; set; }
+	public string		ToNet { get; set; }
+	public byte[]		ToEntity { get; set; }
+	public byte[]		Asset { get; set; }
+	public BigInteger	Amount { get; set; }
 
 	public override void Read(Reader reader)
 	{
-		FromEntity	= reader.ReadASCII();
-		ToEntity	= reader.ReadASCII();
-		Name		= reader.ReadASCII();
-		Amount		= reader.ReadASCII();
+		FromEntity	= reader.ReadBytes();
+		ToNet		= reader.ReadUtf8();
+		ToEntity	= reader.ReadBytes();
+		Asset		= reader.ReadBytes();
+		Amount		= reader.ReadBigInteger();
 	}
 
 	public override void Write(Writer writer)
 	{
-		writer.WriteASCII(FromEntity);
-		writer.WriteASCII(ToEntity);
-		writer.WriteASCII(Name);
-		writer.WriteASCII(Amount);
+		writer.WriteBytes(FromEntity);
+		writer.WriteUtf8(ToNet);
+		writer.WriteBytes(ToEntity);
+		writer.WriteBytes(Asset);
+		writer.Write(Amount);
 	}
 }
 
