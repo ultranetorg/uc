@@ -5,10 +5,9 @@ import { useParams } from "react-router-dom"
 import avatarFallback from "assets/fallback/account-avatar-30.png"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback } from "ui/components"
-import { buildUserAvatarUrl } from "utils"
+import { buildUserAvatarUrl, formatRole } from "utils"
 
 import { ReviewsList } from "./ReviewsList"
-import { formatRole } from "./utils"
 import { PublishersList } from "./PublishersList"
 
 const LABEL_CLASSNAME = "text-2base font-medium leading-5 first-letter:uppercase"

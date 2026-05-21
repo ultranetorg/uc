@@ -99,3 +99,12 @@ export function ensureHttp(uri: string) {
   if (/^(https?:)?\/\//i.test(uri)) return uri
   return `https://${uri}`
 }
+
+export const formatRole = (t: TFunction, isPublisher: boolean, isModerator: boolean): string =>
+  isPublisher && isModerator
+    ? `${t("common:publisher")}, ${t("common:moderator")}`
+    : isPublisher
+      ? t("common:publisher")
+      : isModerator
+        ? t("common:moderator")
+        : t("common:user")

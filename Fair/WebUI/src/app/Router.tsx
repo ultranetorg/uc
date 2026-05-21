@@ -88,6 +88,7 @@ const routes: RouteObject[] = [
             index: true,
             element: <SitePage />,
           },
+
           {
             path: "c/:categoryId",
             element: <CategoryPage />,
@@ -103,6 +104,15 @@ const routes: RouteObject[] = [
           {
             path: "i",
             element: <AboutPage />,
+          },
+
+          {
+            path: "u/:userId",
+            element: <UserPage />,
+          },
+          {
+            path: "e/:publisherId",
+            element: <PublisherPage isFromModeration={false} />,
           },
 
           // Governance
@@ -215,10 +225,6 @@ const routes: RouteObject[] = [
                 element: <PreviewPage />,
               },
             ],
-          },
-          {
-            path: "u/:userId",
-            element: <UserPage />,
           },
         ],
       },

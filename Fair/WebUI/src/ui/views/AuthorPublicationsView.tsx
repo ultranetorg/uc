@@ -7,6 +7,7 @@ import { AuthorDetails } from "types"
 import { Pagination } from "ui/components"
 import { AuthorProfile, AuthorProfileProps } from "ui/components/author"
 import { PublicationsTable, PublicationStoresModal } from "ui/components/specific"
+import { useModerationContext } from "app"
 
 type AuthorPublicationsViewBaseProps = {
   siteId: string
@@ -19,6 +20,7 @@ export type AuthorPublicationsViewProps = Pick<AuthorProfileProps, "size"> & Aut
 
 export const AuthorPublicationsView = memo(
   ({ size, siteId, author, isModalOpen, onModalOpenChange }: AuthorPublicationsViewProps) => {
+    const { isPublisher, isModerator } = useModerationContext()
     const { t } = useTranslation("authorPublicationsView")
 
     const [page, setPage] = useState(0)
@@ -47,7 +49,7 @@ export const AuthorPublicationsView = memo(
 
     return (
       <>
-        <AuthorProfile t={t} size={size} author={author} />
+        <AuthorProfile t={t} size={size} author={author} isPublisher={isPublisher} isModerator={isModerator} />
         {publications.items.length && (
           <>
             <div className="flex items-center justify-between">

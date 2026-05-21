@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 import { twMerge } from "tailwind-merge"
 
-import { useSiteContext, useSearchQueryContext, useModerationContext } from "app"
+import { useSiteContext, useSearchQueryContext, useModerationContext, useUserContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
@@ -22,6 +22,7 @@ export const SiteHeader = () => {
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:siteId/s")
   const { isModerator, isPublisher } = useModerationContext()
+  const { user } = useUserContext()
 
   const { t } = useTranslation("site")
 
@@ -107,7 +108,7 @@ export const SiteHeader = () => {
         <GovernanceDropdownButton className="w-28" />
         {isModerator && <ModerationDropdownButton className="w-28" />}
         {isPublisher && (
-          <Link to={``} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
+          <Link to={`/${siteId}/e/${user!.authorsIds[0]}`} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
             {t("common:member")}
           </Link>
         )}
