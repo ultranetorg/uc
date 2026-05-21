@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useAuthenticationContext } from "app"
 import { SvgCheckCircle, SvgSpinner, SvgXCircleSm } from "assets"
 import { SEARCH_DELAY } from "config"
-import { useGetUser } from "entities"
+import { useGetUserByName } from "entities"
 import { useEscapeKey } from "hooks"
 import { ButtonPrimary, Input, Modal, ModalProps, ValidationWrapper, ValidationWrapperBaseProps } from "ui/components"
 import { showToast, USER_NAME_REGEXP } from "utils"
@@ -30,7 +30,7 @@ export const SignInModal = (props: SignInModalProps) => {
 
   const { isPending, authenticate, register } = useAuthenticationContext()
 
-  const { data: user, isFetching } = useGetUser(debouncedUserName)
+  const { data: user, isFetching } = useGetUserByName(debouncedUserName)
 
   const signInValidationProps = useMemo<ValidationWrapperBaseProps | undefined>(() => {
     if (userName && !USER_NAME_REGEXP.test(userName)) {

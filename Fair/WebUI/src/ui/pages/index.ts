@@ -1,6 +1,4 @@
 export * from "./Category"
-export * from "./Governance"
-export * from "./Moderation"
 export * from "./Publication"
 export * from "./Sites"
 
@@ -12,3 +10,4 @@ export * from "./ErrorPage"
 export * from "./ProfilePage"
 export * from "./SearchPage"
 export * from "./SitePage"
+export * from "./UserPage"

@@ -1,13 +1,12 @@
-import { forwardRef, memo, useCallback } from "react"
-import { useCopyToClipboard } from "usehooks-ts"
+import { forwardRef, memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SvgChevronRight, SvgPencilSm, SvgPerson2 } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-11xl.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { ButtonGhost, CopyButton, ImageFallback, LinkFullscreen } from "ui/components"
-import { buildUserAvatarUrl, shortenAddress } from "utils"
+import { ButtonGhost, CopyAddressButton, ImageFallback, LinkFullscreen } from "ui/components"
+import { buildUserAvatarUrl } from "utils"
 
 import pngBackground from "./background.png"
 import { AccountSwitcher, AccountSwitcherBaseProps } from "./AccountSwitcher"
@@ -26,13 +25,6 @@ export const ProfileMenu = memo(
       const { t } = useTranslation("currentAccount")
 
       const accountMenu = useSubmenu({ placement: "right-end", customParentId })
-
-      const [copiedText, copy] = useCopyToClipboard()
-
-      const handleCopyClick = useCallback(() => {
-        copy(address)
-        console.log(copiedText)
-      }, [address, copiedText, copy])
 
       return (
         <>
@@ -72,15 +64,7 @@ export const ProfileMenu = memo(
                   />
                 </LinkFullscreen>
               )}
-              <div className="flex items-center gap-1">
-                <span
-                  className="overflow-hidden text-ellipsis text-nowrap text-2xs leading-3.5 text-gray-500"
-                  title={address}
-                >
-                  {shortenAddress(address)}
-                </span>
-                <CopyButton onClick={handleCopyClick} />
-              </div>
+              <CopyAddressButton address={address} />
             </div>
             <div className="flex flex-col gap-2 p-6">
               {/* <LinkFullscreen to={`/p/${address}`}>

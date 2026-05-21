@@ -9,20 +9,9 @@ public class AccountsController
 	SearchService searchService,
 	IAutoIdValidator autoIdValidator,
 	ISearchQueryValidator searchQueryValidator,
-	LimitValidator limitValidator,
-	UserNameValidator userNameValidator
+	LimitValidator limitValidator
 ) : BaseController
 {
-	[HttpGet("/api/users/{name}/details")]
-	public AccountModel GetDetails(string name)
-	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(AccountsController), nameof(GetDetails), name);
-
-		userNameValidator.Validate(name);
-
-		return accountsService.GetDetails(name);
-	}
-
 	[HttpGet]
 	public IEnumerable<AccountBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
@@ -53,15 +42,5 @@ public class AccountsController
 		autoIdValidator.Validate(accountId, nameof(Net.User).ToLower());
 
 		return accountsService.GetAvatar(accountId);
-	}
-
-	[HttpGet("/api/users/{name}/avatar")]
-	public FileContentResult GetUserAvatar(string name)
-	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Name}", nameof(AccountsController), nameof(GetUserAvatar), name);
-
-		userNameValidator.Validate(name);
-
-		return accountsService.GetUserAvatar(name);
 	}
 }

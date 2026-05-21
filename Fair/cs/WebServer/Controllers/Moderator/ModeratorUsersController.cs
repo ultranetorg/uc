@@ -10,7 +10,7 @@ public class ModeratorUsersController
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
 	ModeratorProposalsService moderatorProposalsService,
-	AccountsService accountsService,
+	UsersService usersService,
 	UserNameValidator userNameValidator
 ) : BaseController
 {
@@ -36,6 +36,6 @@ public class ModeratorUsersController
 
 		userNameValidator.Validate(name);
 
-		return accountsService.Get(name);
+		return usersService.GetUserByName(name);
 	}
 }

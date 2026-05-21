@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Diagnostics.CodeAnalysis;
+using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -7,9 +8,9 @@ public class ReviewsService
 (
 	ILogger<ReviewsService> logger,
 	FairMcv mcv
-) : IReviewsService
+)
 {
-	public TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized(string publicationId, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"{nameof(ReviewsService)}.{nameof(ReviewsService.GetPublicationReviewsNotOptimized)} method called with {{ReviewId}}, {{Page}}, {{PageSize}}", publicationId, page, pageSize);
 
@@ -17,56 +18,80 @@ public class ReviewsService
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
-		AutoId publicationEntityId = AutoId.Parse(publicationId);
+		AutoId entityId = AutoId.Parse(publicationId);
 
 		lock (mcv.Lock)
 		{
-			Publication publication = mcv.Publications.Latest(publicationEntityId);
+			Publication publication = mcv.Publications.Latest(entityId);
 			if (publication == null)
 			{
 				throw new EntityNotFoundException(nameof(Publication), publicationId);
 			}
 
-			var context = new SearchContext<ReviewModel>
-			{
-				Page = page,
-				PageSize = pageSize,
-				Items = new List<ReviewModel>(pageSize)
-			};
-			LoadReviews(context, publication.Reviews, cancellationToken);
-
-			return new TotalItemsResult<ReviewModel>
-			{
-				TotalItems = context.TotalItems,
-				Items = context.Items,
-			};
+			return LoadReviews(publication.Reviews, page, pageSize, cancellationToken);
 		}
 	}
 
-	private void LoadReviews(SearchContext<ReviewModel> context, IEnumerable<AutoId> reviewsIds, CancellationToken cancellationToken)
+	public TotalItemsResult<ReviewModel> GetUserReviewsNotOptimized([NotNull][NotEmpty] string userId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-		if (cancellationToken.IsCancellationRequested)
-			return;
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {Page}, {PageSize}", nameof(UsersService), nameof(GetUserReviewsNotOptimized), userId, page, pageSize);
 
-		foreach (var id in reviewsIds)
+		Guard.Against.NullOrEmpty(userId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		AutoId entityId = AutoId.Parse(userId);
+
+		lock(mcv.Lock)
 		{
-			if (cancellationToken.IsCancellationRequested)
-				return;
+			FairUser user = (FairUser) mcv.Users.Latest(entityId);
+			if(user == null)
+			{
+				throw new EntityNotFoundException(nameof(User), userId);
+			}
+
+			return LoadReviews(user.Reviews, page, pageSize, cancellationToken);
+		}
+	}
+
+	TotalItemsResult<ReviewModel> LoadReviews(IEnumerable<AutoId> reviewsIds, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return new TotalItemsResult<ReviewModel>{Items = [], TotalItems = reviewsIds.Count()};
+
+		var result = new List<ReviewModel>(pageSize);
+
+		int loadedItems = 0;
+		foreach(var id in reviewsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return new TotalItemsResult<ReviewModel>{Items = result, TotalItems = reviewsIds.Count()};
 
 			Review review = mcv.Reviews.Latest(id);
-			if (review.Status != ReviewStatus.Accepted)
-			{
+			if(review.Status != ReviewStatus.Accepted)
 				continue;
-			}
 
-			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
+			if(loadedItems >= page * pageSize && loadedItems < (page + 1) * pageSize)
 			{
-				FairUser account = (FairUser) mcv.Users.Latest(review.Creator);
-				var model = new ReviewModel(review, account);
-				context.Items.Add(model);
+				FairUser account = (FairUser)mcv.Users.Latest(review.Creator);
+				Publication publication = mcv.Publications.Latest(review.Publication);
+				Product product = mcv.Products.Latest(publication.Product);
+
+				var model = new ReviewModel(review, account)
+				{
+					PublicationId = publication.Id.ToString(),
+					PublicationTitle = PublicationUtils.GetTitle(publication, product)
+				};
+				result.Add(model);
 			}
 
-			++context.TotalItems;
+			++loadedItems;
 		}
+
+		return new TotalItemsResult<ReviewModel>
+		{
+			TotalItems = reviewsIds.Count(),
+			Items = result
+		};
 	}
 }

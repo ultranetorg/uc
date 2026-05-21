@@ -7,7 +7,7 @@ import { usersKeys } from "./usersKeys"
 
 const api = getApi()
 
-export const useGetUser = (name?: string) => {
+export const useGetUserByName = (name?: string) => {
   const queryFn = () => api.getUser(name!)
 
   const { isFetching, isError, data } = useQuery({

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -10,7 +9,7 @@ public class ReviewsController
 	ILogger<ReviewsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	IReviewsService reviewsService
+	ReviewsService reviewsService
 ) : BaseController
 {
 	[HttpGet]

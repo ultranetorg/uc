@@ -34,12 +34,10 @@ export const ProfileTabs = memo(({ defaultTabKey, tabsListClassName, onTabSelect
       <div className="flex grow gap-8">
         <div className="flex-1">
           <TabContent when="profile">
-            {user && (
-              <ProfileInfo nickname={user.nickname} address={user.address} roles={roles} onTabSelect={onTabSelect} />
-            )}
+            {user && <ProfileInfo nickname={user.name} address={user.owner} roles={roles} onTabSelect={onTabSelect} />}
           </TabContent>
           <TabContent when="profileSettings">
-            <EditProfileInfo t={t} nickname={user?.nickname} />
+            <EditProfileInfo t={t} nickname={user?.name} />
           </TabContent>
           {/*
             <TabContent when="authors">

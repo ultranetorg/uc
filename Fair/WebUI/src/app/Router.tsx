@@ -5,36 +5,41 @@ import {
   AboutPage,
   AuthorPage,
   CategoryPage,
-  CreateDiscussionPage,
-  CreateReferendumPage,
   ErrorPage,
+  ProfilePage,
+  PublicationPage,
+  SearchPage,
+  SitePage,
+  SitesPage,
+  UserPage,
+} from "ui/pages"
+import {
+  CreateReferendumPage,
+  PerpetualSurveyPage,
+  PerpetualSurveysPage,
+  ReferendumPage,
+  ReferendumsPage,
+} from "ui/pages/governance"
+import {
+  CreateDiscussionPage,
   ModeratorChangedPublicationPage,
   ModeratorCreatePublicationPage,
   ModeratorProposalPage,
   ModeratorPublicationPage,
   ModeratorsPage,
-  PerpetualSurveyPage,
-  PerpetualSurveysPage,
   PreviewPage,
-  ProfilePage,
   ProposalPage,
   ProposalsPage,
-  PublicationPage,
   PublicationsPage,
   PublisherProposalPage,
+  PublisherPage,
   PublishersPage,
-  ReferendumPage,
-  ReferendumsPage,
   ReviewsPage,
-  SearchPage,
-  SitePage,
-  SitesPage,
   UnpublishedPublicationPage,
-  UserPage,
-  UsersPage,
-} from "ui/pages"
+  UserPage as ModerationUserPage,
+  UsersPage as ModerationUsersPage,
+} from "ui/pages/moderation"
 
-import { PublisherPage } from "ui/pages/Moderation/Publishers/PublisherPage"
 import { AuthenticationProvider } from "./AuthenticationProvider"
 import { CreateProposalProvider } from "./CreateProposalProvider"
 import { ModerationProvider } from "./ModerationProvider"
@@ -197,11 +202,11 @@ const routes: RouteObject[] = [
                 children: [
                   {
                     index: true,
-                    element: <UsersPage />,
+                    element: <ModerationUsersPage />,
                   },
                   {
                     path: ":name",
-                    element: <UserPage />,
+                    element: <ModerationUserPage />,
                   },
                 ],
               },
@@ -210,6 +215,10 @@ const routes: RouteObject[] = [
                 element: <PreviewPage />,
               },
             ],
+          },
+          {
+            path: "u/:userId",
+            element: <UserPage />,
           },
         ],
       },

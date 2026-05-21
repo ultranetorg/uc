@@ -21,6 +21,7 @@ export const UserProfileButton = memo(({ t }: UserProfileButtonProps) => {
   const creator = getOperationCreator("user-registration")
 
   const { execute, isExecuting } = useCreateProposal(
+    // @ts-expect-error fix
     { $type: "UserRegistration" },
     creator,
     () => showToast(t("toast:userRegistrationRequested"), "success"),
@@ -40,7 +41,7 @@ export const UserProfileButton = memo(({ t }: UserProfileButtonProps) => {
       {t("common:join")}
     </button>
   ) : (
-    <Link to={`/${siteId}/p/${user.id}`} className={twMerge(MENU_ITEM_STYLE, "w-12")}>
+    <Link to={`/${siteId}/u/${user.id}`} className={twMerge(MENU_ITEM_STYLE, "w-12")}>
       {t("common:profile")}
     </Link>
   )

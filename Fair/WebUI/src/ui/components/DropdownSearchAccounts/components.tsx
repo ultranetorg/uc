@@ -2,7 +2,7 @@ import Select, { components, ControlProps, IndicatorsContainerProps, OptionProps
 
 import { SvgSearchSm, SvgXSm } from "assets"
 import avatarFallback from "assets/fallback/account-avatar-xl.png"
-import { buildAccountAvatarUrl } from "utils"
+import { buildUserAvatarUrl } from "utils"
 
 import { DropdownSearchAccountsItem } from "./types"
 
@@ -46,7 +46,7 @@ export const Option = (props: OptionProps<DropdownSearchAccountsItem, false>) =>
       <div className="size-8 overflow-hidden rounded-full">
         <img
           className="size-full object-cover object-center"
-          src={buildAccountAvatarUrl(props.data.value)}
+          src={buildUserAvatarUrl(props.data.value)}
           loading="lazy"
           onError={e => {
             e.currentTarget.onerror = null

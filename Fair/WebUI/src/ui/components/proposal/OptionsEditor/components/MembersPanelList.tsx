@@ -5,7 +5,7 @@ import { capitalize } from "lodash"
 import { MembersChangeType } from "types"
 import { AccountsList, AccountsListItemProps } from "ui/components/AccountsList"
 import { DropdownItem, DropdownSearchMember } from "ui/components/proposal"
-import { buildAccountAvatarUrl, buildFileUrl } from "utils"
+import { buildUserAvatarUrl, buildFileUrl } from "utils"
 
 type PanelListModeType = "add" | "remove"
 
@@ -41,7 +41,7 @@ export const MembersPanelList = memo(
         <DropdownSearchMember
           placeholder={memberType === "author" ? t("enterAuthorName") : t("enterModeratorName")}
           items={searchItems}
-          getAvatarUrl={memberType === "author" ? buildFileUrl : buildAccountAvatarUrl}
+          getAvatarUrl={memberType === "author" ? buildFileUrl : buildUserAvatarUrl}
           inputValue={search}
           onInputChange={onSearchChange}
           onSelect={onSearchItemSelect}

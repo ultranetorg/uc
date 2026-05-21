@@ -2,14 +2,14 @@ import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useSt
 import { useParams } from "react-router-dom"
 
 import { useGetUserDetails, useGetUserSiteExists } from "entities"
-import { Account } from "types"
+import { UserDetails } from "types"
 
 import { useAuthenticationContext } from "./AuthenticationProvider"
 
 type UserContextType = {
   isFetching: boolean
   isJoined: boolean
-  user?: Account
+  user?: UserDetails
   refetch: () => void
 }
 
@@ -21,7 +21,7 @@ const UserContext = createContext<UserContextType>({
 
 export const UserProvider = ({ children }: PropsWithChildren) => {
   const { siteId } = useParams()
-  const [currentUser, setCurrentUser] = useState<Account | undefined>()
+  const [currentUser, setCurrentUser] = useState<UserDetails | undefined>()
 
   const { selectedUserName } = useAuthenticationContext()
 

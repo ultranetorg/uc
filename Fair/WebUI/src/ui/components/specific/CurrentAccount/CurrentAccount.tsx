@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useNavigate, useParams } from "react-router-dom"
 
 import { useAuthenticationContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
@@ -14,6 +15,8 @@ import { ProfileMenu } from "./ProfileMenu"
 const STICKY_CLASSNAME = "sticky bottom-2 z-20"
 
 export const CurrentAccount = () => {
+  const navigate = useNavigate()
+  const { siteId } = useParams()
   const { t } = useTranslation("currentAccount")
 
   const profileMenu = useSubmenu({ placement: "top-start" })
@@ -56,8 +59,12 @@ export const CurrentAccount = () => {
       selectUser(userName)
       accountsMenu.setOpen(false)
       profileMenu.setOpen(false)
+
+      if (siteId) {
+        navigate(`/${siteId}`)
+      }
     },
-    [accountsMenu, profileMenu, selectUser],
+    [accountsMenu, navigate, profileMenu, selectUser, siteId],
   )
 
   const handleNicknameCreate = useCallback(() => alert("handleNicknameCreate"), [])
@@ -94,9 +101,9 @@ export const CurrentAccount = () => {
       ) : (
         <CurrentAccountButton
           className={STICKY_CLASSNAME}
-          nickname={user.nickname}
+          nickname={user.name}
           id={user.id}
-          address={user.address}
+          address={user.owner}
           ref={profileMenu.refs.setReference}
           {...profileMenu.getReferenceProps()}
         />
@@ -106,8 +113,8 @@ export const CurrentAccount = () => {
           customParentId={profileMenu.nodeId!}
           ref={profileMenu.refs.setFloating}
           style={profileMenu.floatingStyles}
-          nickname={user!.nickname}
-          address={user!.address!}
+          nickname={user!.name}
+          address={user!.owner!}
           onNicknameCreate={handleNicknameCreate}
           {...userSwitcherProps}
           {...profileMenu.getFloatingProps()}

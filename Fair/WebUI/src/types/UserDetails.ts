@@ -1,7 +1,7 @@
-import { AccountBase } from "./AccountBase"
 import { SiteBase } from "./SiteBase"
+import { User } from "./User"
 
-export type Account = {
+export type UserDetails = {
   favoriteSites: SiteBase[]
   authorsIds: string[]
-} & AccountBase
+} & User

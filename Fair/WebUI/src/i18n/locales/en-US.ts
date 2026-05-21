@@ -52,6 +52,7 @@ export const enUS = {
     proposals: "proposals",
     publication: "Publication",
     publications: "publications",
+    publisher: "publisher",
     publishers: "publishers",
     rating: "Rating",
     recommended: "Recommended",
@@ -68,6 +69,7 @@ export const enUS = {
     store: "store",
     text: "Text",
     title: "Title",
+    to: "to",
     type: "type",
     updationTime: "Updation Time",
     user: "User",
@@ -201,6 +203,11 @@ export const enUS = {
         version: "Version",
       },
     },
+  },
+  userProfile: {
+    reviewsLeft: "Reviews left by this user",
+    noReviews: "This user has no reviews",
+    noPublishers: "This user has no publishers",
   },
   toast: {
     commentAdded: "Comment successfully added",

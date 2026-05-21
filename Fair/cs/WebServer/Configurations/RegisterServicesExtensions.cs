@@ -24,7 +24,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<FilesService>();
 		services.AddSingleton<ProposalService>();
 		services.AddSingleton<PublicationsService>();
-		services.AddSingleton<IReviewsService, ReviewsService>();
+		services.AddSingleton<ReviewsService>();
 		services.AddSingleton<SearchService>();
 		services.AddSingleton<SitesService>();
 		services.AddSingleton<PerpetualSurveysService>();

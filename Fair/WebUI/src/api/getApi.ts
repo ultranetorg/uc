@@ -1,7 +1,6 @@
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { LIMIT_DEFAULT } from "constants/"
 import {
-  Account,
   AccountBase,
   AccountSearchLite,
   AuthorBaseAvatar,
@@ -43,6 +42,8 @@ import {
   TotalItemsResult,
   UnpublishedPublication,
   User,
+  UserAuthors,
+  UserDetails,
 } from "types"
 
 import { Api } from "./Api"
@@ -131,7 +132,10 @@ const getUser = async (name: string): Promise<StatusResult<User>> => {
   }
 }
 
-const getUserDetails = (name: string): Promise<Account> =>
+const getUserAuthors = (userId: string): Promise<UserAuthors> =>
+  fetch(`${BASE_URL}/users/${userId}/authors`).then(res => res.json())
+
+const getUserDetails = (name: string): Promise<UserDetails> =>
   fetch(`${BASE_URL}/users/${name}/details`).then(res => res.json())
 
 const getUserSiteExists = async (userId: string, siteId: string): Promise<boolean> => {
@@ -139,6 +143,11 @@ const getUserSiteExists = async (userId: string, siteId: string): Promise<boolea
   if (res.status === 404) return false
   if (res.ok) return true
   throw new Error(`Failed to check registration: ${res.status}`)
+}
+
+const getUserReviews = async (userId: string, page?: number): Promise<TotalItemsResult<Review>> => {
+  const res = await fetch(`${BASE_URL}/users/${userId}/reviews` + (page && page > 0 ? `page=${page}` : ""))
+  return await toTotalItemsResult(res)
 }
 
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>
@@ -411,8 +420,10 @@ const api: Api = {
   getVaultUrl,
 
   getUser,
+  getUserAuthors,
   getUserDetails,
   getUserSiteExists,
+  getUserReviews,
 
   getAuthor,
   getAuthorPublications,

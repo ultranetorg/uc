@@ -1,5 +1,4 @@
 import {
-  Account,
   AccountBase,
   AccountSearchLite,
   AuthorBaseAvatar,
@@ -39,6 +38,8 @@ import {
   TotalItemsResult,
   UnpublishedPublication,
   User,
+  UserAuthors,
+  UserDetails,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
@@ -69,8 +70,10 @@ export type Api = {
 
   // User
   getUser(name: string): Promise<StatusResult<User>>
-  getUserDetails(name: string): Promise<Account>
+  getUserAuthors(userId: string): Promise<UserAuthors>
+  getUserDetails(name: string): Promise<UserDetails>
   getUserSiteExists(userId: string, siteId: string): Promise<boolean>
+  getUserReviews(userId: string, page?: number): Promise<TotalItemsResult<Review>>
 
   getAuthor(authorId: string): Promise<AuthorDetails>
   getCategoriesTree(siteId: string, depth?: number): Promise<CategoryParentBase[]>

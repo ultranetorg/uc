@@ -33,7 +33,7 @@ export const ModerationProvider = ({ children }: PropsWithChildren) => {
   const isPublisher = Boolean(site?.authorsIds?.some(x => user?.authorsIds?.includes(x)))
   const isModerator = Boolean(site?.moderatorsIds?.some(x => user?.id === x))
 
-  const { data: policies } = useGetSitePolicies(true, site?.id)
+  const { data: policies } = useGetSitePolicies(isModerator || isPublisher, site?.id)
 
   const isOperationAllowed = useCallback(
     (operation: OperationType) => {

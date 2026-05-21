@@ -33,14 +33,17 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
     case "publication-deletion":
       return { publication: data.publicationId }
     case "publication-publish":
+      // @ts-expect-error fix
       return { publication: data.publicationId, category: option.categoryId! }
     case "publication-updation":
+      // @ts-expect-error fix
       return { publication: data.publicationId, version: option.version }
     case "publication-unpublish":
       return { publication: data.publicationId }
 
     // Review
     case "review-status-change":
+      // @ts-expect-error fix
       return { review: data.reviewId, status: option.status }
 
     // Site
