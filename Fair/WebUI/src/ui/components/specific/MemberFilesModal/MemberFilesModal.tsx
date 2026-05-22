@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -6,8 +6,8 @@ import { TabsProvider } from "app"
 import { SvgSpinnerXl } from "assets"
 import { useGetSiteFilesInfinite } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
-import { useInfiniteScrollWithPosition } from "hooks"
-import { File as FileType, FileDeletion, FileCreation, MimeType } from "types"
+import { useEscapeKey, useInfiniteScrollWithPosition } from "hooks"
+import { File as FileType, FileDeletion, FileCreation, MimeType, FileOwner } from "types"
 import { Modal, ModalProps, TabContent, TabsList, TabsListItem, TextModal } from "ui/components"
 import { FilesGrid } from "ui/components/specific"
 import { fileToBase64, showToast } from "utils"
@@ -73,7 +73,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
       const data = await fileToBase64(file)
       const mimeType: MimeType = file.type === "image/png" ? "ImagePng" : "ImageJpg"
 
-      const operation = new FileCreation(siteId!, data, mimeType)
+      const operation = new FileCreation(FileOwner.Site, siteId!, data, mimeType)
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:fileUploaded", { fileName: file.name }), "success")
@@ -95,22 +95,13 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
     isFetchingNextPage,
   )
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (removeModalOpen) {
-          setRemoveModalOpen(false)
-        } else {
-          onClose?.()
-        }
-      }
+  useEscapeKey(() => {
+    if (removeModalOpen) {
+      setRemoveModalOpen(false)
+    } else {
+      onClose?.()
     }
-
-    document.addEventListener("keydown", handleKeyDown)
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [onClose, removeModalOpen])
+  })
 
   return (
     <>

@@ -22,8 +22,6 @@ export const formatNabb = (t: TFunction, neither: number, any: number, ban: numb
 export const formatNabbShort = (neither: number, any: number, ban: number, banish: number) =>
   `${neither} / ${any} / ${ban} / ${banish}`
 
-export const formatAverageRating = (value: number): string => (value / 10).toFixed(1)
-
 export const formatDate = (hours: number): string =>
   dayjs(START_DATE).add(hours, "hour").startOf("day").format("DD.MM.YYYY")
 

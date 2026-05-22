@@ -10,7 +10,7 @@ export type ReviewsListBaseProps = {
   isPending: boolean
   reviews?: TotalItemsResult<Review>
   error?: Error
-  onLeaveReviewClick(): void
+  onLeaveReviewClick?: () => void
   leaveReviewLabel: string
   noReviewsLabel: string
   showMoreReviewsLabel: string
@@ -37,7 +37,7 @@ export const ReviewsList = memo(
           <span className="text-gray-800">{reviewLabel}</span>
           <span className="text-gray-500">{reviews?.totalItems}</span>
         </div>
-        <ButtonOutline label={leaveReviewLabel} onClick={onLeaveReviewClick} />
+        {onLeaveReviewClick && <ButtonOutline label={leaveReviewLabel} onClick={onLeaveReviewClick} />}
       </div>
       {error ? (
         <div>{error.message}</div>

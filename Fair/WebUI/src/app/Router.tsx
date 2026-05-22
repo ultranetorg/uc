@@ -56,7 +56,9 @@ const routes: RouteObject[] = [
       <NodeCheckerProvider>
         <AuthenticationProvider>
           <UserProvider>
-            <BaseLayout />
+            <SiteProvider>
+              <BaseLayout />
+            </SiteProvider>
           </UserProvider>
         </AuthenticationProvider>
       </NodeCheckerProvider>
@@ -77,11 +79,9 @@ const routes: RouteObject[] = [
       {
         path: ":siteId",
         element: (
-          <SiteProvider>
-            <ModerationProvider>
-              <SiteLayout />
-            </ModerationProvider>
-          </SiteProvider>
+          <ModerationProvider>
+            <SiteLayout />
+          </ModerationProvider>
         ),
         children: [
           {

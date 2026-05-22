@@ -35,13 +35,13 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("nameChange"),
-              to: `/${siteId}/m/new`,
+              to: `/${siteId}/g/new`,
               state: {
                 title: `Change site name`,
                 type: "site-name-change",
                 siteId,
-                parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-                redirectAfterProposalCreation: `/${siteId}/m/`,
+                parentBreadcrumbs: [{ path: `/${siteId}/g/r/`, title: t("common:proposals") }],
+                redirectAfterProposalCreation: `/${siteId}/g/r/`,
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.detail(siteId),
               },
@@ -52,13 +52,13 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("textChange"),
-              to: `/${siteId}/m/new`,
+              to: `/${siteId}/g/new`,
               state: {
                 title: `Change site text`,
                 type: "site-text-change",
                 siteId,
-                parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-                redirectAfterProposalCreation: `/${siteId}/m/`,
+                parentBreadcrumbs: [{ path: `/${siteId}/g/`, title: t("common:proposals") }],
+                redirectAfterProposalCreation: `/${siteId}/g/`,
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.detail(siteId),
               },

@@ -52,6 +52,7 @@ export const ReviewModal = memo(
     const creator = getOperationCreatorId(isEditMode ? "review-edit" : "review-creation")
 
     const [step, setStep] = useState(0)
+    const [rating, setRating] = useState(5)
     const [reviewText, setReviewText] = useState(initialText ?? "")
 
     const handleSubmit = useCallback(() => {
@@ -73,7 +74,7 @@ export const ReviewModal = memo(
                 $type: "ReviewCreation",
                 Publication: publicationId,
                 Text: reviewText,
-                Rating: 2,
+                Rating: rating,
               } as unknown as BaseVotableOperation,
             },
           ] as ProposalOption[])
@@ -88,7 +89,7 @@ export const ReviewModal = memo(
         },
         onError: err => showToast(err.toString(), "error"),
       })
-    }, [creator, isEditMode, mutate, onSubmit, publicationId, reviewId, reviewText, siteId])
+    }, [creator, isEditMode, mutate, onSubmit, publicationId, rating, reviewId, reviewText, siteId])
 
     useEscapeKey(onClose)
 
@@ -102,7 +103,7 @@ export const ReviewModal = memo(
             </div>
             <div className="flex flex-col gap-2">
               <span className={LABEL_CLASSNAME}>{yourRatingLabel}</span>
-              <YourRatingBar value={3} />
+              <YourRatingBar value={rating} onRatingChange={setRating} />
             </div>
             <div className="flex flex-col gap-2">
               <span className={LABEL_CLASSNAME}>{yourReviewLabel}</span>

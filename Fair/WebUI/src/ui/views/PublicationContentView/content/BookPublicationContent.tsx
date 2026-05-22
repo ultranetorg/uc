@@ -5,7 +5,7 @@ import { SvgStarXxs } from "assets"
 import { LinkFullscreen } from "ui/components"
 import { AuthorImageTitle } from "ui/components/publication/SoftwareInfo/components"
 import { ReviewsList } from "ui/components/specific"
-import { buildFileUrl, formatAverageRating, formatDate } from "utils"
+import { buildFileUrl, formatDate } from "utils"
 
 import { ContentProps } from "../types"
 
@@ -72,7 +72,7 @@ export const BookPublicationContent = memo(
               <div className="flex items-center gap-6">
                 <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
                 <span className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1 whitespace-nowrap")}>
-                  <span className="font-semibold">{formatAverageRating(productOrPublication.rating)}</span>
+                  <span className="font-semibold">{productOrPublication.rating}</span>
                   <SvgStarXxs className="fill-favorite" />
                 </span>
               </div>

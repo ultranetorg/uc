@@ -1,4 +1,4 @@
-import { MimeType } from "types"
+import { MimeType, FileOwner } from "types"
 
 import { BaseFairOperation } from "./BaseFairOperation"
 
@@ -7,9 +7,9 @@ export class FileCreation extends BaseFairOperation {
   public data: string
   public mime: MimeType
 
-  constructor(owner: string, data: string, mime: MimeType) {
+  constructor(owner: FileOwner, id: string, data: string, mime: MimeType) {
     super("FileCreation")
-    this.owner = `4/${owner}` // 2 - author, (4 - site, owner = siteId)
+    this.owner = `${owner}/${id}`
     this.data = data
     this.mime = mime
   }

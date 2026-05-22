@@ -386,6 +386,7 @@ export const enUS = {
     categories: "Categories",
     governance: "Governance",
     moderation: "Moderation",
+    noPublications: "Current store has no publications yet",
     seeAll: "See all",
   },
   sites: {

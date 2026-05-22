@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from "react"
+import { createContext, memo, PropsWithChildren, useContext, useMemo } from "react"
 import { useLocation, useParams } from "react-router-dom"
 
 import { useGetCategoriesRoot, useGetCategoriesTree, useGetSite } from "entities"
@@ -21,7 +21,7 @@ const SiteContext = createContext<SiteContextType>({
   isCategoriesPending: false,
 })
 
-export const SiteProvider = ({ children }: PropsWithChildren) => {
+export const SiteProvider = memo(({ children }: PropsWithChildren) => {
   const { siteId } = useParams()
   const location = useLocation()
 
@@ -48,7 +48,7 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
   }, [categoriesRoot, categoriesTree, error, isCategoriesPending, isPending, site])
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>
-}
+})
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useSiteContext = () => useContext(SiteContext)

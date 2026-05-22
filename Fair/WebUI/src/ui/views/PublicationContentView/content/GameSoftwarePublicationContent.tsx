@@ -135,7 +135,7 @@ export const GameSoftwarePublicationContent = memo(
               onTabChange={handlePlatformChange}
             />
           )}
-          {reviews && onLeaveReview && (
+          {reviews && (
             <ReviewsList
               isPending={isPendingReviews!}
               reviews={reviews}

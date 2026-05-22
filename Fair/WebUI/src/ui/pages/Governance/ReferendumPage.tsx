@@ -15,6 +15,7 @@ export const ReferendumPage = () => {
       parentBreadcrumbs={{ title: t("common:governance"), path: `/${siteId}/g` }}
       isFetching={isFetching}
       proposal={proposal}
+      previousPath={`/${siteId}/g/r/`}
     />
   )
 }
