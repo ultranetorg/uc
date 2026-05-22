@@ -5,7 +5,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Uccs.Mcv.FUI;
 
-public partial class ChainPanel : MainPanel
+public partial class ChainPanel : McvPanel
 {
 	McvNode Node;
 	Net.Mcv		Mcv;

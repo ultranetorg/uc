@@ -315,16 +315,16 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	{
 		RequireSynchronized();
 
-		Read(args.Entity, out var c, out var n); 
-
 		lock(Node.Mcv.Lock)
 		{	
 			return	new HolderAssetsIccr 
 					{
-						Assets = [Asset.Spacetime(),
-						Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
-						Asset.Energy((byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
-					]};
+						Assets = [	
+									Asset.Spacetime(),
+									Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
+									Asset.Energy((byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
+								 ]
+					};
 		}
 	}
 
@@ -356,7 +356,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 					??
 					throw new EntityException(EntityError.NotFound);
 
-			return new AddressTextToUniversalIccr {Universal = [(byte)(object)t, ..u.Id.Raw]};
+			return new AddressTextToUniversalIccr {Universal = [(byte)t, ..u.Id.Raw]};
 		}
 	}
 
@@ -366,46 +366,49 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		name = new Reader(holder[1..]).Read<AutoId>();
 	}
 
-	///public virtual Result AssetTransfer(string from, AssetTransferIcca args)
-	///{
-	///	if(args.ToNet == Node.Net.Name)
-	///	{
-	///		Parse(args.FromEntity, out var ft, out var fn);
-	///		Parse(args.ToEntity, out var tt, out var tn);
-	///
-	///		if(ft == (byte)McvTable.User && tt == (byte)McvTable.User)
-	///		{
-	///			var fu = Node.Peering.Call(new UserPpc {Name = fn}, Flow).User;
-	///			var tu = Node.Peering.Call(new UserPpc {Name = tn}, Flow).User;
-	///	
-	///			var t = new TransactApc
-	///					{
-	///						Application = Node.Name,
-	///						User = fu.Name,
-	///						Tag = Guid.CreateVersion7().ToByteArray(),
-	///						Operations = [new UtilityTransfer
-	///									 {
-	///										From		= new EntityAddress(ft, fu.Id),
-	///										To			= new EntityAddress(tt, tu.Id),
-	///										Energy		= args.Name == nameof(User.Energy) ? long.Parse(args.Amount) : 0, 
-	///										EnergyNext	= args.Name == nameof(User.EnergyNext) ? long.Parse(args.Amount) : 0,
-	///										Spacetime	= args.Name == nameof(User.Spacetime) ? long.Parse(args.Amount) : 0,
-	///									 }] 
-	///					};
-	///	
-	///			t.Execute(Node, null, null, Flow);
-	///	
-	///			var otc = new OutgoingTransactionApc {Tag = t.Tag};
-	///	
-	///			while((otc.Execute(Node, null, null, Flow) as TransactionApe).Status != TransactionStatus.Confirmed)
-	///			{
-	///				Thread.Sleep(1000);
-	///			}
-	///	
-	///			return new AssetTransferIccr {TransactionId = t.Tag};
-	///		}
-	///	}
-	///
-	///	throw new NnpException(NnpError.Unavailable);
-	///}
+	public virtual Result Transact(string from, TransactIcca args)
+	{
+ 		//foreach(var t in args.Transactions())
+ 		//{
+	 	//	if(t.ToNet == Node.Net.Name)
+	 	//	{
+	 	//		Parse(args.FromEntity, out var ft, out var fn);
+	 	//		Parse(args.ToEntity, out var tt, out var tn);
+	 	//
+	 	//		if(ft == (byte)McvTable.User && tt == (byte)McvTable.User)
+	 	//		{
+	 	//			var fu = Node.Peering.Call(new UserPpc {Name = fn}, Flow).User;
+	 	//			var tu = Node.Peering.Call(new UserPpc {Name = tn}, Flow).User;
+	 	//	
+	 	//			var t = new TransactApc
+	 	//					{
+	 	//						Application = Node.Name,
+	 	//						User = fu.Name,
+	 	//						Tag = Guid.CreateVersion7().ToByteArray(),
+	 	//						Operations = [new UtilityTransfer
+	 	//									 {
+	 	//										From		= new EntityAddress(ft, fu.Id),
+	 	//										To			= new EntityAddress(tt, tu.Id),
+	 	//										Energy		= args.Name == nameof(User.Energy) ? long.Parse(args.Amount) : 0, 
+	 	//										EnergyNext	= args.Name == nameof(User.EnergyNext) ? long.Parse(args.Amount) : 0,
+	 	//										Spacetime	= args.Name == nameof(User.Spacetime) ? long.Parse(args.Amount) : 0,
+	 	//									 }] 
+	 	//					};
+	 	//	
+	 	//			t.Execute(Node, null, null, Flow);
+	 	//	
+	 	//			var otc = new OutgoingTransactionApc {Tag = t.Tag};
+	 	//	
+	 	//			while((otc.Execute(Node, null, null, Flow) as TransactionApe).Status != TransactionStatus.Confirmed)
+	 	//			{
+	 	//				Thread.Sleep(1000);
+	 	//			}
+	 	//	
+	 	//			return new AssetTransferIccr {TransactionId = t.Tag};
+	 	//		}
+	 	//	}
+ 		//}
+	
+		throw new IccpException(IccpError.Unavailable);
+	}
 }

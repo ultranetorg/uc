@@ -210,7 +210,7 @@ public class BaseControl : UserControl
 	}
 }
 
-public class MainPanel : BaseControl
+public class McvPanel : BaseControl
 {
 	public bool First = true;
 
@@ -218,7 +218,7 @@ public class MainPanel : BaseControl
 	public virtual void Close(){ }
 	public virtual void PeriodicalRefresh(){ }
 
-	public MainPanel()
+	public McvPanel()
 	{
 	}
 }

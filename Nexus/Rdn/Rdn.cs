@@ -62,7 +62,8 @@ public class VirtualRdn : Rdn
 }
 public class Developer0Rdn : Rdn
 {
-	public override	Zone	Zone => Zone.Developer0;
+	public override	Zone		Zone => Zone.Developer0;
+	public override IPAddress	DefaultHost => StandardHost;
 
 	public Developer0Rdn()
 	{
@@ -75,7 +76,8 @@ public class Developer0Rdn : Rdn
 
 public class TestRdn : Rdn
 {
-	public override	Zone	Zone => Zone.Test;
+	public override	Zone		Zone => Zone.Test;
+	public override IPAddress	DefaultHost => StandardHost;
 
 	public TestRdn()
 	{

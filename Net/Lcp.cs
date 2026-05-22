@@ -35,7 +35,7 @@ public abstract class LcpConnection
 	protected int					IdCounter = 0;
 	protected Flow					Flow;
 
-	public Func<string, string, IccpArgumentation, IccpResult>	Handler;
+	public Func<string, string, IccpArgumentation, IccpLcpConnection, IccpResult>	Handler;
 
 	public abstract void			Listen();
 
@@ -125,7 +125,7 @@ public abstract class LcpServer
 	public readonly List<LcpConnection>	Connections = new();
 
 	public virtual void					Accept(LcpConnection connection){}
-	public abstract IccpResult			Relay(string from, string to, IccpArgumentation call);
+	public abstract IccpResult			Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection);
 
 	protected abstract LcpConnection	CreateConnection(NamedPipeServerStream pipe);
 

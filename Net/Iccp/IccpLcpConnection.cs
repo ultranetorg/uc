@@ -27,25 +27,25 @@ public class IccpLcpConnection : LcpConnection
 	public IccpLcpConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
 
-		Handler = (from, to, a) =>	{
-										if(Calls.TryGetValue(a.GetType(), out var e))
-										{
-											return e(to, a);
-										}
+		Handler = (from, to, a, c) =>	{
+											if(Calls.TryGetValue(a.GetType(), out var e))
+											{
+												return e(to, a);
+											}
 
-										var m = GetType().GetMethods().First(i =>	i.GetParameters().Length == 2 && 
-																					i.GetParameters()[0].ParameterType == typeof(string) && 
-																					i.GetParameters()[1].ParameterType == a.GetType() && 
-																					i.ReturnType == typeof(Result))
-												??
-												throw new IccpException(IccpError.NotFound);
+											var m = GetType().GetMethods().First(i =>	i.GetParameters().Length == 2 && 
+																						i.GetParameters()[0].ParameterType == typeof(string) && 
+																						i.GetParameters()[1].ParameterType == a.GetType() && 
+																						i.ReturnType == typeof(Result))
+													??
+													throw new IccpException(IccpError.NotFound);
 
-										var ma = CreateAdapter<Func<string, IccpArgumentation, IccpResult>>(m);
+											var ma = CreateAdapter<Func<string, IccpArgumentation, IccpResult>>(m);
 										
-										Calls[a.GetType()] = ma;
+											Calls[a.GetType()] = ma;
 
-										return ma(to, a);
-									};
+											return ma(to, a);
+										};
 	}
 
 	TFunc CreateAdapter<TFunc>(MethodInfo mi) where TFunc : Delegate
@@ -87,7 +87,7 @@ public class IccpLcpConnection : LcpConnection
 	{
 		try
 		{
-			var r = Handler(from, to, request.Argumentation as IccpArgumentation);
+			var r = Handler(from, to, request.Argumentation as IccpArgumentation, this);
 	
 			lock(Writer)
 			{

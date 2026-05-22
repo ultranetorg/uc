@@ -48,9 +48,10 @@ partial class TransferPage
 		ToEntity = new ComboBox();
 		label7 = new Label();
 		pictureBox1 = new PictureBox();
-		Balance = new Label();
+		BalanceLabel = new Label();
 		label11 = new Label();
 		label12 = new Label();
+		Balance = new Label();
 		((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
 		SuspendLayout();
 		// 
@@ -244,15 +245,16 @@ partial class TransferPage
 		pictureBox1.TabIndex = 16;
 		pictureBox1.TabStop = false;
 		// 
-		// Balance
+		// BalanceLabel
 		// 
-		Balance.AutoSize = true;
-		Balance.Location = new Point(457, 326);
-		Balance.Margin = new Padding(6, 13, 6, 13);
-		Balance.Name = "Balance";
-		Balance.Size = new Size(96, 32);
-		Balance.TabIndex = 13;
-		Balance.Text = "Balance";
+		BalanceLabel.AutoSize = true;
+		BalanceLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+		BalanceLabel.Location = new Point(457, 326);
+		BalanceLabel.Margin = new Padding(6, 13, 6, 13);
+		BalanceLabel.Name = "BalanceLabel";
+		BalanceLabel.Size = new Size(102, 32);
+		BalanceLabel.TabIndex = 13;
+		BalanceLabel.Text = "Balance";
 		// 
 		// label11
 		// 
@@ -276,6 +278,16 @@ partial class TransferPage
 		label12.TabIndex = 12;
 		label12.Text = "Recipient";
 		// 
+		// Balance
+		// 
+		Balance.AutoSize = true;
+		Balance.Location = new Point(565, 326);
+		Balance.Margin = new Padding(6, 13, 6, 13);
+		Balance.Name = "Balance";
+		Balance.Size = new Size(39, 32);
+		Balance.TabIndex = 13;
+		Balance.Text = ".....";
+		// 
 		// TransferPage
 		// 
 		AutoScaleDimensions = new SizeF(13F, 32F);
@@ -290,6 +302,7 @@ partial class TransferPage
 		Controls.Add(label11);
 		Controls.Add(label7);
 		Controls.Add(Balance);
+		Controls.Add(BalanceLabel);
 		Controls.Add(label4);
 		Controls.Add(ToEntity);
 		Controls.Add(FromEntity);
@@ -328,7 +341,8 @@ partial class TransferPage
 	private ComboBox ToEntity;
 	private Label label7;
 	private PictureBox pictureBox1;
-	private Label Balance;
+	private Label BalanceLabel;
 	private Label label11;
 	private Label label12;
+	private Label Balance;
 }

@@ -1,5 +1,7 @@
 ﻿
-namespace Uccs.Mcv.FUI
+using Uccs.Mcv.FUI;
+
+namespace Uccs.Nexus.Windows
 {
 	partial class DomainPanel
 	{

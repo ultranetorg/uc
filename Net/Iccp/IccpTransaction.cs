@@ -2,6 +2,12 @@
 
 namespace Uccs.Net;
 
+public enum IccpTransactionClass : uint
+{
+	None, 
+	AssetTransfer,
+}
+
 public abstract class IccpTransaction : IBinarySerializable, ITypeCode
 {
 	public abstract bool	IncomingExecute(Execution execution);
@@ -9,36 +15,50 @@ public abstract class IccpTransaction : IBinarySerializable, ITypeCode
 	public abstract void	OutgoingConfirm(Execution execution);
 	public abstract void	OutgoingRollback(Execution execution);
 
+	public byte[]			Signature { get; set; }
+
 	public virtual void Write(Writer writer)
 	{
+		writer.Write(Signature);
 	}
 
 	public virtual void Read(Reader reader)
 	{
+		Signature = reader.ReadBytes(Cryptography.SignatureLength);
 	}
 }
 
 public class AssetTransfer : IccpTransaction
 {
-	public byte[]		SourceHolder { get; set; }
-	public byte[]		SourceAsset { get; set; } /// May define not only a type but also other properties like Expiration for Energy
-	public byte[]		DestinationHolder { get; set; }
+	public string		FromNet { get; set; }
+	public byte[]		FromEntity { get; set; }
+	public byte[]		Asset { get; set; } /// May define not only a type but also other properties like Expiration for Energy
 	public BigInteger	Amount { get; set; }
+	public string		ToNet { get; set; }
+	public byte[]		ToEntity { get; set; }
 
 	public override void Write(Writer writer)
 	{
-		writer.Write(SourceHolder);
-		writer.Write(SourceAsset);
-		writer.Write(DestinationHolder);
+		base.Write(writer);
+
+		writer.WriteASCII(FromNet);
+		writer.WriteBytes(FromEntity);
+		writer.WriteBytes(Asset);
 		writer.Write(Amount);
+		writer.WriteASCII(ToNet);
+		writer.WriteBytes(ToEntity);
 	}
 
 	public override void Read(Reader reader)
 	{
-		SourceHolder			= reader.ReadBytes();
-		SourceAsset				= reader.ReadBytes();
-		DestinationHolder		= reader.ReadBytes();
-		Amount					= reader.ReadBigInteger();
+		base.Read(reader);
+
+		FromNet			= reader.ReadASCII();
+		FromEntity		= reader.ReadBytes();
+		Asset			= reader.ReadBytes();
+		Amount			= reader.ReadBigInteger();
+		ToNet			= reader.ReadASCII();
+		ToEntity		= reader.ReadBytes();
 	}
 
 	public override bool IncomingExecute(Execution execution)
@@ -56,6 +76,21 @@ public class AssetTransfer : IccpTransaction
 
 	public override void OutgoingRollback(Execution execution)
 	{
+	}
+
+	public byte[] Hashify()
+	{
+		var s = new Blake2Stream();
+		var w = new Writer(s);
+
+		w.WriteASCII(FromNet);
+		w.Write(FromEntity);
+		w.Write(Asset);
+		w.Write(Amount);
+		w.WriteASCII(ToNet);
+		w.Write(ToEntity);
+
+		return s.Hash;
 	}
 }
 

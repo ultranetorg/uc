@@ -80,7 +80,8 @@ public class VirtualFair : Fair
 
 public class Developer0Fair : Fair
 {
-	public override	Zone	Zone => Zone.Developer0;
+	public override	Zone		Zone => Zone.Developer0;
+	public override IPAddress	DefaultHost => StandardHost;
 
 	public Developer0Fair()
 	{
@@ -93,7 +94,8 @@ public class Developer0Fair : Fair
 
 public class TestFair : Fair
 {
-	public override	Zone	Zone => Zone.Test;
+	public override	Zone		Zone => Zone.Test;
+	public override IPAddress	DefaultHost => StandardHost;
 
 	public TestFair()
 	{

@@ -150,7 +150,8 @@ public class McvSummaryApc : McvApc
 		lock(node.Peering.Lock)
 		{
 			f = new () {{"Peers all/in/out",		$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound )}/{node.Peering.Connections.Count(i => !i.Inbound)} {(node.Peering.MinimalPeersReached ? " MinimalPeersReached" : null)}"},
-						{"IP(Reported):Port",		$"{node.Peering.Settings.EP} ({node.Peering})"},
+						{"Endpoint",				$"{node.Peering.Settings.EP}"},
+						{"Reported IP",				$"{node.Peering.EP?.IP}"},
 						{"Votes Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"},
 						{"Candidate Transactions",	$"{node.Peering.CandidateTransactions.Count}"}
 						};

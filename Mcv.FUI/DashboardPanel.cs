@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Mcv.FUI;
 
-public partial class DashboardPanel : MainPanel
+public partial class DashboardPanel : McvPanel
 {
 	McvNode Node;
 

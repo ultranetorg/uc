@@ -9,6 +9,7 @@ public abstract class Cryptography
 {
 	public static readonly Cryptography				No = new NoCryptography();
 	public static readonly Cryptography				Mcv = new McvCryptography();
+	public static readonly Cryptography				Iccp = new IccpCryptography();
 
 	public const int								HashLength = 32;
 	public const int								SignatureLength = 64;
@@ -158,6 +159,11 @@ public class McvCryptography : Cryptography
 
 		return AccountKey.Verify(address.Bytes, signature, hash);
 	}
+}
+
+public class IccpCryptography : McvCryptography
+{
+	public override CryptographyType Type => CryptographyType.Iccp;
 }
 
 public class Blake2Stream : Stream

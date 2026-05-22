@@ -44,6 +44,9 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 		
 		v.Deleted = true;
 		
+		var u = Execution.AffectUser(v.Creator);
+		u.Reviews = u.Reviews.Remove(v.Id);
+		
 		Execution.Free(site, site, Encoding.UTF8.GetByteCount(v.Text));
 		Execution.Free(site, site, Execution.Net.EntityLength);
 	}

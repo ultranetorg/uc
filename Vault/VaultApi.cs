@@ -184,23 +184,7 @@ internal class AuthenticateApc : Net.AuthenticateApc, IVaultApc
 	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
-		{
-			var c = vault.AuthenticationRequested?.Invoke(Application, Logo, Net, User, Account);
-	
-			if(c != null)
-			{
-				var a = vault.Find(c.Account);
-		
-				if(a == null)
-					throw new VaultException(VaultError.AccountNotFound);
-		
-				var n = a.AddAuthentication(Application, Net, User, Logo, c.Trust);
-		
-				return new AuthenticationResult {Signer = c.Account, Session = n.Session};
-			} 
-			else
-				throw new VaultException(VaultError.Rejected);
-		}
+			return vault.Authenticate(Application, Net, User, Logo, Account, flow);
 	}
 }
 
@@ -208,44 +192,7 @@ internal class AuthorizeApc : Net.AuthorizeApc, IVaultApc
 {
 	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		if(string.IsNullOrWhiteSpace(Application) || string.IsNullOrWhiteSpace(Net) || Session.Length != Uccs.Net.Cryptography.HashLength)
-			throw new VaultException(VaultError.IncorrectArgumets);
-
-		var h = new	Authentication {Application = Application, Net = Net, Session = Session, User = User}.Hashify();
-
-		WalletAccount acc;
-
 		lock(vault)
-		{
-			var w = vault.Wallets.Find(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
-	
-			if(w == null)
-				throw new VaultException(VaultError.NotFound);
-	
-			if(w.Locked)
-				vault.UnlockRequested?.Invoke(null,w.Name);
-	
-			if(w.Locked)
-				throw new VaultException(VaultError.Locked);
-	
-			//acc = w.Accounts.Find(i => i.Address == Account);
-			
-			acc = w.Accounts.FirstOrDefault(i => i.Authentications.Any(i =>	i.Session.SequenceEqual(Session)));
-	
-			var au = acc?.Authentications.Find(i => i.Session.SequenceEqual(Session));
-
-			if(au == null)
-				throw new VaultException(VaultError.Corrupted);
-	
-			if(au.Trust == Trust.AskEveryTime)
-				vault.AuthorizationRequested(acc.Address, au, Operation);
-		}
-
-		return Cryptography switch 
-							{
-								CryptographyType.No => Uccs.Net.Cryptography.No.Sign(acc.Key, Hash),
-								CryptographyType.Mcv => Uccs.Net.Cryptography.Mcv.Sign(acc.Key, Hash),
-								_ => throw new VaultException(VaultError.UnknownCtyptography)
-							};
+			return vault.Authorize(Cryptography, Net, Application, Operation, User, Session, Hash, flow);
 	}
 }

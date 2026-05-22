@@ -62,7 +62,7 @@ public class AuthenticateApc : Apc
 [JsonConverter(typeof(JsonStringEnumConverter))] 
 public enum CryptographyType : byte
 {
-	No, Mcv
+	No, Mcv, Iccp
 }
 
 public class AuthorizeApc : Apc

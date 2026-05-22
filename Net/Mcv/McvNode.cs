@@ -41,7 +41,8 @@ public class McvNode : Node
 	public new McvNet		Net => base.Net as McvNet;
 	public Mcv				Mcv;
 	public McvPeering		Peering;
-	public McvNodeSettings	Settings;
+	public McvIccpLcpConnection		Iccp;
+	public McvNodeSettings			Settings;
 
 	public McvNode(McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(net, profile, nexussettings,  flow)
 	{

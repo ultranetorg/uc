@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Mcv.FUI;
 
-public partial class NnNetworkPanel : MainPanel
+public partial class NnNetworkPanel : McvPanel
 {
 	Flow Flow;
 

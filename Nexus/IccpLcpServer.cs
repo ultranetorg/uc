@@ -37,16 +37,16 @@ public class IccpLcpServer : LcpServer
 			c.Api = connection.Reader.ReadUtf8();
 		}
 
-		connection.Handler = (from, to, a) => Relay(from, to, a);  /// relay from local nodes
+		connection.Handler = (from, to, a, c) => Relay(from, to, a,c );  /// relay from local nodes
 	}
 
-	public override IccpResult Relay(string from, string to, IccpArgumentation call)
+	public override IccpResult Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection)
 	{
 		if(call is not TransferRequestIcca tr)
 		{
 			var c = Locals.FirstOrDefault(i => i.Net == to);
 
-			if(c != null)
+			if(c != null && c != connection)
 			{
 				try
 				{

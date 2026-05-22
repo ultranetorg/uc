@@ -1,15 +1,17 @@
 ﻿using System.Windows.Forms;
+using Uccs.Mcv.FUI;
+using Uccs.Rdn;
 
-namespace Uccs.Mcv.FUI;
+namespace Uccs.Nexus.Windows;
 
-public partial class ResourcesPanel : MainPanel
+public partial class ResourcesPanel : McvPanel
 {
 	Flow ManifestWorkflow;
-	//RdnNode Node;
+	RdnNode Node;
 
-	public ResourcesPanel()
+	public ResourcesPanel(RdnNode node)
 	{
-		//Node = mcv;
+		Node = node;
 
 		InitializeComponent();
 

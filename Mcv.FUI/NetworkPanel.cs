@@ -3,7 +3,7 @@
 namespace Uccs.Mcv.FUI;
 
 
-public partial class NetworkPanel : MainPanel
+public partial class NetworkPanel : McvPanel
 {
 	HomoPeering Peering;
 

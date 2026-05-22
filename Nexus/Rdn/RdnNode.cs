@@ -24,8 +24,6 @@ public class RdnNode : McvNode
 	public ResourceHub				ResourceHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
-	//public RdnNnTcpPeering		NnPeering;
-	public McvIccpLcpConnection		Iccp;
 	List<OutwardTransaction>		CurrentOutwards = [];
 
 	public RdnNode(Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), profile, nexussettings, flow)

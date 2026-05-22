@@ -256,4 +256,63 @@ public class Vault : Cli
 		}
 	}
 
+	public AuthenticationResult Authenticate(string application, string net, string user, byte[] logo, AccountAddress account, Flow flow)
+	{
+		var c = AuthenticationRequested?.Invoke(application, logo, net, user, account);
+	
+		if(c != null)
+		{
+			var a = Find(c.Account);
+		
+			if(a == null)
+				throw new VaultException(VaultError.AccountNotFound);
+		
+			var n = a.AddAuthentication(application, net, user, logo, c.Trust);
+		
+			return new AuthenticationResult {Signer = c.Account, Session = n.Session};
+		} 
+		else
+			throw new VaultException(VaultError.Rejected);
+	}
+
+	public byte[] Authorize(CryptographyType cryptography, string net, string application, string operation, string user, byte[] session, byte[] Hash, Flow flow)
+	{
+		if(string.IsNullOrWhiteSpace(application) || string.IsNullOrWhiteSpace(net) || session.Length != Cryptography.HashLength)
+			throw new VaultException(VaultError.IncorrectArgumets);
+
+		var h = new	Authentication {Application = application, Net = net, Session = session, User = user}.Hashify();
+
+		WalletAccount acc;
+
+		var w = Wallets.Find(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
+	
+		if(w == null)
+			throw new VaultException(VaultError.NotFound);
+	
+		if(w.Locked)
+			UnlockRequested?.Invoke(null,w.Name);
+	
+		if(w.Locked)
+			throw new VaultException(VaultError.Locked);
+	
+		//acc = w.Accounts.Find(i => i.Address == Account);
+			
+		acc = w.Accounts.FirstOrDefault(i => i.Authentications.Any(i =>	i.Session.SequenceEqual(session)));
+	
+		var au = acc?.Authentications.Find(i => i.Session.SequenceEqual(session));
+
+		if(au == null)
+			throw new VaultException(VaultError.Corrupted);
+	
+		if(au.Trust == Trust.AskEveryTime)
+			AuthorizationRequested(acc.Address, au, operation);
+
+		return cryptography switch 
+							{
+								CryptographyType.No => Cryptography.No.Sign(acc.Key, Hash),
+								CryptographyType.Mcv => Cryptography.Mcv.Sign(acc.Key, Hash),
+								CryptographyType.Iccp => Cryptography.Iccp.Sign(acc.Key, Hash),
+								_ => throw new VaultException(VaultError.UnknownCtyptography)
+							};
+	}
 }

@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace Uccs.Mcv.FUI;
 
-public partial class TransactionsPanel : MainPanel
+public partial class TransactionsPanel : McvPanel
 {
 	McvNode Node;
 	

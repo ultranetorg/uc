@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace Uccs.Mcv.FUI;
 
-public partial class MembersPanel : MainPanel
+public partial class MembersPanel : McvPanel
 {
 	Font		Bold;
 	McvNode		Node;

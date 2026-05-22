@@ -103,7 +103,7 @@
 		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
 		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-		private System.Windows.Forms.TreeView Navigator;
+		protected System.Windows.Forms.TreeView Navigator;
 		private System.Windows.Forms.Panel place;
 	}
 }

@@ -1,5 +1,5 @@
 ﻿
-namespace Uccs.Mcv.FUI
+namespace Uccs.Nexus.Windows
 {
 	partial class ResourcesPanel
 	{

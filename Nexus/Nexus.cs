@@ -54,7 +54,13 @@ public class Nexus : IProgram
 		{
 			IccpLcpServer = new IccpLcpServer(this);
 	
-			IccpPeering = new IccpPeering(this, Settings.Name, Settings.IccpPeering, IccpLcpServer, () => IccpLcpServer.Locals.Select(i => i.Net).ToList(), Flow);
+			IccpPeering = new IccpPeering(this, 
+											Settings.Name, 
+											Settings.IccpPeering, 
+											IccpLcpServer, 
+											() => IccpLcpServer.Locals.Select(i => i.Net).ToList(), 
+											() => RdnNode.Peering.Call(new MembersPpc(), flow).Members.SelectMany(i => i.GraphPpcIPs.Select(i => i.IP)).ToArray(), 
+											Flow);
 			IccpPeering.Run();
 		}
 
@@ -157,7 +163,7 @@ public class Nexus : IProgram
 		}
 		else
 		{
-			var r = IccpPeering.Call(null, snp.Net, new InfoIcca(), flow) as InfoIccr;
+			var r = IccpLcpServer.Relay(null, snp.Net, new InfoIcca(), null) as InfoIccr;
 
 			foreach(var wi in r.Wayins)
 			{
@@ -237,5 +243,24 @@ public class Nexus : IProgram
 		Environment.SetEnvironmentVariable(Application.ProfileKey,			Settings.Profile);
 
 		Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, address);
+	}
+
+	public byte[] GetApplicationSession(string net, Flow flow)
+	{
+		var s = Settings.Sessions.FirstOrDefault(i => i.Net == net);
+
+		if(s == null)
+		{
+			lock(Vault)
+				s = new NexusSessionSettings
+					{
+						Net = net,
+						Session = Vault.Authenticate(Settings.Name, net, "", null, null, flow).Session
+					};
+
+			Settings.Sessions = [..Settings.Sessions, s];
+		}
+
+		return s.Session;
 	}
 }	

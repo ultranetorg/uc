@@ -72,7 +72,7 @@ public class IccpPeer : Peer, IBinarySerializable
 						
 						try
 						{
-							var r = (Peering as IccpPeering).Lcp.Relay(from, to, rq);
+							var r = (Peering as IccpPeering).Lcp.Relay(from, to, rq, null);
 
 							if(r != null)
 							{

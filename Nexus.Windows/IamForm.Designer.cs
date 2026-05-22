@@ -49,10 +49,11 @@ partial class IamForm
 		Sessions.Font = new Font("Segoe UI", 12F);
 		Sessions.Image = Properties.Resources.checked_figure;
 		Sessions.ImageAlign = ContentAlignment.MiddleLeft;
-		Sessions.Location = new Point(12, 156);
+		Sessions.Location = new Point(22, 333);
+		Sessions.Margin = new Padding(6, 6, 6, 6);
 		Sessions.Name = "Sessions";
-		Sessions.Padding = new Padding(10, 0, 0, 0);
-		Sessions.Size = new Size(230, 64);
+		Sessions.Padding = new Padding(19, 0, 0, 0);
+		Sessions.Size = new Size(427, 137);
 		Sessions.TabIndex = 2;
 		Sessions.TabStop = true;
 		Sessions.Text = " Sessions";
@@ -67,10 +68,11 @@ partial class IamForm
 		radioButton3.Font = new Font("Segoe UI", 12F);
 		radioButton3.Image = Properties.Resources.setting_2_1_;
 		radioButton3.ImageAlign = ContentAlignment.MiddleLeft;
-		radioButton3.Location = new Point(12, 622);
+		radioButton3.Location = new Point(22, 1327);
+		radioButton3.Margin = new Padding(6, 6, 6, 6);
 		radioButton3.Name = "radioButton3";
-		radioButton3.Padding = new Padding(10, 0, 0, 0);
-		radioButton3.Size = new Size(230, 64);
+		radioButton3.Padding = new Padding(19, 0, 0, 0);
+		radioButton3.Size = new Size(427, 137);
 		radioButton3.TabIndex = 2;
 		radioButton3.TabStop = true;
 		radioButton3.Text = " Settings";
@@ -84,10 +86,11 @@ partial class IamForm
 		Assets.Font = new Font("Segoe UI", 12F);
 		Assets.Image = Properties.Resources.coins;
 		Assets.ImageAlign = ContentAlignment.MiddleLeft;
-		Assets.Location = new Point(12, 226);
+		Assets.Location = new Point(22, 482);
+		Assets.Margin = new Padding(6, 6, 6, 6);
 		Assets.Name = "Assets";
-		Assets.Padding = new Padding(10, 0, 0, 0);
-		Assets.Size = new Size(230, 64);
+		Assets.Padding = new Padding(19, 0, 0, 0);
+		Assets.Size = new Size(427, 137);
 		Assets.TabIndex = 2;
 		Assets.TabStop = true;
 		Assets.Text = " Assets && Tokens";
@@ -101,10 +104,11 @@ partial class IamForm
 		WalletsAndAccounts.Font = new Font("Segoe UI", 12F);
 		WalletsAndAccounts.Image = Properties.Resources.users;
 		WalletsAndAccounts.ImageAlign = ContentAlignment.MiddleLeft;
-		WalletsAndAccounts.Location = new Point(12, 86);
+		WalletsAndAccounts.Location = new Point(22, 183);
+		WalletsAndAccounts.Margin = new Padding(6, 6, 6, 6);
 		WalletsAndAccounts.Name = "WalletsAndAccounts";
-		WalletsAndAccounts.Padding = new Padding(10, 0, 0, 0);
-		WalletsAndAccounts.Size = new Size(230, 64);
+		WalletsAndAccounts.Padding = new Padding(19, 0, 0, 0);
+		WalletsAndAccounts.Size = new Size(427, 137);
 		WalletsAndAccounts.TabIndex = 2;
 		WalletsAndAccounts.TabStop = true;
 		WalletsAndAccounts.Text = " Wallets && Accounts";
@@ -114,9 +118,10 @@ partial class IamForm
 		// 
 		// Place
 		// 
-		Place.Location = new Point(262, 86);
+		Place.Location = new Point(487, 183);
+		Place.Margin = new Padding(6, 6, 6, 6);
 		Place.Name = "Place";
-		Place.Size = new Size(800, 600);
+		Place.Size = new Size(1486, 1280);
 		Place.TabIndex = 3;
 		// 
 		// Logo
@@ -125,7 +130,8 @@ partial class IamForm
 		Logo.BackgroundImageLayout = ImageLayout.None;
 		Logo.Image = (Image)resources.GetObject("Logo.Image");
 		Logo.InitialImage = null;
-		Logo.Location = new Point(20, 9);
+		Logo.Location = new Point(37, 19);
+		Logo.Margin = new Padding(6, 6, 6, 6);
 		Logo.Name = "Logo";
 		Logo.Size = new Size(48, 48);
 		Logo.SizeMode = PictureBoxSizeMode.AutoSize;
@@ -140,13 +146,14 @@ partial class IamForm
 		panel1.Location = new Point(0, 0);
 		panel1.Margin = new Padding(0);
 		panel1.Name = "panel1";
-		panel1.Size = new Size(1080, 71);
+		panel1.Size = new Size(2006, 151);
 		panel1.TabIndex = 5;
 		// 
 		// pictureBox1
 		// 
 		pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-		pictureBox1.Location = new Point(74, -2);
+		pictureBox1.Location = new Point(137, -4);
+		pictureBox1.Margin = new Padding(6, 6, 6, 6);
 		pictureBox1.Name = "pictureBox1";
 		pictureBox1.Size = new Size(300, 70);
 		pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
@@ -159,22 +166,23 @@ partial class IamForm
 		Transfer.Font = new Font("Segoe UI", 12F);
 		Transfer.Image = Properties.Resources.money_send;
 		Transfer.ImageAlign = ContentAlignment.MiddleLeft;
-		Transfer.Location = new Point(45, 296);
+		Transfer.Location = new Point(84, 631);
+		Transfer.Margin = new Padding(6, 6, 6, 6);
 		Transfer.Name = "Transfer";
-		Transfer.Padding = new Padding(10, 0, 0, 0);
-		Transfer.Size = new Size(197, 64);
+		Transfer.Padding = new Padding(19, 0, 0, 0);
+		Transfer.Size = new Size(366, 137);
 		Transfer.TabIndex = 2;
 		Transfer.TabStop = true;
-		Transfer.Text = " Transfer";
+		Transfer.Text = "Net-to-Net Transfer";
 		Transfer.TextImageRelation = TextImageRelation.ImageBeforeText;
 		Transfer.UseVisualStyleBackColor = true;
 		Transfer.CheckedChanged += radioButton_CheckedChanged;
 		// 
 		// IamForm
 		// 
-		AutoScaleDimensions = new SizeF(7F, 15F);
+		AutoScaleDimensions = new SizeF(13F, 32F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(1074, 696);
+		ClientSize = new Size(1995, 1485);
 		Controls.Add(panel1);
 		Controls.Add(Place);
 		Controls.Add(radioButton3);
@@ -182,6 +190,7 @@ partial class IamForm
 		Controls.Add(Assets);
 		Controls.Add(WalletsAndAccounts);
 		Controls.Add(Sessions);
+		Margin = new Padding(6, 6, 6, 6);
 		Name = "IamForm";
 		StartPosition = FormStartPosition.CenterScreen;
 		Text = "Identity and Activity Management";

@@ -1,8 +1,9 @@
 ﻿using System.Windows.Forms;
+using Uccs.Mcv.FUI;
 
-namespace Uccs.Mcv.FUI;
+namespace Uccs.Nexus.Windows;
 
-public partial class DomainPanel : MainPanel
+public partial class DomainPanel : McvPanel
 {
 	public DomainPanel()
 	{

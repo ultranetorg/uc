@@ -19,6 +19,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'"></PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Mcv.FUI\Uccs.Mcv.FUI.csproj" />
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
     <ProjectReference Include="..\Vault\Uccs.Vault.csproj" />
   </ItemGroup>
@@ -29,17 +30,20 @@
     <Compile Update="AuthenticattionForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="RdnRecipientForm.cs">
-      <SubType>Form</SubType>
+    <Compile Update="Rdn\DomainPanel.cs">
+      <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="RdnTransferForm.cs">
-      <SubType>Form</SubType>
+    <Compile Update="Rdn\HubPanel.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="CreateWalletForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="EnterPasswordForm.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Rdn\ResourcesPanel.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="TextForm.cs">
       <SubType>Form</SubType>
@@ -58,12 +62,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="AuthenticattionForm.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="RdnRecipientForm.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="RdnTransferForm.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="CreateWalletForm.resx">

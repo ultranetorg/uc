@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
+using System.Text.Json;
 using Uccs.Net;
 using Uccs.Rdn;
 
@@ -135,8 +137,8 @@ public partial class TransferPage : Page
 	{
 		var e = Iccp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
 
-		Balance.Text = "Balance: ";
-		Balance.Text += (Iccp.Call(	null,
+		BalanceLabel.Text = "Balance: ";
+		BalanceLabel.Text += (Iccp.Call(	null,
 									FromNet.Text,	
 									new AssetBalanceIcca
 									{
@@ -171,20 +173,30 @@ public partial class TransferPage : Page
 	{
 		try
 		{
-			var f = new Flow(5000);
+			var f = new Flow();
 
-			Iccp.Call(null, FromNet.Text,	new AssetTransferIcca
-											{
-												FromEntity	= Iccp.AddressTextToUniversal(null, FromNet.Text, FromEntity.Text, f),
-												ToNet		= ToNet.Text,
-												ToEntity	= Iccp.AddressTextToUniversal(null, ToNet.Text, ToEntity.Text, f),
-												Asset		= (Asset.SelectedItem as Asset).Id,
-												Amount		= BigInteger.Parse(Amount.Text),
-												//Signer		= ,
-											},
-											f);
+			var t = new AssetTransfer
+					{
+						FromNet		= FromNet.Text,
+						FromEntity	= Iccp.AddressTextToUniversal(null, FromNet.Text, FromEntity.Text, f),
+						Asset		= (Asset.SelectedItem as Asset).Id,
+						Amount		= BigInteger.Parse(Amount.Text),
+						ToNet		= ToNet.Text,
+						ToEntity	= Iccp.AddressTextToUniversal(null, ToNet.Text, ToEntity.Text, f),
+					};
+
+			t.Signature = Nexus.Vault.Authorize(CryptographyType.Iccp,
+												FromNet.Text,
+												Nexus.Settings.Name,
+												JsonSerializer.Serialize(t),
+												"",
+												Nexus.GetApplicationSession(FromNet.Text, f),
+												t.Hashify(),
+												f);
+
+			Iccp.Call(null, FromNet.Text, new TransactIcca {Transactions = [t]}, f);
 		}
-		catch(Exception ex)
+		catch(Exception ex) when(!Debugger.IsAttached)
 		{
 			ShowError(ex.Message);
 		}

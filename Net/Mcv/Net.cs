@@ -16,7 +16,7 @@ public enum Zone : ushort
 
 public enum KnownProtocol : ushort
 {
-	Nni			= 000,
+	Iccp		= 000,
 	SystemApi	= 900,
 	Rdn			= 001,
 	RdnApi		= 901,
@@ -33,14 +33,15 @@ public class Port
 public abstract class Net
 {
 	public const string					Root = "rdn";
-	public IPAddress					DefaultHost => Initials[0];
+	public virtual IPAddress			DefaultHost => Initials[0];
+	public readonly IPAddress			StandardHost = new IPAddress([127, 1, 0, 0]);
 
 	public abstract string				Address { get; }
 	public abstract string				Name { get; }
 	public abstract	Zone				Zone { get; }
 	public abstract ushort				PpiPort { get; }
 	public abstract ushort				ApiPort { get; }
-	public ushort						IccpPort => Port.Map(Zone, KnownProtocol.Nni);
+	public ushort						IccpPort => Port.Map(Zone, KnownProtocol.Iccp);
 
 	public IPAddress[]					Initials;
 	public static readonly IPAddress[]	UOInitials = @" 78.47.204.100	

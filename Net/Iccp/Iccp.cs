@@ -14,6 +14,7 @@ public class Iccp
  		Constructor = new ();
 		Constructor.Register<IccpArgumentation>	(Assembly.GetExecutingAssembly(), typeof(IccpClass), i => i[..^4]);
 		Constructor.Register<IccpResult>		(Assembly.GetExecutingAssembly(), typeof(IccpClass), i => i[..^4]);
+		Constructor.Register<IccpTransaction>	(Assembly.GetExecutingAssembly(), typeof(IccpTransactionClass), i => i);
 		Constructor.Register<CodeException>		(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 	}
 }
@@ -34,9 +35,15 @@ public enum IccpClass : uint
 	HolderClasses,
 	HolderAssets,
 	AssetBalance,
-	AssetTransfer
+	Transact
 }
 
+public class IccpEntityAddress
+{
+	public static string ToText(string table, EntityId id) => $"{table}/{id}";
+	public static string ToText<T>(T table, EntityId id) => $"{table}/{id}";
+	public static byte[] ToBytes(byte table, EntityId id) => [table, ..id.Raw];
+}
 
 public abstract class IccpArgumentation : Argumentation, IBinarySerializable
 {

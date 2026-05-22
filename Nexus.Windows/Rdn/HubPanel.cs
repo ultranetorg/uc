@@ -1,8 +1,9 @@
 ﻿using System.Windows.Forms;
+using Uccs.Mcv.FUI;
 
-namespace Uccs.Mcv.FUI;
+namespace Uccs.Nexus.Windows;
 
-public partial class HubPanel : MainPanel
+public partial class HubPanel : McvPanel
 {
 	//RdnNode Node;
 

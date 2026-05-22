@@ -30,14 +30,18 @@ public class IccpPeering : TcpPeering<IccpPeer>
 	Func<List<string>>							GetNets;
 	public LcpServer							Lcp;
 	const int									SubnetPeerBunch = 16;
+	Func<IPAddress[]>							GetRoots;
+	Endpoint[]									Roots;
 
 	protected override IccpPeer					CreatePeer() => new ();
 
-	public IccpPeering(IProgram program, string name, PeeringSettings settings, LcpServer lcp, Func<List<string>> nets, Flow flow) : base(program, name, settings, flow)
+	public IccpPeering(IProgram program, string name, PeeringSettings settings, LcpServer lcp, Func<List<string>> nets, Func<IPAddress[]> getroots, Flow flow) : base(program, name, settings, flow)
 	{
 		Lcp = lcp;
 		GetNets = nets;
 		Constructor = Iccp.Constructor;
+		//Roots = roots.Select(i => new Endpoint(i, Settings.EP.Port)).ToArray();
+		GetRoots = getroots;
 	}
 
 	public override string ToString()
@@ -212,25 +216,25 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 	public virtual IccpResult Call(string from, string to, IccpArgumentation call, Flow flow)
 	{
-		HashSet<IccpPeer> tried;
+		HashSet<Endpoint> tried;
 		
+		IccpPeer p = null;
+
 		void reset()
 		{
 			tried = [];
+			p = null;
 		}
 
 		reset();
 
 		while(flow.Active)
 		{
-			Thread.Sleep(1);
-			IccpPeer p = null;
-
 			try
 			{
 
 				lock(Lock)
-					p = Peers.Where(i => i.Nets.Contains(to) && (tried == null || !tried.Contains(i)))
+					p = Peers.Where(i => i.Nets.Contains(to) && (tried == null || !tried.Contains(i.EP)))
 							 .OrderByDescending(i => i.Status == ConnectionStatus.OK)
 							 .FirstOrDefault();
 
@@ -238,10 +242,18 @@ public class IccpPeering : TcpPeering<IccpPeer>
 				{
 					if(to == Net.Root)
 					{
-						var l = Lcp.Connections.Cast<IccpLcpConnection>().FirstOrDefault(i => i.Net == to);
+						Roots ??= GetRoots().Select(i => new Endpoint(i, Settings.EP.Port)).ToArray();
 
-						lock(Lock)
-							p = GetPeer((l.Call(null, to, new PeersIcca {}, flow) as PeersIccr).Peers.Random(), [to]);
+						var x = Roots.Where(i => !tried.Contains(i)).RandomOrDefault();
+
+						if(x == null)
+						{
+							reset();
+							continue;
+						}
+
+						p = GetPeer(x, [to]);
+						Connect(p, flow);
 					} 
 					else
 					{
@@ -290,14 +302,14 @@ public class IccpPeering : TcpPeering<IccpPeer>
 					continue;
 				}
 
-				tried.Add(p);
+				tried.Add(p.EP);
 
 				return p.Call(from, to, call, flow);
 			}
 			catch(ContinueException)
 			{
 			}
-			catch(NodeException)
+			catch(NodeException ex)
 			{
 			}
 			catch(ObjectDisposedException)

@@ -34,9 +34,16 @@ public class Program: ApplicationContext
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
 			var b = new NetBoot(ExeDirectory);
-			var ns = new NexusSettings(b.Zone, b.Profile) {Name = Guid.NewGuid().ToString()};
+			var ns = new NexusSettings(b.Zone, b.Profile);
 			var vs = new VaultSettings(b.Profile);
 		
+			if(!File.Exists(ns.Path))
+			{
+				ns.Name = Guid.NewGuid().ToByteArray().ToHex();
+				ns.Host = Rdn.Rdn.ByZone(b.Zone).DefaultHost;
+				ns.Save();
+			}
+
 			Nexus = new Nexus(b, ns, vs, new Flow(nameof(Program), new Log()));
 
 			Nexus.Stopped += n =>	{
@@ -52,6 +59,11 @@ public class Program: ApplicationContext
 																				var f = new IamForm(Nexus);
 																				f.Show();
 																			});
+			contextMenu.Items.Add("-");
+			contextMenu.Items.Add("Rdn", null, (s, e) => {
+														 	var f = new RdnForm(Nexus.RdnNode);
+														 	f.Show();
+														 });
 			contextMenu.Items.Add("-");
 			contextMenu.Items.Add("Exit", null, (s, e) => Nexus.Stop());
 

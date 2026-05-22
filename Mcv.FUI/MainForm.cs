@@ -27,16 +27,14 @@ public partial class MainForm : Form
 		LoadNode(Node);
 	}
 
-	public void BeginClose()
-	{
-		BeginInvoke(Close);
-	}
-
-	void LoadNode(McvNode node)
+	protected virtual void LoadNode(McvNode node)
 	{
 		Dashboard.Monitor.Mcv = node.Mcv;
 
 		var root = Navigator;
+
+		var tf = new TreeNode("Transfer"){Tag = new TransferPanel(node)};
+		root.Nodes.Add(tf);
 
 		var net = new TreeNode("Network"){Tag = new NetworkPanel(node.Peering)};
 		root.Nodes.Add(net);
@@ -53,24 +51,6 @@ public partial class MainForm : Form
 			root.Nodes.Add(c);
 		}
 
-//		if(node is RdnNode rdn)
-//		{
-//			var d = new TreeNode("Domains"){ Tag = new DomainPanel(rdn)};
-//			root.Nodes.Add(d);
-//	
-//			var r = new TreeNode("Resources"){ Tag = new ResourcesPanel(rdn)};
-//			root.Nodes.Add(r);
-//
-//			//var e = new TreeNode("Emission"){ Tag = new EmissionPanel(rdn)};
-//			//root.Nodes.Add(e);
-//
-//			if(rdn.SeedHub != null)
-//			{
-//				var s = new TreeNode("Seed Hub"){ Tag = new HubPanel(rdn)};
-//				root.Nodes.Add(s);
-//			}
-//		}
-
 		root.ExpandAll();
 	}
 
@@ -83,10 +63,15 @@ public partial class MainForm : Form
 		Timer.Start();
 	}
 
+	public void BeginClose()
+	{
+		BeginInvoke(Close);
+	}
+
 	private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 	{
 		foreach(Control i in Controls)
-			if(i is MainPanel j)
+			if(i is McvPanel j)
 			{
 				j.Close();
 			}
@@ -99,20 +84,20 @@ public partial class MainForm : Form
 	{
 		//lock(Uos.Lock)
 		{
-			Text = $"Uos - {Node}";
+			Text = $"{Node}";
 		}
 
 		foreach(var i in Controls)
-			if(i is MainPanel p)
+			if(i is McvPanel p)
 				p.PeriodicalRefresh();
 	}
 
 	private void navigator_AfterSelect(object sender, TreeViewEventArgs e)
 	{
-		var p = e.Node.Tag as MainPanel;
+		var p = e.Node.Tag as McvPanel;
 
 		foreach(Control i in Controls)
-			if(i is MainPanel j)
+			if(i is McvPanel j)
 			{
 				j.Close();
 				Controls.Remove(i);
