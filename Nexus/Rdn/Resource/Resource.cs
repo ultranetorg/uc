@@ -20,12 +20,13 @@ public enum ResourceChanges : byte
 	Recursive		= 0b1000_0000,
 }
 
+[Flags]
 public enum ResourceLinkType : byte
 {
-	None,
-	Hierarchy,
-	Dependency,
-	Extra,
+	None		= 0,
+	Hierarchy	= 1,
+	Dependency	= 2,
+	Extra		= 4,
 	//AntimalwareAnalysis,
 }
 
