@@ -15,7 +15,7 @@ public class ResourceLinkDeletion : RdnOperation
 	public ResourceLinkDeletion(AutoId source, int destination)
 	{
 		Source = source;
-		Index = Index;
+		Index = destination;
 	}
 
 	public override void Write(Writer writer)
