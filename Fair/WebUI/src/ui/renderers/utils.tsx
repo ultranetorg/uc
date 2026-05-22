@@ -150,7 +150,7 @@ export const renderActions = (
   loadingAction?: "approve" | "reject",
   locked?: boolean,
 ) => (
-  <div className="flex gap-5">
+  <div className="flex justify-end gap-5">
     <ButtonPrimary
       className="h-9 w-20 capitalize"
       label={t("common:approve")}

@@ -47,7 +47,7 @@ export const ReviewsPage = () => {
       { accessor: "votes", label: t("common:votes"), type: "votes" },
       { accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull") },
       ...(voterId
-        ? [{ accessor: "action", label: t("common:action"), type: "review-action", className: "w-[20%]" }]
+        ? [{ accessor: "action", label: t("common:action"), type: "review-action", className: "w-[20%] text-center" }]
         : []),
     ],
     [t, voterId],

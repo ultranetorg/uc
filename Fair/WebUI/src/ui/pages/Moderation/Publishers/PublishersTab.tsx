@@ -49,7 +49,7 @@ export const PublishersTab = () => {
               accessor: "actions",
               label: t("common:actions"),
               type: "actions",
-              className: "w-[15%] first-letter:uppercase",
+              className: "w-[10%] text-center first-letter:uppercase",
             },
           ]
         : []),

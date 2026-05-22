@@ -46,7 +46,7 @@ export const UsersPage = () => {
               accessor: "actions",
               label: t("common:actions"),
               type: "actions",
-              className: "w-[20%] first-letter:uppercase",
+              className: "w-[20%] text-center first-letter:uppercase",
             },
           ]
         : []),

@@ -22,23 +22,25 @@ export const moderatorsTabItemRenderer =
 
       case "actions":
         return (
-          <Link
-            to={`/${siteId}/g/new`}
-            state={{
-              parentBreadcrumbs: [
-                { path: `/${siteId}/m`, title: t("common:proposals") },
-                { path: `/${siteId}/m/m/`, title: t("title") },
-              ],
-              title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
-              type: "site-moderator-removal",
-              moderators: [moderator.user],
-              redirectAfterProposalCreation: `/${siteId}/m/m/p/`,
-              redirectAfterProposalExecution: location.pathname,
-              invalidateQueryKeys: sitesKeys.moderators(siteId),
-            }}
-          >
-            <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />
-          </Link>
+          <div className="flex justify-end">
+            <Link
+              to={`/${siteId}/g/new`}
+              state={{
+                parentBreadcrumbs: [
+                  { path: `/${siteId}/m`, title: t("common:proposals") },
+                  { path: `/${siteId}/m/m/`, title: t("title") },
+                ],
+                title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
+                type: "site-moderator-removal",
+                moderators: [moderator.user],
+                redirectAfterProposalCreation: `/${siteId}/m/m/p/`,
+                redirectAfterProposalExecution: location.pathname,
+                invalidateQueryKeys: sitesKeys.moderators(siteId),
+              }}
+            >
+              <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />
+            </Link>
+          </div>
         )
     }
   }

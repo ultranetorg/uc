@@ -22,24 +22,26 @@ export const getPublishersTabItemRenderer =
 
       case "actions":
         return (
-          <Link
-            to={`/${siteId}/m/new`}
-            state={{
-              parentBreadcrumbs: [
-                { path: `/${siteId}/m/a`, title: t("common:proposals") },
-                { path: `/${siteId}/m/a/p/`, title: t("title") },
-              ],
-              previousPath: pathname,
-              title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
-              type: "site-authors-removal",
-              authors: [publisher.author],
-              redirectAfterProposalCreation: `/${siteId}/m/a/r/`,
-              redirectAfterProposalExecution: location.pathname,
-              invalidateQueryKeys: sitesKeys.publishers(siteId),
-            }}
-          >
-            <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />
-          </Link>
+          <div className="flex justify-end">
+            <Link
+              to={`/${siteId}/m/new`}
+              state={{
+                parentBreadcrumbs: [
+                  { path: `/${siteId}/m/a`, title: t("common:proposals") },
+                  { path: `/${siteId}/m/a/p/`, title: t("title") },
+                ],
+                previousPath: pathname,
+                title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
+                type: "site-authors-removal",
+                authors: [publisher.author],
+                redirectAfterProposalCreation: `/${siteId}/m/a/r/`,
+                redirectAfterProposalExecution: location.pathname,
+                invalidateQueryKeys: sitesKeys.publishers(siteId),
+              }}
+            >
+              <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />
+            </Link>
+          </div>
         )
     }
   }
