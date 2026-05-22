@@ -93,8 +93,6 @@ public partial class TransferPanel : McvPanel
 
 	void RefreshBalance()
 	{
-	//		var e = Node.Iccp.Call<AddressTextToUniversalIccr>(null, Node.Net.Address, new AddressTextToUniversalIcca {Text = }, Node.Flow);
-		
 		Balance.Text = "...";
 
 		AutoId id = null;

@@ -240,7 +240,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 				if(p == null) /// get a new ones from Mcv
 				{
-					if(to == Net.Root)
+					if(to == Iccn.Root)
 					{
 						Roots ??= GetRoots().Select(i => new Endpoint(i, Settings.EP.Port)).ToArray();
 
@@ -259,8 +259,8 @@ public class IccpPeering : TcpPeering<IccpPeer>
 					{
 						string x = to;
 
-						if(!x.EndsWith($".{Net.Root}"))
-							x += $".{Net.Root}";
+						if(!x.EndsWith($".{Iccn.Root}"))
+							x += $".{Iccn.Root}";
 
 						var nets = x.Split('.').ToArray();
 						int d = nets.Length;

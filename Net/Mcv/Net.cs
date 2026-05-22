@@ -32,7 +32,6 @@ public class Port
 
 public abstract class Net
 {
-	public const string					Root = "rdn";
 	public virtual IPAddress			DefaultHost => Initials[0];
 	public readonly IPAddress			StandardHost = new IPAddress([127, 1, 0, 0]);
 
@@ -41,7 +40,6 @@ public abstract class Net
 	public abstract	Zone				Zone { get; }
 	public abstract ushort				PpiPort { get; }
 	public abstract ushort				ApiPort { get; }
-	public ushort						IccpPort => Port.Map(Zone, KnownProtocol.Iccp);
 
 	public IPAddress[]					Initials;
 	public static readonly IPAddress[]	UOInitials = @" 78.47.204.100	

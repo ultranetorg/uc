@@ -5,8 +5,8 @@ namespace Uccs.Rdn;
 
 public abstract class Rdn : McvNet
 {
-	public override	string				Address => Root;
-	public override	string				Name => Root;
+	public override	string				Address => Iccn.Root;
+	public override	string				Name => Iccn.Root;
 	public override ushort				PpiPort => Port.Map(Zone, KnownProtocol.Rdn);
 	public override ushort				ApiPort => Port.Map(Zone, KnownProtocol.RdnApi);
 	public override int					TablesCount => Enum.GetValues<RdnTable>().Length;

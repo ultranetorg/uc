@@ -3,6 +3,12 @@ using System.Reflection;
 
 namespace Uccs.Net;
 
+public abstract class Iccn
+{
+	public const string			Root = "rdn";
+	public static ushort		Port(Zone zone) => Uccs.Net.Port.Map(zone, KnownProtocol.Iccp);
+}
+
 public class Iccp
 {
 	public const string Scheme = "iccp";

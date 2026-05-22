@@ -157,7 +157,7 @@ public class Nexus : IProgram
 
 	public void Open(Snp snp, Flow flow)
 	{
-		if(snp.Net == null || snp.Net == Net.Net.Root)
+		if(snp.Net == null || snp.Net == Iccn.Root)
 		{
 			ActivatePackage(new Ura(snp), flow);
 		}
