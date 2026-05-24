@@ -43,7 +43,7 @@ public class Genesis : Operation
 		var	c = execution.AffectCandidate(a.Id);
 
 		c.User			= a.Id;
-		c.GraphPpcIPs	= [execution.Net.Father0EP];
+		c.GraphPpiEndpoints	= [execution.Net.Father0EP];
 
 		Declare(execution, c);
 	}

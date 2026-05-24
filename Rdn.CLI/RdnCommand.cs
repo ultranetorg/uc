@@ -63,7 +63,7 @@ public abstract class RdnCommand : McvCommand
 				var cnt = GetEnum("data/type", ContentType.Unknown);
 				var t = new DataType(ctl, cnt);
 
-				if(ctl == DataType.Data)
+				if(ctl == DataType.Raw)
 				{	
 					if(cnt == ContentType.Unknown)
 						return new ResourceData(t, d.Get<string>("hex").FromHex());

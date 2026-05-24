@@ -80,12 +80,12 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		if(Peering.Synchronization == Synchronization.Synchronized)
 		{
 			lock(Node.Mcv)
-				return new PeersIccr {Peers = [..Node.Mcv.LastConfirmedRound.Members.SelectMany(i => i.GraphPpcIPs)]};
+				return new PeersIccr {Peers = [..Node.Mcv.LastConfirmedRound.Members.SelectMany(i => i.GraphPpiEndpoints)]};
 		}
 		else
 			try
 			{
-				return new PeersIccr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.SelectMany(i => i.GraphPpcIPs).ToArray()};
+				return new PeersIccr {Peers = Node.Peering.Call(new MembersPpc {}, Flow).Members.SelectMany(i => i.GraphPpiEndpoints).ToArray()};
 			}
 			catch(NodeException)
 			{
@@ -273,8 +273,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 		Read(args.Entity, out var c, out var n); 
 
-		if(!args.Asset.SequenceEqual(Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years).Id) && 
-		   !args.Asset.SequenceEqual(Asset.Energy((byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1)).Id) && 
+		if(!args.Asset.SequenceEqual(Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years).Id) && 
+		   !args.Asset.SequenceEqual(Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1)).Id) && 
 		   !args.Asset.SequenceEqual(Asset.Spacetime().Id))
 			throw new EntityException(EntityError.UnknownAsset);
 
@@ -287,8 +287,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		{	
 			GetHolder(c, n, out sh, out eh);
 
-			e = Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years);
-			en = Asset.Energy((byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1));
+			e = Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years);
+			en = Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1));
 
 			if(args.Asset.SequenceEqual(Asset.Spacetime().Id) && sh == null)
 				throw new EntityException(EntityError.NotHolder);
@@ -321,8 +321,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 					{
 						Assets = [	
 									Asset.Spacetime(),
-									Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
-									Asset.Energy((byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
+									Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
+									Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
 								 ]
 					};
 		}

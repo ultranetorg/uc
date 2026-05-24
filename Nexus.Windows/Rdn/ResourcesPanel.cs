@@ -6,8 +6,8 @@ namespace Uccs.Nexus.Windows;
 
 public partial class ResourcesPanel : McvPanel
 {
-	Flow ManifestWorkflow;
-	RdnNode Node;
+	Flow		ManifestWorkflow;
+	RdnNode		Node;
 
 	public ResourcesPanel(RdnNode node)
 	{
@@ -15,10 +15,10 @@ public partial class ResourcesPanel : McvPanel
 
 		InitializeComponent();
 
-		NetworkQuery.KeyDown += (s, e) =>
+		OnlineQuery.KeyDown += (s, e) =>
 								{
 									if(e.KeyCode == Keys.Enter)
-										NetworkSearch_Click(s, e);
+										OnlineSearch_Click(s, e);
 								};
 
 		LocalQuery.KeyDown +=	(s, e) =>
@@ -34,65 +34,82 @@ public partial class ResourcesPanel : McvPanel
 		//{
 		//	LocalSearch_Click(this, EventArgs.Empty);
 		//}
+
+		if(first)
+		{
+			LocalQuery.Enabled = Node.ResourceHub != null;
+			LocalReleases.Enabled = Node.ResourceHub != null;
+			LocalSearch.Enabled = Node.ResourceHub != null;
+		}
 	}
 
-	private void NetworkSearch_Click(object sender, EventArgs e)
+	private void OnlineSearch_Click(object sender, EventArgs e)
 	{
-	//	if(Node.Mcv == null)
-	//	{
-	//		NetworkReleases.HeaderStyle = ColumnHeaderStyle.None;
-	//		NetworkReleases.Columns.Clear();
-	//		NetworkReleases.Columns.Add(new ColumnHeader() { Width = 500 });
-	//		NetworkReleases.Items.Clear();
-	//		NetworkReleases.Items.Add(new ListViewItem("Base role is not enabled"));
-	//		return;
-	//	}
-	//
-	//	try
-	//	{
-	//		NetworkReleases.Items.Clear();
-	//
-	//		foreach(var r in Node.Mcv.SearchResources(NetworkQuery.Text))
-	//		{
-	//			var i = new ListViewItem(r.Id.ToString());
-	//
-	//			i.Tag = r;
-	//
-	//			i.SubItems.Add(r.Address.ToString());
-	//			i.SubItems.Add(string.Join(",", Enum.GetValues<ResourceFlags>().Where(i => i != ResourceFlags.None && ((i & r.Flags) != 0))));
-	//			i.SubItems.Add(r.Data.ToString());
-	//			i.SubItems.Add(r.Outbounds?.Length.ToString());
-	//
-	//			NetworkReleases.Items.Add(i);
-	//		}
-	//
-	//		if(NetworkReleases.Items.Count == 0)
-	//		{
-	//			var i = new ListViewItem("No results");
-	//			NetworkReleases.Items.Add(i);
-	//		}
-	//	}
-	//	catch(Exception ex)
-	//	{
-	//		ShowError(ex.Message);
-	//	}
+		//if(Node.Mcv == null)
+		//{
+		//	NetworkReleases.HeaderStyle = ColumnHeaderStyle.None;
+		//	NetworkReleases.Columns.Clear();
+		//	NetworkReleases.Columns.Add(new ColumnHeader() {Width = 500});
+		//	NetworkReleases.Items.Clear();
+		//	NetworkReleases.Items.Add(new ListViewItem("Base role is not enabled"));
+		//	return;
+		//}
+	
+		try
+		{
+			NetworkReleases.Items.Clear();
+	
+			if(!string.IsNullOrWhiteSpace(OnlineQuery.Text))
+			{
+				Ura.Parse(OnlineQuery.Text, out var d, out var r);
+
+				var domain = Node.Peering.Call(new DomainPpc(d), new Flow(5000));
+	
+				foreach(var i in Node.Peering.Call(new QueryResourcePpc {Domain = domain.Domain.Id, Query = r}, new Flow(5000)).Resources)
+				{
+					var li = new ListViewItem(i.Id.ToString());
+		
+					li.Tag = r;
+		
+					li.SubItems.Add(i.Name);
+					li.SubItems.Add(i.Flags.ToString());
+					li.SubItems.Add(i.Data?.Type.Control.ToString());
+					li.SubItems.Add(i.Data?.Type.Content.ToString());
+					li.SubItems.Add(i.Data?.Value.Length.ToString());
+					li.SubItems.Add(i.Inbounds?.Length.ToString());
+					li.SubItems.Add(i.Outbounds?.Length.ToString());
+		
+					NetworkReleases.Items.Add(li);
+				}
+			}
+	
+// 			if(NetworkReleases.Items.Count == 0)
+// 			{
+// 				var i = new ListViewItem("No results");
+// 				NetworkReleases.Items.Add(i);
+// 			}
+		}
+		catch(Exception ex)
+		{
+			ShowError(ex.Message);
+		}
 	}
 
 	private void LocalSearch_Click(object sender, EventArgs e)
 	{
-	//	LocalReleases.Items.Clear();
-	//
-	//	foreach(var i in Node.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text)))
-	//	{
-	//		var li = new ListViewItem(i.Address.ToString());
-	//		li.Tag = i;
-	//		li.SubItems.Add(i.Datas.Count.ToString());
-	//		li.SubItems.Add(i.Last?.Type.ToString());
-	//		li.SubItems.Add(i.Last?.Value.ToHex(32));
-	//		li.SubItems.Add(i.Last?.Value.Length.ToString());
-	//
-	//		LocalReleases.Items.Add(li);
-	//	}
+		LocalReleases.Items.Clear();
+	
+		foreach(var i in Node.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text, StringComparison.InvariantCultureIgnoreCase)))
+		{
+			var li = new ListViewItem(i.Id?.ToString());
+			li.Tag = i;
+			li.SubItems.Add(i.Address.ToString());
+			li.SubItems.Add(i.Last?.Type.Control.ToString());
+			li.SubItems.Add(i.Last?.Type.Content.ToString());
+			li.SubItems.Add(i.Last?.Value.Length.ToString());
+	
+			LocalReleases.Items.Add(li);
+		}
 	}
 
 	// 		private void releases_SelectedIndexChanged(object sender, EventArgs e)

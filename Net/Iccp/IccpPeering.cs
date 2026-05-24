@@ -253,7 +253,6 @@ public class IccpPeering : TcpPeering<IccpPeer>
 						}
 
 						p = GetPeer(x, [to]);
-						Connect(p, flow);
 					} 
 					else
 					{
@@ -303,6 +302,8 @@ public class IccpPeering : TcpPeering<IccpPeer>
 				}
 
 				tried.Add(p.EP);
+
+				Connect(p, flow);
 
 				return p.Call(from, to, call, flow);
 			}

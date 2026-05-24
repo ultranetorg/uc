@@ -9,10 +9,9 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	public ushort		Control { get; set; }
 	public ContentType	Content { get; set; }
 
-	public const ushort	Data							= 000;
+	public const ushort	Raw								= 000;
 	public const ushort	File							= 001;
 	public const ushort	Directory						= 002;
-	public const ushort	Subnet							= 003;
 	public const ushort	Redirect						= 010;
 	public const ushort		Redirect_Uri				= 010_00;
 
@@ -69,13 +68,13 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	public void Write(Writer writer)
 	{
 		writer.Write(Control);
-		writer.Write7BitEncodedInt((int)Content);
+		writer.Write(Content);
 	}
 
 	public void Read(Reader reader)
 	{
 		Control	= reader.ReadUInt16();
-		Content = (ContentType)reader.Read7BitEncodedInt();
+		Content = reader.Read<ContentType>();
 	}
 }
 

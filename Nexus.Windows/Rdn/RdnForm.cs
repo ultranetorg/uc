@@ -18,6 +18,10 @@ public class RdnForm : MainForm
 //			var d = new TreeNode("Domains"){ Tag = new DomainPanel(rdn)};
 //			root.Nodes.Add(d);
 //	
+		
+			var m = new TreeNode("Members"){Tag = new RdnMembersPanel(node)};
+			Navigator.Nodes.Add(m);
+
 			var r = new TreeNode("Resources"){Tag = new ResourcesPanel(node as RdnNode)};
 			Navigator.Nodes.Add(r);
 //

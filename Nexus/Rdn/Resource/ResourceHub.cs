@@ -415,7 +415,7 @@ public class ResourceHub
 
 												try
 												{
-													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), new DeclareReleasePpc {Resources = rds}, Node.Flow);
+													drr = Node.Peering.Call(i.Key.SeedhubPpiEndpoints.Random(), new DeclareReleasePpc {Resources = rds}, Node.Flow);
 												}
 												catch(CodeException)/// when(!Debugger.IsAttached)
 												{

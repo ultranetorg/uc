@@ -45,7 +45,7 @@ public class CandidacyDeclaration : Operation
 		c = execution.AffectCandidate(User.Id);
 		
 		c.User			= User.Id;
-		c.GraphPpcIPs	= GraphEPs;
+		c.GraphPpiEndpoints	= GraphEPs;
 
 		execution.EnergySpenders.Add(User);
 	}

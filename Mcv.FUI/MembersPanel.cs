@@ -9,36 +9,33 @@ public partial class MembersPanel : McvPanel
 	McvNode		Node;
 	Net.Mcv		Mcv;
 
-	public MembersPanel(McvNode mcv)
+	public MembersPanel(McvNode node)
 	{
 		InitializeComponent();
 
+		Node = node;
 		Bold = new Font(Font, FontStyle.Bold);
 	}
 
 	public override void Open(bool first)
 	{
-	//	BaseRdcIPs.Items.Clear();
-	//	Generators.Items.Clear();
-	//	Proxies.Items.Clear();
-	//
-	//	lock(Mcv.Lock)
-	//	{
-	//		foreach(var i in Mcv.LastConfirmedRound.Members)
-	//		{
-	//			var li = Generators.Items.Add(i.Address.ToString());
-	//
-	//			if(Mcv.Settings.Generators.Any(g => g.Signer == i.Address))
-	//			{
-	//				li.Font = Bold;
-	//			}
-	//
-	//			li.Tag = i;
-	//			li.SubItems.Add(i.Since.ToString());
-	//			//li.SubItems.Add(i.Pledge.ToString());
-	//			//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
-	//		}
-	//	}
+		BaseRdcIPs.Items.Clear();
+		Generators.Items.Clear();
+	
+		foreach(var i in Node.Peering.Call(new MembersPpc(), new Flow(5000)).Members)
+		{
+			var li = Generators.Items.Add(i.User.ToString());
+	
+			if(Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
+			{
+				li.Font = Bold;
+			}
+	
+			li.Tag = i;
+			li.SubItems.Add(i.Since.ToString());
+			//li.SubItems.Add(i.Pledge.ToString());
+			//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
+		}
 	}
 
 	public override void PeriodicalRefresh()
@@ -68,29 +65,14 @@ public partial class MembersPanel : McvPanel
 	{
 		if(e.IsSelected)
 		{
-			//lock(Node.Lock)
+			foreach(var i in (e.Item.Tag as Generator).GraphPpiEndpoints)
 			{
-				foreach(var i in (e.Item.Tag as Generator).GraphPpcIPs)
-				{
-					var bli = BaseRdcIPs.Items.Add(i.ToString());
-				}
-
-				//foreach(var i in (e.Item.Tag as Member).SeedHubRdcIPs)
-				//{
-				//	var li = SeedHubRdcIPs.Items.Add(i.ToString());
-				//}
-
-				///foreach(var i in (e.Item.Tag as Member).Proxies)
-				{
-				//	var li = Proxies.Items.Add((e.Item.Tag as MembersResponse.Member).Proxy?.ToString());
-				}
+				var bli = BaseRdcIPs.Items.Add(i.ToString());
 			}
 		}
 		else
 		{
 			BaseRdcIPs.Items.Clear();
-			SeedHubRdcIPs.Items.Clear();
-			Proxies.Items.Clear();
 		}
 	}
 }

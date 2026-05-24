@@ -29,190 +29,212 @@ namespace Uccs.Nexus.Windows
 		/// </summary>
 		private void InitializeComponent()
 		{
-			NetworkReleases = new System.Windows.Forms.ListView();
-			CHId = new System.Windows.Forms.ColumnHeader();
-			CHAddress = new System.Windows.Forms.ColumnHeader();
-			CHFlags = new System.Windows.Forms.ColumnHeader();
-			CHData = new System.Windows.Forms.ColumnHeader();
-			CHResources = new System.Windows.Forms.ColumnHeader();
-			label5 = new System.Windows.Forms.Label();
-			NetworkQuery = new System.Windows.Forms.ComboBox();
-			NetworkSearch = new System.Windows.Forms.Button();
-			LocalReleases = new System.Windows.Forms.ListView();
-			columnHeader2 = new System.Windows.Forms.ColumnHeader();
-			columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			columnHeader8 = new System.Windows.Forms.ColumnHeader();
-			label3 = new System.Windows.Forms.Label();
-			LocalQuery = new System.Windows.Forms.ComboBox();
-			LocalSearch = new System.Windows.Forms.Button();
-			columnHeader3 = new System.Windows.Forms.ColumnHeader();
-			columnHeader4 = new System.Windows.Forms.ColumnHeader();
+			NetworkReleases = new ListView();
+			ChId = new ColumnHeader();
+			ChAddress = new ColumnHeader();
+			ChFlags = new ColumnHeader();
+			ChDataControl = new ColumnHeader();
+			ChDataType = new ColumnHeader();
+			ChDataLength = new ColumnHeader();
+			ChInLinks = new ColumnHeader();
+			ChOutLinks = new ColumnHeader();
+			label5 = new Label();
+			OnlineQuery = new ComboBox();
+			NetworkSearch = new Button();
+			LocalReleases = new ListView();
+			columnHeader2 = new ColumnHeader();
+			columnHeader1 = new ColumnHeader();
+			columnHeader3 = new ColumnHeader();
+			columnHeader8 = new ColumnHeader();
+			columnHeader4 = new ColumnHeader();
+			label3 = new Label();
+			LocalQuery = new ComboBox();
+			LocalSearch = new Button();
 			SuspendLayout();
 			// 
 			// NetworkReleases
 			// 
-			NetworkReleases.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			NetworkReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { CHId, CHAddress, CHFlags, CHData, CHResources });
+			NetworkReleases.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+			NetworkReleases.Columns.AddRange(new ColumnHeader[] { ChId, ChAddress, ChFlags, ChDataControl, ChDataType, ChDataLength, ChInLinks, ChOutLinks });
 			NetworkReleases.FullRowSelect = true;
-			NetworkReleases.Location = new System.Drawing.Point(12, 112);
-			NetworkReleases.Margin = new System.Windows.Forms.Padding(6);
+			NetworkReleases.Location = new Point(12, 80);
+			NetworkReleases.Margin = new Padding(6, 12, 6, 6);
 			NetworkReleases.Name = "NetworkReleases";
-			NetworkReleases.Size = new System.Drawing.Size(1884, 689);
+			NetworkReleases.Size = new Size(1884, 721);
 			NetworkReleases.TabIndex = 4;
 			NetworkReleases.UseCompatibleStateImageBehavior = false;
-			NetworkReleases.View = System.Windows.Forms.View.Details;
+			NetworkReleases.View = View.Details;
 			// 
-			// CHId
+			// ChId
 			// 
-			CHId.Text = "Id";
-			CHId.Width = 100;
+			ChId.Text = "Id";
+			ChId.Width = 100;
 			// 
-			// CHAddress
+			// ChAddress
 			// 
-			CHAddress.Text = "Address";
-			CHAddress.Width = 300;
+			ChAddress.Text = "Address";
+			ChAddress.Width = 300;
 			// 
-			// CHFlags
+			// ChFlags
 			// 
-			CHFlags.Text = "Flags";
+			ChFlags.Text = "Flags";
+			ChFlags.Width = 150;
 			// 
-			// CHData
+			// ChDataControl
 			// 
-			CHData.Text = "Data";
-			CHData.Width = 200;
+			ChDataControl.Text = "Control";
+			ChDataControl.Width = 75;
 			// 
-			// CHResources
+			// ChDataType
 			// 
-			CHResources.Text = "Resources";
-			CHResources.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			ChDataType.Text = "Type";
+			ChDataType.Width = 150;
+			// 
+			// ChDataLength
+			// 
+			ChDataLength.Text = "Length";
+			ChDataLength.TextAlign = HorizontalAlignment.Right;
+			ChDataLength.Width = 100;
+			// 
+			// ChInLinks
+			// 
+			ChInLinks.Text = "In Links";
+			ChInLinks.TextAlign = HorizontalAlignment.Right;
+			// 
+			// ChOutLinks
+			// 
+			ChOutLinks.Text = "Out Links";
+			ChOutLinks.TextAlign = HorizontalAlignment.Right;
 			// 
 			// label5
 			// 
 			label5.AutoSize = true;
-			label5.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			label5.Location = new System.Drawing.Point(12, 39);
-			label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+			label5.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label5.Location = new Point(6, 22);
+			label5.Margin = new Padding(6, 0, 6, 0);
 			label5.Name = "label5";
-			label5.Size = new System.Drawing.Size(115, 27);
+			label5.Size = new Size(209, 27);
 			label5.TabIndex = 13;
-			label5.Text = "Resource";
+			label5.Text = "Resource Address";
 			// 
-			// NetworkQuery
+			// OnlineQuery
 			// 
-			NetworkQuery.FormattingEnabled = true;
-			NetworkQuery.Location = new System.Drawing.Point(139, 32);
-			NetworkQuery.Margin = new System.Windows.Forms.Padding(6);
-			NetworkQuery.Name = "NetworkQuery";
-			NetworkQuery.Size = new System.Drawing.Size(687, 40);
-			NetworkQuery.TabIndex = 0;
+			OnlineQuery.FormattingEnabled = true;
+			OnlineQuery.Location = new Point(235, 15);
+			OnlineQuery.Margin = new Padding(6);
+			OnlineQuery.Name = "OnlineQuery";
+			OnlineQuery.Size = new Size(1307, 40);
+			OnlineQuery.TabIndex = 0;
 			// 
 			// NetworkSearch
 			// 
-			NetworkSearch.Location = new System.Drawing.Point(856, 24);
-			NetworkSearch.Margin = new System.Windows.Forms.Padding(6);
+			NetworkSearch.Location = new Point(1550, 6);
+			NetworkSearch.Margin = new Padding(6);
 			NetworkSearch.Name = "NetworkSearch";
-			NetworkSearch.Size = new System.Drawing.Size(345, 55);
+			NetworkSearch.Size = new Size(345, 56);
 			NetworkSearch.TabIndex = 3;
-			NetworkSearch.Text = "Search on the Network";
+			NetworkSearch.Text = "Search Online";
 			NetworkSearch.UseVisualStyleBackColor = true;
-			NetworkSearch.Click += NetworkSearch_Click;
+			NetworkSearch.Click += OnlineSearch_Click;
 			// 
 			// LocalReleases
 			// 
-			LocalReleases.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			LocalReleases.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2, columnHeader1, columnHeader3, columnHeader8, columnHeader4 });
+			LocalReleases.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+			LocalReleases.Columns.AddRange(new ColumnHeader[] { columnHeader2, columnHeader1, columnHeader3, columnHeader8, columnHeader4 });
 			LocalReleases.FullRowSelect = true;
-			LocalReleases.Location = new System.Drawing.Point(12, 908);
-			LocalReleases.Margin = new System.Windows.Forms.Padding(6);
+			LocalReleases.Location = new Point(12, 896);
+			LocalReleases.Margin = new Padding(6, 12, 6, 6);
 			LocalReleases.Name = "LocalReleases";
-			LocalReleases.Size = new System.Drawing.Size(1884, 724);
+			LocalReleases.Size = new Size(1884, 736);
 			LocalReleases.TabIndex = 14;
 			LocalReleases.UseCompatibleStateImageBehavior = false;
-			LocalReleases.View = System.Windows.Forms.View.Details;
+			LocalReleases.View = View.Details;
 			// 
 			// columnHeader2
 			// 
-			columnHeader2.Text = "Address";
-			columnHeader2.Width = 300;
+			columnHeader2.Text = "Id";
 			// 
 			// columnHeader1
 			// 
-			columnHeader1.Text = "Releases(n)";
-			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			columnHeader1.Text = "Address";
+			columnHeader1.Width = 300;
+			// 
+			// columnHeader3
+			// 
+			columnHeader3.Text = "Control";
+			columnHeader3.Width = 150;
 			// 
 			// columnHeader8
 			// 
-			columnHeader8.Text = "Last Data";
-			columnHeader8.Width = 500;
+			columnHeader8.Text = "Content";
+			columnHeader8.Width = 150;
+			// 
+			// columnHeader4
+			// 
+			columnHeader4.Text = "Data Length";
+			columnHeader4.TextAlign = HorizontalAlignment.Right;
+			columnHeader4.Width = 100;
 			// 
 			// label3
 			// 
 			label3.AutoSize = true;
-			label3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			label3.Location = new System.Drawing.Point(12, 838);
-			label3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			label3.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label3.Location = new Point(12, 838);
+			label3.Margin = new Padding(7, 0, 7, 0);
 			label3.Name = "label3";
-			label3.Size = new System.Drawing.Size(115, 27);
+			label3.Size = new Size(209, 27);
 			label3.TabIndex = 24;
-			label3.Text = "Resource";
+			label3.Text = "Resource Address";
 			// 
 			// LocalQuery
 			// 
 			LocalQuery.FormattingEnabled = true;
-			LocalQuery.Location = new System.Drawing.Point(139, 831);
-			LocalQuery.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			LocalQuery.Location = new Point(235, 831);
+			LocalQuery.Margin = new Padding(7, 6, 7, 6);
 			LocalQuery.Name = "LocalQuery";
-			LocalQuery.Size = new System.Drawing.Size(687, 40);
+			LocalQuery.Size = new Size(1301, 40);
 			LocalQuery.TabIndex = 27;
 			// 
 			// LocalSearch
 			// 
-			LocalSearch.Location = new System.Drawing.Point(856, 823);
-			LocalSearch.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			LocalSearch.Location = new Point(1550, 822);
+			LocalSearch.Margin = new Padding(6);
 			LocalSearch.Name = "LocalSearch";
-			LocalSearch.Size = new System.Drawing.Size(240, 55);
+			LocalSearch.Size = new Size(345, 56);
 			LocalSearch.TabIndex = 25;
 			LocalSearch.Text = " Local Search";
 			LocalSearch.UseVisualStyleBackColor = true;
 			LocalSearch.Click += LocalSearch_Click;
 			// 
-			// columnHeader3
-			// 
-			columnHeader3.Text = "Last Type";
-			// 
-			// columnHeader4
-			// 
-			columnHeader4.Text = "Last Data Length";
-			// 
 			// ResourcesPanel
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			AutoScaleDimensions = new SizeF(13F, 32F);
+			AutoScaleMode = AutoScaleMode.Font;
 			Controls.Add(LocalQuery);
 			Controls.Add(LocalSearch);
 			Controls.Add(label3);
 			Controls.Add(LocalReleases);
 			Controls.Add(label5);
-			Controls.Add(NetworkQuery);
+			Controls.Add(OnlineQuery);
 			Controls.Add(NetworkSearch);
 			Controls.Add(NetworkReleases);
-			Margin = new System.Windows.Forms.Padding(6);
+			Margin = new Padding(6);
 			Name = "ResourcesPanel";
-			Size = new System.Drawing.Size(1902, 1638);
+			Size = new Size(1902, 1638);
 			ResumeLayout(false);
 			PerformLayout();
 		}
 
 		#endregion
 		private System.Windows.Forms.ListView NetworkReleases;
-		private System.Windows.Forms.ColumnHeader CHAddress;
+		private System.Windows.Forms.ColumnHeader ChAddress;
 		private System.Windows.Forms.Label label5;
-		private System.Windows.Forms.ComboBox NetworkQuery;
+		private System.Windows.Forms.ComboBox OnlineQuery;
 		private System.Windows.Forms.Button NetworkSearch;
-		private System.Windows.Forms.ColumnHeader CHFlags;
-		private System.Windows.Forms.ColumnHeader CHData;
-		private System.Windows.Forms.ColumnHeader CHResources;
-		private System.Windows.Forms.ColumnHeader CHId;
+		private System.Windows.Forms.ColumnHeader ChFlags;
+		private System.Windows.Forms.ColumnHeader ChDataType;
+		private System.Windows.Forms.ColumnHeader ChInLinks;
+		private System.Windows.Forms.ColumnHeader ChId;
 		private System.Windows.Forms.ListView LocalReleases;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader8;
@@ -222,5 +244,8 @@ namespace Uccs.Nexus.Windows
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
 		private System.Windows.Forms.ColumnHeader columnHeader4;
+		private ColumnHeader ChOutLinks;
+		private ColumnHeader ChDataControl;
+		private ColumnHeader ChDataLength;
 	}
 }

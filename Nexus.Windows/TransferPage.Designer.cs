@@ -113,10 +113,10 @@ partial class TransferPage
 		// 
 		// Transfer
 		// 
-		Transfer.Location = new Point(487, 497);
+		Transfer.Location = new Point(588, 497);
 		Transfer.Margin = new Padding(6, 13, 6, 13);
 		Transfer.Name = "Transfer";
-		Transfer.Size = new Size(512, 68);
+		Transfer.Size = new Size(310, 56);
 		Transfer.TabIndex = 9;
 		Transfer.Text = "Transfer";
 		Transfer.UseVisualStyleBackColor = true;
@@ -160,7 +160,7 @@ partial class TransferPage
 		// 
 		Asset.DropDownStyle = ComboBoxStyle.DropDownList;
 		Asset.FormattingEnabled = true;
-		Asset.Location = new Point(329, 260);
+		Asset.Location = new Point(317, 260);
 		Asset.Margin = new Padding(6, 13, 6, 13);
 		Asset.Name = "Asset";
 		Asset.Size = new Size(852, 40);
@@ -173,7 +173,7 @@ partial class TransferPage
 		// 
 		label5.AutoSize = true;
 		label5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label5.Location = new Point(242, 263);
+		label5.Location = new Point(230, 263);
 		label5.Margin = new Padding(6, 0, 6, 0);
 		label5.Name = "label5";
 		label5.Size = new Size(75, 32);
@@ -184,7 +184,7 @@ partial class TransferPage
 		// 
 		label6.AutoSize = true;
 		label6.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label6.Location = new Point(446, 393);
+		label6.Location = new Point(434, 393);
 		label6.Margin = new Padding(6, 0, 6, 0);
 		label6.Name = "label6";
 		label6.Size = new Size(107, 32);
@@ -193,7 +193,7 @@ partial class TransferPage
 		// 
 		// Amount
 		// 
-		Amount.Location = new Point(565, 390);
+		Amount.Location = new Point(553, 390);
 		Amount.Margin = new Padding(6, 13, 6, 13);
 		Amount.Name = "Amount";
 		Amount.Size = new Size(385, 39);
@@ -249,7 +249,7 @@ partial class TransferPage
 		// 
 		BalanceLabel.AutoSize = true;
 		BalanceLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		BalanceLabel.Location = new Point(457, 326);
+		BalanceLabel.Location = new Point(439, 326);
 		BalanceLabel.Margin = new Padding(6, 13, 6, 13);
 		BalanceLabel.Name = "BalanceLabel";
 		BalanceLabel.Size = new Size(102, 32);
@@ -281,7 +281,7 @@ partial class TransferPage
 		// Balance
 		// 
 		Balance.AutoSize = true;
-		Balance.Location = new Point(565, 326);
+		Balance.Location = new Point(553, 326);
 		Balance.Margin = new Padding(6, 13, 6, 13);
 		Balance.Name = "Balance";
 		Balance.Size = new Size(39, 32);

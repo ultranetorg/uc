@@ -529,7 +529,7 @@ public abstract class McvPeering : HomoPeering
 						
 						CandidacyDeclarations.Add(gs.Id);
 					
-						Transact([Mcv.CreateCandidacyDeclaration()], Name, gs.User, null, s.Session, s.Signer, ActionOnResult.RetryUntilConfirmed, Flow);
+						Transact([Mcv.CreateCandidacyDeclaration()], Name, gs.User, null, s.Session, ActionOnResult.RetryUntilConfirmed, Flow);
 					} 
 					else
 					{
@@ -851,7 +851,7 @@ public abstract class McvPeering : HomoPeering
 			if(cr == null)
 				Debugger.Break();
 
-			if(!cr.Members.Any() || cr.Members.Any(i => !i.GraphPpcIPs.Any()))
+			if(!cr.Members.Any() || cr.Members.Any(i => !i.GraphPpiEndpoints.Any()))
 				continue;
 
 			var members = cr.Members;
@@ -860,10 +860,10 @@ public abstract class McvPeering : HomoPeering
 			{
 				//var m = members.NearestBy(i => i.Address, nonce);
 
-				if(member.GraphPpcIPs.Contains(Settings.EP))
+				if(member.GraphPpiEndpoints.Contains(Settings.EP))
 					return this;
 
-				var p = GetPeer(member.GraphPpcIPs.Random());
+				var p = GetPeer(member.GraphPpiEndpoints.Random());
 				Connect(p, Flow);
 
 				return p;
@@ -1100,7 +1100,7 @@ public abstract class McvPeering : HomoPeering
 		}
 	}
 
- 	public Transaction Transact(IEnumerable<Operation> operations, string application, string user, byte[] tag, byte[] session, AccountAddress signer, ActionOnResult aor, Flow flow)
+ 	public Transaction Transact(IEnumerable<Operation> operations, string application, string user, byte[] tag, byte[] session, ActionOnResult aor, Flow flow)
  	{
 		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
 			throw new NodeException(NodeError.LimitExceeded);
@@ -1115,7 +1115,6 @@ public abstract class McvPeering : HomoPeering
 					Net				= Net,
 					Tag				= tag ?? Guid.NewGuid().ToByteArray(),
 					Session			= session ?? FindSession(user)?.Session,
-					//Signer			= signer ?? FindSession(user)?.Signer,
 					Flow			= flow,
 					Inquired		= DateTime.UtcNow,
 					ActionOnResult	= aor,

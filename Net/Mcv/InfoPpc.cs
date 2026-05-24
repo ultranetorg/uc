@@ -13,8 +13,8 @@ public class InfoPpc : McvPpc<InfoPpr>
 						Tables = Mcv.Tables.ToDictionary(i => i.Name, i => i.Id),
 						Assets = [	
 									Asset.Spacetime(),
-									Asset.Energy(Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
-									Asset.Energy((byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
+									Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
+									Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
 								 ]
 
 					};

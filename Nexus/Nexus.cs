@@ -59,7 +59,7 @@ public class Nexus : IProgram
 											Settings.IccpPeering, 
 											IccpLcpServer, 
 											() => IccpLcpServer.Locals.Select(i => i.Net).ToList(), 
-											() => RdnNode.Peering.Call(new MembersPpc(), flow).Members.SelectMany(i => i.GraphPpcIPs.Select(i => i.IP)).ToArray(), 
+											() => RdnNode.Peering.Call(new MembersPpc(), flow).Members.SelectMany(i => i.GraphPpiEndpoints.Select(i => i.IP)).ToArray(), 
 											Flow);
 			IccpPeering.Run();
 		}
@@ -259,6 +259,7 @@ public class Nexus : IProgram
 					};
 
 			Settings.Sessions = [..Settings.Sessions, s];
+			Settings.Save();
 		}
 
 		return s.Session;

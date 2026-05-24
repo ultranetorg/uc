@@ -8,11 +8,11 @@ public class Asset : IBinarySerializable
 	public byte[]	Id { get; set; }
 	public string	Units { get; set; }
 
-	public static Asset Energy(byte year)
+	public static Asset Energy(byte period, byte year)
 	{
 		var a = new Asset();
 		a.Name = $"Energy for {Time.FirstYear + year} year";
-		a.Id = [0, year];
+		a.Id = [0, period, year];
 		a.Units = "Execution Cycles (EC)";
 
 		return a;

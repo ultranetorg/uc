@@ -6,7 +6,7 @@ public class UserCreation : Operation
 {
 	public byte[]				Pow { get; set; }
 	public AccountAddress		Owner { get; set; }
-	public override string		Explanation => $"Pow={Pow?.ToHex()} {nameof(Owner)}=Owner";
+	public override string		Explanation => $"Pow={Pow?.ToHex()} {nameof(Owner)}={Owner}";
 	
 	public override bool IsValid(McvNet net)
 	{ 

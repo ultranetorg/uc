@@ -44,7 +44,7 @@ namespace Uccs.Mcv.FUI
 			ToClass = new ComboBox();
 			FromClass = new ComboBox();
 			Asset = new ComboBox();
-			Send = new Button();
+			Transfer = new Button();
 			FromAs = new ComboBox();
 			ToWhat = new ComboBox();
 			((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
@@ -53,7 +53,7 @@ namespace Uccs.Mcv.FUI
 			// pictureBox1
 			// 
 			pictureBox1.Image = Properties.Resources.right_arrow;
-			pictureBox1.Location = new Point(877, 52);
+			pictureBox1.Location = new Point(711, 15);
 			pictureBox1.Margin = new Padding(6);
 			pictureBox1.Name = "pictureBox1";
 			pictureBox1.Size = new Size(122, 105);
@@ -63,7 +63,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			// To
 			// 
-			To.Location = new Point(1011, 118);
+			To.Location = new Point(845, 81);
 			To.Margin = new Padding(6, 13, 6, 13);
 			To.Name = "To";
 			To.Size = new Size(379, 39);
@@ -72,7 +72,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			// From
 			// 
-			From.Location = new Point(486, 118);
+			From.Location = new Point(320, 81);
 			From.Margin = new Padding(6, 13, 6, 13);
 			From.Name = "From";
 			From.Size = new Size(379, 39);
@@ -81,7 +81,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			// Amount
 			// 
-			Amount.Location = new Point(653, 326);
+			Amount.Location = new Point(487, 289);
 			Amount.Margin = new Padding(6, 13, 6, 13);
 			Amount.Name = "Amount";
 			Amount.Size = new Size(566, 39);
@@ -92,7 +92,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			label6.AutoSize = true;
 			label6.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label6.Location = new Point(534, 329);
+			label6.Location = new Point(368, 292);
 			label6.Margin = new Padding(6, 0, 6, 0);
 			label6.Name = "label6";
 			label6.Size = new Size(107, 32);
@@ -103,7 +103,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			label4.AutoSize = true;
 			label4.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label4.Location = new Point(1586, 121);
+			label4.Location = new Point(1420, 84);
 			label4.Margin = new Padding(6, 0, 6, 0);
 			label4.Name = "label4";
 			label4.Size = new Size(120, 32);
@@ -114,7 +114,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			label1.AutoSize = true;
 			label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label1.Location = new Point(1402, 55);
+			label1.Location = new Point(1236, 18);
 			label1.Margin = new Padding(6, 0, 6, 0);
 			label1.Name = "label1";
 			label1.Size = new Size(184, 32);
@@ -125,7 +125,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			label7.AutoSize = true;
 			label7.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label7.Location = new Point(317, 55);
+			label7.Location = new Point(151, 18);
 			label7.Margin = new Padding(6, 0, 6, 0);
 			label7.Name = "label7";
 			label7.Size = new Size(157, 32);
@@ -136,7 +136,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			label2.AutoSize = true;
 			label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label2.Location = new Point(197, 121);
+			label2.Location = new Point(31, 84);
 			label2.Margin = new Padding(6, 0, 6, 0);
 			label2.Name = "label2";
 			label2.Size = new Size(93, 32);
@@ -147,7 +147,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			label5.AutoSize = true;
 			label5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label5.Location = new Point(566, 205);
+			label5.Location = new Point(400, 168);
 			label5.Margin = new Padding(6, 0, 6, 0);
 			label5.Name = "label5";
 			label5.Size = new Size(75, 32);
@@ -158,7 +158,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			Balance.AutoSize = true;
 			Balance.Font = new Font("Segoe UI", 9F);
-			Balance.Location = new Point(653, 268);
+			Balance.Location = new Point(487, 231);
 			Balance.Margin = new Padding(6, 13, 6, 13);
 			Balance.Name = "Balance";
 			Balance.Size = new Size(49, 32);
@@ -169,7 +169,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			BalanceLabel.AutoSize = true;
 			BalanceLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			BalanceLabel.Location = new Point(453, 268);
+			BalanceLabel.Location = new Point(287, 231);
 			BalanceLabel.Margin = new Padding(6, 0, 6, 0);
 			BalanceLabel.Name = "BalanceLabel";
 			BalanceLabel.Size = new Size(188, 32);
@@ -180,7 +180,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			ToClass.DropDownStyle = ComboBoxStyle.DropDownList;
 			ToClass.FormattingEnabled = true;
-			ToClass.Location = new Point(1011, 52);
+			ToClass.Location = new Point(845, 15);
 			ToClass.Margin = new Padding(6, 13, 6, 13);
 			ToClass.Name = "ToClass";
 			ToClass.Size = new Size(379, 40);
@@ -190,7 +190,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			FromClass.DropDownStyle = ComboBoxStyle.DropDownList;
 			FromClass.FormattingEnabled = true;
-			FromClass.Location = new Point(486, 52);
+			FromClass.Location = new Point(320, 15);
 			FromClass.Margin = new Padding(6, 13, 6, 13);
 			FromClass.Name = "FromClass";
 			FromClass.Size = new Size(379, 40);
@@ -200,7 +200,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			Asset.DropDownStyle = ComboBoxStyle.DropDownList;
 			Asset.FormattingEnabled = true;
-			Asset.Location = new Point(653, 202);
+			Asset.Location = new Point(487, 165);
 			Asset.Margin = new Padding(6, 13, 6, 13);
 			Asset.Name = "Asset";
 			Asset.Size = new Size(566, 40);
@@ -208,23 +208,24 @@ namespace Uccs.Mcv.FUI
 			Asset.SelectionChangeCommitted += Asset_SelectionChangeCommitted;
 			Asset.TextChanged += Any_Changed;
 			// 
-			// Send
+			// Transfer
 			// 
-			Send.Location = new Point(826, 417);
-			Send.Margin = new Padding(6);
-			Send.Name = "Send";
-			Send.Size = new Size(240, 60);
-			Send.TabIndex = 23;
-			Send.Text = "Send";
-			Send.UseVisualStyleBackColor = true;
+			Transfer.Location = new Point(660, 380);
+			Transfer.Margin = new Padding(6);
+			Transfer.Name = "Transfer";
+			Transfer.Size = new Size(240, 56);
+			Transfer.TabIndex = 23;
+			Transfer.Text = "Transfer";
+			Transfer.UseVisualStyleBackColor = true;
+			Transfer.Click += Transfer_Click;
 			// 
-			// FromWhat
+			// FromAs
 			// 
 			FromAs.DropDownStyle = ComboBoxStyle.DropDownList;
 			FromAs.FormattingEnabled = true;
-			FromAs.Location = new Point(302, 118);
+			FromAs.Location = new Point(136, 81);
 			FromAs.Margin = new Padding(6, 13, 6, 13);
-			FromAs.Name = "FromWhat";
+			FromAs.Name = "FromAs";
 			FromAs.Size = new Size(172, 40);
 			FromAs.TabIndex = 26;
 			// 
@@ -232,7 +233,7 @@ namespace Uccs.Mcv.FUI
 			// 
 			ToWhat.DropDownStyle = ComboBoxStyle.DropDownList;
 			ToWhat.FormattingEnabled = true;
-			ToWhat.Location = new Point(1402, 118);
+			ToWhat.Location = new Point(1236, 81);
 			ToWhat.Margin = new Padding(6, 13, 6, 13);
 			ToWhat.Name = "ToWhat";
 			ToWhat.Size = new Size(172, 40);
@@ -259,7 +260,7 @@ namespace Uccs.Mcv.FUI
 			Controls.Add(FromAs);
 			Controls.Add(FromClass);
 			Controls.Add(Asset);
-			Controls.Add(Send);
+			Controls.Add(Transfer);
 			Margin = new Padding(7, 6, 7, 6);
 			Name = "TransferPanel";
 			Size = new Size(1902, 1638);
@@ -285,7 +286,7 @@ namespace Uccs.Mcv.FUI
 		private ComboBox ToClass;
 		private ComboBox FromClass;
 		private ComboBox Asset;
-		private Button Send;
+		private Button Transfer;
 		private ComboBox FromAs;
 		private ComboBox ToWhat;
 	}

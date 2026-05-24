@@ -10,6 +10,10 @@ public partial class TransferPanel : McvPanel
 	McvNode						Node;
 	Dictionary<string, byte>	Tables;	
 
+	User						FromUser;
+	User						ToUser;
+	byte[]						Session;
+
 	public TransferPanel(McvNode node)
 	{
 		Node = node;
@@ -95,18 +99,18 @@ public partial class TransferPanel : McvPanel
 	{
 		Balance.Text = "...";
 
-		AutoId id = null;
-
 		try
 		{
 			if(FromAs.Text == "Id")
 			{
-				if(!AutoId.TryParse(From.Text, out id))
+				if(!AutoId.TryParse(From.Text, out var id))
 					return;
+
+				FromUser = Node.Peering.Call(new UserPpc {Id = id}, Node.Flow).User;
 			} 
 			else
 			{
-				id = Node.Peering.Call(new UserPpc {Name = From.Text}, Node.Flow).User.Id;
+				FromUser = Node.Peering.Call(new UserPpc {Name = From.Text}, Node.Flow).User;
 			}
 		}
 		catch(Exception ex)
@@ -123,7 +127,7 @@ public partial class TransferPanel : McvPanel
 																										Node.Net.Address,
 																										new AssetBalanceIcca
 																										{
-																											Entity = IccpEntityAddress.ToBytes(Tables[FromClass.Text], id),
+																											Entity = IccpEntityAddress.ToBytes(Tables[FromClass.Text], FromUser.Id),
 																											Asset = a.Id
 																										},
 																										Node.Flow).Balance.ToString();
@@ -139,14 +143,51 @@ public partial class TransferPanel : McvPanel
 
 	private void Any_Changed(object sender, EventArgs e)
 	{
-		Send.Enabled =	!string.IsNullOrEmpty(From.Text) &&
-						!string.IsNullOrEmpty(To.Text) &&
-						Asset.SelectedItem is Asset;
+		Transfer.Enabled =	!string.IsNullOrEmpty(From.Text) &&
+							!string.IsNullOrEmpty(To.Text) &&
+							Asset.SelectedItem is Asset;
 	}
 
 	private void FromId_TextChanged(object sender, EventArgs e)
 	{
 		RefreshBalance();
+	}
+	
+	private void Transfer_Click(object sender, EventArgs e)
+	{
+		ToUser = Node.Peering.Call(new UserPpc {Name = To.Text}, Node.Flow).User;
+
+/// 		if(Session == null)
+/// 		{
+/// 			var c = new VaultApiClient(Api.ForSystem(Node.Net.Zone, Node.NexusSettings.Host, Api.Vault), null);
+/// 	
+/// 			Session = c.Call<AuthenticationResult>(	new AuthenticateApc 
+/// 													{ 
+/// 														Application = Node.NexusSettings.Name, 
+/// 														Net			= Node.Net.Address,
+/// 														User		= FromUser.Name, 
+/// 														//Logo = System.IO.File.ReadAllBytes(Path.Join(G.Developer.Root, @"Art\black.png")),
+/// 													}, 
+/// 													new Flow(5000)).Session;
+/// 		}
+
+		var a = Asset.SelectedItem as Asset;
+
+		Node.Peering.Transact([new UtilityTransfer( Tables[FromClass.Text],
+													FromUser.Id,
+													Tables[ToClass.Text],
+													ToUser.Id,
+													a.Id[0] == 0 && a.Id[1] == 0 ? long.Parse(Amount.Text) : 0,
+													a.Id[0] == 0 && a.Id[1] == 1 ? long.Parse(Amount.Text) : 0,
+													a.Id[0] == 1 ? long.Parse(Amount.Text) : 0
+													)], 
+								Node.NexusSettings.Name, 
+								FromUser.Name, 
+								null, 
+								null, 
+								ActionOnResult.RetryUntilConfirmed,
+								new Flow());
+
 	}
 }
 

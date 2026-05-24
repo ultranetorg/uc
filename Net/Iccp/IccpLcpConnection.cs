@@ -202,8 +202,8 @@ public class IccpLcpConnection : LcpConnection
 
 	public IccpResult Call(string from, string to, IccpArgumentation argumentation, Flow flow)
 	{
-		if(!Pipe.IsConnected)
-			throw new LcpException(LcpError.ConnectionLost);
+		while(flow.Active && !Pipe.IsConnected)
+			Thread.Sleep(100);
 
 		var rq = new LcpRequest
 				 {

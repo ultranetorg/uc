@@ -36,7 +36,7 @@ public class RdnCandidacyDeclaration : CandidacyDeclaration
 
 		if(Error == null)
 		{
-			(execution.AffectCandidate(User.Id) as RdnGenerator).SeedHubPpcIPs = SeedHubRdcIPs;
+			(execution.AffectCandidate(User.Id) as RdnGenerator).SeedhubPpiEndpoints = SeedHubRdcIPs;
 		}
 	}
 }

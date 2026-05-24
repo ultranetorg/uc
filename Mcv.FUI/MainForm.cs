@@ -38,9 +38,6 @@ public partial class MainForm : Form
 
 		var net = new TreeNode("Network"){Tag = new NetworkPanel(node.Peering)};
 		root.Nodes.Add(net);
-		
-		var m = new TreeNode("Members"){Tag = new MembersPanel(node)};
-		root.Nodes.Add(m);
 
 		if(node.Mcv?.Settings.Chain != null)
 		{
