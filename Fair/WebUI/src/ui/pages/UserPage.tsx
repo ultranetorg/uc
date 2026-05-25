@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
@@ -6,10 +7,14 @@ import { useModerationContext } from "app"
 import { useGetUserAuthors, useGetUserReviews } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Breadcrumbs } from "ui/components"
-import { UserProfile } from "ui/components/specific"
+import { UserDetailsView } from "ui/views"
 import { parseInteger } from "utils"
 
-export const UserPage = () => {
+export type UserPageProps = {
+  isFromModeration?: boolean
+}
+
+export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
   const { isModerator, isPublisher } = useModerationContext()
   const { siteId, userId } = useParams()
   const { t } = useTranslation()
@@ -29,11 +34,13 @@ export const UserPage = () => {
 
   return (
     <div className="flex max-w-182.5 flex-col gap-6">
-      <Breadcrumbs
-        fullPath={true}
-        items={[{ path: `/${siteId}`, title: t("common:home") }, { title: t("common:users") }, { title: user.name }]}
-      />
-      <UserProfile user={user} reviews={reviews} isPublisher={isPublisher} isModerator={isModerator} />
+      {!isFromModeration && (
+        <Breadcrumbs
+          fullPath={true}
+          items={[{ path: `/${siteId}`, title: t("common:home") }, { title: t("common:users") }, { title: user.name }]}
+        />
+      )}
+      <UserDetailsView user={user} reviews={reviews} isPublisher={isPublisher} isModerator={isModerator} />
     </div>
   )
-}
+})

@@ -46,7 +46,7 @@ public class UsersController
 	[HttpHead("{userId}/sites/{siteId}")]
 	public IActionResult SiteExists(string userId, string siteId)
 	{
-		logger.LogInformation("HEAD {ControllerName}.{MethodName} called with {UserId} and {SiteId}", nameof(UsersController), nameof(SiteExists), userId, siteId);
+		logger.LogInformation("HEAD {ControllerName}.{MethodName} called with {UserId}, {SiteId}", nameof(UsersController), nameof(SiteExists), userId, siteId);
 
 		autoIdValidator.Validate(userId, nameof(User));
 		autoIdValidator.Validate(siteId, nameof(Site));

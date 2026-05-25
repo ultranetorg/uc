@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
@@ -13,6 +14,46 @@ public class UsersService
 	FairMcv mcv
 )
 {
+	public TotalItemsResult<UserModel> GetSiteUsers([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(UsersService), nameof(GetSiteUsers), siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		AutoId entityId = AutoId.Parse(siteId);
+
+		lock(mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(entityId);
+			if(site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site), siteId);
+			}
+
+			IEnumerable<AutoId> paged = site.Users.Skip(page * pageSize).Take(pageSize);
+			IEnumerable<UserModel> items = site.Users.Length > 0 ? LoadUsers(paged, cancellationToken) : [];
+
+			return new TotalItemsResult<UserModel>
+			{
+				Items = items,
+				TotalItems = site.Users.Length
+			};
+		}
+	}
+
+	IEnumerable<UserModel> LoadUsers(IEnumerable<AutoId> usersIds, CancellationToken cancellationToken)
+	{
+		return usersIds.Select(id =>
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+
+			FairUser user = (FairUser) mcv.Users.Latest(id);
+			return new UserModel(user);
+		}).ToArray();
+	}
+
 	public UserModel GetUserByName([NotNull][NotEmpty] string name)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(GetUserByName), name);
@@ -139,9 +180,11 @@ public class UsersService
 
 		Guard.Against.NullOrEmpty(userId);
 
+		AutoId entityId = AutoId.Parse(userId);
+
 		lock(mcv.Lock)
 		{
-			FairUser account = (FairUser) mcv.Users.Latest(userId);
+			FairUser account = (FairUser) mcv.Users.Latest(entityId);
 			if(account == null || account.Avatar == null)
 			{
 				throw new EntityNotFoundException(nameof(User).ToLower(), userId);

@@ -49,9 +49,9 @@ export const Comment = memo(
             </div>
             <div className="flex flex-1 flex-col justify-center gap-2">
               <div className="flex items-center justify-between">
-                <span className={NAME_CLASSNAME} title={displayName}>
+                <Link to={`/${siteId}/u/${account.id}`} className={NAME_CLASSNAME} title={displayName}>
                   {displayName}
-                </span>
+                </Link>
                 {ContextMenu && <ContextMenu id={id} text={text} />}
               </div>
               <span className={DATE_CLASSNAME}>{formatDate(created)}</span>
@@ -73,7 +73,7 @@ export const Comment = memo(
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1 leading-4.5">
-              <div className={NAME_CLASSNAME}>{displayName}</div>
+              <span className={NAME_CLASSNAME}>{displayName}</span>
               {publication && (
                 <>
                   <span>{t("common:to")}:</span>

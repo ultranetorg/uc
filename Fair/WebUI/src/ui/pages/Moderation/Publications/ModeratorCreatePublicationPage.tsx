@@ -74,71 +74,73 @@ export const ModeratorCreatePublicationPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <ModerationHeader title={t("searchProduct")} parentBreadcrumbs={parentBreadcrumbs} />
-      <div className="max-w-120">
-        <Input
-          value={query}
-          onChange={setQuery}
-          placeholder={t("placeholders:enterProductId")}
-          className="max-w-120 placeholder:text-gray-500"
-          iconAfter={
-            <>
-              {query && (
-                <div onClick={handleInputClear} className="cursor-pointer">
-                  <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
-                </div>
-              )}
-              <SvgSearchMd className="size-5 shrink-0 stroke-gray-500" />
-            </>
-          }
-        />
-      </div>
-
-      {!!debouncedQuery && isProductValid ? (
-        <>
-          <ModerationPublicationHeader
-            title={product.title}
-            logoId={product.logoId}
-            authorId={product.authorId}
-            authorTitle={product.authorTitle}
-            components={
+      <div className="flex flex-col gap-12">
+        <div className="max-w-120">
+          <Input
+            value={query}
+            onChange={setQuery}
+            placeholder={t("placeholders:enterProductId")}
+            className="max-w-120 placeholder:text-gray-500"
+            iconAfter={
               <>
-                {isProductValid && !!voterId && (
-                  <ButtonBar className="items-center">
-                    <ButtonPrimary
-                      className="h-11 w-40 capitalize"
-                      label={t("common:create")}
-                      onClick={handleCreatePublication}
-                      disabled={isPending}
-                      loading={isPending}
-                    />
-                    <Link
-                      to={`/${siteId}/m/v`}
-                      state={{
-                        productId: product.id,
-                        previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
-                        parentBreadcrumbs: [
-                          ...parentBreadcrumbs,
-                          { title: t("searchProduct"), path: `/${siteId}/m/new-publication?productId=${product.id}` },
-                        ],
-                      }}
-                    >
-                      <ButtonOutline
-                        disabled={isPending}
-                        className="h-11 w-40 capitalize"
-                        label={t("common:preview")}
-                        iconBefore={<SvgEyeSm className="fill-gray-800" />}
-                      />
-                    </Link>
-                  </ButtonBar>
+                {query && (
+                  <div onClick={handleInputClear} className="cursor-pointer">
+                    <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
+                  </div>
                 )}
+                <SvgSearchMd className="size-5 shrink-0 stroke-gray-500" />
               </>
             }
           />
-          <ProductFieldsTree productFields={product.fields} />
-        </>
-      ) : debouncedQuery ? (
-        <MessageBox className="p-6" message={isError || !product ? t("productNotFound") : t("productHasNoField")} />
-      ) : null}
+        </div>
+
+        {!!debouncedQuery && isProductValid ? (
+          <div className="flex flex-col gap-6">
+            <ModerationPublicationHeader
+              title={product.title}
+              logoId={product.logoId}
+              authorId={product.authorId}
+              authorTitle={product.authorTitle}
+              components={
+                <>
+                  {isProductValid && !!voterId && (
+                    <ButtonBar className="items-center">
+                      <ButtonPrimary
+                        className="h-11 w-40 capitalize"
+                        label={t("common:create")}
+                        onClick={handleCreatePublication}
+                        disabled={isPending}
+                        loading={isPending}
+                      />
+                      <Link
+                        to={`/${siteId}/m/v`}
+                        state={{
+                          productId: product.id,
+                          previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
+                          parentBreadcrumbs: [
+                            ...parentBreadcrumbs,
+                            { title: t("searchProduct"), path: `/${siteId}/m/new-publication?productId=${product.id}` },
+                          ],
+                        }}
+                      >
+                        <ButtonOutline
+                          disabled={isPending}
+                          className="h-11 w-40 capitalize"
+                          label={t("common:preview")}
+                          iconBefore={<SvgEyeSm className="fill-gray-800" />}
+                        />
+                      </Link>
+                    </ButtonBar>
+                  )}
+                </>
+              }
+            />
+            <ProductFieldsTree productFields={product.fields} />
+          </div>
+        ) : debouncedQuery ? (
+          <MessageBox className="p-6" message={isError || !product ? t("productNotFound") : t("productHasNoField")} />
+        ) : null}
+      </div>
     </div>
   )
 }

@@ -16,7 +16,6 @@ export * from "./SearchPageHeader"
 export * from "./Sidebar"
 export * from "./SiteHeader"
 export * from "./SitesGrid"
-export * from "./UserProfile"
 
 export * from "./AboutInfo"
 export * from "./ActiveUser"

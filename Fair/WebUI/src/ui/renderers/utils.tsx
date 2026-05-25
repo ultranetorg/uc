@@ -8,8 +8,9 @@ import {
   OperationType,
   PublicationImageBase,
   PublicationProposal,
+  User,
 } from "types"
-import { AccountInfo, ButtonOutline, ButtonPrimary, PublicationInfo, TableColumn } from "ui/components"
+import { AccountInfo, ButtonOutline, ButtonPrimary, MemberInfo, PublicationInfo, TableColumn } from "ui/components"
 import {
   formatNabb,
   formatNabbShort,
@@ -20,24 +21,28 @@ import {
   shortenAddress,
   formatArShort,
   formatAr,
+  buildUserAvatarUrl,
+  buildFileUrl,
 } from "utils"
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
 export const renderAuthor2 = (authorTitle: string, authorLogoId?: string) => (
-  <AccountInfo title={authorTitle} fullTitle={authorTitle} avatarId={authorLogoId} />
+  <MemberInfo title={authorTitle} avatarSrc={buildFileUrl(authorLogoId)} />
 )
 
 export const renderAuthor = (author: AuthorBaseAvatar) => (
-  <AccountInfo
+  <MemberInfo
     title={
       author.title && author.name ? `${author.title} (${author.name})` : (author.title ?? author.name ?? author.id)
     }
-    fullTitle={author.name || author.id}
-    avatarId={author.avatarId}
+    avatarSrc={buildFileUrl(author.avatarId)}
   />
 )
 
+/**
+ * @deprecated The method is deprecated, use renderUser instead.
+ */
 export const renderAccount = (account: AccountBaseAvatar) => (
   <AccountInfo
     title={account.nickname || shortenAddress(account.address)}
@@ -45,6 +50,8 @@ export const renderAccount = (account: AccountBaseAvatar) => (
     avatar={account.avatar}
   />
 )
+
+export const renderUser = (user: User) => <MemberInfo title={user.name} avatarSrc={buildUserAvatarUrl(user.id)!} />
 
 export const renderAction = (t: TFunction, operationType: OperationType) => {
   const value = t(`operations:${operationType}`)

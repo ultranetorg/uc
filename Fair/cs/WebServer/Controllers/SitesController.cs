@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -12,6 +11,7 @@ public class SitesController
 	ISiteSearchQueryValidator siteSearchQueryValidator,
 	ISearchQueryValidator searchQueryValidator,
 	SitesService sitesService,
+	UsersService usersService,
 	SearchService searchService
 ) : BaseController
 {
@@ -21,6 +21,20 @@ public class SitesController
 		logger.LogInformation("GET {ControllerName}.{MethodName} method called without parameters", nameof(SitesController), nameof(SitesController.Default));
 
 		return sitesService.GetDefaultSites(cancellationToken);
+	}
+
+	[HttpGet("{siteId}/users")]
+	public IEnumerable<UserModel> GetUsers(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{MethodName} called with {SiteId}, {Pagination}", nameof(SitesController), nameof(GetUsers), siteId, pagination);
+
+		autoIdValidator.Validate(siteId, nameof(User));
+		paginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<UserModel> result = usersService.GetSiteUsers(siteId, page, pageSize, cancellationToken);
+
+		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
 	}
 
 	[HttpGet("{siteId}/publishers")]

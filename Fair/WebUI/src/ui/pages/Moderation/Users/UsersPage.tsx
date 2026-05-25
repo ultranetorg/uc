@@ -1,113 +1,59 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
-import { isNumber } from "lodash"
+import { useNavigate, useParams } from "react-router-dom"
 
-import { useModerationContext } from "app"
-import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetUserProposals } from "entities"
-import { useTransactMutationWithStatus } from "entities/node"
-import { useUrlParamsState } from "hooks"
-import { ProposalVoting } from "types"
-import { Pagination, Table, TableEmptyState } from "ui/components"
-import { getUsersItemRenderer } from "ui/renderers"
-import { parseInteger, showToast } from "utils"
+import { TabsProvider } from "app"
+import { TabContent, TabsList, TabsListItem } from "ui/components"
 
-import { getVotingColumns } from "../constants"
+import { NewUsersTab } from "./NewUsersTab"
+import { UsersTab } from "./UsersTab"
+
+const routeToTabKey: Record<string, string> = {
+  n: "new-users",
+  u: "users",
+}
 
 export const UsersPage = () => {
-  const { siteId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
-  const { t } = useTranslation("usersPage")
-  const voterId = getOperationVoterId("user-registration")
+  const navigate = useNavigate()
+  const { siteId, tabKey } = useParams()
+  const { t } = useTranslation("moderationUsersPage")
 
-  const [state, setState] = useUrlParamsState({
-    page: {
-      defaultValue: 0,
-      parse: v => parseInteger(v),
-      validate: v => isNumber(v) && v >= 0,
-    },
-  })
-  const [page, setPage] = useState(state.page)
-  const [loadingItem, setLoadingItem] = useState<{ id: string; action: "approve" | "reject" } | undefined>()
+  const key = routeToTabKey[tabKey!]
 
-  const { data: users, refetch } = useGetUserProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
-  const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_20) : 0
+  const handleTabSelect = useCallback(
+    (item: TabsListItem & { route?: string }) =>
+      navigate(item.route ? `/${siteId}/m/u/${item.route}` : `/${siteId}/m/u`),
+    [navigate, siteId],
+  )
 
-  const { mutate } = useTransactMutationWithStatus()
-
-  const columns = useMemo(
+  const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { accessor: "signer", label: t("common:user"), type: "account", className: "w-[40%]" },
-      ...getVotingColumns(t),
-      ...(voterId
-        ? [
-            {
-              accessor: "actions",
-              label: t("common:actions"),
-              type: "actions",
-              className: "w-[20%] text-center first-letter:uppercase",
-            },
-          ]
-        : []),
+      { key: "new-users", label: t("newUsers") },
+      { key: "users", label: t("common:users"), route: "u" },
     ],
-    [t, voterId],
-  )
-
-  const vote = useCallback(
-    (id: string, name: string, action: "approve" | "reject") => {
-      setLoadingItem({ id: id, action })
-
-      const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : -1)
-      mutate(operation, {
-        onSuccess: () => {
-          const message =
-            action === "approve"
-              ? t("toast:userRegistrationApproved", { name })
-              : t("toast:userRegistrationRejected", { name })
-          showToast(message, "success")
-        },
-        onError: err => {
-          showToast(err.toString(), "error")
-        },
-        onSettled: () => {
-          setLoadingItem(undefined)
-          refetch()
-        },
-      })
-    },
-    [mutate, refetch, t, voterId],
-  )
-
-  const handleApprove = useCallback((id: string, name: string) => vote(id, name, "approve"), [vote])
-
-  const handleReject = useCallback((id: string, name: string) => vote(id, name, "reject"), [vote])
-
-  const itemRenderer = useMemo(
-    () => getUsersItemRenderer(t, handleApprove, handleReject, loadingItem),
-    [handleApprove, handleReject, loadingItem, t],
-  )
-
-  const handlePageChange = useCallback(
-    (page: number) => {
-      setState({ page: page })
-      setPage(page)
-    },
-    [setState],
+    [t],
   )
 
   return (
     <>
-      <Table
-        columns={columns}
-        items={users?.items}
-        tableBodyClassName="text-2sm leading-5"
-        itemRenderer={itemRenderer}
-        emptyState={<TableEmptyState message={t("noUsers")} />}
-      />
-      <div className="flex w-full justify-end">
-        <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
-      </div>
+      <TabsProvider defaultKey={key || "new-users"}>
+        <div className="flex flex-col gap-6">
+          <TabsList
+            className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
+            itemClassName="h-6 cursor-pointer hover:text-gray-800 first-letter:uppercase"
+            activeItemClassName="border-box border-b-2 border-gray-950 pb-2 text-gray-800"
+            onTabSelect={handleTabSelect}
+            items={tabsItems}
+          />
+
+          <TabContent when="new-users">
+            <NewUsersTab />
+          </TabContent>
+          <TabContent when="users">
+            <UsersTab />
+          </TabContent>
+        </div>
+      </TabsProvider>
     </>
   )
 }

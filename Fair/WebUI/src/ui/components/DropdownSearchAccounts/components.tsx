@@ -46,7 +46,7 @@ export const Option = (props: OptionProps<DropdownSearchAccountsItem, false>) =>
       <div className="size-8 overflow-hidden rounded-full">
         <img
           className="size-full object-cover object-center"
-          src={buildUserAvatarUrl(props.data.value)}
+          src={buildUserAvatarUrl(props.data.avatarId)}
           loading="lazy"
           onError={e => {
             e.currentTarget.onerror = null

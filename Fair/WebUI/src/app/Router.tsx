@@ -36,7 +36,6 @@ import {
   PublishersPage,
   ReviewsPage,
   UnpublishedPublicationPage,
-  UserPage as ModerationUserPage,
   UsersPage as ModerationUsersPage,
 } from "ui/pages/moderation"
 
@@ -108,7 +107,7 @@ const routes: RouteObject[] = [
 
           {
             path: "u/:userId",
-            element: <UserPage />,
+            element: <UserPage isFromModeration={false} />,
           },
           {
             path: "e/:publisherId",
@@ -212,11 +211,12 @@ const routes: RouteObject[] = [
                 children: [
                   {
                     index: true,
+                    path: ":tabKey?",
                     element: <ModerationUsersPage />,
                   },
                   {
-                    path: ":name",
-                    element: <ModerationUserPage />,
+                    path: "u/:userId",
+                    element: <UserPage />,
                   },
                 ],
               },

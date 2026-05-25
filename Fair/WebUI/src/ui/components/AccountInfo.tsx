@@ -24,15 +24,14 @@ type AccountInfoBaseProps =
 
 export type AccountInfoProps = PropsWithClassName & AccountInfoBaseProps
 
+/**
+ * @deprecated The component is deprecated, use MemberInfo instead.
+ */
 export const AccountInfo = memo(
   ({ className, title, fullTitle, avatar, avatarId, titleClassName }: AccountInfoProps) => (
     <div className={twMerge("flex items-center gap-2", className)} title={fullTitle ?? title}>
       <div className="size-8 shrink-0 overflow-hidden rounded-full">
         <ImageFallback src={avatar ? buildSrc(avatar) : buildFileUrl(avatarId)} fallbackSrc={avatarPlaceholder} />
-        {/* <img
-          className="size-full object-cover"
-          src={avatar ? buildSrc(avatar, avatarPlaceholder) : buildFileUrl(avatarId)}
-        /> */}
       </div>
       <span
         className={twMerge(

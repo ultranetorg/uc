@@ -204,11 +204,6 @@ export const enUS = {
       },
     },
   },
-  userProfile: {
-    reviewsLeft: "Reviews left by this user",
-    noReviews: "This user has no reviews",
-    noPublishers: "This user has no publishers",
-  },
   toast: {
     commentAdded: "Comment successfully added",
     favoriteAdded: `Site "{{site}}" added to favorites`,
@@ -257,6 +252,9 @@ export const enUS = {
     reviews: "Reviews",
     title: "Moderation",
     userRegistrations: "User registrations",
+  },
+  moderationUsersPage: {
+    newUsers: "New users",
   },
   moderatorsPage: {
     title: "Moderators",
@@ -467,6 +465,11 @@ export const enUS = {
     selectMembersToAdd: "Select {{memberType}}s to Add",
     selectMembersToRemove: "Select {{memberType}}s to Remove",
     userNotFound: "User with that username not found",
+  },
+  userDetailsView: {
+    reviewsLeft: "Reviews left by this user",
+    noReviews: "This user has no reviews",
+    noPublishers: "This user has no publishers",
   },
 
   /* Modals */

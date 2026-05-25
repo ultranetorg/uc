@@ -2,6 +2,7 @@ import { memo, PropsWithChildren, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Outlet, useNavigate, useParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
+import { capitalize } from "lodash"
 
 import { SEARCH_DELAY } from "config"
 import { useSearchAccounts } from "entities"
@@ -10,7 +11,7 @@ import { ModerationHeader } from "ui/components/specific"
 
 export const UsersLayout = memo(({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
-  const { siteId, name } = useParams()
+  const { siteId, name, tabKey, userId } = useParams()
   const { t } = useTranslation("usersPage")
 
   const [query, setQuery] = useState("")
@@ -22,8 +23,8 @@ export const UsersLayout = memo(({ children }: PropsWithChildren) => {
     () =>
       searchUsers !== undefined
         ? searchUsers.map(x => ({
-            label: x.nickname ?? x.id,
-            value: x.nickname,
+            value: x.id,
+            label: x.nickname,
             avatarId: x.id,
           }))
         : [],
@@ -38,17 +39,19 @@ export const UsersLayout = memo(({ children }: PropsWithChildren) => {
     [navigate, siteId],
   )
 
+  const headerTitle = capitalize(tabKey === "u" || userId ? t("common:users") : t("newUsersTitle"))
+
   return (
     <>
       <ModerationHeader
-        title={!name ? t("newUsersTitle") : name}
-        breadcrumbTitle={!name ? t("title") : name}
+        title={headerTitle}
+        breadcrumbTitle={!userId ? t("title") : userId}
         parentBreadcrumbs={
-          !name
-            ? { path: `/${siteId}/m`, title: t("common:proposals") }
+          !userId
+            ? [{ path: `/${siteId}/m`, title: t("common:proposals") }]
             : [
                 { path: `/${siteId}/m`, title: t("common:proposals") },
-                { path: `/${siteId}/m/u`, title: t("title") },
+                { path: `/${siteId}/m/u/u`, title: t("common:users") },
               ]
         }
         components={

@@ -62,6 +62,15 @@ const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${si
 const getSitePolicies = (siteId: string): Promise<Policy[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/policies`).then(res => res.json())
 
+const getSiteUsers = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<User>> => {
+  const params = buildUrlParams(
+    { page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/users` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getSitePublishers = async (
   siteId: string,
   page?: number,
@@ -447,6 +456,7 @@ const api: Api = {
   getReviews,
   getSite,
   getSitePolicies,
+  getSiteUsers,
   getSitePublishers,
   getSiteFiles,
   getSiteModerators,

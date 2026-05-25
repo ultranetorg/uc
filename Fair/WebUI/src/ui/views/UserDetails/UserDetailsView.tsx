@@ -12,16 +12,16 @@ import { PublishersList } from "./PublishersList"
 
 const LABEL_CLASSNAME = "text-2base font-medium leading-5 first-letter:uppercase"
 
-export type UserProfileProps = {
+export type UserDetailsViewProps = {
   user?: UserAuthors
   reviews?: TotalItemsResult<Review>
   isPublisher: boolean
   isModerator: boolean
 }
 
-export const UserProfile = memo(({ user, reviews, isPublisher, isModerator }: UserProfileProps) => {
+export const UserDetailsView = memo(({ user, reviews, isPublisher, isModerator }: UserDetailsViewProps) => {
   const { siteId } = useParams()
-  const { t } = useTranslation("userProfile")
+  const { t } = useTranslation("userDetailsView")
 
   if (!user || !reviews) return <>LOADING</>
 
