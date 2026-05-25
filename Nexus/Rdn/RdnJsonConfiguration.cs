@@ -271,92 +271,81 @@ public class CostApc : RdnApc
 				};
 	}
 }
+//
+//public class HoldersByAccountIccpApc : RdnApc
+//{
+//	public byte[]	Address { get; set; }
+//
+//	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+//	{
+//		lock(rdn.Mcv.Lock)
+//		{	
+//			throw new NotImplementedException();
+//
+//			var a = rdn.Mcv.Users.Latest(null);
+//			
+//			if(a != null)
+//				return new string[] {EntityAddress.ToString(McvTable.User, a.Id)};
+//			else
+//				throw new IccpException(IccpError.NotFound);
+//		}
+//	}
+//}
+//
+//public class HolderAssetsIccpApc : RdnApc
+//{
+//	public string	HolderClass { get; set; }
+//	public string	HolderId { get; set; }
+//
+//	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+//	{
+//		if(HolderClass != nameof(User))
+//			throw new IccpException(IccpError.Unknown);
+//
+//		lock(rdn.Mcv.Lock)
+//		{	
+//			var a = rdn.Mcv.Users.Latest(AutoId.Parse(HolderId));
+//			
+//			if(a != null)
+//				return new Asset[]	{
+//										new () {Name = nameof(User.Spacetime), Units = "Byte-days (BD)"},
+//										new () {Name = nameof(User.Energy), Units = "Execution Cycles (EC)"},
+//									};
+//			else
+//				throw new IccpException(IccpError.NotFound);
+//		}
+//	}
+//}
 
-public class HolderClassesIccpApc : RdnApc
-{
-	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		lock(rdn.Mcv.Lock)
-		{	
-			return new string[] {nameof(User)};
-		}
-	}
-}
-
-public class HoldersByAccountIccpApc : RdnApc
-{
-	public byte[]	Address { get; set; }
-
-	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		lock(rdn.Mcv.Lock)
-		{	
-			throw new NotImplementedException();
-
-			var a = rdn.Mcv.Users.Latest(null);
-			
-			if(a != null)
-				return new string[] {EntityAddress.ToString(McvTable.User, a.Id)};
-			else
-				throw new IccpException(IccpError.NotFound);
-		}
-	}
-}
-
-public class HolderAssetsIccpApc : RdnApc
-{
-	public string	HolderClass { get; set; }
-	public string	HolderId { get; set; }
-
-	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		if(HolderClass != nameof(User))
-			throw new IccpException(IccpError.Unknown);
-
-		lock(rdn.Mcv.Lock)
-		{	
-			var a = rdn.Mcv.Users.Latest(AutoId.Parse(HolderId));
-			
-			if(a != null)
-				return new Asset[]	{
-										new () {Name = nameof(User.Spacetime), Units = "Byte-days (BD)"},
-										new () {Name = nameof(User.Energy), Units = "Execution Cycles (EC)"},
-									};
-			else
-				throw new IccpException(IccpError.NotFound);
-		}
-	}
-}
-
-public class AssetBalanceIccpApc : RdnApc
-{
-	public string	HolderClass { get; set; }
-	public string	HolderId { get; set; }
-	public string	Name { get; set; }
-
-	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		if(HolderClass != nameof(User))
-			throw new IccpException(IccpError.Unknown);
-
-		if(Name != nameof(User.Spacetime) && Name != nameof(User.Energy))
-			throw new IccpException(IccpError.Unknown);
-
-		lock(rdn.Mcv.Lock)
-		{	
-			var a = rdn.Mcv.Users.Latest(AutoId.Parse(HolderId));
-			
-			if(a != null)
-				return new BigInteger (Name switch
-											{
-												nameof(User.Spacetime) => a.Spacetime,
-												nameof(User.Energy) => a.Energy,
-											});
-			else
-				throw new IccpException(IccpError.NotFound);
-		}
-	}
-}
+///public class AssetBalanceIccpApc : RdnApc
+///{
+///	public string	HolderClass { get; set; }
+///	public string	HolderId { get; set; }
+///	public string	Name { get; set; }
+///
+///	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+///	{
+///		if(HolderClass != nameof(User))
+///			throw new IccpException(IccpError.Unknown);
+///
+///		if(Name != nameof(User.Spacetime) && Name != nameof(User.Energy))
+///			throw new IccpException(IccpError.Unknown);
+///
+///		lock(rdn.Mcv.Lock)
+///		{	
+///			var a = rdn.Mcv.Users.Latest(AutoId.Parse(HolderId));
+///			
+///			if(a != null)
+///				return new BigInteger (Name switch
+///											{
+///												nameof(User.Spacetime) => a.Spacetime,
+///												nameof(User.Energy) => a.Energy,
+///											});
+///			else
+///				throw new IccpException(IccpError.NotFound);
+///		}
+///	}
+///}
 
 public class TransferIccpApc : RdnApc
 {

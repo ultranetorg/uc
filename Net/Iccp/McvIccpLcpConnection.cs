@@ -275,7 +275,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 		if(!args.Asset.SequenceEqual(Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years).Id) && 
 		   !args.Asset.SequenceEqual(Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1)).Id) && 
-		   !args.Asset.SequenceEqual(Asset.Spacetime().Id))
+		   !args.Asset.SequenceEqual(Asset.Spacetime.Id))
 			throw new EntityException(EntityError.UnknownAsset);
 
 		ISpacetimeHolder sh;
@@ -290,7 +290,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 			e = Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years);
 			en = Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1));
 
-			if(args.Asset.SequenceEqual(Asset.Spacetime().Id) && sh == null)
+			if(args.Asset.SequenceEqual(Asset.Spacetime.Id) && sh == null)
 				throw new EntityException(EntityError.NotHolder);
 
 			if(args.Asset.SequenceEqual(e.Id) && eh == null)
@@ -301,7 +301,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		}
 
 		BigInteger b = 0;
-		if(args.Asset.SequenceEqual(Asset.Spacetime().Id))	b = sh.Spacetime; else
+		if(args.Asset.SequenceEqual(Asset.Spacetime.Id))	b = sh.Spacetime; else
 		if(args.Asset.SequenceEqual(e.Id))					b = eh.Energy; else
 		if(args.Asset.SequenceEqual(en.Id))					b = eh.EnergyNext;
 			
@@ -320,7 +320,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 			return	new HolderAssetsIccr 
 					{
 						Assets = [	
-									Asset.Spacetime(),
+									Asset.Spacetime,
 									Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
 									Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
 								 ]

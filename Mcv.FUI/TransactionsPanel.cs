@@ -40,15 +40,18 @@ public partial class TransactionsPanel : McvPanel
 
 		if(e.IsSelected)
 		{
-			lock(Node.Mcv.Lock)
+			lock(Node.Peering.Lock)
 			{
-				Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>	{
-																									var li = new ListViewItem(i.ToString());
-																									//li.Tag = i;
-																									//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
-																									return li;
-																								})
-																								.ToArray());
+				var t = e.Item.Tag as Transaction;
+				Operations.Items.AddRange(t.Operations.Select((i) => {
+																	 	var li = new ListViewItem(i.ToString());
+																	 	//li.Tag = i;
+																	 	//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
+																	 	return li;
+																	 })
+																	 .ToArray());
+				
+				Log.Lines = t.Flow.Log.Messages.Select(i => i.ToString()).ToArray();
 			}
 		}
 	}
@@ -59,6 +62,7 @@ public partial class TransactionsPanel : McvPanel
 		{
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
+			Log.Clear();
 
 			lock(Node.Peering.Lock)
 			{
@@ -71,6 +75,8 @@ public partial class TransactionsPanel : McvPanel
 					li.SubItems.Add(i.Expiration.ToString());
 					li.SubItems.Add(i.Operations.Length.ToString());
 					li.SubItems.Add(i.Operations[0].ToString());
+					li.SubItems.Add(i.Error);
+					li.SubItems.Add((i.Ppi as Peer)?.EP.ToString());
 				
 					Transactions.Items.Add(li);
 				}

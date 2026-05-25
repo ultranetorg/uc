@@ -44,10 +44,10 @@ namespace Uccs.Mcv.FUI
 			Generators.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			Generators.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader4 });
 			Generators.FullRowSelect = true;
-			Generators.Location = new Point(7, 80);
-			Generators.Margin = new Padding(6, 12, 6, 6);
+			Generators.Location = new Point(4, 46);
+			Generators.Margin = new Padding(3, 12, 3, 3);
 			Generators.Name = "Generators";
-			Generators.Size = new Size(1888, 1086);
+			Generators.Size = new Size(1016, 487);
 			Generators.TabIndex = 1;
 			Generators.UseCompatibleStateImageBehavior = false;
 			Generators.View = View.Details;
@@ -68,10 +68,10 @@ namespace Uccs.Mcv.FUI
 			// 
 			DestLabel.AutoSize = true;
 			DestLabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			DestLabel.Location = new Point(7, 22);
-			DestLabel.Margin = new Padding(7, 12, 7, 12);
+			DestLabel.Location = new Point(4, 11);
+			DestLabel.Margin = new Padding(0, 6, 0, 6);
 			DestLabel.Name = "DestLabel";
-			DestLabel.Size = new Size(135, 27);
+			DestLabel.Size = new Size(71, 13);
 			DestLabel.TabIndex = 2;
 			DestLabel.Text = "Generators";
 			DestLabel.TextAlign = ContentAlignment.TopRight;
@@ -82,10 +82,10 @@ namespace Uccs.Mcv.FUI
 			BaseRdcIPs.Columns.AddRange(new ColumnHeader[] { columnHeader2 });
 			BaseRdcIPs.FullRowSelect = true;
 			BaseRdcIPs.HeaderStyle = ColumnHeaderStyle.None;
-			BaseRdcIPs.Location = new Point(7, 1258);
-			BaseRdcIPs.Margin = new Padding(6, 12, 6, 6);
+			BaseRdcIPs.Location = new Point(4, 587);
+			BaseRdcIPs.Margin = new Padding(3, 8, 3, 3);
 			BaseRdcIPs.Name = "BaseRdcIPs";
-			BaseRdcIPs.Size = new Size(742, 374);
+			BaseRdcIPs.Size = new Size(401, 177);
 			BaseRdcIPs.TabIndex = 3;
 			BaseRdcIPs.UseCompatibleStateImageBehavior = false;
 			BaseRdcIPs.View = View.Details;
@@ -100,36 +100,35 @@ namespace Uccs.Mcv.FUI
 			label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 			label1.AutoSize = true;
 			label1.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label1.Location = new Point(7, 1207);
-			label1.Margin = new Padding(7, 12, 7, 12);
+			label1.Location = new Point(4, 558);
+			label1.Margin = new Padding(0, 8, 0, 8);
 			label1.Name = "label1";
-			label1.Size = new Size(237, 27);
+			label1.Size = new Size(119, 13);
 			label1.TabIndex = 2;
 			label1.Text = "Graph Ppi Endpoints";
 			label1.TextAlign = ContentAlignment.TopRight;
 			// 
 			// Refresh
 			// 
-			Refresh.Location = new Point(1655, 6);
-			Refresh.Margin = new Padding(6);
+			Refresh.Location = new Point(891, 3);
 			Refresh.Name = "Refresh";
-			Refresh.Size = new Size(240, 56);
+			Refresh.Size = new Size(129, 28);
 			Refresh.TabIndex = 25;
 			Refresh.Text = "Refresh";
 			Refresh.UseVisualStyleBackColor = true;
 			// 
 			// MembersPanel
 			// 
-			AutoScaleDimensions = new SizeF(13F, 32F);
+			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			Controls.Add(Refresh);
 			Controls.Add(BaseRdcIPs);
 			Controls.Add(label1);
 			Controls.Add(DestLabel);
 			Controls.Add(Generators);
-			Margin = new Padding(7, 6, 7, 6);
+			Margin = new Padding(4, 3, 4, 3);
 			Name = "MembersPanel";
-			Size = new Size(1902, 1638);
+			Size = new Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();
 		}

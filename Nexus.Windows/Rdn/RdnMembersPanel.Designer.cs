@@ -47,10 +47,10 @@ namespace Uccs.Nexus.Windows
 			Generators.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			Generators.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader4 });
 			Generators.FullRowSelect = true;
-			Generators.Location = new Point(7, 80);
-			Generators.Margin = new Padding(6, 12, 6, 6);
+			Generators.Location = new Point(4, 38);
+			Generators.Margin = new Padding(3, 6, 3, 3);
 			Generators.Name = "Generators";
-			Generators.Size = new Size(1888, 1048);
+			Generators.Size = new Size(1018, 504);
 			Generators.TabIndex = 1;
 			Generators.UseCompatibleStateImageBehavior = false;
 			Generators.View = View.Details;
@@ -71,10 +71,10 @@ namespace Uccs.Nexus.Windows
 			// 
 			DestLabel.AutoSize = true;
 			DestLabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			DestLabel.Location = new Point(7, 22);
-			DestLabel.Margin = new Padding(7, 12, 7, 12);
+			DestLabel.Location = new Point(4, 10);
+			DestLabel.Margin = new Padding(4, 6, 4, 6);
 			DestLabel.Name = "DestLabel";
-			DestLabel.Size = new Size(135, 27);
+			DestLabel.Size = new Size(71, 13);
 			DestLabel.TabIndex = 2;
 			DestLabel.Text = "Generators";
 			DestLabel.TextAlign = ContentAlignment.TopRight;
@@ -85,10 +85,10 @@ namespace Uccs.Nexus.Windows
 			GraphPpiEndpoints.Columns.AddRange(new ColumnHeader[] { columnHeader2 });
 			GraphPpiEndpoints.FullRowSelect = true;
 			GraphPpiEndpoints.HeaderStyle = ColumnHeaderStyle.None;
-			GraphPpiEndpoints.Location = new Point(7, 1226);
-			GraphPpiEndpoints.Margin = new Padding(6, 12, 6, 6);
+			GraphPpiEndpoints.Location = new Point(4, 575);
+			GraphPpiEndpoints.Margin = new Padding(3, 6, 3, 3);
 			GraphPpiEndpoints.Name = "GraphPpiEndpoints";
-			GraphPpiEndpoints.Size = new Size(631, 406);
+			GraphPpiEndpoints.Size = new Size(342, 192);
 			GraphPpiEndpoints.TabIndex = 3;
 			GraphPpiEndpoints.UseCompatibleStateImageBehavior = false;
 			GraphPpiEndpoints.View = View.Details;
@@ -103,10 +103,10 @@ namespace Uccs.Nexus.Windows
 			label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 			label1.AutoSize = true;
 			label1.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label1.Location = new Point(7, 1175);
-			label1.Margin = new Padding(7, 12, 7, 12);
+			label1.Location = new Point(4, 551);
+			label1.Margin = new Padding(4, 6, 4, 6);
 			label1.Name = "label1";
-			label1.Size = new Size(237, 27);
+			label1.Size = new Size(119, 13);
 			label1.TabIndex = 2;
 			label1.Text = "Graph Ppi Endpoints";
 			label1.TextAlign = ContentAlignment.TopRight;
@@ -116,10 +116,10 @@ namespace Uccs.Nexus.Windows
 			label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 			label3.AutoSize = true;
 			label3.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label3.Location = new Point(652, 1174);
-			label3.Margin = new Padding(7, 13, 7, 13);
+			label3.Location = new Point(370, 551);
+			label3.Margin = new Padding(4, 6, 4, 6);
 			label3.Name = "label3";
-			label3.Size = new Size(266, 27);
+			label3.Size = new Size(134, 13);
 			label3.TabIndex = 2;
 			label3.Text = "Seedhub Ppi Endpoints";
 			label3.TextAlign = ContentAlignment.TopRight;
@@ -130,10 +130,10 @@ namespace Uccs.Nexus.Windows
 			SeedhubPpiEndpoints.Columns.AddRange(new ColumnHeader[] { columnHeader6 });
 			SeedhubPpiEndpoints.FullRowSelect = true;
 			SeedhubPpiEndpoints.HeaderStyle = ColumnHeaderStyle.None;
-			SeedhubPpiEndpoints.Location = new Point(652, 1226);
-			SeedhubPpiEndpoints.Margin = new Padding(6, 12, 6, 6);
+			SeedhubPpiEndpoints.Location = new Point(370, 575);
+			SeedhubPpiEndpoints.Margin = new Padding(3, 6, 3, 3);
 			SeedhubPpiEndpoints.Name = "SeedhubPpiEndpoints";
-			SeedhubPpiEndpoints.Size = new Size(631, 406);
+			SeedhubPpiEndpoints.Size = new Size(342, 192);
 			SeedhubPpiEndpoints.TabIndex = 5;
 			SeedhubPpiEndpoints.UseCompatibleStateImageBehavior = false;
 			SeedhubPpiEndpoints.View = View.Details;
@@ -145,10 +145,9 @@ namespace Uccs.Nexus.Windows
 			// 
 			// Refresh
 			// 
-			Refresh.Location = new Point(1655, 6);
-			Refresh.Margin = new Padding(6);
+			Refresh.Location = new Point(891, 3);
 			Refresh.Name = "Refresh";
-			Refresh.Size = new Size(240, 56);
+			Refresh.Size = new Size(129, 26);
 			Refresh.TabIndex = 24;
 			Refresh.Text = "Refresh";
 			Refresh.UseVisualStyleBackColor = true;
@@ -156,7 +155,7 @@ namespace Uccs.Nexus.Windows
 			// 
 			// RdnMembersPanel
 			// 
-			AutoScaleDimensions = new SizeF(13F, 32F);
+			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			Controls.Add(Refresh);
 			Controls.Add(SeedhubPpiEndpoints);
@@ -165,9 +164,9 @@ namespace Uccs.Nexus.Windows
 			Controls.Add(label1);
 			Controls.Add(DestLabel);
 			Controls.Add(Generators);
-			Margin = new Padding(7, 6, 7, 6);
+			Margin = new Padding(4, 3, 4, 3);
 			Name = "RdnMembersPanel";
-			Size = new Size(1902, 1638);
+			Size = new Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();
 		}

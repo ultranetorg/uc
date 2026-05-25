@@ -57,10 +57,10 @@ namespace Uccs.Nexus.Windows
 			NetworkReleases.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 			NetworkReleases.Columns.AddRange(new ColumnHeader[] { ChId, ChAddress, ChFlags, ChDataControl, ChDataType, ChDataLength, ChInLinks, ChOutLinks });
 			NetworkReleases.FullRowSelect = true;
-			NetworkReleases.Location = new Point(12, 80);
-			NetworkReleases.Margin = new Padding(6, 12, 6, 6);
+			NetworkReleases.Location = new Point(3, 38);
+			NetworkReleases.Margin = new Padding(3, 6, 3, 3);
 			NetworkReleases.Name = "NetworkReleases";
-			NetworkReleases.Size = new Size(1884, 721);
+			NetworkReleases.Size = new Size(1019, 340);
 			NetworkReleases.TabIndex = 4;
 			NetworkReleases.UseCompatibleStateImageBehavior = false;
 			NetworkReleases.View = View.Details;
@@ -110,28 +110,25 @@ namespace Uccs.Nexus.Windows
 			// 
 			label5.AutoSize = true;
 			label5.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label5.Location = new Point(6, 22);
-			label5.Margin = new Padding(6, 0, 6, 0);
+			label5.Location = new Point(3, 12);
 			label5.Name = "label5";
-			label5.Size = new Size(209, 27);
+			label5.Size = new Size(109, 13);
 			label5.TabIndex = 13;
 			label5.Text = "Resource Address";
 			// 
 			// OnlineQuery
 			// 
 			OnlineQuery.FormattingEnabled = true;
-			OnlineQuery.Location = new Point(235, 15);
-			OnlineQuery.Margin = new Padding(6);
+			OnlineQuery.Location = new Point(127, 7);
 			OnlineQuery.Name = "OnlineQuery";
-			OnlineQuery.Size = new Size(1307, 40);
+			OnlineQuery.Size = new Size(702, 23);
 			OnlineQuery.TabIndex = 0;
 			// 
 			// NetworkSearch
 			// 
-			NetworkSearch.Location = new Point(1550, 6);
-			NetworkSearch.Margin = new Padding(6);
+			NetworkSearch.Location = new Point(835, 5);
 			NetworkSearch.Name = "NetworkSearch";
-			NetworkSearch.Size = new Size(345, 56);
+			NetworkSearch.Size = new Size(186, 26);
 			NetworkSearch.TabIndex = 3;
 			NetworkSearch.Text = "Search Online";
 			NetworkSearch.UseVisualStyleBackColor = true;
@@ -142,10 +139,10 @@ namespace Uccs.Nexus.Windows
 			LocalReleases.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			LocalReleases.Columns.AddRange(new ColumnHeader[] { columnHeader2, columnHeader1, columnHeader3, columnHeader8, columnHeader4 });
 			LocalReleases.FullRowSelect = true;
-			LocalReleases.Location = new Point(12, 896);
-			LocalReleases.Margin = new Padding(6, 12, 6, 6);
+			LocalReleases.Location = new Point(3, 420);
+			LocalReleases.Margin = new Padding(3, 6, 3, 3);
 			LocalReleases.Name = "LocalReleases";
-			LocalReleases.Size = new Size(1884, 736);
+			LocalReleases.Size = new Size(1019, 347);
 			LocalReleases.TabIndex = 14;
 			LocalReleases.UseCompatibleStateImageBehavior = false;
 			LocalReleases.View = View.Details;
@@ -179,28 +176,27 @@ namespace Uccs.Nexus.Windows
 			// 
 			label3.AutoSize = true;
 			label3.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label3.Location = new Point(12, 838);
-			label3.Margin = new Padding(7, 0, 7, 0);
+			label3.Location = new Point(3, 395);
+			label3.Margin = new Padding(4, 0, 4, 0);
 			label3.Name = "label3";
-			label3.Size = new Size(209, 27);
+			label3.Size = new Size(109, 13);
 			label3.TabIndex = 24;
 			label3.Text = "Resource Address";
 			// 
 			// LocalQuery
 			// 
 			LocalQuery.FormattingEnabled = true;
-			LocalQuery.Location = new Point(235, 831);
-			LocalQuery.Margin = new Padding(7, 6, 7, 6);
+			LocalQuery.Location = new Point(127, 390);
+			LocalQuery.Margin = new Padding(4, 3, 4, 3);
 			LocalQuery.Name = "LocalQuery";
-			LocalQuery.Size = new Size(1301, 40);
+			LocalQuery.Size = new Size(702, 23);
 			LocalQuery.TabIndex = 27;
 			// 
 			// LocalSearch
 			// 
-			LocalSearch.Location = new Point(1550, 822);
-			LocalSearch.Margin = new Padding(6);
+			LocalSearch.Location = new Point(835, 388);
 			LocalSearch.Name = "LocalSearch";
-			LocalSearch.Size = new Size(345, 56);
+			LocalSearch.Size = new Size(186, 26);
 			LocalSearch.TabIndex = 25;
 			LocalSearch.Text = " Local Search";
 			LocalSearch.UseVisualStyleBackColor = true;
@@ -208,7 +204,7 @@ namespace Uccs.Nexus.Windows
 			// 
 			// ResourcesPanel
 			// 
-			AutoScaleDimensions = new SizeF(13F, 32F);
+			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			Controls.Add(LocalQuery);
 			Controls.Add(LocalSearch);
@@ -218,9 +214,8 @@ namespace Uccs.Nexus.Windows
 			Controls.Add(OnlineQuery);
 			Controls.Add(NetworkSearch);
 			Controls.Add(NetworkReleases);
-			Margin = new Padding(6);
 			Name = "ResourcesPanel";
-			Size = new Size(1902, 1638);
+			Size = new Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();
 		}

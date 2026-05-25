@@ -2,14 +2,14 @@
 
 namespace Uccs.Mcv.FUI;
 
-public partial class MainForm : Form
+public partial class McvForm : Form
 {
 	public readonly McvNode			Node;
 	System.Windows.Forms.Timer		Timer = new ();
 
 	DashboardPanel				Dashboard;
 
-	public MainForm(McvNode uos)
+	public McvForm(McvNode uos)
 	{
 		Node = uos;
 		AutoScaleMode = AutoScaleMode.Inherit;
@@ -39,11 +39,11 @@ public partial class MainForm : Form
 		var net = new TreeNode("Network"){Tag = new NetworkPanel(node.Peering)};
 		root.Nodes.Add(net);
 
+		var t = new TreeNode("Transactions"){Tag = new TransactionsPanel(node)};
+		root.Nodes.Add(t);
+
 		if(node.Mcv?.Settings.Chain != null)
 		{
-			var t = new TreeNode("Transactions"){ Tag = new TransactionsPanel(node)};
-			root.Nodes.Add(t);
-
 			var c = new TreeNode("Chain"){Tag = new ChainPanel(node)};
 			root.Nodes.Add(c);
 		}

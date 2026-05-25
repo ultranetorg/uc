@@ -149,12 +149,11 @@ public class McvSummaryApc : McvApc
 
 		lock(node.Peering.Lock)
 		{
-			f = new () {{"Peers all/in/out",		$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound )}/{node.Peering.Connections.Count(i => !i.Inbound)} {(node.Peering.MinimalPeersReached ? " MinimalPeersReached" : null)}"},
-						{"Endpoint",				$"{node.Peering.Settings.EP}"},
-						{"Reported IP",				$"{node.Peering.EP?.IP}"},
-						{"Votes Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"},
-						{"Candidate Transactions",	$"{node.Peering.CandidateTransactions.Count}"}
-						};
+			f = new () {{"Peers all/in/out/permanent",	$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound)}/{node.Peering.Connections.Count(i => !i.Inbound)}/{node.Peering.Connections.Count(i => i.Permanent)}, {(node.Peering.MinimalPeersReached ? "OK" : "Low")}"},
+						{"Endpoint",					$"{node.Peering.Settings.EP}"},
+						{"Reported IP",					$"{node.Peering.EP?.IP}"},
+						{"Votes p2p Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"},
+						{"Candidate Transactions",		$"{node.Peering.CandidateTransactions.Count}"}};
 		}
 
 		lock(node.Peering.OutgoingTransactions)
@@ -167,17 +166,18 @@ public class McvSummaryApc : McvApc
 
 		if(node.Mcv != null)
 		{
+			f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
+			f.Add("Synchronization",		$"{node.Peering.Synchronization}");
+			f.Add("Size",					$"{node.Mcv.Size}");
+
 			lock(node.Mcv.Lock)
 			{ 
-				f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
-				f.Add("Synchronization",		$"{node.Peering.Synchronization}");
-				f.Add("Size",					$"{node.Mcv.Size}");
 				f.Add("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}");
-				f.Add("Base Hash",				node.Mcv.GraphHash.ToHex());
+				f.Add("Hash",					node.Mcv.GraphHash.ToHex());
 				f.Add("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}");
-				f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
-				f.Add("Last Payload Round",		$"{node.Mcv.LastPayloadRound?.Id}");
-				f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
+				//f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
+				//f.Add("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}");
+				//f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
 			}
 		}
 
@@ -334,7 +334,7 @@ public class EstimateOperationApc : McvApc
 public class TransactionApe
 {
 	//public TransactionId			Id { get; set; }
-	public int						Nid { get; set; }
+	public int						Nonce { get; set; }
 		
 	public AutoId					Member { get; set; }
 	public int						Expiration { get; set; }
@@ -356,8 +356,7 @@ public class TransactionApe
 
 	public TransactionApe(Transaction transaction)
 	{
-		Nid					= transaction.Nonce;
-		//Id					= transaction.Id;
+		Nonce				= transaction.Nonce;
 		Operations			= [..transaction.Operations];
 		   
 		Member				= transaction.Member;
@@ -365,8 +364,7 @@ public class TransactionApe
 		Tag					= transaction.Tag;
 		Signature			= transaction.Signature;
 		   
-		MemberEndpoint		= (transaction.Ppi as Peer)?.EP ?? (transaction.Ppi as HomoPeering)?.EP;
-		//Signer				= transaction.Signer;
+		MemberEndpoint		= (transaction.Ppi as Peer)?.EP;
 		Status				= transaction.Status;
 		Error				= transaction.Error;
 		__ExpectedStatus	= transaction.ActionOnResult;

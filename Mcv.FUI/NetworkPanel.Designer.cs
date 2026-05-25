@@ -29,40 +29,41 @@ namespace Uccs.Mcv.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			label1 = new System.Windows.Forms.Label();
-			Peers = new System.Windows.Forms.ListView();
-			columnHeader13 = new System.Windows.Forms.ColumnHeader();
-			columnHeader14 = new System.Windows.Forms.ColumnHeader();
-			columnHeader15 = new System.Windows.Forms.ColumnHeader();
-			columnHeader11 = new System.Windows.Forms.ColumnHeader();
-			columnHeader16 = new System.Windows.Forms.ColumnHeader();
-			columnHeader1 = new System.Windows.Forms.ColumnHeader();
+			label1 = new Label();
+			Peers = new ListView();
+			columnHeader13 = new ColumnHeader();
+			columnHeader14 = new ColumnHeader();
+			columnHeader15 = new ColumnHeader();
+			columnHeader11 = new ColumnHeader();
+			columnHeader16 = new ColumnHeader();
+			columnHeader1 = new ColumnHeader();
+			Refresh = new Button();
 			SuspendLayout();
 			// 
 			// label1
 			// 
 			label1.AutoSize = true;
-			label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
-			label1.Location = new System.Drawing.Point(4, 15);
-			label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			label1.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label1.Location = new Point(4, 10);
+			label1.Margin = new Padding(4, 0, 4, 0);
 			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(39, 13);
+			label1.Size = new Size(39, 13);
 			label1.TabIndex = 2;
 			label1.Text = "Peers";
-			label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			label1.TextAlign = ContentAlignment.TopRight;
 			// 
 			// Peers
 			// 
-			Peers.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			Peers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader13, columnHeader14, columnHeader15, columnHeader11, columnHeader16, columnHeader1 });
+			Peers.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+			Peers.Columns.AddRange(new ColumnHeader[] { columnHeader13, columnHeader14, columnHeader15, columnHeader11, columnHeader16, columnHeader1 });
 			Peers.FullRowSelect = true;
-			Peers.Location = new System.Drawing.Point(4, 39);
-			Peers.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			Peers.Location = new Point(4, 40);
+			Peers.Margin = new Padding(3, 6, 3, 3);
 			Peers.Name = "Peers";
-			Peers.Size = new System.Drawing.Size(1016, 726);
+			Peers.Size = new Size(1016, 725);
 			Peers.TabIndex = 6;
 			Peers.UseCompatibleStateImageBehavior = false;
-			Peers.View = System.Windows.Forms.View.Details;
+			Peers.View = View.Details;
 			// 
 			// columnHeader13
 			// 
@@ -72,19 +73,19 @@ namespace Uccs.Mcv.FUI
 			// columnHeader14
 			// 
 			columnHeader14.Text = "Status";
-			columnHeader14.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			columnHeader14.TextAlign = HorizontalAlignment.Center;
 			columnHeader14.Width = 150;
 			// 
 			// columnHeader15
 			// 
 			columnHeader15.Text = "Retries";
-			columnHeader15.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			columnHeader15.TextAlign = HorizontalAlignment.Center;
 			columnHeader15.Width = 75;
 			// 
 			// columnHeader11
 			// 
 			columnHeader11.Text = "Rank";
-			columnHeader11.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			columnHeader11.TextAlign = HorizontalAlignment.Center;
 			columnHeader11.Width = 100;
 			// 
 			// columnHeader16
@@ -97,17 +98,28 @@ namespace Uccs.Mcv.FUI
 			// 
 			columnHeader1.DisplayIndex = 4;
 			columnHeader1.Text = "Roles";
-			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			columnHeader1.TextAlign = HorizontalAlignment.Center;
+			// 
+			// Refresh
+			// 
+			Refresh.Location = new Point(891, 3);
+			Refresh.Name = "Refresh";
+			Refresh.Size = new Size(129, 28);
+			Refresh.TabIndex = 26;
+			Refresh.Text = "Refresh";
+			Refresh.UseVisualStyleBackColor = true;
+			Refresh.Click += Refresh_Click;
 			// 
 			// NetworkPanel
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			AutoScaleDimensions = new SizeF(7F, 15F);
+			AutoScaleMode = AutoScaleMode.Font;
+			Controls.Add(Refresh);
 			Controls.Add(Peers);
 			Controls.Add(label1);
-			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			Margin = new Padding(4, 3, 4, 3);
 			Name = "NetworkPanel";
-			Size = new System.Drawing.Size(1024, 768);
+			Size = new Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();
 		}
@@ -121,5 +133,6 @@ namespace Uccs.Mcv.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader16;
 		private System.Windows.Forms.ColumnHeader columnHeader11;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
+		private Button Refresh;
 	}
 }

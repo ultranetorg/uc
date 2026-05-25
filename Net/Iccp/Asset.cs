@@ -8,6 +8,13 @@ public class Asset : IBinarySerializable
 	public byte[]	Id { get; set; }
 	public string	Units { get; set; }
 
+	public static readonly Asset Spacetime	=	new ()
+												{
+													Name = $"Space-time",
+													Id = [1],
+													Units = "Byte-days (BD)"
+												};
+
 	public static Asset Energy(byte period, byte year)
 	{
 		var a = new Asset();
@@ -18,19 +25,9 @@ public class Asset : IBinarySerializable
 		return a;
 	}
 
-	public static Asset Spacetime()
-	{
-		var a = new Asset();
-		a.Name = $"Space-time";
-		a.Id = [1];
-		a.Units = "Byte-days (BD)";
-
-		return a;
-	}
-
 	public override string ToString()
 	{
-		return $"{Name} ({Units})";
+		return $"{Name} as ({Units})";
 	}
 
 	public void Read(Reader reader)

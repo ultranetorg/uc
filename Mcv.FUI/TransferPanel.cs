@@ -8,7 +8,7 @@ namespace Uccs.Mcv.FUI;
 public partial class TransferPanel : McvPanel
 {
 	McvNode						Node;
-	Dictionary<string, byte>	Tables;	
+	Dictionary<byte, string>	Tables;	
 
 	User						FromUser;
 	User						ToUser;
@@ -127,7 +127,7 @@ public partial class TransferPanel : McvPanel
 																										Node.Net.Address,
 																										new AssetBalanceIcca
 																										{
-																											Entity = IccpEntityAddress.ToBytes(Tables[FromClass.Text], FromUser.Id),
+																											Entity = IccpEntityAddress.ToBytes(Tables.First(i => i.Value == FromClass.Text).Key, FromUser.Id),
 																											Asset = a.Id
 																										},
 																										Node.Flow).Balance.ToString();
@@ -155,40 +155,90 @@ public partial class TransferPanel : McvPanel
 	
 	private void Transfer_Click(object sender, EventArgs e)
 	{
-		ToUser = Node.Peering.Call(new UserPpc {Name = To.Text}, Node.Flow).User;
-
-/// 		if(Session == null)
-/// 		{
-/// 			var c = new VaultApiClient(Api.ForSystem(Node.Net.Zone, Node.NexusSettings.Host, Api.Vault), null);
-/// 	
-/// 			Session = c.Call<AuthenticationResult>(	new AuthenticateApc 
-/// 													{ 
-/// 														Application = Node.NexusSettings.Name, 
-/// 														Net			= Node.Net.Address,
-/// 														User		= FromUser.Name, 
-/// 														//Logo = System.IO.File.ReadAllBytes(Path.Join(G.Developer.Root, @"Art\black.png")),
-/// 													}, 
-/// 													new Flow(5000)).Session;
-/// 		}
-
-		var a = Asset.SelectedItem as Asset;
-
-		Node.Peering.Transact([new UtilityTransfer( Tables[FromClass.Text],
-													FromUser.Id,
-													Tables[ToClass.Text],
-													ToUser.Id,
-													a.Id[0] == 0 && a.Id[1] == 0 ? long.Parse(Amount.Text) : 0,
-													a.Id[0] == 0 && a.Id[1] == 1 ? long.Parse(Amount.Text) : 0,
-													a.Id[0] == 1 ? long.Parse(Amount.Text) : 0
-													)], 
-								Node.NexusSettings.Name, 
-								FromUser.Name, 
-								null, 
-								null, 
-								ActionOnResult.RetryUntilConfirmed,
-								new Flow());
-
+		try
+		{
+			ToUser = Node.Peering.Call(new UserPpc {Name = To.Text}, Node.Flow).User;
+	
+	/// 		if(Session == null)
+	/// 		{
+	/// 			var c = new VaultApiClient(Api.ForSystem(Node.Net.Zone, Node.NexusSettings.Host, Api.Vault), null);
+	/// 	
+	/// 			Session = c.Call<AuthenticationResult>(	new AuthenticateApc 
+	/// 													{ 
+	/// 														Application = Node.NexusSettings.Name, 
+	/// 														Net			= Node.Net.Address,
+	/// 														User		= FromUser.Name, 
+	/// 														//Logo = System.IO.File.ReadAllBytes(Path.Join(G.Developer.Root, @"Art\black.png")),
+	/// 													}, 
+	/// 													new Flow(5000)).Session;
+	/// 		}
+	
+			var a = Asset.SelectedItem as Asset;
+	
+			Node.Peering.Transact([new UtilityTransfer( Tables.First(i => i.Value == FromClass.Text).Key,
+														FromUser.Id,
+														Tables.First(i => i.Value == ToClass.Text).Key,
+														ToUser.Id,
+														a.Id[0] == 0 && a.Id[1] == 0 ? long.Parse(Amount.Text) : 0,
+														a.Id[0] == 0 && a.Id[1] == 1 ? long.Parse(Amount.Text) : 0,
+														a.Id[0] == 1 ? long.Parse(Amount.Text) : 0
+														)], 
+									Node.NexusSettings.Name, 
+									FromUser.Name, 
+									null, 
+									null, 
+									ActionOnResult.RetryUntilConfirmed,
+									new Flow());
+		}
+		catch(Exception ex)
+		{
+			ShowError(ex.Message);
+		}
 	}
+
+	bool fit = false;
+
+	public override void PeriodicalRefresh()
+	{
+		try
+		{
+			Transactions.Items.Clear();
+
+			Transaction[] txs;
+
+			lock(Node.Peering.Lock)
+				txs = Node.Peering.OutgoingTransactions.Where(i => i.Operations[0] is UtilityTransfer).ToArray();
+			
+			foreach(var i in txs)
+			{
+				var li = new ListViewItem(i.Tag.ToHex()) {Tag = i};
+					
+				var o = i.Operations[0] as UtilityTransfer;
+
+				li.SubItems.Add(Tables[o.From.Table]);
+				li.SubItems.Add(o.From.Id.ToString());
+				li.SubItems.Add(Tables[o.To.Table]);
+				li.SubItems.Add(o.To.Id.ToString());
+				li.SubItems.Add(o.Spacetime.ToString());
+				li.SubItems.Add(o.Energy.ToString());
+				li.SubItems.Add(o.EnergyNext.ToString());
+				li.SubItems.Add(i.Status.ToString());
+				li.SubItems.Add(i.Error);
+				
+				Transactions.Items.Add(li);
+			}
+
+			if(!fit && Transactions.Items.Count > 0)
+			{	
+				Transactions.ResizeColumnsToFit();
+				fit = true;
+			}
+		}
+		catch(Exception ex)
+		{
+		}
+	}
+
 }
 
 #pragma warning restore IDE0055

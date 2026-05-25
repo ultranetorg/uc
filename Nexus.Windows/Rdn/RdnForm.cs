@@ -4,7 +4,7 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus.Windows;
 
-public class RdnForm : MainForm
+public class RdnForm : McvForm
 {
 	public RdnForm(RdnNode uos) : base(uos)
 	{

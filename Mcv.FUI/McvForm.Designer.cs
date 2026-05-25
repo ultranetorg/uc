@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Mcv.FUI
 {
-	partial class MainForm
+	partial class McvForm
 	{
 		/// <summary>
 		///  Required designer variable.
