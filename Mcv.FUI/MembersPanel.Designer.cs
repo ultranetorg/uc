@@ -44,10 +44,10 @@ namespace Uccs.Mcv.FUI
 			Generators.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			Generators.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader4 });
 			Generators.FullRowSelect = true;
-			Generators.Location = new Point(4, 46);
-			Generators.Margin = new Padding(3, 12, 3, 3);
+			Generators.Location = new Point(4, 43);
+			Generators.Margin = new Padding(3, 9, 3, 3);
 			Generators.Name = "Generators";
-			Generators.Size = new Size(1016, 487);
+			Generators.Size = new Size(1016, 490);
 			Generators.TabIndex = 1;
 			Generators.UseCompatibleStateImageBehavior = false;
 			Generators.View = View.Details;
@@ -68,8 +68,8 @@ namespace Uccs.Mcv.FUI
 			// 
 			DestLabel.AutoSize = true;
 			DestLabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			DestLabel.Location = new Point(4, 11);
-			DestLabel.Margin = new Padding(0, 6, 0, 6);
+			DestLabel.Location = new Point(4, 21);
+			DestLabel.Margin = new Padding(0, 0, 3, 0);
 			DestLabel.Name = "DestLabel";
 			DestLabel.Size = new Size(71, 13);
 			DestLabel.TabIndex = 2;
@@ -83,7 +83,7 @@ namespace Uccs.Mcv.FUI
 			BaseRdcIPs.FullRowSelect = true;
 			BaseRdcIPs.HeaderStyle = ColumnHeaderStyle.None;
 			BaseRdcIPs.Location = new Point(4, 587);
-			BaseRdcIPs.Margin = new Padding(3, 8, 3, 3);
+			BaseRdcIPs.Margin = new Padding(3, 9, 3, 3);
 			BaseRdcIPs.Name = "BaseRdcIPs";
 			BaseRdcIPs.Size = new Size(401, 177);
 			BaseRdcIPs.TabIndex = 3;
@@ -100,8 +100,8 @@ namespace Uccs.Mcv.FUI
 			label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 			label1.AutoSize = true;
 			label1.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label1.Location = new Point(4, 558);
-			label1.Margin = new Padding(0, 8, 0, 8);
+			label1.Location = new Point(4, 565);
+			label1.Margin = new Padding(0, 0, 3, 0);
 			label1.Name = "label1";
 			label1.Size = new Size(119, 13);
 			label1.TabIndex = 2;

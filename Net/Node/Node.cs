@@ -75,6 +75,9 @@ public class Node : IProgram
 	public Thread CreateThread(Action action)
 	{
 		return new Thread(() => { 
+									Thread.CurrentThread.CurrentCulture = 
+									Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+
 									try
 									{
 										action();

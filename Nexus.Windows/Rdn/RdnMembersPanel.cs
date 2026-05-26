@@ -78,19 +78,36 @@ public partial class RdnMembersPanel : McvPanel
 		GraphPpiEndpoints.Items.Clear();
 		SeedhubPpiEndpoints.Items.Clear();
 
-		foreach(var i in Node.Peering.Call(new RdnMembersPpc(), new Flow(5000)).Members)
-		{
-			var li = Generators.Items.Add(i.User.ToString());
+		Refresh.Enabled = false;
+		
+		Task.Run(() =>	{ 
+							try
+							{
+								var ms = Node.Peering.Call(new RdnMembersPpc(), new Flow(5000)).Members;
 
-			if(Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
-			{
-				li.Font = Bold;
-			}
+								Invoke(() =>	{ 
+													foreach(var i in ms)
+													{
+														var li = Generators.Items.Add(i.User.ToString());
+	
+														if(Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
+														{
+															li.Font = Bold;
+														}
+	
+														li.Tag = i;
+														li.SubItems.Add(i.Since.ToString());
+													}
+												});
+							}
+							catch(Exception ex)
+							{
+							}
+							finally
+							{
+								Invoke(() => Refresh.Enabled = true); 
+							}
+						});
 
-			li.Tag = i;
-			li.SubItems.Add(i.Since.ToString());
-			//li.SubItems.Add(i.Pledge.ToString());
-			//li.SubItems.Add(string.Join(", ", i.IPs.AsEnumerable()));
-		}
 	}
 }

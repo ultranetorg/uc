@@ -9,13 +9,11 @@ public partial class McvForm : Form
 
 	DashboardPanel				Dashboard;
 
-	public McvForm(McvNode uos)
+	public McvForm(McvNode node)
 	{
-		Node = uos;
-		AutoScaleMode = AutoScaleMode.Inherit;
-
 		InitializeComponent();
 
+		Node = node;
 		MinimumSize = Size;
 
 		var dashboard = new TreeNode("Dashboard"){Tag = Dashboard = new DashboardPanel(Node)};

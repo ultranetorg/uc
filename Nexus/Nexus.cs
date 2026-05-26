@@ -54,7 +54,7 @@ public class Nexus : IProgram
 		{
 			IccpLcpServer = new IccpLcpServer(this);
 	
-			IccpPeering = new IccpPeering(this, 
+			IccpPeering = new IccpPeering(	this, 
 											Settings.Name, 
 											Settings.IccpPeering, 
 											IccpLcpServer, 

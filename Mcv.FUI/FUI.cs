@@ -9,11 +9,12 @@ static class Program
 	[STAThread]
 	static void Main()
 	{
+		Thread.CurrentThread.CurrentCulture = 
+		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+
 		System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
 		System.Windows.Forms.Application.EnableVisualStyles();
 		System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
-
-		Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
 	}
 
 	public static void ResizeColumnsToFit(this ListView listView)

@@ -53,10 +53,10 @@ namespace Uccs.Mcv.FUI
 			Transactions.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
 			Transactions.Columns.AddRange(new ColumnHeader[] { ChTag, ChStatus, ChUser, ChNonce, ChExpiration, ChOpsn, ChFirstOp, ChError, ChMemberPeer });
 			Transactions.FullRowSelect = true;
-			Transactions.Location = new Point(4, 40);
-			Transactions.Margin = new Padding(3, 6, 3, 3);
+			Transactions.Location = new Point(4, 43);
+			Transactions.Margin = new Padding(3, 9, 3, 3);
 			Transactions.Name = "Transactions";
-			Transactions.Size = new Size(1016, 370);
+			Transactions.Size = new Size(1016, 367);
 			Transactions.TabIndex = 1;
 			Transactions.UseCompatibleStateImageBehavior = false;
 			Transactions.View = View.Details;
@@ -111,7 +111,7 @@ namespace Uccs.Mcv.FUI
 			Operations.Columns.AddRange(new ColumnHeader[] { columnHeader5 });
 			Operations.FullRowSelect = true;
 			Operations.Location = new Point(4, 459);
-			Operations.Margin = new Padding(3, 12, 3, 3);
+			Operations.Margin = new Padding(3, 9, 3, 3);
 			Operations.Name = "Operations";
 			Operations.Size = new Size(1016, 139);
 			Operations.TabIndex = 24;
@@ -127,8 +127,8 @@ namespace Uccs.Mcv.FUI
 			// 
 			label7.AutoSize = true;
 			label7.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label7.Location = new Point(4, 9);
-			label7.Margin = new Padding(0);
+			label7.Location = new Point(4, 19);
+			label7.Margin = new Padding(0, 0, 3, 0);
 			label7.Name = "label7";
 			label7.Size = new Size(130, 15);
 			label7.TabIndex = 34;
@@ -138,8 +138,8 @@ namespace Uccs.Mcv.FUI
 			// 
 			label1.AutoSize = true;
 			label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label1.Location = new Point(0, 432);
-			label1.Margin = new Padding(0);
+			label1.Location = new Point(4, 435);
+			label1.Margin = new Padding(0, 0, 3, 0);
 			label1.Name = "label1";
 			label1.Size = new Size(68, 15);
 			label1.TabIndex = 34;
@@ -159,8 +159,8 @@ namespace Uccs.Mcv.FUI
 			// 
 			label2.AutoSize = true;
 			label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label2.Location = new Point(4, 617);
-			label2.Margin = new Padding(0);
+			label2.Location = new Point(4, 620);
+			label2.Margin = new Padding(0, 0, 3, 0);
 			label2.Name = "label2";
 			label2.Size = new Size(27, 15);
 			label2.TabIndex = 34;
@@ -169,7 +169,7 @@ namespace Uccs.Mcv.FUI
 			// Log
 			// 
 			Log.Location = new Point(4, 644);
-			Log.Margin = new Padding(3, 12, 3, 3);
+			Log.Margin = new Padding(3, 9, 3, 3);
 			Log.Multiline = true;
 			Log.Name = "Log";
 			Log.ReadOnly = true;

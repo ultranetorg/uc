@@ -10,7 +10,6 @@ public class FairNode : McvNode
 
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
-	public McvIccpLcpConnection		Iccp;
 
 	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
 	{

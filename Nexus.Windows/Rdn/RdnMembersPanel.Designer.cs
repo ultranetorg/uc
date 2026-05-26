@@ -48,9 +48,9 @@ namespace Uccs.Nexus.Windows
 			Generators.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader4 });
 			Generators.FullRowSelect = true;
 			Generators.Location = new Point(4, 38);
-			Generators.Margin = new Padding(3, 6, 3, 3);
+			Generators.Margin = new Padding(3, 9, 3, 3);
 			Generators.Name = "Generators";
-			Generators.Size = new Size(1018, 504);
+			Generators.Size = new Size(1016, 496);
 			Generators.TabIndex = 1;
 			Generators.UseCompatibleStateImageBehavior = false;
 			Generators.View = View.Details;
@@ -71,8 +71,8 @@ namespace Uccs.Nexus.Windows
 			// 
 			DestLabel.AutoSize = true;
 			DestLabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			DestLabel.Location = new Point(4, 10);
-			DestLabel.Margin = new Padding(4, 6, 4, 6);
+			DestLabel.Location = new Point(4, 16);
+			DestLabel.Margin = new Padding(0, 0, 3, 0);
 			DestLabel.Name = "DestLabel";
 			DestLabel.Size = new Size(71, 13);
 			DestLabel.TabIndex = 2;
@@ -86,9 +86,9 @@ namespace Uccs.Nexus.Windows
 			GraphPpiEndpoints.FullRowSelect = true;
 			GraphPpiEndpoints.HeaderStyle = ColumnHeaderStyle.None;
 			GraphPpiEndpoints.Location = new Point(4, 575);
-			GraphPpiEndpoints.Margin = new Padding(3, 6, 3, 3);
+			GraphPpiEndpoints.Margin = new Padding(3, 9, 3, 3);
 			GraphPpiEndpoints.Name = "GraphPpiEndpoints";
-			GraphPpiEndpoints.Size = new Size(342, 192);
+			GraphPpiEndpoints.Size = new Size(342, 190);
 			GraphPpiEndpoints.TabIndex = 3;
 			GraphPpiEndpoints.UseCompatibleStateImageBehavior = false;
 			GraphPpiEndpoints.View = View.Details;
@@ -103,8 +103,8 @@ namespace Uccs.Nexus.Windows
 			label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 			label1.AutoSize = true;
 			label1.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label1.Location = new Point(4, 551);
-			label1.Margin = new Padding(4, 6, 4, 6);
+			label1.Location = new Point(4, 553);
+			label1.Margin = new Padding(0, 0, 3, 0);
 			label1.Name = "label1";
 			label1.Size = new Size(119, 13);
 			label1.TabIndex = 2;
@@ -116,8 +116,8 @@ namespace Uccs.Nexus.Windows
 			label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 			label3.AutoSize = true;
 			label3.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label3.Location = new Point(370, 551);
-			label3.Margin = new Padding(4, 6, 4, 6);
+			label3.Location = new Point(370, 553);
+			label3.Margin = new Padding(0, 0, 3, 0);
 			label3.Name = "label3";
 			label3.Size = new Size(134, 13);
 			label3.TabIndex = 2;
@@ -131,9 +131,9 @@ namespace Uccs.Nexus.Windows
 			SeedhubPpiEndpoints.FullRowSelect = true;
 			SeedhubPpiEndpoints.HeaderStyle = ColumnHeaderStyle.None;
 			SeedhubPpiEndpoints.Location = new Point(370, 575);
-			SeedhubPpiEndpoints.Margin = new Padding(3, 6, 3, 3);
+			SeedhubPpiEndpoints.Margin = new Padding(3, 9, 3, 3);
 			SeedhubPpiEndpoints.Name = "SeedhubPpiEndpoints";
-			SeedhubPpiEndpoints.Size = new Size(342, 192);
+			SeedhubPpiEndpoints.Size = new Size(342, 190);
 			SeedhubPpiEndpoints.TabIndex = 5;
 			SeedhubPpiEndpoints.UseCompatibleStateImageBehavior = false;
 			SeedhubPpiEndpoints.View = View.Details;
@@ -164,7 +164,7 @@ namespace Uccs.Nexus.Windows
 			Controls.Add(label1);
 			Controls.Add(DestLabel);
 			Controls.Add(Generators);
-			Margin = new Padding(4, 3, 4, 3);
+			Margin = new Padding(0);
 			Name = "RdnMembersPanel";
 			Size = new Size(1024, 768);
 			ResumeLayout(false);

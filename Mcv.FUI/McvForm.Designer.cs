@@ -81,7 +81,7 @@
 			place.Size = new Size(1024, 768);
 			place.TabIndex = 10;
 			// 
-			// MainForm
+			// McvForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
@@ -89,9 +89,8 @@
 			Controls.Add(place);
 			Controls.Add(Navigator);
 			Margin = new Padding(4, 3, 4, 3);
-			Name = "MainForm";
+			Name = "McvForm";
 			Padding = new Padding(7);
-			StartPosition = FormStartPosition.Manual;
 			Text = "Node";
 			FormClosing += MainForm_FormClosing;
 			ResumeLayout(false);

@@ -347,7 +347,7 @@ public abstract class Round : IBinarySerializable
 
 		Hashify(); /// depends on Mcv.GraphHash 
 
-		Mcv.Log?.Report(this, $"Summarize {this} - Payloads={string.Join(" ", Payloads.Select(i => i.User))} - VotesOfTry={string.Join(" ", VotesOfTry.Select(i => i.User))} - Votes={string.Join(" ", Votes.Select(i => i.User))}");
+		///Mcv.Log?.Report(this, $"Summarize {this} - Payloads={string.Join(" ", Payloads.Select(i => i.User))} - VotesOfTry={string.Join(" ", VotesOfTry.Select(i => i.User))} - Votes={string.Join(" ", Votes.Select(i => i.User))}");
 
 		return Hash;
 	}

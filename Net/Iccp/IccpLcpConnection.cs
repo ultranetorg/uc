@@ -15,6 +15,7 @@ public enum IccpLcpConnectionType : byte
 public class IccpLcpConnection : LcpConnection
 {
 	public string													Net;
+	public IccpLcpConnectionType									Type;
 	public string													Api { get; set; }
 	Dictionary<Type, Func<string, IccpArgumentation, IccpResult>>	Calls = [];
 	
@@ -26,7 +27,6 @@ public class IccpLcpConnection : LcpConnection
 
 	public IccpLcpConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
 	{
-
 		Handler = (from, to, a, c) =>	{
 											if(Calls.TryGetValue(a.GetType(), out var e))
 											{
@@ -176,7 +176,6 @@ public class IccpLcpConnection : LcpConnection
 								OutRequests.Remove(rq);
 							}
 						}
-
 
  						break;
  					}

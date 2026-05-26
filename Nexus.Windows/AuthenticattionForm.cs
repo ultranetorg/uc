@@ -22,7 +22,7 @@ public partial class AuthenticattionForm : Form
 		Application.Text = applicaiton;
 		Allow.Enabled = Ask.Enabled = false;
 
-		Program.NexusContext.BindWallets(this, vault, Wallets, Accounts, account);
+		Program.NexusWindows.BindWallets(this, vault, Wallets, Accounts, account);
 	}
 
 	public void SetLogo(byte[] image)

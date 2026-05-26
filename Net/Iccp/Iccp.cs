@@ -36,6 +36,7 @@ public enum IccpClass : uint
 	LastOutgoingTransfer,
 	LastIncomingTransfer,
 	Request,
+	ShowGui,
 
 	AddressTextToUniversal,
 	HolderClasses,
@@ -108,10 +109,10 @@ public class RequestIcca : IccpArgumentation
 
 public class RequestIccr : IccpResult
 {
-	public byte[]				Response { get; set; }
+	public byte[]			Response { get; set; }
 
-	public override void		Read(Reader reader) => Response = reader.ReadBytes();
-	public override void		Write(Writer writer) => writer.WriteBytes(Response);
+	public override void	Read(Reader reader) => Response = reader.ReadBytes();
+	public override void	Write(Writer writer) => writer.WriteBytes(Response);
 }
 
 public class JsonApiIcca : IccpArgumentation
@@ -185,4 +186,6 @@ public class SubnetPeersIccr : IccpResult
 	public override void	Write(Writer writer) => writer.Write(Peers);
 }
 
-
+public class ShowGuiIcca : IccpArgumentation
+{
+}

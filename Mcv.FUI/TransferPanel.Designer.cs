@@ -248,7 +248,7 @@ namespace Uccs.Mcv.FUI
 			Transactions.Columns.AddRange(new ColumnHeader[] { ChTag, ChFromClass, ChFromUser, ChToClass, ChToUser, ChSpacetime, ChEnergy, ChEnergyNext, ChStatus, ChError });
 			Transactions.FullRowSelect = true;
 			Transactions.Location = new Point(3, 259);
-			Transactions.Margin = new Padding(3, 12, 3, 3);
+			Transactions.Margin = new Padding(3, 9, 3, 3);
 			Transactions.Name = "Transactions";
 			Transactions.Size = new Size(1018, 506);
 			Transactions.TabIndex = 40;
@@ -306,7 +306,8 @@ namespace Uccs.Mcv.FUI
 			// 
 			label3.AutoSize = true;
 			label3.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			label3.Location = new Point(3, 232);
+			label3.Location = new Point(3, 235);
+			label3.Margin = new Padding(0, 0, 3, 0);
 			label3.Name = "label3";
 			label3.Size = new Size(163, 15);
 			label3.TabIndex = 33;

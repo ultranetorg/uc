@@ -36,7 +36,6 @@
     <Compile Update="MembersPanel.cs" />
     <Compile Update="TransactionsPanel.cs" />
     <Compile Update="ResourcesPanel.cs" />
-    <Compile Update="InterzoneNetworkPanel.cs" />
     <Compile Update="DashboardPanel - Copy.Designer.cs">
       <DependentUpon>DashboardPanel.Designer.cs</DependentUpon>
     </Compile>

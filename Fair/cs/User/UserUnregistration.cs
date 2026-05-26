@@ -4,7 +4,7 @@ public class UserUnregistration : VotableOperation
 {
 	public new  AutoId			User { get; set; }
 
-	public override string		Explanation => $"Site={Site}";
+	public override string		Explanation => $"User={User}";
 	
 	public UserUnregistration()
 	{
@@ -47,11 +47,9 @@ public class UserUnregistration : VotableOperation
 		var s = Site;
 
 		s.Users = s.Users.Remove(User);
-		base.User.Sites = base.User.Sites.Remove(s.Id);
+		
+		var u = execution.AffectUser(User);
 
-		//if(base.User.AllocationSponsor == new EntityAddress((byte)FairTable.Site, s.Id))
-		//{
-		//	execution.FreeForever(s, execution.Net.EntityLength);
-		//}
+		u.Sites = u.Sites.Remove(s.Id);
 	}
 }

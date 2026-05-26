@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Win32;
 using Uccs.Net;
-using Uccs.Nexus;
 using Uccs.Nexus.Windows.Properties;
-using Uccs.Rdn;
 using Uccs.Vault;
 
 namespace Uccs.Nexus.Windows;
@@ -20,16 +14,16 @@ public class Program: ApplicationContext
 	static void Main()
 	{
 		ApplicationConfiguration.Initialize();
-		System.Windows.Forms.Application.Run(new NexusContext());
+		System.Windows.Forms.Application.Run(new NexusWindows());
 	}
 
-	public class NexusContext : ApplicationContext
+	public class NexusWindows : ApplicationContext
 	{
 		public static string		ExeDirectory;
 		Nexus						Nexus;
-		private NotifyIcon TrayIcon;
+		NotifyIcon					TrayIcon;
 
-		public NexusContext()
+		public NexusWindows()
 		{
 			ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		
@@ -39,8 +33,9 @@ public class Program: ApplicationContext
 		
 			if(!File.Exists(ns.Path))
 			{
-				ns.Name = Guid.NewGuid().ToByteArray().ToHex();
-				ns.Host = Rdn.Rdn.ByZone(b.Zone).DefaultHost;
+				ns.Name			= Guid.NewGuid().ToByteArray().ToHex();
+				ns.Host			= Rdn.Rdn.ByZone(b.Zone).DefaultHost;
+				ns.IccpPeering	= new PeeringSettings {EP = new (IPAddress.Any, Port.Map(b.Zone, KnownProtocol.Iccp))};
 				ns.Save();
 			}
 
@@ -54,24 +49,55 @@ public class Program: ApplicationContext
 
 			InitializeAuthUI(Nexus);
 
-			var contextMenu = new ContextMenuStrip();
-			contextMenu.Items.Add("Identity and Activity", null, (s, e) =>	{
-																				var f = new IamForm(Nexus);
-																				f.Show();
-																			});
-			contextMenu.Items.Add("-");
-			contextMenu.Items.Add("Rdn", null, (s, e) => {
-														 	var f = new RdnForm(Nexus.RdnNode);
-														 	f.Show();
-														 });
-			contextMenu.Items.Add("-");
-			contextMenu.Items.Add("Exit", null, (s, e) => Nexus.Stop());
+			var traymenu = new ContextMenuStrip();
+			traymenu.Items.Add("-");
+			traymenu.Items.Add("Identity and Activity", null, (s, e) =>	{
+																			var f = new IamForm(Nexus);
+																			f.Show();
+																		});
+			traymenu.Items.Add("-");
+			traymenu.Items.Add("Exit", null, (s, e) => Nexus.Stop());
+
+			Nexus.IccpLcpServer.ConnectionEstablished += c =>	{
+														 			if(c is IccpLcpConnection nc && nc.Type == IccpLcpConnectionType.Node)
+														 			{
+															 			if(nc.Net == Iccn.Root)
+															 			{
+																			var i = new ToolStripMenuItem(nc.Net, null, (s, e) =>	{
+																 																		var f = new RdnForm(Nexus.RdnNode);
+																 																		f.Show();
+																																	}
+																																	){Tag = c};
+																			traymenu.Items.Insert(0, i);
+															 			} 
+															 			else
+															 			{
+																			var i = new ToolStripMenuItem(nc.Net, null, (s, e) =>	{
+																																		nc.Call(null, nc.Net, new ShowGuiIcca(), new Flow(5000));
+																																	}
+																																	){Tag = c};
+																			
+																			traymenu.Invoke(() => traymenu.Items.Insert(0, i));
+															 			}
+														 			}
+																};
+
+			Nexus.IccpLcpServer.ConnectionLost += c =>	{
+															foreach(var i in traymenu.Items)
+															{
+																if(i is ToolStripLabel l && l.Tag == c)
+																{
+																	traymenu.Invoke(() => traymenu.Items.Remove(l));
+																	break;
+																}
+															}
+														};
 
 			#pragma warning disable WFO5001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 			TrayIcon =	new NotifyIcon()
 						{
 							Icon = Resources.IconWhite,
-							ContextMenuStrip = contextMenu,
+							ContextMenuStrip = traymenu,
 							Visible = true,
 							Text = "UOS"
 						};

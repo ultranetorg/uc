@@ -109,6 +109,8 @@ public abstract class LcpConnection
 
 		if(Server != null)
 		{
+			Server.ConnectionLost?.Invoke(this);
+
 			lock(Server.Connections)
 			{
 				Server.Connections.Remove(this);
@@ -128,6 +130,11 @@ public abstract class LcpServer
 	public abstract IccpResult			Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection);
 
 	protected abstract LcpConnection	CreateConnection(NamedPipeServerStream pipe);
+
+	public delegate void				LcpConnectionDelegate(LcpConnection connection);
+
+	public LcpConnectionDelegate		ConnectionEstablished;
+	public LcpConnectionDelegate		ConnectionLost;
 
 	public LcpServer(IProgram program, string pipeName, Flow flow)
 	{

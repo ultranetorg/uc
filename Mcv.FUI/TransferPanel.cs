@@ -25,6 +25,12 @@ public partial class TransferPanel : McvPanel
 	{
 		if(first)
 		{
+			if(Node.Iccp == null)
+			{
+				Enabled = false;
+				return;
+			}
+
 			FromAs.DataSource = new string[] {"Id", "Name"};
 			ToWhat.DataSource = new string[] {"Id", "Name"};
 
@@ -159,19 +165,9 @@ public partial class TransferPanel : McvPanel
 		{
 			ToUser = Node.Peering.Call(new UserPpc {Name = To.Text}, Node.Flow).User;
 	
-	/// 		if(Session == null)
-	/// 		{
-	/// 			var c = new VaultApiClient(Api.ForSystem(Node.Net.Zone, Node.NexusSettings.Host, Api.Vault), null);
-	/// 	
-	/// 			Session = c.Call<AuthenticationResult>(	new AuthenticateApc 
-	/// 													{ 
-	/// 														Application = Node.NexusSettings.Name, 
-	/// 														Net			= Node.Net.Address,
-	/// 														User		= FromUser.Name, 
-	/// 														//Logo = System.IO.File.ReadAllBytes(Path.Join(G.Developer.Root, @"Art\black.png")),
-	/// 													}, 
-	/// 													new Flow(5000)).Session;
-	/// 		}
+			var s = Node.Peering.FindSession(FromUser.Name)
+					??
+					Node.Peering.CreateSession(Node.NexusSettings.Name, FromUser.Name);
 	
 			var a = Asset.SelectedItem as Asset;
 	
@@ -181,12 +177,11 @@ public partial class TransferPanel : McvPanel
 														ToUser.Id,
 														a.Id[0] == 0 && a.Id[1] == 0 ? long.Parse(Amount.Text) : 0,
 														a.Id[0] == 0 && a.Id[1] == 1 ? long.Parse(Amount.Text) : 0,
-														a.Id[0] == 1 ? long.Parse(Amount.Text) : 0
-														)], 
+														a.Id[0] == 1 ? long.Parse(Amount.Text) : 0)], 
 									Node.NexusSettings.Name, 
 									FromUser.Name, 
 									null, 
-									null, 
+									s.Session, 
 									ActionOnResult.RetryUntilConfirmed,
 									new Flow());
 		}
@@ -200,6 +195,9 @@ public partial class TransferPanel : McvPanel
 
 	public override void PeriodicalRefresh()
 	{
+		if(!Enabled || Tables == null)
+			return;
+
 		try
 		{
 			Transactions.Items.Clear();

@@ -1,4 +1,5 @@
-﻿namespace Uccs.Net;
+﻿
+namespace Uccs.Net;
 
 public abstract class McvPpc<R> : Ppc<R> where R : Result
 {
@@ -38,11 +39,13 @@ public abstract class McvPpc<R> : Ppc<R> where R : Result
 
 public class McvNode : Node
 {
-	public new McvNet		Net => base.Net as McvNet;
-	public Mcv				Mcv;
-	public McvPeering		Peering;
+	public new McvNet				Net => base.Net as McvNet;
+	public Mcv						Mcv;
+	public McvPeering				Peering;
 	public McvIccpLcpConnection		Iccp;
 	public McvNodeSettings			Settings;
+	public Thread					GuiThread;
+	public Action					ShowGui;
 
 	public McvNode(McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(net, profile, nexussettings,  flow)
 	{

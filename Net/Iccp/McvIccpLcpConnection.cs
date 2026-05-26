@@ -411,4 +411,11 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	
 		throw new IccpException(IccpError.Unavailable);
 	}
+
+	public virtual Result ShowGui(string from, ShowGuiIcca args)
+	{
+		Node.ShowGui?.Invoke();
+
+		return null;
+	}
 }

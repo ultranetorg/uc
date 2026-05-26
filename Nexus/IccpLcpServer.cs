@@ -10,7 +10,7 @@ namespace Uccs.Nexus;
 //	public string				Net;
 //	public IccpLcpConnection	Connection;
 //}
-	
+
 public class IccpLcpServer : LcpServer
 {
 	Nexus									Nexus;
@@ -28,16 +28,19 @@ public class IccpLcpServer : LcpServer
 
 	public override void Accept(LcpConnection connection)
 	{
-		var ct = connection.Reader.Read<IccpLcpConnectionType>();
+		var c = connection as IccpLcpConnection;
+	
+		c.Type = connection.Reader.Read<IccpLcpConnectionType>();
 
-		if(ct == IccpLcpConnectionType.Node)
+		if(c.Type == IccpLcpConnectionType.Node)
 		{	
-			var c = connection as IccpLcpConnection;
 			c.Net = connection.Reader.ReadUtf8();
 			c.Api = connection.Reader.ReadUtf8();
 		}
 
-		connection.Handler = (from, to, a, c) => Relay(from, to, a,c );  /// relay from local nodes
+		connection.Handler = (from, to, a, c) => Relay(from, to, a, c);  /// relay from local nodes
+
+		ConnectionEstablished?.Invoke(connection);
 	}
 
 	public override IccpResult Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection)

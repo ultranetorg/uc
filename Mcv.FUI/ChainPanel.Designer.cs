@@ -74,10 +74,10 @@ namespace Uccs.Mcv.FUI
 			Transactions.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			Transactions.Columns.AddRange(new ColumnHeader[] { columnHeader12, columnHeader1, columnHeader15, columnHeader3, columnHeader4, columnHeader9 });
 			Transactions.FullRowSelect = true;
-			Transactions.Location = new Point(584, 42);
-			Transactions.Margin = new Padding(7, 6, 7, 6);
+			Transactions.Location = new Point(314, 20);
+			Transactions.Margin = new Padding(4, 3, 4, 3);
 			Transactions.Name = "Transactions";
-			Transactions.Size = new Size(1282, 737);
+			Transactions.Size = new Size(691, 347);
 			Transactions.TabIndex = 22;
 			Transactions.UseCompatibleStateImageBehavior = false;
 			Transactions.View = View.Details;
@@ -122,10 +122,10 @@ namespace Uccs.Mcv.FUI
 			Operations.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			Operations.Columns.AddRange(new ColumnHeader[] { columnHeader14, columnHeader8, columnHeader11 });
 			Operations.FullRowSelect = true;
-			Operations.Location = new Point(584, 818);
-			Operations.Margin = new Padding(7, 6, 7, 6);
+			Operations.Location = new Point(314, 382);
+			Operations.Margin = new Padding(4, 3, 4, 3);
 			Operations.Name = "Operations";
-			Operations.Size = new Size(1282, 561);
+			Operations.Size = new Size(691, 265);
 			Operations.TabIndex = 23;
 			Operations.UseCompatibleStateImageBehavior = false;
 			Operations.View = View.Details;
@@ -149,10 +149,10 @@ namespace Uccs.Mcv.FUI
 			// 
 			label9.AutoSize = true;
 			label9.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label9.Location = new Point(7, 38);
-			label9.Margin = new Padding(7, 0, 7, 0);
+			label9.Location = new Point(24, 18);
+			label9.Margin = new Padding(4, 0, 4, 0);
 			label9.Name = "label9";
-			label9.Size = new Size(84, 27);
+			label9.Size = new Size(43, 13);
 			label9.TabIndex = 24;
 			label9.Text = "Round";
 			// 
@@ -160,10 +160,10 @@ namespace Uccs.Mcv.FUI
 			// 
 			label2.AutoSize = true;
 			label2.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label2.Location = new Point(584, 9);
-			label2.Margin = new Padding(7, 0, 7, 0);
+			label2.Location = new Point(314, 4);
+			label2.Margin = new Padding(4, 0, 4, 0);
 			label2.Name = "label2";
-			label2.Size = new Size(153, 27);
+			label2.Size = new Size(80, 13);
 			label2.TabIndex = 24;
 			label2.Text = "Transactions";
 			// 
@@ -172,19 +172,19 @@ namespace Uccs.Mcv.FUI
 			label3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 			label3.AutoSize = true;
 			label3.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label3.Location = new Point(584, 785);
-			label3.Margin = new Padding(7, 0, 7, 0);
+			label3.Location = new Point(314, 367);
+			label3.Margin = new Padding(4, 0, 4, 0);
 			label3.Name = "label3";
-			label3.Size = new Size(134, 27);
+			label3.Size = new Size(69, 13);
 			label3.TabIndex = 24;
 			label3.Text = "Operations";
 			// 
 			// Round
 			// 
-			Round.Location = new Point(102, 32);
-			Round.Margin = new Padding(4, 2, 4, 2);
+			Round.Location = new Point(73, 15);
+			Round.Margin = new Padding(2, 1, 2, 1);
 			Round.Name = "Round";
-			Round.Size = new Size(204, 39);
+			Round.Size = new Size(110, 23);
 			Round.TabIndex = 25;
 			Round.TextAlign = HorizontalAlignment.Right;
 			Round.ValueChanged += numericUpDown1_ValueChanged;
@@ -193,10 +193,10 @@ namespace Uccs.Mcv.FUI
 			// 
 			InfoFields.AutoSize = true;
 			InfoFields.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			InfoFields.Location = new Point(386, 32);
-			InfoFields.Margin = new Padding(7, 0, 7, 0);
+			InfoFields.Location = new Point(208, 15);
+			InfoFields.Margin = new Padding(4, 0, 4, 0);
 			InfoFields.Name = "InfoFields";
-			InfoFields.Size = new Size(70, 81);
+			InfoFields.Size = new Size(38, 39);
 			InfoFields.TabIndex = 24;
 			InfoFields.Text = "State\r\nTime\r\nHash";
 			// 
@@ -204,20 +204,21 @@ namespace Uccs.Mcv.FUI
 			// 
 			InfoValues.AutoSize = true;
 			InfoValues.Font = new Font("Tahoma", 8.25F);
-			InfoValues.Location = new Point(470, 32);
-			InfoValues.Margin = new Padding(7, 0, 7, 0);
+			InfoValues.Location = new Point(253, 15);
+			InfoValues.Margin = new Padding(4, 0, 4, 0);
 			InfoValues.Name = "InfoValues";
-			InfoValues.Size = new Size(74, 27);
+			InfoValues.Size = new Size(38, 13);
 			InfoValues.TabIndex = 24;
 			InfoValues.Text = "Round";
 			// 
 			// tabPage4
 			// 
 			tabPage4.Controls.Add(Violators);
-			tabPage4.Location = new Point(8, 46);
+			tabPage4.Location = new Point(4, 24);
+			tabPage4.Margin = new Padding(2, 1, 2, 1);
 			tabPage4.Name = "tabPage4";
-			tabPage4.Padding = new Padding(3);
-			tabPage4.Size = new Size(1876, 1388);
+			tabPage4.Padding = new Padding(2, 1, 2, 1);
+			tabPage4.Size = new Size(1011, 648);
 			tabPage4.TabIndex = 3;
 			tabPage4.Text = "Violators";
 			tabPage4.UseVisualStyleBackColor = true;
@@ -228,10 +229,10 @@ namespace Uccs.Mcv.FUI
 			Violators.Columns.AddRange(new ColumnHeader[] { columnHeader13 });
 			Violators.FullRowSelect = true;
 			Violators.HeaderStyle = ColumnHeaderStyle.None;
-			Violators.Location = new Point(10, 9);
-			Violators.Margin = new Padding(7, 6, 7, 6);
+			Violators.Location = new Point(5, 4);
+			Violators.Margin = new Padding(4, 3, 4, 3);
 			Violators.Name = "Violators";
-			Violators.Size = new Size(1846, 1357);
+			Violators.Size = new Size(996, 638);
 			Violators.TabIndex = 22;
 			Violators.UseCompatibleStateImageBehavior = false;
 			Violators.View = View.Details;
@@ -244,10 +245,11 @@ namespace Uccs.Mcv.FUI
 			// tabPage2
 			// 
 			tabPage2.Controls.Add(MemberJoiners);
-			tabPage2.Location = new Point(8, 46);
+			tabPage2.Location = new Point(4, 24);
+			tabPage2.Margin = new Padding(2, 1, 2, 1);
 			tabPage2.Name = "tabPage2";
-			tabPage2.Padding = new Padding(3);
-			tabPage2.Size = new Size(1876, 1388);
+			tabPage2.Padding = new Padding(2, 1, 2, 1);
+			tabPage2.Size = new Size(1011, 648);
 			tabPage2.TabIndex = 1;
 			tabPage2.Text = "Member Joiners";
 			tabPage2.UseVisualStyleBackColor = true;
@@ -258,10 +260,10 @@ namespace Uccs.Mcv.FUI
 			MemberJoiners.Columns.AddRange(new ColumnHeader[] { columnHeader7 });
 			MemberJoiners.FullRowSelect = true;
 			MemberJoiners.HeaderStyle = ColumnHeaderStyle.None;
-			MemberJoiners.Location = new Point(10, 9);
-			MemberJoiners.Margin = new Padding(7, 6, 7, 6);
+			MemberJoiners.Location = new Point(5, 4);
+			MemberJoiners.Margin = new Padding(4, 3, 4, 3);
 			MemberJoiners.Name = "MemberJoiners";
-			MemberJoiners.Size = new Size(1846, 1357);
+			MemberJoiners.Size = new Size(996, 638);
 			MemberJoiners.TabIndex = 22;
 			MemberJoiners.UseCompatibleStateImageBehavior = false;
 			MemberJoiners.View = View.Details;
@@ -278,10 +280,11 @@ namespace Uccs.Mcv.FUI
 			tabPage1.Controls.Add(label2);
 			tabPage1.Controls.Add(label3);
 			tabPage1.Controls.Add(Operations);
-			tabPage1.Location = new Point(8, 46);
+			tabPage1.Location = new Point(4, 24);
+			tabPage1.Margin = new Padding(2, 1, 2, 1);
 			tabPage1.Name = "tabPage1";
-			tabPage1.Padding = new Padding(3);
-			tabPage1.Size = new Size(1876, 1388);
+			tabPage1.Padding = new Padding(2, 1, 2, 1);
+			tabPage1.Size = new Size(1010, 647);
 			tabPage1.TabIndex = 0;
 			tabPage1.Text = "Votes";
 			tabPage1.UseVisualStyleBackColor = true;
@@ -291,10 +294,10 @@ namespace Uccs.Mcv.FUI
 			Votes.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
 			Votes.Columns.AddRange(new ColumnHeader[] { columnHeader2, columnHeader6, columnHeader5 });
 			Votes.FullRowSelect = true;
-			Votes.Location = new Point(10, 9);
-			Votes.Margin = new Padding(7, 6, 7, 6);
+			Votes.Location = new Point(5, 4);
+			Votes.Margin = new Padding(4, 3, 4, 3);
 			Votes.Name = "Votes";
-			Votes.Size = new Size(560, 1370);
+			Votes.Size = new Size(303, 643);
 			Votes.TabIndex = 21;
 			Votes.UseCompatibleStateImageBehavior = false;
 			Votes.View = View.Details;
@@ -321,19 +324,21 @@ namespace Uccs.Mcv.FUI
 			Tab.Controls.Add(tabPage2);
 			Tab.Controls.Add(tabPage3);
 			Tab.Controls.Add(tabPage4);
-			Tab.Location = new Point(7, 193);
+			Tab.Location = new Point(3, 90);
+			Tab.Margin = new Padding(3, 9, 3, 3);
 			Tab.Name = "Tab";
 			Tab.SelectedIndex = 0;
-			Tab.Size = new Size(1892, 1442);
+			Tab.Size = new Size(1018, 675);
 			Tab.TabIndex = 26;
 			// 
 			// tabPage3
 			// 
 			tabPage3.Controls.Add(MemberLeavers);
-			tabPage3.Location = new Point(8, 46);
+			tabPage3.Location = new Point(4, 24);
+			tabPage3.Margin = new Padding(2, 1, 2, 1);
 			tabPage3.Name = "tabPage3";
-			tabPage3.Padding = new Padding(3);
-			tabPage3.Size = new Size(1876, 1388);
+			tabPage3.Padding = new Padding(2, 1, 2, 1);
+			tabPage3.Size = new Size(1011, 648);
 			tabPage3.TabIndex = 2;
 			tabPage3.Text = "Member Leavers";
 			tabPage3.UseVisualStyleBackColor = true;
@@ -344,10 +349,10 @@ namespace Uccs.Mcv.FUI
 			MemberLeavers.Columns.AddRange(new ColumnHeader[] { columnHeader10 });
 			MemberLeavers.FullRowSelect = true;
 			MemberLeavers.HeaderStyle = ColumnHeaderStyle.None;
-			MemberLeavers.Location = new Point(10, 9);
-			MemberLeavers.Margin = new Padding(7, 6, 7, 6);
+			MemberLeavers.Location = new Point(5, 4);
+			MemberLeavers.Margin = new Padding(4, 3, 4, 3);
 			MemberLeavers.Name = "MemberLeavers";
-			MemberLeavers.Size = new Size(1846, 1357);
+			MemberLeavers.Size = new Size(996, 638);
 			MemberLeavers.TabIndex = 22;
 			MemberLeavers.UseCompatibleStateImageBehavior = false;
 			MemberLeavers.View = View.Details;
@@ -359,16 +364,16 @@ namespace Uccs.Mcv.FUI
 			// 
 			// ChainPanel
 			// 
-			AutoScaleDimensions = new SizeF(13F, 32F);
+			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			Controls.Add(Tab);
 			Controls.Add(Round);
 			Controls.Add(InfoValues);
 			Controls.Add(InfoFields);
 			Controls.Add(label9);
-			Margin = new Padding(7, 6, 7, 6);
+			Margin = new Padding(4, 3, 4, 3);
 			Name = "ChainPanel";
-			Size = new Size(1902, 1638);
+			Size = new Size(1024, 768);
 			((System.ComponentModel.ISupportInitialize)Round).EndInit();
 			tabPage4.ResumeLayout(false);
 			tabPage2.ResumeLayout(false);

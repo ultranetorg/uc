@@ -42,8 +42,8 @@ public partial class DashboardPanel : McvPanel
 	
 		var	m = (new McvSummaryApc() { Limit = panel1.Height/(int)panel1.Font.Size}.Execute(Node, null, null, null) as McvSummaryApc.Return).Summary;
 
-		fields.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[0]));
-		values.Text += Environment.NewLine + string.Join('\n', m.Select(j => j[1]));
+		fields.Text = string.Join('\n', m.Select(j => j[0]));
+		values.Text = string.Join('\n', m.Select(j => j[1]));
 
 		Monitor.Invalidate();
 	}

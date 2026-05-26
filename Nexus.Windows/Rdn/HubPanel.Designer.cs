@@ -29,43 +29,43 @@ namespace Uccs.Nexus.Windows
 		/// </summary>
 		private void InitializeComponent()
 		{
-			label1 = new System.Windows.Forms.Label();
-			Seeds = new System.Windows.Forms.ListView();
-			columnHeader5 = new System.Windows.Forms.ColumnHeader();
-			columnHeader2 = new System.Windows.Forms.ColumnHeader();
-			columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			label2 = new System.Windows.Forms.Label();
-			Packages = new System.Windows.Forms.ListView();
-			columnHeader14 = new System.Windows.Forms.ColumnHeader();
-			AuthorSearch = new System.Windows.Forms.ComboBox();
-			Search = new System.Windows.Forms.Button();
-			namelabel = new System.Windows.Forms.Label();
+			label1 = new Label();
+			Seeds = new ListView();
+			columnHeader5 = new ColumnHeader();
+			columnHeader2 = new ColumnHeader();
+			columnHeader1 = new ColumnHeader();
+			label2 = new Label();
+			Packages = new ListView();
+			columnHeader14 = new ColumnHeader();
+			AuthorSearch = new ComboBox();
+			Search = new Button();
+			namelabel = new Label();
 			SuspendLayout();
 			// 
 			// label1
 			// 
 			label1.AutoSize = true;
-			label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			label1.Location = new System.Drawing.Point(7, 128);
-			label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			label1.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label1.Location = new Point(4, 65);
+			label1.Margin = new Padding(0, 0, 3, 0);
 			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(126, 27);
+			label1.Size = new Size(66, 13);
 			label1.TabIndex = 2;
 			label1.Text = "Resources";
-			label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			label1.TextAlign = ContentAlignment.TopRight;
 			// 
 			// Seeds
 			// 
-			Seeds.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-			Seeds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader5, columnHeader2, columnHeader1 });
+			Seeds.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+			Seeds.Columns.AddRange(new ColumnHeader[] { columnHeader5, columnHeader2, columnHeader1 });
 			Seeds.FullRowSelect = true;
-			Seeds.Location = new System.Drawing.Point(1219, 186);
-			Seeds.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Seeds.Location = new Point(656, 87);
+			Seeds.Margin = new Padding(3, 9, 3, 3);
 			Seeds.Name = "Seeds";
-			Seeds.Size = new System.Drawing.Size(676, 1446);
+			Seeds.Size = new Size(366, 680);
 			Seeds.TabIndex = 4;
 			Seeds.UseCompatibleStateImageBehavior = false;
-			Seeds.View = System.Windows.Forms.View.Details;
+			Seeds.View = View.Details;
 			// 
 			// columnHeader5
 			// 
@@ -84,29 +84,29 @@ namespace Uccs.Nexus.Windows
 			// 
 			// label2
 			// 
-			label2.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+			label2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 			label2.AutoSize = true;
-			label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			label2.Location = new System.Drawing.Point(1219, 128);
-			label2.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			label2.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label2.Location = new Point(656, 65);
+			label2.Margin = new Padding(4, 0, 4, 0);
 			label2.Name = "label2";
-			label2.Size = new System.Drawing.Size(77, 27);
+			label2.Size = new Size(41, 13);
 			label2.TabIndex = 2;
 			label2.Text = "Seeds";
-			label2.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			label2.TextAlign = ContentAlignment.TopRight;
 			// 
 			// Packages
 			// 
-			Packages.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			Packages.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader14 });
+			Packages.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+			Packages.Columns.AddRange(new ColumnHeader[] { columnHeader14 });
 			Packages.FullRowSelect = true;
-			Packages.Location = new System.Drawing.Point(7, 186);
-			Packages.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Packages.Location = new Point(4, 87);
+			Packages.Margin = new Padding(3, 9, 3, 3);
 			Packages.Name = "Packages";
-			Packages.Size = new System.Drawing.Size(1186, 1446);
+			Packages.Size = new Size(640, 680);
 			Packages.TabIndex = 6;
 			Packages.UseCompatibleStateImageBehavior = false;
-			Packages.View = System.Windows.Forms.View.Details;
+			Packages.View = View.Details;
 			Packages.ItemSelectionChanged += Packages_ItemSelectionChanged;
 			// 
 			// columnHeader14
@@ -117,18 +117,18 @@ namespace Uccs.Nexus.Windows
 			// AuthorSearch
 			// 
 			AuthorSearch.FormattingEnabled = true;
-			AuthorSearch.Location = new System.Drawing.Point(209, 25);
-			AuthorSearch.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			AuthorSearch.Location = new Point(103, 10);
+			AuthorSearch.Margin = new Padding(4, 3, 4, 3);
 			AuthorSearch.Name = "AuthorSearch";
-			AuthorSearch.Size = new System.Drawing.Size(656, 40);
+			AuthorSearch.Size = new Size(355, 23);
 			AuthorSearch.TabIndex = 23;
 			// 
 			// Search
 			// 
-			Search.Location = new System.Drawing.Point(885, 15);
-			Search.Margin = new System.Windows.Forms.Padding(13, 30, 13, 15);
+			Search.Location = new Point(469, 7);
+			Search.Margin = new Padding(7, 14, 7, 7);
 			Search.Name = "Search";
-			Search.Size = new System.Drawing.Size(308, 58);
+			Search.Size = new Size(166, 28);
 			Search.TabIndex = 22;
 			Search.Text = "Search";
 			Search.UseVisualStyleBackColor = true;
@@ -137,18 +137,18 @@ namespace Uccs.Nexus.Windows
 			// namelabel
 			// 
 			namelabel.AutoSize = true;
-			namelabel.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			namelabel.Location = new System.Drawing.Point(7, 32);
-			namelabel.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+			namelabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			namelabel.Location = new Point(4, 16);
+			namelabel.Margin = new Padding(4, 0, 4, 0);
 			namelabel.Name = "namelabel";
-			namelabel.Size = new System.Drawing.Size(176, 27);
+			namelabel.Size = new Size(91, 13);
 			namelabel.TabIndex = 21;
 			namelabel.Text = "Resource Hash";
 			// 
 			// HubPanel
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			AutoScaleDimensions = new SizeF(7F, 15F);
+			AutoScaleMode = AutoScaleMode.Font;
 			Controls.Add(AuthorSearch);
 			Controls.Add(Search);
 			Controls.Add(namelabel);
@@ -156,9 +156,9 @@ namespace Uccs.Nexus.Windows
 			Controls.Add(Seeds);
 			Controls.Add(label1);
 			Controls.Add(label2);
-			Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Margin = new Padding(4, 3, 4, 3);
 			Name = "HubPanel";
-			Size = new System.Drawing.Size(1902, 1638);
+			Size = new Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();
 		}

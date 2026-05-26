@@ -44,8 +44,8 @@ namespace Uccs.Mcv.FUI
 			// 
 			label1.AutoSize = true;
 			label1.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			label1.Location = new Point(4, 10);
-			label1.Margin = new Padding(4, 0, 4, 0);
+			label1.Location = new Point(4, 18);
+			label1.Margin = new Padding(0, 0, 3, 0);
 			label1.Name = "label1";
 			label1.Size = new Size(39, 13);
 			label1.TabIndex = 2;
@@ -58,7 +58,7 @@ namespace Uccs.Mcv.FUI
 			Peers.Columns.AddRange(new ColumnHeader[] { columnHeader13, columnHeader14, columnHeader15, columnHeader11, columnHeader16, columnHeader1 });
 			Peers.FullRowSelect = true;
 			Peers.Location = new Point(4, 40);
-			Peers.Margin = new Padding(3, 6, 3, 3);
+			Peers.Margin = new Padding(3, 9, 3, 3);
 			Peers.Name = "Peers";
 			Peers.Size = new Size(1016, 725);
 			Peers.TabIndex = 6;
