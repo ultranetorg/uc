@@ -19,39 +19,46 @@ public class ModeratorProposalsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsReviewOperation, CreateReviewProposalModel<ReviewProposalModel>, cancellationToken);
+		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsReviewOperation, CreateReviewProposalModel, cancellationToken);
 	}
 
-	T CreateReviewProposalModel<T>(Proposal proposal, Site site) where T : ReviewProposalModel
+	ReviewProposalModel CreateReviewProposalModel(Proposal proposal, Site site)
 	{
 		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
 
 		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
 		{
-			Publication publication = mcv.Publications.Latest(reviewCreation.Publication);
-			return CreateReviewModel<T>(proposal, site, by, publication, reviewCreation.Text);
+			Publication? publication = mcv.Publications.Latest(reviewCreation.Publication);
+			return CreateReviewModel(proposal, site, by, publication, reviewCreation.Text);
 		}
 		if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
 		{
 			Review review = mcv.Reviews.Latest(reviewEdit.Review);
 			Publication publication = mcv.Publications.Latest(review.Publication);
-			return CreateReviewModel<T>(proposal, site, by, publication, reviewEdit.Text);
+			return CreateReviewModel(proposal, site, by, publication, reviewEdit.Text);
 		}
 
-		return null;
+		throw new InvalidOperationException("Unexpected operation type for review proposal");
 	}
 
-	T CreateReviewModel<T>(Proposal proposal, Site site, FairUser by, Publication publication, string reviewText) where T : ReviewProposalModel
+	ReviewProposalModel CreateReviewModel(Proposal proposal, Site site, FairUser by, Publication? publication, string reviewText)
 	{
-		Product product = mcv.Products.Latest(publication.Product);
-		Category category = mcv.Categories.Latest(publication.Category);
-		AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+		PublicationImageBaseModel model = null;
 
-		PublicationImageBaseModel model = new PublicationImageBaseModel(publication, product, category.Title, fileId);
+		if (publication != null)
+		{
+			Product product = mcv.Products.Latest(publication.Product);
+			Category category = mcv.Categories.Latest(publication.Category);
+			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
-		T instance = (T) Activator.CreateInstance(typeof(T), proposal, by, model, reviewText);
-		instance.HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site);
-		return instance;
+			model = new PublicationImageBaseModel(publication, product, category.Title, fileId);
+		}
+
+		return new ReviewProposalModel(proposal, by, model, reviewText)
+		{
+			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site),
+			IsStalled = model == null
+		};
 	}
 
 	public PublicationProposalModel GetPublicationProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)

@@ -6,6 +6,8 @@ import { ProposalOption } from "./ProposalOption"
 export type Proposal = {
   id: string
 
+  isStalled: boolean
+
   operation: OperationType
 
   yes: string[][]

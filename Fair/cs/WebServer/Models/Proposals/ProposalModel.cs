@@ -4,6 +4,8 @@ public class ProposalModel(Proposal proposal, FairUser by)
 {
 	public string Id { get; } = proposal.Id.ToString();
 
+	public bool IsStalled { get; set; } = false;
+
 	public FairOperationClass Operation { get; } = proposal.OptionClass;
 
 	public IEnumerable<IEnumerable<string>> Yes { get; } = proposal.Options.Select(x => x.Yes.Select(y => y.ToString()));

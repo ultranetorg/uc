@@ -22,10 +22,13 @@ export const getReviewsItemRenderer =
     switch (column.type) {
       case "account":
         return renderAccount(proposal.by)
+
       case "publication":
-        return renderPublication(proposal.publication)
+        return proposal.publication !== null ? renderPublication(proposal.publication) : "Publication removed"
+
       case "text":
         return renderText(proposal.reviewText)
+
       case "review-action":
         return renderActions(
           t,
