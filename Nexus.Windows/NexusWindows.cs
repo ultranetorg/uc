@@ -85,7 +85,7 @@ public class Program: ApplicationContext
 			Nexus.IccpLcpServer.ConnectionLost += c =>	{
 															foreach(var i in traymenu.Items)
 															{
-																if(i is ToolStripLabel l && l.Tag == c)
+																if(i is ToolStripMenuItem l && l.Tag == c)
 																{
 																	traymenu.Invoke(() => traymenu.Items.Remove(l));
 																	break;

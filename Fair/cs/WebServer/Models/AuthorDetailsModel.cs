@@ -10,5 +10,5 @@ public class AuthorDetailsModel(Author author, byte[]? avatar) : AuthorBaseModel
 
 	public IEnumerable<string> OwnersIds { get; set; } = author.Owners.Select(x => x.ToString());
 
-	public IEnumerable<string> Links { get; set; } = author.Links.Select(x => x.ToString());
+	public IEnumerable<string> Links { get; set; } = author.Referrences.Select(x => x.ToString());
 }
