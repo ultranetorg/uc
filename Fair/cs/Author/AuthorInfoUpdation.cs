@@ -51,6 +51,8 @@ public class AuthorInfoUpdation : FairOperation
 
 	public override string		Explanation => $"Author={Author}, Changes={Changes.Length}";
 	
+	const int					ChangesMaximum = 30;
+
 	public override void Read(Reader reader)
 	{
 		Author		= reader.Read<AutoId>();
@@ -65,6 +67,15 @@ public class AuthorInfoUpdation : FairOperation
 
 	public override bool IsValid(McvNet net)
 	{
+		if(Changes.Length > ChangesMaximum)
+			return false;
+
+		if(Changes.Count(i => i.Field == AuthorField.Title) > 1)
+			return false;
+
+		if(Changes.Count(i => i.Field == AuthorField.Description) > 1)
+			return false;
+
 		foreach(var i in Changes)
 		{
 			switch(i.Field)
