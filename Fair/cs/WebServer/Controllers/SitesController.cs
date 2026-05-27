@@ -18,7 +18,7 @@ public class SitesController
 	[HttpGet("default")]
 	public IEnumerable<SiteBaseModel> Default(CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called without parameters", nameof(SitesController), nameof(SitesController.Default));
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called without parameters", nameof(SitesController), nameof(SitesController.Default));
 
 		return sitesService.GetDefaultSites(cancellationToken);
 	}
@@ -26,7 +26,7 @@ public class SitesController
 	[HttpGet("{siteId}/users")]
 	public IEnumerable<UserModel> GetUsers(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} called with {SiteId}, {Pagination}", nameof(SitesController), nameof(GetUsers), siteId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {SiteId}, {Pagination}", nameof(SitesController), nameof(GetUsers), siteId, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(User));
 		paginationValidator.Validate(pagination);
@@ -40,7 +40,7 @@ public class SitesController
 	[HttpGet("{siteId}/publishers")]
 	public IEnumerable<PublisherModel> GetPublishers(string siteId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Search}, {Pagination}", nameof(SitesController), nameof(GetPublishers), siteId, search, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Search}, {Pagination}", nameof(SitesController), nameof(GetPublishers), siteId, search, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
@@ -54,7 +54,7 @@ public class SitesController
 	[HttpGet("{siteId}/moderators")]
 	public IEnumerable<ModeratorModel> GetModerators(string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetModerators), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetModerators), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
@@ -64,7 +64,7 @@ public class SitesController
 	[HttpGet("{siteId}/policies")]
 	public IEnumerable<PolicyModel> GetPolicies(string siteId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPolicies), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetPolicies), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
@@ -74,7 +74,7 @@ public class SitesController
 	[HttpGet]
 	public IEnumerable<SiteBaseModel> Search([FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}, {Page}", nameof(SitesController), nameof(Search), query, page);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Page}", nameof(SitesController), nameof(Search), query, page);
 
 		paginationValidator.Validate(page);
 		siteSearchQueryValidator.Validate(query);
@@ -88,7 +88,7 @@ public class SitesController
 	[HttpGet("search")]
 	public IEnumerable<SiteSearchLiteModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}", nameof(SitesController), nameof(SearchLite), query);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}", nameof(SitesController), nameof(SearchLite), query);
 
 		searchQueryValidator.Validate(query);
 
@@ -98,7 +98,7 @@ public class SitesController
 	[HttpGet("{siteId}")]
 	public SiteModel GetDetails(string siteId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetDetails), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetDetails), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 

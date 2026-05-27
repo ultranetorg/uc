@@ -3,6 +3,7 @@ import { TFunction } from "i18next"
 
 import { ReviewProposal } from "types"
 import { TableColumn, TableItem } from "ui/components"
+import { isUserVoted } from "utils"
 
 import { renderAccount, renderActions, renderCommon, renderPublication, renderText } from "./utils"
 
@@ -12,9 +13,11 @@ export const getReviewsItemRenderer =
     onApprove: (id: string) => void,
     onReject: (id: string) => void,
     loadingItem?: { id: string; action: "approve" | "reject" } | undefined,
+    currentUserId?: string,
   ) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const proposal = item as ReviewProposal
+    const isVoted = isUserVoted(currentUserId, proposal)
 
     switch (column.type) {
       case "account":
@@ -29,7 +32,7 @@ export const getReviewsItemRenderer =
           () => onApprove(proposal.id),
           () => onReject(proposal.id),
           loadingItem?.id === item.id ? loadingItem.action : undefined,
-          loadingItem && loadingItem.id !== item.id,
+          isVoted || (loadingItem && loadingItem.id !== item.id),
         )
     }
 

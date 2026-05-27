@@ -116,8 +116,8 @@ export const ReviewsPage = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getReviewsItemRenderer(t, handleApproveClick, handleRejectClick, loadingItem),
-    [handleApproveClick, handleRejectClick, loadingItem, t],
+    () => getReviewsItemRenderer(t, handleApproveClick, handleRejectClick, loadingItem, voterId),
+    [handleApproveClick, handleRejectClick, loadingItem, t, voterId],
   )
 
   return (

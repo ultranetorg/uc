@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom"
 import avatarFallback from "assets/fallback/account-avatar-30.png"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback } from "ui/components"
+import { ModeratorUserMenu } from "ui/components/specific"
 import { buildUserAvatarUrl, formatRole } from "utils"
 
 import { ReviewsList } from "./ReviewsList"
@@ -29,7 +30,11 @@ export const UserDetailsView = memo(({ user, reviews, isPublisher, isModerator }
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
       <div className="flex flex-col">
         <div className="relative h-57.5">
-          <div className="h-42.5 bg-gray-500" />
+          <div className="relative h-42.5 bg-gray-500">
+            <div className="absolute right-6 top-6">
+              <ModeratorUserMenu userId={user.id} userName={user.name} />
+            </div>
+          </div>
           <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">
             <div className="absolute left-1 top-1 size-30 overflow-hidden rounded-full">
               <ImageFallback

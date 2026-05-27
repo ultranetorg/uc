@@ -15,7 +15,7 @@ public class ModeratorPublicationsController
 	[HttpGet]
 	public IEnumerable<PublicationProposalModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}, {Search}", nameof(ModeratorPublicationsController), nameof(GetAll), siteId, pagination, search);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}, {Search}", nameof(ModeratorPublicationsController), nameof(GetAll), siteId, pagination, search);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);

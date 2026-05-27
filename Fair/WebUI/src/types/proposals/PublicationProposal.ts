@@ -1,6 +1,6 @@
 import { PublicationImageBase } from "types"
 
-import { BaseProposal } from "./BaseProposal"
+import { Proposal } from "./Proposal"
 
 export type PublicationProposal = {
   updationTime: number
@@ -8,4 +8,4 @@ export type PublicationProposal = {
   authorId: string
   authorTitle: string
   authorLogoId?: string
-} & BaseProposal
+} & Proposal

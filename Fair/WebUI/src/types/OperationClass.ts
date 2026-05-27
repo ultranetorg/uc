@@ -28,7 +28,7 @@ export type OperationClass =
   | "site-avatar-change"
   | "site-name-change"
   | "user-registration"
-  | "user-deletion"
+  | "user-unregistration"
   | "site-deletion"
   | "proposal"
   | "proposal-creation"

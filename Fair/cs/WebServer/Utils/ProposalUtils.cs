@@ -13,7 +13,9 @@ public static class ProposalUtils
 
 	public static bool IsReviewOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;
 
-	public static bool IsUserOperation(Proposal proposal) => proposal.Options[0].Operation is UserRegistration or UserUnregistration;
+	public static bool IsUserRegistrationOperation(Proposal proposal) => proposal.Options[0].Operation is UserRegistration;
+
+	public static bool IsUserUnregistrationOperation(Proposal proposal) => proposal.Options[0].Operation is UserUnregistration;
 
 	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is SiteModeratorAddition or SiteModeratorRemoval;
 
@@ -43,7 +45,7 @@ public static class ProposalUtils
 			SiteModeratorRemoval operation => CreateSiteModeratorRemovalModel(mcv, operation),
 			SiteNameChange operation => CreateSiteNameChangeModel(operation),
 			SiteTextChange operation => new SiteTextChangeModel(operation),
-			UserUnregistration operation => new UserDeletionModel(operation),
+			UserUnregistration operation => new UserUnregistrationModel(operation),
 			UserRegistration operation => new UserRegistrationModel(operation),
 			_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
 		};

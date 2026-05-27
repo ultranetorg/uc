@@ -1,9 +1,7 @@
-import { BaseProposalOptions } from "./BaseProposalOptions"
+import { Proposal } from "./Proposal"
+import { ProposalOption } from "./ProposalOption"
 
 export type ProposalDetails = {
+  options: ProposalOption[]
   votesRequiredToWin: number
-  neither: string[]
-  any: string[]
-  ban: string[]
-  banish: string[]
-} & BaseProposalOptions
+} & Proposal

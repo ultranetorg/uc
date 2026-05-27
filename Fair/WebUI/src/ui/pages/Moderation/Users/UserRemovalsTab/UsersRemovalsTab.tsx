@@ -5,15 +5,16 @@ import { isNumber } from "lodash"
 
 import { useModerationContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetUserRegistrationProposals } from "entities"
+import { useGetUserUnregistrationProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { getUsersItemRenderer } from "ui/renderers"
 import { parseInteger, showToast } from "utils"
 
-export const NewUsersTab = () => {
+import { getUserRemovalsTabItemRenderer } from "./userRemovalsTabItemRenderer"
+
+export const UsersRemovalsTab = () => {
   const { siteId } = useParams()
   const { getOperationVoterId } = useModerationContext()
   const { t } = useTranslation("usersPage")
@@ -29,14 +30,15 @@ export const NewUsersTab = () => {
   const [page, setPage] = useState(state.page)
   const [loadingItem, setLoadingItem] = useState<{ id: string; action: "approve" | "reject" } | undefined>()
 
-  const { data: users, refetch } = useGetUserRegistrationProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: users, refetch } = useGetUserUnregistrationProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const { mutate } = useTransactMutationWithStatus()
 
   const columns = useMemo(
     () => [
-      { accessor: "signer", label: t("common:user"), type: "account", className: "w-[40%]" },
+      { accessor: "user", label: t("common:user"), type: "user", className: "w-[30%]" },
+      { accessor: "createdBy", label: t("common:createdBy"), type: "created-by", className: "w-[15%]" },
       { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for" },
       { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase" },
       ...(voterId
@@ -62,8 +64,8 @@ export const NewUsersTab = () => {
         onSuccess: () => {
           const message =
             action === "approve"
-              ? t("toast:userRegistrationApproved", { name })
-              : t("toast:userRegistrationRejected", { name })
+              ? t("toast:userUnregistrationApproved", { name })
+              : t("toast:userUnregistrationRejected", { name })
           showToast(message, "success")
         },
         onError: err => {
@@ -83,7 +85,7 @@ export const NewUsersTab = () => {
   const handleReject = useCallback((id: string, name: string) => vote(id, name, "reject"), [vote])
 
   const itemRenderer = useMemo(
-    () => getUsersItemRenderer(t, handleApprove, handleReject, loadingItem, voterId),
+    () => getUserRemovalsTabItemRenderer(t, handleApprove, handleReject, loadingItem, voterId),
     [handleApprove, handleReject, loadingItem, t, voterId],
   )
 
@@ -102,7 +104,7 @@ export const NewUsersTab = () => {
         items={users?.items}
         tableBodyClassName="text-2sm leading-5"
         itemRenderer={itemRenderer}
-        emptyState={<TableEmptyState message={t("noUserRegistrations")} />}
+        emptyState={<TableEmptyState message={t("noUserUnregistrations")} />}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

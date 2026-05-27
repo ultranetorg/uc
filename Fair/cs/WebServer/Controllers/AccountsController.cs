@@ -15,7 +15,7 @@ public class AccountsController
 	[HttpGet]
 	public IEnumerable<AccountBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}, {Limit}", nameof(AccountsController), nameof(Search), query, limit);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(AccountsController), nameof(Search), query, limit);
 
 		searchQueryValidator.Validate(query);
 		limitValidator.Validate(limit);
@@ -26,7 +26,7 @@ public class AccountsController
 	[HttpGet("search")]
 	public IEnumerable<AccountSearchLiteModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}", nameof(AccountsController), nameof(SearchLite), query);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}", nameof(AccountsController), nameof(SearchLite), query);
 
 		searchQueryValidator.Validate(query);
 
@@ -37,7 +37,7 @@ public class AccountsController
 	[HttpGet("{accountId}/avatar")]
 	public FileContentResult GetAvatar(string accountId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(GetAvatar), accountId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {AccountId}", nameof(AccountsController), nameof(GetAvatar), accountId);
 
 		autoIdValidator.Validate(accountId, nameof(Net.User).ToLower());
 

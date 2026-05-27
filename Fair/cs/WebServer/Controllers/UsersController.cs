@@ -16,7 +16,7 @@ public class UsersController
 	[HttpGet("{name}")]
 	public UserModel GetUser(string name)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(UsersController), nameof(GetUser), name);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(GetUser), name);
 
 		userNameValidator.Validate(name);
 
@@ -26,7 +26,7 @@ public class UsersController
 	[HttpGet("{userId}/authors")]
 	public UserAuthorsModel GetUserAuthors(string userId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} called with {UserId}", nameof(UsersController), nameof(GetUserAuthors), userId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}", nameof(UsersController), nameof(GetUserAuthors), userId);
 
 		autoIdValidator.Validate(userId, nameof(User));
 
@@ -36,7 +36,7 @@ public class UsersController
 	[HttpGet("{name}/details")]
 	public UserDetailsModel GetDetails(string name)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(UsersController), nameof(GetDetails), name);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(GetDetails), name);
 
 		userNameValidator.Validate(name);
 
@@ -46,7 +46,7 @@ public class UsersController
 	[HttpHead("{userId}/sites/{siteId}")]
 	public IActionResult SiteExists(string userId, string siteId)
 	{
-		logger.LogInformation("HEAD {ControllerName}.{MethodName} called with {UserId}, {SiteId}", nameof(UsersController), nameof(SiteExists), userId, siteId);
+		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {SiteId}", nameof(UsersController), nameof(SiteExists), userId, siteId);
 
 		autoIdValidator.Validate(userId, nameof(User));
 		autoIdValidator.Validate(siteId, nameof(Site));
@@ -57,7 +57,7 @@ public class UsersController
 	[HttpGet("{userId}/reviews")]
 	public IEnumerable<ReviewModel> GetReviews(string userId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} called with {UserId}, {Pagination}", nameof(UsersController), nameof(GetReviews), userId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}, {Pagination}", nameof(UsersController), nameof(GetReviews), userId, pagination);
 
 		autoIdValidator.Validate(userId, nameof(User));
 		paginationValidator.Validate(pagination);
@@ -71,7 +71,7 @@ public class UsersController
 	[HttpGet("{userId}/avatar")]
 	public FileContentResult GetAvatar(string userId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {UserId}", nameof(UsersController), nameof(GetAvatar), userId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {UserId}", nameof(UsersController), nameof(GetAvatar), userId);
 
 		autoIdValidator.Validate(userId, nameof(User));
 
@@ -81,7 +81,7 @@ public class UsersController
 	//[HttpGet("by-id/{userId}")]
 	//public UserModel GetUserById(string userId)
 	//{
-	//	logger.LogInformation("GET {ControllerName}.{MethodName} called with {UserId}", nameof(UsersController), nameof(GetUserById), userId);
+	//	logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}", nameof(UsersController), nameof(GetUserById), userId);
 
 	//	autoIdValidator.Validate(userId, nameof(User));
 

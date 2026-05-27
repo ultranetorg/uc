@@ -35,6 +35,7 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
       ...(location.state?.type && { type: location.state.type as OperationType }),
       ...(location.state?.publicationId && { publicationId: location.state.publicationId }),
       ...(location.state?.categoryId !== undefined && { categoryId: location.state.categoryId }),
+      ...(location.state?.userId && { userId: location.state?.userId }),
     }
   }
 

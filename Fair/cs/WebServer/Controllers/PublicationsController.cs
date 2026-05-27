@@ -38,7 +38,7 @@ public class PublicationsController
 	[HttpGet("{publicationId}/diff")]
 	public PublicationDetailsDiffModel GetDiff(string publicationId, [FromQuery(Name = "to")] int version)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {PublicationId}, {Version}", nameof(PublicationsController), nameof(GetDiff), publicationId, version);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}, {Version}", nameof(PublicationsController), nameof(GetDiff), publicationId, version);
 
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 		versionValidator.Validate(publicationId, version);

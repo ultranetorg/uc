@@ -2,5 +2,7 @@
 
 public class UserAuthorsModel : UserModel
 {
-	public IEnumerable<AuthorBaseAvatarModel> Authors { get; set; }
+	public bool IsRemoved { get; init; }
+
+	public IEnumerable<AuthorBaseAvatarModel> Authors { get; init; } = null!;
 }

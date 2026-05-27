@@ -3,7 +3,6 @@ import {
   AccountSearchLite,
   AuthorBaseAvatar,
   AuthorDetails,
-  BaseProposal,
   Category,
   CategoryBase,
   CategoryParentBase,
@@ -40,6 +39,7 @@ import {
   User,
   UserAuthors,
   UserDetails,
+  UserUnregistrationProposal,
 } from "types"
 import { ChangedPublication } from "types/ChangedPublication"
 import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
@@ -181,10 +181,11 @@ export type Api = {
     search?: string,
   ): Promise<TotalItemsResult<ReviewProposal>>
 
-  getUserProposals(
+  getUserRegistrationProposals(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Proposal>>
+
+  getUserUnregistrationProposals(
     siteId: string,
     page?: number,
     pageSize?: number,
-    search?: string,
-  ): Promise<TotalItemsResult<BaseProposal>>
+  ): Promise<TotalItemsResult<UserUnregistrationProposal>>
 }

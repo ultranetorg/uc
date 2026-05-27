@@ -9,7 +9,7 @@ export const usersTabItemRenderer = (item: TableItem, column: TableColumn): Reac
 
   switch (column.type) {
     case "user":
-      return renderUser(user)
+      return renderUser(user.id, user.name)
   }
 
   return null

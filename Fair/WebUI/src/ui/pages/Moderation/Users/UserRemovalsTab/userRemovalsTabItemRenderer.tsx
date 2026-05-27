@@ -1,13 +1,12 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import { Proposal } from "types"
+import { UserUnregistrationProposal } from "types"
 import { TableColumn, TableItem } from "ui/components"
+import { renderActions, renderCommon, renderUser } from "ui/renderers/utils"
 import { isUserVoted } from "utils"
 
-import { renderAccount, renderActions, renderCommon, renderTitle } from "./utils"
-
-export const getUsersItemRenderer =
+export const getUserRemovalsTabItemRenderer =
   (
     t: TFunction,
     onApprove: (id: string, name: string) => void,
@@ -16,16 +15,14 @@ export const getUsersItemRenderer =
     currentUserId?: string,
   ) =>
   (item: TableItem, column: TableColumn): ReactNode => {
-    const proposal = item as Proposal
+    const proposal = item as UserUnregistrationProposal
     const isVoted = isUserVoted(currentUserId, proposal)
 
     switch (column.type) {
-      case "title":
-        return renderTitle(proposal.title, proposal.text)
-
-      case "account":
-        return renderAccount(proposal.by)
-
+      case "user":
+        return renderUser(proposal.userId, proposal.userName)
+      case "created-by":
+        return renderUser(proposal.by.id, proposal.by.nickname)
       case "actions":
         return renderActions(
           t,

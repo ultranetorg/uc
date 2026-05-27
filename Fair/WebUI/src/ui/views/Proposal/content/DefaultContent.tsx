@@ -21,12 +21,12 @@ export const DefaultContent = memo(
           value: i,
           votePercents:
             proposal.votesRequiredToWin > 0
-              ? Math.min(100, Math.round((proposal.optionsVotesCount[i] / proposal.votesRequiredToWin) * 100))
+              ? Math.min(100, Math.round((proposal.yes[i].length / proposal.votesRequiredToWin) * 100))
               : 0,
           voted: i === votedValue,
-          votesCount: proposal.optionsVotesCount[i],
+          votesCount: proposal.yes[i].length,
         })),
-      [proposal.options, proposal.optionsVotesCount, proposal.votesRequiredToWin, siteId, t, votedValue],
+      [proposal.options, proposal.votesRequiredToWin, proposal.yes, siteId, t, votedValue],
     )
 
     return (

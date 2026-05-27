@@ -14,7 +14,7 @@ public class ProductsController
 	[HttpGet("{productId}")]
 	public ProductDetailsModel GetDetails(string productId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {ProductId}", nameof(ProductsController), nameof(GetDetails), productId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}", nameof(ProductsController), nameof(GetDetails), productId);
 
 		autoIdValidator.Validate(productId, nameof(Product).ToLower());
 
@@ -24,7 +24,7 @@ public class ProductsController
 	[HttpGet("{productId}/stores")]
 	public IEnumerable<ProductStoreModel> GetProductStores(string productId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(GetDetails), productId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(GetDetails), productId, pagination);
 
 		autoIdValidator.Validate(productId, nameof(Product).ToLower());
 		paginationValidator.Validate(pagination);

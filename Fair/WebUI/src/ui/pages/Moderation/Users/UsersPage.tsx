@@ -6,10 +6,12 @@ import { TabsProvider } from "app"
 import { TabContent, TabsList, TabsListItem } from "ui/components"
 
 import { NewUsersTab } from "./NewUsersTab"
+import { UsersRemovalsTab } from "./UserRemovalsTab"
 import { UsersTab } from "./UsersTab"
 
 const routeToTabKey: Record<string, string> = {
   n: "new-users",
+  r: "users-removals",
   u: "users",
 }
 
@@ -28,8 +30,9 @@ export const UsersPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "new-users", label: t("newUsers") },
-      { key: "users", label: t("common:users"), route: "u" },
+      { key: "new-users", label: t("common:new"), route: "n" },
+      { key: "users-removals", label: t("common:removals"), route: "r" },
+      { key: "users", label: t("common:users") },
     ],
     [t],
   )
@@ -48,6 +51,9 @@ export const UsersPage = () => {
 
           <TabContent when="new-users">
             <NewUsersTab />
+          </TabContent>
+          <TabContent when="users-removals">
+            <UsersRemovalsTab />
           </TabContent>
           <TabContent when="users">
             <UsersTab />

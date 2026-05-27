@@ -5,7 +5,6 @@ import {
   AccountSearchLite,
   AuthorBaseAvatar,
   AuthorDetails,
-  BaseProposal,
   Category,
   CategoryBase,
   CategoryParentBase,
@@ -44,6 +43,7 @@ import {
   User,
   UserAuthors,
   UserDetails,
+  UserUnregistrationProposal,
 } from "types"
 
 import { Api } from "./Api"
@@ -410,17 +410,29 @@ const getReviewProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getUserProposals = async (
+const getUserRegistrationProposals = async (
   siteId: string,
   page?: number,
   pageSize?: number,
-  search?: string,
-): Promise<TotalItemsResult<BaseProposal>> => {
+): Promise<TotalItemsResult<Proposal>> => {
   const params = buildUrlParams(
-    { search, page, pageSize },
+    { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/users` + params)
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/proposals/user-registrations` + params)
+  return await toTotalItemsResult(res)
+}
+
+const getUserUnregistrationProposals = async (
+  siteId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<UserUnregistrationProposal>> => {
+  const params = buildUrlParams(
+    { page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/proposals/user-unregistrations` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -490,7 +502,10 @@ const api: Api = {
   getModeratorProposals,
   getPublisherProposals,
   getReviewProposals,
-  getUserProposals,
+
+  // Proposals
+  getUserRegistrationProposals,
+  getUserUnregistrationProposals,
 }
 
 export const getApi = () => api

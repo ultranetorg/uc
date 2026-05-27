@@ -54,40 +54,6 @@ public class ModeratorProposalsService
 		return instance;
 	}
 
-	public ProposalModel GetUserProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
-	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(GetUserProposal), siteId, proposalId);
-
-		Guard.Against.NullOrEmpty(proposalId);
-
-		AutoId siteEntityId = AutoId.Parse(siteId);
-		AutoId proposalEntityId = AutoId.Parse(proposalId);
-
-		return GetProposalByType<ProposalModel>(siteId, proposalId, EntityNames.UserEntityName, ProposalUtils.IsUserOperation, CreateUserProposalModel);
-	}
-
-	public TotalItemsResult<ProposalModel> GetUserProposalsNotOptimized
-		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
-	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}, {Search}",
-			nameof(ModeratorProposalsService), nameof(GetUserProposalsNotOptimized), siteId, page, pageSize, search);
-
-		Guard.Against.NullOrEmpty(siteId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
-
-		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, search, ProposalUtils.IsUserOperation, CreateUserProposalModel, cancellationToken);
-	}
-
-	ProposalModel CreateUserProposalModel(Proposal proposal, Site site)
-	{
-		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
-		return new ProposalModel(proposal, by)
-		{
-			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
-		};
-	}
-
 	public PublicationProposalModel GetPublicationProposal([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(GetPublicationProposal), siteId, proposalId);
@@ -171,7 +137,7 @@ public class ModeratorProposalsService
 		};
 	}
 
-	T GetProposalByType<T>(string siteId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc) where T : BaseProposalModel
+	T GetProposalByType<T>(string siteId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc) where T : ProposalModel
 	{
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
@@ -200,7 +166,7 @@ public class ModeratorProposalsService
 
 	TotalItemsResult<T> GetProposalsByTypeNotOptimized<T>
 		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc, CancellationToken cancellationToken)
-		where T : BaseProposalModel
+		where T : ProposalModel
 	{
 		AutoId siteEntityId = AutoId.Parse(siteId);
 
@@ -217,7 +183,7 @@ public class ModeratorProposalsService
 	}
 
 	TotalItemsResult<T> LoadProposalsByType<T>
-		(Site site, int page, int pageSize, string? query, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc, CancellationToken cancellationToken) where T : BaseProposalModel
+		(Site site, int page, int pageSize, string? query, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc, CancellationToken cancellationToken) where T : ProposalModel
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<T>.Empty;
@@ -321,5 +287,54 @@ public class ModeratorProposalsService
 		}
 
 		return null;
+	}
+
+	public TotalItemsResult<ProposalModel> GetUserRegistrations
+		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(ModeratorProposalsService), nameof(GetUserRegistrations), siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, null, ProposalUtils.IsUserRegistrationOperation, CreateUserProposalModel, cancellationToken);
+	}
+
+	public TotalItemsResult<UserUnregistrationProposalModel> GetUserUnregistrations
+		([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(ModeratorProposalsService), nameof(GetUserUnregistrations), siteId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		return GetProposalsByTypeNotOptimized(siteId, page, pageSize, null, ProposalUtils.IsUserUnregistrationOperation, CreateUserUnregistrationModel, cancellationToken);
+	}
+
+	ProposalModel CreateUserProposalModel(Proposal proposal, Site site)
+	{
+		FairUser by = (FairUser)mcv.Users.Latest(proposal.By);
+		return new ProposalModel(proposal, by)
+		{
+			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+		};
+	}
+
+	UserUnregistrationProposalModel CreateUserUnregistrationModel(Proposal proposal, Site site)
+	{
+		UserUnregistration operation = proposal.Options[0].Operation as UserUnregistration;
+		AutoId userId = operation.User;
+		FairUser userToUnregister = (FairUser) mcv.Users.Latest(userId);
+
+		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+
+		return new UserUnregistrationProposalModel(proposal, by)
+		{
+			UserId = userToUnregister.Id.ToString(),
+			UserName = userToUnregister.Name,
+			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+		};
 	}
 }

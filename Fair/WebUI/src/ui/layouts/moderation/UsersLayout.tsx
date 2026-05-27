@@ -11,7 +11,7 @@ import { ModerationHeader } from "ui/components/specific"
 
 export const UsersLayout = memo(({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
-  const { siteId, name, tabKey, userId } = useParams()
+  const { siteId, tabKey, userId } = useParams()
   const { t } = useTranslation("usersPage")
 
   const [query, setQuery] = useState("")
@@ -31,29 +31,26 @@ export const UsersLayout = memo(({ children }: PropsWithChildren) => {
     [searchUsers],
   )
 
+  const headerTitle = useMemo(() => {
+    if (tabKey === "n") return t("newUsers")
+    else if (tabKey === "r") return t("userRemovals")
+    return capitalize(t("common:users"))
+  }, [t, tabKey])
+
   const handleSelectUser = useCallback(
     (item: DropdownSearchAccountsItem) => {
       setQuery("")
-      navigate(`/${siteId}/m/u/${item.value}`)
+      navigate(`/${siteId}/m/u/u/${item.value}`)
     },
     [navigate, siteId],
   )
-
-  const headerTitle = capitalize(tabKey === "u" || userId ? t("common:users") : t("newUsersTitle"))
 
   return (
     <>
       <ModerationHeader
         title={headerTitle}
         breadcrumbTitle={!userId ? t("title") : userId}
-        parentBreadcrumbs={
-          !userId
-            ? [{ path: `/${siteId}/m`, title: t("common:proposals") }]
-            : [
-                { path: `/${siteId}/m`, title: t("common:proposals") },
-                { path: `/${siteId}/m/u/u`, title: t("common:users") },
-              ]
-        }
+        parentBreadcrumbs={userId !== undefined ? { path: `/${siteId}/m/u/u`, title: t("common:users") } : undefined}
         components={
           <DropdownSearchAccount
             items={items}

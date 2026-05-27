@@ -4,11 +4,10 @@ import { TFunction } from "i18next"
 import {
   AccountBaseAvatar,
   AuthorBaseAvatar,
-  BaseProposal,
   OperationType,
+  Proposal,
   PublicationImageBase,
   PublicationProposal,
-  User,
 } from "types"
 import { AccountInfo, ButtonOutline, ButtonPrimary, MemberInfo, PublicationInfo, TableColumn } from "ui/components"
 import {
@@ -51,7 +50,7 @@ export const renderAccount = (account: AccountBaseAvatar) => (
   />
 )
 
-export const renderUser = (user: User) => <MemberInfo title={user.name} avatarSrc={buildUserAvatarUrl(user.id)!} />
+export const renderUser = (id: string, name: string) => <MemberInfo title={name} avatarSrc={buildUserAvatarUrl(id)!} />
 
 export const renderAction = (t: TFunction, operationType: OperationType) => {
   const value = t(`operations:${operationType}`)
@@ -67,10 +66,8 @@ export const renderActionShort = (t: TFunction, operationType: OperationType) =>
 )
 
 export const renderAr = (t: TFunction, proposal: PublicationProposal) => {
-  const approved =
-    proposal.optionsVotesCount && proposal.optionsVotesCount.length > 0 ? proposal.optionsVotesCount[0] : 0
-  const title = formatAr(t, approved, proposal.neitherCount)
-  const value = formatArShort(approved, proposal.neitherCount)
+  const title = formatAr(t, proposal.yes[0].length, proposal.neither.length)
+  const value = formatArShort(proposal.yes[0].length, proposal.neither.length)
   return (
     <div className="truncate" title={title}>
       {value}
@@ -78,9 +75,14 @@ export const renderAr = (t: TFunction, proposal: PublicationProposal) => {
   )
 }
 
-export const renderNabb = (t: TFunction, proposal: BaseProposal) => {
-  const title = formatNabb(t, proposal.neitherCount, proposal.anyCount, proposal.banCount, proposal.banishCount)
-  const value = formatNabbShort(proposal.neitherCount, proposal.anyCount, proposal.banCount, proposal.banishCount)
+export const renderNabb = (t: TFunction, proposal: Proposal) => {
+  const title = formatNabb(t, proposal.neither.length, proposal.any.length, proposal.ban.length, proposal.banish.length)
+  const value = formatNabbShort(
+    proposal.neither.length,
+    proposal.any.length,
+    proposal.ban.length,
+    proposal.banish.length,
+  )
   return (
     <div className="truncate" title={title}>
       {value}
@@ -137,14 +139,14 @@ export const renderVotes = (votes: number[]) => {
   )
 }
 
-export const renderCommon = (t: TFunction, column: TableColumn, proposal: BaseProposal): ReactNode => {
+export const renderCommon = (t: TFunction, column: TableColumn, proposal: Proposal): ReactNode => {
   switch (column.type) {
     case "nabb":
       return renderNabb(t, proposal)
     case "lasts-for":
       return renderLastsFor(t, proposal.creationTime)
     case "votes":
-      return renderVotes(proposal.optionsVotesCount)
+      return renderVotes(proposal.yes.map(x => x.length))
   }
 
   return undefined

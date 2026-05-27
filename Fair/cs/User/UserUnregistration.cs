@@ -2,16 +2,16 @@
 
 public class UserUnregistration : VotableOperation
 {
-	public new  AutoId			User { get; set; }
+	public new AutoId User { get; set; }
 
-	public override string		Explanation => $"Site={Site}";
-	
+	public override string Explanation => $"User={User}";
+
 	public UserUnregistration()
 	{
 	}
-	
+
 	public override bool IsValid(McvNet net)
-	{ 
+	{
 		return true;
 	}
 
@@ -30,8 +30,8 @@ public class UserUnregistration : VotableOperation
 		return other is UserUnregistration o && o.User == User;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution, out string error)
- 	{
+	public override bool ValidateProposal(FairExecution execution, out string error)
+	{
 		if(!Site.Users.Contains(User))
 		{
 			error = NotFound;
@@ -40,18 +40,16 @@ public class UserUnregistration : VotableOperation
 
 		error = null;
 		return true;
- 	}
+	}
 
 	public override void Execute(FairExecution execution)
 	{
 		var s = Site;
 
 		s.Users = s.Users.Remove(User);
-		base.User.Sites = base.User.Sites.Remove(s.Id);
 
-		//if(base.User.AllocationSponsor == new EntityAddress((byte)FairTable.Site, s.Id))
-		//{
-		//	execution.FreeForever(s, execution.Net.EntityLength);
-		//}
+		var u = execution.AffectUser(User);
+
+		u.Sites = u.Sites.Remove(s.Id);
 	}
 }

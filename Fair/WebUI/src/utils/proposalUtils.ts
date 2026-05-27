@@ -29,3 +29,12 @@ export const isVoted = (voterId?: string, proposal?: ProposalDetails): boolean |
       proposal.ban.includes(voterId) ||
       proposal.banish.includes(voterId)
     : undefined
+
+export const isUserVoted = (userId?: string, proposal?: Proposal): boolean =>
+  userId !== undefined &&
+  proposal !== undefined &&
+  (proposal.neither.includes(userId) ||
+    proposal.any.includes(userId) ||
+    proposal.ban.includes(userId) ||
+    proposal.banish.includes(userId) ||
+    proposal.yes.flat().includes(userId))

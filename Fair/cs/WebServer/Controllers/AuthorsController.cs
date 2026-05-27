@@ -15,7 +15,7 @@ public class AuthorsController
 	[HttpGet("{authorId}")]
 	public AuthorDetailsModel GetDetails(string authorId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AuthorId}", nameof(AuthorsController), nameof(GetDetails), authorId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {AuthorId}", nameof(AuthorsController), nameof(GetDetails), authorId);
 
 		autoIdValidator.Validate(authorId, nameof(Author).ToLower());
 
@@ -25,7 +25,7 @@ public class AuthorsController
 	[HttpGet]
 	public IEnumerable<AuthorBaseAvatarModel> SearchAuthors([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}, {Limit}", nameof(AuthorsController), nameof(SearchAuthors), query, limit);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(AuthorsController), nameof(SearchAuthors), query, limit);
 
 		searchQueryValidator.Validate(query);
 		limitValidator.Validate(limit);

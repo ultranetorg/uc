@@ -40,6 +40,7 @@ export const enUS = {
     nabb: "N / A / B / B",
     nabbFull: "Neither / Any / Ban / Banish",
     neither: "Neither",
+    new: "new",
     next: "Next",
     nickname: "nickname",
     no: "No",
@@ -58,6 +59,7 @@ export const enUS = {
     recommended: "Recommended",
     remove: "remove",
     reject: "reject",
+    removals: "removals",
     review: "review",
     reviews: "reviews",
     reviewer: "Reviewer",
@@ -140,25 +142,6 @@ export const enUS = {
     profile: "Profile",
     switchAccounts: "Switch Accounts",
   },
-  storeDropdownMenu: {
-    avatarChange: "Change avatar",
-    nameChange: "Change name",
-    textChange: "Change text",
-  },
-  moderatorOptionsMenu: {
-    label: "Moderation",
-  },
-  moderatorCategoryMenu: {
-    avatarChange: "Change avatar",
-    categoryCreate: "Create category",
-    move: "Move category",
-    typeChange: "Change type",
-    remove: "Remove category",
-  },
-  moderatorPublicationMenu: {
-    removePublication: "Remove publication",
-    unpublishPublication: "Unpublish publication",
-  },
   pageBanner: {
     text: "You’re browsing through the legacy Web2. Switch to the fully decentralized Web3 with <1>Ultranet</1> — install <2>Ultranet Client Software</2> to join the new paradigm.",
   },
@@ -221,9 +204,35 @@ export const enUS = {
     reviewRejected: "Review rejected",
     userRegistrationApproved: `User "{{name}}" registration approved`,
     userRegistrationFailed: "Failed to request user registration",
+    userUnregistrationApproved: `User "{{name}}" unregistration approved`,
+    userUnregistrationFailed: "Failed to request user unregistration",
     userRegistrationRequested: "User registration requested",
     userRegistrationRejected: `User "{{name}}" registration rejected`,
     voted: "You have successfully voted",
+  },
+
+  /* Menus */
+  moderatorOptionsMenu: {
+    label: "Moderation",
+  },
+  moderatorCategoryMenu: {
+    avatarChange: "Change avatar",
+    categoryCreate: "Create category",
+    move: "Move category",
+    typeChange: "Change type",
+    remove: "Remove category",
+  },
+  moderatorPublicationMenu: {
+    removePublication: "Remove publication",
+    unpublishPublication: "Unpublish publication",
+  },
+  moderatorUserMenu: {
+    unregisterUser: "Unregister user",
+  },
+  storeDropdownMenu: {
+    avatarChange: "Change avatar",
+    nameChange: "Change name",
+    textChange: "Change text",
   },
 
   /* Pages */
@@ -252,9 +261,6 @@ export const enUS = {
     reviews: "Reviews",
     title: "Moderation",
     userRegistrations: "User registrations",
-  },
-  moderationUsersPage: {
-    newUsers: "New users",
   },
   moderatorsPage: {
     title: "Moderators",
@@ -405,9 +411,12 @@ export const enUS = {
   },
   usersPage: {
     title: "Users",
-    newUsersTitle: "New users",
-    noUsers: "No user registrations",
+    newUsers: "New users",
+    noUserRegistrations: "No user registrations",
+    noUserUnregistrations: "No user removals",
+    noUsers: "No users",
     noUsersFound: "No users found",
+    userRemovals: "User removals",
   },
 
   /* Views */
@@ -558,7 +567,6 @@ export const enUS = {
     "site-moderator-removal": "Site moderator removal",
     "site-name-change": "Change site name",
     "site-text-change": "Site text change",
-    "user-deletion": "User deletion",
     "user-registration": "User registration",
     "user-unregistration": "User unregistration",
   },
