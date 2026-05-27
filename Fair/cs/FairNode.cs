@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 
 namespace Uccs.Fair;
 
@@ -14,6 +15,14 @@ public class FairNode : McvNode
 	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
 	{
 		base.Settings = settings ?? new FairNodeSettings(profile);
+
+		if(settings == null && !System.IO.File.Exists(Settings.Path))
+		{
+			Settings.Peering	= new () {EP = new (IPAddress.Any, Net.PpiPort)};
+			Settings.Api		= new () {LocalIP = nexussettings.Host};
+
+			Settings.Save();
+		}
 
 		if(Flow.Log != null)
 			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);

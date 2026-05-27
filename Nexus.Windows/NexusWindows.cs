@@ -31,14 +31,6 @@ public class Program: ApplicationContext
 			var ns = new NexusSettings(b.Zone, b.Profile);
 			var vs = new VaultSettings(b.Profile);
 		
-			if(!File.Exists(ns.Path))
-			{
-				ns.Name			= Guid.NewGuid().ToByteArray().ToHex();
-				ns.Host			= Rdn.Rdn.ByZone(b.Zone).DefaultHost;
-				ns.IccpPeering	= new PeeringSettings {EP = new (IPAddress.Any, Port.Map(b.Zone, KnownProtocol.Iccp))};
-				ns.Save();
-			}
-
 			Nexus = new Nexus(b, ns, vs, new Flow(nameof(Program), new Log()));
 
 			Nexus.Stopped += n =>	{

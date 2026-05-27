@@ -57,7 +57,7 @@ public class SimulationFair : Fair
 	public SimulationFair()
 	{
 		Initials					= LocalInitials;
-		Father0EP					= new (DefaultHost, PpiPort);
+		Father0EP					= new (LocalInitials[0], PpiPort);
 		Cryptography				= Cryptography.No;
 		AffectedCountMaximum		= 10;
 		ECLifetime					= Time.FromYears(100);
@@ -73,7 +73,7 @@ public class VirtualFair : Fair
 	public VirtualFair()
 	{
 		Initials					= VirtualInitials;
- 		Father0EP					= new(VirtualInitials[0], PpiPort);
+ 		Father0EP					= new(Initials[0], PpiPort);
 		UserCreationPoWDifficulity	= 0;
 	}
 }
@@ -81,7 +81,6 @@ public class VirtualFair : Fair
 public class Developer0Fair : Fair
 {
 	public override	Zone		Zone => Zone.Developer0;
-	public override IPAddress	DefaultHost => StandardHost;
 
 	public Developer0Fair()
 	{
@@ -95,12 +94,11 @@ public class Developer0Fair : Fair
 public class TestFair : Fair
 {
 	public override	Zone		Zone => Zone.Test;
-	public override IPAddress	DefaultHost => StandardHost;
 
 	public TestFair()
 	{
 		Initials	= UOInitials;
- 		Father0EP	= new (IPAddress.Parse("78.47.204.100"), PpiPort);
+ 		Father0EP	= new (Initials[0], PpiPort);
 	}
 }
 
@@ -111,7 +109,7 @@ public class TaFair : Fair
 	public TaFair()
 	{
 		Initials					= LocalInitials;
-		Father0EP					= new (DefaultHost, PpiPort);
+		Father0EP					= new (LocalInitials[0], PpiPort);
 		UserCreationPoWDifficulity	= 0;
 	}
 }

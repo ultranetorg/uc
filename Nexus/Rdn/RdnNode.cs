@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks.Dataflow;
 using DnsClient;
@@ -29,11 +30,17 @@ public class RdnNode : McvNode
 
 	public RdnNode(Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), profile, nexussettings, flow)
 	{
-		base.Settings = settings ?? new RdnNodeSettings(profile)
-									{
-										Api = new IpApiSettings {LocalIP = nexussettings.Host},
-										Seed = new()
-									};
+		base.Settings = settings ?? new RdnNodeSettings(profile);
+
+		if(settings == null && !File.Exists(Settings.Path))
+		{
+			Settings.DataPath	= ExeDirectory;
+			Settings.Peering	= new () {EP = new (IPAddress.Any, Net.PpiPort)};
+			Settings.Api		= new () {LocalIP = nexussettings.Host};
+			Settings.Seed		= new ();
+
+			Settings.Save();
+		}
 
 		if(Flow.Log != null)
 			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);

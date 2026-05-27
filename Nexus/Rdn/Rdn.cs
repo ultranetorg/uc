@@ -40,7 +40,7 @@ public class SimulationRdn : Rdn
 	public SimulationRdn()
 	{
 		Initials					= LocalInitials;
-		Father0EP					= new(DefaultHost, PpiPort);
+		Father0EP					= new(Initials[0], PpiPort);
 		Cryptography				= Cryptography.No;
 		AffectedCountMaximum		= 10;
 		ECLifetime					= Time.FromYears(100);
@@ -63,7 +63,6 @@ public class VirtualRdn : Rdn
 public class Developer0Rdn : Rdn
 {
 	public override	Zone		Zone => Zone.Developer0;
-	public override IPAddress	DefaultHost => StandardHost;
 
 	public Developer0Rdn()
 	{
@@ -77,12 +76,11 @@ public class Developer0Rdn : Rdn
 public class TestRdn : Rdn
 {
 	public override	Zone		Zone => Zone.Test;
-	public override IPAddress	DefaultHost => StandardHost;
 
 	public TestRdn()
 	{
 		Initials	= UOInitials;
- 		Father0EP	= new(IPAddress.Parse("78.47.204.100"), PpiPort);
+ 		Father0EP	= new(Initials[0], PpiPort);
 	}
 }
 
@@ -94,7 +92,7 @@ public class TaRdn : Rdn
 	public TaRdn()
 	{
 		Initials					= LocalInitials;
-		Father0EP					= new(DefaultHost, PpiPort);
+		Father0EP					= new(Initials[0], PpiPort);
 		UserCreationPoWDifficulity	= 0;
 	}
 }

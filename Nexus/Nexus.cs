@@ -34,6 +34,15 @@ public class Nexus : IProgram
 	public Nexus(NetBoot boot, NexusSettings settings, VaultSettings vaultsettings, Flow flow)
 	{
 		Settings = settings ?? new NexusSettings(boot.Zone, boot.Profile);
+
+		if(!File.Exists(Settings.Path))
+		{
+			Settings.Name			= Guid.NewGuid().ToByteArray().ToHex();
+			Settings.Host			= NexusSettings.StandardHost;
+			Settings.IccpPeering	= new PeeringSettings {EP = new (IPAddress.Any, Port.Map(boot.Zone, KnownProtocol.Iccp))};
+			Settings.Save();
+		}
+
 		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
 		Flow = flow;
 

@@ -19,9 +19,9 @@ public enum KnownProtocol : ushort
 	Iccp		= 000,
 	SystemApi	= 900,
 	Rdn			= 001,
-	RdnApi		= 901,
+	RdnApi		= 501,
 	Fair		= 002,
-	FairApi		= 902,
+	FairApi		= 502,
 	//Api			= 900,
 }
 
@@ -32,9 +32,6 @@ public class Port
 
 public abstract class Net
 {
-	public virtual IPAddress			DefaultHost => Initials[0];
-	public readonly IPAddress			StandardHost = new IPAddress([127, 1, 0, 0]);
-
 	public abstract string				Address { get; }
 	public abstract string				Name { get; }
 	public abstract	Zone				Zone { get; }
@@ -54,25 +51,26 @@ public abstract class Net
 														74.119.194.104	
 														138.124.180.13	"
 													.Split(['\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
-													.Select(i => IPAddress.Parse(i))
+													.Select(IPAddress.Parse)
 													.ToArray();
 
-	public static readonly IPAddress[]	VirtualInitials	= [	new([192, 168, 88, 100]),
-															new([192, 168, 88, 101]),
-															new([192, 168, 88, 102]),
-															new([192, 168, 88, 103]),
-															new([192, 168, 88, 104]),
-															new([192, 168, 88, 105]),
-															new([192, 168, 88, 106]),
-															//new([192, 168, 88, 107]),
-															//new([192, 168, 88, 108]),
-															//new([192, 168, 88, 109]),
-															//new([192, 168, 88, 110]),
-															//new([192, 168, 88, 111]),
-															//new([192, 168, 88, 112]),
-															//new([192, 168, 88, 113]),
-															//new([192, 168, 88, 114]),
-															//new([192, 168, 88, 115]),
+	public static readonly IPAddress[]	VirtualInitials	=	[	
+																new([192, 168, 88, 100]),
+																new([192, 168, 88, 101]),
+																new([192, 168, 88, 102]),
+																new([192, 168, 88, 103]),
+																new([192, 168, 88, 104]),
+																new([192, 168, 88, 105]),
+																new([192, 168, 88, 106]),
+																//new([192, 168, 88, 107]),
+																//new([192, 168, 88, 108]),
+																//new([192, 168, 88, 109]),
+																//new([192, 168, 88, 110]),
+																//new([192, 168, 88, 111]),
+																//new([192, 168, 88, 112]),
+																//new([192, 168, 88, 113]),
+																//new([192, 168, 88, 114]),
+																//new([192, 168, 88, 115]),
 															];
 
 	public Constructor					Constructor = new ();
