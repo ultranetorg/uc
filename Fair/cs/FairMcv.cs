@@ -76,7 +76,7 @@ public class FairMcv : Mcv
 
 		Metas = new (this);
 		Users = new FairUserTable(this);
-		Subnets = new (this);
+		Friends = new (this);
 		Authors = new (this);
 		Products = new (this);
 		Sites = new (this);
@@ -90,7 +90,7 @@ public class FairMcv : Mcv
 		PublicationTitles = new (this);
 		SiteTitles = new (this);
 
-		Tables = [Metas, Users, Subnets, Authors, Products, Sites, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, PublicationTitles, SiteTitles];
+		Tables = [Metas, Users, Friends, Authors, Products, Sites, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, PublicationTitles, SiteTitles];
 	}
 
 	public override Round CreateRound()

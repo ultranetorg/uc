@@ -29,300 +29,288 @@ namespace Uccs.Mcv.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.IP = new System.Windows.Forms.TextBox();
-			this.Declare = new System.Windows.Forms.Button();
-			this.Candidates = new System.Windows.Forms.ComboBox();
-			this.label3 = new System.Windows.Forms.Label();
-			this.label4 = new System.Windows.Forms.Label();
-			this.label6 = new System.Windows.Forms.Label();
-			this.label1 = new System.Windows.Forms.Label();
-			this.Bail = new Uccs.Mcv.FUI.CoinEdit();
-			this.Declarations = new System.Windows.Forms.ListView();
-			this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-			this.Blocks = new System.Windows.Forms.ListView();
-			this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
-			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.NewCandidate = new System.Windows.Forms.ComboBox();
-			this.Deactivate = new System.Windows.Forms.Button();
-			this.Activate = new System.Windows.Forms.Button();
-			this.label7 = new System.Windows.Forms.Label();
-			this.label5 = new System.Windows.Forms.Label();
-			this.groupBox1.SuspendLayout();
-			this.groupBox2.SuspendLayout();
-			this.SuspendLayout();
+			groupBox1 = new GroupBox();
+			IP = new TextBox();
+			Declare = new Button();
+			Candidates = new ComboBox();
+			label3 = new Label();
+			label4 = new Label();
+			label6 = new Label();
+			label1 = new Label();
+			Bail = new CoinEdit();
+			Declarations = new ListView();
+			columnHeader8 = new ColumnHeader();
+			columnHeader1 = new ColumnHeader();
+			columnHeader2 = new ColumnHeader();
+			Blocks = new ListView();
+			columnHeader3 = new ColumnHeader();
+			columnHeader7 = new ColumnHeader();
+			columnHeader4 = new ColumnHeader();
+			columnHeader5 = new ColumnHeader();
+			groupBox2 = new GroupBox();
+			NewCandidate = new ComboBox();
+			Deactivate = new Button();
+			Activate = new Button();
+			label7 = new Label();
+			label5 = new Label();
+			groupBox1.SuspendLayout();
+			groupBox2.SuspendLayout();
+			SuspendLayout();
 			// 
 			// groupBox1
 			// 
-			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.groupBox1.Controls.Add(this.IP);
-			this.groupBox1.Controls.Add(this.Declare);
-			this.groupBox1.Controls.Add(this.Candidates);
-			this.groupBox1.Controls.Add(this.label3);
-			this.groupBox1.Controls.Add(this.label4);
-			this.groupBox1.Controls.Add(this.label6);
-			this.groupBox1.Controls.Add(this.label1);
-			this.groupBox1.Controls.Add(this.Bail);
-			this.groupBox1.Location = new System.Drawing.Point(0, 1116);
-			this.groupBox1.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.groupBox1.Size = new System.Drawing.Size(893, 523);
-			this.groupBox1.TabIndex = 3;
-			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "Declare Candidacy";
+			groupBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+			groupBox1.Controls.Add(IP);
+			groupBox1.Controls.Add(Declare);
+			groupBox1.Controls.Add(Candidates);
+			groupBox1.Controls.Add(label3);
+			groupBox1.Controls.Add(label4);
+			groupBox1.Controls.Add(label6);
+			groupBox1.Controls.Add(label1);
+			groupBox1.Controls.Add(Bail);
+			groupBox1.Location = new Point(0, 523);
+			groupBox1.Margin = new Padding(4, 3, 4, 3);
+			groupBox1.Name = "groupBox1";
+			groupBox1.Padding = new Padding(4, 3, 4, 3);
+			groupBox1.Size = new Size(481, 245);
+			groupBox1.TabIndex = 3;
+			groupBox1.TabStop = false;
+			groupBox1.Text = "Declare Candidacy";
 			// 
 			// IP
 			// 
-			this.IP.Location = new System.Drawing.Point(299, 294);
-			this.IP.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
-			this.IP.Name = "IP";
-			this.IP.Size = new System.Drawing.Size(166, 39);
-			this.IP.TabIndex = 6;
+			IP.Location = new Point(161, 138);
+			IP.Margin = new Padding(7, 7, 7, 7);
+			IP.Name = "IP";
+			IP.Size = new Size(91, 23);
+			IP.TabIndex = 6;
 			// 
 			// Declare
 			// 
-			this.Declare.Location = new System.Drawing.Point(565, 384);
-			this.Declare.Margin = new System.Windows.Forms.Padding(17, 19, 17, 19);
-			this.Declare.Name = "Declare";
-			this.Declare.Size = new System.Drawing.Size(254, 60);
-			this.Declare.TabIndex = 1;
-			this.Declare.Text = "Declare Candidacy";
-			this.Declare.UseVisualStyleBackColor = true;
-			this.Declare.Click += new System.EventHandler(this.Declare_Click);
+			Declare.Location = new Point(304, 180);
+			Declare.Margin = new Padding(9, 9, 9, 9);
+			Declare.Name = "Declare";
+			Declare.Size = new Size(137, 28);
+			Declare.TabIndex = 1;
+			Declare.Text = "Declare Candidacy";
+			Declare.UseVisualStyleBackColor = true;
+			Declare.Click += Declare_Click;
 			// 
 			// Candidates
 			// 
-			this.Candidates.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.Candidates.FormattingEnabled = true;
-			this.Candidates.Location = new System.Drawing.Point(299, 83);
-			this.Candidates.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
-			this.Candidates.Name = "Candidates";
-			this.Candidates.Size = new System.Drawing.Size(517, 40);
-			this.Candidates.TabIndex = 5;
+			Candidates.DropDownStyle = ComboBoxStyle.DropDownList;
+			Candidates.FormattingEnabled = true;
+			Candidates.Location = new Point(161, 39);
+			Candidates.Margin = new Padding(7, 7, 7, 7);
+			Candidates.Name = "Candidates";
+			Candidates.Size = new Size(280, 23);
+			Candidates.TabIndex = 5;
 			// 
 			// label3
 			// 
-			this.label3.AutoSize = true;
-			this.label3.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label3.Location = new System.Drawing.Point(52, 92);
-			this.label3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(237, 27);
-			this.label3.TabIndex = 4;
-			this.label3.Text = "Candidate\'s Account";
+			label3.AutoSize = true;
+			label3.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label3.Location = new Point(28, 43);
+			label3.Margin = new Padding(4, 0, 4, 0);
+			label3.Name = "label3";
+			label3.Size = new Size(122, 13);
+			label3.TabIndex = 4;
+			label3.Text = "Candidate's Account";
 			// 
 			// label4
 			// 
-			this.label4.AutoSize = true;
-			this.label4.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label4.Location = new System.Drawing.Point(243, 303);
-			this.label4.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(37, 27);
-			this.label4.TabIndex = 4;
-			this.label4.Text = "IP";
+			label4.AutoSize = true;
+			label4.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label4.Location = new Point(131, 142);
+			label4.Margin = new Padding(4, 0, 4, 0);
+			label4.Name = "label4";
+			label4.Size = new Size(19, 13);
+			label4.TabIndex = 4;
+			label4.Text = "IP";
 			// 
 			// label6
 			// 
-			this.label6.AutoSize = true;
-			this.label6.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.label6.Location = new System.Drawing.Point(299, 228);
-			this.label6.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(420, 27);
-			this.label6.TabIndex = 4;
-			this.label6.Text = "(Set to 0 to withdraw existing declaration)";
+			label6.AutoSize = true;
+			label6.Font = new Font("Tahoma", 8.25F);
+			label6.Location = new Point(161, 107);
+			label6.Margin = new Padding(4, 0, 4, 0);
+			label6.Name = "label6";
+			label6.Size = new Size(209, 13);
+			label6.TabIndex = 4;
+			label6.Text = "(Set to 0 to withdraw existing declaration)";
 			// 
 			// label1
 			// 
-			this.label1.AutoSize = true;
-			this.label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(163, 173);
-			this.label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(126, 27);
-			this.label1.TabIndex = 4;
-			this.label1.Text = "Bail (UNT)";
+			label1.AutoSize = true;
+			label1.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label1.Location = new Point(88, 81);
+			label1.Margin = new Padding(4, 0, 4, 0);
+			label1.Name = "label1";
+			label1.Size = new Size(62, 13);
+			label1.TabIndex = 4;
+			label1.Text = "Bail (UNT)";
 			// 
 			// Bail
 			// 
-			this.Bail.Location = new System.Drawing.Point(299, 164);
-			this.Bail.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
-			this.Bail.Name = "Bail";
-			this.Bail.Size = new System.Drawing.Size(166, 39);
-			this.Bail.TabIndex = 3;
-			this.Bail.Text = "0.000000";
-			this.Bail.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			Bail.Location = new Point(161, 77);
+			Bail.Margin = new Padding(7, 7, 7, 7);
+			Bail.Name = "Bail";
+			Bail.Size = new Size(91, 23);
+			Bail.TabIndex = 3;
+			Bail.Text = "0.000000";
+			Bail.TextAlign = HorizontalAlignment.Right;
 			// 
 			// Declarations
 			// 
-			this.Declarations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.Declarations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader8,
-            this.columnHeader1,
-            this.columnHeader2});
-			this.Declarations.FullRowSelect = true;
-			this.Declarations.Location = new System.Drawing.Point(0, 0);
-			this.Declarations.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
-			this.Declarations.Name = "Declarations";
-			this.Declarations.Size = new System.Drawing.Size(994, 1096);
-			this.Declarations.TabIndex = 5;
-			this.Declarations.UseCompatibleStateImageBehavior = false;
-			this.Declarations.View = System.Windows.Forms.View.Details;
+			Declarations.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+			Declarations.Columns.AddRange(new ColumnHeader[] { columnHeader8, columnHeader1, columnHeader2 });
+			Declarations.FullRowSelect = true;
+			Declarations.Location = new Point(3, 3);
+			Declarations.Name = "Declarations";
+			Declarations.Size = new Size(534, 513);
+			Declarations.TabIndex = 5;
+			Declarations.UseCompatibleStateImageBehavior = false;
+			Declarations.View = View.Details;
 			// 
 			// columnHeader8
 			// 
-			this.columnHeader8.Text = "Account";
-			this.columnHeader8.Width = 300;
+			columnHeader8.Text = "Account";
+			columnHeader8.Width = 300;
 			// 
 			// columnHeader1
 			// 
-			this.columnHeader1.Text = "Round";
-			this.columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader1.Width = 100;
+			columnHeader1.Text = "Round";
+			columnHeader1.TextAlign = HorizontalAlignment.Right;
+			columnHeader1.Width = 100;
 			// 
 			// columnHeader2
 			// 
-			this.columnHeader2.Text = "Bail";
-			this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader2.Width = 100;
+			columnHeader2.Text = "Bail";
+			columnHeader2.TextAlign = HorizontalAlignment.Right;
+			columnHeader2.Width = 100;
 			// 
 			// Blocks
 			// 
-			this.Blocks.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Blocks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader3,
-            this.columnHeader7,
-            this.columnHeader4,
-            this.columnHeader5});
-			this.Blocks.FullRowSelect = true;
-			this.Blocks.Location = new System.Drawing.Point(1023, 0);
-			this.Blocks.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
-			this.Blocks.Name = "Blocks";
-			this.Blocks.Size = new System.Drawing.Size(875, 1096);
-			this.Blocks.TabIndex = 6;
-			this.Blocks.UseCompatibleStateImageBehavior = false;
-			this.Blocks.View = System.Windows.Forms.View.Details;
+			Blocks.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+			Blocks.Columns.AddRange(new ColumnHeader[] { columnHeader3, columnHeader7, columnHeader4, columnHeader5 });
+			Blocks.FullRowSelect = true;
+			Blocks.Location = new Point(554, 3);
+			Blocks.Name = "Blocks";
+			Blocks.Size = new Size(467, 513);
+			Blocks.TabIndex = 6;
+			Blocks.UseCompatibleStateImageBehavior = false;
+			Blocks.View = View.Details;
 			// 
 			// columnHeader3
 			// 
-			this.columnHeader3.Text = "Round";
-			this.columnHeader3.Width = 100;
+			columnHeader3.Text = "Round";
+			columnHeader3.Width = 100;
 			// 
 			// columnHeader7
 			// 
-			this.columnHeader7.Text = "Type";
-			this.columnHeader7.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			this.columnHeader7.Width = 100;
+			columnHeader7.Text = "Type";
+			columnHeader7.TextAlign = HorizontalAlignment.Center;
+			columnHeader7.Width = 100;
 			// 
 			// columnHeader4
 			// 
-			this.columnHeader4.Text = "Transactions";
-			this.columnHeader4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader4.Width = 100;
+			columnHeader4.Text = "Transactions";
+			columnHeader4.TextAlign = HorizontalAlignment.Right;
+			columnHeader4.Width = 100;
 			// 
 			// columnHeader5
 			// 
-			this.columnHeader5.Text = "Date";
-			this.columnHeader5.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader5.Width = 150;
+			columnHeader5.Text = "Date";
+			columnHeader5.TextAlign = HorizontalAlignment.Right;
+			columnHeader5.Width = 150;
 			// 
 			// groupBox2
 			// 
-			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.groupBox2.Controls.Add(this.NewCandidate);
-			this.groupBox2.Controls.Add(this.Deactivate);
-			this.groupBox2.Controls.Add(this.Activate);
-			this.groupBox2.Controls.Add(this.label7);
-			this.groupBox2.Controls.Add(this.label5);
-			this.groupBox2.Location = new System.Drawing.Point(908, 1122);
-			this.groupBox2.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.groupBox2.Size = new System.Drawing.Size(994, 516);
-			this.groupBox2.TabIndex = 3;
-			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Active Candidate";
+			groupBox2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+			groupBox2.Controls.Add(NewCandidate);
+			groupBox2.Controls.Add(Deactivate);
+			groupBox2.Controls.Add(Activate);
+			groupBox2.Controls.Add(label7);
+			groupBox2.Controls.Add(label5);
+			groupBox2.Location = new Point(489, 526);
+			groupBox2.Margin = new Padding(4, 3, 4, 3);
+			groupBox2.Name = "groupBox2";
+			groupBox2.Padding = new Padding(4, 3, 4, 3);
+			groupBox2.Size = new Size(535, 242);
+			groupBox2.TabIndex = 3;
+			groupBox2.TabStop = false;
+			groupBox2.Text = "Active Candidate";
 			// 
 			// NewCandidate
 			// 
-			this.NewCandidate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.NewCandidate.FormattingEnabled = true;
-			this.NewCandidate.Location = new System.Drawing.Point(158, 286);
-			this.NewCandidate.Margin = new System.Windows.Forms.Padding(13, 15, 13, 15);
-			this.NewCandidate.Name = "NewCandidate";
-			this.NewCandidate.Size = new System.Drawing.Size(517, 40);
-			this.NewCandidate.TabIndex = 5;
+			NewCandidate.DropDownStyle = ComboBoxStyle.DropDownList;
+			NewCandidate.FormattingEnabled = true;
+			NewCandidate.Location = new Point(85, 134);
+			NewCandidate.Margin = new Padding(7, 7, 7, 7);
+			NewCandidate.Name = "NewCandidate";
+			NewCandidate.Size = new Size(280, 23);
+			NewCandidate.TabIndex = 5;
 			// 
 			// Deactivate
 			// 
-			this.Deactivate.Location = new System.Drawing.Point(708, 68);
-			this.Deactivate.Margin = new System.Windows.Forms.Padding(17, 19, 17, 19);
-			this.Deactivate.Name = "Deactivate";
-			this.Deactivate.Size = new System.Drawing.Size(260, 60);
-			this.Deactivate.TabIndex = 1;
-			this.Deactivate.Text = "Deactivate";
-			this.Deactivate.UseVisualStyleBackColor = true;
-			this.Deactivate.Click += new System.EventHandler(this.Deactivate_Click);
+			Deactivate.Location = new Point(381, 32);
+			Deactivate.Margin = new Padding(9, 9, 9, 9);
+			Deactivate.Name = "Deactivate";
+			Deactivate.Size = new Size(140, 28);
+			Deactivate.TabIndex = 1;
+			Deactivate.Text = "Deactivate";
+			Deactivate.UseVisualStyleBackColor = true;
+			Deactivate.Click += Deactivate_Click;
 			// 
 			// Activate
 			// 
-			this.Activate.Location = new System.Drawing.Point(708, 277);
-			this.Activate.Margin = new System.Windows.Forms.Padding(17, 19, 17, 19);
-			this.Activate.Name = "Activate";
-			this.Activate.Size = new System.Drawing.Size(260, 60);
-			this.Activate.TabIndex = 1;
-			this.Activate.Text = "Activate";
-			this.Activate.UseVisualStyleBackColor = true;
-			this.Activate.Click += new System.EventHandler(this.Activate_Click);
+			Activate.Location = new Point(381, 130);
+			Activate.Margin = new Padding(9, 9, 9, 9);
+			Activate.Name = "Activate";
+			Activate.Size = new Size(140, 28);
+			Activate.TabIndex = 1;
+			Activate.Text = "Activate";
+			Activate.UseVisualStyleBackColor = true;
+			Activate.Click += Activate_Click;
 			// 
 			// label7
 			// 
-			this.label7.AutoSize = true;
-			this.label7.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label7.Location = new System.Drawing.Point(45, 85);
-			this.label7.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(97, 27);
-			this.label7.TabIndex = 4;
-			this.label7.Text = "Current";
+			label7.AutoSize = true;
+			label7.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label7.Location = new Point(24, 40);
+			label7.Margin = new Padding(4, 0, 4, 0);
+			label7.Name = "label7";
+			label7.Size = new Size(50, 13);
+			label7.TabIndex = 4;
+			label7.Text = "Current";
 			// 
 			// label5
 			// 
-			this.label5.AutoSize = true;
-			this.label5.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.label5.Location = new System.Drawing.Point(82, 292);
-			this.label5.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(62, 27);
-			this.label5.TabIndex = 4;
-			this.label5.Text = "New";
+			label5.AutoSize = true;
+			label5.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+			label5.Location = new Point(44, 137);
+			label5.Margin = new Padding(4, 0, 4, 0);
+			label5.Name = "label5";
+			label5.Size = new Size(30, 13);
+			label5.TabIndex = 4;
+			label5.Text = "New";
 			// 
 			// MembershipPanel
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.Blocks);
-			this.Controls.Add(this.Declarations);
-			this.Controls.Add(this.groupBox2);
-			this.Controls.Add(this.groupBox1);
-			this.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			this.Name = "MembershipPanel";
-			this.Size = new System.Drawing.Size(1902, 1638);
-			this.groupBox1.ResumeLayout(false);
-			this.groupBox1.PerformLayout();
-			this.groupBox2.ResumeLayout(false);
-			this.groupBox2.PerformLayout();
-			this.ResumeLayout(false);
+			AutoScaleDimensions = new SizeF(7F, 15F);
+			AutoScaleMode = AutoScaleMode.Font;
+			Controls.Add(Blocks);
+			Controls.Add(Declarations);
+			Controls.Add(groupBox2);
+			Controls.Add(groupBox1);
+			Margin = new Padding(4, 3, 4, 3);
+			Name = "MembershipPanel";
+			Size = new Size(1024, 768);
+			groupBox1.ResumeLayout(false);
+			groupBox1.PerformLayout();
+			groupBox2.ResumeLayout(false);
+			groupBox2.PerformLayout();
+			ResumeLayout(false);
 
 		}
 

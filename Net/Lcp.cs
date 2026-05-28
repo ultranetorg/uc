@@ -2,6 +2,14 @@
 
 namespace Uccs.Net;
 
+public abstract class Argumentation : ITypeCode
+{
+}
+
+public abstract class Result : ITypeCode
+{
+}
+
 public abstract class LcpPacket
 {
 	public int					Id { get; set; }
@@ -15,30 +23,31 @@ public class LcpRequest : LcpPacket
 	public Argumentation		Argumentation { get; set; }
 }
 
-public class LcpConnection
+public abstract class LcpConnection
 {
 	protected IProgram				Program;
 	public PipeStream				Pipe;
-	public BinaryReader				Reader;
-	public BinaryWriter				Writer;
-	List<LcpRequest>				OutRequests = new();
-	LcpServer						Server;
-	int								IdCounter = 0;
-	public Constructor				Constructor;
+	public bool						Connected => Pipe != null && Pipe.IsConnected;
+	public Reader					Reader;
+	public Writer					Writer;
+	protected List<LcpRequest>		OutRequests = new();
+	protected LcpServer				Server;
+	protected int					IdCounter = 0;
 	protected Flow					Flow;
 
-	public Func<LcpConnection, NnpArgumentation, Result>	Handler;
+	public Func<string, string, IccpArgumentation, IccpLcpConnection, IccpResult>	Handler;
 
-	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow, Constructor constructor)
+	public abstract void			Listen();
+
+	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow)
 	{
 		Program		= program;
 		Pipe		= pipe;
 		Server		= server; 
-		Constructor	= constructor;
 		Flow		= flow.CreateNested();;
 
-		Reader = new BinaryReader(pipe);
-		Writer = new BinaryWriter(pipe);
+		Reader = new Reader(Pipe, Iccp.Constructor);
+		Writer = new Writer(Pipe, Iccp.Constructor);
 	}
 
 	public LcpConnection(IProgram program, string name, Flow flow)
@@ -58,8 +67,8 @@ public class LcpConnection
 	
 														pipe.ConnectAsync(Flow.Cancellation).Wait();
 	
-														Reader = new BinaryReader(pipe);
-														Writer = new BinaryWriter(pipe);
+														Reader = new Reader(pipe, Iccp.Constructor);
+														Writer = new Writer(pipe, Iccp.Constructor);
 	
 														Established();
 														Listen();
@@ -100,207 +109,13 @@ public class LcpConnection
 
 		if(Server != null)
 		{
-			lock(Server.Clients)
+			Server.ConnectionLost?.Invoke(this);
+
+			lock(Server.Connections)
 			{
-				Server.Clients.Remove(this);
+				Server.Connections.Remove(this);
 			}
 		}
-	}
-
-	void Request(LcpRequest request)
-	{
-		lock(Writer)
-		{
-			Writer.Write((byte)PacketType.Request);
-			Writer.Write(request.Id);
-			Writer.Write(Constructor.TypeToCode(request.Argumentation.GetType()));
-			(request.Argumentation as IBinarySerializable).Write(Writer);
-			///BinarySerializator.Serialize(Writer, request.Argumentation, Constructor.TypeToCode);
-		}
-	}
-
-	void Respond(LcpRequest request)
-	{
-		try
-		{
-			///var r = Methods[Constructor.TypeToCode(request.Argumentation.GetType())].Invoke(Handler, [this, request.Argumentation]) as Result;
-			var r = Handler(this, request.Argumentation as NnpArgumentation);
-	
-			lock(Writer)
-			{
-				Writer.Write((byte)PacketType.Response);
-				Writer.Write(request.Id);
-				Writer.Write(Constructor.TypeToCode(r.GetType()));
-				(r as IBinarySerializable).Write(Writer); 
-				///BinarySerializator.Serialize(Writer, r, Constructor.TypeToCode);
-			}
-		}
-		catch(Exception ex)
-		{
-			lock(Writer)
-			{
-				Writer.Write((byte)PacketType.Failure);
-				Writer.Write(request.Id);
-				
-				if(ex is CodeException)
-				{
-					BinarySerializator.Serialize(Writer, ex, Constructor.TypeToCode);
-				} 
-				else
-				{
-					BinarySerializator.Serialize(Writer, new NnpException(NnpError.ExcutionFailed), Constructor.TypeToCode);
-				}
-			}
-		}
-	}
-
-	public void Listen()
-	{
-		try
-		{
-			while(Pipe.IsConnected && Flow.Active)
-			{
-				var pk = (PacketType)Reader.ReadByte();
-
-//				if(Pipeing.Flow.Aborted || Status != ConnectionStatus.OK)
-//					return;
-
-				switch(pk)
-				{
- 					case PacketType.Request:
- 					{
-						var rq = new LcpRequest();
-						rq.Id = Reader.ReadInt32();
-						rq.Argumentation = Constructor.Construct(typeof(Argumentation), Reader.ReadUInt32()) as Argumentation;
-						(rq.Argumentation as IBinarySerializable).Read(Reader);
-						///rq.Argumentation = BinarySerializator.Deserialize<Argumentation>(Reader, Constructor.Construct);
-						
-						Respond(rq);
-
- 						break;
- 					}
-
-					case PacketType.Response:
- 					{
-						var id = Reader.ReadInt32();
-						var r = Constructor.Construct(typeof(Result), Reader.ReadUInt32()) as Result;
-						(r as IBinarySerializable).Read(Reader);
-						///var r = BinarySerializator.Deserialize<Result>(Reader, Constructor.Construct);
-
-						lock(OutRequests)
-						{
-							var rq = OutRequests.Find(i => i.Id == id);
-
-							if(rq is LcpRequest f)
-							{
-								f.Return = r;
-								f.Event.Set();
- 									
-								OutRequests.Remove(rq);
-							}
-						}
-
-						break;
-					}
-
- 					case PacketType.Failure:
- 					{
-						var id = Reader.ReadInt32();
-						var ex = BinarySerializator.Deserialize<CodeException>(Reader, Constructor.Construct);
-
-						lock(OutRequests)
-						{
-							var rq = OutRequests.Find(i => i.Id == id);
-
-							if(rq is LcpRequest f)
-							{
-								f.Exception = ex;
-								f.Event.Set();
- 									
-								OutRequests.Remove(rq);
-							}
-						}
-
-
- 						break;
- 					}
-
-					default:
-						throw new NodeException(NodeError.Integrity);
-				}
-			}
-		}
-		catch(Exception ex)
-		{
-		}
-		finally
-		{
-			Disconnect();
-		}
-	}
-
-///	public void Post(IppProcRequest rq)
-///	{
-///		if(!Pipe.IsConnected)
-///			throw new IpcException(IpcError.ConnectionLost);
-///
-///		rq.Id = IdCounter++;
-///
-///		Request(rq);
-///	}
-
-	public Result Call(Argumentation argumentation, Flow flow)
-	{
-		if(!Pipe.IsConnected)
-			throw new IpcException(IpcError.ConnectionLost);
-
-		var rq = new LcpRequest
-				 {
-					Argumentation = argumentation,
-					Id = IdCounter++
-				 };
-
-		lock(OutRequests)
-		{
-			rq.Event = new ManualResetEvent(false);
-			OutRequests.Add(rq);
-		}
-
-		Request(rq);
-
-		int i = -1;
-
-		try
-		{
-			i = WaitHandle.WaitAny([rq.Event, flow.Cancellation.WaitHandle, Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
-		}
-		catch(ObjectDisposedException)
-		{
-			throw new OperationCanceledException();
-		}
-		finally
-		{
-			rq.Event.Close();
-		}
-
-		if(i == 0)
-		{
-			if(rq.Exception == null)
-			{
-				if(rq.Return == null)
-					throw new NodeException(NodeError.Connectivity);
-
-				return rq.Return;
-			}
-			else
-			{
-				throw rq.Exception;
-			}
-		}
-		else if(i == 1 || i == 2)
-			throw new OperationCanceledException();
-		else
-			throw new IpcException(IpcError.ConnectionLost);
 	}
 }
 
@@ -309,11 +124,17 @@ public abstract class LcpServer
 	protected IProgram					Program;
 	protected Flow						Flow;
 	readonly string						Name;
-	public readonly List<LcpConnection>	Clients = new();
-	public Constructor					Constructor = new();
+	public readonly List<LcpConnection>	Connections = new();
 
 	public virtual void					Accept(LcpConnection connection){}
-	public abstract Result				Relay(NnpArgumentation call);
+	public abstract IccpResult			Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection);
+
+	protected abstract LcpConnection	CreateConnection(NamedPipeServerStream pipe);
+
+	public delegate void				LcpConnectionDelegate(LcpConnection connection);
+
+	public LcpConnectionDelegate		ConnectionEstablished;
+	public LcpConnectionDelegate		ConnectionLost;
 
 	public LcpServer(IProgram program, string pipeName, Flow flow)
 	{
@@ -336,8 +157,8 @@ public abstract class LcpServer
 	
 												LcpConnection c = CreateConnection(pipe);
 	
-												lock(Clients)
-													Clients.Add(c);
+												lock(Connections)
+													Connections.Add(c);
 	
 												Accept(c);
 												program.CreateThread(() => c.Listen()).Start();
@@ -351,8 +172,7 @@ public abstract class LcpServer
 									.Start();
 	}
 
-	protected virtual LcpConnection CreateConnection(NamedPipeServerStream pipe)
-	{
-		return new LcpConnection(Program, pipe, this, Flow, Constructor);
-	}
+	//{
+	//	return new LcpConnection(Program, pipe, this, Flow, Constructor);
+	//}
 }

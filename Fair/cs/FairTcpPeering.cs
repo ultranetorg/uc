@@ -20,7 +20,8 @@ public enum FairPpcClass : uint
 	CategoryCategories,
 	Publication,
 	Review,
-	Pow
+	Pow,
+	File
 }
 
 public abstract class FairPpc<R> : McvPpc<R> where R : Result

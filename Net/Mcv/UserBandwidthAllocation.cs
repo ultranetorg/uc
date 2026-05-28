@@ -12,13 +12,13 @@ public class UserBandwidthAllocation : Operation
 	{
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Bandwidth	= reader.ReadUInt16();
 		Months		= reader.ReadByte();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Bandwidth);
 		writer.Write(Months);

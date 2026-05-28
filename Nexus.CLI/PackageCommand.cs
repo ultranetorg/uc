@@ -46,7 +46,7 @@ public class PackageCommand : NexusCommand
 																Previous		 = GetResourceAddress("previous", false),
 																AddressCreator	 =	new()
 																					{
-																						Type = GetEnum("addresstype", UrrScheme.Urrh),
+																						Type = GetEnum("addresstype", UrrScheme.Rrrh),
 																						Owner = GetAccountAddress("owner", false),
 																						Resource = Ura.Parse(Args[0].Name)
 																					}
@@ -66,10 +66,10 @@ public class PackageCommand : NexusCommand
 								{
 									var pm = PackageManifest.Load(dp);
 
-									var id = Has(a.Arguments[4].Name) ? AutoId.LastCreated : rdn.Call<ResourcePpr>(new PpcApc(new ResourcePpc(Ura.Parse(Args[0].Name))), Flow).Resource.Id;
+									var id = Has(a.Arguments[4].Name) ? AutoId.LastCreated : rdn.Ppc(new ResourceByAddressPpc(Ura.Parse(Args[0].Name)), Flow).Resource.Id;
 	
 									ops.AddRange(pm.CompleteDependencies.Select(i => new ResourceLinkCreation(id, 
-																											  rdn.Call<ResourcePpr>(new PpcApc(new ResourcePpc(i.Address)), Flow).Resource.Id,
+																											  rdn.Ppc(new ResourceByAddressPpc(i.Address), Flow).Resource.Id,
 																											  ResourceLinkType.Dependency)));
 								}
 								
@@ -112,7 +112,7 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								Api(new PackageDownloadApc {Package = Package});
+								Api(new StartPackageDownloadApc {Package = Package});
 
 								try
 								{

@@ -19,13 +19,13 @@ class SiteRenewal : FairOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		SiteId	= reader.Read<AutoId>();
 		Years	= reader.ReadByte();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(SiteId);
 		writer.Write(Years);

@@ -12,9 +12,40 @@ public enum AuthorLink : byte
 	Custom, Website, Youtube, Facebook, X, Github, Linkedin, Instagram, 
 }
 
+public class AuthorReference : IBinarySerializable
+{
+	public string	Text { get; set; }
+	public string	Uri { get; set; }
+
+	public AuthorReference()
+	{
+	}
+
+	public AuthorReference(string text, string value)
+	{
+		Text = text;
+		Uri = value;
+	}
+
+	public void Read(Reader reader)
+	{
+		Text = reader.ReadUtf8();
+		Uri = reader.ReadUtf8();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteUtf8(Text);
+		writer.WriteUtf8(Uri);
+	}
+}
+
+
 public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry, IExpirable
 {
 	//public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
+	public const int				WeblinkLength = 1024;
+	public const int				WeblinkCountMaximum = 10;
 
 	public AutoId					Id { get; set; }
 	public string					Name { get; set; }
@@ -40,7 +71,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	
 	public AutoId[]					Products { get; set; }
 	public AutoId[]					Sites { get; set; }
-	public string[]					Links { get; set; }
+	public AuthorReference[]		Referrences { get; set; }
 	public AutoId[]					Files  { get; set; }
 
 	public EntityId					Key => Id;
@@ -79,7 +110,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 					Products			= Products,
 					Sites				= Sites,
-					Links				= Links,
+					Referrences				= Referrences,
 					Files				= Files,
 				};
 
@@ -111,29 +142,29 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		return	time.Days > Expiration;	 /// owner has not renewed, restart the auction
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 		
 		writer.Write(Products);
 		writer.Write(Sites);
-		writer.Write(Links);
+		writer.Write(Referrences);
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 		
 		Products	= reader.ReadArray<AutoId>();
 		Sites		= reader.ReadArray<AutoId>();
-		Links		= reader.ReadStrings();
+		Referrences	= reader.ReadArray<AuthorReference>();
 	}
 
 	public void Cleanup(Round lastInCommit)
 	{
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.WriteUtf8(Name);
@@ -152,10 +183,10 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id					= reader.Read<AutoId>();
-		Name			= reader.ReadUtf8();
+		Name				= reader.ReadUtf8();
 		Title				= reader.ReadUtf8();
 		Description			= reader.ReadUtf8();
 		Owners				= reader.ReadArray<AutoId>();

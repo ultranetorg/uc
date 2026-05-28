@@ -12,13 +12,13 @@ public abstract class StringHnswEntity : HnswNode<string>
 		entity.Text			= Text;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 		Text = reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);
 		writer.WriteUtf8(Text);
@@ -43,13 +43,13 @@ public class StringToOneHnswEntity : StringHnswEntity
 		return $"{base.ToString()}, References={References.Count}";
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 		References	= reader.ReadSortedSet(reader.Read<AutoId>);
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);
 		writer.Write(References);
@@ -74,13 +74,13 @@ public class StringToDictionaryHnswEntity : StringHnswEntity
 		return $"{base.ToString()}, References={References.Count}";
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 		References	= reader.ReadSortedDictionary(reader.Read<AutoId>, reader.Read<AutoId>);
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);
 		writer.Write(References, i => writer.Write(i), i => writer.Write(i));

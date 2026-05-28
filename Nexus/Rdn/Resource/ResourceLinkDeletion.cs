@@ -15,16 +15,16 @@ public class ResourceLinkDeletion : RdnOperation
 	public ResourceLinkDeletion(AutoId source, int destination)
 	{
 		Source = source;
-		Index = Index;
+		Index = destination;
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Source);
 		writer.Write7BitEncodedInt(Index);
 	}
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Source	= reader.Read<AutoId>();
 		Index	= reader.Read7BitEncodedInt();

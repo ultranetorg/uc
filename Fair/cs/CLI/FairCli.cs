@@ -7,7 +7,7 @@ public class FairCli : McvCli
 	static void Main(string[] args)
 	{
 		Thread.CurrentThread.CurrentCulture = 
-		Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
+		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 
 		new FairCli();
 	}

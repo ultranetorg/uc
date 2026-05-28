@@ -29,23 +29,23 @@ public class AuthorCommand : FairCommand
 		return a;
 	}
 	
-	public CommandAction Nickname()
+	public CommandAction Name()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		var nickname = "nickname";
+		const string name = "name";
 
 		a.Name = "n";
 		a.Description = "Sets an nickname for a specified author";
 		a.Arguments =	[new (null, EID, "Id of a author to update", Flag.First),
-						new (nickname, NAME, "A new nickname"),
+						new (name, NAME, "A new nickname"),
 						ByArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new AuthorNameChange{Author = FirstAuthorId,
-																Name = GetString(nickname)}; 
+																Name = GetString(name)}; 
 							};
 		return a;
 	}
@@ -74,8 +74,8 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		var ao = "addowner";
-		var ro = "removeowner";
+		const string ao = "addowner";
+		const string ro = "removeowner";
 
 		a.Name = "s";
 		a.Description = "Extend author rent for a specified period. Allowed during the last year of current period only.";
@@ -109,7 +109,7 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		var years = "years";
+		const string years = "years";
 
 		a.Name = "r";
 		a.Description = "Prolongs current expiration date of an author for a specified number of years";
@@ -129,12 +129,12 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		var file = "file";
+		const string file = "file";
 
 		a.Name = "avatar";
-		a.Description = "Sets an avatar for a specified author";
+		a.Description = "Sets an avatar for a specified author. Only files with correct media type(MIME) are accepted.";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
-						new (file, EID, "A file"),
+						new (file, EID, "Id of a file entity"),
 						ByArgument("Address of account that is author's owner")];
 
 		a.Execute = () =>	{
@@ -149,56 +149,39 @@ public class AuthorCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Property()
+	public CommandAction Info()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		var t = "title";
-		var d = "description";
+		const string t = "title";
+		const string d = "description";
+		const string r = "ref";
 
-		a.Name = "p";
+		a.Name = "i";
 		a.Description = "Changes various author descriptive properties";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (t, TEXT, "A new title"),
 						new (d, TEXT,  "A new description"),
-						ByArgument("Address of account that owns the site")];
+						new (r, null,  "{text=TEXT uri=URI}"),
+						ByArgument("A name of user eligible to change the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var o = new AuthorTextChange();
+								var o = new AuthorInfoUpdation();
 
-								o.Author		= FirstAuthorId;
-								o.Title			= GetString(t, null); 
-								o.Description	= GetString(d, null); 
+								o.Author = FirstAuthorId;
+								o.Changes = [];
 
-								return o;
-							};
-		return a;
-	}
-
-	public CommandAction Link()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-		
-		var add = "add";
-		var remove = "remove";
-
-		a.Name = "link";
-		a.Description = "Changes author's links";
-		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
-						new (add, TEXT, "A links to add", Flag.Optional|Flag.Multi),
-						new (remove, TEXT, "A links to remove", Flag.Optional|Flag.Multi),
-						ByArgument("Address of account that owns the author")];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
-
-								var o = new AuthorLinksChange();
-
-								o.Author		= FirstAuthorId;
-								o.Additions		= Args.Where(i => i.Name == add).Select(i => i.Get<string>()).ToArray(); 
-								o.Removals		= Args.Where(i => i.Name == remove).Select(i => i.Get<string>()).ToArray(); 
+								foreach(var i in Args)
+								{
+									switch(i.Name)
+									{
+										case t : o.Changes = [..o.Changes, new (AuthorField.Title,		 i.Get<string>())]; break;
+										case d : o.Changes = [..o.Changes, new (AuthorField.Description, i.Get<string>())]; break;
+										case r : o.Changes = [..o.Changes, new (AuthorField.Reference,	 i.Get<Xon>().Get<string>("text"), i.Get<Xon>().Get<string>("uri"))]; break;
+									}
+								}
 
 								return o;
 							};

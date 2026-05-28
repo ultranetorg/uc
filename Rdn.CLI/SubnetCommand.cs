@@ -19,7 +19,7 @@ public class SubnetCommand : RdnCommand
 		a.Arguments =	[
 							new (null, SNN, "A name of a subnet to attach", Flag.First),
 							new ("peer", IP, "A list of ipadddress:port of peers of subnet", Flag.Multi),
-							new ("client", UNEL, "An address of default client software"),
+							new ("client", SNP, "An address of default client software"),
 							ByArgument()
 						];
 

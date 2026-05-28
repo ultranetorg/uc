@@ -29,14 +29,14 @@ public class Dependency : IEquatable<Dependency>
 		return $"{Address}, {Need}, {Flags}";
 	}
 
-	//public void Read(BinaryReader reader)
+	//public void Read(Reader reader)
 	//{
 	//	Package = reader.Read<Ura>();
 	//	Type = (DependencyType)reader.ReadByte();
 	//	Flags = (DependencyFlag)reader.ReadByte();
 	//}
 	//
-	//public void Write(BinaryWriter writer)
+	//public void Write(Writer writer)
 	//{
 	//	writer.Write(Package);
 	//	writer.Write((byte)Type);
@@ -135,14 +135,14 @@ public class ParentPackage
 		return x;
 	}
 
-	//public void Write(BinaryWriter w)
+	//public void Write(Writer w)
 	//{
 	//	w.Write(Release);
 	//	w.Write(AddedDependencies);
 	//	w.Write(RemovedDependencies);
 	//}
 	//
-	//public void Read(BinaryReader r)
+	//public void Read(Reader r)
 	//{						
 	//	Release				= r.Read<Ura>();
 	//	AddedDependencies	= r.ReadArray<Dependency>();
@@ -161,13 +161,13 @@ public class Start// : IBinarySerializable
 		return $"{Path}, {Arguments}";
 	}
 
-	//public void Read(BinaryReader reader)
+	//public void Read(Reader reader)
 	//{
 	//	Path = reader.ReadUtf8();
 	//	Arguments = reader.ReadUtf8();
 	//}
 	//
-	//public void Write(BinaryWriter writer)
+	//public void Write(Writer writer)
 	//{
 	//	writer.WriteUtf8(Path);
 	//	writer.WriteUtf8(Arguments);
@@ -301,13 +301,13 @@ public class ChangableExtra : IBinarySerializable
 	public PackageFlag		Flags { get; set; }
 	public Ura				Replacement { get; set; }
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Flags		= reader.Read<PackageFlag>();
 		Replacement = reader.Read<Ura>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Flags);
 		writer.Write(Replacement);

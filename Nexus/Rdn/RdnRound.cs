@@ -61,7 +61,7 @@ public class RdnRound : Round
 		}
 	}
 
-	public override void WriteGraphState(BinaryWriter writer)
+	public override void WriteGraphState(Writer writer)
 	{
 		base.WriteGraphState(writer);
 
@@ -69,7 +69,7 @@ public class RdnRound : Round
 		writer.Write(Members, i => i.WriteMember(writer));  
 	}
 
-	public override void ReadGraphState(BinaryReader reader)
+	public override void ReadGraphState(Reader reader)
 	{
 		base.ReadGraphState(reader);
 

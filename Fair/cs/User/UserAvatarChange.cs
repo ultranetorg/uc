@@ -15,15 +15,15 @@ public class UserAvatarChange : FairOperation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return true;
+		return File.GetImageFormat(Image) != FairMime.None;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Image = reader.ReadBytes();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteBytes(Image);
 	}

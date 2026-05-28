@@ -27,13 +27,13 @@ public class ProductUpdation : FairOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Product	= reader.Read<AutoId>();
 		Fields	= reader.ReadArray<FieldValue>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Product);
 		writer.Write(Fields);

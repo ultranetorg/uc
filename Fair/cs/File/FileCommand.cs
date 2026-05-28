@@ -16,12 +16,14 @@ public class FileCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		var path = "path";
+		var mime = "mime";
 
 		a.Name = "c";
 		a.Description = "Creates a file entity in the MCV database";
 		a.Arguments =	[
 							new (null, EA, "An entity address of file owner", Flag.First),
 							new (path, PATH, "A data associated with the file"),
+							new (mime, TEXT, "Mime type of file content", Flag.Optional),
 							ByArgument()
 						];
 
@@ -31,7 +33,8 @@ public class FileCommand : FairCommand
 								return	new FileCreation
 										{
 											Owner = EntityAddress.Parse<FairTable>(Args[0].Name), 
-											Data = System.IO.File.ReadAllBytes(GetString(path))
+											Data = System.IO.File.ReadAllBytes(GetString(path)),
+											Mime = GetEnum<FairMime>(mime, FairMime.None)
 										};
 							};
 		return a;
@@ -43,7 +46,10 @@ public class FileCommand : FairCommand
 
 		a.Name = "x";
 		a.Description = "Destroys existing file and all its associated data";
-		a.Arguments = [new (null, EID, "Id of a file to delete", Flag.First)];
+		a.Arguments =	[
+							new (null, EID, "Id of a file to delete", Flag.First),
+							ByArgument()
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);

@@ -14,13 +14,13 @@ public class ReviewEdit : VotableOperation
 	{
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Review	= reader.Read<AutoId>();
 		Text	= reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Review);
 		writer.WriteUtf8(Text);

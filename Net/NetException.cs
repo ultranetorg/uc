@@ -2,7 +2,7 @@
 
 public enum ExceptionClass : uint
 {
-	None, Node, Request, Entity, Ipc, Nnp,
+	None, Node, Request, Entity, Iccp,
 	_Next,
 	Nn = _Next,
 	Vault,

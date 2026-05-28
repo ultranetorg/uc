@@ -37,12 +37,12 @@ public class RawId : EntityId
 		return Bytes[3] << 24 | Bytes[2] << 16 | Bytes[1] << 8 | Bytes[0];
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Bytes = reader.ReadBytes();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteBytes(Bytes);
 	}

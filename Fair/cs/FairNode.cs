@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 
 namespace Uccs.Fair;
 
@@ -10,11 +11,18 @@ public class FairNode : McvNode
 
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
-	LcpConnection					NnConnection;
 
 	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
 	{
 		base.Settings = settings ?? new FairNodeSettings(profile);
+
+		if(settings == null && !System.IO.File.Exists(Settings.Path))
+		{
+			Settings.Peering	= new () {EP = new (IPAddress.Any, Net.PpiPort)};
+			Settings.Api		= new () {LocalIP = nexussettings.Host};
+
+			Settings.Save();
+		}
 
 		if(Flow.Log != null)
 			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
@@ -27,16 +35,15 @@ public class FairNode : McvNode
 		if(Settings.Mcv != null)
 		{
 			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.EP], clock ?? new RealClock());
-
 			base.Mcv.Log = Flow.Log;
 
 			if(Settings.Web != null)
 			{
 				WebServer = new WebServer(this, null);
 			}
+	
+			Iccp = new FairIccpLcpConnection(this, flow);
 		}
-
-		NnConnection = new FairNnpLcpConnection(this, Flow);
 		
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
@@ -63,7 +70,7 @@ public class FairNode : McvNode
 		WebServer?.Stop();
 		ApiServer?.Stop();
 		Peering.Stop();
-		NnConnection?.Disconnect();
+		Iccp?.Disconnect();
 		Mcv?.Stop();
 
 		base.Stop();

@@ -351,7 +351,7 @@ public class PackageHub
 			r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
  				
 			var p = Get(resource);
-			p.Resource.AddData(new DataType(DataType.File, ContentType.Package_VersionManifest), a);
+			p.Resource.AddData(new DataType(DataType.File, ContentType.Package_Software_VersionManifest), a);
 
 			flow.Log?.Report(this, $"Release added: {a}");
 
@@ -373,7 +373,7 @@ public class PackageHub
 //  			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, flow);
 //  		}
 
-	public void Deploy(Ura address, string packagespath, Flow flow)
+	public void StartDeploy(Ura address, string packagespath, Flow flow)
 	{
 		lock(Lock)
 		{
@@ -381,10 +381,10 @@ public class PackageHub
 
 			if(p == null || !IsAvailable(address))
 			{
-				Download(address, flow).Task.ContinueWith(t =>	{
-																	lock(Lock)
-																		deploy();
-																});
+				StartDownload(address, flow).Task.ContinueWith(t =>	{
+																		lock(Lock)
+																			deploy();
+																	});
 			}
 			else
 				deploy();
@@ -543,9 +543,9 @@ public class PackageHub
 		}
 	}
 
-	public PackageDownload Download(Ura package, Flow flow)
+	public PackageDownload StartDownload(Ura address, Flow flow)
 	{
-		var p = Get(package);
+		var p = Get(address);
 
 		if(p.Activity is PackageDownload d)
 			return d;
@@ -555,5 +555,26 @@ public class PackageHub
 		d = new PackageDownload(this, p, flow);
 
 		return d;
+	}
+
+	public LocalPackage Deploy(Ura address, Flow flow)
+	{
+		StartDeploy(address, DeploymentPath, flow);
+
+		LocalPackage p;
+
+		lock(Lock)
+			p = Find(address);
+
+		do
+		{
+			if(p.Activity is null)
+				return p;
+
+			Thread.Sleep(100);
+		}
+		while(flow.Active);
+
+		throw new OperationCanceledException();
 	}
 }

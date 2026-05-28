@@ -38,7 +38,7 @@ public abstract class McvApiServer : NodeApiServer
 {
 	McvNode Node;
 
-	public McvApiServer(McvNode node, ApiSettings settings, Flow workflow, JsonSerializerOptions options) : base(node, settings, workflow, options)
+	public McvApiServer(McvNode node, ApiSettings settings, Flow flow, JsonSerializerOptions options) : base(node, settings, flow, options)
 	{
 		Node = node;
 	}
@@ -63,15 +63,21 @@ public class McvApiClient : JsonApiClient
 	{
 		Options = NetJsonConfiguration.CreateOptions();
 	}
+	
+	public R Ppc<R>(McvPpc<R> request, Flow flow) where R : Result
+	{
+		return Call<R>(new PpcApc {Request = request}, flow);
+	}
+
 }
 
 public abstract class McvApc : NodeApc
 {
-	public abstract object Execute(McvNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
+	public abstract object Execute(McvNode sun, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 
-	public override object Execute(Node mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(Node mcv, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		return Execute(mcv as McvNode, request, response, workflow);
+		return Execute(mcv as McvNode, request, response, flow);
 	}
 }
 
@@ -79,7 +85,7 @@ public class McvPropertyApc : McvApc
 {
 	public string Path { get; set; }
 
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		object o = node;
 
@@ -99,7 +105,7 @@ public class PeersReportApc : McvApc
 {
 	public bool?		Permanent { get; set; }
 
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.Peering.Lock)
 			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK && (Permanent is null || i.Permanent == Permanent))
@@ -137,17 +143,19 @@ public class McvSummaryApc : McvApc
  		public IEnumerable<string[]> Summary {get; set;}
  	}
 
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		OrderedDictionary<string, string> f;
 
 		lock(node.Peering.Lock)
 		{
-			f = new () {{"Peers all/in/out",		$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound )}/{node.Peering.Connections.Count(i => !i.Inbound)} {(node.Peering.MinimalPeersReached ? " MinimalPeersReached" : null)}"},
-						{"IP(Reported):Port",		$"{node.Peering.Settings.EP} ({node.Peering})"},
-						{"Votes Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"},
-						{"Candidate Transactions",	$"{node.Peering.CandidateTransactions.Count}"}
-						};
+			f = new () {{"Nexus",						$"{node.NexusSettings.Host}"},
+						{"Profile",						$"{node.Settings.Profile}"},
+						{"Peers all/in/out/permanent",	$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound)}/{node.Peering.Connections.Count(i => !i.Inbound)}/{node.Peering.Connections.Count(i => i.Permanent)}, {(node.Peering.MinimalPeersReached ? "OK" : "Low")}"},
+						{"Endpoint",					$"{node.Peering.Settings.EP}"},
+						{"Reported IP",					$"{node.Peering.EP?.IP}"},
+						{"Votes p2p Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"},
+						{"Candidate Transactions",		$"{node.Peering.CandidateTransactions.Count}"}};
 		}
 
 		lock(node.Peering.OutgoingTransactions)
@@ -160,17 +168,18 @@ public class McvSummaryApc : McvApc
 
 		if(node.Mcv != null)
 		{
+			f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
+			f.Add("Synchronization",		$"{node.Peering.Synchronization}");
+			f.Add("Size",					$"{node.Mcv.Size}");
+
 			lock(node.Mcv.Lock)
 			{ 
-				f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
-				f.Add("Synchronization",		$"{node.Peering.Synchronization}");
-				f.Add("Size",					$"{node.Mcv.Size}");
 				f.Add("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}");
-				f.Add("Base Hash",				node.Mcv.GraphHash.ToHex());
+				f.Add("Hash",					node.Mcv.GraphHash.ToHex());
 				f.Add("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}");
-				f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
-				f.Add("Last Payload Round",		$"{node.Mcv.LastPayloadRound?.Id}");
-				f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
+				//f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
+				//f.Add("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}");
+				//f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
 			}
 		}
 
@@ -182,7 +191,7 @@ public class McvSummaryApc : McvApc
 
 public class ChainReportApc : McvApc
 {
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.Mcv.Lock)
 			return new Return {Rounds = node.Mcv.Tail.Take(Limit)
@@ -233,7 +242,7 @@ public class VotesReportApc : McvApc
 {
 	public int		RoundId  { get; set; }
 
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.Mcv.Lock)
 			return new VotesReportResponse{Votes = node.Mcv	.FindRound(RoundId)?.Votes
@@ -270,7 +279,6 @@ public class TransactApc : McvApc
 	public string					Application { get; set; }
 	public byte[]					Tag { get; set; } /// optional
 	public byte[]					Session { get; set; }
-	public AccountAddress			Signer { get; set; }
 	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -278,7 +286,7 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = node.Peering.Transact(Operations, Application, User, Tag, Session, Signer, ActionOnResult, flow);
+		var t = node.Peering.Transact(Operations, Application, User, Tag, Session, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
 	}
@@ -288,7 +296,7 @@ public class OutgoingTransactionApc : McvApc
 {
 	public byte[]	Tag { get; set; }
 
-	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode mcv, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(mcv.Peering.OutgoingTransactions)
 		{
@@ -307,7 +315,7 @@ public class OutgoingTransactionApc : McvApc
 
 public class OutgoingTransactionsApc : McvApc
 {
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.Peering.OutgoingTransactions)
 			return node.Peering.OutgoingTransactions.Select(i => new TransactionApe(i)).ToArray();
@@ -319,16 +327,16 @@ public class EstimateOperationApc : McvApc
 	public Operation[]		Operations { get; set; }
 	public string			User  { get; set; }
 
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		return node.Peering.Call(new ExaminePpc {Operations = Operations, User = User}, workflow);
+		return node.Peering.Call(new ExaminePpc {Operations = Operations, User = User}, flow);
 	}
 }
 
 public class TransactionApe
 {
 	//public TransactionId			Id { get; set; }
-	public int						Nid { get; set; }
+	public int						Nonce { get; set; }
 		
 	public AutoId					Member { get; set; }
 	public int						Expiration { get; set; }
@@ -350,8 +358,7 @@ public class TransactionApe
 
 	public TransactionApe(Transaction transaction)
 	{
-		Nid					= transaction.Nonce;
-		//Id					= transaction.Id;
+		Nonce				= transaction.Nonce;
 		Operations			= [..transaction.Operations];
 		   
 		Member				= transaction.Member;
@@ -359,8 +366,7 @@ public class TransactionApe
 		Tag					= transaction.Tag;
 		Signature			= transaction.Signature;
 		   
-		MemberEndpoint		= (transaction.Ppi as Peer)?.EP ?? (transaction.Ppi as HomoPeering)?.EP;
-		//Signer				= transaction.Signer;
+		MemberEndpoint		= (transaction.Ppi as Peer)?.EP;
 		Status				= transaction.Status;
 		Error				= transaction.Error;
 		__ExpectedStatus	= transaction.ActionOnResult;
@@ -371,7 +377,7 @@ public class TransactionApe
 
 public class IncomingTransactionsApc : McvApc
 {
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		if(node.Peering == null)
 			throw new NodeException(NodeError.NoPeering);
@@ -394,51 +400,21 @@ public class PpcApc : McvApc
 		Request = request;
 	}
 
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		if(node.Peering == null)
 			throw new NodeException(NodeError.NoPeering);
 
-		return node.Peering.Call(Request, workflow, null);
+		return node.Peering.Call(Request, flow, null);
 	}
 }
-
-//public class NncApc : McvApc
-//{
-//	public string			Net { get; set; }
-//	public FuncPeerRequest	Request { get; set; }
-//
-//	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-//	{
-//		if(node.NnPeering == null)
-//			throw new NodeException(NodeError.NoNn);
-//
-//		return node.NnPeering.Call(Net, () => Request, workflow);
-//	}
-//}
-
-//public class SetGeneratorApc : McvApc
-//{
-//	public IEnumerable<byte[]>	 Generators {get; set;}
-//
-//	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-//	{
-//		if(node.Mcv == null)
-//			throw new NodeException(NodeError.NoMcv);
-//
-//		lock(node.Mcv.Lock)
-//			node.Mcv.Settings.Generators = Generators.Select(i => new AccountKey(i)).ToArray();
-//
-//		return null;
-//	}
-//}
 
 public class EnforceSessionsApc : McvApc
 {
 	public string	 Application {get; set;}
 	public string	 User {get; set;}
 
-	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		if(node.Peering == null)
 			throw new NodeException(NodeError.NoPeering);

@@ -19,7 +19,6 @@ public abstract class Peer : IBinarySerializable
 	public Endpoint					EP {get; set;} 
 	public long						Roles  {get; set;} 
 	public string					Name;
-	public string					Net;
 
 	public ConnectionStatus			Status = ConnectionStatus.Disconnected;
 
@@ -38,8 +37,8 @@ public abstract class Peer : IBinarySerializable
 	public Peering					Peering;
 	protected TcpClient				Tcp;
 	protected NetworkStream			Stream;
-	protected BinaryWriter			Writer;
-	protected BinaryReader			Reader;
+	protected Writer				Writer;
+	protected Reader				Reader;
 	protected Thread				ListenThread;
 	protected int					IdCounter = 0;
 	
@@ -85,7 +84,7 @@ public abstract class Peer : IBinarySerializable
 		return EP.GetHashCode();
 	}
 
-	public void SaveNode(BinaryWriter writer)
+	public void SaveNode(Writer writer)
 	{
 		//writer.WriteUtf8(Net);
 		writer.Write(EP);
@@ -94,7 +93,7 @@ public abstract class Peer : IBinarySerializable
 		writer.Write(PeerRank);
 	}
 
-	public void LoadNode(BinaryReader reader)
+	public void LoadNode(Reader reader)
 	{
 		//Net = reader.ReadUtf8();
 		EP = reader.Read<Endpoint>();
@@ -103,34 +102,16 @@ public abstract class Peer : IBinarySerializable
 		PeerRank = reader.ReadInt32();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(EP);
 		writer.Write7BitEncodedInt64(Roles);
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		EP = reader.Read<Endpoint>();
 		Roles = reader.Read7BitEncodedInt64();
-	}
-
-	public static void SendHello(TcpClient client, Hello h)
-	{
-		var w = new BinaryWriter(client.GetStream());
-
-		h.Write(w);
-	}
-
-	public static Hello WaitHello(TcpClient client)
-	{
-		var r = new BinaryReader(client.GetStream());
-
-		var h = new Hello();
-
-		h.Read(r);
-		
-		return h;
 	}
 
 	public void Disconnect()
@@ -190,10 +171,10 @@ public abstract class Peer : IBinarySerializable
 		Status		= ConnectionStatus.OK;
 		Inbound		= inbound;
 		Stream		= client.GetStream();
-		Writer		= new BinaryWriter(Stream);
-		Reader		= new BinaryReader(Stream);
 		LastSeen	= DateTime.UtcNow;
 		Roles		= h.Roles;
+		Writer		= new Writer(Stream, Peering.Constructor);
+		Reader		= new Reader(Stream, Peering.Constructor);
 
 		ListenThread = Peering.Program.CreateThread(Listening);
 		ListenThread.Name = $"{Peering.Name} <- {h.Name}";

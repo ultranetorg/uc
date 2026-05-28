@@ -725,7 +725,7 @@
   <data name="label4.Text" xml:space="preserve">
     <value>The following website or application requires access to your account.
 
-If approved, it will be able to sign your transactions, which may involve spending resources associated with the selected account in this net</value>
+If approved, it will be able to sign your transactions, which may involve spending resources associated with the selected user in this net</value>
   </data>
   <data name="Shield.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

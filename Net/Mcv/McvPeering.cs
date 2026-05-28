@@ -10,6 +10,7 @@ public enum McvPpcClass : uint
 	None = 0, 
 	SharePeers = PpcClass._Last + 1, 
 	Info,
+	SubnetPeers,
 	Vote, Time, Members, Funds, Pretransacting, PlaceTransactions, TransactionStatus, User, 
 	Stamp, TableStamp, DownloadCluster, DownloadBucket, DownloadRounds,
 	Cost,
@@ -42,11 +43,8 @@ public abstract class McvPeering : HomoPeering
 	public Mcv								Mcv => Node.Mcv; 
 	public VaultApiClient					VaultApi; 
 
-	public IEnumerable<HomoPeer>			Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
-
-	AutoResetEvent							TransactingWakeup = new AutoResetEvent(true);
+	AutoResetEvent							TransactingWakeup = new (true);
 	Thread									TransactingThread;
-	//public object							TransactingLock = new object();
 	public List<Transaction>				OutgoingTransactions = [];
 	public List<Transaction>				CandidateTransactions = [];
 	public List<Transaction>				ConfirmedTransactions = [];
@@ -58,13 +56,20 @@ public abstract class McvPeering : HomoPeering
 
 	public static List<McvPeering>			All = [];
 
+	public IEnumerable<HomoPeer>			Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
+	public bool								IsMember => Synchronization == Synchronization.Synchronized &&
+														Mcv.LastConfirmedRound != null && 
+														Mcv.LastConfirmedRound.Members.Any(i => Mcv.Settings.Generators.Any(j => j.Id == i.User));
+
+
 	public McvPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Name, node.Net, node.Database, settings, roles, flow)
 	{
 		Node = node;
 		VaultApi = vaultapi;
 
 		Constructor.Register<PeerRequest> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
-		Constructor.Register<Result> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<Result>	  (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
+		Constructor.Register<CodeException>(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 
 		Constructor.Register(() => new Transaction {Net = Net});
 		Constructor.Register(() => new Vote(Mcv));
@@ -288,7 +293,7 @@ public abstract class McvPeering : HomoPeering
 		
 					var r = Mcv.CreateRound();
 					r.Confirmed = true;
-					r.ReadGraphState(new BinaryReader(new MemoryStream(stamp.GraphState)));
+					r.ReadGraphState(new Reader(stamp.GraphState));
 		
 					var s = Call(peer, new StampPpc(), Flow);
 	
@@ -524,7 +529,7 @@ public abstract class McvPeering : HomoPeering
 						
 						CandidacyDeclarations.Add(gs.Id);
 					
-						Transact([Mcv.CreateCandidacyDeclaration()], Name, gs.User, null, s.Session, s.Signer, ActionOnResult.RetryUntilConfirmed, Flow);
+						Transact([Mcv.CreateCandidacyDeclaration()], Name, gs.User, null, s.Session, ActionOnResult.RetryUntilConfirmed, Flow);
 					} 
 					else
 					{
@@ -573,9 +578,9 @@ public abstract class McvPeering : HomoPeering
 					v.Time							= Time.Now(Mcv.Clock);
 					v.Violators						= r.ProposeViolators().ToArray();
 					v.Leavers						= r.ProposeMemberLeavers(gs.Id).ToArray();
-					v.SubnetMessages				= Mcv.SubnetTransactions.Select(i => i.Hash).ToArray();
-					v.SubnetMessageConfirmations	= Mcv.SubnetTransactionConfirmations.Select(i => i.Hash).ToArray();
-					v.ForeignResults					= Mcv.ApprovedOutwards.ToArray();
+					v.FriendTransferRequests		= Mcv.FriendTransferRequests.Select(i => i.Hash).ToArray();
+					v.FriendTransferConfirmations	= Mcv.FriendTransferResults.Keys.ToArray();
+					v.OutwardResults				= Mcv.OutwardResults.ToArray();
 						
 					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 					//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
@@ -846,7 +851,7 @@ public abstract class McvPeering : HomoPeering
 			if(cr == null)
 				Debugger.Break();
 
-			if(!cr.Members.Any() || cr.Members.Any(i => !i.GraphPpcIPs.Any()))
+			if(!cr.Members.Any() || cr.Members.Any(i => !i.GraphPpiEndpoints.Any()))
 				continue;
 
 			var members = cr.Members;
@@ -855,10 +860,10 @@ public abstract class McvPeering : HomoPeering
 			{
 				//var m = members.NearestBy(i => i.Address, nonce);
 
-				if(member.GraphPpcIPs.Contains(Settings.EP))
+				if(member.GraphPpiEndpoints.Contains(Settings.EP))
 					return this;
 
-				var p = GetPeer(member.GraphPpcIPs.Random());
+				var p = GetPeer(member.GraphPpiEndpoints.Random());
 				Connect(p, Flow);
 
 				return p;
@@ -1095,7 +1100,7 @@ public abstract class McvPeering : HomoPeering
 		}
 	}
 
- 	public Transaction Transact(IEnumerable<Operation> operations, string application, string user, byte[] tag, byte[] session, AccountAddress signer, ActionOnResult aor, Flow flow)
+ 	public Transaction Transact(IEnumerable<Operation> operations, string application, string user, byte[] tag, byte[] session, ActionOnResult aor, Flow flow)
  	{
 		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
 			throw new NodeException(NodeError.LimitExceeded);
@@ -1110,7 +1115,6 @@ public abstract class McvPeering : HomoPeering
 					Net				= Net,
 					Tag				= tag ?? Guid.NewGuid().ToByteArray(),
 					Session			= session ?? FindSession(user)?.Session,
-					//Signer			= signer ?? FindSession(user)?.Signer,
 					Flow			= flow,
 					Inquired		= DateTime.UtcNow,
 					ActionOnResult	= aor,

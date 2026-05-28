@@ -16,13 +16,13 @@ public class CategoryAvatarChange : VotableOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Category= reader.Read<AutoId>();
 		File	= reader.Read<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Category);
 		writer.Write(File);
@@ -41,6 +41,9 @@ public class CategoryAvatarChange : VotableOperation
 			return false;
 
 		if(!FileExists(execution, File, out var f, out error))
+			return false;
+
+		if(!IsImage(f, out error))
 			return false;
 
 		if(f.Owner.Id != Site.Id || (FairTable)f.Owner.Table != FairTable.Site)

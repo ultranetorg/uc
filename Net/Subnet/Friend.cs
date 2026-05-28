@@ -1,0 +1,116 @@
+﻿using System.Numerics;
+using System.Text.RegularExpressions;
+
+namespace Uccs.Net;
+
+public enum IccTransferStatus : byte
+{
+	None, FormedAndPending, Confirmed
+}
+
+public class Friend : IBinarySerializable, ITableEntry
+{
+	public const int								NameLengthMin = 1;
+	public const int								NameLengthMax = 256;
+	public const int								PeersMaximum = 1000;
+	public const int								RootHashLengthMaximum = 4096;
+
+	public AutoId									Id { get; set; }
+	public string									Name { get; set; }
+	public Snp										Client { get; set; }
+	public Endpoint[]								Peers { get; set; }
+	public IccpTransferResult						LastIncomingTransfer { get; set; }
+	public IccpTransfer								LastOutgoingTransfer { get; set; }
+	public IccTransferStatus						OutStatus { get; set; }
+	public OrderedDictionary<byte[], BigInteger>	Balances { get; set; }
+
+	public EntityId									Key => Id;
+	public bool										Deleted { get; set; }
+	Mcv												Mcv;
+
+	public Friend()
+	{
+	}
+
+	public Friend(Mcv mcv)
+	{
+		Mcv = mcv;
+	}
+
+	public override string ToString()
+	{
+		return $"{Name}, {Id}";
+	}
+
+	public object Clone()
+	{
+		return	new Friend(Mcv)
+				{
+					Id = Id,
+					Name = Name,
+					Client = Client,
+					Peers = Peers,
+					LastIncomingTransfer = LastIncomingTransfer,
+					LastOutgoingTransfer = LastOutgoingTransfer,
+					OutStatus = OutStatus,
+					Balances = Balances,
+				};
+	}
+
+	public static bool Valid(string name)
+	{
+		if(name == null)
+			return false;
+
+		if(name.Length < NameLengthMin || name.Length > NameLengthMax)
+			return false;
+
+		if(Regex.Match(name, $@"^[a-z0-9]+$").Success == false)
+			return false;
+
+		return true;
+	}
+
+	public static bool Valid(IccpTransfer state)
+	{
+		return true; //state.Peers.Length > PeersMaximum;
+	}
+
+	public void WriteMain(Writer writer)
+	{
+		Write(writer);
+	}
+
+	public void ReadMain(Reader reader)
+	{
+		Read(reader);
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Id);
+		writer.WriteASCII(Name);
+		writer.Write(Client);
+		writer.Write(Peers);
+		writer.Write(LastIncomingTransfer);
+		writer.Write(LastOutgoingTransfer);
+		writer.Write(OutStatus);
+		writer.Write(Balances, writer.WriteBytes, writer.Write);
+	}
+
+	public void Read(Reader reader)
+	{
+		Id						= reader.Read<AutoId>();
+		Name					= reader.ReadASCII();
+		Client					= reader.Read<Snp>();
+		Peers					= reader.ReadArray<Endpoint>();
+		LastIncomingTransfer	= reader.Read<IccpTransferResult>();
+		LastOutgoingTransfer	= reader.Read<IccpTransfer>(); 
+		OutStatus				= reader.Read<IccTransferStatus>();
+		Balances				= reader.ReadOrderedDictionary(reader.ReadBytes, reader.ReadBigInteger);
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
+}

@@ -62,14 +62,14 @@ public class TypedId<T> : AutoId where T : unmanaged, Enum
 			throw new FormatException();
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		B		= reader.Read7BitEncodedInt();
 		I		= reader.Read7BitEncodedInt();
 		Type	= reader.Read<T>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(B);
 		writer.Write7BitEncodedInt(I);

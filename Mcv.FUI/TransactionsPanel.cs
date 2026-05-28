@@ -3,14 +3,15 @@ using System.Windows.Forms;
 
 namespace Uccs.Mcv.FUI;
 
-public partial class TransactionsPanel : MainPanel
+public partial class TransactionsPanel : McvPanel
 {
 	McvNode Node;
 	
-	public TransactionsPanel(McvNode mcv)
+	public TransactionsPanel(McvNode node)
 	{
 		InitializeComponent();
 
+		Node = node;
 		/*
 		foreach(DataGridViewColumn i in members.Columns)
 		{
@@ -24,23 +25,13 @@ public partial class TransactionsPanel : MainPanel
 		{
 			//BindAccounts(Account);
 
-			Search();
+			Reload();
 		}
 	}
 
-	private void search_Click(object sender, EventArgs e)
+	private void Refresh_Click(object sender, EventArgs e)
 	{
-		Search();
-	}
-
-	private void account_SelectedIndexChanged(object sender, EventArgs e)
-	{
-		Search();
-	}
-
-	private void account_SelectionChangeCommitted(object sender, EventArgs e)
-	{
-		//	Search();
+		Reload();
 	}
 
 	private void Transactions_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -49,53 +40,49 @@ public partial class TransactionsPanel : MainPanel
 
 		if(e.IsSelected)
 		{
-			lock(Node.Mcv.Lock)
+			lock(Node.Peering.Lock)
 			{
-				Operations.Items.AddRange((e.Item.Tag as Transaction).Operations.Select((i) =>	{
-																									var li = new ListViewItem(i.ToString());
-																									//li.Tag = i;
-																									//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
-																									return li;
-																								})
-																								.ToArray());
+				var t = e.Item.Tag as Transaction;
+				Operations.Items.AddRange(t.Operations.Select((i) => {
+																	 	var li = new ListViewItem(i.ToString());
+																	 	//li.Tag = i;
+																	 	//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
+																	 	return li;
+																	 })
+																	 .ToArray());
+				
+				Log.Lines = t.Flow.Log.Messages.Select(i => i.ToString()).ToArray();
 			}
 		}
 	}
 
-	void Search()
+	void Reload()
 	{
 		try
 		{
 			Transactions.Items.Clear();
 			Operations.Items.Clear();
+			Log.Clear();
 
-			lock(Node.Mcv.Lock)
+			lock(Node.Peering.Lock)
 			{
-				var a = AccountAddress.Parse(Account.Text);
-				//var txs = Core.Transactions.Where(i => i.Signer == a);
-				//var txs = Node.Mcv.Accounts.SearchTransactions(a).OrderByDescending(i => i.Nid);
+				foreach(var i in Node.Peering.OutgoingTransactions)
+				{
+					var li = new ListViewItem(i.Tag.ToHex()) {Tag = i};
+					li.SubItems.Add(i.Status.ToString());
+					li.SubItems.Add(i.User);
+					li.SubItems.Add(i.Nonce.ToString());
+					li.SubItems.Add(i.Expiration.ToString());
+					li.SubItems.Add(i.Operations.Length.ToString());
+					li.SubItems.Add(i.Operations[0].ToString());
+					li.SubItems.Add(i.Error);
+					li.SubItems.Add((i.Ppi as Peer)?.EP.ToString());
+				
+					Transactions.Items.Add(li);
+				}
 
-				//foreach(var i in txs)
-				//{
-				//	var li = new ListViewItem(i.Nid.ToString()) {Tag = i};
-				//	li.SubItems.Add(i.Round.Id.ToString());
-				//	//li.SubItems.Add(i.Member?.ToString());
-				//
-				//	Transactions.Items.Add(li);
-				//}
-				//
-				//foreach(var i in txs.SelectMany(i => i.Operations))
-				//{
-				//	var li = new ListViewItem(i.ToString());
-				//	//li.SubItems.Add(i.GetType().Name + ", " + i.Description);
-				//
-				//	Operations.Items.Add(li);
-				//}
-			}
-
-			if(Transactions.Items.Count == 0)
-			{
-				Transactions.Items.Add("No results");
+				if(Transactions.Items.Count > 0)
+					Transactions.Items[0].Selected = true;
 			}
 		}
 		catch(Exception ex)

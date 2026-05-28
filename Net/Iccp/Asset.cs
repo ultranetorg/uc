@@ -1,0 +1,131 @@
+﻿using System.Numerics;
+
+namespace Uccs.Net;
+
+public class Asset : IBinarySerializable
+{
+	public string	Name { get; set; }
+	public byte[]	Id { get; set; }
+	public string	Units { get; set; }
+
+	public static readonly Asset Spacetime	=	new ()
+												{
+													Name = $"Space-time",
+													Id = [1],
+													Units = "Byte-days (BD)"
+												};
+
+	public static Asset Energy(byte period, byte year)
+	{
+		var a = new Asset();
+		a.Name = $"Energy for {Time.FirstYear + year} year";
+		a.Id = [0, period, year];
+		a.Units = "Execution Cycles (EC)";
+
+		return a;
+	}
+
+	public override string ToString()
+	{
+		return $"{Name} as ({Units})";
+	}
+
+	public void Read(Reader reader)
+	{
+		Name	= reader.ReadASCII();
+		Id		= reader.ReadBytes();
+		Units	= reader.ReadASCII();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteASCII(Name);
+		writer.WriteBytes(Id);
+		writer.WriteASCII(Units);
+	}
+}
+
+public class HolderClassesIcca : IccpArgumentation
+{
+}
+
+public class HolderClassesIccr : IccpResult
+{
+	public string[]			Classes { get; set; }
+
+	public override void	Read(Reader reader) => Classes = reader.ReadArray(reader.ReadASCII);
+	public override void	Write(Writer writer) => writer.Write(Classes, writer.WriteASCII);
+}
+
+public class HolderAssetsIcca : IccpArgumentation
+{
+	public byte[]	Entity { get; set; }
+
+	public override void Read(Reader reader)
+	{
+		Entity = reader.ReadBytes();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteBytes(Entity);
+	}
+}
+
+public class HolderAssetsIccr : IccpResult
+{
+	public Asset[]	Assets { get; set; }
+
+	public override void Read(Reader reader) => Assets = reader.ReadArray<Asset>();
+	public override void Write(Writer writer) => writer.Write(Assets);
+}
+
+public class AssetBalanceIcca : IccpArgumentation
+{
+	public byte[]	Entity { get; set; }
+	public byte[]	Asset { get; set; }
+
+	public override void Read(Reader reader)
+	{
+		Entity	= reader.ReadBytes();
+		Asset	= reader.ReadBytes();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteBytes(Entity);
+		writer.WriteBytes(Asset);
+	}
+}
+
+public class AssetBalanceIccr : IccpResult
+{
+	public BigInteger		Balance {get; set;}
+
+	public override void	Read(Reader reader) => Balance = reader.ReadBigInteger();
+	public override void	Write(Writer writer) => writer.Write(Balance);
+}
+
+public class TransactIcca : IccpArgumentation
+{
+	public IccpTransaction[]	Transactions { get; set; }
+
+	public override void Read(Reader reader)
+	{
+		Transactions = reader.ReadArrayVirtual<IccpTransaction>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteVirtual(Transactions);
+	}
+}
+
+public class TransactIccr : IccpResult
+{
+	public byte[]			TransactionId { get; set; }
+
+	public override void	Read(Reader reader) => TransactionId = reader.ReadBytes();
+	public override void	Write(Writer writer) => writer.WriteBytes(TransactionId);
+}
+

@@ -7,12 +7,12 @@ public class SiteModeratorRemoval : VotableOperation
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"Site={Site}, Moderator={Moderator}";
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Moderator = reader.Read<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Moderator);
 	}

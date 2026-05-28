@@ -6,20 +6,20 @@ public class UserCreation : Operation
 {
 	public byte[]				Pow { get; set; }
 	public AccountAddress		Owner { get; set; }
-	public override string		Explanation => $"Pow={Pow?.ToHex()} {nameof(Owner)}=Owner";
+	public override string		Explanation => $"Pow={Pow?.ToHex()} {nameof(Owner)}={Owner}";
 	
 	public override bool IsValid(McvNet net)
 	{ 
 		return (Pow == null || Pow.Length <= 32) && Owner != null;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Pow = reader.ReadBytes();
 		Owner = reader.Read<AccountAddress>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteBytes(Pow);
 		writer.Write(Owner);

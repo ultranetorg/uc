@@ -20,7 +20,7 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 				throw new RequestException(RequestError.OutOfRange);
 
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 		
 			var rs = Enumerable.Range(From, To - From + 1).Select(Mcv.FindRound).Where(i => i != null && i.Confirmed);
 
@@ -46,7 +46,7 @@ public class DownloadRoundsPpr : Result
 		if(Rounds == null)
 			return [];
 
-		var rd = new BinaryReader(new MemoryStream(Rounds));
+		var rd = new Reader(Rounds);
 
 		return rd.ReadArray(() =>{
 									var r = mcv.CreateRound();

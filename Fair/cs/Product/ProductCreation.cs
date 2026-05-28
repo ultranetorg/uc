@@ -12,13 +12,13 @@ public class ProductCreation : FairOperation
 	{
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Type	= reader.Read<ProductType>();
 		Author	= reader.Read<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Type);
 		writer.Write(Author);

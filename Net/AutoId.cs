@@ -73,13 +73,13 @@ public class AutoId : EntityId
 		return new AutoId(int.Parse(t.Slice(0, i)), int.Parse(t.Slice(i + 1)));
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		B	= reader.Read7BitEncodedInt();
 		I	= reader.Read7BitEncodedInt();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(B);
 		writer.Write7BitEncodedInt(I);

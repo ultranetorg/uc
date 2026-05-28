@@ -30,19 +30,19 @@ namespace Uccs.Net
 
 		public override bool IsValid(McvNet net) => 0 < Wei && 0 <= Eid;
 
-		public override void WriteConfirmed(BinaryWriter writer)
+		public override void WriteConfirmed(Writer writer)
 		{
 			writer.Write(Wei);
 			writer.Write7BitEncodedInt(Eid);
 		}
 
-		public override void ReadConfirmed(BinaryReader reader)
+		public override void ReadConfirmed(Reader reader)
 		{
 			Wei	= reader.ReadBigInteger();
 			Eid	= reader.Read7BitEncodedInt();
 		}
 
-		public void WriteBaseState(BinaryWriter writer)
+		public void WriteBaseState(Writer writer)
 		{
 			writer.Write(Id);
 			writer.Write(Signer);
@@ -53,7 +53,7 @@ namespace Uccs.Net
 			writer.Write(Generator);
 		}
 
-		public void ReadBaseState(BinaryReader reader)
+		public void ReadBaseState(Reader reader)
 		{
 			Transaction = new Transaction();
 			

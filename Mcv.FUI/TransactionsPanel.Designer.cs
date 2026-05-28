@@ -29,108 +29,167 @@ namespace Uccs.Mcv.FUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-			Transactions = new System.Windows.Forms.ListView();
-			columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			columnPlacedBy = new System.Windows.Forms.ColumnHeader();
-			label1 = new System.Windows.Forms.Label();
-			Account = new System.Windows.Forms.ComboBox();
-			SearchButton = new System.Windows.Forms.Button();
-			Operations = new System.Windows.Forms.ListView();
-			columnHeader5 = new System.Windows.Forms.ColumnHeader();
-			columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			Transactions = new ListView();
+			ChTag = new ColumnHeader();
+			ChStatus = new ColumnHeader();
+			ChUser = new ColumnHeader();
+			ChNonce = new ColumnHeader();
+			ChExpiration = new ColumnHeader();
+			ChOpsn = new ColumnHeader();
+			ChFirstOp = new ColumnHeader();
+			ChError = new ColumnHeader();
+			ChMemberPeer = new ColumnHeader();
+			Operations = new ListView();
+			columnHeader5 = new ColumnHeader();
+			label7 = new Label();
+			label1 = new Label();
+			Refresh = new Button();
+			label2 = new Label();
+			Log = new TextBox();
 			SuspendLayout();
 			// 
 			// Transactions
 			// 
-			Transactions.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-			Transactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader2, columnHeader1, columnPlacedBy });
+			Transactions.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+			Transactions.Columns.AddRange(new ColumnHeader[] { ChTag, ChStatus, ChUser, ChNonce, ChExpiration, ChOpsn, ChFirstOp, ChError, ChMemberPeer });
 			Transactions.FullRowSelect = true;
-			Transactions.Location = new System.Drawing.Point(0, 139);
-			Transactions.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Transactions.Location = new Point(4, 43);
+			Transactions.Margin = new Padding(3, 9, 3, 3);
 			Transactions.Name = "Transactions";
-			Transactions.Size = new System.Drawing.Size(761, 1499);
+			Transactions.Size = new Size(1016, 367);
 			Transactions.TabIndex = 1;
 			Transactions.UseCompatibleStateImageBehavior = false;
-			Transactions.View = System.Windows.Forms.View.Details;
+			Transactions.View = View.Details;
 			Transactions.ItemSelectionChanged += Transactions_ItemSelectionChanged;
 			// 
-			// columnHeader1
+			// ChTag
 			// 
-			columnHeader1.Text = "Round";
-			columnHeader1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			ChTag.Text = "Tag";
+			ChTag.Width = 200;
 			// 
-			// columnPlacedBy
+			// ChStatus
 			// 
-			columnPlacedBy.Text = "Generator";
-			columnPlacedBy.Width = 300;
+			ChStatus.Text = "Status";
+			ChStatus.TextAlign = HorizontalAlignment.Center;
 			// 
-			// label1
+			// ChUser
 			// 
-			label1.AutoSize = true;
-			label1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			label1.Location = new System.Drawing.Point(35, 38);
-			label1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(102, 27);
-			label1.TabIndex = 19;
-			label1.Text = "Account";
+			ChUser.Text = "User";
+			ChUser.Width = 100;
 			// 
-			// Account
+			// ChNonce
 			// 
-			Account.FormattingEnabled = true;
-			Account.Location = new System.Drawing.Point(163, 32);
-			Account.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			Account.Name = "Account";
-			Account.Size = new System.Drawing.Size(598, 40);
-			Account.TabIndex = 20;
-			Account.SelectedIndexChanged += account_SelectedIndexChanged;
-			Account.SelectionChangeCommitted += account_SelectionChangeCommitted;
+			ChNonce.Text = "Nonce";
+			ChNonce.TextAlign = HorizontalAlignment.Right;
 			// 
-			// SearchButton
+			// ChExpiration
 			// 
-			SearchButton.Location = new System.Drawing.Point(802, 28);
-			SearchButton.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
-			SearchButton.Name = "SearchButton";
-			SearchButton.Size = new System.Drawing.Size(217, 58);
-			SearchButton.TabIndex = 18;
-			SearchButton.Text = "Search";
-			SearchButton.UseVisualStyleBackColor = true;
-			SearchButton.Click += search_Click;
+			ChExpiration.Text = "Expiration";
+			ChExpiration.TextAlign = HorizontalAlignment.Right;
+			// 
+			// ChOpsn
+			// 
+			ChOpsn.Text = "Ops;(n)";
+			ChOpsn.TextAlign = HorizontalAlignment.Right;
+			// 
+			// ChFirstOp
+			// 
+			ChFirstOp.Text = "First Operation";
+			ChFirstOp.Width = 300;
+			// 
+			// ChError
+			// 
+			ChError.Text = "Error";
+			// 
+			// ChMemberPeer
+			// 
+			ChMemberPeer.Text = "MemberPeer";
 			// 
 			// Operations
 			// 
-			Operations.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			Operations.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader5 });
+			Operations.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+			Operations.Columns.AddRange(new ColumnHeader[] { columnHeader5 });
 			Operations.FullRowSelect = true;
-			Operations.Location = new System.Drawing.Point(802, 139);
-			Operations.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Operations.Location = new Point(4, 459);
+			Operations.Margin = new Padding(3, 9, 3, 3);
 			Operations.Name = "Operations";
-			Operations.Size = new System.Drawing.Size(1100, 1499);
+			Operations.Size = new Size(1016, 139);
 			Operations.TabIndex = 24;
 			Operations.UseCompatibleStateImageBehavior = false;
-			Operations.View = System.Windows.Forms.View.Details;
+			Operations.View = View.Details;
 			// 
 			// columnHeader5
 			// 
 			columnHeader5.Text = "Id";
-			columnHeader5.Width = 400;
+			columnHeader5.Width = 600;
 			// 
-			// columnHeader2
+			// label7
 			// 
-			columnHeader2.Text = "Id";
+			label7.AutoSize = true;
+			label7.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			label7.Location = new Point(4, 19);
+			label7.Margin = new Padding(0, 0, 3, 0);
+			label7.Name = "label7";
+			label7.Size = new Size(130, 15);
+			label7.TabIndex = 34;
+			label7.Text = "Outgoing Transactions";
+			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			label1.Location = new Point(4, 435);
+			label1.Margin = new Padding(0, 0, 3, 0);
+			label1.Name = "label1";
+			label1.Size = new Size(68, 15);
+			label1.TabIndex = 34;
+			label1.Text = "Operations";
+			// 
+			// Refresh
+			// 
+			Refresh.Location = new Point(891, 3);
+			Refresh.Name = "Refresh";
+			Refresh.Size = new Size(129, 28);
+			Refresh.TabIndex = 35;
+			Refresh.Text = "Refresh";
+			Refresh.UseVisualStyleBackColor = true;
+			Refresh.Click += Refresh_Click;
+			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			label2.Location = new Point(4, 620);
+			label2.Margin = new Padding(0, 0, 3, 0);
+			label2.Name = "label2";
+			label2.Size = new Size(27, 15);
+			label2.TabIndex = 34;
+			label2.Text = "Log";
+			// 
+			// Log
+			// 
+			Log.Location = new Point(4, 644);
+			Log.Margin = new Padding(3, 9, 3, 3);
+			Log.Multiline = true;
+			Log.Name = "Log";
+			Log.ReadOnly = true;
+			Log.Size = new Size(1016, 121);
+			Log.TabIndex = 36;
 			// 
 			// TransactionsPanel
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			Controls.Add(Operations);
+			AutoScaleDimensions = new SizeF(7F, 15F);
+			AutoScaleMode = AutoScaleMode.Font;
+			Controls.Add(Log);
+			Controls.Add(Refresh);
+			Controls.Add(label2);
 			Controls.Add(label1);
-			Controls.Add(Account);
-			Controls.Add(SearchButton);
+			Controls.Add(label7);
+			Controls.Add(Operations);
 			Controls.Add(Transactions);
-			Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+			Margin = new Padding(4, 3, 4, 3);
 			Name = "TransactionsPanel";
-			Size = new System.Drawing.Size(1902, 1638);
+			Size = new Size(1024, 768);
 			ResumeLayout(false);
 			PerformLayout();
 		}
@@ -138,13 +197,21 @@ namespace Uccs.Mcv.FUI
 		#endregion
 
 		private System.Windows.Forms.ListView Transactions;
-		private System.Windows.Forms.ColumnHeader columnHeader1;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.ComboBox Account;
-		private System.Windows.Forms.Button SearchButton;
-		private System.Windows.Forms.ColumnHeader columnPlacedBy;
+		private System.Windows.Forms.ColumnHeader ChNonce;
+		private System.Windows.Forms.ColumnHeader ChStatus;
 		private System.Windows.Forms.ListView Operations;
 		private System.Windows.Forms.ColumnHeader columnHeader5;
-		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.ColumnHeader ChUser;
+		private ColumnHeader ChOpsn;
+		private ColumnHeader ChExpiration;
+		private ColumnHeader ChTag;
+		private ColumnHeader ChFirstOp;
+		private Label label7;
+		private Label label1;
+		private Button Refresh;
+		private ColumnHeader ChError;
+		private ColumnHeader ChMemberPeer;
+		private Label label2;
+		private TextBox Log;
 	}
 }

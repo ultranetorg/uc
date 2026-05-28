@@ -7,6 +7,7 @@ namespace Uccs.Net;
 
 public delegate void BlockDelegate(Vote b);
 public delegate void RoundDelegate(Round b);
+public delegate void SubnetDelegate(Execution execution, Friend friend);
 
 public enum McvTable : byte
 {
@@ -31,78 +32,79 @@ public enum VoteStatus
 
 public abstract class Mcv /// Mutual chain voting
 {
-	public const int							RequiredVotersMaximum = 21; 
-	public int									JoinToVote => Net.P + 1;
-	public int									LastGenesisRound => JoinToVote - 1;
-	public const int							EntityRentYearsMin = 1;
-	public const int							EntityRentYearsMax = 10;
-	public const int							TransactionQueueLimit = 1000;
-	public static readonly Time					Forever = Time.FromYears(30);
+	public const int								RequiredVotersMaximum = 21; 
+	public int										JoinToVote => Net.P + 1;
+	public int										LastGenesisRound => JoinToVote - 1;
+	public const int								EntityRentYearsMin = 1;
+	public const int								EntityRentYearsMax = 10;
+	public const int								TransactionQueueLimit = 1000;
+	public static readonly Time						Forever = Time.FromYears(30);
 
-	public readonly static AccountKey			God = new AccountKey([1, ..new byte[31]]);
-	public readonly static string				GodName = "";
+	public readonly static AccountKey				God = new AccountKey([1, ..new byte[31]]);
+	public readonly static string					GodName = "";
 
-	public object								Lock = new();
-	public McvSettings							Settings;
-	public McvNet								Net;
-	public IClock								Clock;
-	public Log									Log;
-	public string								Databasepath;
-	public string								Datapath;
+	public object									Lock = new();
+	public McvSettings								Settings;
+	public McvNet									Net;
+	public IClock									Clock;
+	public Log										Log;
+	public string									Databasepath;
+	public string									Datapath;
 
-	public RocksDb								Rocks;
-	public byte[]								GraphState;
-	public byte[]								GraphHash;
-	static readonly byte[]						GraphStateKey = [0x01];
-	static readonly byte[]						__GraphHashKey = [0x02];
-	static readonly byte[]						ChainStateKey = [0x03];
-	static readonly byte[]						GenesisKey = [0x04];
-	public MetaTable							Metas;
-	public UserTable							Users;
-	public SubnetTable							Subnets;
-	public TableBase[] 							Tables;
-	public int									Size => Tables.Sum(i => i.Size);
-	public BlockDelegate						VoteAdded;
-	public RoundDelegate						ConsensusReached;
-	public RoundDelegate						ConsensusFailed;
-	public RoundDelegate						Confirmed;
-	public RoundDelegate						IcReady;
+	public RocksDb									Rocks;
+	public byte[]									GraphState;
+	public byte[]									GraphHash;
+	static readonly byte[]							GraphStateKey = [0x01];
+	static readonly byte[]							__GraphHashKey = [0x02];
+	static readonly byte[]							ChainStateKey = [0x03];
+	static readonly byte[]							GenesisKey = [0x04];
+	public MetaTable								Metas;
+	public UserTable								Users;
+	public FriendTable								Friends;
+	public TableBase[] 								Tables;
+	public int										Size => Tables.Sum(i => i.Size);
+	public BlockDelegate							VoteAdded;
+	public RoundDelegate							ConsensusReached;
+	public RoundDelegate							ConsensusFailed;
+	public RoundDelegate							Confirmed;
+	public SubnetDelegate							FriendTransferFormed;
 
-	public List<ForeignResult>					ApprovedOutwards = new();
+	public List<OutwardResult>						OutwardResults = new();
 
-	List<Round>									_Tail = [];
-	public List<Round>							Tail
-												{
-													set => _Tail = value;
-													get 
+	List<Round>										_Tail = [];
+	public List<Round>								Tail
 													{
-														if(!Monitor.IsEntered(Lock))
-															Debugger.Break();
+														set => _Tail = value;
+														get 
+														{
+															if(!Monitor.IsEntered(Lock))
+																Debugger.Break();
 	
-														return _Tail;
+															return _Tail;
+														}
 													}
-												}
 
-	public Round								LastConfirmedRound;
-	public Round								LastCommitedRound;
-	public Round								LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
-	public Round								LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
-	public Round								NextTargetRound => GetRound(LastConfirmedRound.Id + 1);
-	public Round								NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + Net.P);
+	public Round									LastConfirmedRound;
+	public Round									LastCommitedRound;
+	public Round									LastNonEmptyRound => Tail.FirstOrDefault(i => i.Votes.Any()) ?? LastConfirmedRound;
+	public Round									LastPayloadRound => Tail.FirstOrDefault(i => i.VotesOfTry.Any(i => i.Transactions.Any())) ?? LastConfirmedRound;
+	public Round									NextTargetRound => GetRound(LastConfirmedRound.Id + 1);
+	public Round									NextVotingRound => GetRound(LastConfirmedRound.Id + 1 + Net.P);
 
-	public List<TransactionNna>					SubnetTransactions = [];
-	public List<TransactionConfirmationNna>		SubnetTransactionConfirmations = [];
+	public List<IccpTransfer>						FriendTransferRequests = [];
+	public Dictionary<IccpTransferResult, string>	FriendTransferResults = [];
 
-	public const string							ChainFamilyName = "Chain";
-	public ColumnFamilyHandle					ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);
+	public const string								ChainFamilyName = "Chain";
+	public ColumnFamilyHandle						ChainFamily	=> Rocks.GetColumnFamily(ChainFamilyName);
 
-	protected abstract void						CreateTables(string databasepath);
-	protected abstract void						GenesisInitilize(Round vote);
-	public abstract Round						CreateRound();
-	public abstract Vote						CreateVote();
-	public abstract Generator					CreateGenerator();
-	public abstract CandidacyDeclaration		CreateCandidacyDeclaration();
-	public virtual void							FillVote(Vote vote){}
+	protected abstract void							CreateTables(string databasepath);
+	protected abstract void							GenesisInitilize(Round vote);
+	public abstract Round							CreateRound();
+	public abstract Vote							CreateVote();
+	public abstract Generator						CreateGenerator();
+	public abstract CandidacyDeclaration			CreateCandidacyDeclaration();
+	public virtual void								FillVote(Vote vote){}
+
 
 	Genesis Genesis;
 
@@ -137,7 +139,7 @@ public abstract class Mcv /// Mutual chain voting
 			}
 			else
 			{
-				if(g.SequenceEqual((new Genesis() as IBinarySerializable).Raw))
+				if(g.SequenceEqual((new Genesis() as IBinarySerializable).ToRaw()))
 				{
 					Load();
 				}
@@ -195,7 +197,7 @@ public abstract class Mcv /// Mutual chain voting
 				throw new IntegrityException("Genesis construction failed");
 		}
 	
-		Rocks.Put(GenesisKey, (new Genesis() as IBinarySerializable).Raw);
+		Rocks.Put(GenesisKey, (new Genesis() as IBinarySerializable).ToRaw());
 	}
 
 	public void Load()
@@ -204,7 +206,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(GraphState != null)
 		{
-			var r = new BinaryReader(new MemoryStream(GraphState));
+			var r = new Reader(GraphState);
 	
 			LastCommitedRound = CreateRound();
 			LastCommitedRound.ReadGraphState(r);
@@ -551,7 +553,7 @@ if(round.VotesOfTry.Count() < round.MinimumForConsensus)
 			r.Id			= rid; 
 			r.Confirmed		= true;
 
-			r.Load(new BinaryReader(new MemoryStream(d)));
+			r.Load(new Reader(d));
 
 			InsertRound(r);
 			
@@ -654,7 +656,7 @@ if(round.VotesOfTry.Count() < round.MinimumForConsensus)
 			LastCommitedRound = round;
 					
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 	
 			LastCommitedRound.WriteGraphState(w);
 	
@@ -669,14 +671,14 @@ if(round.VotesOfTry.Count() < round.MinimumForConsensus)
 		if(Settings.Chain != null)
 		{
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 
 			w.Write7BitEncodedInt(round.Id);
 
 			b.Put(ChainStateKey, s.ToArray());
 
 			s = new MemoryStream();
-			w = new BinaryWriter(s);
+			w = new Writer(s);
 	
 			round.Save(w);
 	

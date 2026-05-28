@@ -9,6 +9,7 @@ public abstract class Cryptography
 {
 	public static readonly Cryptography				No = new NoCryptography();
 	public static readonly Cryptography				Mcv = new McvCryptography();
+	public static readonly Cryptography				Iccp = new IccpCryptography();
 
 	public const int								HashLength = 32;
 	public const int								SignatureLength = 64;
@@ -63,6 +64,27 @@ public abstract class Cryptography
 	public static byte[] Hash(byte[] a, byte[] b)
 	{
 		return Blake2b.ComputeHash(32, [..a, ..b]);
+	}
+	
+	public static byte[] Hash(Action<BinaryWriter> write)
+	{
+		var s = new Blake2Stream();
+		var w = new BinaryWriter(s);
+		
+		write(w);
+
+		return s.Hash;
+	}
+	
+	public static byte[] Hash(IEnumerable<IBinarySerializable> items)
+	{
+		var s = new Blake2Stream();
+		var w = new Writer(s);
+		
+		foreach(var i in items)
+			i.Write(w);
+
+		return s.Hash;
 	}
 
 	public byte[] HashFile(byte[] data)
@@ -137,6 +159,11 @@ public class McvCryptography : Cryptography
 
 		return AccountKey.Verify(address.Bytes, signature, hash);
 	}
+}
+
+public class IccpCryptography : McvCryptography
+{
+	public override CryptographyType Type => CryptographyType.Iccp;
 }
 
 public class Blake2Stream : Stream

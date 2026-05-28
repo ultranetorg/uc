@@ -8,12 +8,22 @@ public class InfoPpc : McvPpc<InfoPpr>
 		{
 			RequireGraph();		
 
-			return new InfoPpr {Tables = Mcv.Tables.ToDictionary(i => i.Name, i => i.Id)};
+			return	new InfoPpr
+					{
+						Tables = Mcv.Tables.ToDictionary(i => i.Id, i => i.Name),
+						Assets = [	
+									Asset.Spacetime,
+									Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
+									Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
+								 ]
+
+					};
 		}
 	}
 }
 
 public class InfoPpr : Result
 {
-	public Dictionary<string, byte> Tables { get; set; }
+	public Dictionary<byte, string>		Tables { get; set; }
+	public Asset[]						Assets { get; set; }
 }

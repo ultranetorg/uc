@@ -145,7 +145,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 			return Version.CompareTo(o.Version);
 	}
 	
-	public virtual void Write(BinaryWriter w)
+	public virtual void Write(Writer w)
 	{
 		w.WriteUtf8(Domain);
 		w.WriteUtf8(Product);
@@ -153,7 +153,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 		w.WriteUtf8(Version);
 	}
 
-	public virtual void Read(BinaryReader r)
+	public virtual void Read(Reader r)
 	{
 		Domain = r.ReadUtf8();
 		Product = r.ReadUtf8();

@@ -147,7 +147,7 @@ public class Xon// : INestedSerializable
 
 	public O Get<O>()
 	{
-		return Serializator.Get<O>(this, Value);
+		return typeof(O) == typeof(Xon) ? (O)Value : Serializator.Get<O>(this, Value);
 	} 
 
 	public object Get(Type type)

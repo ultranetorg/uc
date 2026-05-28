@@ -19,13 +19,13 @@ public class AuthorCreation : FairOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Title = reader.ReadUtf8();
 		Years = reader.ReadByte();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteUtf8(Title);
 		writer.Write(Years);

@@ -8,14 +8,14 @@ public class RdnVote : Vote
 	{
 	}
 
-	protected override void WritePayload(BinaryWriter writer)
+	protected override void WritePayload(Writer writer)
 	{
 		base.WritePayload(writer);
 
 		//writer.Write(Emissions);
 	}
 
-	protected override void ReadPayload(BinaryReader reader)
+	protected override void ReadPayload(Reader reader)
 	{
 		base.ReadPayload(reader);
 

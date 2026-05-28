@@ -22,13 +22,13 @@ public struct EC : IBinarySerializable, IEquatable<EC>
 		return $"{Amount}, {Expiration}";
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Expiration	= reader.Read<Time>();
 		Amount		= reader.Read7BitEncodedInt64();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Expiration); 
 		writer.Write7BitEncodedInt64(Amount);

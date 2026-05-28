@@ -18,13 +18,13 @@ namespace Uccs.Net;
 //		return IsFreeNameValid(Name);
 //	}
 //
-//	public override void Read(BinaryReader reader)
+//	public override void Read(Reader reader)
 //	{
 //		Name = reader.ReadASCII();
 //		Owner = reader.Read<AccountAddress>();
 //	}
 //
-//	public override void Write(BinaryWriter writer)
+//	public override void Write(Writer writer)
 //	{
 //		writer.WriteASCII(Name);
 //		writer.Write(Owner);

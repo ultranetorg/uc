@@ -27,8 +27,8 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
-								var d = Ppc(new ResourcePpc(GetResourceAddress(a[1].Name))).Resource;
+								var s = Ppc(new ResourceByAddressPpc(GetResourceAddress(a[0].Name))).Resource;
+								var d = Ppc(new ResourceByAddressPpc(GetResourceAddress(a[1].Name))).Resource;
 
 								return new ResourceLinkCreation(s.Id, d.Id, GetEnum("type", ResourceLinkType.None));
 							};
@@ -49,7 +49,7 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var s = Ppc(new ResourcePpc(GetResourceAddress(a[0].Name))).Resource;
+								var s = Ppc(new ResourceByAddressPpc(GetResourceAddress(a[0].Name))).Resource;
 
 								return new ResourceLinkDeletion(s.Id, GetInt(a[1].Name));
 							};
@@ -70,9 +70,9 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
+								var r = Ppc(new ResourceByAddressPpc(Ura.Parse(Args[0].Name)));
 				
-								Flow.Log.Dump(	r.Resource.Outbounds.Select((o, i) => new {I = i, L = o, R = Ppc(new ResourcePpc(o.Destination))}),
+								Flow.Log.Dump(	r.Resource.Outbounds.Select((o, i) => new {I = i, L = o, R = Ppc(new ResourceByIdPpc(o.Destination))}),
 												["#",		"Type",			"Id",					"Address"],
 												[i => i.I,	i => i.L.Type,	i => i.L.Destination,	i => i.R.Address]);
 
@@ -95,9 +95,9 @@ public class LinkCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var r = Ppc(new ResourcePpc(Ura.Parse(Args[0].Name)));
+								var r = Ppc(new ResourceByAddressPpc(Ura.Parse(Args[0].Name)));
 																	
-								Flow.Log.Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Ppc(new ResourcePpc(i))}),
+								Flow.Log.Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Ppc(new ResourceByIdPpc(i))}),
 												["Id",		"Address"],
 												[i => i.L,	i => i.R.Address]);
 

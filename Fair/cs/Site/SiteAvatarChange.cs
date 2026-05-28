@@ -15,12 +15,12 @@ public class SiteAvatarChange : VotableOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		File = reader.Read<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(File);
 	}
@@ -35,6 +35,9 @@ public class SiteAvatarChange : VotableOperation
  	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
 		if(!FileExists(execution, File, out var f, out error))
+			return false;
+
+		if(!IsImage(f, out error))
 			return false;
 
 		if(f.Owner.Id != Site.Id || (FairTable)f.Owner.Table != FairTable.Site)

@@ -11,14 +11,14 @@ public class ReviewCreation : VotableOperation
 	public override bool		IsValid(McvNet net) => Text.Length <= Fair.PostLengthMaximum && Rating <= 100;
 	public override string		Explanation => $"Publication={Publication} Rating={Rating} Text={Text}";
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Publication = reader.Read<AutoId>();
 		Rating		= reader.ReadByte();
 		Text		= reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Publication);
 		writer.Write(Rating);

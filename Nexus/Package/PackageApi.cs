@@ -50,7 +50,7 @@ public class PackageAddApc : Apc, INexusApc
 			
 			lock(nexus.RdnNode.ResourceHub.Lock)
 			{
-				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Package_VersionManifest), a));
+				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Package_Software_VersionManifest), a));
 				
 				var r = nexus.RdnNode.ResourceHub.Find(a) ?? nexus.RdnNode.ResourceHub.Add(a);
 
@@ -89,7 +89,7 @@ public class PackageBuildApc : Apc, INexusApc
 	}
 }
 
-public class PackageDownloadApc : Apc, INexusApc
+public class StartPackageDownloadApc : Apc, INexusApc
 {
 	public Ura		Package { get; set; }
 
@@ -97,7 +97,7 @@ public class PackageDownloadApc : Apc, INexusApc
 	{
 		lock(node.PackageHub.Lock)
 		{	
-			node.PackageHub.Download(Package, workflow);
+			node.PackageHub.StartDownload(Package, workflow);
 			return null;
 		}
 	}
@@ -149,7 +149,7 @@ public class PackageDeployApc : Apc, INexusApc
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		nexus.PackageHub.Deploy(Address, DeploymentPath ?? nexus.PackageHub.DeploymentPath, flow);
+		nexus.PackageHub.StartDeploy(Address, DeploymentPath ?? nexus.PackageHub.DeploymentPath, flow);
 		return null;
 	}
 }

@@ -78,8 +78,7 @@ public class LocalResource
 									
 		if(d != null)
 		{
-			var s = new MemoryStream(d);
-			var r = new BinaryReader(s);
+			var r = new Reader(d);
 
 			Datas = r.ReadList<ResourceData>();
 		}
@@ -90,7 +89,7 @@ public class LocalResource
 		using(var b = new WriteBatch())
 		{
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 			
 			w.Write(Datas);
 

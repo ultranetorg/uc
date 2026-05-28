@@ -17,7 +17,7 @@ public class Option : IBinarySerializable
 		Title = text;
 	}
 
-	public virtual void Read(BinaryReader reader)
+	public virtual void Read(Reader reader)
 	{
  		Title = reader.ReadUtf8();
 
@@ -25,7 +25,7 @@ public class Option : IBinarySerializable
  		Operation.Read(reader); 
 	}
 
-	public virtual void Write(BinaryWriter writer)
+	public virtual void Write(Writer writer)
 	{
  		writer.WriteUtf8(Title);
 
@@ -88,7 +88,7 @@ public class ProposalCreation : FairOperation
 		base.PreTransact(node, flow);
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Site		= reader.Read<AutoId>();
 		By			= reader.Read<AutoId>();
@@ -98,7 +98,7 @@ public class ProposalCreation : FairOperation
 		Options		= reader.ReadArray<Option>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Site);
 		writer.Write(By);

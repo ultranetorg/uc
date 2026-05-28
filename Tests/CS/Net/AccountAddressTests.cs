@@ -49,13 +49,12 @@ public class AccountAddressTests
 			var x = new AccountAddress(h, tag);
 
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 			x.Write(w);
 			
 			var y = new AccountAddress();
 
-			s = new MemoryStream(s.ToArray());
-			y.Read(new BinaryReader(s));
+			y.Read(new Reader(s.ToArray()));
 
 			Assert.True(x == y);
 			Assert.True(x.Tag == y.Tag);

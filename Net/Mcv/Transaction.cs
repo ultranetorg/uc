@@ -77,7 +77,7 @@ public class Transaction : IBinarySerializable
 	public byte[] Hashify()
 	{
 		var s = new Blake2Stream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 
 		w.Write(Net.Zone);
 		w.WriteUtf8(Net.Address);
@@ -92,7 +92,7 @@ public class Transaction : IBinarySerializable
 		return s.Hash;
 	}
 
- 	public void	WriteConfirmed(BinaryWriter writer)
+ 	public void	WriteConfirmed(Writer writer)
  	{
 		writer.WriteASCII(User);
 		writer.Write7BitEncodedInt(Nonce);
@@ -107,7 +107,7 @@ public class Transaction : IBinarySerializable
 		//	writer.Write(Signer); /// and for DomainMigratation
  	}
  		
- 	public void	ReadConfirmed(BinaryReader reader)
+ 	public void	ReadConfirmed(Reader reader)
  	{
 		Status		= TransactionStatus.Confirmed;
 
@@ -126,7 +126,7 @@ public class Transaction : IBinarySerializable
 		//	Signer = reader.Read<AccountAddress>(); /// and for DomainMigratation
  	}
 
-	public void	WriteForVote(BinaryWriter writer)
+	public void	WriteForVote(Writer writer)
 	{
 		writer.Write(ActionOnResult);
 		writer.Write(Signature);
@@ -143,7 +143,7 @@ public class Transaction : IBinarySerializable
 										});
 	}
  		
-	public void	ReadForVote(BinaryReader reader)
+	public void	ReadForVote(Reader reader)
 	{
 		ActionOnResult		= reader.Read<ActionOnResult>();
 		Signature			= reader.ReadSignature();
@@ -162,7 +162,7 @@ public class Transaction : IBinarySerializable
  													 });
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(ActionOnResult);
 		writer.Write(Signature);
@@ -179,7 +179,7 @@ public class Transaction : IBinarySerializable
 										});
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		ActionOnResult		= reader.Read<ActionOnResult>();
 		Signature			= reader.ReadSignature();
@@ -198,10 +198,10 @@ public class Transaction : IBinarySerializable
 													});
 	}
 
-	public static byte[] Export(Net net, Operation[] operations, string user, Func<MemoryStream, BinaryWriter, byte[]> sign)
+	public static byte[] Export(Net net, Operation[] operations, string user, Func<MemoryStream, Writer, byte[]> sign)
 	{
 		var s = new MemoryStream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 
 		w.Write(operations, i => {
 									w.Write(net.Constructor.TypeToCode(i.GetType()));
@@ -215,7 +215,7 @@ public class Transaction : IBinarySerializable
 
 	public static void Import(McvNet net, byte[] raw, Constructor constructor, out Operation[] operations, out string user)
 	{
-		var r = new BinaryReader(new MemoryStream(raw));
+		var r = new Reader(raw);
 
 		operations = r.ReadArray(() =>	{
  											var o = constructor.Construct(typeof(Operation), r.ReadUInt32()) as Operation;

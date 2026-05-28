@@ -61,7 +61,7 @@ public class SeedHub
 			{
 				bool valid()
 				{
-					if(rzd is Urrh urrh)
+					if(rzd is Rrrh urrh)
 					{
 						lock(Mcv.Lock)
 						{

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using RocksDbSharp;
 
 namespace Uccs.Net;
@@ -72,7 +73,7 @@ public abstract class TableBase
 		public byte[] Export()
 		{
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 
 			w.Write7BitEncodedInt(Buckets.Count());
 
@@ -89,7 +90,7 @@ public abstract class TableBase
 		public void Import(WriteBatch batch, byte[] data)
 		{
 			var s = new MemoryStream(data);
-			var r = new BinaryReader(s);
+			var r = new Reader(s);
 			
 			var n = r.Read7BitEncodedInt();
 
@@ -117,8 +118,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		}
 
 		Table<ID, E>					Table;
-		public override IEnumerable<E>	Entries =>  _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
-		SortedDictionary<ID, Item>		_Entries = new SortedDictionary<ID, Item>();
+		public override IEnumerable<E>	Entries => _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
+		SortedDictionary<ID, Item>		_Entries = [];
 
 		public Bucket(Table<ID, E> table, int id)
 		{
@@ -129,7 +130,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			if(meta != null)
 			{
-				var r = new BinaryReader(new MemoryStream(meta));
+				var r = new Reader(meta);
 	
 				Hash			= r.ReadHash();
 				Size			= r.Read7BitEncodedInt();
@@ -153,7 +154,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			e.Main ??= Table.Rocks.Get(id.Raw, Table.EntityColumn);
 			e.Entity = Table.Create();
-			e.Entity.ReadMain(new BinaryReader(new MemoryStream(e.Main)));
+			e.Entity.ReadMain(new Reader(e.Main));
 
 			return e.Entity;
 		}
@@ -173,7 +174,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public override void Commit(WriteBatch batch)
 		{
 			var bs = new Blake2Stream();
-			var w = new BinaryWriter(bs);
+			var w = new Writer(bs);
 			
 			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
@@ -199,7 +200,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			}
 
 			var s = new MemoryStream();
-			w = new BinaryWriter(s);
+			w = new Writer(s);
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
@@ -208,11 +209,11 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
 		}
-
+				
 		public override byte[] Export()
 		{
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 
 			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
@@ -238,7 +239,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public override void Import(WriteBatch batch, byte[] data)
 		{
 			var s = new MemoryStream(data);
-			var r = new BinaryReader(s);
+			var r = new Reader(s);
 
 			NextI = r.Read7BitEncodedInt();
 			var n = r.Read7BitEncodedInt();
@@ -262,7 +263,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			}
 			
 			s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
@@ -291,7 +292,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 					if(m != null)
 					{
-						var r = new BinaryReader(new MemoryStream(m));
+						var r = new Reader(m);
 	
 						r.ReadHash();
 						r.Read7BitEncodedInt();
@@ -314,7 +315,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			if(m != null)
 			{
-				var r = new BinaryReader(new MemoryStream(m));
+				var r = new Reader(m);
 
 				Hash		= r.ReadHash();
 				MainLength	= r.Read7BitEncodedInt();
@@ -349,23 +350,23 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public override void Commit(WriteBatch batch)
 		{
 			var buckets = Buckets.OrderBy(i => i.Id).ToArray();
-
+	
 			Hash = buckets.First().Hash;
 			MainLength = buckets.First().Size;
-
+	
 			foreach(var i in buckets.Skip(1))
 			{
 				Hash = Cryptography.Hash(Hash, i.Hash);
 				MainLength += i.Size;
 			}
-
+	
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
-			
+			var w = new Writer(s);
+				
 			w.Write(Hash);
 			w.Write7BitEncodedInt(MainLength);
 			w.Write(buckets, i => w.Write7BitEncodedInt(i.Id));
-
+	
 			batch.Put(ToBytes(Id), s.ToArray(), Table.ClusterColumn);
 		}
 	}
@@ -580,7 +581,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		
 		if(s != null)
 		{
-			var r = new BinaryReader(new MemoryStream(s));
+			var r = new Reader(s);
 			Assosiated.Read(r);
 		}
 	}
@@ -625,7 +626,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			Assosiated = assosiated;
 	
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 			
 			Assosiated.Write(w);
 		
