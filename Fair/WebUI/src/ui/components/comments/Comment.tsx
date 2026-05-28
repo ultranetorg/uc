@@ -15,6 +15,8 @@ export type CommentStyle = "default" | "compact"
 
 export type CommentContextMenuProps = {
   id: string
+  reviewerId: string
+  reviewerName: string
   text: string
 }
 
@@ -52,7 +54,9 @@ export const Comment = memo(
                 <Link to={`/${siteId}/u/${account.id}`} className={NAME_CLASSNAME} title={displayName}>
                   {displayName}
                 </Link>
-                {ContextMenu && <ContextMenu id={id} text={text} />}
+                {ContextMenu && (
+                  <ContextMenu id={id} reviewerId={account.id} reviewerName={account.nickname} text={text} />
+                )}
               </div>
               <span className={DATE_CLASSNAME}>{formatDate(created)}</span>
             </div>

@@ -11,9 +11,12 @@ import {
 } from "@floating-ui/react"
 import { t } from "i18next"
 
+import { useModerationContext, useUserContext } from "app"
 import { SvgThreeDotsVertical } from "assets"
 import { useScrollOrResize } from "hooks"
-import { CommentContextMenuProps, SimpleMenu } from "ui/components"
+import { CommentContextMenuProps, SimpleMenu, SimpleMenuItem } from "ui/components"
+
+import { useModeratorUserMenuItems } from "./ModeratorUserMenu/useModeratorUserMenuItems"
 
 type CommentContextMenuBaseProps = {
   onEditReview: (id: string, text: string) => void
@@ -21,7 +24,11 @@ type CommentContextMenuBaseProps = {
 
 export type CommentContextMenu = CommentContextMenuProps & CommentContextMenuBaseProps
 
-export const CommentContextMenu = memo(({ id, text, onEditReview }: CommentContextMenu) => {
+export const CommentContextMenu = memo(({ id, text, reviewerId, reviewerName, onEditReview }: CommentContextMenu) => {
+  const { isModerator } = useModerationContext()
+  const { user } = useUserContext()
+  const { menuItems: moderatorMenuItems } = useModeratorUserMenuItems(reviewerId, reviewerName)
+
   const [isExpanded, setExpanded] = useState(false)
 
   useScrollOrResize(() => setExpanded(false), isExpanded)
@@ -42,17 +49,26 @@ export const CommentContextMenu = memo(({ id, text, onEditReview }: CommentConte
     onEditReview(id, text)
   }, [id, onEditReview, text])
 
-  const menuItems = useMemo(
+  const canEdit = user && user.id === reviewerId
+
+  const menuItems = useMemo<SimpleMenuItem[]>(
     () => [
-      {
-        onClick: handleEditClick,
-        label: t("common:edit"),
-      },
+      ...(canEdit
+        ? [
+            {
+              onClick: handleEditClick,
+              label: t("common:edit"),
+            },
+          ]
+        : []),
+      ...(isModerator ? [...(canEdit ? [{ separator: true }] : []), ...moderatorMenuItems] : []),
     ],
-    [handleEditClick],
+    [canEdit, handleEditClick, isModerator, moderatorMenuItems],
   )
 
   const handleMenuClick = useCallback(() => setExpanded(false), [])
+
+  if (!menuItems.length) return null
 
   return (
     <>

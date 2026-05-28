@@ -323,22 +323,22 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool IsReviewOwner(FairExecution execution, AutoId id, User signer, out Review review, out string error)
- 	{
- 		if(!ReviewExists(execution, id, out review, out error))
- 			return false; 
+	public bool IsReviewOwner(FairExecution execution, AutoId id, User signer, out Review review, out string error)
+	{
+		if(!ReviewExists(execution, id, out review, out error))
+			return false;
 
-		if(review.Creator == User.Id)
-			return true;
+		if(review.Creator != User.Id)
+			return false;
 
- 		//if(!PublicationExists(execution, review.Publication, out var p, out error))
- 		//	return false; 
- 
+		//if(!PublicationExists(execution, review.Publication, out var p, out error))
+		//	return false;
+
 		error = null;
- 		return true;
- 	}
+		return true;
+	}
 
- 	public bool CanModerateReview(FairExecution execution, AutoId id, User signer, out Review review, out Site site, out string error)
+	public bool CanModerateReview(FairExecution execution, AutoId id, User signer, out Review review, out Site site, out string error)
  	{
 		site = null;
 

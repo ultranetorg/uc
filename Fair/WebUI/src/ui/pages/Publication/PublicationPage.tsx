@@ -65,7 +65,7 @@ export const PublicationPage = () => {
             error={error}
             reviews={reviews}
             onLeaveReview={create ? () => setReviewModalOpen(true) : undefined}
-            onEditReview={edit ? handleEditReview : undefined}
+            onEditReview={handleEditReview}
           />
         </div>
       </div>

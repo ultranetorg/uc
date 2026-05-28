@@ -116,7 +116,7 @@ export const GameSoftwarePublicationContent = memo(
           ) : (
             <div className="flex h-[416px] w-[750px] select-none flex-col items-center justify-center gap-6 rounded-lg bg-[#7E8095] text-center text-2xs text-gray-300">
               <SvgImageSlash className="stroke-[#A2A4AF]" />
-              <Trans ns="publication" i18nKey={"noScreenshots"} components={{ br: <br /> }} className=" " />
+              <Trans ns="publication" i18nKey={"noScreenshots"} components={{ br: <br /> }} />
             </div>
           )}
           {descriptions && descriptions.length > 0 && (
