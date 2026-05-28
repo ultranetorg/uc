@@ -2,7 +2,7 @@
 
 public class UserUnregistration : VotableOperation
 {
-	public new AutoId User { get; set; }
+	public new AutoId			User { get; set; }
 
 	public override string		Explanation => $"User={User}";
 	
