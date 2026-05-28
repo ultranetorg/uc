@@ -1,7 +1,7 @@
 import { memo, useCallback, useState } from "react"
 import { useParams } from "react-router-dom"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { SvgCheckCircleFill3XLColored, SvgX } from "assets"
 import { useTransactMutationWithStatus } from "entities/node"
 import { useEscapeKey } from "hooks"
@@ -44,12 +44,10 @@ export const ReviewModal = memo(
     yourReviewLabel,
     ...rest
   }: ReviewModalProps) => {
-    const { getOperationCreator: getOperationCreatorId } = useModerationContext()
+    const isEditMode = !!reviewId
+    const { creator } = useOperationPolicy(isEditMode ? "review-edit" : "review-creation")
     const { siteId } = useParams()
     const { mutate } = useTransactMutationWithStatus()
-
-    const isEditMode = !!reviewId
-    const creator = getOperationCreatorId(isEditMode ? "review-edit" : "review-creation")
 
     const [step, setStep] = useState(0)
     const [rating, setRating] = useState(5)

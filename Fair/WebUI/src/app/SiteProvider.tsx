@@ -12,8 +12,8 @@ type SiteContextType = {
   site?: Site
   error?: Error
   isCategoriesPending: boolean
-  categories?: CategoryParentBaseWithChildren[]
-  categoriesRoot?: CategoryBase[]
+  categoriesTree?: CategoryParentBaseWithChildren[]
+  rootCategories?: CategoryBase[]
 }
 
 const SiteContext = createContext<SiteContextType>({
@@ -31,7 +31,7 @@ export const SiteProvider = memo(({ children }: PropsWithChildren) => {
   const effectiveSiteId = siteId || state?.siteId
 
   const { data: site, isPending, error } = useGetSite(effectiveSiteId)
-  const { data: categoriesRoot } = useGetCategoriesRoot(effectiveSiteId)
+  const { data: rootCategories } = useGetCategoriesRoot(effectiveSiteId)
   const { data: categories, isPending: isCategoriesPending } = useGetCategoriesTree(effectiveSiteId, 2)
 
   const categoriesTree = useMemo(() => (Array.isArray(categories) ? buildCategoryTree(categories) : []), [categories])
@@ -42,10 +42,10 @@ export const SiteProvider = memo(({ children }: PropsWithChildren) => {
       site,
       error,
       isCategoriesPending,
-      categories: categoriesTree,
-      categoriesRoot: categoriesRoot,
+      categoriesTree,
+      rootCategories,
     }
-  }, [categoriesRoot, categoriesTree, error, isCategoriesPending, isPending, site])
+  }, [rootCategories, categoriesTree, error, isCategoriesPending, isPending, site])
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>
 })

@@ -5,8 +5,8 @@ import { Controller, useFormContext } from "react-hook-form"
 import { useQueryClient } from "@tanstack/react-query"
 import { twMerge } from "tailwind-merge"
 
+import { useSiteContext, useSiteRolesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
-import { useModerationContext, useSiteContext, useUserContext } from "app"
 import { useTransactMutationWithStatus } from "entities/node"
 import { CreateProposalData, ProposalType, Role } from "types"
 import { ProposalCreation } from "types/fairOperations"
@@ -40,7 +40,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const queryClient = useQueryClient()
   const { t } = useTranslation("createProposal")
 
-  const { isModerator, isPublisher, policies } = useModerationContext()
+  const { isModerator, isPublisher, policies } = useSiteRolesContext()
   const { site } = useSiteContext()
   const { user } = useUserContext()
 

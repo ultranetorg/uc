@@ -1,8 +1,6 @@
 import { memo } from "react"
 
-import { TabsProvider } from "app"
-
-import { TabContent, TabsList, TabsListItem } from "ui/components"
+import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
 import { ContentSection } from "./ContentSection"
 import { SystemRequirementsTabSection } from "./types"

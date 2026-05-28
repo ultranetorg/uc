@@ -1,9 +1,9 @@
 import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
-
 import { useQueryClient } from "@tanstack/react-query"
-import { useModerationContext } from "app"
+
+import { useOperationPolicy } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import { categoriesKeys, proposalsKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
@@ -44,13 +44,11 @@ export type ProposalViewProps = {
 
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
   const { siteId } = useParams()
-  const { getOperationVoter: getOperationApprovalId } = useModerationContext()
+  const { voter: approval } = useOperationPolicy(proposal?.operation)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { mutate } = useTransactMutationWithStatus()
   const { t } = useTranslation("proposalView")
-
-  const approval = getOperationApprovalId(proposal?.operation)
 
   const [voteStatus, setVoteStatus] = useState<VoteStatus>("idle")
   const [pageState, setPageState] = useState<PageState>("voting")

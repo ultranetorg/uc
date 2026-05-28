@@ -33,7 +33,7 @@ type AuthenticationContextType = {
   selectedUserName?: string
   isPending: boolean
   authenticate(userName: string, owner: string, callbacks?: Callbacks): void
-  logout(userName: string): void
+  removeUser(userName: string): void
   register(userName: string, callbacks?: Callbacks): void
   selectUser(userName: string): void
 }
@@ -42,7 +42,7 @@ const AuthenticationContext = createContext<AuthenticationContextType>({
   isPending: false,
   users: [],
   authenticate: () => {},
-  logout: () => {},
+  removeUser: () => {},
   register: () => {},
   selectUser: () => {},
 })
@@ -198,15 +198,13 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
     [storage.selectedUserName, storage.users.length, isAuthenticatedMutation, setStorage, removeUser],
   )
 
-  const logout = useCallback((userName: string) => removeUser(userName), [removeUser])
-
   const value = useMemo(
     () => ({
       users: storage.users,
       selectedUserName: storage.selectedUserName,
       isPending: isAuthenticatePending || isAuthenticatedPending || isRegisterPending || isTransactPending,
       authenticate,
-      logout,
+      removeUser,
       selectUser,
       register,
     }),
@@ -218,7 +216,7 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
       isRegisterPending,
       isTransactPending,
       authenticate,
-      logout,
+      removeUser,
       selectUser,
       register,
     ],

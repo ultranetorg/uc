@@ -1,26 +1,19 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react"
-import { useLocation, useParams } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { FormProvider, useForm } from "react-hook-form"
 
-import { useGetCategoriesTree } from "entities"
-import { CategoryParentBaseWithChildren, CreateProposalData, OperationType } from "types"
-import { buildCategoryTree } from "utils"
+import { CreateProposalData, OperationType } from "types"
 
 type CreateProposalContextType = {
   lastEditedOptionIndex?: number
   setLastEditedOptionIndex: (index: number) => void
-  isCategoriesPending: boolean
-  refetchCategories: () => void
-  categories?: CategoryParentBaseWithChildren[]
 }
 
-// @ts-expect-error createContext with default value
 const CreateProposalContext = createContext<CreateProposalContextType>({
-  isCategoriesPending: false,
+  setLastEditedOptionIndex: () => {},
 })
 
 export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
-  const { siteId } = useParams()
   const location = useLocation()
 
   const buildDefaultValues = () => {
@@ -52,17 +45,12 @@ export const CreateProposalProvider = ({ children }: PropsWithChildren) => {
 
   const [lastEditedOptionIndex, setLastEditedOptionIndex] = useState<number | undefined>()
 
-  const { data: categories, isPending: isCategoriesPending, refetch: refetchCategories } = useGetCategoriesTree(siteId)
-
   const value = useMemo(
     () => ({
       lastEditedOptionIndex,
       setLastEditedOptionIndex,
-      isCategoriesPending,
-      refetchCategories,
-      categories: categories && buildCategoryTree(categories),
     }),
-    [lastEditedOptionIndex, isCategoriesPending, refetchCategories, categories],
+    [lastEditedOptionIndex],
   )
 
   return (

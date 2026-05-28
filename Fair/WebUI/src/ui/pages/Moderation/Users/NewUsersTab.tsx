@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { isNumber } from "lodash"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserRegistrationProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
@@ -15,9 +15,8 @@ import { parseInteger, showToast } from "utils"
 
 export const NewUsersTab = () => {
   const { siteId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("user-registration")
   const { t } = useTranslation("usersPage")
-  const voterId = getOperationVoterId("user-registration")
 
   const [state, setState] = useUrlParamsState({
     page: {

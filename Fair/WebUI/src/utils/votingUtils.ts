@@ -1,4 +1,4 @@
-import { OperationType, Policy, Site } from "types"
+import { ApprovalRequirement, OperationType, Policy, Site } from "types"
 
 export const isPublisherVoting = (operation?: OperationType, policies?: Policy[]) => {
   if (!operation || !policies) return undefined
@@ -39,5 +39,27 @@ export const isVotingRequired = (operation?: OperationType, site?: Site, policie
 
     default:
       return true
+  }
+}
+
+export const calculateVotesRequiredToWinPerpetualSurvey = (sitePublishersCount: number) =>
+  sitePublishersCount / 2 + (sitePublishersCount & 1)
+
+export const calculateVotesRequiredToWinProposal = (approval: ApprovalRequirement, site: Site): number => {
+  switch (approval) {
+    case "any-moderator":
+      return 1
+
+    case "moderators-majority":
+      return Math.floor(site.moderatorsIds.length / 2) + (site.moderatorsIds.length & 1)
+
+    case "all-moderators":
+      return site.moderatorsIds.length
+
+    case "publishers-majority":
+      return Math.floor(site.authorsIds.length / 2) + (site.authorsIds.length & 1)
+
+    default:
+      return -1
   }
 }

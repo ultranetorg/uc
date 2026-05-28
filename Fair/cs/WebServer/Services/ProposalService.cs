@@ -60,7 +60,7 @@ public class ProposalService
 			IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
 
 			Policy proposalPolicy = site.Policies.FirstOrDefault(p => p.OperationClass == proposal.OptionClass);
-			int votesRequiredToWin = GetVotesRequiredToWin(proposalPolicy.Approval, site);
+			int votesRequiredToWin = VotingUtils.CalculateVotesRequiredToWinProposal(proposalPolicy.Approval, site);
 
 			return new ProposalDetailsModel(proposal, account, votesRequiredToWin)
 			{
@@ -68,18 +68,6 @@ public class ProposalService
 				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
 			};
 		}
-	}
-
-	int GetVotesRequiredToWin(ApprovalRequirement approval, Site site)
-	{
-		return approval switch
-		{
-			ApprovalRequirement.AnyModerator => 1,
-			ApprovalRequirement.ModeratorsMajority => site.Moderators.Length / 2 + (site.Moderators.Length & 1),
-			ApprovalRequirement.AllModerators => site.Moderators.Length,
-			ApprovalRequirement.PublishersMajority => site.Publishers.Length / 2 + (site.Publishers.Length & 1),
-			_ => -1
-		};
 	}
 
 	//bool won(AutoId[] votes)

@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy, useSiteRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
@@ -13,14 +13,13 @@ import { showToast } from "utils"
 
 export const ModeratorChangedPublicationPage = () => {
   const { siteId, publicationId } = useParams()
-  const { getOperationVoterId, isModerator } = useModerationContext()
+  const { isModerator } = useSiteRolesContext()
+  const { voterId } = useOperationPolicy("publication-updation")
   const { mutate } = useTransactMutationWithStatus()
   const navigate = useNavigate()
   const { t } = useTranslation()
 
   const [isPending, setPending] = useState<boolean | undefined>()
-
-  const voterId = getOperationVoterId("publication-updation")
 
   const { isLoading, data: publication } = useGetChangedPublication(siteId, publicationId)
 

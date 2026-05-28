@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useModerationContext, useSiteContext } from "app"
+import { useOperationPolicy, useSiteContext, useSiteRolesContext } from "app"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
@@ -15,13 +15,13 @@ import { isVotingRequired, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const { siteId } = useParams()
-  const { getOperationVoterId, isModerator, policies } = useModerationContext()
+  const { isModerator, policies } = useSiteRolesContext()
+  const { voterId } = useOperationPolicy("publication-creation")
   const { site } = useSiteContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
   const navigate = useNavigate()
   const { t } = useTranslation("createPublication")
 
-  const voterId = getOperationVoterId("publication-creation")
   const isRequiredVoting = isVotingRequired("publication-creation", site, policies)
 
   const [searchParams, setSearchParams] = useSearchParams()

@@ -2,8 +2,7 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
-import { TabsProvider } from "app"
-import { TabContent, TabsList, TabsListItem } from "ui/components"
+import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
 import { NewUsersTab } from "./NewUsersTab"
 import { UsersRemovalsTab } from "./UserRemovalsTab"

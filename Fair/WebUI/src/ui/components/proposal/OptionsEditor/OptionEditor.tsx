@@ -3,10 +3,10 @@ import { twMerge } from "tailwind-merge"
 import { TFunction } from "i18next"
 import { Controller, useFormContext } from "react-hook-form"
 
-import { useCreateProposalContext } from "app"
 import { SvgX } from "assets"
 import { CreateProposalData } from "types"
 import { Input, ValidationWrapper } from "ui/components"
+import { useCreateProposalContext } from "ui/views"
 
 import { renderByValueType } from "./renderers"
 import { EditorOperationFields } from "./types"

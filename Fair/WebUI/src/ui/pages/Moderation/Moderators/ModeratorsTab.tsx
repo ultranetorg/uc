@@ -4,14 +4,13 @@ import { useParams } from "react-router-dom"
 
 import { useGetSiteModerators } from "entities"
 import { Table, TableEmptyState } from "ui/components"
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { moderatorsTabItemRenderer } from "./moderatorsTabItemRenderer"
 
 export const ModeratorsTab = () => {
   const { siteId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("site-moderator-removal")
   const { t } = useTranslation("moderatorsPage")
-  const voterId = getOperationVoterId("site-moderator-removal")
 
   const { data: moderators } = useGetSiteModerators(siteId)
 

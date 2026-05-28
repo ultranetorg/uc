@@ -9,10 +9,10 @@ import {
   useWatch,
 } from "react-hook-form"
 
-import { useCreateProposalContext } from "app"
 import { CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
 import { CreateProposalData, CreateProposalDataOption, OperationType } from "types"
 import { ValidationWrapper } from "ui/components"
+import { useCreateProposalContext } from "ui/views"
 
 import { getEditorOperationsFields } from "./constants"
 import { OptionsEditorList } from "./OptionsEditorList"

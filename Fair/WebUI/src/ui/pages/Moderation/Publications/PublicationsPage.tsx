@@ -2,8 +2,8 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
-import { TabsProvider, useModerationContext } from "app"
-import { ButtonPrimary, TabContent, TabsList, TabsListItem } from "ui/components"
+import { useOperationPolicy } from "app"
+import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 
 import { ChangedPublicationsTab } from "./ChangedPublicationsTab"
@@ -18,10 +18,9 @@ const routeToTabKey: Record<string, string> = {
 
 export const PublicationsPage = () => {
   const navigate = useNavigate()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("publication-creation")
   const { siteId, tabKey } = useParams()
   const { t } = useTranslation("publicationsPage")
-  const voterId = getOperationVoterId("publication-creation")
 
   const key = routeToTabKey[tabKey!]
 

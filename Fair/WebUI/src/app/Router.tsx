@@ -38,12 +38,12 @@ import {
   UnpublishedPublicationPage,
   UsersPage as ModerationUsersPage,
 } from "ui/pages/moderation"
+import { CreateProposalProvider } from "ui/views"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
-import { CreateProposalProvider } from "./CreateProposalProvider"
-import { ModerationProvider } from "./ModerationProvider"
-import { NodeCheckerProvider } from "./NodeCheckerProvider"
+import { NodeConnectivityProvider } from "./NodeConnectivityProvider"
 import { SiteProvider } from "./SiteProvider"
+import { SiteRolesProvider } from "./SiteRolesProvider"
 import { UserProvider } from "./UserProvider"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
@@ -52,7 +52,7 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: (
-      <NodeCheckerProvider>
+      <NodeConnectivityProvider>
         <AuthenticationProvider>
           <UserProvider>
             <SiteProvider>
@@ -60,7 +60,7 @@ const routes: RouteObject[] = [
             </SiteProvider>
           </UserProvider>
         </AuthenticationProvider>
-      </NodeCheckerProvider>
+      </NodeConnectivityProvider>
     ),
     errorElement: (
       <AppLayout>
@@ -78,9 +78,9 @@ const routes: RouteObject[] = [
       {
         path: ":siteId",
         element: (
-          <ModerationProvider>
+          <SiteRolesProvider>
             <SiteLayout />
-          </ModerationProvider>
+          </SiteRolesProvider>
         ),
         children: [
           {

@@ -26,7 +26,7 @@ export const CurrentAccount = () => {
   const [showSignInModal, setShowUserModal] = useState(false)
 
   const { user } = useUserContext()
-  const { selectedUserName, users, logout, selectUser } = useAuthenticationContext()
+  const { selectedUserName, users, removeUser, selectUser } = useAuthenticationContext()
 
   const userItems = useMemo(
     () =>
@@ -47,11 +47,11 @@ export const CurrentAccount = () => {
 
   const handleUserRemove = useCallback(
     (userName: string) => {
-      logout(userName)
+      removeUser(userName)
       accountsMenu.setOpen(false)
       profileMenu.setOpen(false)
     },
-    [accountsMenu, logout, profileMenu],
+    [accountsMenu, removeUser, profileMenu],
   )
 
   const handleUserSelect = useCallback(

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDocumentTitle } from "usehooks-ts"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublicationDetails, useGetReviews } from "entities"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
@@ -14,12 +14,9 @@ import { PublicationContentView } from "ui/views"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publication")
-  const { getOperationCreator: getOperationCreatorId } = useModerationContext()
+  const { creator: create } = useOperationPolicy("review-creation")
   const { siteId, publicationId } = useParams()
   useDocumentTitle(t("title", { publicationId }))
-
-  const create = getOperationCreatorId("review-creation")
-  const edit = getOperationCreatorId("review-edit")
 
   const [isReviewModalOpen, setReviewModalOpen] = useState(false)
   const [editReview, setEditReview] = useState<{ id: string; text: string } | null>(null)

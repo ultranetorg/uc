@@ -1,13 +1,13 @@
 import { memo, useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useSiteRolesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthorPublications } from "entities"
 import { AuthorDetails } from "types"
 import { Pagination } from "ui/components"
 import { AuthorProfile, AuthorProfileProps } from "ui/components/author"
 import { PublicationsTable, PublicationStoresModal } from "ui/components/specific"
-import { useModerationContext } from "app"
 
 type AuthorPublicationsViewBaseProps = {
   siteId: string
@@ -20,7 +20,7 @@ export type AuthorPublicationsViewProps = Pick<AuthorProfileProps, "size"> & Aut
 
 export const AuthorPublicationsView = memo(
   ({ size, siteId, author, isModalOpen, onModalOpenChange }: AuthorPublicationsViewProps) => {
-    const { isPublisher, isModerator } = useModerationContext()
+    const { isPublisher, isModerator } = useSiteRolesContext()
     const { t } = useTranslation("authorPublicationsView")
 
     const [page, setPage] = useState(0)

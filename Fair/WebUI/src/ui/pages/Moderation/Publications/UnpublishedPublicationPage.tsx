@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { SvgEyeSm } from "assets"
 import { unpublishedPublicationsKeys, useGetUnpublishedPublication } from "entities"
 import { OperationClass } from "types"
@@ -12,10 +12,8 @@ import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 
 export const UnpublishedPublicationPage = () => {
   const { siteId, publicationId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("publication-updation")
   const { t } = useTranslation("unpublishedPublicationPage")
-
-  const voterId = getOperationVoterId("publication-updation")
 
   const parentBreadcrumbs = useMemo(
     () => [

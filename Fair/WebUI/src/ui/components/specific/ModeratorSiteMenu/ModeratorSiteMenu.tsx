@@ -4,7 +4,7 @@ import { useLocation, useParams } from "react-router-dom"
 import { FloatingPortal } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
-import { useModerationContext } from "app"
+import { useSiteRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { categoriesKeys } from "entities"
 import { useScrollOrResize, useSubmenu } from "hooks"
@@ -13,7 +13,7 @@ import { SimpleMenu } from "ui/components"
 
 export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
   const location = useLocation()
-  const { isModerator } = useModerationContext()
+  const { isModerator } = useSiteRolesContext()
   const { siteId } = useParams()
   const { t } = useTranslation()
 

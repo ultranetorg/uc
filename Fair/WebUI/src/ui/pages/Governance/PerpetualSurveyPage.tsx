@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
-import { useModerationContext } from "app"
+import { useSiteRolesContext } from "app"
 import { useGetPerpetualSurveyDetails } from "entities/perpetualSurveys"
 import { useTransactMutationWithStatus } from "entities/node"
 import { PerpetualVoting, SiteApprovalPolicyChange } from "types"
@@ -16,7 +16,7 @@ export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurveyPage")
   const { siteId, perpetualSurveyId } = useParams()
 
-  const { isPublisher, publishersIds } = useModerationContext()
+  const { isPublisher, publisherIds } = useSiteRolesContext()
   const { mutate } = useTransactMutationWithStatus()
 
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()
@@ -34,7 +34,7 @@ export const PerpetualSurveyPage = () => {
 
   const handleVote = useCallback(
     (choiceId: string | number) => {
-      const publisherId = publishersIds![0]
+      const publisherId = publisherIds![0]
       const operation = new PerpetualVoting(siteId!, Number(perpetualSurveyId), publisherId, Number(choiceId))
       mutate(operation, {
         onSuccess: () => showToast(t("toast:perpetualVoted", { publisher: publisherId })),
@@ -42,7 +42,7 @@ export const PerpetualSurveyPage = () => {
         onSettled: () => refetch(),
       })
     },
-    [mutate, perpetualSurveyId, publishersIds, refetch, siteId, t],
+    [mutate, perpetualSurveyId, publisherIds, refetch, siteId, t],
   )
 
   useEffect(() => {
@@ -61,11 +61,11 @@ export const PerpetualSurveyPage = () => {
           value: i,
           votePercents: x.votePercents,
           votesCount: x.yesVotes.length,
-          voted: publishersIds && publishersIds.length > 0 ? x.yesVotes.includes(publishersIds[0]) : prevItem?.voted,
+          voted: publisherIds && publisherIds.length > 0 ? x.yesVotes.includes(publisherIds[0]) : prevItem?.voted,
         }
       })
     })
-  }, [publishersIds, survey, t])
+  }, [publisherIds, survey, t])
 
   if (!survey || isFetching) {
     return <>LOADING</>

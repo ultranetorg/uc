@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { isNumber, isString } from "lodash"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
@@ -16,9 +16,8 @@ import { parseInteger, showToast } from "utils"
 
 export const ReviewsPage = () => {
   const { siteId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("review-creation")
   const { t } = useTranslation("reviewsPage")
-  const voterId = getOperationVoterId("review-creation")
 
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
   const [selectedReviewText, setSelectedReviewText] = useState<string | undefined>()

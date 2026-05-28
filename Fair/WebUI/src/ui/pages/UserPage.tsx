@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useModerationContext } from "app"
+import { useSiteRolesContext } from "app"
 import { useGetUserAuthors, useGetUserReviews } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Breadcrumbs } from "ui/components"
@@ -15,7 +15,7 @@ export type UserPageProps = {
 }
 
 export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
-  const { isModerator, isPublisher } = useModerationContext()
+  const { isModerator, isPublisher } = useSiteRolesContext()
   const { siteId, userId } = useParams()
   const { t } = useTranslation()
 

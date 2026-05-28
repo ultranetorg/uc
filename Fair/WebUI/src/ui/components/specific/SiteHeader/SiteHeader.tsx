@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 import { twMerge } from "tailwind-merge"
 
-import { useSiteContext, useSearchQueryContext, useModerationContext, useUserContext } from "app"
+import { useSiteContext, useSearchQueryContext, useSiteRolesContext, useUserContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
@@ -21,18 +21,18 @@ export const SiteHeader = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:siteId/s")
-  const { isModerator, isPublisher } = useModerationContext()
+  const { isModerator, isPublisher } = useSiteRolesContext()
   const { user } = useUserContext()
 
   const { t } = useTranslation("site")
 
   const { setQuery: setSiteQuery } = useSearchQueryContext()
-  const { site, categoriesRoot } = useSiteContext()
+  const { site, rootCategories } = useSiteContext()
 
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
-    () => (categoriesRoot && siteId ? toSimpleMenuItems(categoriesRoot, siteId) : undefined),
-    [categoriesRoot, siteId],
+    () => (rootCategories && siteId ? toSimpleMenuItems(rootCategories, siteId) : undefined),
+    [rootCategories, siteId],
   )
 
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)

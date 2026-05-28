@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 import { isNumber } from "lodash"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { SvgSearchMd, SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
 import { useGetSitePublishers } from "entities"
@@ -16,9 +16,8 @@ import { getPublishersTabItemRenderer } from "./publishersTabItemRenderer"
 
 export const PublishersTab = () => {
   const { siteId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("site-authors-removal")
   const { t } = useTranslation("publishersPage")
-  const voterId = getOperationVoterId("site-authors-removal")
 
   const [state, setState] = useUrlParamsState({
     page: {

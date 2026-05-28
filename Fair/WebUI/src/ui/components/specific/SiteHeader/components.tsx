@@ -35,7 +35,7 @@ export const CategoriesButton = memo(({ siteId }: CategoriesButtonProps) => {
   const [isOpen, setOpen] = useState(false)
   const anchorProps = useClick(isOpen, setOpen)
 
-  const { categories, isCategoriesPending: isPending } = useSiteContext()
+  const { categoriesTree: categories, isCategoriesPending: isPending } = useSiteContext()
 
   const menuItems = useMemo(() => {
     if (isPending || !categories) {
