@@ -95,6 +95,11 @@ const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): P
   return await toTotalItemsResult(res)
 }
 
+const searchSiteUsers = (siteId: string, query?: string, limit?: number): Promise<User[]> =>
+  fetch(`${BASE_URL}/sites/${siteId}/users/search?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res =>
+    res.json(),
+  )
+
 const searchAccounts = (query?: string, limit?: number): Promise<AccountBase[]> =>
   fetch(`${BASE_URL}/accounts?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
 
@@ -472,6 +477,8 @@ const api: Api = {
   getSitePublishers,
   getSiteFiles,
   getSiteModerators,
+  searchSiteUsers,
+
   searchLitePublication,
   searchLiteSites,
   searchPublications,

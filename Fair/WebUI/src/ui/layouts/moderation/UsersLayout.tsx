@@ -5,7 +5,7 @@ import { useDebounceValue } from "usehooks-ts"
 import { capitalize } from "lodash"
 
 import { SEARCH_DELAY } from "config"
-import { useSearchAccounts } from "entities"
+import { useSearchSiteUsers } from "entities"
 import { DropdownSearchAccountsItem, DropdownSearchAccount } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 
@@ -17,14 +17,14 @@ export const UsersLayout = memo(({ children }: PropsWithChildren) => {
   const [query, setQuery] = useState("")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
-  const { data: searchUsers } = useSearchAccounts(debouncedQuery)
+  const { data: searchUsers } = useSearchSiteUsers(siteId!, debouncedQuery)
 
   const items = useMemo<DropdownSearchAccountsItem[]>(
     () =>
       searchUsers !== undefined
         ? searchUsers.map(x => ({
             value: x.id,
-            label: x.nickname,
+            label: x.name,
             avatarId: x.id,
           }))
         : [],

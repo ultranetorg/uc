@@ -10,6 +10,7 @@ public class SitesController
 	IPaginationValidator paginationValidator,
 	ISiteSearchQueryValidator siteSearchQueryValidator,
 	ISearchQueryValidator searchQueryValidator,
+	LimitValidator limitValidator,
 	SitesService sitesService,
 	UsersService usersService,
 	SearchService searchService
@@ -28,13 +29,25 @@ public class SitesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {SiteId}, {Pagination}", nameof(SitesController), nameof(GetUsers), siteId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(User));
+		autoIdValidator.Validate(siteId, nameof(Site));
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<UserModel> result = usersService.GetSiteUsers(siteId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
+	}
+
+	[HttpGet("{siteId}/users/search")]
+	public IEnumerable<UserModel> SearchSiteUsers(string siteId, [FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {SiteId}, {Query}, {Limit}", nameof(SitesController), nameof(SearchSiteUsers), siteId, query, limit);
+
+		autoIdValidator.Validate(siteId, nameof(Site));
+		siteSearchQueryValidator.Validate(query);
+		limitValidator.Validate(limit);
+
+		return searchService.SearchSiteUsers(siteId, query, limit ?? SearchConstants.SearchAccountsLimit, cancellationToken);
 	}
 
 	[HttpGet("{siteId}/publishers")]

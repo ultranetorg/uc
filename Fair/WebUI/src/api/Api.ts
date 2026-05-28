@@ -60,6 +60,7 @@ export type Api = {
   ): Promise<TotalItemsResult<Publisher>>
   getSiteModerators(siteId: string): Promise<Moderator[]>
   getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
+  searchSiteUsers(siteId: string, query?: string, limit?: number): Promise<User[]>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
   searchAuthors(query?: string, limit?: number): Promise<AuthorBaseAvatar[]>
