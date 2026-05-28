@@ -27,12 +27,12 @@ public class LocalResourceAddApc : RdnApc
 
 public class ResourceDownloadApc : RdnApc
 {
-	public ResourceIdentifier	Identifier { get; set; }
-	public string				LocalPath { get; set; }
+	public AutoId			Id { get; set; }
+	public string			LocalPath { get; set; }
 
 	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		var r = node.Peering.Call(new ResourcePpc(Identifier), workflow);
+		var r = node.Peering.Call(new ResourceByIdPpc(Id), workflow);
 
 		if(r == null)
 			throw new ResourceException(ResourceError.NotFound);
@@ -49,7 +49,7 @@ public class ResourceDownloadApc : RdnApc
 
 		switch(urr)
 		{ 
-			case Urrh a :
+			case Rrrh a :
 				itg = new DHIntegrity(a.Hash); 
 				break;
 
@@ -72,16 +72,15 @@ public class ResourceDownloadApc : RdnApc
 			if(r.Resource.Data.Type.Control == DataType.File)
 			{
 				node.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? node.ResourceHub.ToReleases(urr), itg, null, workflow);
-				return r;
 			}
 			else if(r.Resource.Data.Type.Control == DataType.Directory)
 			{
 				node.ResourceHub.DownloadDirectory(lrl, LocalPath ?? node.ResourceHub.ToReleases(urr), itg, workflow);
-				return r;
 			}
 			else
 				throw new ResourceException(ResourceError.NotSupportedDataType);
 		}
+		return null;
 	}
 }
 

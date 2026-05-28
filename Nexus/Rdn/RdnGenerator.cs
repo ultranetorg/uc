@@ -4,42 +4,42 @@ namespace Uccs.Rdn;
 
 public class RdnGenerator : Generator
 {
-	public Endpoint[] SeedHubPpcIPs { get; set; } = [];
+	public Endpoint[] SeedhubPpiEndpoints { get; set; } = [];
 
 	public override string ToString()
 	{
-		return $"{base.ToString()}, SeedHubRdcIPs={{{SeedHubPpcIPs.Length}}}";
+		return $"{base.ToString()}, SeedHubRdcIPs={{{SeedhubPpiEndpoints.Length}}}";
 	}
 
-	public override void WriteMember(BinaryWriter writer)
+	public override void WriteMember(Writer writer)
 	{
 		base.WriteMember(writer);
-		writer.Write(SeedHubPpcIPs);
+		writer.Write(SeedhubPpiEndpoints);
 	}
 
-	public override void ReadMember(BinaryReader reader)
+	public override void ReadMember(Reader reader)
 	{
 		base.ReadMember(reader);
-		SeedHubPpcIPs = reader.ReadArray<Endpoint>();
+		SeedhubPpiEndpoints = reader.ReadArray<Endpoint>();
 	}
 
-	public override void WriteCandidate(BinaryWriter writer)
+	public override void WriteCandidate(Writer writer)
 	{
 		base.WriteCandidate(writer);
-		writer.Write(SeedHubPpcIPs);
+		writer.Write(SeedhubPpiEndpoints);
 	}
 
-	public override void ReadCandidate(BinaryReader reader)
+	public override void ReadCandidate(Reader reader)
 	{
 		base.ReadCandidate(reader);
-		SeedHubPpcIPs = reader.ReadArray<Endpoint>();
+		SeedhubPpiEndpoints = reader.ReadArray<Endpoint>();
 	}
 
 	public override Generator Clone()
 	{
 		var g = new RdnGenerator();
 
-		g.SeedHubPpcIPs = SeedHubPpcIPs;
+		g.SeedhubPpiEndpoints = SeedhubPpiEndpoints;
 
 		Clone(g);
 

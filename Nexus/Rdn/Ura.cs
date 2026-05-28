@@ -20,10 +20,6 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 	public string				Domain { get; set; }
 	public string				Resource { get; set; }
 
-	public const string			Scheme = Snp.Common;
-	//public string				Uri => $"{Scheme}:{Net}{(Net != null ? ":" : null)}{Domain}/{Resource}";
-	//public static ResourceType	SchemeToType(string s) => s[2] switch {'v' => ResourceType.Variable, 'c' => ResourceType.Constant};
-
 	public bool					Valid => !string.IsNullOrWhiteSpace(Domain) && !string.IsNullOrWhiteSpace(Resource);
 
 	public Ura()
@@ -43,6 +39,16 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 		Resource = resource;
 	}
 
+	public Ura(Snp address)
+	{
+		Net = address.Net;
+
+		Parse(address.Path, out var d, out var r);
+		
+		Domain = d;
+		Resource = r;
+	}
+
 	public Ura(Ura a)
 	{
 		Net			= a.Net;
@@ -52,7 +58,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public override string ToString()
 	{
-		return Snp.ToString(Scheme, Net, $"{Domain}/{Resource}");
+		return Snp.ToString(Iccp.Scheme, Net, Domain + (Resource != null ? $"/{Resource}" : null));
 	}
 
 	public override bool Equals(object o)
@@ -134,6 +140,28 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 			resource = null;
 	}
 
+	public static void Parse(string path, out string domain, out string resource)
+	{
+		int i;
+
+		var e = path.IndexOf('/');
+			
+		if(e != -1)
+		{
+			domain = path.Substring(0, e);
+			i = e + 1;
+		}
+		else
+		{
+			domain = path;
+			i = -1;
+		}
+
+		if(i != -1)
+			resource = path.Substring(i);
+		else
+			resource = null;
+	}
 	public static Ura Parse(string v)
 	{
 		Parse(v, out var s, out var z, out var d, out var r);
@@ -153,7 +181,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 		return a;
 	}
 
-	public void Write(BinaryWriter w)
+	public void Write(Writer w)
 	{
 		w.Write((byte)(Net != null ? 0b1 : 0));
 		
@@ -164,7 +192,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 		w.WriteUtf8(Resource);
 	}
 
-	public void Read(BinaryReader r)
+	public void Read(Reader r)
 	{
 		var b = r.ReadByte();
 		

@@ -30,65 +30,49 @@ namespace Uccs.Mcv.FUI
 		private void InitializeComponent()
 		{
 			Logbox = new Logbox();
-			groupBox2 = new System.Windows.Forms.GroupBox();
-			panel1 = new System.Windows.Forms.Panel();
-			fields = new System.Windows.Forms.Label();
-			values = new System.Windows.Forms.Label();
+			panel1 = new Panel();
+			fields = new Label();
+			values = new Label();
 			Monitor = new ChainMonitor();
-			groupBox2.SuspendLayout();
 			panel1.SuspendLayout();
 			SuspendLayout();
 			// 
-			// logbox
+			// Logbox
 			// 
-			Logbox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			Logbox.Font = new System.Drawing.Font("Lucida Console", 8F);
-			Logbox.Location = new System.Drawing.Point(0, 567);
+			Logbox.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+			Logbox.Font = new Font("Lucida Console", 8F);
+			Logbox.Location = new Point(4, 567);
 			Logbox.Log = null;
-			Logbox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			Logbox.Multiline = true;
-			Logbox.Name = "logbox";
+			Logbox.Name = "Logbox";
 			Logbox.ReadOnly = true;
-			Logbox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			Logbox.ScrollBars = ScrollBars.Vertical;
 			Logbox.ShowSender = false;
 			Logbox.ShowSubject = true;
-			Logbox.Size = new System.Drawing.Size(1020, 200);
+			Logbox.Size = new Size(1015, 198);
 			Logbox.TabIndex = 1;
 			Logbox.WordWrap = false;
 			// 
-			// groupBox2
-			// 
-			groupBox2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			groupBox2.Controls.Add(panel1);
-			groupBox2.Location = new System.Drawing.Point(0, -6);
-			groupBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			groupBox2.Name = "groupBox2";
-			groupBox2.Padding = new System.Windows.Forms.Padding(0);
-			groupBox2.Size = new System.Drawing.Size(1024, 460);
-			groupBox2.TabIndex = 2;
-			groupBox2.TabStop = false;
-			// 
 			// panel1
 			// 
-			panel1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			panel1.AutoScroll = true;
 			panel1.Controls.Add(fields);
 			panel1.Controls.Add(values);
-			panel1.Location = new System.Drawing.Point(16, 22);
-			panel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			panel1.Location = new Point(4, 3);
 			panel1.Name = "panel1";
-			panel1.Size = new System.Drawing.Size(991, 425);
+			panel1.Size = new Size(1015, 453);
 			panel1.TabIndex = 1;
 			// 
 			// fields
 			// 
 			fields.AutoEllipsis = true;
 			fields.AutoSize = true;
-			fields.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Bold);
-			fields.Location = new System.Drawing.Point(0, 0);
-			fields.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			fields.Font = new Font("Lucida Console", 8.25F, FontStyle.Bold);
+			fields.Location = new Point(4, 5);
+			fields.Margin = new Padding(4, 0, 4, 0);
 			fields.Name = "fields";
-			fields.Size = new System.Drawing.Size(157, 11);
+			fields.Size = new Size(157, 11);
 			fields.TabIndex = 0;
 			fields.Text = "Waiting for data...\r\n";
 			// 
@@ -96,36 +80,34 @@ namespace Uccs.Mcv.FUI
 			// 
 			values.AutoEllipsis = true;
 			values.AutoSize = true;
-			values.Font = new System.Drawing.Font("Lucida Console", 8.25F);
-			values.Location = new System.Drawing.Point(255, 0);
-			values.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			values.Font = new Font("Lucida Console", 8.25F);
+			values.Location = new Point(256, 5);
+			values.Margin = new Padding(4, 0, 4, 0);
 			values.Name = "values";
-			values.Size = new System.Drawing.Size(187, 33);
+			values.Size = new Size(187, 33);
 			values.TabIndex = 0;
 			values.Text = " Waiting for data...      \r\n                 \r\n                    ";
 			// 
 			// Monitor
 			// 
-			Monitor.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			Monitor.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			Monitor.Font = new System.Drawing.Font("Lucida Console", 8.25F);
-			Monitor.Location = new System.Drawing.Point(0, 462);
-			Monitor.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
+			Monitor.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+			Monitor.BorderStyle = BorderStyle.Fixed3D;
+			Monitor.Font = new Font("Lucida Console", 8.25F);
+			Monitor.Location = new Point(4, 462);
 			Monitor.Name = "Monitor";
-			Monitor.Size = new System.Drawing.Size(1019, 98);
+			Monitor.Size = new Size(1015, 98);
 			Monitor.TabIndex = 3;
 			// 
 			// DashboardPanel
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			AutoScaleDimensions = new SizeF(7F, 15F);
+			AutoScaleMode = AutoScaleMode.Font;
+			Controls.Add(panel1);
 			Controls.Add(Logbox);
-			Controls.Add(groupBox2);
 			Controls.Add(Monitor);
-			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			Margin = new Padding(4, 3, 4, 3);
 			Name = "DashboardPanel";
-			Size = new System.Drawing.Size(1024, 768);
-			groupBox2.ResumeLayout(false);
+			Size = new Size(1024, 768);
 			panel1.ResumeLayout(false);
 			panel1.PerformLayout();
 			ResumeLayout(false);
@@ -135,7 +117,6 @@ namespace Uccs.Mcv.FUI
 		#endregion
 
 		private Logbox Logbox;
-		private System.Windows.Forms.GroupBox groupBox2;
 		private System.Windows.Forms.Label fields;
 		public ChainMonitor Monitor;
 		private System.Windows.Forms.Label values;

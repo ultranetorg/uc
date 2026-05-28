@@ -15,12 +15,12 @@ namespace Uccs.Fair;
 //	{
 //	}
 //
-//	public override void Read(BinaryReader reader)
+//	public override void Read(Reader reader)
 //	{
 //		Nickname	= reader.ReadUtf8();
 //	}
 //
-//	public override void Write(BinaryWriter writer)
+//	public override void Write(Writer writer)
 //	{
 //		writer.WriteUtf8(Nickname);
 //	}

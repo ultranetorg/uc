@@ -49,7 +49,7 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 		a.Products = [];
 		a.Owners = [];
 		a.Sites = [];
-		a.Links = [];
+		a.Referrences = [];
 		a.Files = [];
 
 		Execution.IncrementCount((int)FairMetaEntityType.AuthorsCount);

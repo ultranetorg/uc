@@ -30,7 +30,7 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 
 	public EntityFieldAddress(byte[] raw)
 	{
-		Read(new BinaryReader(new MemoryStream(raw)));
+		Read(new Reader(raw));
 	}
 
 	public override string ToString()
@@ -50,13 +50,13 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 		return e;
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Field	= reader.Read<EntityTextField>();
 		Entity	= reader.Read<AutoId>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Field);
 		writer.Write(Entity);
@@ -108,12 +108,12 @@ public class Word : IBinarySerializable, ITableEntry
 		return a;
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
@@ -122,13 +122,13 @@ public class Word : IBinarySerializable, ITableEntry
 	{
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id			= reader.Read<RawId>();
 		Reference	= reader.Read<EntityFieldAddress>();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write(Reference);

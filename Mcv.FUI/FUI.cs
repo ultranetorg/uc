@@ -9,34 +9,41 @@ static class Program
 	[STAThread]
 	static void Main()
 	{
+		Thread.CurrentThread.CurrentCulture = 
+		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+
 		System.Windows.Forms.Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
 		System.Windows.Forms.Application.EnableVisualStyles();
 		System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
-
-		Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
-
-	//	ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-// 			try
-// 			{
-// 				var exedir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-// 				var b = new Boot(exedir);
-// 				var s = new SunSettings(exedir, b);
-// 
-// 				var sun = new Net.Sun(s, new Flow("Main", new Log())); 
-// 				
-// 				sun.Run(b.Commnand.Nodes);
-// 
-// 				var f = new MainForm(sun);
-// 				f.StartPosition = FormStartPosition.CenterScreen;
-// 
-// 				f.Closed += (s, a) => (s as MainForm).Sun.Stop("Form closed");
-// 
-// 				Application.Run(f);
-// 			}
-// 			catch(RequirementException ex)
-// 			{
-// 				MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-// 			}
 	}
+
+	public static void ResizeColumnsToFit(this ListView listView)
+    {
+		if (listView.Columns.Count == 0) 
+			return;
+
+		listView.SuspendLayout();
+
+        listView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+        int[] contentWidths = new int[listView.Columns.Count];
+        for (int i = 0; i < listView.Columns.Count; i++)
+        {
+            contentWidths[i] = listView.Columns[i].Width;
+        }
+
+        listView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+
+        // 3. Compare, find the max required width, and apply ONLY if it changed
+        for (int i = 0; i < listView.Columns.Count; i++)
+        {
+            int idealWidth = Math.Max(contentWidths[i], listView.Columns[i].Width);
+
+            if(listView.Columns[i].Width < idealWidth)
+            {
+                listView.Columns[i].Width = idealWidth;
+            }
+        }
+
+		listView.ResumeLayout();
+    }
 }

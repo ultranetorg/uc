@@ -11,12 +11,12 @@ public class FileDeletion : FairOperation
 	{
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		File = reader.Read<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(File);
 	}
@@ -49,8 +49,9 @@ public class FileDeletion : FairOperation
 				if(!CanAccessAuthor(execution, f.Owner.Id, out var o, out Error))
 					return;
 
-				execution.Authors.Affect(o.Id);
+				o = execution.Authors.Affect(o.Id);
 				o.Files = o.Files.Remove(f.Id);
+				execution.Free(o, o, execution.Net.EntityLength + f.Data.Length);
 				break;
 			}
 			case FairTable.Site:
@@ -58,8 +59,9 @@ public class FileDeletion : FairOperation
 				if(!IsModerator(execution, f.Owner.Id, out var o, out Error))
 					return;
 
-				execution.Sites.Affect(o.Id);
+				o = execution.Sites.Affect(o.Id);
 				o.Files = o.Files.Remove(f.Id);
+				execution.Free(o, o, execution.Net.EntityLength + f.Data.Length);
 				break;
 			}
 			default:
@@ -72,6 +74,5 @@ public class FileDeletion : FairOperation
 		f = execution.Files.Affect(f.Id);
 		f.Deleted = true;
 
-		//Free(execution, Signer, a, execution.Net.EntityLength + p.Length);
 	}
 }

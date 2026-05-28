@@ -1,18 +1,19 @@
 ﻿using System.Data;
-using System.Windows.Forms;
 using Org.BouncyCastle.Utilities.Encoders;
 //using Uccs.Rdn;
 
 namespace Uccs.Mcv.FUI;
 
-public partial class ChainPanel : MainPanel
+public partial class ChainPanel : McvPanel
 {
-	McvNode Node;
-	Net.Mcv		Mcv;
+	McvNode		Node;
+	Net.Mcv		Mcv => Node.Mcv;
 
-	public ChainPanel(McvNode mcv)
+	public ChainPanel(McvNode node)
 	{
 		InitializeComponent();
+
+		Node = node;
 	}
 
 	public override void Open(bool first)
@@ -53,7 +54,7 @@ public partial class ChainPanel : MainPanel
 																		li.Tag = i;
 																		li.SubItems.Add(i.Id.ToString());
 																		li.SubItems.Add(i.Nonce.ToString());
-																		li.SubItems.Add(i.User.ToString());
+																		li.SubItems.Add(i.Round?.Id > 0 ? i.User : null);
 																		li.SubItems.Add(i.Operations.Length.ToString());
 																		return li;
 																	}).ToArray());
@@ -77,12 +78,6 @@ public partial class ChainPanel : MainPanel
 		Operations.Items.Clear();
 		MemberJoiners.Items.Clear();
 		MemberLeavers.Items.Clear();
-		AnalyzerJoiners.Items.Clear();
-		AnalyzerLeavers.Items.Clear();
-		FundJoiners.Items.Clear();
-		FundLeavers.Items.Clear();
-		Emissions.Items.Clear();
-		Migrations.Items.Clear();
 
 		lock(Mcv.Lock)
 		{
@@ -109,21 +104,11 @@ public partial class ChainPanel : MainPanel
 			LoadTransactions(txs);
 			LoadOperations(txs.SelectMany(i => i.Operations));
 
-			//if(r.Id > 0)
-			//	MemberJoiners.Items.AddRange(r.Members.Where(i => !r.Previous.Members.Any(j => i.Address == j.Address)).Select(i => new ListViewItem(i.ToString())).ToArray());
+			if(r.ConsensusMemberLeavers != null)
+				MemberLeavers.Items.AddRange(r.ConsensusMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
 
-			MemberLeavers.Items.AddRange(r.ConsensusMemberLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
-			Violators.Items.AddRange(r.ConsensusViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
-
-			FundJoiners.Items.AddRange(r.ConsensusFundJoiners.Select(i => new ListViewItem(i.ToString())).ToArray());
-			FundLeavers.Items.AddRange(r.ConsensusFundLeavers.Select(i => new ListViewItem(i.ToString())).ToArray());
-
-			//Emissions.Items.AddRange((r as RdnRound)?.ConsensusEmissions.Select(i => new ListViewItem(i.ToString())).ToArray());
-			
-			//if(r is RdnRound rr)
-			//{
-			//	Migrations.Items.AddRange(rr.Migrations.Select(i => new ListViewItem(i.ToString())).ToArray());
-			//}
+			if(r.ConsensusViolators != null)
+				Violators.Items.AddRange(r.ConsensusViolators.Select(i => new ListViewItem(i.ToString())).ToArray());
 		}
 	}
 

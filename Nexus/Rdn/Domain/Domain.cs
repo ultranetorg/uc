@@ -74,12 +74,12 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 				};
 	}
 
-	public void WriteMain(BinaryWriter writer)
+	public void WriteMain(Writer writer)
 	{
 		Write(writer);
 	}
 
-	public void ReadMain(BinaryReader reader)
+	public void ReadMain(Reader reader)
 	{
 		Read(reader);
 	}
@@ -154,7 +154,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 //		return false;
 //	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 
@@ -180,7 +180,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		}
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id			= reader.Read<AutoId>();
 		var f		= (DomainFlag)reader.ReadByte();

@@ -1,4 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks.Dataflow;
 using DnsClient;
 using Uccs.Nexus;
 
@@ -23,14 +26,21 @@ public class RdnNode : McvNode
 	public ResourceHub				ResourceHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
-	//public RdnNnTcpPeering			NnPeering;
-	public LcpConnection			NnConnection;
-	List<Outward>					CurrentOutwards = [];
-	Thread							OutwardThread;
+	List<OutwardTransaction>		CurrentOutwards = [];
 
 	public RdnNode(Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), profile, nexussettings, flow)
 	{
 		base.Settings = settings ?? new RdnNodeSettings(profile);
+
+		if(settings == null && !File.Exists(Settings.Path))
+		{
+			Settings.DataPath	= ExeDirectory;
+			Settings.Peering	= new () {EP = new (IPAddress.Any, Net.PpiPort)};
+			Settings.Api		= new () {LocalIP = nexussettings.Host};
+			Settings.Seed		= new ();
+
+			Settings.Save();
+		}
 
 		if(Flow.Log != null)
 			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
@@ -50,65 +60,36 @@ public class RdnNode : McvNode
 				SeedHub = new SeedHub(Mcv);
 			}
 
-			//if(Settings.NnPeering != null)
-			{
-				//NnPeering = new RdnNnTcpPeering(this, Settings.NnPeering, 0, flow);
-			}
-
 			Mcv.Confirmed += r =>	{
-										/// Remove if consensus has reached or expired
-										Mcv.ApprovedOutwards.RemoveAll(i =>	(r as RdnRound).ConsensusOutwards.Any(x => x == i) || 
-																			(r as RdnRound).Outwards.Find(x => x.User == i.User && x.Id == i.Id)?.Expiration < r.ConsensusTime);
-									};
-
-			OutwardThread = CreateThread(() => {
-											 		while(Flow.Active)
-											 		{
-											 			var r = WaitHandle.WaitAny([Flow.Cancellation.WaitHandle], 500);
-														
-														if(Peering == null || Peering.Synchronization != Synchronization.Synchronized)
-															continue;
-
-														lock(Mcv.Lock)
-														{
-															if(CurrentOutwards.Count < 100)
-															{
-																var ows = (Mcv.LastConfirmedRound as RdnRound).Outwards;
-
-																var a = ows.Where(i => !CurrentOutwards.Any(a => a.User == i.User && a.Id == i.Id) && !Mcv.ApprovedOutwards.Any(a => a.User == i.User && a.Id == i.Id)).Take(100 - CurrentOutwards.Count).ToArray();
-
-																foreach(var i in a)
+										foreach(var i in (r as RdnRound).OutwardTransactions.Where(i => !CurrentOutwards.Any(a => a.User == i.User && a.Id == i.Id) &&
+																										!Mcv.OutwardResults.Any(a => a.User == i.User && a.Id == i.Id)))
+										{
+											Task.Run(() =>	{
+																if(i.Operation is DomainMigration am)
 																{
-																	Task.Run(() =>	{
-																						if(i.Operation is DomainMigration am)
-																						{
-																							var approved = IsDnsValid(am);
+																	var approved = IsDnsValid(am);
 	
-																							lock(Mcv.Lock)
-																							{	
-																								Mcv.ApprovedOutwards.Add(new ForeignResult {User = i.User, Id = i.Id, Approved = approved});
+																	lock(Mcv.Lock)
+																	{	
+																		Mcv.OutwardResults.Add(new OutwardResult {User = i.User, Id = i.Id, Approved = approved});
 
-																								CurrentOutwards.Remove(i);
-																							}
-																						}
-																						else if(i.Operation is SubnetAttachment sa)
-																						{
-																							Mcv.ApprovedOutwards.Add(new ForeignResult {User = i.User, Id = i.Id, Approved = Settings.ProposedSubnetAttachments.Contains(sa.Name)});
-																						}
-																					});
+																		CurrentOutwards.Remove(i);
+																	}
 																}
-															}
-														}
-											 		}
-												});
-
-			OutwardThread.Name = $"{Name} Outwarding";
-			OutwardThread.Start();
+																else if(i.Operation is SubnetAttachment sa)
+																{
+																	lock(Mcv.Lock)
+																		Mcv.OutwardResults.Add(new OutwardResult {User = i.User, Id = i.Id, Approved = Settings.ProposedFriendAttachments.Contains(sa.Name)});
+																}
+															});
+										}
+									};
 		}
 
-		ApiServer = new RdnApiServer(this, (Settings.Api ?? new ()).ToNodeSettings(Net), Flow);
+		Iccp = new McvIccpLcpConnection(this, flow);
 
-		NnConnection = new RdnNnpLcpConnection(this, flow);
+		ApiServer = new RdnApiServer(this, new IpApiSettings {LocalIP = nexussettings.Host}.ToNodeSettings(Net), Flow);
+
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
 		if(Settings.Seed != null)
@@ -148,7 +129,7 @@ public class RdnNode : McvNode
 
 		ApiServer?.Stop();
 		Peering.Stop();
-		NnConnection?.Disconnect();
+		Iccp?.Disconnect();
 		//NnPeering?.Stop();
 		Mcv?.Stop();
 
@@ -203,4 +184,26 @@ public class RdnNode : McvNode
 		return false;
 	}
 
+	public LocalRelease Download(Resource resource, Flow flow)
+	{
+		new ResourceDownloadApc {Id = resource.Id}.Execute(this, null, null, flow);
+
+		LocalRelease l;
+
+		lock(ResourceHub.Lock)
+			l = ResourceHub.Find(resource.Data.Parse<Urr>());
+
+		do
+		{
+			if(l.Activity is null)
+			{
+				return l;
+			}
+
+			Thread.Sleep(100);
+		}
+		while(flow.Active);
+
+		throw new OperationCanceledException();
+	}
 }

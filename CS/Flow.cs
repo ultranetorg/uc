@@ -4,8 +4,8 @@ namespace Uccs;
 
 public class Flow : IDisposable
 {
-	public CancellationTokenSource			CancellationSource;
-	public CancellationToken		Cancellation;
+	public CancellationTokenSource	CancellationSource;
+	public CancellationToken		Cancellation { get; protected set; }
 	public Log						Log { get; set; }
 	public bool						Aborted => Cancellation.IsCancellationRequested;
 	public bool						Active => !Aborted;
@@ -26,8 +26,8 @@ public class Flow : IDisposable
 
 	public Flow(int timeout)
 	{
-		if(!Debugger.IsAttached)
-			CancellationSource.CancelAfter(timeout);
+		CancellationSource = Debugger.IsAttached ? new CancellationTokenSource() :  new CancellationTokenSource(timeout);
+		Cancellation = CancellationSource.Token;
 	}
 
 	public Flow(CancellationToken cancellationToken)

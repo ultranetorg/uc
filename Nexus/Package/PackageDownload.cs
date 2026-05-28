@@ -78,11 +78,11 @@ public class PackageDownload
 										{
 											try
 											{
-												last = node.Peering.Call(new ResourcePpc(package.Resource.Address), flow).Resource;
+												last = node.Peering.Call(new ResourceByAddressPpc(package.Resource.Address), flow).Resource;
 													
-												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_VersionManifest))
+												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_Software_VersionManifest))
 												{
-													throw new PackageException($"{package.Resource.Address} is not {ContentType.Package_VersionManifest}");
+													throw new PackageException($"{package.Resource.Address} is not {ContentType.Package_Software_VersionManifest}");
 												}
 
 												break;
@@ -103,7 +103,7 @@ public class PackageDownload
 
 										switch(last.Data.Parse<Urr>())
 										{ 
-											case Urrh u:
+											case Rrrh u:
 												itg = new DHIntegrity(u.Hash); 
 												break;
 
@@ -131,7 +131,7 @@ public class PackageDownload
 											{
 												if(!hub.ExistsRecursively(i.Address))
 												{
-													var dd = hub.Download(i.Address, flow);
+													var dd = hub.StartDownload(i.Address, flow);
 													Dependencies.Add(dd);
 												}
 											}

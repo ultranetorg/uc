@@ -30,19 +30,19 @@
 //		Bid = bid;
 //	}
 //	
-//	public override void Read(BinaryReader reader)
+//	public override void Read(Reader reader)
 //	{
 //		Name	= reader.ReadUtf8();
 //		Bid		= reader.Read7BitEncodedInt64();
 //	}
 //
-//	public override void Write(BinaryWriter writer)
+//	public override void Write(Writer writer)
 //	{
 //		writer.WriteUtf8(Name);
 //		writer.Write7BitEncodedInt64(Bid);
 //	}
 //
-//// 		public void WriteBaseState(BinaryWriter writer)
+//// 		public void WriteBaseState(Writer writer)
 //// 		{
 //// 			writer.Write(Id);
 //// 			writer.Write(Signer);
@@ -50,7 +50,7 @@
 //// 			writer.Write(Bid);
 //// 		}
 //// 
-//// 		public void ReadBaseState(BinaryReader reader)
+//// 		public void ReadBaseState(Reader reader)
 //// 		{
 //// 			_Id	= reader.Read<OperationId>();
 //// 

@@ -8,5 +8,5 @@ public class AuthorDetailsModel(Author author) : AuthorBaseModel(author)
 
 	public IEnumerable<UserModel> OwnersIds { get; init; }
 
-	public IEnumerable<string> Links { get; init; }
+	public IEnumerable<string> Links { get; set; } = author.Referrences.Select(x => x.ToString());
 }

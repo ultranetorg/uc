@@ -58,13 +58,13 @@ public class EntityAddress : IBinarySerializable
 		return true;
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Id		= reader.Read<AutoId>();
 		Table	= reader.ReadByte();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write(Id);
 		writer.Write(Table);

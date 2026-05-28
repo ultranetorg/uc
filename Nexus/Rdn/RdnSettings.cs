@@ -33,7 +33,7 @@ public class RdnNodeSettings : McvNodeSettings
 	public List<AccountAddress>		ProposedFundJoiners = new();
 	public List<AccountAddress>		ProposedFundLeavers = new();
 
-	public string[]					ProposedSubnetAttachments { get; set; }
+	public string[]					ProposedFriendAttachments { get; set; }
 
 	public SeedSettings				Seed { get; set; }
 	public SeedHubSettings			SeedHub { get; set; } = new ();
@@ -41,7 +41,7 @@ public class RdnNodeSettings : McvNodeSettings
 	public new long					Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
 	string							_Packages;
-	public string					Packages { get => _Packages ?? System.IO.Path.Join(Profile, nameof(Packages)) ; set => _Packages = value; }
+	//public string					Packages { get => _Packages ?? System.IO.Path.Join(Profile, nameof(Packages)); set => _Packages = value; }
 	public string					DataPath { get; set; }
 
 	public RdnNodeSettings()

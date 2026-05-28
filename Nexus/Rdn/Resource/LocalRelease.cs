@@ -89,7 +89,7 @@ public class LocalFile : IBinarySerializable
 		Release.Save();
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		Path = reader.ReadUtf8();
 		Status = (LocalFileStatus)reader.ReadByte();
@@ -107,7 +107,7 @@ public class LocalFile : IBinarySerializable
 		}
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.WriteUtf8(Path);
 		writer.Write((byte)Status);
@@ -286,8 +286,7 @@ public class LocalRelease
 									
 			if(d != null)
 			{
-				var s = new MemoryStream(d);
-				var r = new BinaryReader(s);
+				var r = new Reader(d);
 
 				//_Type			= r.Read7BitEncodedInt64();
 				_Availability	= (Availability)r.ReadByte();
@@ -307,7 +306,7 @@ public class LocalRelease
 		using(var b = new WriteBatch())
 		{
 			var s = new MemoryStream();
-			var w = new BinaryWriter(s);
+			var w = new Writer(s);
 							
 			//w.Write7BitEncodedInt64(Type);
 			w.Write((byte)Availability);

@@ -10,12 +10,13 @@ public struct Time : IBinarySerializable
 	public int						Hours => (int)(Seconds/TimeSpan.SecondsPerHour);
 	public short					Days => (short)(Seconds/TimeSpan.SecondsPerDay);
 	public short					Months => (short)(Seconds/(TimeSpan.SecondsPerDay * 30));
-	public short					Years => (short)(Seconds/(TimeSpan.SecondsPerDay * 365));
+	public byte						Years => (byte)(Seconds/(TimeSpan.SecondsPerDay * 365));
 	public const string				DateFormat = "yyyy-MM-dd HH:mm:ss";
 
 	public static readonly Time		Zero = new Time(0);
 	public static readonly Time		Empty = new Time(-1);
-	public static DateTime			Start = new DateTime(2026, 1, 1);
+	public static DateTime			Start = new DateTime(FirstYear, 1, 1);
+	public const short				FirstYear = 2026;
 
 	public static Time				operator -  (Time a, Time b) => new Time(a.Seconds - b.Seconds);
 	public static Time				operator +  (Time a, Time b) => new Time(a.Seconds + b.Seconds);
@@ -80,12 +81,12 @@ public struct Time : IBinarySerializable
 		return new Time(days * (int)TimeSpan.SecondsPerDay);
 	}
 
-	public void Read(BinaryReader r)
+	public void Read(Reader r)
 	{
 		Seconds = r.Read7BitEncodedInt();
 	}
 
-	public void Write(BinaryWriter w)
+	public void Write(Writer w)
 	{
 		w.Write7BitEncodedInt(Seconds);
 	}

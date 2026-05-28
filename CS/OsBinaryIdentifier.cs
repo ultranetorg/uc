@@ -7,7 +7,7 @@ public class Osbi : IBinarySerializable
 	public byte Version;
 	public byte Architecture;
 
-	public void Read(BinaryReader r)
+	public void Read(Reader r)
 	{
 		Familty			= r.ReadByte();
 		Name			= r.ReadByte();
@@ -15,7 +15,7 @@ public class Osbi : IBinarySerializable
 		Architecture	= r.ReadByte();
 	}
 
-	public void Write(BinaryWriter w)
+	public void Write(Writer w)
 	{
 		w.Write(Familty);
 		w.Write(Name);

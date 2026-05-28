@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net9.0-windows8.0</TargetFramework>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
@@ -28,14 +28,14 @@
     <ProjectReference Include="..\Net\Uccs.Net.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="TransferPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="MembershipPanel.cs" />
-    <Compile Update="DomainPanel.cs" />
-    <Compile Update="HubPanel.cs" />
     <Compile Update="ChainPanel.cs" />
     <Compile Update="MembersPanel.cs" />
     <Compile Update="TransactionsPanel.cs" />
     <Compile Update="ResourcesPanel.cs" />
-    <Compile Update="InterzoneNetworkPanel.cs" />
     <Compile Update="DashboardPanel - Copy.Designer.cs">
       <DependentUpon>DashboardPanel.Designer.cs</DependentUpon>
     </Compile>

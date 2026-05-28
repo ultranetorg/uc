@@ -8,13 +8,13 @@ public class CategoryCreation : VotableOperation
 	public override bool		IsValid(McvNet net) => Title != null && Title.Length > 0 && Title.Length <= Fair.TitleLengthMaximum;
 	public override string		Explanation => $"Title={Title} Parent={Parent}";
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Parent = reader.ReadNullable<AutoId>();
 		Title = reader.ReadUtf8();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteNullable(Parent);
 		writer.WriteUtf8(Title);

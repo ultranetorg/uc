@@ -7,12 +7,12 @@ public class SiteAuthorsRemoval : VotableOperation
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"Site={Site}, Authors={Authors.Length}";
 	
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Authors = reader.ReadArray<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Authors);
 	}

@@ -356,12 +356,12 @@ public class ResourceHub
 					var t = new Task(() =>	{
 												try
 												{
-													var cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
+													var cr = Node.Peering.Call(new ResourceByAddressPpc(r.Address), Node.Flow);
 													
 													if(cr == null) 
 													{	
 														Debugger.Break();
-														cr = Node.Peering.Call(new ResourcePpc {Identifier = new(r.Address)}, Node.Flow);
+														cr = Node.Peering.Call(new ResourceByAddressPpc(r.Address), Node.Flow);
 														return;
 													}
 
@@ -415,7 +415,7 @@ public class ResourceHub
 
 												try
 												{
-													drr = Node.Peering.Call(i.Key.SeedHubPpcIPs.Random(), new DeclareReleasePpc {Resources = rds}, Node.Flow);
+													drr = Node.Peering.Call(i.Key.SeedhubPpiEndpoints.Random(), new DeclareReleasePpc {Resources = rds}, Node.Flow);
 												}
 												catch(CodeException)/// when(!Debugger.IsAttached)
 												{

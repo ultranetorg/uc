@@ -8,13 +8,13 @@ public class CategoryMovement : VotableOperation
 	public override bool		IsValid(McvNet net) => Category != null; // !Changes.HasFlag(CardChanges.Description) || (Data.Length <= Card.DescriptionLengthMax);
 	public override string		Explanation => $"{GetType().Name}, {Parent}";
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Category	= reader.Read<AutoId>();
 		Parent		= reader.ReadNullable<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Category);
 		writer.WriteNullable(Parent);

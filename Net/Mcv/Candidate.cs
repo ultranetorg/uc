@@ -12,7 +12,7 @@
 // 			return $"Account={Account}, BaseRdcIPs={{{BaseRdcIPs.Length}}}";
 // 		}
 // 	
-//   		public virtual void WriteBaseState(BinaryWriter writer)
+//   		public virtual void WriteBaseState(Writer writer)
 //  		{
 //  			writer.Write(Account);
 //  			writer.Write(Registered);
@@ -20,7 +20,7 @@
 // 			writer.Write(BaseRdcIPs, i => writer.Write(i));
 //  		}
 //  
-//  		public virtual void ReadBaseState(BinaryReader reader)
+//  		public virtual void ReadBaseState(Reader reader)
 //  		{
 // 			Account			= reader.Read<EntityId>();
 // 			Registered		= reader.Read<Time>();

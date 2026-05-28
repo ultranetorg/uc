@@ -23,7 +23,8 @@ public abstract class NetCommand : Command
 	public readonly ArgumentType EC			= new ("EC",		@"Execution Cycles in form of integer number",							["1000"]);
 	public readonly ArgumentType TEXT		= new ("TEXT",		@"Arbitrary text, can be multi-line",									["Hello world!"]);
 	public readonly ArgumentType UID		= new ("UID",		@"User Id",																["123456-789"]);
-	public readonly ArgumentType UNEL		= new ("UNEL",		@"Universal network-entity address",									["ccp:fair/author/123-234"]);
+	public readonly ArgumentType SNP		= new ("SNP",		@"Universal scheme-network-path address",								["iccp:fair/author/123-234"]);
+	public readonly ArgumentType URI		= new ("URL",		@"Fully-qualified URI address",											["http://fair.net", "iccp:fair/author"]);
 	public readonly ArgumentType URL		= new ("URL",		@"Fully-qualified URL address",											["http://fair.net", "http://ultranet.org"]);
 	public readonly ArgumentType ZONE		= new ("ZONE",		@"Zone name",															[Zone.Main.ToString(), Zone.Test.ToString()]);
 		
@@ -68,14 +69,14 @@ public abstract class NetCommand : Command
 
 	public TransactionApe Transact(McvApiClient api, IEnumerable<Operation> operations, string application, string user, ActionOnResult aor)
 	{
-		var t = api.Call<TransactionApe>(	new TransactApc
-											{
-												Operations = operations,
-												User = user,
-												Application = application,
-												ActionOnResult = aor
-											},
-											Flow);
+		var t = api.Call<TransactionApe>(new TransactApc
+										 {
+											Operations = operations,
+											User = user,
+											Application = application,
+											ActionOnResult = aor
+										 },
+										 Flow);
 		int n = 0;
 
 		do 

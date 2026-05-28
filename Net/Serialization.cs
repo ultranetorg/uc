@@ -6,12 +6,12 @@ namespace Uccs.Net;
 
 public class BinarySerializator
 {
-	public static void Serialize(BinaryWriter writer, object o, Func<Type, uint> typetocode)
+	public static void Serialize(Writer writer, object o)
 	{
-		Serialize(writer, o, o.GetType(), typetocode);
+		Serialize(writer, o, o.GetType());
 	}
 
-	static void Serialize(BinaryWriter writer, object val, Type type, Func<Type, uint> typetocode)
+	static void Serialize(Writer writer, object val, Type type)
 	{
 		switch(val)
 		{
@@ -77,7 +77,7 @@ public class BinarySerializator
 							
 					foreach(var j in v)
 					{
-						Serialize(writer, j, type.GetElementType(), typetocode);
+						Serialize(writer, j, type.GetElementType());
 					}
 					return;
 				} 
@@ -87,8 +87,8 @@ public class BinarySerializator
 				
 					foreach(var j in d)
 					{
-						Serialize(writer, ((DictionaryEntry)j).Key, type.GenericTypeArguments[0], typetocode);
-						Serialize(writer, ((DictionaryEntry)j).Value, type.GenericTypeArguments[1], typetocode);
+						Serialize(writer, ((DictionaryEntry)j).Key, type.GenericTypeArguments[0]);
+						Serialize(writer, ((DictionaryEntry)j).Value, type.GenericTypeArguments[1]);
 					}
 					return;
 				}
@@ -99,7 +99,7 @@ public class BinarySerializator
 
 		if(val is ITypeCode t)
 		{
-			writer.Write(typetocode(val.GetType()));
+			writer.Write(writer.Constructor.TypeToCode(val.GetType()));
 		}
 
 		if(val is IBinarySerializable bs)
@@ -110,7 +110,7 @@ public class BinarySerializator
 		{
 			foreach(var i in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
-				Serialize(writer, i.GetValue(val), i.PropertyType, typetocode);
+				Serialize(writer, i.GetValue(val), i.PropertyType);
 			}
 		}
 	}
@@ -146,26 +146,26 @@ public class BinarySerializator
 // 			return o;
 // 		}
 
-	static object Construct(BinaryReader reader, Type type, Func<Type, uint, object> construct)
+	static object Construct(Reader reader, Type type)
 	{
 		object o;
 
 		if(type.GetInterfaces().Contains(typeof(ITypeCode)))
 		{	
 			var c = reader.ReadUInt32();
-			o = construct(type, c);
+			o = reader.Constructor.Construct(type, c);
 		}
 		else
-			o = construct(type, 0) ?? type.GetConstructor([]).Invoke(null);
+			o = reader.Constructor.Construct(type, 0) ?? type.GetConstructor([]).Invoke(null);
 
 		//initialize?.Invoke(o);
 
 		return o;
 	}
 
-	public static O Deserialize<O>(BinaryReader reader, Func<Type, uint, object> construct)
+	public static O Deserialize<O>(Reader reader)
 	{
-		return (O)Deserialize(reader, typeof(O), construct);
+		return (O)Deserialize(reader, typeof(O));
 	}
 
 	//public static O[] DeserializeMany<O>(BinaryReader reader, Func<Type, byte, object> construct, Action<object> initialize = null) where O : ITypedBinarySerializable
@@ -189,7 +189,7 @@ public class BinarySerializator
 	//	return l;
 	//}
 
-	static object Deserialize(BinaryReader reader, Type type, Func<Type, uint, object> construct)
+	static object Deserialize(Reader reader, Type type)
 	{
 		if(typeof(bool) == type)			
 		{
@@ -252,7 +252,7 @@ public class BinarySerializator
 	
 				for(int i=0; i<n; i++)
 				{
-					l.GetType().GetMethod("Set").Invoke(l, [i, Deserialize(reader, type.GetElementType(), construct)]);
+					l.GetType().GetMethod("Set").Invoke(l, [i, Deserialize(reader, type.GetElementType())]);
 				}
 	
 				return l;
@@ -265,7 +265,7 @@ public class BinarySerializator
 			
 				for(int i=0; i<n; i++)
 				{
-					type.GetMethod("Add").Invoke(d, [Deserialize(reader, type.GenericTypeArguments[0], construct), Deserialize(reader, type.GenericTypeArguments[1], construct)]);
+					type.GetMethod("Add").Invoke(d, [Deserialize(reader, type.GenericTypeArguments[0]), Deserialize(reader, type.GenericTypeArguments[1])]);
 				}
 
 				return d;
@@ -274,7 +274,7 @@ public class BinarySerializator
 				throw new NotSupportedException(type.Name);
 		}
 
-		var o = Construct(reader, type, construct);
+		var o = Construct(reader, type);
 
 		if(o.GetType().GetInterfaces().Any(i => i == typeof(IBinarySerializable))) 
 		{
@@ -283,7 +283,7 @@ public class BinarySerializator
 		else
 			foreach(var p in o.GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 			{
-				p.SetValue(o, Deserialize(reader, p.PropertyType, construct));
+				p.SetValue(o, Deserialize(reader, p.PropertyType));
 			}
 
 		return o;

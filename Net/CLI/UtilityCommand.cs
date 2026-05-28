@@ -39,9 +39,9 @@ public class UtilityCommand : McvCommand
 								else
 									toid = AutoId.Parse(toe);
 
-								return new UtilityTransfer( info.Tables[GetString(from).Split('/')[0]], 
+								return new UtilityTransfer( info.Tables.First(i => i.Value == GetString(from).Split('/')[0]).Key, 
 															AutoId.Parse(GetString(from).Split('/')[1]),
-															info.Tables[GetString(to).Split('/')[0]], 
+															info.Tables.First(i => i.Value == GetString(to).Split('/')[0]).Key, 
 															toid,
 															GetLong("e", 0), 
 															GetLong("en", 0), 

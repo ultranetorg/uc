@@ -62,9 +62,9 @@ public class RdnMcv : Mcv
 		Users = new (this);
 		Domains = new (this);
 		Resources = new (this);
-		Subnets = new (this);
+		Friends = new (this);
 
-		Tables = [Metas, Users, Subnets, Domains, Resources];
+		Tables = [Metas, Users, Friends, Domains, Resources];
 	}
 
 	public override Round CreateRound()
@@ -89,23 +89,19 @@ public class RdnMcv : Mcv
 
 	}
 
-	public IEnumerable<Resource> SearchResources(string query)
+	public IEnumerable<Resource> SearchResources(AutoId domain, string query)
 	{
-		///var r = Ura.Parse(query);
-		///
-		///var d = Domains.Find(r.Domain, LastConfirmedRound.Id);
-		///
-		///if(d == null)
-		///	yield break;
-		///
-		///var c = Resources.FindBucket(d.Id.B);
-		///
-		///if(c == null)
-		///	yield break;
-		///
-		///foreach(var i in c.Entries.Where(i => i.Id.E == d.Id.E && i.Address.Resource.StartsWith(r.Resource)))
-		///	yield return i;
-
-		throw new NotImplementedException();
+		var d = Domains.Latest(domain);
+		
+		if(d == null)
+			yield break;
+		
+		var b = Resources.FindBucket(d.Id.B);
+		
+		if(b == null)
+			yield break;
+		
+		foreach(var i in b.Entries.Where(i => i.Domain == domain && (query == null || i.Name.Contains(query, StringComparison.InvariantCultureIgnoreCase))))
+			yield return i;
 	}
 }

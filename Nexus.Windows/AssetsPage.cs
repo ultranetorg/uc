@@ -10,7 +10,7 @@ public partial class AssetsPage : Page
 	{
 	}
 
-	public AssetsPage(Nexus nexus, NnpLcpClientConnection nnp) : base(nexus, nnp)
+	public AssetsPage(Nexus nexus, IccpLcpClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 	}
@@ -26,7 +26,7 @@ public partial class AssetsPage : Page
 
 			if(Nexus.Settings.Zone == Zone.Simulation)
 			{
-				Entity.Text = "user/father0000";
+				Entity.Text = "user/f000";
 			}
 		}
 	}
@@ -54,9 +54,11 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			foreach(var a in Nnp.Call(new Nnc<HolderAssetsNna, HolderAssetsNnr>(new () {Net = Nets.Text, Entity = entity}), f).Assets)
+			var e = Iccp.Call(null, Nets.Text, new AddressTextToUniversalIcca {Text = entity}, f) as AddressTextToUniversalIccr;
+
+			foreach(var a in (Iccp.Call(null, Nets.Text, new HolderAssetsIcca {Entity = e.Universal}, f) as HolderAssetsIccr).Assets)
 			{
-				var b = Nnp.Call(new Nnc<AssetBalanceNna, AssetBalanceNnr>(new () {Net = Nets.Text, Entity = entity, Name = a.Name}), f).Balance;
+				var b = (Iccp.Call(null, Nets.Text, new AssetBalanceIcca {Entity = e.Universal, Asset = a.Id}, f) as AssetBalanceIccr).Balance;
 			
 				var li = new ListViewItem(entity);
 				li.SubItems.Add(a.Name);

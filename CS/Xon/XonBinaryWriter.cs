@@ -13,7 +13,7 @@ enum EBonHeader : byte
 public class XonBinaryWriter : IXonWriter 
 {
 	Stream Stream; 
-	BinaryWriter Writer;
+	Writer Writer;
 
 	public XonBinaryWriter(Stream s)
 	{
@@ -22,7 +22,7 @@ public class XonBinaryWriter : IXonWriter
 
 	public void Start()
 	{
-		Writer = new BinaryWriter(Stream);
+		Writer = new Writer(Stream);
 		Writer.WriteUtf8(IXonWriter.BonHeader);
 	}
 

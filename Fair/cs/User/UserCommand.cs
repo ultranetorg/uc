@@ -102,7 +102,9 @@ public class UserCommand : Net.UserCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return	new UserAvatarChange {Image = System.IO.File.ReadAllBytes(GetString(path))}; 
+								var data = System.IO.File.ReadAllBytes(GetString(path));
+
+								return	new UserAvatarChange {Image = data}; 
 							};
 		return a;
 	}	

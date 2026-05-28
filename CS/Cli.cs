@@ -18,9 +18,6 @@ public abstract class Cli
 
 	static Cli()
 	{
-		Thread.CurrentThread.CurrentCulture = 
-		Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-US");
-
 		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 		try
@@ -87,7 +84,7 @@ public abstract class Cli
 		LogView.StopListening();
 	}
 
-	public void Run(Command command, Command.CommandAction action)
+	public virtual void Run(Command command, Command.CommandAction action)
 	{
 		if(ConsoleAvailable)
 		{

@@ -2,20 +2,18 @@
 
 namespace Uccs.Net;
 
-public class Hello
+public abstract class Hello
 {
 	public int[]						Versions;
 	public long							Roles;
-	public string						Net;
 	public IPAddress					YourIP;
 	public ushort						MyPort;
 	public bool							Permanent;
 	public string						Name;
 
-	public void Write(BinaryWriter w)
+	public virtual void Write(Writer w)
 	{
-		w.Write(Versions, i => w.Write7BitEncodedInt(i));
-		w.WriteUtf8(Net);
+		w.Write(Versions, w.Write7BitEncodedInt);
 		w.WriteUtf8(Name);
 		w.Write7BitEncodedInt64(Roles);
 		w.Write(YourIP);
@@ -23,10 +21,9 @@ public class Hello
 		w.Write(Permanent);
 	}
 
-	public void Read(BinaryReader r)
+	public virtual void Read(Reader r)
 	{
-		Versions	= r.ReadArray(() => r.Read7BitEncodedInt());
-		Net			= r.ReadUtf8();
+		Versions	= r.ReadArray(r.Read7BitEncodedInt);
 		Name		= r.ReadUtf8();
 		Roles		= r.Read7BitEncodedInt64();
 		YourIP		= r.ReadIPAddress();

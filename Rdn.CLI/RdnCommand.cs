@@ -8,7 +8,7 @@ public abstract class RdnCommand : McvCommand
 	public static readonly ArgumentType DCP		= new ("DCP",	@"Domain child address",													[DomainChildPolicy.FullFreedom.ToString()]);
 	public static readonly ArgumentType RA		= new ("RA",	@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"rdn/company/application", "/author/product"]);
 	public static readonly ArgumentType TLD		= new ("TLD",	@"Web top-level domain",													[@"com"]);
-	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",															[$@"{UrrScheme.Urrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",															[$@"{UrrScheme.Rrrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
 	public static readonly ArgumentType LT		= new ("RLT",	@"Resource link type",														[ResourceLinkType.Hierarchy.ToString()]);
 	public static readonly ArgumentType SNN		= new ("SNN",	@"Subnet name",																["fair"]);
 
@@ -35,7 +35,7 @@ public abstract class RdnCommand : McvCommand
 
 	protected AutoId GetResourceId(string text)
 	{
-		return text.Contains('/') ? Ppc(new ResourcePpc(Ura.Parse(text))).Resource.Id
+		return text.Contains('/') ? Ppc(new ResourceByAddressPpc(Ura.Parse(text))).Resource.Id
 									:
 									AutoId.Parse(text);
 	}
@@ -63,7 +63,7 @@ public abstract class RdnCommand : McvCommand
 				var cnt = GetEnum("data/type", ContentType.Unknown);
 				var t = new DataType(ctl, cnt);
 
-				if(ctl == DataType.Data)
+				if(ctl == DataType.Raw)
 				{	
 					if(cnt == ContentType.Unknown)
 						return new ResourceData(t, d.Get<string>("hex").FromHex());
@@ -90,7 +90,7 @@ public abstract class RdnCommand : McvCommand
 				throw new SyntaxException("Unknown type");
 			}
 			else if(d.Value != null)
-				return new ResourceData(new BinaryReader(new MemoryStream(GetBytes("data"))));
+				return new ResourceData(new Reader(GetBytes("data")));
 		}
 
 		return null;

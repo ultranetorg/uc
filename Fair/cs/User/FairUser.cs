@@ -35,7 +35,7 @@ public class FairUser : User
 		return a;
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);
 
@@ -49,7 +49,7 @@ public class FairUser : User
 		writer.Write7BitEncodedInt(Rejections);
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 

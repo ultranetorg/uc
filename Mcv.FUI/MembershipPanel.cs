@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Mcv.FUI;
 
-public partial class MembershipPanel : MainPanel
+public partial class MembershipPanel : McvPanel
 {
 	public MembershipPanel()
 	{

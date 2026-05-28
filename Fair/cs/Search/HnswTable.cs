@@ -29,14 +29,14 @@ public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
 		return $"{Id}, {Data}, Level={Id.Level}, Connections={Connections.Count}";
 	}
 
-	public virtual void ReadMain(BinaryReader r)
+	public virtual void WriteMain(Writer writer)
 	{
-		Read(r);
+		Write(writer);
 	}
 
-	public virtual void WriteMain(BinaryWriter w)
+	public virtual void ReadMain(Reader reader)
 	{
-		Write(w);
+		Read(reader);
 	}
 
 	public virtual void Cleanup(Round lastInCommit)
@@ -57,14 +57,14 @@ public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
 			Connections[level] = [node.Id];
 	}
 
-	public virtual void Write(BinaryWriter writer)
+	public virtual void Write(Writer writer)
 	{
 		writer.Write(Id);
 		//writer.Write(Hash);
 		writer.Write(Connections, i => writer.Write((byte)i), i => writer.Write(i));
 	}
 
-	public virtual void Read(BinaryReader reader)
+	public virtual void Read(Reader reader)
 	{
 		Id			= reader.Read<HnswId>();
 		//Hash		= reader.ReadUInt64();
@@ -434,14 +434,14 @@ public class HnswTableState<D, E> : TableState<HnswId, E> where E : HnswNode<D>
 		//EntryPoints = e.EntryPoints;
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		base.Write(writer);
 
 		//writer.Write(EntryPoints);
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 

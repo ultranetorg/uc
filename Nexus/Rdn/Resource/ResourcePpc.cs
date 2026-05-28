@@ -1,50 +1,65 @@
 ﻿namespace Uccs.Rdn;
 
-public class ResourcePpc : RdnPpc<ResourcePpr>
+public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>
 {
-	public ResourceIdentifier	Identifier { get; set; }
+	public AutoId	Id { get; set; }
 
-	public ResourcePpc()
+	public ResourceByIdPpc()
 	{
 	}
 
-	public ResourcePpc(ResourceIdentifier identifier)
+	public ResourceByIdPpc(AutoId id)
 	{
-		Identifier = identifier;
-	}
-
-	public ResourcePpc(Ura addres)
-	{
-		Identifier = new(addres);
-	}
-
-	public ResourcePpc(AutoId id)
-	{
-		Identifier = new(id);
+		Id = id;
 	}
 
 	public override Result Execute()
 	{
  		lock(Mcv.Lock)
 		{	
-			Resource r;
-
-			if(Identifier.Addres != null)
-				r = Mcv.Resources.Latest(Identifier.Addres);
-			else if(Identifier.Id != null)
-				r = Mcv.Resources.Latest(Identifier.Id);
-			else
-				throw new RequestException(RequestError.IncorrectRequest);
+			var	r = Mcv.Resources.Latest(Id)
+					??
+					throw new EntityException(EntityError.NotFound);
 			
-			if(r == null)
-				throw new EntityException(EntityError.NotFound);
-			
-			return new ResourcePpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
+			return new ResourceByIdPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
 		}
 	}
 }
 	
-public class ResourcePpr : Result
+public class ResourceByIdPpr : Result
+{
+	public Resource Resource { get; set; }
+	public Ura		Address { get; set; }
+}
+	
+
+public class ResourceByAddressPpc : RdnPpc<ResourceByAddressPpr>
+{
+	public Ura		Addres { get; set; }
+
+	public ResourceByAddressPpc()
+	{
+	}
+
+	public ResourceByAddressPpc(Ura addres)
+	{
+		Addres = addres;
+	}
+
+	public override Result Execute()
+	{
+ 		lock(Mcv.Lock)
+		{	
+			var	r = Mcv.Resources.Latest(Addres)
+					??
+					throw new EntityException(EntityError.NotFound);
+			
+			return new ResourceByAddressPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
+		}
+	}
+}
+	
+public class ResourceByAddressPpr : Result
 {
 	public Resource Resource { get; set; }
 	public Ura		Address { get; set; }

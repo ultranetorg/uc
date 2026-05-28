@@ -6,37 +6,49 @@ public class FileCreation : FairOperation
 {
 	public EntityAddress		Owner { get; set; }
 	public byte[]				Data { get; set; }
-	public MimeType				Mime { get; set; }
+	public FairMime				Mime { get; set; }
 
 	public override string		Explanation => $"Owner={Owner}, Data={Data.Length}";
-	public override bool		IsValid(McvNet net) => Data.Length <= (net as Fair).FileLengthMaximum && Enum.IsDefined(Mime);
-
 	public FileCreation()
 	{
 	}
 
-	public FileCreation(EntityAddress owner, byte[] data, MimeType mime)
+	public FileCreation(EntityAddress owner, byte[] data, FairMime mime)
 	{
 		Owner = owner;
 		Data = data;
 		Mime = mime;
 	}
 
-	public FileCreation(FairTable table, AutoId id, byte[] data, MimeType mime)
+	public FileCreation(FairTable table, AutoId id, byte[] data, FairMime mime)
 	{
 		Owner = new EntityAddress((byte)table, id);
 		Data = data;
 		Mime = mime;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override bool IsValid(McvNet net)
+	{
+		if(Data.Length > (net as Fair).FileLengthMaximum && !Enum.IsDefined(Mime))
+			return false;
+
+		if(Mime == FairMime.ImageJpg || Mime == FairMime.ImagePng)
+		{
+			if(File.GetImageFormat(Data) != Mime)
+				return false;
+		}
+
+		return true;
+	}
+
+	public override void Read(Reader reader)
 	{
 		Owner	= reader.Read<EntityAddress>();
 		Data	= reader.ReadBytes();
-		Mime	= reader.Read<MimeType>();
+		Mime	= reader.Read<FairMime>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Owner);
 		writer.WriteBytes(Data);
@@ -71,7 +83,7 @@ public class FileCreation : FairOperation
 
 				a = execution.Authors.Affect(a.Id);
 				a.Files = [..a.Files, f.Id];
-				execution.Allocate(a, a, Data.Length);
+				execution.Allocate(a, a, execution.Net.EntityLength + Data.Length);
 				break;
 			}
 
@@ -82,7 +94,7 @@ public class FileCreation : FairOperation
 
 				a = execution.Sites.Affect(a.Id);
 				a.Files = [..a.Files, f.Id];
-				execution.Allocate(a, a, Data.Length);
+				execution.Allocate(a, a, execution.Net.EntityLength + Data.Length);
 				break;
 			}
 

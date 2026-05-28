@@ -1,10 +1,26 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using RocksDbSharp;
 
 namespace Uccs.Net;
+
+public class HomoHello : Hello
+{
+	public string	Net;
+
+	public override void Write(Writer writer)
+	{
+		base.Write(writer);
+		writer.WriteASCII(Net);
+	}
+
+	public override void Read(Reader reader)
+	{
+		base.Read(reader);
+		Net	= reader.ReadASCII();
+	}
+}
 
 public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same type of peers
 {
@@ -34,6 +50,16 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		LoadPeers();
 	}
 
+	public override Hello WaitHello(TcpClient client)
+	{
+		var r = new Reader(client.GetStream());
+		var h = new HomoHello();
+
+		h.Read(r);
+		
+		return h;
+	}
+
 	protected override void AddPeer(HomoPeer peer)
 	{
 		Peers.Add(peer);
@@ -58,7 +84,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 	{
 		lock(Lock)
 		{
-			var h = new Hello();
+			var h = new HomoHello();
 
 			h.Net			= Net.Name;
 			h.Name			= Name;
@@ -76,7 +102,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 	{
 		lock(Lock)
 		{
-			var h = new Hello();
+			var h = new HomoHello();
 
 			h.Net			= Net.Name;
 			h.Name			= Name;
@@ -97,7 +123,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(!hello.Versions.Any(i => Versions.Contains(i)))
 			return false;
 
-		if(hello.Net != Net.Name)
+		if((hello as HomoHello).Net != Net.Name)
 			return false;
 
 		if(hello.Name == Name)
@@ -149,7 +175,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
  				var p = new HomoPeer();
 				//p.EP = new IPAddress(i.Key());
 				p.Recent = false;
- 				p.LoadNode(new BinaryReader(new MemoryStream(i.Value())));
+ 				p.LoadNode(new Reader(i.Value()));
  				Peers.Add(p);
 			}
 		}
@@ -173,18 +199,17 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 
 	public void SavePeers(IEnumerable<Peer> peers)
 	{
-		using(var b = new WriteBatch())
-		{
-			foreach(var i in peers)
-			{
-				var s = new MemoryStream();
-				var w = new BinaryWriter(s);
-				i.SaveNode(w);
-				b.Put(i.EP.Raw, s.ToArray(), PeersFamily);
-			}
+		using var b = new WriteBatch();
 
-			Database.Write(b);
+		foreach(var i in peers)
+		{
+			var s = new MemoryStream();
+			var w = new Writer(s);
+			i.SaveNode(w);
+			b.Put(i.EP.Raw, s.ToArray(), PeersFamily);
 		}
+
+		Database.Write(b);
 	}
 
 	public List<HomoPeer> RefreshPeers(IEnumerable<HomoPeer> peers, Peer source)
@@ -332,10 +357,10 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(request.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), request, Constructor.TypeToCode);
+			BinarySerializator.Serialize(new Writer(s, Constructor), request);
 			s.Position = 0;
 			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
+			rq = BinarySerializator.Deserialize<PeerRequest>(new Reader(s, Constructor));
 			rq.Peering = this;
 		}
 
@@ -349,10 +374,10 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(rq.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new(s), rq, Constructor.TypeToCode);
+			BinarySerializator.Serialize(new Writer(s, Constructor), rq);
 			s.Position = 0;
 			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new(s), Constructor.Construct);
+			rq = BinarySerializator.Deserialize<PeerRequest>(new Reader(s, Constructor));
 			rq.Peering = this;
 		}
 

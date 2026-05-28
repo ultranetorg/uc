@@ -2,8 +2,7 @@
 
 namespace Uccs.Mcv.FUI;
 
-
-public partial class NetworkPanel : MainPanel
+public partial class NetworkPanel : McvPanel
 {
 	HomoPeering Peering;
 
@@ -16,6 +15,11 @@ public partial class NetworkPanel : MainPanel
 
 	public override void Open(bool first)
 	{
+		Reload();
+	}
+
+	private void Reload()
+	{
 		Peers.Items.Clear();
 
 		lock(Peering.Lock)
@@ -27,59 +31,16 @@ public partial class NetworkPanel : MainPanel
 				r.SubItems.Add(p.Retries.ToString());
 				r.SubItems.Add(p.PeerRank.ToString());
 				r.SubItems.Add(p.LastSeen.ToString(Time.DateFormat.ToString()));
-
-				r.SubItems.Add(string.Join(',', Enumerable.Range(0, sizeof(long)*8).Select(i => 1L << i).Where(i => p.Roles.IsSet(i)).Select(x => $"{x}").ToArray()));
-
+	
+				r.SubItems.Add(string.Join(',', Enumerable.Range(0, sizeof(long) * 8).Select(i => 1L << i).Where(i => p.Roles.IsSet(i)).Select(x => $"{x}").ToArray()));
+	
 				r.Tag = p;
 			}
 		}
-
-		//Task.Run(() =>	{
-		//					FundsResponse rp = null;
-		//
-		//					try
-		//					{
-		//						rp = Sun.Call(p => p.GetFunds(), Workflow);
-		//					}
-		//					catch(OperationCanceledException)
-		//					{
-		//						return;
-		//					}
-		//					catch(Exception)
-		//					{
-		//					}
-		//
-		//					Invoke(new Action(() =>
-		//					{
-		//						foreach(var i in rp.Funds.Order())
-		//						{
-		//							var li = new ListViewItem(i.ToString());
-		//							Funds.Items.Add(li);
-		//						}
-		//					}));
-		//				});
 	}
 
-	public override void PeriodicalRefresh()
+	private void Refresh_Click(object sender, EventArgs e)
 	{
-		//if(peers.Rows.Count >= 0)
-		//{
-		//	var rows = peers.Rows.Cast<DataGridViewRow>();
-		//
-		//	lock(Core.Lock)
-		//	{
-		//		foreach(var i in Core.Peers)
-		//		{
-		//			var r = rows.FirstOrDefault(j => j.Tag as Peer == i);
-		//		
-		//			if(r != null)
-		//			{
-		//				r.Cells[1].Value = i.StatusDescription;
-		//				r.Cells[2].Value = i.Retries;
-		//				r.Cells[3].Value = i.LastSeen.ToString(ChainTime.DateFormat);
-		//			}
-		//		}
-		//	}
-		//}
+		Reload();
 	}
 }

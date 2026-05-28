@@ -17,11 +17,11 @@ public class Genesis : Operation
 	{
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 	}
 
@@ -43,7 +43,7 @@ public class Genesis : Operation
 		var	c = execution.AffectCandidate(a.Id);
 
 		c.User			= a.Id;
-		c.GraphPpcIPs	= [execution.Net.Father0EP];
+		c.GraphPpiEndpoints	= [execution.Net.Father0EP];
 
 		Declare(execution, c);
 	}

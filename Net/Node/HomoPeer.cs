@@ -6,9 +6,9 @@ namespace Uccs.Net;
 
 public interface IHomoPeer
 {
- 	public abstract	void			Send(PeerRequest rq);
-	public abstract Result			CallMe(PeerRequest rq, Flow flow);
-	public R						CallMe<R>(Ppc<R> rq, Flow flow) where R : Result => CallMe((PeerRequest)rq, flow) as R;
+ 	public abstract	void	Send(PeerRequest rq);
+	public abstract Result	CallMe(PeerRequest rq, Flow flow);
+	public R				CallMe<R>(Ppc<R> rq, Flow flow) where R : Result => CallMe((PeerRequest)rq, flow) as R;
 }
 
 public class HomoPeer : Peer, IHomoPeer
@@ -31,9 +31,9 @@ public class HomoPeer : Peer, IHomoPeer
 	{
 		lock(Writer)
 		{
-			Writer.Write((byte)PacketType.Request);
+			Writer.Write(PacketType.Request);
 			Writer.Write(id);
-			BinarySerializator.Serialize(Writer, request, Peering.Constructor.TypeToCode); 
+			BinarySerializator.Serialize(Writer, request); 
 		}
 	}
 
@@ -47,9 +47,9 @@ public class HomoPeer : Peer, IHomoPeer
 			{
 				lock(Writer)
 				{
-					Writer.Write((byte)PacketType.Response);
+					Writer.Write(PacketType.Response);
 					Writer.Write(id);
-					BinarySerializator.Serialize(Writer, r, Peering.Constructor.TypeToCode);
+					BinarySerializator.Serialize(Writer, r);
 				}
 			}
 		}
@@ -57,9 +57,9 @@ public class HomoPeer : Peer, IHomoPeer
 		{
 			lock(Writer)
 			{
-				Writer.Write((byte)PacketType.Failure);
+				Writer.Write(PacketType.Failure);
 				Writer.Write(id);
-				BinarySerializator.Serialize(Writer, ex, Peering.Constructor.TypeToCode);
+				BinarySerializator.Serialize(Writer, ex);
 			}
 		}
 	}
@@ -82,7 +82,7 @@ public class HomoPeer : Peer, IHomoPeer
  					case PacketType.Request:
  					{
 						var id = Reader.ReadInt32();
-						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader, Peering.Constructor.Construct);
+						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader);
 						rq.Peer = this;
 						rq.Peering = Peering as HomoPeering;
 						
@@ -94,7 +94,7 @@ public class HomoPeer : Peer, IHomoPeer
 					case PacketType.Response:
  					{
 						var id = Reader.ReadInt32();
-						var r = BinarySerializator.Deserialize<Result>(Reader, Peering.Constructor.Construct);
+						var r = BinarySerializator.Deserialize<Result>(Reader);
 
 						lock(OutRequests)
 						{
@@ -115,7 +115,7 @@ public class HomoPeer : Peer, IHomoPeer
  					case PacketType.Failure:
  					{
 						var id = Reader.ReadInt32();
-						var ex = BinarySerializator.Deserialize<CodeException>(Reader, Peering.Constructor.Construct);
+						var ex = BinarySerializator.Deserialize<CodeException>(Reader);
 
 						lock(OutRequests)
 						{

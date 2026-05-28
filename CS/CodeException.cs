@@ -16,12 +16,12 @@ public abstract class CodeException : Exception, ITypeCode, IBinarySerializable
 	{
 	}
 
-	public void Read(BinaryReader reader)
+	public void Read(Reader reader)
 	{
 		ErrorCode = reader.Read7BitEncodedInt();
 	}
 
-	public void Write(BinaryWriter writer)
+	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(ErrorCode);
 	}

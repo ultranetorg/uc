@@ -17,8 +17,7 @@ public enum FairOperationClass : uint
 		AuthorOwnerRemoval			= 101_000_005,
 		AuthorNameChange			= 101_000_006,
 		AuthorAvatarChange			= 100_000_007,
-		AuthorTextChange			= 100_000_008,
-		AuthorLinksChange			= 100_000_009,
+		AuthorInfoUpdation			= 100_000_008,
 	
 	Product							= 102, 
 		ProductCreation				= 102_000_001, 
@@ -99,6 +98,7 @@ public abstract class FairOperation : Operation
 	public const string			NotEmptyReferencies = "Not Empty References";
 	public const string			TypeAlreadyDefined = "Type already defined";
 	public const string			NotPublished = "Not published";
+	public const string			NotSupported = "Not supported";
 
 	public new FairUser			User { get => base.User as FairUser; set => base.User = value; }
 
@@ -471,6 +471,18 @@ public abstract class FairOperation : Operation
 		{
 			error = NotFound;
 			return false; 
+		}
+
+		error = null;
+		return true;
+	}
+
+	public bool IsImage(File file, out string error)
+	{
+ 		if(file.Mime != FairMime.ImageJpg && file.Mime != FairMime.ImagePng)
+		{
+			error = NotSupported;
+			return false;
 		}
 
 		error = null;

@@ -16,13 +16,13 @@ public class AuthorAvatarChange : FairOperation
 		return true;
 	}
 
-	public override void Read(BinaryReader reader)
+	public override void Read(Reader reader)
 	{
 		Author	= reader.Read<AutoId>();
 		File	= reader.Read<AutoId>();
 	}
 
-	public override void Write(BinaryWriter writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Author);
 		writer.Write(File);
@@ -36,6 +36,9 @@ public class AuthorAvatarChange : FairOperation
 		if(!CanAccessFile(execution, File, new EntityAddress((byte)FairTable.Author, Author), out var f, out Error))
 			return;
 
+		if(!IsImage(f, out Error))
+			return;
+			
 		a = execution.Authors.Affect(Author);
 		f = execution.Files.Affect(File);
 			

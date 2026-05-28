@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Text;
 using Uccs.Rdn;
 using Uccs.Vault;
 
@@ -18,8 +19,8 @@ public class Nexus : IProgram
 	public Delegate					Stopped;
 	VoidDelegate					OpenIam;
 
-	public NnpPeering				NnpPeering;
-	public NnpLcpServer				NnpIppServer;
+	public IccpPeering				IccpPeering;
+	public IccpLcpServer			IccpLcpServer;
 
 	public delegate void			Delegate(Nexus d);
 
@@ -33,6 +34,15 @@ public class Nexus : IProgram
 	public Nexus(NetBoot boot, NexusSettings settings, VaultSettings vaultsettings, Flow flow)
 	{
 		Settings = settings ?? new NexusSettings(boot.Zone, boot.Profile);
+
+		if(!File.Exists(Settings.Path))
+		{
+			Settings.Name			= Guid.NewGuid().ToByteArray().ToHex();
+			Settings.Host			= NexusSettings.StandardHost;
+			Settings.IccpPeering	= new PeeringSettings {EP = new (IPAddress.Any, Port.Map(boot.Zone, KnownProtocol.Iccp))};
+			Settings.Save();
+		}
+
 		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
 		Flow = flow;
 
@@ -49,9 +59,18 @@ public class Nexus : IProgram
 
 		Vault = new Vault.Vault(boot.Profile, boot.Zone, vaultsettings, flow);		
 
-		if(Settings.NnPeering != null)
+		if(Settings.IccpPeering != null)
 		{
-			NnpIppServer = new NnpLcpServer(this);
+			IccpLcpServer = new IccpLcpServer(this);
+	
+			IccpPeering = new IccpPeering(	this, 
+											Settings.Name, 
+											Settings.IccpPeering, 
+											IccpLcpServer, 
+											() => IccpLcpServer.Locals.Select(i => i.Net).ToList(), 
+											() => RdnNode.Peering.Call(new MembersPpc(), flow).Members.SelectMany(i => i.GraphPpiEndpoints.Select(i => i.IP)).ToArray(), 
+											Flow);
+			IccpPeering.Run();
 		}
 
 		if(Settings.Api != null)
@@ -74,10 +93,25 @@ public class Nexus : IProgram
 
 		ApiServer?.Stop();
 		RdnNode?.Stop();
-		NnpPeering?.Stop();
+		IccpPeering?.Stop();
 		Vault.Stop();
 
 		Stopped?.Invoke(this);
+	}
+	
+	public void RunRdn(RdnNodeSettings rdnsettings, IClock clock)
+	{
+		var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
+		Directory.CreateDirectory(d);
+		
+		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
+		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
+
+		if(IccpPeering != null)
+		{
+			IccpPeering.Mcv = RdnNode.Mcv;
+		}
+		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
 	}
 
 	public Thread CreateThread(Action action)
@@ -101,35 +135,18 @@ public class Nexus : IProgram
 								});
 	}
 
-	public NnpLcpClientConnection CreateNnpClientConnection()
+	public IccpLcpClientConnection CreateIccpClientConnection()
 	{
-		var c = new	NnpLcpClientConnection(this, NnpLcpConnection.GetName(Settings.Host), Flow);
+		var c = new	IccpLcpClientConnection(this, IccpLcpConnection.GetName(Settings.Host), Flow);
 		return c;
 	}
 
-	public NnpLcpClientConnection CreateNnpClientConnection(Constructor constructor)
-	{
-		var c = new	NnpLcpClientConnection(this, NnpLcpConnection.GetName(Settings.Host), Flow);
-		c.Constructor.Merge(constructor);
-		return c;
-	}
-	
-	public void RunRdn(RdnNodeSettings rdnsettings, IClock clock)
-	{
-		var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
-		Directory.CreateDirectory(d);
-		
-		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
-		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
-		
-		if(Settings.NnPeering != null)
-		{
-			NnpPeering = new NnpPeering(this, RdnNode.Mcv, Settings.Name, Settings.NnPeering, 0, Flow);
-			NnpPeering.Run();
-		}
-
-		///Nodes = [new NodeDeclaration {Net = Rdn.Rdn.Root, ApiLocalAddress = RdnNode.Settings.Api.LocalAddress(RdnNode.Net)}];
-	}
+	//public IccpLcpClientConnection CreateIccpClientConnection(Constructor constructor)
+	//{
+	//	var c = new	IccpLcpClientConnection(this, IccpLcpConnection.GetName(Settings.Host), Flow);
+	//	c.Constructor.Merge(constructor);
+	//	return c;
+	//}
 
 	public void RunApi()
 	{
@@ -147,80 +164,113 @@ public class Nexus : IProgram
 		//ApiStarted?.Invoke(this);
 	}
 
-//	public NnApiClient GetNetToNetnNodeApi(string net)
-//	{
-//		var d = Find(net);
-//
-//		if(d == null)
-//			throw new NexusException("No node available for this net");
-//
-//		return new NnApiClient(d.ApiLocalAddress, http: ApiHttpClient);
-//	}
+	public void Open(Snp snp, Flow flow)
+	{
+		if(snp.Net == null || snp.Net == Iccn.Root)
+		{
+			ActivatePackage(new Ura(snp), flow);
+		}
+		else
+		{
+			var r = IccpLcpServer.Relay(null, snp.Net, new InfoIcca(), null) as InfoIccr;
+
+			foreach(var wi in r.Wayins)
+			{
+				if(wi.Software != null)
+				{
+					Snp.Parse(wi.Software, out var s, out var n, out var p);
+
+					if(s == Iccp.Scheme)
+					{
+						ActivatePackage(Ura.Parse(wi.Software), flow);
+					}
+				}
+				
+				if(wi.Command != null)
+				{
+					var ps = new Process();
+					ps.StartInfo.UseShellExecute = true;
+					ps.StartInfo.FileName = null;
+					ps.StartInfo.Arguments = wi.Command;
+	
+					ps.Start();
+				}
+			}
+		}
+	}
+
+	void ActivatePackage(Ura ura, Flow flow)
+	{
+		var r = RdnNode.Peering.Call(new ResourceByAddressPpc(ura), flow)?.Resource;
+		//var d = RdnNode.ResourceHub.Find(ura)?.Last;
+				
+		if(r.Data == null)
+			throw new NexusException("No data");
+	
+		//Ura apr = null;
+		Ura aprv = null;
+	
+		if(r.Data.Type.Content == ContentType.Package_Software_ProductManifest)
+		{
+			var lrr = RdnNode.Download(r, flow);
+	
+			lock(RdnNode.ResourceHub.Lock)
+			{
+				var m = ProductManifest.FromXon(new Xon(Encoding.UTF8.GetString(RdnNode.ResourceHub.Find(lrr.Address).Find("").Data)));
+	
+				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
+			}
+		}
+		else if(r.Data.Type.Content == ContentType.Package_Software_VersionManifest)
+		{
+			aprv = ura;
+		}
+		else
+			throw new NexusException("Incorrect resource type");
+	
+		PackageHub.Deploy(aprv, flow);
+	
+		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + PackageManifest.Extension).First();
+	
+		var vm = PackageManifest.Load(vmpath);
+	
+		var exe = vm.MatchExecution(Platform.Current);
+	
+		SetupApplicationEnvironemnt(aprv);
+	
+		var ps = new Process();
+		ps.StartInfo.UseShellExecute = true;
+		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
+		ps.StartInfo.Arguments = exe.Arguments;
+	
+		ps.Start();
+	}
 
 	public void SetupApplicationEnvironemnt(Ura address)
 	{
-		Environment.SetEnvironmentVariable(Application.ProfileKey,			Settings.Profile);
 		Environment.SetEnvironmentVariable(Application.PackageAddressKey,	address.ToString());
+		Environment.SetEnvironmentVariable(Application.ProfileKey,			Settings.Profile);
 
 		Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, address);
 	}
 
-	public void Start(Snp address, Flow flow)
+	public byte[] GetApplicationSession(string net, Flow flow)
 	{
-	///	if(address.Net == Net.Net.Root || address.Net is null)
-	///	{
-	///		var ura = Ura.Parse(address.ToString());
-	///
-	///		var d = RdnNode.ResourceHub.Find(ura)?.Last
-	///				?? 
-	///				RdnNode.Peering.Call(new ResourcePpc {Identifier = new (ura)}, flow)?.Resource?.Data;
-	///
-	///		if(d == null)
-	///			throw new NexusException("Incorrect resource type");
-	///
-	///		//Ura apr = null;
-	///		Ura aprv = null;
-	///
-	///		if(d.Type.Content == ContentType.Package_ProductManifest)
-	///		{
-	///			var lrr = RdnApi.Download(ura, flow);
-	///
-	///			var m = ProductManifest.FromXon(new Xon(new StreamReader(new MemoryStream(RdnApi.Call<byte[]>(new LocalReleaseReadApc {Address = lrr.Address, Path=""}, flow)), Encoding.UTF8).ReadToEnd()));
-	///
-	///			aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
-	///		}
-	///		else if(d.Type.Content == ContentType.Package_VersionManifest)
-	///		{
-	///			aprv = ura;
-	///		}
-	///		else
-	///			throw new NexusException("Incorrect resource type");
-	///
-	///		NexusApi.DeployPackage(aprv, Settings.Packages, flow);
-	///
-	/// 		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + PackageManifest.Extension).First();
-	/// 
-	/// 		var vm = PackageManifest.Load(vmpath);
-	/// 
-	///		var exe = vm.MatchExecution(Platform.Current);
-	///
-	///		SetupApplicationEnvironemnt(aprv);
-	///
-	/// 		var ps = new Process();
-	/// 		ps.StartInfo.UseShellExecute = true;
-	/// 		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
-	/// 		ps.StartInfo.Arguments = exe.Arguments;
-	///
-	/// 		ps.Start();
-	///	}
-	///	else
-	///	{
-	///		///if(Find(address.Net) == null)
-	///		///{
-	///		///	ConnectNetwork(address.Net);
-	///		///}
-	///		///
-	///		///GetMcvNodeApi(address.Net).Send(new StartApc {Entity = address.Entity}, flow);
-	///	}
+		var s = Settings.Sessions.FirstOrDefault(i => i.Net == net);
+
+		if(s == null)
+		{
+			lock(Vault)
+				s = new NexusSessionSettings
+					{
+						Net = net,
+						Session = Vault.Authenticate(Settings.Name, net, "", null, null, flow).Session
+					};
+
+			Settings.Sessions = [..Settings.Sessions, s];
+			Settings.Save();
+		}
+
+		return s.Session;
 	}
 }	

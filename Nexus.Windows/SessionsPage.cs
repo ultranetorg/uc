@@ -11,7 +11,7 @@ public partial class SessionsPage : Page
 		InitializeComponent();
 	}
 
-	public SessionsPage(Nexus nexus, NnpLcpClientConnection nnp) : base(nexus, nnp)
+	public SessionsPage(Nexus nexus, IccpLcpClientConnection nnp) : base(nexus, nnp)
 	{
 		InitializeComponent();
 
@@ -20,7 +20,7 @@ public partial class SessionsPage : Page
 
 	public override void Open(bool first)
 	{
-		Program.NexusContext.BindWallets(this, Nexus.Vault, Wallets, Accounts, null);
+		Program.NexusWindows.BindWallets(this, Nexus.Vault, Wallets, Accounts, null);
 
 		if(Accounts.Items.Count > 0)
 		{

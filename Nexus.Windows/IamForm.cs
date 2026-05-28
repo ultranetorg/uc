@@ -5,7 +5,7 @@ namespace Uccs.Nexus.Windows;
 
 public partial class IamForm : Form
 {
-	NnpLcpClientConnection Nnp;
+	IccpLcpClientConnection Nnp;
 
 	public IamForm()
 	{
@@ -16,7 +16,7 @@ public partial class IamForm : Form
 	{
 		InitializeComponent();
 
-		Nnp = nexus.CreateNnpClientConnection();
+		Nnp = nexus.CreateIccpClientConnection();
 
 		WalletsAndAccounts.Tag = new WalletsPage(nexus, Nnp);
 		Sessions.Tag = new SessionsPage(nexus, Nnp);
