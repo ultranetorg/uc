@@ -21,6 +21,11 @@ public class Reader : BinaryReader
 	{
 	}
 
+	public Reader(byte[] bytes, Constructor constructor) : base(new MemoryStream(bytes))
+	{
+		Constructor = constructor;
+	}
+
 	public byte[] ReadBytes()
 	{
 		var n = Read7BitEncodedInt();

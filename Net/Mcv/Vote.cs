@@ -12,7 +12,7 @@ public class Vote : IBinarySerializable
 	Mcv									Mcv;
 	//AccountAddress						_Generator;
 
-	public AutoId						User;
+	public AutoId						Member;
 	public int							RoundId;
 	public int							Try; /// revote if consensus not reached
 	public Time							Time;
@@ -108,7 +108,7 @@ public class Vote : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{RoundId}, {User}, Try={Try}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, {nameof(TargetHash)}={TargetHash?.ToHex()}, {nameof(Violators)}={{{Violators.Length}}}, {nameof(Leavers)}={{{Leavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
+		return $"{RoundId}, {Member}, Try={Try}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, {nameof(TargetHash)}={TargetHash?.ToHex()}, {nameof(Violators)}={{{Violators.Length}}}, {nameof(Leavers)}={{{Leavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
 	}
 	
 	public void AddTransaction(Transaction t)
@@ -131,7 +131,7 @@ public class Vote : IBinarySerializable
 		w.Write((byte)Mcv.Net.Zone);
 		w.WriteUtf8(Mcv.Net.Address);
 		w.Write7BitEncodedInt(RoundId);
-		w.Write(User);
+		w.Write(Member);
 		w.WriteBytes(RawPayload);
 
 		return s.Hash;
@@ -180,7 +180,7 @@ public class Vote : IBinarySerializable
 	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(RoundId);
-		writer.Write(User);
+		writer.Write(Member);
 		writer.Write(Signature);
 		writer.WriteBytes(RawPayload);
 	}
@@ -188,24 +188,10 @@ public class Vote : IBinarySerializable
 	public void Read(Reader reader)
 	{
 		RoundId		= reader.Read7BitEncodedInt();
-		User		= reader.Read<AutoId>();
+		Member		= reader.Read<AutoId>();
 		Signature	= reader.ReadSignature();
 		_RawPayload	= reader.ReadBytes();
 	}
-
-//	public void WriteForRoundUnconfirmed(Writer writer)
-//	{
-//		writer.Write(Signature);
-//		writer.Write(Signer);
-//		WritePayload(writer);
-//	}
-//
-//	public void ReadForRoundUnconfirmed(Reader reader)
-//	{
-//		Signature	= reader.ReadSignature();
-//		_Generator	= reader.ReadAccount();
-//		ReadPayload(reader);
-//	}
 
 	public void Restore()
 	{
@@ -223,12 +209,12 @@ public class Vote : IBinarySerializable
 		foreach(var t in Transactions)
 		{	
 			log.ReportWarning(this, $"----Transaction {t}" );
-			log.ReportWarning(this, $"----NearestBy {round.Senders.NearestBy(i => i.User, t.User, t.Nonce).User}");
+			log.ReportWarning(this, $"----NearestBy {round.Senders.NearestBy(i => i.User, t.Signature).User}");
 			log.ReportWarning(this, $"----Signature {t.Signature.ToHex()}" );
 			log.ReportWarning(this, $"----Hash {t.Hashify().ToHex()}" );
 			log.ReportWarning(this, $"----Zone {t.Net.Zone}");
 			log.ReportWarning(this, $"----Net {t.Net.Address}");
-			log.ReportWarning(this, $"----Member {t.Member}");
+			//log.ReportWarning(this, $"----Member {t.Member}");
 			log.ReportWarning(this, $"----Nonce {t.Nonce}");
 			log.ReportWarning(this, $"----Expiration {t.Expiration}");
 			log.ReportWarning(this, $"----Tag {t.Tag?.ToHex()}");

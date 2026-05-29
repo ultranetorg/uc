@@ -25,27 +25,41 @@ public class IccpPeer : Peer, IBinarySerializable
 	{
 		return $"{Name}, {EP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 	}
- 		
-	void Request(string from, string to, int id, IccpArgumentation request)
+ 	
+	void Request(string from, string to, int id, IccpArgumentation packet)
 	{
-		try
+		lock(PacketWriter)
 		{
-			lock(Writer)
-			{
-				Writer.Write(PacketType.Request);
-				Writer.WriteASCII(from);
-				Writer.WriteASCII(to);
-				Writer.Write(id);
-				Writer.WriteVirtual(request);
-			}
-		}
-		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
-		{
-			lock(Peering.Lock)
-				Disconnect();
+			Writer.Write(PacketType.Request);
+			Writer.WriteASCII(from);
+			Writer.WriteASCII(to);
+			Writer.Write(id);
+			
+			WriteStream.SetLength(0);
+			PacketWriter.WriteVirtual(packet);
 
-			throw new OperationCanceledException();
+			if(WriteStream.Length > PacketLengthMaximum)
+				throw new IntegrityException("PacketLengthMaximum exceeded");
+			
+			Writer.Write((int)WriteStream.Length);
+			Writer.Write(new ReadOnlySpan<byte>(WriteStream.GetBuffer(), 0, (int)WriteStream.Length));
 		}
+	}
+
+	T ReadRequest<T>(out string from, out string to, out int id) where T : class, IBinarySerializable, ITypeCode
+	{
+		from = Reader.ReadASCII();
+		to	 = Reader.ReadASCII();
+		id	 = Reader.ReadInt32();
+		var l = Reader.ReadInt32();
+
+		if(l > ReadBuffer.Length)
+			throw new IntegrityException("PacketLengthMaximum exceeded");
+
+		Stream.Read(ReadBuffer, 0, l);
+		ReadStream.Position = 0;
+
+		return PacketReader.ReadVirtual<T>();
 	}
 
 	protected override void Listening()
@@ -54,9 +68,9 @@ public class IccpPeer : Peer, IBinarySerializable
  		{
 			while(Peering.Flow.Active && Status == ConnectionStatus.OK)
 			{
-				var pk = (PacketType)Reader.ReadByte();
+				var pk = Reader.Read<PacketType>();
 
-				if(Peering.Flow.Aborted || Status != ConnectionStatus.OK)
+				if(Peering.Flow.Aborted || Status != ConnectionStatus.OK)	
 					return;
 				
 				Peering.Statistics.Reading.Begin();
@@ -65,10 +79,7 @@ public class IccpPeer : Peer, IBinarySerializable
 				{
  					case PacketType.Request:
  					{
-						var from = Reader.ReadASCII();
-						var to = Reader.ReadASCII();
-						var id = Reader.ReadInt32();
-						var rq = Reader.ReadVirtual<IccpArgumentation>();
+						var rq = ReadRequest<IccpArgumentation>(out var from, out var to, out var id);
 						
 						try
 						{
@@ -76,22 +87,12 @@ public class IccpPeer : Peer, IBinarySerializable
 
 							if(r != null)
 							{
-								lock(Writer)
-								{
-									Writer.Write(PacketType.Response);
-									Writer.Write(id);
-									Writer.WriteVirtual(r);
-								}
+								Write(PacketType.Response, id, r);
 							}
 						}
 						catch(CodeException ex)
 						{
-							lock(Writer)
-							{
-								Writer.Write(PacketType.Failure);
-								Writer.Write(id);
-								Writer.WriteVirtual(ex);
-							}
+							Write(PacketType.Failure, id, ex);
 						}
 
  						break;
@@ -99,8 +100,7 @@ public class IccpPeer : Peer, IBinarySerializable
 
 					case PacketType.Response:
  					{
-						var id = Reader.ReadInt32();
-						var r = Reader.ReadVirtual<IccpResult>();
+						var r = Read<IccpResult>(out var id);
 
 						lock(OutRequests)
 						{
@@ -120,8 +120,7 @@ public class IccpPeer : Peer, IBinarySerializable
 
  					case PacketType.Failure:
  					{
-						var id = Reader.ReadInt32();
-						var ex = Reader.ReadVirtual<CodeException>();
+						var ex = Read<CodeException>(out var id);
 
 						lock(OutRequests)
 						{

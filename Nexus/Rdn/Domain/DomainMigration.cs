@@ -89,7 +89,7 @@ public class DomainMigration : OutwardOperation
 											{
 												Id			= ++User.LastOutward,
 												User		= User.Id, 
-												Generator	= Transaction.Member,  
+												//Generator	= Transaction.Vote.Member,  
 												Operation	= this,
 												Expiration	= execution.Time + execution.Net.ForeignVerificationDurationLimit
 											 });

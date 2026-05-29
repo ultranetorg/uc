@@ -48,6 +48,7 @@ public class Writer : BinaryWriter
 	public new void Write(uint value) => base.Write(value);
 	public new void Write(long value) => base.Write(value);
 	public new void Write(ulong value) => base.Write(value);
+	public new void Write(ReadOnlySpan<byte> buffer) => base.Write(buffer);
 
 	public void WriteBytes(byte [] data)
 	{

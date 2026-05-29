@@ -161,14 +161,14 @@ public abstract class Mcv /// Mutual chain voting
 				var v = CreateVote(); 
 
 				v.RoundId	 = i;
-				v.User		 = AutoId.God;
+				v.Member		 = AutoId.God;
 				v.Time		 = Time.Zero;
 				v.TargetHash = i < Net.P ? Net.Cryptography.ZeroHash : GetRound(i - Net.P).Summarize();
 
 				if(i == 0)
 				{
  					var t = new Transaction {Net = Net, Nonce = 0, Expiration = 0};
- 					t.Member = new(0, -1);
+ 					//t.Member = new(0, -1);
 					t.User = GodName;
 					t.AddOperation(Genesis);
  					v.AddTransaction(t);
@@ -308,7 +308,7 @@ public abstract class Mcv /// Mutual chain voting
 					if(vote.Transactions.Any())
 						r.Payloads.Add(vote);
 	
-					if(r.Id >= JoinToVote && r.Voters.Any(j => j.User == vote.User))
+					if(r.Id >= JoinToVote && r.Voters.Any(j => j.User == vote.Member))
 						r.Selected.Add(vote);
 				}
 			}
@@ -374,18 +374,18 @@ public abstract class Mcv /// Mutual chain voting
 
 		var r = GetRound(vote.RoundId);
 
-		if(r.Forkers.Contains(vote.User))
+		if(r.Forkers.Contains(vote.Member))
 		{	
 			vote.Status = VoteStatus.Violator;
 			return;
 		}
 	
-		var e = r.VotesOfTry.FirstOrDefault(i => i.User == vote.User);
+		var e = r.VotesOfTry.FirstOrDefault(i => i.Member == vote.Member);
 				
 		if(e != null) /// FORK
 		{
 			r.VotesOfTry.Remove(e);
-			r.Forkers.Add(e.User);
+			r.Forkers.Add(e.Member);
 	
 			vote.Status = VoteStatus.Fork; /// Let others know about incident
 			return;
@@ -393,13 +393,13 @@ public abstract class Mcv /// Mutual chain voting
 
 		//if(r.Id >= JoinToVote)
 		{
-			if(!r.Senders.Any(i => i.User == vote.User))
+			if(!r.Senders.Any(i => i.User == vote.Member))
 			{	
 				vote.Status = VoteStatus.NotMemeber;
 				return;
 			}
 	
-			var u = Users.Latest(vote.User);
+			var u = Users.Latest(vote.Member);
 							
 			if(!Net.Cryptography.Verify(u.Owner, vote.Hash, vote.Signature))
 			{
@@ -422,7 +422,7 @@ public abstract class Mcv /// Mutual chain voting
 				return;
 			}
 		
-			if(vote.Transactions.Any(t => r.Senders.NearestBy(i => i.User, t.User, t.Nonce).User != vote.User))
+			if(vote.Transactions.Any(t => r.Senders.NearestBy(i => i.User, t.Signature).User != vote.Member))
 			{	
 				vote.Status = VoteStatus.InvalidTransaction;
 				return;
@@ -444,8 +444,8 @@ public abstract class Mcv /// Mutual chain voting
 		if(round.TargetId != LastConfirmedRound.Id + 1)
 			return false;
 
-if(round.VotesOfTry.Count() < round.MinimumForConsensus)
-	return false;
+		if(round.VotesOfTry.Count() < round.MinimumForConsensus)
+			return false;
 
 		var m = round.Selected.GroupBy(i => i.TargetHash, Bytes.EqualityComparer).MaxBy(i => i.Count());
 

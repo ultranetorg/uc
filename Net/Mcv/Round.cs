@@ -11,7 +11,7 @@ public class OutwardTransaction : IBinarySerializable
 {
 	public int				Id;
 	public Time				Expiration;
-	public AutoId			Generator;
+	//public AutoId			Generator;
 	public AutoId			User;
 	public OutwardOperation	Operation;
 
@@ -19,7 +19,7 @@ public class OutwardTransaction : IBinarySerializable
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(User);
-		writer.Write(Generator);
+		//writer.Write(Generator);
 		writer.Write(Expiration);
 		writer.Write(writer.Constructor.TypeToCode(Operation.GetType())); 
 		Operation.Write(writer); 
@@ -29,7 +29,7 @@ public class OutwardTransaction : IBinarySerializable
 	{
 		Id			= reader.Read7BitEncodedInt();
 		User		= reader.Read<AutoId>();
-		Generator	= reader.Read<AutoId>();
+		//Generator	= reader.Read<AutoId>();
 		Expiration	= reader.Read<Time>();
 		Operation	= reader.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as OutwardOperation;
 		Operation.Read(reader); 
@@ -70,7 +70,7 @@ public abstract class Round : IBinarySerializable
 	public List<Vote>									Payloads = [];
 	public List<Vote>									Selected = [];
 
-	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.User).SelectMany(i => i.Transactions);
+	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Member).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
 
 	public Time											ConsensusTime;
@@ -195,14 +195,14 @@ public abstract class Round : IBinarySerializable
 	 		{	
 				Mcv.Check(i);
 
-				if(i.Status == VoteStatus.OK || i.User == AutoId.God)
+				if(i.Status == VoteStatus.OK || i.Member == AutoId.God)
 				{	
 					VotesOfTry.Add(i);
 					
 					if(i.Transactions.Any())
 						Payloads.Add(i);
 
-					if(Voters.Any(j => j.User == i.User))
+					if(Voters.Any(j => j.User == i.Member))
 						Selected.Add(i);
 				}
 			}
@@ -301,7 +301,7 @@ public abstract class Round : IBinarySerializable
 			}
 		}
 
-		var txs = Payloads.OrderBy(i => i.User).SelectMany(i => i.Transactions).ToArray();
+		var txs = Payloads.OrderBy(i => i.Member).SelectMany(i => i.Transactions).ToArray();
 
 		Execute(txs);
 
@@ -367,8 +367,8 @@ public abstract class Round : IBinarySerializable
 		if(prevs.Any(i => i == null)) /// if just synchronized
 			return [];
 
-		var l = Target.Senders.Where(i => !Target.VotesOfTry.Any(v => v.User == i.User) && /// did not sent a vote
-										  !prevs.Any(r => r.VotesOfTry.Any(v => v.User == generator && v.Leavers.Contains(i.User)))) /// not yet proposed in prev [Pitch-1] rounds
+		var l = Target.Senders.Where(i => !Target.VotesOfTry.Any(v => v.Member == i.User) && /// did not sent a vote
+										  !prevs.Any(r => r.VotesOfTry.Any(v => v.Member == generator && v.Leavers.Contains(i.User)))) /// not yet proposed in prev [Pitch-1] rounds
 							 .Select(i => i.User);
 		return l;
 	}
@@ -694,10 +694,11 @@ public abstract class Round : IBinarySerializable
 			if(i.Approved)
 			{
 				e.Operation.ConfirmedExecute(execution, e);
-				OutwardTransactions.Remove(e);
 			} 
-			else
-				execution.AffectUser(e.Generator).AverageUptime -= 10;
+			//else
+			//	execution.AffectUser(e.Generator).AverageUptime -= 10;
+		
+			OutwardTransactions.Remove(e);
 		}
 
 		OutwardTransactions.RemoveAll(i => i.Expiration < execution.Time);

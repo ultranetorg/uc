@@ -1,12 +1,12 @@
 ﻿namespace Uccs;
 
-public class FakeStream : Stream
+public class CountStream : Stream
 {
 	public override bool CanRead { get; }
 	public override bool CanSeek { get; }
 	public override bool CanWrite => true;
-	public override long Length => Position;
 	public override long Position { get; set; }
+	public override long Length => Position;
 
 	public override void Flush()
 	{
@@ -29,6 +29,9 @@ public class FakeStream : Stream
 
 	public override void Write(byte[] buffer, int offset, int count)
 	{
+		if(offset != 0)
+			throw new NotImplementedException();	
+
 		Position += count;
 	}
 }

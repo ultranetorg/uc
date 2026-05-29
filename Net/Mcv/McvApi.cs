@@ -205,7 +205,7 @@ public class ChainReportApc : McvApc
 																	Hash = i.Hash,
 																	Votes = i.Votes.Select(b => new Return.Vote
 																								{	
-																									Generator = node.Mcv.Users.Latest(b.User).Name,
+																									Generator = node.Mcv.Users.Latest(b.Member).Name,
 																									IsPayload = b.Transactions.Any(),
 																									/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/
 																								}),
@@ -246,14 +246,14 @@ public class VotesReportApc : McvApc
 	{
 		lock(node.Mcv.Lock)
 			return new VotesReportResponse{Votes = node.Mcv	.FindRound(RoundId)?.Votes
-															.OrderBy(i => i.User)
+															.OrderBy(i => i.Member)
 															.Take(Limit)
 															.Select(i => new VotesReportResponse.Vote
 															{
 																Try = i.Try,
 																ParentSummary = i.TargetHash,
 																Signature = i.Signature,
-																Generator = node.Mcv.Users.Latest(i.User).Name
+																Generator = node.Mcv.Users.Latest(i.Member).Name
 															})
 															.ToArray()}; 
 	}
@@ -338,7 +338,7 @@ public class TransactionApe
 	//public TransactionId			Id { get; set; }
 	public int						Nonce { get; set; }
 		
-	public AutoId					Member { get; set; }
+	//public AutoId					Member { get; set; }
 	public int						Expiration { get; set; }
 	public byte[]					Tag { get; set; }
 	public byte[]					Signature { get; set; }
@@ -361,7 +361,7 @@ public class TransactionApe
 		Nonce				= transaction.Nonce;
 		Operations			= [..transaction.Operations];
 		   
-		Member				= transaction.Member;
+		//Member				= transaction.Member;
 		Expiration			= transaction.Expiration;
 		Tag					= transaction.Tag;
 		Signature			= transaction.Signature;

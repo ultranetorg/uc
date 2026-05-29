@@ -28,7 +28,7 @@ public class Transaction : IBinarySerializable
 	public McvNet					Net;
 	public Vote						Vote;
 	public Round					Round;
-	public AutoId					Member;
+	//public AutoId					Member;
 	public byte[]					Tag;
 	public long						Boost;
 	
@@ -38,6 +38,7 @@ public class Transaction : IBinarySerializable
 	//public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
 	//public bool						IsSignerSet => _Signer != null;
 	public TransactionStatus		Status;
+	public int						Length;
 	public string					Error;
 	public string					OverallError => Error ?? Operations.FirstOrDefault(i => i.Error != null)?.Error;
 	public IHomoPeer				Ppi;
@@ -82,7 +83,7 @@ public class Transaction : IBinarySerializable
 		w.Write(Net.Zone);
 		w.WriteUtf8(Net.Address);
 		w.WriteASCII(User);
-		w.Write(Member);
+		//w.Write(Member);
 		w.Write7BitEncodedInt(Nonce);
 		w.Write7BitEncodedInt(Expiration);
 		w.Write(Boost);
@@ -101,7 +102,7 @@ public class Transaction : IBinarySerializable
 										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
 										i.Write(writer); 
 									 });
-		writer.Write(Member); /// Need  for migrations
+		//writer.Write(Member); /// Need  for migrations
 		
 		///if(Operations.Any(i => i is UserFreeCreation))
 		//	writer.Write(Signer); /// and for DomainMigratation
@@ -120,7 +121,7 @@ public class Transaction : IBinarySerializable
  												o.Read(reader); 
  												return o; 
  											});
-		Member		= reader.Read<AutoId>(); /// Need  for migrations
+		//Member		= reader.Read<AutoId>(); /// Need  for migrations
 
 		///if(Operations.Any(i => i is UserFreeCreation)) 
 		//	Signer = reader.Read<AccountAddress>(); /// and for DomainMigratation
@@ -132,7 +133,7 @@ public class Transaction : IBinarySerializable
 		writer.Write(Signature);
 
 		writer.WriteUtf8(User);
-		writer.Write(Member);
+		//writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Boost);
@@ -149,7 +150,7 @@ public class Transaction : IBinarySerializable
 		Signature			= reader.ReadSignature();
 
 		User				= reader.ReadUtf8();
-		Member				= reader.Read<AutoId>();
+		//Member				= reader.Read<AutoId>();
 		Nonce				= reader.Read7BitEncodedInt();
 		Expiration			= reader.Read7BitEncodedInt();
 		Boost				= reader.Read7BitEncodedInt64();
@@ -168,7 +169,7 @@ public class Transaction : IBinarySerializable
 		writer.Write(Signature);
 	
 		writer.WriteUtf8(User);
-		writer.Write(Member);
+		//writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Boost);
@@ -185,7 +186,7 @@ public class Transaction : IBinarySerializable
 		Signature			= reader.ReadSignature();
 	
 		User				= reader.ReadUtf8();
-		Member				= reader.Read<AutoId>();
+		//Member				= reader.Read<AutoId>();
 		Nonce				= reader.Read7BitEncodedInt();
 		Expiration			= reader.Read7BitEncodedInt();
 		Boost				= reader.Read7BitEncodedInt64();
