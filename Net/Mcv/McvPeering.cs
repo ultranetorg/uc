@@ -920,7 +920,8 @@ public abstract class McvPeering : HomoPeering
 																User			= t.User,
 																Session			= t.Session,
 																Hash			= t.Hashify(),
-															 }, t.Flow);
+															 }, 
+															 t.Flow);
 
 
 						var m = members.NearestBy(i => i.User, t.Signature);
@@ -1201,7 +1202,8 @@ public abstract class McvPeering : HomoPeering
 				}
 
 				tried.Add(p);
-					Connect(p, flow);
+				
+				Connect(p, flow);
 
 				call.Peering = this;
 

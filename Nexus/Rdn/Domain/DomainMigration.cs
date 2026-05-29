@@ -96,6 +96,7 @@ public class DomainMigration : OutwardOperation
 
 	
 		execution.PayOperationEnergy(User);
+		(execution as RdnExecution).PayOutwardEnergy(User);
 	}
 
 	public override void ConfirmedExecute(Execution execution, OutwardTransaction task)

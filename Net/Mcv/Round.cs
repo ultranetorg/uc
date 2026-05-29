@@ -79,7 +79,7 @@ public abstract class Round : IBinarySerializable
 	public AutoId[]										ConsensusViolators;
 	public AccountAddress[]								ConsensusFundJoiners = [];
 	public AccountAddress[]								ConsensusFundLeavers = [];
-	public long											ConsensusEnergyCost;
+	public long											ConsensusOperationCost;
 	//public int											ConsensusOverloadRound;
 	public byte[][]										ConsensusIncomingTransfers;
 	public IccpTransferResult[]							ConsensusOutgoingTransfers;
@@ -241,7 +241,7 @@ public abstract class Round : IBinarySerializable
 
 		var min = MinimumForConsensus;
 					
-		ConsensusEnergyCost	= Id == 0 ? 0 : Previous.ConsensusEnergyCost;
+		ConsensusOperationCost	= Id == 0 ? 0 : Previous.ConsensusOperationCost;
 		//ConsensusOverloadRound	= Id == 0 ? 0 : Previous.ConsensusOverloadRound;
 
 		//var tn = all.Sum(i => i.Transactions.Sum(i => i.Operations.Length));
@@ -425,7 +425,7 @@ public abstract class Round : IBinarySerializable
 			t.EnergyConsumed	= 0;
 			e.EnergySpenders	= [];
 			e.SpacetimeSpenders	= [];
-			e.EnergyCost		= ConsensusEnergyCost;
+			e.OperationCost		= ConsensusOperationCost;
 
 			var u = e.AffectSigner();
 
@@ -725,7 +725,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write(Spacetimes, writer.Write7BitEncodedInt64);
 
 		writer.Write(ConsensusTime);
-		writer.Write7BitEncodedInt64(ConsensusEnergyCost);
+		writer.Write7BitEncodedInt64(ConsensusOperationCost);
 		writer.Write(OutwardTransactions);
 		writer.Write(IccTransactions, writer.WriteVirtual, writer.WriteASCII);
 	}
@@ -739,7 +739,7 @@ public abstract class Round : IBinarySerializable
 		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
-		ConsensusEnergyCost		= reader.Read7BitEncodedInt64();
+		ConsensusOperationCost	= reader.Read7BitEncodedInt64();
 		OutwardTransactions		= reader.ReadList<OutwardTransaction>();
 		IccTransactions			= reader.ReadOrderedDictionary(reader.ReadVirtual<IccpTransaction>,  reader.ReadASCII);
 	}
@@ -748,7 +748,7 @@ public abstract class Round : IBinarySerializable
 	{
 		writer.Write7BitEncodedInt(Id);
 		writer.Write(ConsensusTime);
-		writer.Write7BitEncodedInt64(ConsensusEnergyCost);
+		writer.Write7BitEncodedInt64(ConsensusOperationCost);
 		writer.Write(ConsensusMemberLeavers);
 		writer.Write(ConsensusViolators);
 		writer.Write(ConsensusFundJoiners);
@@ -763,7 +763,7 @@ public abstract class Round : IBinarySerializable
 	{
 		Id							= reader.Read7BitEncodedInt();
 		ConsensusTime				= reader.Read<Time>();
-		ConsensusEnergyCost			= reader.Read7BitEncodedInt64();
+		ConsensusOperationCost		= reader.Read7BitEncodedInt64();
 		ConsensusMemberLeavers		= reader.ReadArray<AutoId>();
 		ConsensusViolators			= reader.ReadArray<AutoId>();
 		ConsensusFundJoiners		= reader.ReadArray<AccountAddress>();

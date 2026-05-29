@@ -186,7 +186,7 @@ public abstract class Mcv /// Mutual chain voting
 
 			var r = GetRound(0);
 
-			r.ConsensusEnergyCost = 1; ///1
+			r.ConsensusOperationCost = 1; ///1
 			r.ConsensusFundJoiners = [Net.Father0Signer];
 
 			r.Hashify();
@@ -599,9 +599,9 @@ public abstract class Mcv /// Mutual chain voting
 		transaction.Nonce = a == null ? 0 : a.LastNonce + 1;
 
 		var r = CreateRound();
-		r.Id					= LastConfirmedRound.Id + 1;
-		r.ConsensusTime			= Time.Now(Clock);
-		r.ConsensusEnergyCost	= LastConfirmedRound.ConsensusEnergyCost;
+		r.Id						= LastConfirmedRound.Id + 1;
+		r.ConsensusTime				= Time.Now(Clock);
+		r.ConsensusOperationCost	= LastConfirmedRound.ConsensusOperationCost;
 
 		r.Execute([transaction]);
 

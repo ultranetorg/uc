@@ -9,7 +9,7 @@ public class CostPpc : McvPpc<CostPpr>
 		lock(Mcv.Lock)
 		{
 			return new CostPpr{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
-									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusEnergyCost};
+									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusOperationCost};
 		}
 	}
 }

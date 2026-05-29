@@ -45,7 +45,7 @@ public class FairExecution : Execution
 
 		e.EnergySpenders	= [];
 		e.SpacetimeSpenders	= [];
-		e.EnergyCost		= EnergyCost;
+		e.OperationCost		= OperationCost;
 
 		e.Authors			= new(this){Parent = Authors};
 		e.Products			= new(this){Parent = Products};

@@ -32,7 +32,7 @@ public class Execution : ITableExecution
 
 	public HashSet<IEnergyHolder>				EnergySpenders;
 	public HashSet<ISpacetimeHolder>			SpacetimeSpenders;
-	public long									EnergyCost;
+	public long									OperationCost;
 
 	public Execution							Parent;
 
@@ -153,6 +153,11 @@ public class Execution : ITableExecution
 
 	public void PayOperationEnergy(IEnergyHolder spender)
 	{
+		PayEnergy(spender, (int)OperationCost);
+	}
+
+	protected void PayEnergy(IEnergyHolder spender, int amount)
+	{
 		if(spender.EnergyPeriod < Time.Hours) /// switch to this day
 		{	
 			if(spender.BandwidthExpiration < Time.Hours) /// bandwidth expired
@@ -162,18 +167,9 @@ public class Execution : ITableExecution
 			spender.EnergyRating	= spender.Bandwidth;
 		}
 
-		spender.EnergyRating -= (int)EnergyCost;
+		spender.EnergyRating -= amount;
 
-		/// var d = spender.BandwidthTodayBalance - EnergyCost;
-		/// 
-		/// if(d < 0)
-		/// {
-		/// 	d = -d;
-		/// 	spender.Energy -= Math.Min(d, EnergyCost);
-		/// 	EnergySpenders.Add(spender);
-		/// }
-		/// 
-		Transaction.EnergyConsumed += EnergyCost;
+		Transaction.EnergyConsumed += amount;
 	}
 
 	public static long ToBD(long length, short time)
