@@ -150,7 +150,8 @@ public class McvSummaryApc : McvApc
 		lock(node.Peering.Lock)
 		{
 			f = new () {{"Nexus",						$"{node.NexusSettings.Host}"},
-						{"Profile",						$"{node.Settings.Profile}"},
+						{"Zone",						$"{node.Net.Zone}"},
+						{"Profile",						node.Settings.Profile},
 						{"Peers all/in/out/permanent",	$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound)}/{node.Peering.Connections.Count(i => !i.Inbound)}/{node.Peering.Connections.Count(i => i.Permanent)}, {(node.Peering.MinimalPeersReached ? "OK" : "Low")}"},
 						{"Endpoint",					$"{node.Peering.Settings.EP}"},
 						{"Reported IP",					$"{node.Peering.EP?.IP}"},
@@ -168,8 +169,8 @@ public class McvSummaryApc : McvApc
 
 		if(node.Mcv != null)
 		{
-			f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
 			f.Add("Synchronization",		$"{node.Peering.Synchronization}");
+			f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
 			f.Add("Size",					$"{node.Mcv.Size}");
 
 			lock(node.Mcv.Lock)

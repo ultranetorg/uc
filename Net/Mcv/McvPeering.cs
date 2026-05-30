@@ -573,14 +573,14 @@ public abstract class McvPeering : HomoPeering
 
 					v.Try							= r.Try;
 					v.TargetHash					= r.Target.Hash;
-					v.Member							= m.User;
+					v.Member						= m.User;
 					v.RoundId						= r.Id;
 					v.Time							= Time.Now(Mcv.Clock);
-					v.Violators						= r.ProposeViolators().ToArray();
-					v.Leavers						= r.ProposeMemberLeavers(gs.Id).ToArray();
-					v.FriendTransferRequests		= Mcv.FriendTransferRequests.Select(i => i.Hash).ToArray();
-					v.FriendTransferConfirmations	= Mcv.FriendTransferResults.Keys.ToArray();
-					v.OutwardResults				= Mcv.OutwardResults.ToArray();
+					v.Violators						= [..r.ProposeViolators()];
+					v.Leavers						= [..r.ProposeMemberLeavers(gs.Id)];
+					v.FriendTransferRequests		= [..Mcv.FriendTransferRequests.Select(i => i.Hash)];
+					v.FriendTransferConfirmations	= [..Mcv.FriendTransferResults.Keys];
+					v.OutwardResults				= [..Mcv.OutwardResults];
 						
 					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 					//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
