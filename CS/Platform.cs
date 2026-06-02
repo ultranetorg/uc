@@ -89,7 +89,7 @@ public enum PlatformFamily : byte
 	iOS		= 2,
 	macOS	= 3,
 	Unix	= 4,
-	Darwin		= 5,
+	Darwin	= 5,
 	UOS		= 6,
 	Windows	= 7,
 }

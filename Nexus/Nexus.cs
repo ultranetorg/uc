@@ -24,13 +24,6 @@ public class Nexus : IProgram
 
 	public delegate void			Delegate(Nexus d);
 
-	static Nexus()
-	{
-  	  	var h = new HttpClientHandler();
-		h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
-		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
-	}
-
 	public Nexus(NetBoot boot, NexusSettings settings, VaultSettings vaultsettings, Flow flow)
 	{
 		Settings = settings ?? new NexusSettings(boot.Zone, boot.Profile);

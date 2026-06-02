@@ -211,9 +211,9 @@ public class PackageManifest
 	public byte[]					IncrementalHash { get; set; }
 	public ParentPackage[]			Parents { get; set; }
 	public Ura[]					History { get; set; }
-	public Start[]					Starts { get; set; }
+	public Start[]					Start { get; set; }
 
-	public Start					MatchExecution(Platform platform) => Starts.FirstOrDefault(i => i.Condition.Match(platform)); 
+	public Start					MatchExecution(Platform platform) => Start.FirstOrDefault(i => i.Condition.Match(platform)); 
 
 	[JsonIgnore]
 	public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical);
@@ -258,7 +258,7 @@ public class PackageManifest
 		m.IncrementalHash		= xon.Get<byte[]>("Incremental/Hash", null);
 		m.Parents				= xon.One("Incremental/Parents")?.Nodes.Select(ParentPackage.FromXon).ToArray();
 		m.History				= xon.One("History")?.Nodes.Select(i => Ura.Parse(i.Name)).ToArray();
-		m.Starts				= xon.Many("Execution").Select(Start.FromXon).ToArray();
+		m.Start					= xon.Many(nameof(Start)).Select(Uccs.Nexus.Start.FromXon).ToArray();
 
 		return m;
 	}
@@ -285,10 +285,10 @@ public class PackageManifest
 		if(History != null && History.Any())
 			x.Add("History").Nodes.AddRange(History.Select(i => new Xon(serializator, i.ToString())));
 
-		if(Starts != null && Starts.Any())
-			x.Nodes.AddRange(Starts.Select(i => {
+		if(Start != null && Start.Any())
+			x.Nodes.AddRange(Start.Select(i => {
 													var e = i.ToXon(serializator);
-													e.Name = "Execution";
+													e.Name = nameof(Start);
 													return e;
 												}));
 

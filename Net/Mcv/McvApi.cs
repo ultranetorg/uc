@@ -250,12 +250,12 @@ public class VotesReportApc : McvApc
 															.OrderBy(i => i.Member)
 															.Take(Limit)
 															.Select(i => new VotesReportResponse.Vote
-															{
-																Try = i.Try,
-																ParentSummary = i.TargetHash,
-																Signature = i.Signature,
-																Generator = node.Mcv.Users.Latest(i.Member).Name
-															})
+																		 {
+																			Try = i.Try,
+																			ParentSummary = i.TargetHash,
+																			Signature = i.Signature,
+																			Generator = node.Mcv.Users.Latest(i.Member).Name
+																		 })
 															.ToArray()}; 
 	}
 }
@@ -360,7 +360,7 @@ public class TransactionApe
 	public TransactionApe(Transaction transaction)
 	{
 		Nonce				= transaction.Nonce;
-		Operations			= [..transaction.Operations];
+		Operations			= transaction.Operations;
 		   
 		//Member				= transaction.Member;
 		Expiration			= transaction.Expiration;

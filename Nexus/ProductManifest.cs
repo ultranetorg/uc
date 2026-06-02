@@ -18,6 +18,11 @@ public class PlatformExpression
 	public const string Or = "OR";
 	public const string And = "AND";
 
+	public const string Family = "Family";
+	public const string Brand = "Brand";
+	public const string Version = "Version";
+	public const string Architecture = "Architecture";
+
 	static bool IsOperation(string name) => name == Greater ||
 											name == GreaterOrEqual ||
 											name == Less ||
@@ -27,10 +32,10 @@ public class PlatformExpression
 											name == Or ||
 											name == And;
 
-	public bool Match(Platform platform) => (bool)Evaluate(new(){   {"F", platform.Family},
-																	{"B", platform.Brand},
-																	{"V", platform.Version},
-																	{"A", platform.Architecture}});
+	public bool Match(Platform platform) => (bool)Evaluate(new(){   {Family, platform.Family},
+																	{Brand, platform.Brand},
+																	{Version, platform.Version},
+																	{Architecture, platform.Architecture}});
 
 	public PlatformExpression()
 	{

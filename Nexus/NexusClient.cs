@@ -9,14 +9,9 @@ public class NexusClient
 	public NexusSettings		Settings;
 	public NexusApiClient	Nexus;
 	//public ApiClient		Rdn;
-	HttpClient				Http = new HttpClient();
 
 	public NexusClient()
 	{
-		var hch = new HttpClientHandler();
-		hch.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
-		Http = new HttpClient(hch) {Timeout = Timeout.InfiniteTimeSpan};
-
 		//ProductsPath	=	Environment.GetEnvironmentVariable(Nexus.BootProductsPath);
 		//SunAddress	= 	Environment.GetEnvironmentVariable(Nexus.BootSunAddress);
 		//SunApiKey		=	Environment.GetEnvironmentVariable(Nexus.BootSunApiKey);
