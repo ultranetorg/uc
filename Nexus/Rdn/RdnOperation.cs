@@ -30,7 +30,7 @@ public abstract class RdnOperation : Operation
 {
 	public const string		CantChangeSealedResource = "Cant change sealed resource";
 	public const string		CircularDependency = "Circular dependency";
-	public const string		NoData = "NoData";
+	public const string		NoData = "No data";
 	public const string		NotRoot = "Not root domain";
 	public const string		NotDependable = "Not dependable";
 	public const string		OtherTldHasPriority = "Other tld has priority";

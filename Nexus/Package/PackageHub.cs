@@ -408,9 +408,12 @@ public class PackageHub
 
 																var p = m.Target;
 
-																while(true)
+																while(flow.Active)
 																{
-																	if(p.Release.Availability.HasFlag(Availability.Complete))
+																	if(p.Release == null)
+																	{
+																	}
+																	else if(p.Release.Availability.HasFlag(Availability.Complete))
 																	{
 																		if(p.Activity == null)
 																			p.Activity = d;
@@ -437,6 +440,8 @@ public class PackageHub
 
 																		p = Find(pp.Release);
 																	}
+
+																	Thread.Sleep(10);
 																}
 
 																//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());

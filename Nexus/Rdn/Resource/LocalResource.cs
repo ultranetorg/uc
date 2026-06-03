@@ -7,9 +7,8 @@ public class LocalResource
 {
 	public AutoId				Id  { get; set; }
 	public Ura					Address { get; set; }
-	public List<ResourceData>	Datas { get; set; }
-	public bool					Resolving;
-	public ResourceData			Last => Datas.LastOrDefault();
+	public bool					Resolving { get; set; }
+	public ResourceData			Data { get; set; }
 
 	ResourceHub					Hub;
 
@@ -23,51 +22,17 @@ public class LocalResource
 		Address = resource;
 	}
 
-	//public T LastAs<T>() where T : IBinarySerializable, new()
-	//{
-	//	//var t = new T();
-	//	//t.Read(new BinaryReader(new MemoryStream(Last)));
-	//	//return t;
-	//	return Last.Read<T>();
-	//}
-
 	public void AddData(ResourceData data)
 	{
-		if(Datas == null)
-			Datas = new();
-
-		var i = Datas.Find(i => i.Equals(data));
-
-		if(i != null)
-		{
-			Datas.Remove(i);
-			Datas.Add(i);
-		}
-		else
-		{
-			Datas.Add(data);
-		}
-		
+		Data = data;
 		Save();
 	}
 
 	public void AddData(DataType type, object value)
 	{
-		if(Datas == null)
-			Datas = new();
-
 		var v = ResourceData.Serialize(value);
-		var i = Datas.Find(i => i.Type == type && i.Value.SequenceEqual(v));
 
-		if(i != null)
-		{
-			Datas.Remove(i);
-			Datas.Add(i);
-		}
-		else
-		{ 
-			Datas.Add(new ResourceData(type, v));
-		}
+		Data =  new ResourceData(type, v);
 	
 		Save();
 	}
@@ -80,7 +45,7 @@ public class LocalResource
 		{
 			var r = new Reader(d);
 
-			Datas = r.ReadList<ResourceData>();
+			Data = r.ReadNullable<ResourceData>();
 		}
 	}
 
@@ -91,7 +56,7 @@ public class LocalResource
 			var s = new MemoryStream();
 			var w = new Writer(s);
 			
-			w.Write(Datas);
+			w.WriteNullable(Data);
 
 			b.Put(Encoding.UTF8.GetBytes(Address.ToString()), s.ToArray(), Hub.ResourceFamily);
 			

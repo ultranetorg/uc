@@ -95,6 +95,9 @@ public class FileDownload
 										catch(OperationCanceledException)
 										{
 										}
+										catch(ObjectDisposedException)
+										{
+										}
 										catch(Exception ex) when(ex is NodeException || ex is EntityException)
 										{
 										}

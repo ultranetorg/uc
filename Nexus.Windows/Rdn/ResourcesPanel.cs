@@ -104,9 +104,9 @@ public partial class ResourcesPanel : McvPanel
 			var li = new ListViewItem(i.Id?.ToString());
 			li.Tag = i;
 			li.SubItems.Add(i.Address.ToString());
-			li.SubItems.Add(i.Last?.Type.Control.ToString());
-			li.SubItems.Add(i.Last?.Type.Content.ToString());
-			li.SubItems.Add(i.Last?.Value.Length.ToString());
+			li.SubItems.Add(i.Data?.Type.Control.ToString());
+			li.SubItems.Add(i.Data?.Type.Content.ToString());
+			li.SubItems.Add(i.Data?.Value.Length.ToString());
 	
 			LocalReleases.Items.Add(li);
 		}
