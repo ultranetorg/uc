@@ -178,7 +178,7 @@ public class Start// : IBinarySerializable
 		var m = new Start ();
 		m.Path		= x.Get<string>("Path", null);
 		m.Arguments	= x.Get<string>("Arguments", null);
-		m.Condition	= x.Has("Condition") ? PlatformExpression.FromXon(x.One("Condition").Nodes.First()) : new PlatformExpression();
+		m.Condition	= x.Has("Condition") ? PlatformExpression.FromXon(x.One("Condition").Nodes.First()) : null;
 
 		return m;
 	}
@@ -188,8 +188,9 @@ public class Start// : IBinarySerializable
 		var x = new Xon(serializator);
 	
 		x.Add("Path").Value = Path;
-		x.Add("Arguments").Value = Arguments;
-		x.Add("Condition").Nodes.Add(Condition.ToXon(serializator));
+
+		if(Arguments != null)	x.Add(nameof(Arguments)).Value = Arguments;
+		if(Condition != null)	x.Add(nameof(Condition)).Nodes.Add(Condition.ToXon(serializator));
 
 		return x;
 	}
@@ -207,7 +208,7 @@ public class PackageManifest
 	public const string				Extension = "rdnpm";
 
 	public byte[]					CompleteHash { get; set; }
-	public Dependency[]				CompleteDependencies { get; set; }
+	public Dependency[]				CompleteDependencies { get; set; } = [];
 	public byte[]					IncrementalHash { get; set; }
 	public ParentPackage[]			Parents { get; set; }
 	public Ura[]					History { get; set; }

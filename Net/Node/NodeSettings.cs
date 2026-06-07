@@ -5,7 +5,7 @@ namespace Uccs.Net;
 
 public class PeeringSettings : Settings
 {
-	public Endpoint			EP { get; set; }
+	public Endpoint			Endpoint { get; set; }
 	public int				PermanentMin { get; set; } = 6;
 	//public int				PermanentGraphsMin { get; set; } = 6;
 	public int				PermanentInboundMax { get; set; } = 128;

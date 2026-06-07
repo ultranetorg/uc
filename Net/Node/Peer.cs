@@ -200,7 +200,7 @@ public abstract class Peer : IBinarySerializable
 
 	protected void Write(PacketType type, int id, object packet)
 	{
-		lock(PacketWriter)
+		lock(Writer)
 		{
 			Writer.Write(type);
 			Writer.Write(id);
@@ -235,7 +235,7 @@ public abstract class Peer : IBinarySerializable
 		id = Reader.ReadInt32();
 		var l = Reader.ReadInt32();
 
-		if(l > ReadBuffer.Length)
+		if(l < 0 || l > ReadBuffer.Length)
 			throw new IntegrityException("PacketLengthMaximum exceeded");
 
 		Stream.Read(ReadBuffer, 0, l);

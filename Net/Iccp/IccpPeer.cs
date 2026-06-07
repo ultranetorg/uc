@@ -28,7 +28,7 @@ public class IccpPeer : Peer, IBinarySerializable
  	
 	void Request(string from, string to, int id, IccpArgumentation packet)
 	{
-		lock(PacketWriter)
+		lock(Writer)
 		{
 			Writer.Write(PacketType.Request);
 			Writer.WriteASCII(from);

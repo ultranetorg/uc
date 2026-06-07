@@ -49,7 +49,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 		return string.Join(",", new object[]
 								{
 									Name, 
-									Settings.EP
+									Settings.Endpoint
 								}.Where(i => i != null));
 	}
 
@@ -94,7 +94,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 						Roles = 0,
 						Versions = Versions,
 						YourIP = peer.EP.IP,
-						MyPort = Settings.EP.Port,
+						MyPort = Settings.Endpoint.Port,
 						Permanent = permanent
 					};
 
@@ -113,7 +113,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 						Roles = 0,
 						Versions = Versions,
 						YourIP = ip,
-						MyPort = Settings.EP.Port
+						MyPort = Settings.Endpoint.Port
 					};
 
 			return h;
@@ -242,7 +242,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 				{
 					if(to == Iccn.Root)
 					{
-						Roots ??= GetRoots().Select(i => new Endpoint(i, Settings.EP.Port)).ToArray();
+						Roots ??= GetRoots().Select(i => new Endpoint(i, Settings.Endpoint.Port)).ToArray();
 
 						var x = Roots.Where(i => !tried.Contains(i)).RandomOrDefault();
 

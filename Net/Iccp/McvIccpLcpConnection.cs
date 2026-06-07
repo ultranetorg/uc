@@ -71,7 +71,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		{
 			Writer.Write(IccpLcpConnectionType.Node);
 			Writer.WriteUtf8(Node.Net.Address);
-			Writer.WriteUtf8(Node.Settings.Api.LocalNodeAddress(Node.Net));
+			Writer.WriteUtf8(Node.Settings.Api?.LocalNodeAddress(Node.Net));
 		}
 	}
 
@@ -415,6 +415,13 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	public virtual Result ShowGui(string from, ShowGuiIcca args)
 	{
 		Node.ShowGui?.Invoke();
+
+		return null;
+	}
+
+	public virtual Result Open(string from, DoIcca args)
+	{
+		Node.Do(args.Query);
 
 		return null;
 	}

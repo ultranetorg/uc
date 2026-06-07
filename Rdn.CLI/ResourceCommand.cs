@@ -4,10 +4,10 @@ namespace Uccs.Rdn.CLI;
 
 public class ResourceCommand : RdnCommand
 {
-	Ura First => Ura.Parse(Args[0].Name);
+	Ura			First => Ura.Parse(Args[0].Name);
 
-	Argument Data => new ("data", HEX, "A data to be associated with the resource", Flag.Optional);
-	Argument Dependable => new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", Flag.Optional);
+	Argument	Data		=> new ("data", HEX, "A data to be associated with the resource", Flag.Optional);
+	Argument	Dependable	=> new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", Flag.Optional);
 
 	public ResourceCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{

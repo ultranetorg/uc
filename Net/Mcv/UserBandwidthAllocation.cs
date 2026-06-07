@@ -26,7 +26,8 @@ public class UserBandwidthAllocation : Operation
 
 	public override void Execute(Execution execution)
 	{
-		var r = User.BandwidthExpiration - execution.Time.Hours;
+		var now = execution.Time.Hours;
+		var r = User.BandwidthExpiration - now;
 		
 		execution.AffectBandwidths();
 
@@ -35,16 +36,19 @@ public class UserBandwidthAllocation : Operation
 			///User.Energy += User.Bandwidth * r;
 
 			for(int i = 0; i < r; i++)
-				execution.Bandwidths[i] -= User.Bandwidth;
+				execution.Bandwidths[now + i] -= User.Bandwidth;
 		}
 		
 		var h = Months * 30 * 24;
 
+		if(execution.Bandwidths.Length < now + h)
+			execution.Bandwidths = [..execution.Bandwidths, ..new long[now + h - execution.Bandwidths.Length]];
+
 		for(int i = 0; i < h; i++)
 		{
-			if(execution.Bandwidths[i] + Bandwidth <= execution.Net.EnergyHourlyEmission)
+			if(execution.Bandwidths[now + i] + Bandwidth <= execution.Net.EnergyHourlyEmission)
 			{
-				execution.Bandwidths[i] += Bandwidth;
+				execution.Bandwidths[now + i] += Bandwidth;
 			}
 			else
 			{

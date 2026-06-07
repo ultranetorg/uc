@@ -153,7 +153,7 @@ public class McvSummaryApc : McvApc
 						{"Zone",						$"{node.Net.Zone}"},
 						{"Profile",						node.Settings.Profile},
 						{"Peers all/in/out/permanent",	$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound)}/{node.Peering.Connections.Count(i => !i.Inbound)}/{node.Peering.Connections.Count(i => i.Permanent)}, {(node.Peering.MinimalPeersReached ? "OK" : "Low")}"},
-						{"Endpoint",					$"{node.Peering.Settings.EP}"},
+						{"Endpoint",					$"{node.Peering.Settings.Endpoint}"},
 						{"Reported IP",					$"{node.Peering.EP?.IP}"},
 						{"Votes p2p Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"},
 						{"Candidate Transactions",		$"{node.Peering.CandidateTransactions.Count}"}};

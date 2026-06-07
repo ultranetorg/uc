@@ -101,7 +101,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 	public virtual void Run()
 	{
-		if(Settings.EP != null)
+		if(Settings.Endpoint != null)
 		{
 			ListeningThread = Program.CreateThread(Listening);
 			ListeningThread.Name = $"{Name} Listening";
@@ -144,7 +144,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	public override string ToString()
 	{
 		return string.Join(",", new string[] {	Name,
-												Settings.EP?.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
+												Settings.Endpoint?.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
 	}
 
 	public void SendHello(TcpClient client, Hello h)
@@ -158,9 +158,9 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	{
 		try
 		{
-			Flow.Log?.Report(this, $"Listening {Settings.EP}");
+			Flow.Log?.Report(this, $"Listening {Settings.Endpoint}");
 
-			Listener = new TcpListener(Settings.EP.IP, Settings.EP.Port);
+			Listener = new TcpListener(Settings.Endpoint.IP, Settings.Endpoint.Port);
 			Listener.Start();
 
 			while(Flow.Active)
@@ -202,7 +202,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 		Task.Run(() =>	{
 							try
 							{
-								tcp = Settings.EP != null ? new TcpClient(new IPEndPoint(Settings.EP.IP, 0)) : new TcpClient();
+								tcp = Settings.Endpoint != null ? new TcpClient(new IPEndPoint(Settings.Endpoint.IP, 0)) : new TcpClient();
 
 								tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 								//client.ReceiveTimeout = Timeout;
@@ -243,7 +243,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 												
 								if(EP == null)
 								{
-									EP = new Endpoint(h.YourIP, Settings.EP.Port);
+									EP = new Endpoint(h.YourIP, Settings.Endpoint.Port);
 									Flow.Log?.Report(this, $"Reported IP {EP}");
 								}
 
@@ -354,7 +354,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 								if(EP == null)
 								{
-									EP = new Endpoint(h.YourIP, Settings.EP.Port);
+									EP = new Endpoint(h.YourIP, Settings.Endpoint.Port);
 									Flow.Log?.Report(this, $"Reported IP {EP}");
 								}
 	

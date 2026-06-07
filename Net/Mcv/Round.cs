@@ -401,8 +401,8 @@ public abstract class Round : IBinarySerializable
 		Candidates			= Id == 0 ? []										 : Previous.Candidates; /// cloned in Execution.AffectCandidate
 		Members				= Id == 0 ? []										 : Previous.Members;
 		Funds				= Id == 0 ? []										 : Previous.Funds;
-		Bandwidths			= Id == 0 ? new long[McvNet.BandwidthPeriodsMaximum] : Previous.Bandwidths;
-		Spacetimes			= Id == 0 ? new long[1]								 : Previous.Spacetimes;
+		Bandwidths			= Id == 0 ? []										 : Previous.Bandwidths;
+		Spacetimes			= Id == 0 ? []								 : Previous.Spacetimes;
 		OutwardTransactions	= Id == 0 ? []										 : Previous.OutwardTransactions;
 		IccTransactions		= Id == 0 ? []										 : Previous.IccTransactions;
 
@@ -590,18 +590,18 @@ public abstract class Round : IBinarySerializable
 				foreach(var i in Members.Select(i => e.AffectUser(i.User)))
 				{
 					i.EnergyNext += d * Net.EnergyDailyEmission / Members.Count;
-					i.Spacetime	 += d * (Net.SpacetimeDayEmission + e.Spaces.Take(d).Sum()) / Members.Count;
+					i.Spacetime	 += d * (Net.SpacetimeDayEmission + e.Spaces.Skip(ConsensusTime.Days).Take(d).Sum()) / Members.Count;
 				}
 				
-				if(d <= e.Spaces.Length)
-					e.Spaces = e.Spaces[d..];
+				//if(d <= e.Spaces.Length)
+				//	e.Spaces = e.Spaces[d..];
 			}
 	
 			var h = ConsensusTime.Hours - Previous.ConsensusTime.Hours;
 	
 			if(h > 0) /// hours switched
 			{
-				e.Bandwidths = h < e.Bandwidths.Length ? [..e.Bandwidths[h..], ..new long[h]] : new long[h];
+				// e.Bandwidths = h < e.Bandwidths.Length ? [..e.Bandwidths[h..], ..new long[h]] : new long[h];
 			}
 		}
 

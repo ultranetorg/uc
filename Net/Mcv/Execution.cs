@@ -187,12 +187,14 @@ public class Execution : ITableExecution
 		if(space == 0)
 			return;
 
+		var now = Time.Days;
+
 		consumer.Space += space;
 
 		if(consumer.Free && consumer.Space > Net.FreeSpaceMaximum)
 			consumer.Free = false;
 	
-		var n = consumer.Expiration - Time.Days;
+		var n = consumer.Expiration - now;
 
 		if(!consumer.Free)
 		{	
@@ -203,7 +205,7 @@ public class Execution : ITableExecution
 		AffectSpaces();
 
 		for(int i = 0; i < n; i++)
-			Spaces[i] += space;
+			Spaces[now + i] += space;
 	}
 
 	public void Prolong(ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
@@ -221,12 +223,12 @@ public class Execution : ITableExecution
 
 		var exp = start + duration.Days;
 
-		if(exp - now >	Spaces.Length)
-			Spaces = [..Spaces, ..new long[Spaces.Length + exp - now]];
+		if(exp > Spaces.Length)
+			Spaces = [..Spaces, ..new long[exp - Spaces.Length]];
 		else
 			AffectSpaces(); /// needed below
 
-		for(int i = start - now; i < exp - now; i++)
+		for(int i = start; i < exp; i++)
 			Spaces[i] += consumer.Space;
 
 	}
@@ -252,8 +254,8 @@ public class Execution : ITableExecution
 	
 			AffectSpaces();
 			
-			for(int i = 0; i < consumer.Expiration - now; i++)
-				Spaces[i] -= space;
+			for(int i = 0; i < d; i++)
+				Spaces[now + i] -= space;
 		}
 	}
 

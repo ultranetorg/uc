@@ -1,14 +1,14 @@
 ﻿namespace Uccs.Net;
 
-public class SubnetAttachment : OutwardOperation
+public class FriendAttachment : OutwardOperation
 {
 	public string				Name  { get; set; }
-	public Snp					Client  { get; set; }
+	public Snq					Client  { get; set; }
 	public Endpoint[]			Peers { get; set; }
 
 	public override string		Explanation => $"Name={Name}, Client={Client}, Peers={{{Peers.Length}}}";
 	
-	public SubnetAttachment()
+	public FriendAttachment()
 	{
 	}
 		
@@ -23,7 +23,7 @@ public class SubnetAttachment : OutwardOperation
 	public override void Read(Reader reader)
 	{
 		Name	= reader.ReadASCII();
-		Client	= reader.Read<Snp>();
+		Client	= reader.Read<Snq>();
 		Peers	= reader.ReadArray<Endpoint>();
 	}
 

@@ -4,15 +4,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>1.0.925</AssemblyVersion>
-    <FileVersion>1.0.925.0</FileVersion>
-    <Version>1.0.925</Version>
+    <AssemblyVersion>1.0.978</AssemblyVersion>
+    <FileVersion>1.0.978.0</FileVersion>
+    <Version>1.0.978</Version>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
     <AssemblyName>fair</AssemblyName>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	<SixLaborsLicenseFile>$(UO)\sixlabors.lic</SixLaborsLicenseFile>
+    <SixLaborsLicenseFile>$(UO)\sixlabors.lic</SixLaborsLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;8632</NoWarn>

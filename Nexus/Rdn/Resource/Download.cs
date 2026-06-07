@@ -92,13 +92,7 @@ public class FileDownload
 												Data.Write(d, 0, d.Length);
 											}
 										}
-										catch(OperationCanceledException)
-										{
-										}
-										catch(ObjectDisposedException)
-										{
-										}
-										catch(Exception ex) when(ex is NodeException || ex is EntityException)
+										catch(Exception ex)
 										{
 										}
 									}, 
@@ -181,12 +175,7 @@ public class FileDownload
 													{
 														l = Rdn.Peering.Call(s.IP, new FileInfoPpc {Release = release.Address, File = path}, flow).Length;
 													}
-													catch(NodeException)
-													{
-														Seeds[s]--;
-														continue;
-													}
-													catch(EntityException)
+													catch(Exception ex)
 													{
 														Seeds[s]--;
 														continue;

@@ -315,7 +315,18 @@ public class ResourceHub
 						//foreach(var d in r.Datas)
 						var d = r.Data;
 
-						var l = Find(d.Parse<Urr>());
+						Urr a;
+						
+						try
+						{
+							a = d.Parse<Urr>();
+						}
+						catch(Exception ex)
+						{
+							continue;
+						}
+
+						var l = Find(a);
 
 						if(l != null && l.Availability != Availability.None)
 						{
@@ -373,7 +384,7 @@ public class ResourceHub
 														tasks.Remove(r);
 													}
 												}
-												catch(CodeException) ///when(!Debugger.IsAttached)
+												catch(CodeException ex) ///when(!Debugger.IsAttached)
 												{
 												}
 												catch(OperationCanceledException)

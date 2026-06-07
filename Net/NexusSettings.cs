@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 
 namespace Uccs.Net;
 
@@ -10,6 +11,13 @@ public class NexusSessionSettings
 	public byte[]			Session { get; set; }
 }
 
+public class DeployedNode
+{
+	public string			Net;
+	public string			Package;
+	public Process			Process;
+}
+
 public class NexusSettings : SavableSettings
 {
 	public string						Name { get; set; }
@@ -18,6 +26,7 @@ public class NexusSettings : SavableSettings
 	public string						Packages { get; set; }
 	public NexusSessionSettings[]		Sessions { get; set; }
 	public PeeringSettings				IccpPeering { get; set; }
+	public List<DeployedNode>			Nodes { get; set; } = [];
 
 	public Zone							Zone;
 	public static readonly IPAddress	StandardHost = new ([127, 1, 0, 0]);

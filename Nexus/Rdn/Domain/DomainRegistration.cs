@@ -53,7 +53,10 @@ public class DomainRegistration : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		if(execution.Transaction.Nonce == 0)
+		/// 
+		/// ?
+		/// 
+		if(execution.AffectSigner().Owner == null)
 		{
 			Error = NotAllowedForNewUser;
 			return;

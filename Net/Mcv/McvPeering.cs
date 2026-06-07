@@ -170,7 +170,7 @@ public abstract class McvPeering : HomoPeering
 	{
 		lock(Mcv.Lock)
 		{
-			if(Settings.EP != null && Settings.EP.Equals(Net.Father0EP) && Mcv.Settings.Generators.Any(g => g.User == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
+			if(Settings.Endpoint != null && Settings.Endpoint.Equals(Net.Father0EP) && Mcv.Settings.Generators.Any(g => g.User == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -879,7 +879,7 @@ public abstract class McvPeering : HomoPeering
 			{
 				//var m = members.NearestBy(i => i.Address, nonce);
 
-				if(member.GraphPpiEndpoints.Contains(Settings.EP))
+				if(member.GraphPpiEndpoints.Contains(Settings.Endpoint))
 					return this;
 
 				var p = GetPeer(member.GraphPpiEndpoints.Random());

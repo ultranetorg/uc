@@ -21,8 +21,8 @@ public enum OperationClass : uint
 		UserNameChange			= 001_000_003, 
 		UserBandwidthAllocation	= 001_000_004,
 
-	Subnet						= 002, 
-		SubnetAttachment		= 002_000_001,
+	Friend						= 002, 
+		FriendAttachment		= 002_000_001,
 }
 
 
