@@ -3,8 +3,8 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 
 import { getIccpNodeApi } from "api"
 import { useAuthenticationContext } from "app"
-import { useGetNodeUrl } from "entities/nexus"
-import { useGetNexusUrl } from "entities/node"
+import { useGetNexusUrl } from "entities"
+import { useGetIccpNodeUrl } from "entities/nexus"
 import { BaseFairOperation } from "types"
 import { TransactionApe, TransactionStatus } from "types/iccpNode"
 
@@ -25,7 +25,7 @@ type TransactMutationCallbacks = {
 
 export const useTransactMutationWithStatus = () => {
   const nexus = useGetNexusUrl()
-  const node = useGetNodeUrl(nexus.data)
+  const node = useGetIccpNodeUrl(nexus.data)
   const { selectedUserName, users } = useAuthenticationContext()
 
   const [tag, setTag] = useState<string | undefined>()

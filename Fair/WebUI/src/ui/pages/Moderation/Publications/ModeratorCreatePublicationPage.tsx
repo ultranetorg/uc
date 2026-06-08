@@ -7,7 +7,7 @@ import { useOperationPolicy, useSiteContext, useSitePoliciesContext, useSiteRole
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
-import { useTransactMutationWithStatus } from "entities/node"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
 import { ModerationPublicationHeader, ModerationHeader, ProductFieldsTree } from "ui/components/specific"

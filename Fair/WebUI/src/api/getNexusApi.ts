@@ -4,7 +4,7 @@ import { IccpNode } from "types/nexus"
 import { NexusApi } from "./NexusApi"
 import { keysToCamelCase } from "./utils"
 
-const getIccpUrl = async (nexusUrl: string): Promise<IccpNode> => {
+const getIccpNodeUrl = async (nexusUrl: string): Promise<IccpNode> => {
   const response = await fetch(`${nexusUrl}/IccpNode`, {
     method: "POST",
     body: JSON.stringify({
@@ -16,7 +16,7 @@ const getIccpUrl = async (nexusUrl: string): Promise<IccpNode> => {
 }
 
 const api: NexusApi = {
-  getIccpUrl,
+  getIccpNodeUrl,
 }
 
 export const getNexusApi = () => api

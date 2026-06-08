@@ -1,3 +1,4 @@
+export * from "./publicationsKeys"
 export * from "./useGetAuthorPublications"
 export * from "./useGetCategoriesPublications"
 export * from "./useGetCategoryPublications"

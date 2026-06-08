@@ -1,5 +1,5 @@
 import { IccpNode } from "types/nexus"
 
 export type NexusApi = {
-  getIccpUrl(nexusUrl: string): Promise<IccpNode>
+  getIccpNodeUrl(nexusUrl: string): Promise<IccpNode>
 }

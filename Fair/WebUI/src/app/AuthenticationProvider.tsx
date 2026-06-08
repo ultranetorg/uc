@@ -2,10 +2,10 @@ import { createContext, PropsWithChildren, useCallback, useContext, useEffect, u
 import { useLocalStorage } from "usehooks-ts"
 
 import { LOCAL_STORAGE_KEYS } from "constants/"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useAuthenticateMutation, useIsAuthenticatedMutation, useRegisterMutation } from "entities/vault"
 import { UserCreation } from "types"
 import { AuthenticationResult } from "types/vault"
-import { useTransactMutationWithStatus } from "entities/node"
 
 type Callbacks = {
   onSuccess?: (data: AuthenticationResult | null) => void

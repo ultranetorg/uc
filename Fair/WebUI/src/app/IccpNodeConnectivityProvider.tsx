@@ -1,40 +1,41 @@
 import { createContext, useContext, PropsWithChildren, useMemo, useState } from "react"
 
-import { useGetNodeUrl } from "entities/nexus"
-import { useGetNexusUrl, useGetPing } from "entities/node"
+import { useGetNexusUrl } from "entities"
+import { useGetPing } from "entities/iccpNode"
+import { useGetIccpNodeUrl } from "entities/nexus"
 import { NodeInstallModal } from "ui/components/specific"
 
-type NodeConnectivityContextType = {
+type IccpNodeConnectivityContextType = {
   isAvailable: boolean
   refresh: () => void
   openInstallModal: () => void
 }
 
-const NodeConnectivityContext = createContext<NodeConnectivityContextType>({
+const IccpNodeConnectivityContext = createContext<IccpNodeConnectivityContextType>({
   isAvailable: false,
   refresh: () => {},
   openInstallModal: () => {},
 })
 
-export const NodeConnectivityProvider = ({ children }: PropsWithChildren) => {
+export const IccpNodeConnectivityProvider = ({ children }: PropsWithChildren) => {
   const [isInstallModalOpen, setInstallModalOpen] = useState(false)
 
   const nexus = useGetNexusUrl()
-  const node = useGetNodeUrl(nexus.data)
+  const node = useGetIccpNodeUrl(nexus.data)
   const { data: pong, refetch } = useGetPing(node.data)
 
-  const value = useMemo<NodeConnectivityContextType>(
+  const value = useMemo<IccpNodeConnectivityContextType>(
     () => ({ isAvailable: pong === true, openInstallModal: () => setInstallModalOpen(true), refresh: refetch }),
     [pong, refetch],
   )
 
   return (
-    <NodeConnectivityContext.Provider value={value}>
+    <IccpNodeConnectivityContext.Provider value={value}>
       {children}
       {isInstallModalOpen && <NodeInstallModal />}
-    </NodeConnectivityContext.Provider>
+    </IccpNodeConnectivityContext.Provider>
   )
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useNodeConnectivityContext = () => useContext(NodeConnectivityContext)
+export const useIccpNodeConnectivityContext = () => useContext(IccpNodeConnectivityContext)

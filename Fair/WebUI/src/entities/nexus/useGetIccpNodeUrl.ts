@@ -4,7 +4,7 @@ import { getNexusApi } from "api"
 
 const api = getNexusApi()
 
-export const useGetNodeUrl = (baseUrl?: string) => {
+export const useGetIccpNodeUrl = (baseUrl?: string) => {
   const [data, setData] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | undefined>()
@@ -17,7 +17,7 @@ export const useGetNodeUrl = (baseUrl?: string) => {
     setIsLoading(true)
 
     api
-      .getIccpUrl(baseUrl)
+      .getIccpNodeUrl(baseUrl)
       .then(res => setData(res?.api))
       .catch(err => setError(err))
       .finally(() => {

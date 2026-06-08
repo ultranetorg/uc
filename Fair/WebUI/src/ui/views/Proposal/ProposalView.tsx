@@ -5,15 +5,14 @@ import { useQueryClient } from "@tanstack/react-query"
 
 import { useOperationPolicy } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
-import { categoriesKeys, proposalsKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
-import { useTransactMutationWithStatus } from "entities/node"
+import { categoriesKeys, proposalsKeys, publicationsKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
 import { ModerationHeader } from "ui/components/specific"
 import { getVotedIndex, isVoted, showToast } from "utils"
 
-import { publicationsKeys } from "entities/publications/publicationsKeys"
 import {
   DefaultContent,
   ProposalViewContentProps,

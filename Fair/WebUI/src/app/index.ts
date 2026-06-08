@@ -1,10 +1,10 @@
 export * from "./Router"
 
 export * from "./AuthenticationProvider"
+export * from "./IccpNodeConnectivityProvider"
 export * from "./SitePoliciesProvider"
 export * from "./SiteRolesProvider"
 export * from "./useOperationPolicy"
-export * from "./NodeConnectivityProvider"
 export * from "./SearchQueryProvider"
 export * from "./SiteProvider"
 export * from "./UserProvider"

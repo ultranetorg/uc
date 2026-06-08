@@ -1,8 +1,8 @@
 import { memo, useMemo } from "react"
 import { Proposal, PublicationCreation } from "types"
 
+import { useGetProductDetails } from "entities"
 import { ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
-import { useGetProductDetails } from "entities/products"
 
 import { ProposalViewContentProps } from "./types"
 

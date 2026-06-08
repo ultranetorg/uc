@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 
 import { SvgSpinnerXl } from "assets"
 import { useGetSiteFilesInfinite } from "entities"
-import { useTransactMutationWithStatus } from "entities/node"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useEscapeKey, useInfiniteScrollWithPosition } from "hooks"
 import { File as FileType, FileDeletion, FileCreation, MimeType, FileOwner } from "types"
 import { Modal, ModalProps, TabContent, TabsList, TabsListItem, TabsProvider, TextModal } from "ui/components"
