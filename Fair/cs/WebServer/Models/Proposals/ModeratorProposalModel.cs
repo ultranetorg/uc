@@ -2,5 +2,5 @@
 
 public class ModeratorProposalModel(Proposal proposal, FairUser by) : ProposalModel(proposal, by)
 {
-	public IEnumerable<AccountBaseModel>? Moderators { get; init; }
+	public IEnumerable<UserModel> Moderators { get; init; }
 }

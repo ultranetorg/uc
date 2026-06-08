@@ -4,6 +4,7 @@ import { capitalize } from "lodash"
 
 import { START_DATE } from "config"
 import { BaseVotableOperation } from "types"
+import { getHoursPassedFromStart } from "./dateUtils"
 
 const OS_DIVIDER = " | "
 const ROLES_DELIMITER = ", "
@@ -24,8 +25,6 @@ export const formatNabbShort = (neither: number, any: number, ban: number, banis
 
 export const formatDate = (hours: number): string =>
   dayjs(START_DATE).add(hours, "hour").startOf("day").format("DD.MM.YYYY")
-
-export const formatDaysLeft = (createdAt: number, hoursLeft: number): number => Math.ceil((createdAt - hoursLeft) / 24)
 
 export const formatSupportedPlatforms = (platforms: string[]): string => platforms.join(" / ")
 
@@ -65,6 +64,12 @@ export const formatDuration = (t: TFunction, durationInHours: number): string =>
   }
 
   return t("date:hour", { count: Math.floor(durationInHours) })
+}
+
+export const formatLastsFor = (t: TFunction, creationTime: number) => {
+  const hoursPassed = getHoursPassedFromStart()
+  const hoursDuration = hoursPassed - creationTime
+  return formatDuration(t, hoursDuration)
 }
 
 export const formatOption = (option: BaseVotableOperation, t: TFunction) => {

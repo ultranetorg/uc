@@ -215,7 +215,7 @@ const getSiteAuthorsRemoval = (operation: SiteAuthorsRemoval): JSX.Element => {
         count={operation.removals.length}
       />
       <MembersList
-        items={operation.removals.map(x => ({ id: x.id, title: x.nickname ?? x.title, avatarSrc: buildFileUrl(x.id) }))}
+        items={operation.removals.map(x => ({ id: x.id, title: x.title, avatarSrc: buildFileUrl(x.avatarId) }))}
       />
     </div>
   )

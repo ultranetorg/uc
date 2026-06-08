@@ -3,14 +3,16 @@ import { TFunction } from "i18next"
 
 import { UserUnregistrationProposal } from "types"
 import { TableColumn, TableItem } from "ui/components"
-import { renderActions, renderCommon, renderUser } from "ui/renderers/utils"
+import { renderActions, renderCommon } from "ui/renderers/utils"
+import { renderUser } from "ui/renderers2"
 import { isUserVoted } from "utils"
 
-export const getUserRemovalsTabItemRenderer =
+export const getRemoveUsersTabItemRenderer =
   (
     t: TFunction,
     onApprove: (id: string, name: string) => void,
     onReject: (id: string, name: string) => void,
+    votesRequired: number,
     loadingItem?: { id: string; action: "approve" | "reject" } | undefined,
     currentUserId?: string,
   ) =>
@@ -22,16 +24,16 @@ export const getUserRemovalsTabItemRenderer =
       case "user":
         return renderUser(proposal.userId, proposal.userName)
       case "created-by":
-        return renderUser(proposal.by.id, proposal.by.nickname)
+        return renderUser(proposal.by)
       case "actions":
         return renderActions(
           t,
-          () => onApprove(item.id, proposal.by.nickname),
-          () => onReject(item.id, proposal.by.nickname),
+          () => onApprove(item.id, proposal.by.name),
+          () => onReject(item.id, proposal.by.name),
           loadingItem?.id === item.id ? loadingItem.action : undefined,
           isVoted || (loadingItem && loadingItem.id !== item.id),
         )
     }
 
-    return renderCommon(t, column, proposal)
+    return renderCommon(t, column, proposal, votesRequired)
   }

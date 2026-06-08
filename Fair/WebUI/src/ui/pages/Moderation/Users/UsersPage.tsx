@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
 import { NewUsersTab } from "./NewUsersTab"
-import { UsersRemovalsTab } from "./UserRemovalsTab"
+import { UsersRemovalsTab } from "./RemoveUsersTab"
 import { UsersTab } from "./UsersTab"
 
 const routeToTabKey: Record<string, string> = {

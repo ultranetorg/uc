@@ -62,7 +62,7 @@ export const AuthorProfile = memo(
     const renderLinks = () => (
       <div className="flex flex-col gap-2">
         <span className={LABEL_CLASSNAME}>{t("links")}</span>
-        <ProfileLinks t={t} links={author.links!} />
+        <ProfileLinks t={t} links={author.references!} />
       </div>
     )
 
@@ -80,7 +80,7 @@ export const AuthorProfile = memo(
             <div className="flex flex-col gap-6">
               {renderTitle()}
               {author.description && renderAbout()}
-              {author.links && author.links.length > 0 && renderLinks()}
+              {author.references && author.references.length > 0 && renderLinks()}
               {renderAuthorInfo()}
             </div>
           </>
@@ -91,7 +91,7 @@ export const AuthorProfile = memo(
               {renderTitle()}
             </div>
             {author.description && renderAbout()}
-            {author.links && author.links.length > 0 && renderLinks()}
+            {author.references && author.references.length > 0 && renderLinks()}
             {renderAuthorInfo()}
           </div>
         )}

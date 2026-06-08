@@ -84,10 +84,10 @@ public static class ProposalUtils
 
 	static SiteAuthorsRemovalModel CreateSiteAuthorsRemovalModel(FairMcv mcv, SiteAuthorsRemoval operation)
 	{
-		IEnumerable<AuthorBaseModel> removals = operation.Authors.Select(authorId =>
+		IEnumerable<AuthorBaseAvatarModel> removals = operation.Authors.Select(authorId =>
 		{
 			Author author = mcv.Authors.Latest(authorId);
-			return new AuthorBaseModel(author);
+			return new AuthorBaseAvatarModel(author);
 		});
 
 		return new SiteAuthorsRemovalModel(operation)
@@ -141,16 +141,16 @@ public static class ProposalUtils
 		Category category = mcv.Categories.Latest(publication.Category);
 		return new PublicationUnpublishModel(operation, product, category);
 	}
-
-	public static int CalculateHoursLeft(Proposal proposal, Site site)
-	{
-		if (site.Policies.First(i => i.OperationClass == proposal.OptionClass).Approval == ApprovalRequirement.PublishersMajority)
-			return -1;
-
-		Restiction? restriction = Site.Restrictions.FirstOrDefault(x => x.OperationClass == proposal.OptionClass);
-		if(restriction == null || restriction.Flags.HasFlag(PolicyFlag.Infinite))
-			return -1;
-
-		return (proposal.CreationTime - Time.FromDays(30)).Hours;
-	}
 }
+
+//public static int CalculateHoursLeft(Proposal proposal, Site site)
+//{
+//	if (site.Policies.First(i => i.OperationClass == proposal.OptionClass).Approval == ApprovalRequirement.PublishersMajority)
+//		return -1;
+
+//	Restiction? restriction = Site.Restrictions.FirstOrDefault(x => x.OperationClass == proposal.OptionClass);
+//	if(restriction == null || restriction.Flags.HasFlag(PolicyFlag.Infinite))
+//		return -1;
+
+//	return (proposal.CreationTime - Time.FromDays(30)).Hours;
+//}

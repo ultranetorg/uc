@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
-import { isNumber } from "lodash"
+import { isNumber, startCase } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorDiscussions } from "entities"
@@ -50,15 +50,21 @@ export const ProposalsPage = () => {
     [setState],
   )
 
+  const handleSearchCancel = useCallback(() => {
+    setState({ query: "", page: 0 })
+    setPage(0)
+  }, [setState])
+
   return (
     <>
-      <ModerationHeader title="Proposals" />
+      <ModerationHeader title={startCase(t("common:moderatorProposals"))} />
       <ProposalsView
         t={t}
         proposals={discussions}
         page={page}
         pagesCount={pagesCount}
         search={state.query}
+        onSearchCancel={handleSearchCancel}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
         onTableRowClick={handleTableRowClick}

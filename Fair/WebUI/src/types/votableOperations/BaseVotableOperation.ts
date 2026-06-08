@@ -2,4 +2,5 @@ import { OperationType } from "types"
 
 export type BaseVotableOperation = {
   $type: OperationType
+  operation: OperationType
 }

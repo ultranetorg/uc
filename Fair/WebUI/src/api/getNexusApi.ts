@@ -5,7 +5,7 @@ import { NexusApi } from "./NexusApi"
 import { keysToCamelCase } from "./utils"
 
 const getNodeUrl = async (baseUrl: string): Promise<NnpNode> => {
-  const response = await fetch(`${baseUrl}/NnpNode`, {
+  const response = await fetch(`${baseUrl}/IccpNode`, {
     method: "POST",
     body: JSON.stringify({
       Net: VAULT.NETWORK,

@@ -22,10 +22,7 @@ export const PublisherPage = memo(({ isFromModeration = true }: PublisherPagePro
   const breadcrumbs = useMemo(
     () =>
       isFromModeration
-        ? [
-            { path: `/${siteId}/m/`, title: t("common:proposals") },
-            { path: `/${siteId}/m/a/`, title: t("common:publishers") },
-          ]
+        ? [{ path: `/${siteId}/m/a/`, title: t("common:publishers") }]
         : [{ title: t("common:members") }],
     [isFromModeration, siteId, t],
   )

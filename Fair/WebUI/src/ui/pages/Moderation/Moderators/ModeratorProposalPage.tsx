@@ -13,7 +13,7 @@ export const ModeratorProposalPage = memo(() => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={[{ title: t("common:moderators"), path: `/${siteId}/m/m/p` }]}
+      parentBreadcrumbs={[{ title: t("common:moderators"), path: `/${siteId}/m/m` }]}
       isFetching={isFetching}
       proposal={proposal}
       previousPath={`/${siteId}/m/m/p`}

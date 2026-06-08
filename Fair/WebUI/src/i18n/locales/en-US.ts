@@ -35,7 +35,9 @@ export const enUS = {
     login: "login",
     minimal: "Minimal",
     moderation: "moderation",
-    moderator: "moderator",
+    moderator_one: "moderator",
+    moderator_other: "moderators",
+    moderatorProposals: "moderator proposals",
     moderators: "moderators",
     nabb: "N / A / B / B",
     nabbFull: "Neither / Any / Ban / Banish",
@@ -44,6 +46,7 @@ export const enUS = {
     next: "Next",
     nickname: "nickname",
     no: "No",
+    noResults: "no results",
     ok: "ok",
     operation: "operation",
     options: "Options",
@@ -53,7 +56,9 @@ export const enUS = {
     proposals: "proposals",
     publication: "Publication",
     publications: "publications",
-    publisher: "publisher",
+    publisherReferendums: "publisher referendums",
+    publisher_one: "publisher",
+    publisher_other: "publishers",
     publishers: "publishers",
     rating: "Rating",
     recommended: "Recommended",
@@ -279,10 +284,10 @@ export const enUS = {
   perpetualSurveysPage: {
     title: "Perpetual Surveys",
     noPerpetualSurveys: "No open perpetual surveys",
-    totalVotes: "Total votes",
-    votedApproval: "Voted approval",
-    votesRequired: "Votes required",
-    winPercentage: "Win percentage",
+    totalVotes: "Total Votes",
+    currentPolicy: "Current Approval Policy",
+    votesRequired: "Votes Required",
+    winPercentage: "Win Percentage",
   },
   profile: {
     authors: "My authors",
@@ -297,8 +302,8 @@ export const enUS = {
     uploadAvatar: "Upload avatar",
   },
   proposalsPage: {
-    searchProposal: "Search discussion",
-    noProposals: "No open discussions",
+    searchProposal: "Search proposal",
+    noProposals: "No open proposals",
   },
   publication: {
     title: "Publication - {{publicationId}} | Ultranet Fair",
@@ -363,13 +368,11 @@ export const enUS = {
   referendum: {
     createdAt: "Created At:",
     createdBy: "Created By:",
-    daysLeft: "Days Left:",
     notVotedYet: "No participant has voted yet.",
     title: "Referendum {{referendumId}}",
     votingTitle: "Current voting results",
   },
   referendumsPage: {
-    title: "Referendums",
     searchProposal: "Search referendum",
     noProposals: "No open referendums",
   },
@@ -515,7 +518,6 @@ export const enUS = {
 
   /* Tabs */
   moderatorsProposalsTab: {
-    multipleOptions: "Multiple options",
     noProposals: "No moderator proposals",
   },
   publishersProposalsTab: {
@@ -529,6 +531,9 @@ export const enUS = {
   },
   tabUnpublishedPublications: {
     noPublications: "No unpublished publications",
+  },
+  usersTab: {
+    noUsers: "No users",
   },
 
   /* Type literals names */
@@ -571,16 +576,16 @@ export const enUS = {
     "user-unregistration": "User unregistration",
   },
   operationsShort: {
-    "publication-creation": "Creation",
-    "publication-deletion": "Deletion",
+    "publication-creation": "New",
+    "publication-deletion": "Delete",
     "publication-publish": "Publish",
     "publication-unpublish": "Unpublish",
-    "publication-updation": "Updation",
-    "review-creation": "Creation",
+    "publication-updation": "Update",
+    "review-creation": "New",
     "review-edit": "Edit",
-    "site-authors-removal": "Removal",
-    "site-moderator-addition": "Addition",
-    "site-moderator-removal": "Removal",
+    "site-authors-removal": "Remove",
+    "site-moderator-addition": "Add",
+    "site-moderator-removal": "Remove",
   },
   platforms: {
     linux: "Linux",

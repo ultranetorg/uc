@@ -5,4 +5,5 @@ export type TransactionApe = {
   nid: number
   tag: string
   status: TransactionStatus
+  error: string | null
 }

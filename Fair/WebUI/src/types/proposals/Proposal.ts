@@ -1,4 +1,4 @@
-import { AccountBase } from "types"
+import { User } from "types"
 import { OperationType } from "types/OperationType"
 
 import { ProposalOption } from "./ProposalOption"
@@ -23,8 +23,6 @@ export type Proposal = {
 
   options: ProposalOption[]
 
-  by: AccountBase
+  by: User
   multipleOptions: boolean
-
-  hoursLeft: number
 }

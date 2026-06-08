@@ -28,7 +28,6 @@ public class AuthorsService
 			{
 				Description = author.Description,
 				AvatarId = author.Avatar?.ToString(),
-				Links = author.Links.Select(x => x.ToString()),
 				OwnersIds = LoadOwners(author.Owners)
 			};
 		}

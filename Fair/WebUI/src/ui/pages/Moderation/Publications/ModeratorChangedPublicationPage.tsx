@@ -25,7 +25,6 @@ export const ModeratorChangedPublicationPage = () => {
 
   const parentBreadcrumbs = useMemo(
     () => [
-      { title: t("common:proposals"), path: `/${siteId}/m` },
       { title: t("common:publications"), path: `/${siteId}/m/c` },
       { title: t("common:changed"), path: `/${siteId}/m/c/c` },
     ],
@@ -99,13 +98,15 @@ export const ModeratorChangedPublicationPage = () => {
         }
       />
 
-      <ModerationPublicationHeader
-        title={publication.title}
-        logoId={publication.logoId}
-        authorId={publication.authorId}
-        authorTitle={publication.authorTitle}
-      />
-      <ProductFieldsDiff from={publication.fields} to={publication.fieldsTo} />
+      <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
+        <ModerationPublicationHeader
+          title={publication.title}
+          logoId={publication.logoId}
+          authorId={publication.authorId}
+          authorTitle={publication.authorTitle}
+        />
+        <ProductFieldsDiff from={publication.fields} to={publication.fieldsTo} />
+      </div>
     </div>
   )
 }

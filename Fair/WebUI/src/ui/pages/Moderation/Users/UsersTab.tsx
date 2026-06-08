@@ -14,7 +14,7 @@ import { usersTabItemRenderer } from "./usersTabItemRenderer"
 export const UsersTab = () => {
   const navigate = useNavigate()
   const { siteId } = useParams()
-  const { t } = useTranslation()
+  const { t } = useTranslation("usersTab")
 
   const [state, setState] = useUrlParamsState({
     page: {

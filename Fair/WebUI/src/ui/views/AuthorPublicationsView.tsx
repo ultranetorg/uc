@@ -50,7 +50,7 @@ export const AuthorPublicationsView = memo(
     return (
       <>
         <AuthorProfile t={t} size={size} author={author} isPublisher={isPublisher} isModerator={isModerator} />
-        {publications.items.length && (
+        {publications.items.length > 0 && (
           <>
             <div className="flex items-center justify-between">
               <span className="text-3.5xl font-semibold leading-10">

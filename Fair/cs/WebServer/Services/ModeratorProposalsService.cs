@@ -56,7 +56,6 @@ public class ModeratorProposalsService
 
 		return new ReviewProposalModel(proposal, by, model, reviewText)
 		{
-			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site),
 			IsStalled = model == null
 		};
 	}
@@ -121,10 +120,7 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);
 
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage)
-		{
-			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
-		};
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
 	}
 
 	PublicationProposalModel CreatePublicationModel(Proposal proposal, Site site, AutoId publicationId)
@@ -138,10 +134,7 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, null, fileId);
 
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage)
-		{
-			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
-		};
+		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
 	}
 
 	T GetProposalByType<T>(string siteId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, Site, T> createFunc) where T : ProposalModel
@@ -245,22 +238,18 @@ public class ModeratorProposalsService
 
 		if(proposal.Options[0].Operation is SiteModeratorAddition addition)
 		{
-			// NOTE: if there are multiple options, we won't load moderators.
-			IEnumerable<AccountBaseModel> moderators = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, addition.Candidates, CancellationToken.None) : null;
+			IEnumerable<UserModel> moderators = McvUtils.LoadUsers(mcv, addition.Candidates, CancellationToken.None);
 			return new ModeratorProposalModel(proposal, by)
 			{
 				Moderators = moderators,
-				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
 			};
 		}
 		if(proposal.Options[0].Operation is SiteModeratorRemoval removal)
 		{
-			// NOTE: if there are multiple options, we won't load moderators.
-			IEnumerable<AccountBaseModel> moderators = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, [removal.Moderator], CancellationToken.None) : null;
+			IEnumerable<UserModel> moderators = McvUtils.LoadUsers(mcv, [removal.Moderator], CancellationToken.None);
 			return new ModeratorProposalModel(proposal, by)
 			{
 				Moderators = moderators,
-				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
 			};
 		}
 
@@ -285,12 +274,8 @@ public class ModeratorProposalsService
 
 		if(proposal.Options[0].Operation is SiteAuthorsRemoval removal)
 		{
-			// NOTE: if there are multiple options, we won't load publishers.
-			IEnumerable<AccountBaseModel> removals = proposal.Options.Length == 1 ? McvUtils.LoadAccounts(mcv, removal.Authors, CancellationToken.None) : null;
-			return new PublisherProposalModel(proposal, by, removals)
-			{
-				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
-			};
+			IEnumerable<AuthorBaseAvatarModel> removals = McvUtils.LoadAuthors(mcv, removal.Authors, CancellationToken.None);
+			return new PublisherProposalModel(proposal, by, removals);
 		}
 
 		return null;
@@ -323,10 +308,7 @@ public class ModeratorProposalsService
 	ProposalModel CreateUserProposalModel(Proposal proposal, Site site)
 	{
 		FairUser by = (FairUser)mcv.Users.Latest(proposal.By);
-		return new ProposalModel(proposal, by)
-		{
-			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
-		};
+		return new ProposalModel(proposal, by);
 	}
 
 	UserUnregistrationProposalModel CreateUserUnregistrationModel(Proposal proposal, Site site)
@@ -340,8 +322,7 @@ public class ModeratorProposalsService
 		return new UserUnregistrationProposalModel(proposal, by)
 		{
 			UserId = userToUnregister.Id.ToString(),
-			UserName = userToUnregister.Name,
-			HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+			UserName = userToUnregister.Name
 		};
 	}
 }

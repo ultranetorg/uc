@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { useQueryClient } from "@tanstack/react-query"
 
 import { useSiteRolesContext } from "app"
+import { sitesKeys } from "entities"
 import { useGetPerpetualSurveyDetails } from "entities/perpetualSurveys"
 import { useTransactMutationWithStatus } from "entities/node"
-import { PerpetualVoting, SiteApprovalPolicyChange } from "types"
+import { OperationType, PerpetualVoting, SiteApprovalPolicyChange } from "types"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 import { showToast } from "utils"
@@ -15,6 +17,7 @@ export type PageState = "voting" | "results"
 export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurveyPage")
   const { siteId, perpetualSurveyId } = useParams()
+  const queryClient = useQueryClient()
 
   const { isPublisher, publisherIds } = useSiteRolesContext()
   const { mutate } = useTransactMutationWithStatus()
@@ -25,6 +28,15 @@ export const PerpetualSurveyPage = () => {
 
   const operation = (survey?.options[0].operation as SiteApprovalPolicyChange)?.operation
   const title = operation !== undefined ? t(`operations:${operation}`) : undefined
+
+  const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
+    () => ({
+      "site-avatar-change": [sitesKeys.policies(siteId!)],
+      "site-name-change": [sitesKeys.policies(siteId!)],
+      "site-text-change": [sitesKeys.policies(siteId!)],
+    }),
+    [siteId],
+  )
 
   const handleExpand = useCallback(
     (value: string | number, expanded: boolean) =>
@@ -37,12 +49,31 @@ export const PerpetualSurveyPage = () => {
       const publisherId = publisherIds![0]
       const operation = new PerpetualVoting(siteId!, Number(perpetualSurveyId), publisherId, Number(choiceId))
       mutate(operation, {
-        onSuccess: () => showToast(t("toast:perpetualVoted", { publisher: publisherId })),
+        onSuccess: () => {
+          const invalidateKeys =
+            invalidateQueryKeysByOperationType[survey?.options[0].operation.operation as OperationType]
+          console.log(invalidateKeys, survey?.options[0].operation.operation)
+          if (invalidateKeys) {
+            invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
+          }
+
+          showToast(t("toast:perpetualVoted", { publisher: publisherId }))
+        },
         onError: err => showToast(err.toString(), "error"),
         onSettled: () => refetch(),
       })
     },
-    [mutate, perpetualSurveyId, publisherIds, refetch, siteId, t],
+    [
+      invalidateQueryKeysByOperationType,
+      mutate,
+      perpetualSurveyId,
+      publisherIds,
+      queryClient,
+      refetch,
+      siteId,
+      survey?.options,
+      t,
+    ],
   )
 
   useEffect(() => {
@@ -78,7 +109,7 @@ export const PerpetualSurveyPage = () => {
           fullPath={true}
           items={[
             { path: `/${siteId}`, title: t("home") },
-            { title: t("common:governance"), path: `/${siteId}/g` },
+            { title: t("common:publisherSurveys"), path: `/${siteId}/g/p` },
             { title: title! },
           ]}
         />

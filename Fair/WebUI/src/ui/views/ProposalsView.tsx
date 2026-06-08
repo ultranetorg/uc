@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react"
 import { TFunction } from "i18next"
 
+import { SvgSearchMd, SvgX } from "assets"
 import { Proposal, TotalItemsResult } from "types"
 import { Input, Pagination, Table, TableEmptyState } from "ui/components"
 import { getVotingColumns } from "ui/pages/moderation/constants"
@@ -15,10 +16,21 @@ export type ProposalsViewProps = {
   onPageChange: (page: number) => void
   onTableRowClick: (id: string) => void
   onSearchChange: (search: string) => void
+  onSearchCancel: () => void
 }
 
 export const ProposalsView = memo(
-  ({ t, proposals, page, pagesCount, search, onPageChange, onTableRowClick, onSearchChange }: ProposalsViewProps) => {
+  ({
+    t,
+    proposals,
+    page,
+    pagesCount,
+    search,
+    onPageChange,
+    onTableRowClick,
+    onSearchChange,
+    onSearchCancel,
+  }: ProposalsViewProps) => {
     const columns = useMemo(
       () => [
         { accessor: "text", label: t("common:title"), type: "title", className: "w-[24%]" },
@@ -39,7 +51,16 @@ export const ProposalsView = memo(
               placeholder={t("searchProposal")}
               value={search}
               onChange={onSearchChange}
-              id="referendums-search-input"
+              iconAfter={
+                <>
+                  {search && (
+                    <div onClick={onSearchCancel} className="cursor-pointer">
+                      <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
+                    </div>
+                  )}
+                  <SvgSearchMd className="size-5 shrink-0 stroke-gray-500" />
+                </>
+              }
             />
           </div>
           <Pagination onPageChange={onPageChange} page={page} pagesCount={pagesCount} />
@@ -48,7 +69,12 @@ export const ProposalsView = memo(
           columns={columns}
           items={proposals?.items}
           itemRenderer={itemRenderer}
-          emptyState={<TableEmptyState message={t("noProposals")} />}
+          emptyState={
+            <TableEmptyState
+              className="first-letter:uppercase"
+              message={!search ? t("noProposals") : t("common:noResults")}
+            />
+          }
           onRowClick={onTableRowClick}
         />
         <div className="flex justify-end">

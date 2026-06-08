@@ -2,14 +2,14 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 
-import { useSiteRolesContext } from "app"
+import { useSitePoliciesContext } from "app"
 import { sitesKeys } from "entities"
 import { isModeratorVoting } from "utils"
 import { SimpleMenuItem } from "ui/components/SimpleMenu"
 
 export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenuItem[] => {
   const location = useLocation()
-  const { policies } = useSiteRolesContext()
+  const { policies } = useSitePoliciesContext()
   const { t } = useTranslation("storeDropdownMenu")
 
   const siteItems = useMemo(

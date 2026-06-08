@@ -5,5 +5,5 @@ export type AuthorDetails = {
   description: string
   avatarId?: string
   ownersIds: User[]
-  links: string[]
+  references: string[]
 } & AuthorBase

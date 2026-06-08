@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { isNumber } from "lodash"
+import { isNumber, startCase } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthorReferendums } from "entities"
@@ -50,9 +50,14 @@ export const ReferendumsPage = () => {
     [setState],
   )
 
+  const handleSearchCancel = useCallback(() => {
+    setState({ query: "", page: 0 })
+    setPage(0)
+  }, [setState])
+
   return (
     <div className="flex flex-col gap-6">
-      <ModerationHeader title={t("title")} breadcrumbTitle={t("common:governance")} />
+      <ModerationHeader title={startCase(t("common:publisherReferendums"))} />
       <ProposalsView
         t={t}
         proposals={referendums}
@@ -62,6 +67,7 @@ export const ReferendumsPage = () => {
         onPageChange={handlePageChange}
         onTableRowClick={handleTableRowClick}
         onSearchChange={handleSearchChange}
+        onSearchCancel={handleSearchCancel}
       />
     </div>
   )

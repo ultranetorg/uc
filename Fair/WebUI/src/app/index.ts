@@ -1,6 +1,7 @@
 export * from "./Router"
 
 export * from "./AuthenticationProvider"
+export * from "./SitePoliciesProvider"
 export * from "./SiteRolesProvider"
 export * from "./useOperationPolicy"
 export * from "./NodeConnectivityProvider"

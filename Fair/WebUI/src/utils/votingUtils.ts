@@ -45,7 +45,19 @@ export const isVotingRequired = (operation?: OperationType, site?: Site, policie
 export const calculateVotesRequiredToWinPerpetualSurvey = (sitePublishersCount: number) =>
   sitePublishersCount / 2 + (sitePublishersCount & 1)
 
-export const calculateVotesRequiredToWinProposal = (approval: ApprovalRequirement, site: Site): number => {
+export const calculateVotesRequiredToWinProposal = (
+  operation?: OperationType,
+  site?: Site,
+  policies?: Policy[],
+): number => {
+  if (!operation || !site || !policies) return -1
+  const policy = policies.find(x => x.operationClass === operation)
+  if (!policy) return -1
+
+  return calculateVotesRequiredToWinProposalByApproval(policy.approval, site)
+}
+
+const calculateVotesRequiredToWinProposalByApproval = (approval: ApprovalRequirement, site: Site): number => {
   switch (approval) {
     case "any-moderator":
       return 1

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { isNumber, isString } from "lodash"
 
-import { useOperationPolicy } from "app"
+import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
@@ -11,12 +11,15 @@ import { useUrlParamsState } from "hooks"
 import { ProposalVoting, SpecialChoice } from "types"
 import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
-import { getReviewsItemRenderer } from "ui/renderers"
-import { parseInteger, showToast } from "utils"
+import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
+
+import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
 export const ReviewsPage = () => {
-  const { siteId } = useParams()
   const { voterId } = useOperationPolicy("review-creation")
+  const { siteId } = useParams()
+  const { site } = useSiteContext()
+  const { policies } = useSitePoliciesContext()
   const { t } = useTranslation("reviewsPage")
 
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
@@ -43,8 +46,8 @@ export const ReviewsPage = () => {
       { accessor: "author", label: t("common:reviewer"), type: "account", className: "w-[15%]" },
       { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
       { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
-      { accessor: "votes", label: t("common:votes"), type: "votes" },
-      { accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull") },
+      { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
+      //{ accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull") },
       ...(voterId
         ? [{ accessor: "action", label: t("common:action"), type: "review-action", className: "w-[20%] text-center" }]
         : []),
@@ -114,14 +117,22 @@ export const ReviewsPage = () => {
     [setState],
   )
 
+  const votesRequired = useMemo(
+    () => ({
+      create: calculateVotesRequiredToWinProposal("review-creation", site, policies),
+      edit: calculateVotesRequiredToWinProposal("review-edit", site, policies),
+    }),
+    [policies, site],
+  )
+
   const itemRenderer = useMemo(
-    () => getReviewsItemRenderer(t, handleApproveClick, handleRejectClick, loadingItem, voterId),
-    [handleApproveClick, handleRejectClick, loadingItem, t, voterId],
+    () => getReviewsPageItemRenderer(t, handleApproveClick, handleRejectClick, votesRequired, loadingItem, voterId),
+    [handleApproveClick, handleRejectClick, loadingItem, t, voterId, votesRequired],
   )
 
   return (
     <>
-      <ModerationHeader title={t("title")} parentBreadcrumbs={{ path: `/${siteId}/m`, title: t("common:proposals") }} />
+      <ModerationHeader title={t("title")} />
       <Table
         columns={columns}
         items={reviews?.items}

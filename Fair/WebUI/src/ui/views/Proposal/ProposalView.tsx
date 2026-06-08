@@ -94,7 +94,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
     () =>
       parentBreadcrumbs
         ? Array.isArray(parentBreadcrumbs)
-          ? [{ title: t("common:proposals"), path: `/${siteId}/m` }, ...parentBreadcrumbs]
+          ? [...parentBreadcrumbs]
           : [parentBreadcrumbs]
         : { title: t("common:proposals"), path: `/${siteId}/m` },
     [parentBreadcrumbs, siteId, t],
@@ -267,12 +267,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           />
         </div>
         <div className="flex flex-col gap-6">
-          <ProposalInfo
-            className="w-87.5"
-            createdBy={proposal.by}
-            createdAt={proposal.creationTime}
-            hoursLeft={proposal.hoursLeft}
-          />
+          <ProposalInfo className="w-87.5" createdBy={proposal.by} createdAt={proposal.creationTime} />
           {!isPublicationMode &&
             (pageState === "voting" ? (
               <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />

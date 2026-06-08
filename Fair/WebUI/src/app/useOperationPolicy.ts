@@ -2,6 +2,7 @@ import { useMemo } from "react"
 
 import { OperationCreator, OperationType, OperationVoter, Policy, Role } from "types"
 
+import { useSitePoliciesContext } from "./SitePoliciesProvider"
 import { useSiteRolesContext } from "./SiteRolesProvider"
 import { useUserContext } from "./UserProvider"
 
@@ -13,7 +14,8 @@ type OperationPolicyResult = {
 }
 
 export const useOperationPolicy = (operation?: OperationType): OperationPolicyResult => {
-  const { isModerator, isPublisher, policies } = useSiteRolesContext()
+  const { isModerator, isPublisher } = useSiteRolesContext()
+  const { policies } = useSitePoliciesContext()
   const { user } = useUserContext()
 
   return useMemo<OperationPolicyResult>(() => {

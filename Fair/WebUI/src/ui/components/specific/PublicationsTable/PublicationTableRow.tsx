@@ -33,7 +33,7 @@ export const PublicationTableRow = memo(
 
     return (
       <div className="flex items-center justify-between p-4 text-2sm leading-5">
-        <div className="w-2/5">
+        <div className="w-[43%]">
           <Link to={`/${siteId}/p/${id}`} className="flex w-fit items-center gap-2">
             <div className="size-8 shrink-0 overflow-hidden rounded-lg">
               <ImageFallback
@@ -48,7 +48,7 @@ export const PublicationTableRow = memo(
         <span className="w-[30%]">
           <Link to={`/${siteId}/c/${categoryId}`}>{categoryTitle}</Link>
         </span>
-        <div className="w-1/5">
+        <div className="flex w-[27%] justify-center">
           <ButtonOutline
             className="h-9"
             label={`${publicationsCount} ${t("publication", { count: publicationsCount })}`}

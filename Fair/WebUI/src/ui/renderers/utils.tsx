@@ -15,14 +15,13 @@ import {
   formatNabbShort,
   formatDate,
   formatDuration,
-  formatVotes,
   getHoursPassedFromStart,
   shortenAddress,
   formatArShort,
   formatAr,
-  buildUserAvatarUrl,
   buildFileUrl,
 } from "utils"
+import { renderVotes } from "ui/renderers2"
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
@@ -49,8 +48,6 @@ export const renderAccount = (account: AccountBaseAvatar) => (
     avatar={account.avatar}
   />
 )
-
-export const renderUser = (id: string, name: string) => <MemberInfo title={name} avatarSrc={buildUserAvatarUrl(id)!} />
 
 export const renderAction = (t: TFunction, operationType: OperationType) => {
   const value = t(`operations:${operationType}`)
@@ -130,23 +127,22 @@ export const renderTitle = (title: string, text: string) => (
   </div>
 )
 
-export const renderVotes = (votes: number[]) => {
-  const formatted = formatVotes(votes)
-  return (
-    <div className="truncate" title={formatted}>
-      {formatted}
-    </div>
-  )
-}
-
-export const renderCommon = (t: TFunction, column: TableColumn, proposal: Proposal): ReactNode => {
+export const renderCommon = (
+  t: TFunction,
+  column: TableColumn,
+  proposal: Proposal,
+  votesRequired?: number,
+): ReactNode => {
   switch (column.type) {
     case "nabb":
       return renderNabb(t, proposal)
     case "lasts-for":
       return renderLastsFor(t, proposal.creationTime)
     case "votes":
-      return renderVotes(proposal.yes.map(x => x.length))
+      return renderVotes(
+        proposal.yes.map(x => x.length),
+        votesRequired,
+      )
   }
 
   return undefined

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { isNumber } from "lodash"
 
-import { useOperationPolicy } from "app"
+import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserRegistrationProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
@@ -11,11 +11,13 @@ import { useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getUsersItemRenderer } from "ui/renderers"
-import { parseInteger, showToast } from "utils"
+import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
 
 export const NewUsersTab = () => {
   const { siteId } = useParams()
   const { voterId } = useOperationPolicy("user-registration")
+  const { site } = useSiteContext()
+  const { policies } = useSitePoliciesContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -36,8 +38,13 @@ export const NewUsersTab = () => {
   const columns = useMemo(
     () => [
       { accessor: "signer", label: t("common:user"), type: "account", className: "w-[40%]" },
-      { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for" },
-      { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase" },
+      { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for", className: "w-[15%]" },
+      {
+        accessor: "votes",
+        label: t("common:votes"),
+        type: "votes",
+        className: "first-letter:uppercase w-[15%] text-center",
+      },
       ...(voterId
         ? [
             {
@@ -81,9 +88,14 @@ export const NewUsersTab = () => {
 
   const handleReject = useCallback((id: string, name: string) => vote(id, name, "reject"), [vote])
 
+  const votesRequired = useMemo(
+    () => calculateVotesRequiredToWinProposal("user-registration", site, policies),
+    [policies, site],
+  )
+
   const itemRenderer = useMemo(
-    () => getUsersItemRenderer(t, handleApprove, handleReject, loadingItem, voterId),
-    [handleApprove, handleReject, loadingItem, t, voterId],
+    () => getUsersItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, voterId),
+    [handleApprove, handleReject, loadingItem, t, voterId, votesRequired],
   )
 
   const handlePageChange = useCallback(

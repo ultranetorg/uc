@@ -1,7 +1,7 @@
-import { AccountBase } from "types"
+import { AuthorBaseAvatar } from "types"
 
 import { Proposal } from "./Proposal"
 
 export type PublisherProposal = {
-  authors: AccountBase[] | undefined
+  authors: AuthorBaseAvatar[]
 } & Proposal

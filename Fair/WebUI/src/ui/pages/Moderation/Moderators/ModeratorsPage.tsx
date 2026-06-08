@@ -28,8 +28,6 @@ export const ModeratorsPage = () => {
     [navigate, siteId],
   )
 
-  const parentBreadcrumbs = useMemo(() => [{ path: `/${siteId}/m`, title: t("common:proposals") }], [siteId, t])
-
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
       { key: "moderators", label: t("common:moderators") },
@@ -42,14 +40,13 @@ export const ModeratorsPage = () => {
     <>
       <ModerationHeader
         title={t("title")}
-        parentBreadcrumbs={parentBreadcrumbs}
         components={
           <>
             {voterId && (
               <Link
                 to={`/${siteId}/g/new`}
                 state={{
-                  parentBreadcrumbs: [...parentBreadcrumbs, { path: `/${siteId}/m/m/`, title: t("title") }],
+                  parentBreadcrumbs: [{ path: `/${siteId}/m/m/`, title: t("title") }],
                   title: t("addModerator"),
                   type: "site-moderator-addition",
                   redirectAfterProposalCreation: `/${siteId}/m/m/p/`,

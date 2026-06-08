@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useOperationPolicy, useSiteContext, useSiteRolesContext } from "app"
+import { useOperationPolicy, useSiteContext, useSitePoliciesContext, useSiteRolesContext } from "app"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
@@ -15,7 +15,8 @@ import { isVotingRequired, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const { siteId } = useParams()
-  const { isModerator, policies } = useSiteRolesContext()
+  const { isModerator } = useSiteRolesContext()
+  const { policies } = useSitePoliciesContext()
   const { voterId } = useOperationPolicy("publication-creation")
   const { site } = useSiteContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
@@ -29,13 +30,7 @@ export const ModeratorCreatePublicationPage = () => {
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
   const { data: product, isError } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
 
-  const parentBreadcrumbs = useMemo(
-    () => [
-      { title: t("common:proposals"), path: `/${siteId}/m` },
-      { title: t("common:publications"), path: `/${siteId}/m/c` },
-    ],
-    [siteId, t],
-  )
+  const parentBreadcrumbs = useMemo(() => [{ title: t("common:publications"), path: `/${siteId}/m/c` }], [siteId, t])
 
   useEffect(() => {
     setSearchParams(product?.id ? { productId: product.id } : {}, { replace: true })
@@ -95,7 +90,7 @@ export const ModeratorCreatePublicationPage = () => {
         </div>
 
         {!!debouncedQuery && isProductValid ? (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
             <ModerationPublicationHeader
               title={product.title}
               logoId={product.logoId}

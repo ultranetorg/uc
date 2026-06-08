@@ -45,7 +45,6 @@ export const PublicationsPage = () => {
     <>
       <ModerationHeader
         title={t("title")}
-        parentBreadcrumbs={{ path: `/${siteId}/m`, title: t("common:proposals") }}
         components={
           <>
             {!!voterId && <ButtonPrimary className="w-48" label={t("searchProduct")} onClick={handleSearchProduct} />}

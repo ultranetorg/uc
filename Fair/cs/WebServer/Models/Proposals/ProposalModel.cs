@@ -19,8 +19,6 @@ public class ProposalModel(Proposal proposal, FairUser by)
 	public string Title { get; } = proposal.Title;
 	public string Text { get; } = proposal.Text;
 
-	public AccountBaseModel By { get; } = new AccountBaseModel(by);
+	public UserModel By { get; } = new UserModel(by);
 	public bool MultipleOptions { get; } = proposal.Options.Length > 1;
-
-	public int HoursLeft { get; set; } = -1;
 }

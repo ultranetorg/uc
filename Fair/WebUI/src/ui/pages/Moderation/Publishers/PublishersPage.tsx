@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom"
 
 import { ModerationHeader } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
+
 import { PublishersTab } from "./PublishersTab"
 import { PublishersProposalsTab } from "./PublishersProposalsTab"
 
@@ -35,7 +36,7 @@ export const PublishersPage = () => {
 
   return (
     <>
-      <ModerationHeader title={t("title")} parentBreadcrumbs={{ path: `/${siteId}/m`, title: t("common:proposals") }} />
+      <ModerationHeader title={t("title")} />
       <TabsProvider defaultKey={key || "publishers"}>
         <div className="flex flex-col gap-6">
           <TabsList

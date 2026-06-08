@@ -17,7 +17,6 @@ export const UnpublishedPublicationPage = () => {
 
   const parentBreadcrumbs = useMemo(
     () => [
-      { title: t("common:proposals"), path: `/${siteId}/m` },
       { title: t("common:publications"), path: `/${siteId}/m/c` },
       { title: t("common:unpublished"), path: `/${siteId}/m/c/u` },
     ],
@@ -73,13 +72,15 @@ export const UnpublishedPublicationPage = () => {
         }
       />
 
-      <ModerationPublicationHeader
-        title={publication.title}
-        logoId={publication.logoId}
-        authorId={publication.authorId}
-        authorTitle={publication.authorTitle}
-      />
-      <ProductFieldsTree productFields={publication.fields} />
+      <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
+        <ModerationPublicationHeader
+          title={publication.title}
+          logoId={publication.logoId}
+          authorId={publication.authorId}
+          authorTitle={publication.authorTitle}
+        />
+        <ProductFieldsTree productFields={publication.fields} />
+      </div>
     </div>
   )
 }

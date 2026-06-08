@@ -1,7 +1,7 @@
-import { AccountBase } from "types"
+import { User } from "types"
 
 import { Proposal } from "./Proposal"
 
 export type ModeratorProposal = {
-  moderators: AccountBase[] | undefined
+  moderators: User[]
 } & Proposal

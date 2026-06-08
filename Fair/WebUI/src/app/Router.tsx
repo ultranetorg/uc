@@ -43,6 +43,7 @@ import { CreateProposalProvider } from "ui/views"
 import { AuthenticationProvider } from "./AuthenticationProvider"
 import { NodeConnectivityProvider } from "./NodeConnectivityProvider"
 import { SiteProvider } from "./SiteProvider"
+import { SitePoliciesProvider } from "./SitePoliciesProvider"
 import { SiteRolesProvider } from "./SiteRolesProvider"
 import { UserProvider } from "./UserProvider"
 
@@ -79,7 +80,9 @@ const routes: RouteObject[] = [
         path: ":siteId",
         element: (
           <SiteRolesProvider>
-            <SiteLayout />
+            <SitePoliciesProvider>
+              <SiteLayout />
+            </SitePoliciesProvider>
           </SiteRolesProvider>
         ),
         children: [

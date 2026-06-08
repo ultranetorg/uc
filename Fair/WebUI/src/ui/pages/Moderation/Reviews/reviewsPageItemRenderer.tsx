@@ -2,16 +2,17 @@ import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
 import { ReviewProposal } from "types"
+import { renderUser, renderVotes } from "ui/renderers2"
 import { TableColumn, TableItem } from "ui/components"
 import { isUserVoted } from "utils"
+import { renderActions, renderCommon, renderPublication, renderText } from "ui/renderers/utils"
 
-import { renderAccount, renderActions, renderCommon, renderPublication, renderText } from "./utils"
-
-export const getReviewsItemRenderer =
+export const getReviewsPageItemRenderer =
   (
     t: TFunction,
     onApprove: (id: string) => void,
     onReject: (id: string) => void,
+    votesRequired: { create: number; edit: number },
     loadingItem?: { id: string; action: "approve" | "reject" } | undefined,
     currentUserId?: string,
   ) =>
@@ -21,7 +22,7 @@ export const getReviewsItemRenderer =
 
     switch (column.type) {
       case "account":
-        return renderAccount(proposal.by)
+        return renderUser(proposal.by)
 
       case "publication":
         return proposal.publication !== null ? renderPublication(proposal.publication) : "Publication removed"
@@ -37,6 +38,17 @@ export const getReviewsItemRenderer =
           loadingItem?.id === item.id ? loadingItem.action : undefined,
           isVoted || (loadingItem && loadingItem.id !== item.id),
         )
+
+      case "votes":
+        return proposal.operation === "review-creation"
+          ? renderVotes(
+              proposal.yes.map(x => x.length),
+              votesRequired.create,
+            )
+          : renderVotes(
+              proposal.yes.map(x => x.length),
+              votesRequired.edit,
+            )
     }
 
     return renderCommon(t, column, proposal)

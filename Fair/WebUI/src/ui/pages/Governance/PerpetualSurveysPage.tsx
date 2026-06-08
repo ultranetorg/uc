@@ -22,25 +22,25 @@ export const PerpetualSurveysPage = () => {
       },
       {
         accessor: "votedApproval",
-        label: t("votedApproval"),
+        label: t("currentPolicy"),
         type: "voted-approval",
         className: "w-1/5 first-letter:uppercase",
       },
       {
         accessor: "totalVotes",
         label: t("totalVotes"),
-        className: "w-1/5 first-letter:uppercase",
+        className: "w-1/5 first-letter:uppercase text-right",
       },
       {
         accessor: "votesRequiredToWin",
         label: t("votesRequired"),
-        className: "w-1/5 first-letter:uppercase",
+        className: "w-1/5 first-letter:uppercase text-right",
       },
       {
         accessor: "winPercentage",
         label: t("winPercentage"),
         type: "win-percentage",
-        className: "w-1/5 first-letter:uppercase",
+        className: "w-1/5 first-letter:uppercase text-right",
       },
     ],
     [t],
@@ -55,7 +55,7 @@ export const PerpetualSurveysPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ModerationHeader title={t("title")} breadcrumbTitle={t("common:governance")} />
+      <ModerationHeader title={t("title")} />
       <Table
         columns={columns}
         items={surveys}

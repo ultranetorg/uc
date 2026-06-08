@@ -70,10 +70,12 @@ export const useTransactMutationWithStatus = () => {
     queryFn: () => api.outgoingTransaction(node.data!, tag!),
     refetchInterval: query =>
       query.state.data?.status === TransactionStatus.Confirmed ||
-      query.state.data?.status === TransactionStatus.FailedOrNotFound
+      query.state.data?.status === TransactionStatus.FailedOrNotFound ||
+      (query.state.data?.status === TransactionStatus.None && query.state.data?.error !== null)
         ? false
         : 1000,
     retry: false,
+    refetchOnWindowFocus: false,
   })
 
   useEffect(() => {
@@ -85,6 +87,10 @@ export const useTransactMutationWithStatus = () => {
       setNotPending()
     } else if (query.data.status === TransactionStatus.FailedOrNotFound) {
       callbacksRef.current?.onError?.(new Error("Transaction failed or not found"))
+      callbacksRef.current?.onSettled?.()
+      setNotPending()
+    } else if (query.data.status === TransactionStatus.None && query.data.error !== null) {
+      callbacksRef.current?.onError?.(new Error(query.data.error))
       callbacksRef.current?.onSettled?.()
       setNotPending()
     }

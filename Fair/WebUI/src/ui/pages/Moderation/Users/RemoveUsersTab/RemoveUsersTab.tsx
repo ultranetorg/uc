@@ -3,20 +3,22 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { isNumber } from "lodash"
 
-import { useOperationPolicy } from "app"
+import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserUnregistrationProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/node"
 import { useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { parseInteger, showToast } from "utils"
+import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
 
-import { getUserRemovalsTabItemRenderer } from "./userRemovalsTabItemRenderer"
+import { getRemoveUsersTabItemRenderer } from "./removeUsersTabItemRenderer"
 
 export const UsersRemovalsTab = () => {
   const { siteId } = useParams()
   const { voterId } = useOperationPolicy("user-registration")
+  const { site } = useSiteContext()
+  const { policies } = useSitePoliciesContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -38,8 +40,13 @@ export const UsersRemovalsTab = () => {
     () => [
       { accessor: "user", label: t("common:user"), type: "user", className: "w-[30%]" },
       { accessor: "createdBy", label: t("common:createdBy"), type: "created-by", className: "w-[15%]" },
-      { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for" },
-      { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase" },
+      { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for", className: "w-[15%]" },
+      {
+        accessor: "votes",
+        label: t("common:votes"),
+        type: "votes",
+        className: "first-letter:uppercase w-[15%] text-center",
+      },
       ...(voterId
         ? [
             {
@@ -83,9 +90,14 @@ export const UsersRemovalsTab = () => {
 
   const handleReject = useCallback((id: string, name: string) => vote(id, name, "reject"), [vote])
 
+  const votesRequired = useMemo(
+    () => calculateVotesRequiredToWinProposal("user-unregistration", site, policies),
+    [policies, site],
+  )
+
   const itemRenderer = useMemo(
-    () => getUserRemovalsTabItemRenderer(t, handleApprove, handleReject, loadingItem, voterId),
-    [handleApprove, handleReject, loadingItem, t, voterId],
+    () => getRemoveUsersTabItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, voterId),
+    [handleApprove, handleReject, loadingItem, t, voterId, votesRequired],
   )
 
   const handlePageChange = useCallback(

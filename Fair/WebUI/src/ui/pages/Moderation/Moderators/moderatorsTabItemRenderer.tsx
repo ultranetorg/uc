@@ -26,10 +26,7 @@ export const moderatorsTabItemRenderer =
             <Link
               to={`/${siteId}/g/new`}
               state={{
-                parentBreadcrumbs: [
-                  { path: `/${siteId}/m`, title: t("common:proposals") },
-                  { path: `/${siteId}/m/m/`, title: t("title") },
-                ],
+                parentBreadcrumbs: [{ path: `/${siteId}/m/m/`, title: t("title") }],
                 title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
                 type: "site-moderator-removal",
                 moderators: [moderator.user],

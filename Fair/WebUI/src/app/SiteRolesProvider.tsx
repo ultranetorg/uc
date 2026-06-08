@@ -1,7 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useMemo } from "react"
 
-import { useGetSitePolicies, useGetUserSiteExists } from "entities"
-import { Policy } from "types"
+import { useGetUserSiteExists } from "entities"
 
 import { useSiteContext } from "./SiteProvider"
 import { useUserContext } from "./UserProvider"
@@ -11,7 +10,6 @@ type SiteRolesContextType = {
   isModerator: boolean
   isJoined: boolean
   publisherIds?: string[]
-  policies?: Policy[]
 }
 
 const SiteRolesContext = createContext<SiteRolesContextType>({
@@ -27,7 +25,6 @@ export const SiteRolesProvider = ({ children }: PropsWithChildren) => {
   const isPublisher = Boolean(site?.authorsIds?.some(x => user?.authorsIds?.includes(x)))
   const isModerator = Boolean(site?.moderatorsIds?.some(x => user?.id === x))
 
-  const { data: policies } = useGetSitePolicies(isModerator || isPublisher, site?.id)
   const { data: isJoined } = useGetUserSiteExists(user?.id, site?.id)
 
   const publisherIds = useMemo(
@@ -41,9 +38,8 @@ export const SiteRolesProvider = ({ children }: PropsWithChildren) => {
       isModerator,
       isJoined: isJoined ?? false,
       publisherIds,
-      policies,
     }),
-    [isPublisher, isModerator, isJoined, publisherIds, policies],
+    [isPublisher, isModerator, isJoined, publisherIds],
   )
 
   return <SiteRolesContext.Provider value={value}>{children}</SiteRolesContext.Provider>
