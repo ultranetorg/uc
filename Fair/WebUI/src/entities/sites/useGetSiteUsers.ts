@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
 import { sitesKeys } from "./sitesKeys"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetSiteUsers = (siteId?: string, page?: number, pageSize?: number) => {
   const queryFn = () => api.getSiteUsers(siteId!, page, pageSize)

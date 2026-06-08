@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
 import { unpublishedPublicationsKeys } from "./unpublishedPublicationsKeys"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetUnpublishedPublications = (siteId?: string, page?: number, pageSize?: number) => {
   const queryFn = () => api.getUnpublishedPublications(siteId!, page, pageSize)

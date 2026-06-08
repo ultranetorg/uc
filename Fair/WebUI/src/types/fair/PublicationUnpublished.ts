@@ -1,7 +1,7 @@
 import { ProductType } from "./ProductType"
 
 // TODO: should be refactored and replaced with Publication
-export type UnpublishedPublication = {
+export type PublicationUnpublished = {
   id: string
 
   type: ProductType

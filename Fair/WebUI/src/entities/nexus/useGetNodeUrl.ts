@@ -17,7 +17,7 @@ export const useGetNodeUrl = (baseUrl?: string) => {
     setIsLoading(true)
 
     api
-      .getNodeUrl(baseUrl)
+      .getIccpUrl(baseUrl)
       .then(res => setData(res?.api))
       .catch(err => setError(err))
       .finally(() => {

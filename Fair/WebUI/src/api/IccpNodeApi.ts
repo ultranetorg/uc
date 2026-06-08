@@ -1,7 +1,8 @@
-import { BaseFairOperation } from "types/fairOperations"
-import { TransactionApe } from "types/node"
+import { BaseFairOperation } from "types"
 
-export type NodeApi = {
+import { TransactionApe } from "types/iccpNode"
+
+export type IccpNodeApi = {
   outgoingTransaction(baseUrl: string, tag: string): Promise<TransactionApe>
   ping(baseUrl: string): Promise<boolean>
   transact(

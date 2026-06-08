@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetPerpetualSurveyDetails = (siteId?: string, perpetualSurveyId?: string) => {
   const queryFn = () => api.getAuthorPerpetualSurveyDetails(siteId!, perpetualSurveyId!)

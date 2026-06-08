@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
 import { publicationsKeys } from "./publicationsKeys"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetCategoryPublications = (categoryId?: string, page?: number) => {
   const queryFn = () => api.getCategoryPublications(categoryId!, page)

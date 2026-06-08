@@ -1,4 +1,4 @@
-export type ChangedPublication = {
+export type PublicationChanged = {
   id: string
   type: string
   title?: string

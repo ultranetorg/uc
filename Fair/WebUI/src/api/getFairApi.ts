@@ -9,8 +9,6 @@ import {
   CategoryBase,
   CategoryParentBase,
   CategoryPublications,
-  ChangedPublication,
-  ChangedPublicationDetails,
   File,
   Moderator,
   ModeratorProposal,
@@ -25,10 +23,13 @@ import {
   Publication,
   PublicationAuthor,
   PublicationBase,
+  PublicationChanged,
+  PublicationChangedDetails,
   PublicationDetails,
   PublicationDetailsDiff,
   PublicationExtended,
   PublicationProposal,
+  PublicationUnpublished,
   PublicationVersionInfo,
   Publisher,
   PublisherProposal,
@@ -39,14 +40,13 @@ import {
   SiteLiteSearch,
   StatusResult,
   TotalItemsResult,
-  UnpublishedPublication,
   User,
   UserAuthors,
   UserDetails,
   UserUnregistrationProposal,
 } from "types"
 
-import { Api } from "./Api"
+import { FairApi } from "./FairApi"
 import { buildUrlParams, toTotalItemsResult } from "./utils"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
@@ -188,14 +188,14 @@ const getPublication = (publicationId: string): Promise<PublicationDetails> =>
 const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
   fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())
 
-const getChangedPublication = (siteId: string, changedPublicationId: string): Promise<ChangedPublicationDetails> =>
+const getChangedPublication = (siteId: string, changedPublicationId: string): Promise<PublicationChangedDetails> =>
   fetch(`${BASE_URL}/sites/${siteId}/publications/changed/${changedPublicationId}`).then(res => res.json())
 
 const getChangedPublications = async (
   siteId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<ChangedPublication>> => {
+): Promise<TotalItemsResult<PublicationChanged>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications/changed` + params)
   return await toTotalItemsResult(res)
@@ -217,7 +217,7 @@ const getUnpublishedPublications = async (
   siteId: string,
   page?: number,
   pageSize?: number,
-): Promise<TotalItemsResult<UnpublishedPublication>> => {
+): Promise<TotalItemsResult<PublicationUnpublished>> => {
   const params = buildUrlParams({ page, pageSize })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications/unpublished` + params)
   return await toTotalItemsResult(res)
@@ -441,7 +441,7 @@ const getUserUnregistrationProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const api: Api = {
+const api: FairApi = {
   getNexusUrl,
   getVaultUrl,
 
@@ -515,4 +515,4 @@ const api: Api = {
   getUserUnregistrationProposals,
 }
 
-export const getApi = () => api
+export const getFairApi = () => api

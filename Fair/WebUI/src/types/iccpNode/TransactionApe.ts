@@ -1,4 +1,4 @@
-import { TransactionStatus } from "types"
+import { TransactionStatus } from "./TransactionStatus"
 
 export type TransactionApe = {
   id: string

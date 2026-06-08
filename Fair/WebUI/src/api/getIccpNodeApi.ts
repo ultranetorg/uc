@@ -1,8 +1,8 @@
 import { VAULT } from "constants/"
 import { BaseFairOperation } from "types"
-import { Pong, TransactionApe } from "types/node"
+import { Pong, TransactionApe } from "types/iccpNode"
 
-import { NodeApi } from "./NodeApi"
+import { IccpNodeApi } from "./IccpNodeApi"
 import { keysToCamelCase, keysToPascalCase } from "./utils"
 
 const outgoingTransaction = async (baseUrl: string, tag: string): Promise<TransactionApe> => {
@@ -50,10 +50,10 @@ const transact = async (
   return keysToCamelCase(data) as TransactionApe
 }
 
-const api: NodeApi = {
+const api: IccpNodeApi = {
   outgoingTransaction,
   ping,
   transact,
 }
 
-export const getNodeApi = () => api
+export const getIccpNodeApi = () => api

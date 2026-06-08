@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetSitePolicies = (enabled: boolean, siteId?: string) => {
   const { isFetching, error, data, refetch } = useQuery({

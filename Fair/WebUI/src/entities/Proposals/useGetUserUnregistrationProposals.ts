@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetUserUnregistrationProposals = (siteId?: string, page?: number, pageSize?: number) => {
   const queryFn = () => api.getUserUnregistrationProposals(siteId!, page, pageSize)

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetReviewProposals = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
   const queryFn = () => api.getReviewProposals(siteId!, page, pageSize, search)

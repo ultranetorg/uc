@@ -1,22 +1,22 @@
 import { VAULT } from "constants/"
-import { NnpNode } from "types/nexus"
+import { IccpNode } from "types/nexus"
 
 import { NexusApi } from "./NexusApi"
 import { keysToCamelCase } from "./utils"
 
-const getNodeUrl = async (baseUrl: string): Promise<NnpNode> => {
-  const response = await fetch(`${baseUrl}/IccpNode`, {
+const getIccpUrl = async (nexusUrl: string): Promise<IccpNode> => {
+  const response = await fetch(`${nexusUrl}/IccpNode`, {
     method: "POST",
     body: JSON.stringify({
       Net: VAULT.NETWORK,
     }),
   })
   const data = await response.json()
-  return keysToCamelCase(data) as NnpNode
+  return keysToCamelCase(data) as IccpNode
 }
 
 const api: NexusApi = {
-  getNodeUrl,
+  getIccpUrl,
 }
 
 export const getNexusApi = () => api

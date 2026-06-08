@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getNodeApi } from "api"
+import { getIccpNodeApi } from "api"
 
-const api = getNodeApi()
+const api = getIccpNodeApi()
 
 export const useGetPing = (baseUrl?: string) => {
   const queryFn = () => api.ping(baseUrl!)

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useSearchPublications = (siteId?: string, page?: number, query?: string) => {
   const queryFn = () => api.searchPublications(siteId!, query, page)

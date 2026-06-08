@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 import { categoriesKeys } from "./categoriesKeys"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetCategoriesRoot = (siteId?: string) => {
   const queryFn = () => api.getCategoriesRoot(siteId!)

@@ -1,8 +1,8 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetSiteFiles = (siteId?: string, page?: number, pageSize?: number) => {
   const queryFn = () => api.getSiteFiles(siteId!, page, pageSize)

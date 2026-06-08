@@ -1,5 +1,4 @@
-import { Role } from "types/Role"
-import { ProposalOption } from "types/proposals"
+import { ProposalOption, Role } from "types"
 
 import { BaseFairOperation } from "./BaseFairOperation"
 

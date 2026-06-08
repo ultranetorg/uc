@@ -1,5 +1,4 @@
-import { User } from "types"
-import { OperationType } from "types/OperationType"
+import { OperationType, User } from "types"
 
 import { ProposalOption } from "./ProposalOption"
 

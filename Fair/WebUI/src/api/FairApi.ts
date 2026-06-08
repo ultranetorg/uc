@@ -21,10 +21,13 @@ import {
   Publication,
   PublicationAuthor,
   PublicationBase,
+  PublicationChanged,
+  PublicationChangedDetails,
   PublicationDetails,
   PublicationDetailsDiff,
   PublicationExtended,
   PublicationProposal,
+  PublicationUnpublished,
   PublicationVersionInfo,
   Publisher,
   PublisherProposal,
@@ -35,16 +38,13 @@ import {
   SiteLiteSearch,
   StatusResult,
   TotalItemsResult,
-  UnpublishedPublication,
   User,
   UserAuthors,
   UserDetails,
   UserUnregistrationProposal,
 } from "types"
-import { ChangedPublication } from "types/ChangedPublication"
-import { ChangedPublicationDetails } from "types/ChangedPublicationDetails"
 
-export type Api = {
+export type FairApi = {
   getNexusUrl(): Promise<string>
   getVaultUrl(): Promise<string>
 
@@ -85,12 +85,12 @@ export type Api = {
   getPublicationDetails(publicationId: string): Promise<PublicationDetails>
   getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
 
-  getChangedPublication(siteId: string, changedPublicationId: string): Promise<ChangedPublicationDetails>
+  getChangedPublication(siteId: string, changedPublicationId: string): Promise<PublicationChangedDetails>
   getChangedPublications(
     siteId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<ChangedPublication>>
+  ): Promise<TotalItemsResult<PublicationChanged>>
 
   getUnpublishedSiteProduct(siteId: string, unpublishedProductId: string): Promise<ProductDetails>
 
@@ -99,7 +99,7 @@ export type Api = {
     siteId: string,
     page?: number,
     pageSize?: number,
-  ): Promise<TotalItemsResult<UnpublishedPublication>>
+  ): Promise<TotalItemsResult<PublicationUnpublished>>
 
   getAuthorPublications(
     siteId: string,

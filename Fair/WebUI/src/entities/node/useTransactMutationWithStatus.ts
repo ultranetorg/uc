@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
-import { getNodeApi } from "api"
+import { getIccpNodeApi } from "api"
 import { useAuthenticationContext } from "app"
 import { useGetNodeUrl } from "entities/nexus"
 import { useGetNexusUrl } from "entities/node"
-import { BaseFairOperation, TransactionStatus } from "types"
-import { TransactionApe } from "types/node"
+import { BaseFairOperation } from "types"
+import { TransactionApe, TransactionStatus } from "types/iccpNode"
 
-const api = getNodeApi()
+const api = getIccpNodeApi()
 
 type TransactMutationArgs = {
   operations: BaseFairOperation[]

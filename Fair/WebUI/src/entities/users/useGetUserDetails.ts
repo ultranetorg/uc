@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getApi } from "api"
+import { getFairApi } from "api"
 
 import { usersKeys } from "./usersKeys"
 
-const api = getApi()
+const api = getFairApi()
 
 export const useGetUserDetails = (name?: string) => {
   const queryFn = () => api.getUserDetails(name!)

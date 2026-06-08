@@ -8,8 +8,7 @@ import { twMerge } from "tailwind-merge"
 import { useSiteContext, useSitePoliciesContext, useSiteRolesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useTransactMutationWithStatus } from "entities/node"
-import { CreateProposalData, ProposalType, Role } from "types"
-import { ProposalCreation } from "types/fairOperations"
+import { CreateProposalData, ProposalCreation, ProposalType, Role } from "types"
 import {
   BreadcrumbsItemProps,
   ButtonOutline,

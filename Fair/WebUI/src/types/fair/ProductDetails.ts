@@ -1,4 +1,4 @@
-import { FieldValue } from "./ProductField"
+import { FieldValue } from "./FieldValue"
 import { ProductType } from "./ProductType"
 
 export type ProductDetails = {

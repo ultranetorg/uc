@@ -1,4 +1,4 @@
-import { FieldValue } from "./ProductField"
+import { FieldValue } from "./FieldValue"
 import { PublicationDetails } from "./PublicationDetails"
 
 export type PublicationDetailsDiff = {

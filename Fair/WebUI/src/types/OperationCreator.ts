@@ -1,4 +1,4 @@
-import { Role } from "./Role"
+import { Role } from "types"
 
 export type OperationCreator = {
   id: string

@@ -1,5 +1,5 @@
-import { FieldType } from "./FieldType.ts"
-import { TokenType } from "./TokenType.ts"
+import { FieldType } from "./FieldType"
+import { TokenType } from "./TokenType"
 
 export type FieldValue = {
   name: TokenType
