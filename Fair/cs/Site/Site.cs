@@ -192,7 +192,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		var i = PolicyFlag.Infinite;
 		
 		Restrictions = [new (FairOperationClass.SiteModeratorAddition,	m|p,	vc	 |o),	
-						new (FairOperationClass.SiteModeratorRemoval,	m|p,	vc	 |i),
+						new (FairOperationClass.SiteModeratorRemoval,	m|p,	vc	   |i),
 						new (FairOperationClass.SiteNameChange,			m|p,	vc|va|o),
 						new (FairOperationClass.SiteTextChange,			m|p, 	vc|va|o),
 						new (FairOperationClass.SiteAvatarChange,		m|p, 	vc|va|o),
