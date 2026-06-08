@@ -149,8 +149,8 @@ public class McvSummaryApc : McvApc
 
 		lock(node.Peering.Lock)
 		{
-			f = new () {{"Nexus",						$"{node.NexusSettings.Host}"},
-						{"Zone",						$"{node.Net.Zone}"},
+			f = new () {{"Zone",						$"{node.Net.Zone}"},
+						{"Nexus",						$"{node.NexusSettings.Host}"},
 						{"Profile",						node.Settings.Profile},
 						{"Peers all/in/out/permanent",	$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound)}/{node.Peering.Connections.Count(i => !i.Inbound)}/{node.Peering.Connections.Count(i => i.Permanent)}, {(node.Peering.MinimalPeersReached ? "OK" : "Low")}"},
 						{"Endpoint",					$"{node.Peering.Settings.Endpoint}"},

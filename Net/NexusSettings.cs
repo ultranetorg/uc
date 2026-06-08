@@ -20,6 +20,7 @@ public class DeployedNode
 
 public class NexusSettings : SavableSettings
 {
+	public Zone							Zone;
 	public string						Name { get; set; }
 	public IPAddress					Host { get; set; }
 	public IpApiSettings				Api { get; set; }
@@ -28,7 +29,6 @@ public class NexusSettings : SavableSettings
 	public PeeringSettings				IccpPeering { get; set; }
 	public List<DeployedNode>			Nodes { get; set; } = [];
 
-	public Zone							Zone;
 	public static readonly IPAddress	StandardHost = new ([127, 1, 0, 0]);
 
 	public NexusSettings() : base(NetXonTextValueSerializator.Default)
@@ -38,5 +38,17 @@ public class NexusSettings : SavableSettings
 	public NexusSettings(Zone zone, string profile) : base(profile, NetXonTextValueSerializator.Default)
 	{
 		Zone = zone;
+
+		if(!File.Exists(Path))
+		{
+			Name		= Guid.NewGuid().ToByteArray().ToHex();
+			Host		= StandardHost;
+			IccpPeering	= new PeeringSettings {Endpoint = new (IPAddress.Any, Port.Map(zone, KnownProtocol.Iccp))};
+			Api			= new () {LocalIP = StandardHost};
+			
+			Save();
+		}
+
+		Packages = Packages ?? System.IO.Path.Join(profile, "Packages");
 	}
 }

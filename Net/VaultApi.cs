@@ -69,9 +69,8 @@ public class AuthorizeApc : Apc
 {
 	public CryptographyType	Cryptography { get; set; }
 	public string			Net { get; set; }
-	public string			Application { get; set; }
-	public string			Operation { get; set; }
 	public string			User { get; set; }
 	public byte[]			Session { get; set; }
+	public string			Operation { get; set; }
 	public byte[]			Hash { get; set; }
 }

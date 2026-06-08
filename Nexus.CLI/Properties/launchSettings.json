@@ -2,7 +2,7 @@
   "profiles": {
     "Uccs.Nexus.CLI": {
       "commandName": "Project",
-      "commandLineArgs": "open \\\"cccp:asdasd/asdasd 111111 22222\\\""
+      "commandLineArgs": "open \\\"iccp:asdasd/asdasd 111111 22222\\\""
     }
   }
 }

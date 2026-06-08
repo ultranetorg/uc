@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 
 namespace Uccs.Fair;
 
@@ -37,12 +38,30 @@ public class FairNodeSettings : McvNodeSettings
 	{
 	}
 
-	public FairNodeSettings(string profile) : base(profile)
+	public FairNodeSettings(string uosprofile) : base(uosprofile)
 	{
 		if(Debugger.IsAttached)
 		{
 			PpcTimeout = int.MaxValue;
 			TransactingTimeout = int.MaxValue;
 		}
+	}
+
+	public FairNodeSettings(string profile, Zone zone, NexusSettings nexusSettings) : base(profile)
+	{
+		if(!nexusSettings.Exists)
+			throw new Exception("NexusSettings not found");
+
+		if(!Exists)
+		{
+			SetDefaults(zone, nexusSettings);
+			Save();
+		}
+	}
+
+	public void SetDefaults(Zone zone, NexusSettings settings)
+	{
+		Peering	= new () {Endpoint = new (IPAddress.Any, Fair.ByZone(zone).PpiPort)};
+		Api		= new () {LocalIP = settings.Host};
 	}
 }

@@ -32,11 +32,6 @@ public class McvCli : Cli
 		return ct?.GetConstructor([typeof(McvCli), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as McvCommand;
 	}
 
-	public virtual object Execute(NetBoot boot, Flow flow)
-	{
-		return Execute(boot.Commnand.Nodes, flow);
-	}
-
 	public override void PostExecute(IEnumerable<Xon> args, Command command, object result, Flow flow)
 	{
 		var c = command as McvCommand;

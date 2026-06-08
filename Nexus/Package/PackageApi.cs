@@ -80,11 +80,11 @@ public class PackageBuildApc : Apc, INexusApc
 	public Ura						Previous { get; set; }
 	public ReleaseAddressCreator	AddressCreator { get; set; }
 
-	public object Execute(Nexus node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(node.PackageHub.Lock)
+		lock(nexus.PackageHub.Lock)
 		{	
-			return new LocalReleaseApe(node.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow));
+			return new LocalReleaseApe(nexus.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow));
 		}
 	}
 }
@@ -93,11 +93,11 @@ public class StartPackageDownloadApc : Apc, INexusApc
 {
 	public Ura		Package { get; set; }
 
-	public object Execute(Nexus node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(node.PackageHub.Lock)
+		lock(nexus.PackageHub.Lock)
 		{	
-			node.PackageHub.StartDownload(Package, workflow);
+			nexus.PackageHub.StartDownload(Package, workflow);
 			return null;
 		}
 	}
@@ -107,13 +107,13 @@ public class PackageActivityProgressApc : Apc, INexusApc
 {
 	public Ura	Package { get; set; }
 	
-	public object Execute(Nexus node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(node.PackageHub.Lock)
+		lock(nexus.PackageHub.Lock)
 		{
-			var p = node.PackageHub.Find(Package);
+			var p = nexus.PackageHub.Find(Package);
 
-			lock(node.PackageHub.Lock)
+			lock(nexus.PackageHub.Lock)
 				if(p?.Activity is PackageDownload dl)
 					return new PackageDownloadProgress(dl);
 				if(p?.Activity is Deployment dp)
@@ -164,11 +164,11 @@ public class PackageDeployApc : Apc, INexusApc
 //		public string		Path { get; set; }
 //	}
 //
-//	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+//	public override object Execute(RdnNode nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 //	{
-//		lock(node.PackageHub.Lock)
+//		lock(nexus.PackageHub.Lock)
 //		{
-//			var p = node.PackageHub.AddressToDeployment(Package);
+//			var p = nexus.PackageHub.AddressToDeployment(Package);
 //
 //			var h = Path.Join(p, ".hash");
 //

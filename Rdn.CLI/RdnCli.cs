@@ -32,12 +32,4 @@ public class RdnCli : McvCli
 				??
 				base.Create(commnad, flow);
 	}
-
-	public override object Execute(NetBoot boot, Flow flow)
-	{
-		Settings = new RdnNodeSettings(boot.Profile);
-		Net = Rdn.ByZone(boot.Zone);
-
-		return base.Execute(boot, flow);
-	}
 }

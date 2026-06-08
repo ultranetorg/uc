@@ -275,12 +275,12 @@ public class Vault : Cli
 			throw new VaultException(VaultError.Rejected);
 	}
 
-	public byte[] Authorize(CryptographyType cryptography, string net, string application, string operation, string user, byte[] session, byte[] Hash, Flow flow)
+	public byte[] Authorize(CryptographyType cryptography, string net, string operation, string user, byte[] session, byte[] Hash, Flow flow)
 	{
-		if(string.IsNullOrWhiteSpace(application) || string.IsNullOrWhiteSpace(net) || session.Length != Cryptography.HashLength)
+		if(string.IsNullOrWhiteSpace(net) || session.Length != Cryptography.HashLength)
 			throw new VaultException(VaultError.IncorrectArgumets);
 
-		var h = new	Authentication {Application = application, Net = net, Session = session, User = user}.Hashify();
+		var h = new	Authentication {Net = net, User = user, Session = session}.Hashify();
 
 		WalletAccount acc;
 
@@ -309,9 +309,9 @@ public class Vault : Cli
 
 		return cryptography switch 
 							{
-								CryptographyType.No => Cryptography.No.Sign(acc.Key, Hash),
-								CryptographyType.Mcv => Cryptography.Mcv.Sign(acc.Key, Hash),
-								CryptographyType.Iccp => Cryptography.Iccp.Sign(acc.Key, Hash),
+								CryptographyType.No		=> Cryptography.No.Sign(acc.Key, Hash),
+								CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Key, Hash),
+								CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Key, Hash),
 								_ => throw new VaultException(VaultError.UnknownCtyptography)
 							};
 	}

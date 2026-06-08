@@ -89,6 +89,7 @@ public class SavableSettings : Settings
 	public string					Profile;
 	public virtual string			FileName => GetType().Name.Remove(GetType().Name.Length - nameof(Settings).Length) + Extention;
 	public string					Path => System.IO.Path.Join(Profile, FileName); 
+	public bool						Exists => System.IO.File.Exists(Path);
 	public const string				Extention = ".settings";
 	
 	public SavableSettings(IXonValueSerializator serializator) : base(serializator)

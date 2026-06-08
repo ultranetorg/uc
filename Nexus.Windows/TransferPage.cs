@@ -187,9 +187,8 @@ public partial class TransferPage : Page
 
 			t.Signature = Nexus.Vault.Authorize(CryptographyType.Iccp,
 												FromNet.Text,
-												Nexus.Settings.Name,
 												JsonSerializer.Serialize(t),
-												"",
+												FromEntity.Text,
 												Nexus.GetApplicationSession(FromNet.Text, f),
 												t.Hashify(),
 												f);
