@@ -1,4 +1,5 @@
 export * from "./getFairApi"
 export * from "./getIccpNodeApi"
+export * from "./getLocalFairApi"
 export * from "./getNexusApi"
 export * from "./getVaultApi"

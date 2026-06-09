@@ -51,10 +51,6 @@ import { buildUrlParams, toTotalItemsResult } from "./utils"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
-const getNexusUrl = (): Promise<string> => fetch(`${BASE_URL}/node/urls/nexus`).then(res => res.json())
-
-const getVaultUrl = (): Promise<string> => fetch(`${BASE_URL}/node/urls/vault`).then(res => res.json())
-
 const getDefaultSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites/default`).then(res => res.json())
 
 const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
@@ -442,9 +438,6 @@ const getUserUnregistrationProposals = async (
 }
 
 const api: FairApi = {
-  getNexusUrl,
-  getVaultUrl,
-
   getUser,
   getUserAuthors,
   getUserDetails,

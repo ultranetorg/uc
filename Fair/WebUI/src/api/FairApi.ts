@@ -45,9 +45,6 @@ import {
 } from "types"
 
 export type FairApi = {
-  getNexusUrl(): Promise<string>
-  getVaultUrl(): Promise<string>
-
   getDefaultSites(): Promise<SiteBase[]>
   getSite(siteId: string): Promise<Site>
   getSitePolicies(siteId: string): Promise<Policy[]>

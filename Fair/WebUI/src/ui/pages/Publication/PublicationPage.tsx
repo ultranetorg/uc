@@ -69,13 +69,13 @@ export const PublicationPage = () => {
       {isReviewModalOpen && (
         <ReviewModal
           publicationId={publication.id}
-          title={t("leaveReview")}
+          title={t("writeReview")}
           onClose={() => setReviewModalOpen(false)}
           onSubmit={() => setReviewModalOpen(false)}
           cancelLabel={t("common:cancel")}
           submitLabel={t("submitReview")}
           thankYouLabel={t("thankYou")}
-          writeReviewLabel={t("writeReview")}
+          writeReviewLabel={t("writeYourReview")}
           yourRatingLabel={t("yourRating")}
           yourReviewLabel={t("yourReview")}
         />
@@ -91,7 +91,7 @@ export const PublicationPage = () => {
           cancelLabel={t("common:cancel")}
           submitLabel={t("common:saveChanges")}
           thankYouLabel={t("thankYou")}
-          writeReviewLabel={t("writeReview")}
+          writeReviewLabel={t("writeYourReview")}
           yourRatingLabel={t("yourRating")}
           yourReviewLabel={t("yourReview")}
         />

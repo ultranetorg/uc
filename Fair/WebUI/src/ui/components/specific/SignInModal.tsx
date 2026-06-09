@@ -101,19 +101,19 @@ export const SignInModal = (props: SignInModalProps) => {
 
   const toggleState = () => (state === "sign-in" ? setState("sign-up") : setState("sign-in"))
 
-  const title = state === "sign-in" ? t("signIn") : t("signUp")
+  const title = state === "sign-in" ? t("signIn") : t("crateNewFairUser")
 
   return (
-    <Modal className="w-130 gap-0 p-4" {...props}>
+    <Modal className="w-160 gap-0 p-4" {...props}>
       <div className="flex flex-col gap-6 px-4 pb-4">
         <span className="text-center text-[44px] font-semibold first-letter:uppercase">{title}</span>
         <div className="flex flex-col gap-2">
-          <span className="text-2xs font-medium first-letter:uppercase">{t("common:nickname")}</span>
+          <span className="text-2xs font-medium first-letter:uppercase">{t("common:username")}</span>
           <ValidationWrapper {...(state === "sign-in" ? signInValidationProps : signUpValidationProps)}>
             <Input
               disabled={isPending}
               containerClassName="h-10 px-3 py-2.5"
-              placeholder={state === "sign-in" ? t("placeholders:enterYourNickname") : t("placeholders:yourNickname")}
+              placeholder={state === "sign-in" ? t("placeholders:enterYourUsername") : t("placeholders:yourUsername")}
               value={userName}
               onChange={setUserName}
               maxLength={USER_NAME_MAX_LENGTH}
@@ -133,7 +133,7 @@ export const SignInModal = (props: SignInModalProps) => {
         <div className="flex justify-end gap-6">
           <ButtonPrimary
             className="w-full px-6 capitalize"
-            label={title}
+            label={state === "sign-in" ? title : t("common:create")}
             onClick={handleSubmit}
             disabled={
               isPending ||

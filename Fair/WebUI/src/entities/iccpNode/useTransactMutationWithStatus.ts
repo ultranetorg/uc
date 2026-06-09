@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 
 import { getIccpNodeApi } from "api"
 import { useAuthenticationContext } from "app"
-import { useGetNexusUrl } from "entities"
+import { useGetNexusUrl } from "entities/localFair"
 import { useGetIccpNodeUrl } from "entities/nexus"
 import { BaseFairOperation } from "types"
 import { TransactionApe, TransactionStatus } from "types/iccpNode"

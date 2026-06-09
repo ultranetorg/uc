@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getFairApi } from "api"
+import { getLocalFairApi } from "api"
 
-const api = getFairApi()
+const api = getLocalFairApi()
 
 export const useGetNexusUrl = () => {
   const queryFn = () => api.getNexusUrl()

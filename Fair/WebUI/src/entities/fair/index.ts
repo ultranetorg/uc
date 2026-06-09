@@ -7,7 +7,6 @@ export * from "./proposals"
 export * from "./publications"
 export * from "./reviews"
 export * from "./sites"
-export * from "./urls"
 export * from "./users"
 
 export * from "./moderator"

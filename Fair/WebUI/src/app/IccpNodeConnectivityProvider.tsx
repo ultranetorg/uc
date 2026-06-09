@@ -1,7 +1,7 @@
 import { createContext, useContext, PropsWithChildren, useMemo, useState } from "react"
 
-import { useGetNexusUrl } from "entities"
 import { useGetPing } from "entities/iccpNode"
+import { useGetNexusUrl } from "entities/localFair"
 import { useGetIccpNodeUrl } from "entities/nexus"
 import { NodeInstallModal } from "ui/components/specific"
 
