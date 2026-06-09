@@ -36,7 +36,7 @@ namespace Uccs.Mcv.FUI
 			BaseRdcIPs = new ListView();
 			columnHeader2 = new ColumnHeader();
 			label1 = new Label();
-			Refresh = new Button();
+			Reload = new Button();
 			SuspendLayout();
 			// 
 			// Generators
@@ -110,18 +110,18 @@ namespace Uccs.Mcv.FUI
 			// 
 			// Refresh
 			// 
-			Refresh.Location = new Point(891, 3);
-			Refresh.Name = "Refresh";
-			Refresh.Size = new Size(129, 28);
-			Refresh.TabIndex = 25;
-			Refresh.Text = "Refresh";
-			Refresh.UseVisualStyleBackColor = true;
+			Reload.Location = new Point(891, 3);
+			Reload.Name = "Refresh";
+			Reload.Size = new Size(129, 28);
+			Reload.TabIndex = 25;
+			Reload.Text = "Refresh";
+			Reload.UseVisualStyleBackColor = true;
 			// 
 			// MembersPanel
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			Controls.Add(Refresh);
+			Controls.Add(Reload);
 			Controls.Add(BaseRdcIPs);
 			Controls.Add(label1);
 			Controls.Add(DestLabel);
@@ -142,6 +142,6 @@ namespace Uccs.Mcv.FUI
 		private System.Windows.Forms.ListView BaseRdcIPs;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
-		private Button Refresh;
+		private Button Reload;
 	}
 }

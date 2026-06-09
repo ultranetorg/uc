@@ -22,7 +22,7 @@ public class Vote : IBinarySerializable
 	///public AccountAddress[]			FundLeavers = {};
 	public AutoId[]						Violators = [];
 	public byte[][]						FriendTransferRequests = [];
-	public IccpTransferResult[]	FriendTransferConfirmations = [];
+	public IccpTransferResult[]			FriendTransferConfirmations = [];
 	public Transaction[]				Transactions = [];
 	public byte[]						Signature { get; set; }
 	public OutwardResult[]				OutwardResults = {};
@@ -88,7 +88,7 @@ public class Vote : IBinarySerializable
 			if(_RawPayload == null)
 			{
 				var s = new MemoryStream();
-				var w = new Writer(s);
+				var w = new Writer(s, Mcv.Net.Constructor);
 
 				WritePayload(w);
 
@@ -167,7 +167,7 @@ public class Vote : IBinarySerializable
 		Violators					= reader.ReadArray<AutoId>();
 
 		Transactions				 = reader.ReadArray(() =>	{
-																	var t = new Transaction {Net = Mcv.Net, Vote = this};
+																	var t = new Transaction {Vote = this};
 																	t.ReadForVote(reader);
 																	return t;
 																});
@@ -197,7 +197,7 @@ public class Vote : IBinarySerializable
 	{
 		if(!Restored)
 		{
-			ReadPayload(new Reader(RawPayload));
+			ReadPayload(new Reader(RawPayload, Mcv.Net.Constructor));
 		}
 	}
 
@@ -209,11 +209,11 @@ public class Vote : IBinarySerializable
 		foreach(var t in Transactions)
 		{	
 			log.ReportWarning(this, $"----Transaction {t}" );
-			log.ReportWarning(this, $"----NearestBy {round.Senders.NearestBy(i => i.User, t.Signature).User}");
+			log.ReportWarning(this, $"----NearestBy {round.Senders.NearestBy(t.Signature).User}");
 			log.ReportWarning(this, $"----Signature {t.Signature.ToHex()}" );
-			log.ReportWarning(this, $"----Hash {t.Hashify().ToHex()}" );
-			log.ReportWarning(this, $"----Zone {t.Net.Zone}");
-			log.ReportWarning(this, $"----Net {t.Net.Address}");
+			log.ReportWarning(this, $"----Hash {t.Hashify(Mcv.Net).ToHex()}" );
+			//log.ReportWarning(this, $"----Zone {t.Net.Zone}");
+			//log.ReportWarning(this, $"----Net {t.Net.Address}");
 			//log.ReportWarning(this, $"----Member {t.Member}");
 			log.ReportWarning(this, $"----Nonce {t.Nonce}");
 			log.ReportWarning(this, $"----Expiration {t.Expiration}");

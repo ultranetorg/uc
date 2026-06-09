@@ -112,14 +112,13 @@ public class Writer : BinaryWriter
 
 	public void WriteNullable(IBinarySerializable o)
 	{
+		if(o is ITypeCode c)
+			Debugger.Break();
+
 		base.Write(o != null);
 
 		if(o != null)
 		{
-			if(o is ITypeCode c)
-				//w.Write(ITypeCode.Codes[o.GetType()]);
-				Debugger.Break();
-					
 			o.Write(this);
 		}
 	}

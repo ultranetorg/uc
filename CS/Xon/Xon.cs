@@ -226,10 +226,7 @@ public class Xon// : INestedSerializable
 
 	protected Xon Load(IXonReader r, Xon parent)
 	{
-		//CString name;
-		//CString type;
 		Xon n = null;
-		Xon t = null;
 
 		while(r.Current != XonToken.End)
 		{

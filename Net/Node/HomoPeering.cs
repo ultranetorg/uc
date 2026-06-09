@@ -358,6 +358,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		{
 			var s = new MemoryStream();
 			BinarySerializator.Serialize(new Writer(s, Constructor), request);
+			
 			s.Position = 0;
 			
 			rq = BinarySerializator.Deserialize<PeerRequest>(new Reader(s, Constructor));
@@ -375,6 +376,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		{
 			var s = new MemoryStream();
 			BinarySerializator.Serialize(new Writer(s, Constructor), rq);
+			
 			s.Position = 0;
 			
 			rq = BinarySerializator.Deserialize<PeerRequest>(new Reader(s, Constructor));

@@ -167,12 +167,12 @@ public abstract class Mcv /// Mutual chain voting
 
 				if(i == 0)
 				{
- 					var t = new Transaction {Net = Net, Nonce = 0, Expiration = 0};
+ 					var t = new Transaction {Nonce = 0, Expiration = 0};
  					//t.Member = new(0, -1);
 					t.User = GodName;
 					t.AddOperation(Genesis);
  					v.AddTransaction(t);
- 					t.Sign(God);
+ 					t.Sign(Net, God);
 
 					GetRound(i).Payloads = [v];
 				}
@@ -287,12 +287,6 @@ public abstract class Mcv /// Mutual chain voting
 
 		r.Votes.Add(vote);
 		///r.Update();
-	
-		foreach(var t in vote.Transactions)
-		{
-			t.Round = r;
-			t.Status = TransactionStatus.Placed;
-		}
 
 		if(process)
 		{
@@ -303,6 +297,12 @@ public abstract class Mcv /// Mutual chain voting
 			{	
 				if(vote.Try == r.Try)
 	 			{	
+					foreach(var t in vote.Transactions)
+					{
+						t.Round = r;
+						t.Status = TransactionStatus.Placed;
+					}
+
 					r.VotesOfTry.Add(vote);
 					
 					if(vote.Transactions.Any())
@@ -409,6 +409,7 @@ public abstract class Mcv /// Mutual chain voting
 	
 			vote.Restore();
 	
+
 			//if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
 			//{	
 			//	//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
@@ -422,7 +423,7 @@ public abstract class Mcv /// Mutual chain voting
 				return;
 			}
 		
-			if(vote.Transactions.Any(t => r.Senders.NearestBy(i => i.User, t.Signature).User != vote.Member))
+			if(vote.Transactions.Any(t => r.Senders.NearestBy(t.Signature).User != vote.Member))
 			{	
 				vote.Status = VoteStatus.InvalidTransaction;
 				return;
@@ -553,7 +554,7 @@ public abstract class Mcv /// Mutual chain voting
 			r.Id			= rid; 
 			r.Confirmed		= true;
 
-			r.Load(new Reader(d));
+			r.Load(new Reader(d, Net.Constructor));
 
 			InsertRound(r);
 			
@@ -678,7 +679,7 @@ public abstract class Mcv /// Mutual chain voting
 			b.Put(ChainStateKey, s.ToArray());
 
 			s = new MemoryStream();
-			w = new Writer(s);
+			w = new Writer(s, Net.Constructor);
 	
 			round.Save(w);
 	

@@ -67,11 +67,12 @@ public abstract class McvPeering : HomoPeering
 		Node = node;
 		VaultApi = vaultapi;
 
+		Constructor.Merge(node.Net.Constructor);
 		Constructor.Register<PeerRequest> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
 		Constructor.Register<Result>	  (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 		Constructor.Register<CodeException>(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
 
-		Constructor.Register(() => new Transaction {Net = Net});
+		//Constructor.Register(() => new Transaction {});
 		Constructor.Register(() => new Vote(Mcv));
 
 		if(Mcv != null)
@@ -374,7 +375,7 @@ public abstract class McvPeering : HomoPeering
 	
 					lock(Mcv.Lock)
 					{
-						var rounds = rp.Read(Mcv);
+						var rounds = rp.Read(Mcv, Constructor);
 														
 						foreach(var r in rounds)
 						{
@@ -529,7 +530,7 @@ public abstract class McvPeering : HomoPeering
 						
 						CandidacyDeclarations.Add(gs.Id);
 					
-						Transact([Mcv.CreateCandidacyDeclaration()], Name, gs.User, null, s.Session, ActionOnResult.RetryUntilConfirmed, Flow);
+						Transact([Mcv.CreateCandidacyDeclaration()], gs.User, null, s.Session, ActionOnResult.RetryUntilConfirmed, Flow);
 					} 
 					else
 					{
@@ -626,7 +627,7 @@ public abstract class McvPeering : HomoPeering
 						if(l > Peer.PacketLengthMaximum)
 							return false;
 			
-						var nearest = r.Senders.NearestBy(i => i.User, t.Signature);
+						var nearest = r.Senders.NearestBy(t.Signature);
 			
 						if(nearest.User != gs.Id)
 						{
@@ -802,7 +803,7 @@ public abstract class McvPeering : HomoPeering
 			}
 
 			var s = new CountStream();
-			t.WriteForVote(new Writer(s));
+			t.WriteForVote(new Writer(s, Constructor));
 
 			t.Length = (int)s.Length;
 
@@ -917,12 +918,12 @@ public abstract class McvPeering : HomoPeering
 																Net				= Net.Name,
 																User			= t.User,
 																Session			= t.Session,
-																Hash			= t.Hashify(),
+																Hash			= t.Hashify(Net),
 															 }, 
 															 t.Flow);
 
 
-						var m = members.NearestBy(i => i.User, t.Signature);
+						var m = members.NearestBy(t.Signature);
 
 						try
 						{
@@ -1120,7 +1121,7 @@ public abstract class McvPeering : HomoPeering
 		}
 	}
 
- 	public Transaction Transact(IEnumerable<Operation> operations, string application, string user, byte[] tag, byte[] session, ActionOnResult aor, Flow flow)
+ 	public Transaction Transact(IEnumerable<Operation> operations, string user, byte[] tag, byte[] session, ActionOnResult aor, Flow flow)
  	{
 		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
 			throw new NodeException(NodeError.LimitExceeded);
@@ -1130,9 +1131,7 @@ public abstract class McvPeering : HomoPeering
 
 		var t = new Transaction()
 				{
-					Application		= application,
 					User			= user,
-					Net				= Net,
 					Tag				= tag ?? Guid.NewGuid().ToByteArray(),
 					Session			= session ?? FindSession(user)?.Session,
 					Flow			= flow,

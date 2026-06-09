@@ -108,7 +108,7 @@ public class IccpPeer : Peer, IBinarySerializable
 
 							if(rq.Event != null)
 							{
-								rq.Return = r;
+								rq.Result = r;
 								rq.Event.Set();
  									
 								OutRequests.Remove(rq);
@@ -204,10 +204,10 @@ public class IccpPeer : Peer, IBinarySerializable
 		{
 			if(p.Exception == null)
 			{
-				if(p.Return == null)
+				if(p.Result == null)
 					throw new NodeException(NodeError.Connectivity);
 
-				return p.Return as IccpResult;
+				return p.Result as IccpResult;
 			}
 			else
 			{

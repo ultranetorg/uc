@@ -31,9 +31,19 @@ public static class Extentions
 		return e.MinBy(m => Cryptography.Hash([..x, ..y, (byte)(nonce>>24), (byte)(nonce>>16), (byte)(nonce>>8), (byte)nonce]), Bytes.Comparer);
 	}
 
-	public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AutoId> by, byte[] signature)
+	public static T NearestBy<T>(this IEnumerable<T> items, byte[] signature)
 	{
-		return e.MinBy(m => signature, Bytes.Comparer);
+		var h = BitConverter.ToUInt32(signature) % items.Count();
+		int k = 0;
+
+		foreach(var i in items)
+		{
+			if(k == h)
+				return i;
+			k++;
+		}
+
+		throw new IntegrityException();
 	}
 
 	//public static T NearestBy<T>(this T[] e, int x)

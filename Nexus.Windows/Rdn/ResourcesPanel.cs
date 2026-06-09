@@ -6,7 +6,6 @@ namespace Uccs.Nexus.Windows;
 
 public partial class ResourcesPanel : McvPanel
 {
-	Flow		ManifestWorkflow;
 	RdnNode		Node;
 
 	public ResourcesPanel(RdnNode node)

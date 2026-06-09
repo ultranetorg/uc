@@ -67,13 +67,12 @@ public abstract class NetCommand : Command
 			WaitHandle.WaitAny([Flow.Cancellation.WaitHandle]);
 	}
 
-	public TransactionApe Transact(McvApiClient api, IEnumerable<Operation> operations, string application, string user, ActionOnResult aor)
+	public TransactionApe Transact(McvApiClient api, IEnumerable<Operation> operations, string user, ActionOnResult aor)
 	{
 		var t = api.Call<TransactionApe>(new TransactApc
 										 {
 											Operations = operations,
 											User = user,
-											Application = application,
 											ActionOnResult = aor
 										 },
 										 Flow);

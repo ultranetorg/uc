@@ -288,7 +288,7 @@ public class Execution : ITableExecution
 		}
 		else
 		{	
-			if(Transaction.Signature != null && !Net.Cryptography.Verify(u.Owner, Transaction.Hashify(), Transaction.Signature)) /// Transaction.Signature == null means synchronization
+			if(Transaction.Signature != null && !Net.Cryptography.Verify(u.Owner, Transaction.Hashify(Net), Transaction.Signature)) /// Transaction.Signature == null means synchronization
 			{
 				Transaction.Error = Operation.Denied;
 				return null;

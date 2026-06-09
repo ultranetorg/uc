@@ -79,12 +79,10 @@ public class HomoPeer : Peer, IHomoPeer
 						{
 							var rq = OutRequests.Find(i => i.Id == id);
 
-							if(rq.Event != null)
+							if(rq?.Event != null)
 							{
-								rq.Return = r;
+								rq.Result = r;
 								rq.Event.Set();
- 									
-								OutRequests.Remove(rq);
 							}
 						}
 
@@ -103,8 +101,6 @@ public class HomoPeer : Peer, IHomoPeer
 							{
 								rq.Exception = ex;
 								rq.Event.Set();
- 									
-								OutRequests.Remove(rq);
 							}
 						}
 
@@ -141,7 +137,12 @@ public class HomoPeer : Peer, IHomoPeer
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
 
-		Write(PacketType.Request, IdCounter++, args);
+		int id;
+
+		lock(OutRequests)
+			id = IdCounter++;
+
+		Write(PacketType.Request, id, args);
 	}
 
 	public Result CallMe(PeerRequest args, Flow flow)
@@ -151,12 +152,12 @@ public class HomoPeer : Peer, IHomoPeer
 
 		var p = new HomoRequestPacket();
 
-		p.Request = args;
-		p.Id = IdCounter++;
+		p.Request	= args;
+		p.Event		= new ManualResetEvent(false);
 
 		lock(OutRequests)
-		{
-			p.Event = new ManualResetEvent(false);
+		{	
+			p.Id = IdCounter++;
 			OutRequests.Add(p);
 		}
 
@@ -174,6 +175,9 @@ public class HomoPeer : Peer, IHomoPeer
 		}
 		finally
 		{
+			lock(OutRequests)
+				OutRequests.Remove(p);
+
 			p.Event.Close();
 		}
 
@@ -181,10 +185,10 @@ public class HomoPeer : Peer, IHomoPeer
 		{
 			if(p.Exception == null)
 			{
-				if(p.Return == null)
+				if(p.Result == null)
 					throw new NodeException(NodeError.Connectivity);
 
-				return p.Return;
+				return p.Result;
 			}
 			else
 			{

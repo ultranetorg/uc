@@ -17,7 +17,6 @@ public class Nexus : IProgram
 	public Vault.Vault				Vault;
 	public byte[]					VaultAdminKey;
 	public Delegate					Stopped;
-	VoidDelegate					OpenIam;
 
 	public IccpPeering				IccpPeering;
 	public IccpLcpServer			IccpLcpServer;

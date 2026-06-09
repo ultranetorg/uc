@@ -36,6 +36,8 @@ public class Reader : BinaryReader
 			return null;
 	}
 
+	public new int Read(Span<byte> buffer) => base.Read(buffer);
+
 	public E Read<E>(E _ignore = default) where E : unmanaged, System.Enum
 	{
 		var t = Enum.GetUnderlyingType(typeof(E));

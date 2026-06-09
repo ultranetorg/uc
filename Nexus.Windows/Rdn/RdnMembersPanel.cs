@@ -10,7 +10,6 @@ public partial class RdnMembersPanel : McvPanel
 {
 	Font Bold;
 	McvNode Node;
-	Net.Mcv Mcv;
 
 	public RdnMembersPanel(McvNode node)
 	{
@@ -78,7 +77,7 @@ public partial class RdnMembersPanel : McvPanel
 		GraphPpiEndpoints.Items.Clear();
 		SeedhubPpiEndpoints.Items.Clear();
 
-		Refresh.Enabled = false;
+		Reload.Enabled = false;
 		
 		Task.Run(() =>	{ 
 							try
@@ -90,7 +89,7 @@ public partial class RdnMembersPanel : McvPanel
 													{
 														var li = Generators.Items.Add(i.User.ToString());
 	
-														if(Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
+														if(Node.Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
 														{
 															li.Font = Bold;
 														}
@@ -105,7 +104,7 @@ public partial class RdnMembersPanel : McvPanel
 							}
 							finally
 							{
-								Invoke(() => Refresh.Enabled = true); 
+								Invoke(() => Reload.Enabled = true); 
 							}
 						});
 

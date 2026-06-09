@@ -23,9 +23,6 @@ public class Transaction : IBinarySerializable
 	public int						Expiration { get; set; }
 	public byte[]					Signature { get; set; }
 
-	public string					Application { get; set; } /// for API
-
-	public McvNet					Net;
 	public Vote						Vote;
 	public Round					Round;
 	//public AutoId					Member;
@@ -63,10 +60,10 @@ public class Transaction : IBinarySerializable
 		return $"User={User}, Nonce={Nonce}, {Status}, Operations={Operations.FirstOrDefault()?.ToString() ?? $"{{{Operations.Length}}}"}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 	}
 
-	public void Sign(AccountKey signer)
+	public void Sign(McvNet net, AccountKey signer)
 	{
 		//Signer = signer.Address;
-		Signature = Net.Cryptography.Sign(signer, Hashify());
+		Signature = net.Cryptography.Sign(signer, Hashify(net));
 	}
 
 	public void AddOperation(Operation operation)
@@ -75,20 +72,20 @@ public class Transaction : IBinarySerializable
 		operation.Transaction = this;
 	}
 
-	public byte[] Hashify()
+	public byte[] Hashify(McvNet net)
 	{
 		var s = new Blake2Stream();
-		var w = new Writer(s);
+		var w = new Writer(s, net.Constructor);
 
-		w.Write(Net.Zone);
-		w.WriteUtf8(Net.Address);
+		w.Write(net.Zone);
+		w.WriteUtf8(net.Address);
 		w.WriteASCII(User);
 		//w.Write(Member);
 		w.Write7BitEncodedInt(Nonce);
 		w.Write7BitEncodedInt(Expiration);
 		w.Write(Boost);
 		w.WriteBytes(Tag);
-		w.Write(Operations, i => i.Write(w));
+		w.WriteVirtual(Operations);
 
 		return s.Hash;
 	}
@@ -98,10 +95,7 @@ public class Transaction : IBinarySerializable
 		writer.WriteASCII(User);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt64(Boost);
-		writer.Write(Operations, i =>{
-										writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
-										i.Write(writer); 
-									 });
+		writer.WriteVirtual(Operations);
 		//writer.Write(Member); /// Need  for migrations
 		
 		///if(Operations.Any(i => i is UserFreeCreation))
@@ -116,9 +110,8 @@ public class Transaction : IBinarySerializable
 		Nonce		= reader.Read7BitEncodedInt();
 		Boost		= reader.Read7BitEncodedInt64();
  		Operations	= reader.ReadArray(() => {
- 												var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
+ 												var o = reader.ReadVirtual<Operation>();
  												o.Transaction = this;
- 												o.Read(reader); 
  												return o; 
  											});
 		//Member		= reader.Read<AutoId>(); /// Need  for migrations
@@ -138,10 +131,7 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Boost);
 		writer.WriteBytes(Tag);
-		writer.Write(Operations, i =>	{
-											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
-											i.Write(writer); 
-										});
+		writer.WriteVirtual(Operations);
 	}
  		
 	public void	ReadForVote(Reader reader)
@@ -156,9 +146,8 @@ public class Transaction : IBinarySerializable
 		Boost				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
  		Operations			= reader.ReadArray(() => {
- 													 	var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
+ 													 	var o = reader.ReadVirtual<Operation>();
  													 	o.Transaction	= this;
- 													 	o.Read(reader); 
  													 	return o; 
  													 });
 	}
@@ -174,10 +163,7 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Boost);
 		writer.WriteBytes(Tag);
-		writer.Write(Operations, i =>	{
-											writer.Write(Net.Constructor.TypeToCode(i.GetType())); 
-											i.Write(writer); 
-										});
+		writer.WriteVirtual(Operations);
 	}
 
 	public void Read(Reader reader)
@@ -192,9 +178,8 @@ public class Transaction : IBinarySerializable
 		Boost				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
 		Operations			= reader.ReadArray(() => {
-														var o = Net.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as Operation;
+														var o = reader.ReadVirtual<Operation>();
 														o.Transaction = this;
-														o.Read(reader); 
 														return o; 
 													});
 	}
@@ -204,10 +189,7 @@ public class Transaction : IBinarySerializable
 		var s = new MemoryStream();
 		var w = new Writer(s);
 
-		w.Write(operations, i => {
-									w.Write(net.Constructor.TypeToCode(i.GetType()));
-									i.Write(w); 
-								 });
+		w.WriteVirtual(operations);
 		w.WriteUtf8(user);
 		w.WriteBytes(sign(s, w));
 
@@ -218,11 +200,7 @@ public class Transaction : IBinarySerializable
 	{
 		var r = new Reader(raw);
 
-		operations = r.ReadArray(() =>	{
- 											var o = constructor.Construct(typeof(Operation), r.ReadUInt32()) as Operation;
- 											o.Read(r); 
- 											return o;
-										});
+		operations = r.ReadArrayVirtual<Operation>();
 		user = r.ReadUtf8();
 		//account = net.Cryptography.AccountFrom(r.ReadSignature(), Cryptography.Hash(raw.AsSpan(0, raw.Length - Cryptography.SignatureLength)));
 	}

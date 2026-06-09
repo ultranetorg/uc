@@ -585,23 +585,11 @@ public abstract class Round : IBinarySerializable
 			
 			if(d > 0) /// day switched
 			{
-				e.AffectSpaces();
-
 				foreach(var i in Members.Select(i => e.AffectUser(i.User)))
 				{
 					i.EnergyNext += d * Net.EnergyDailyEmission / Members.Count;
 					i.Spacetime	 += d * (Net.SpacetimeDayEmission + e.Spaces.Skip(ConsensusTime.Days).Take(d).Sum()) / Members.Count;
 				}
-				
-				//if(d <= e.Spaces.Length)
-				//	e.Spaces = e.Spaces[d..];
-			}
-	
-			var h = ConsensusTime.Hours - Previous.ConsensusTime.Hours;
-	
-			if(h > 0) /// hours switched
-			{
-				// e.Bandwidths = h < e.Bandwidths.Length ? [..e.Bandwidths[h..], ..new long[h]] : new long[h];
 			}
 		}
 
@@ -707,7 +695,7 @@ public abstract class Round : IBinarySerializable
 	public void Hashify()
 	{
 		var s = new Blake2Stream();
-		var w = new Writer(s);
+		var w = new Writer(s, Net.Constructor);
 
 		w.Write(Mcv.GraphHash);
 		w.Write(Id > 0 ? Previous.Hash : Mcv.Net.Cryptography.ZeroHash);
@@ -768,7 +756,7 @@ public abstract class Round : IBinarySerializable
 		ConsensusViolators			= reader.ReadArray<AutoId>();
 		ConsensusFundJoiners		= reader.ReadArray<AccountAddress>();
 		ConsensusFundLeavers		= reader.ReadArray<AccountAddress>();
-		ConsensusTransactions		= reader.Read(() =>	new Transaction {Net = Mcv.Net, Round = this}, t => t.ReadConfirmed(reader)).ToArray();
+		ConsensusTransactions		= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		ConsensusIncomingTransfers	= reader.ReadArray(reader.ReadHash);
 		ConsensusOutgoingTransfers	= reader.ReadArray<IccpTransferResult>();
 		ConsensusOutwards			= reader.ReadArray<OutwardResult>();

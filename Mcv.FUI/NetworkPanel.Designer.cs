@@ -37,7 +37,7 @@ namespace Uccs.Mcv.FUI
 			columnHeader11 = new ColumnHeader();
 			columnHeader16 = new ColumnHeader();
 			columnHeader1 = new ColumnHeader();
-			Refresh = new Button();
+			BReload = new Button();
 			SuspendLayout();
 			// 
 			// label1
@@ -102,19 +102,19 @@ namespace Uccs.Mcv.FUI
 			// 
 			// Refresh
 			// 
-			Refresh.Location = new Point(891, 3);
-			Refresh.Name = "Refresh";
-			Refresh.Size = new Size(129, 28);
-			Refresh.TabIndex = 26;
-			Refresh.Text = "Refresh";
-			Refresh.UseVisualStyleBackColor = true;
-			Refresh.Click += Refresh_Click;
+			BReload.Location = new Point(891, 3);
+			BReload.Name = "Refresh";
+			BReload.Size = new Size(129, 28);
+			BReload.TabIndex = 26;
+			BReload.Text = "Refresh";
+			BReload.UseVisualStyleBackColor = true;
+			BReload.Click += Refresh_Click;
 			// 
 			// NetworkPanel
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			Controls.Add(Refresh);
+			Controls.Add(BReload);
 			Controls.Add(Peers);
 			Controls.Add(label1);
 			Margin = new Padding(4, 3, 4, 3);
@@ -133,6 +133,6 @@ namespace Uccs.Mcv.FUI
 		private System.Windows.Forms.ColumnHeader columnHeader16;
 		private System.Windows.Forms.ColumnHeader columnHeader11;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
-		private Button Refresh;
+		private Button BReload;
 	}
 }

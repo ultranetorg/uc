@@ -19,7 +19,7 @@ public class IccpLcpConnection : LcpConnection
 	public string													Api { get; set; }
 	Dictionary<Type, Func<string, IccpArgumentation, IccpResult>>	Calls = [];
 	
-	public static string GetName(IPAddress ip) => "NnpIpp-" + ip.ToString();
+	public static string GetName(IPAddress ip) => $"{ip.GetAddressBytes()[3]}-{Iccp.Scheme}";
 
 	public IccpLcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow) : base(program, pipe, server, flow)
 	{

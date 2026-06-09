@@ -171,11 +171,9 @@ partial class AssetsPage
 	private ColumnHeader columnHeader3;
 	private Label label2;
 	private ComboBox Entity;
-	private Button Transfer;
 	private ComboBox Nets;
 	private Label label4;
 	private ColumnHeader columnHeader4;
 	private Label Message;
-	private ListView Results;
 	private Button Start;
 }

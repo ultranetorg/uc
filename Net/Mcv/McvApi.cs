@@ -277,7 +277,6 @@ public class TransactApc : McvApc
 {
 	public IEnumerable<Operation>	Operations { get; set; }
 	public string					User { get; set; }
-	public string					Application { get; set; }
 	public byte[]					Tag { get; set; } /// optional
 	public byte[]					Session { get; set; }
 	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
@@ -287,7 +286,7 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = node.Peering.Transact(Operations, Application, User, Tag, Session, ActionOnResult, flow);
+		var t = node.Peering.Transact(Operations, User, Tag, Session, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
 	}

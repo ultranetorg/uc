@@ -39,7 +39,7 @@ namespace Uccs.Nexus.Windows
 			label3 = new Label();
 			SeedhubPpiEndpoints = new ListView();
 			columnHeader6 = new ColumnHeader();
-			Refresh = new Button();
+			Reload = new Button();
 			SuspendLayout();
 			// 
 			// Generators
@@ -47,10 +47,10 @@ namespace Uccs.Nexus.Windows
 			Generators.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 			Generators.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader4 });
 			Generators.FullRowSelect = true;
-			Generators.Location = new Point(4, 38);
+			Generators.Location = new Point(4, 43);
 			Generators.Margin = new Padding(3, 9, 3, 3);
 			Generators.Name = "Generators";
-			Generators.Size = new Size(1016, 496);
+			Generators.Size = new Size(1016, 491);
 			Generators.TabIndex = 1;
 			Generators.UseCompatibleStateImageBehavior = false;
 			Generators.View = View.Details;
@@ -71,7 +71,7 @@ namespace Uccs.Nexus.Windows
 			// 
 			DestLabel.AutoSize = true;
 			DestLabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			DestLabel.Location = new Point(4, 16);
+			DestLabel.Location = new Point(4, 21);
 			DestLabel.Margin = new Padding(0, 0, 3, 0);
 			DestLabel.Name = "DestLabel";
 			DestLabel.Size = new Size(71, 13);
@@ -143,21 +143,21 @@ namespace Uccs.Nexus.Windows
 			columnHeader6.Text = "IP";
 			columnHeader6.Width = 200;
 			// 
-			// Refresh
+			// Reload
 			// 
-			Refresh.Location = new Point(891, 3);
-			Refresh.Name = "Refresh";
-			Refresh.Size = new Size(129, 26);
-			Refresh.TabIndex = 24;
-			Refresh.Text = "Refresh";
-			Refresh.UseVisualStyleBackColor = true;
-			Refresh.Click += Refresh_Click;
+			Reload.Location = new Point(891, 3);
+			Reload.Name = "Reload";
+			Reload.Size = new Size(129, 28);
+			Reload.TabIndex = 24;
+			Reload.Text = "Refresh";
+			Reload.UseVisualStyleBackColor = true;
+			Reload.Click += Refresh_Click;
 			// 
 			// RdnMembersPanel
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			Controls.Add(Refresh);
+			Controls.Add(Reload);
 			Controls.Add(SeedhubPpiEndpoints);
 			Controls.Add(GraphPpiEndpoints);
 			Controls.Add(label3);
@@ -183,6 +183,6 @@ namespace Uccs.Nexus.Windows
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.ListView SeedhubPpiEndpoints;
 		private System.Windows.Forms.ColumnHeader columnHeader6;
-		private Button Refresh;
+		private Button Reload;
 	}
 }
