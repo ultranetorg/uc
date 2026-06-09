@@ -94,7 +94,7 @@ export const CurrentAccount = () => {
           iconBefore={<SvgPersonSquare className="fill-gray-800" />}
           iconAfter={<SvgChevronRight className="stroke-gray-800" />}
           className={STICKY_CLASSNAME}
-          label={t("switchAccounts")}
+          label={t("switchUsers")}
           ref={accountsMenu.refs.setReference}
           {...accountsMenu.getReferenceProps()}
         />

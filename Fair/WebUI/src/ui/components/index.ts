@@ -6,7 +6,6 @@ export * from "./DropdownSecondary"
 export * from "./DropdownTertiary"
 
 export * from "./Accordion"
-export * from "./AccountInfo"
 export * from "./Breadcrumbs"
 export * from "./Bullet"
 export * from "./Button"

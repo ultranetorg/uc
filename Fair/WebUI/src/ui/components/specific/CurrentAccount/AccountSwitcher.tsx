@@ -46,7 +46,7 @@ export const AccountSwitcher = memo(
             className="flex cursor-pointer select-none items-center gap-2 px-4 py-3 text-2sm leading-4.25 text-gray-900 hover:bg-gray-100"
             onClick={onAdd}
           >
-            <SvgPlusCircleMd className="fill-gray-800" /> {t("addAccount")}
+            <SvgPlusCircleMd className="fill-gray-800" /> {t("addUser")}
           </div>
         </div>
       )

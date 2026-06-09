@@ -1,22 +1,13 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import {
-  AccountBaseAvatar,
-  AuthorBaseAvatar,
-  OperationType,
-  Proposal,
-  PublicationImageBase,
-  PublicationProposal,
-} from "types"
-import { AccountInfo, ButtonOutline, ButtonPrimary, MemberInfo, PublicationInfo, TableColumn } from "ui/components"
+import { AuthorBaseAvatar, OperationType, Proposal, PublicationImageBase, PublicationProposal } from "types"
+import { ButtonOutline, ButtonPrimary, MemberInfo, PublicationInfo, TableColumn } from "ui/components"
 import {
   formatNabb,
   formatNabbShort,
-  formatDate,
   formatDuration,
   getHoursPassedFromStart,
-  shortenAddress,
   formatArShort,
   formatAr,
   buildFileUrl,
@@ -35,17 +26,6 @@ export const renderAuthor = (author: AuthorBaseAvatar) => (
       author.title && author.name ? `${author.title} (${author.name})` : (author.title ?? author.name ?? author.id)
     }
     avatarSrc={buildFileUrl(author.avatarId)}
-  />
-)
-
-/**
- * @deprecated The method is deprecated, use renderUser instead.
- */
-export const renderAccount = (account: AccountBaseAvatar) => (
-  <AccountInfo
-    title={account.nickname || shortenAddress(account.address)}
-    fullTitle={account.nickname || account.address}
-    avatar={account.avatar}
   />
 )
 
@@ -92,8 +72,6 @@ export const renderCategory = (title: string) => (
     {title}
   </div>
 )
-
-export const renderDate = (date: number) => <span className={FONT_SM_CLASSNAME}>{formatDate(date)}</span>
 
 export const renderLastsFor = (t: TFunction, creationTime: number) => {
   const hoursPassed = getHoursPassedFromStart()

@@ -71,7 +71,7 @@ export const ProfileMenu = memo(
                 <ProfileButton iconBefore={<SvgPersonSquare className="fill-gray-800" />} label={t("profile")} />
               </LinkFullscreen> */}
               <ProfileButton
-                label={t("switchAccounts")}
+                label={t("switchUsers")}
                 iconBefore={<SvgPerson2 className="fill-gray-800" />}
                 iconAfter={<SvgChevronRight className="stroke-gray-800" />}
                 ref={accountMenu.refs.setReference}

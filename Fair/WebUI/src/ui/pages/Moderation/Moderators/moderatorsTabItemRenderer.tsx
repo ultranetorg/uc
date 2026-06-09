@@ -5,8 +5,8 @@ import { truncate } from "lodash"
 
 import { Moderator } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
-import { renderAccount } from "ui/renderers/utils"
 import { sitesKeys } from "entities"
+import { renderUser } from "ui/renderers2"
 
 export const moderatorsTabItemRenderer =
   (t: TFunction, siteId: string) =>
@@ -15,7 +15,7 @@ export const moderatorsTabItemRenderer =
 
     switch (column.type) {
       case "account":
-        return renderAccount(moderator.user)
+        return renderUser(moderator.user.id, moderator.user.nickname)
 
       case "banned":
         return moderator.bannedTill !== 0 ? moderator.bannedTill : ""

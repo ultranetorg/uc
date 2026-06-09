@@ -143,11 +143,11 @@ export const enUS = {
     description: "If none of the provided options suit you",
   },
   currentAccount: {
-    addAccount: "Add account",
+    addUser: "Add user",
     authenticate: "Authenticate Yourself",
     createNickname: "Create nickname",
     profile: "Profile",
-    switchAccounts: "Switch Accounts",
+    switchUsers: "Switch Users",
   },
   pageBanner: {
     text: "You’re browsing through the legacy Web2. Switch to the fully decentralized Web3 with <1>Ultranet</1> — install <2>Ultranet Client Software</2> to join the new paradigm.",

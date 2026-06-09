@@ -1,7 +1,7 @@
 import { memo } from "react"
 
 import { SvgX } from "assets"
-import avatarFallback from "assets/images/account-avatar-placeholder-9xl.png"
+import avatarFallback from "assets/fallback/account-avatar-9xl.png"
 
 import { ImageFallback } from "../ImageFallback"
 
