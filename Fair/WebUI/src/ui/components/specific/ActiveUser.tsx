@@ -17,7 +17,7 @@ export const ActiveUser = ({ id, name, disabled = false, onClick }: ActiveUserPr
     onClick={!disabled ? onClick : undefined}
   >
     <div className="size-10 overflow-hidden rounded-full">
-      <ImageFallback src={buildUserAvatarUrl(id)} fallbackSrc={avatarFallback3xl} className="size-10" />
+      <ImageFallback src={buildUserAvatarUrl(id)} fallbackSrc={avatarFallback3xl} className="size-full object-cover" />
     </div>
     <div className="flex flex-col gap-1">
       <span className="text-2sm font-medium leading-4.5">{name}</span>
