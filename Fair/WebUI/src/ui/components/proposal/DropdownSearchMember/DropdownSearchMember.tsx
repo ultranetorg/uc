@@ -12,6 +12,7 @@ const COMPONENTS = { Control, DropdownIndicator: null, IndicatorsContainer, Opti
 export type DropdownSearchMemberBaseProps = {
   items: DropdownItem[]
   getAvatarUrl?: (avatarId?: string) => string | undefined
+  avatarFallbackSrc: string
   onSelect?: (value: DropdownItem) => void
   onInputChange?: (inputValue: string) => void
   noOptionsLabel?: string
@@ -26,6 +27,7 @@ export const DropdownSearchMember = memo(
     inputValue,
     placeholder,
     items,
+    avatarFallbackSrc,
     getAvatarUrl,
     onSelect,
     onInputChange,
@@ -44,6 +46,7 @@ export const DropdownSearchMember = memo(
         className={className}
         components={COMPONENTS}
         filterOption={() => true}
+        avatarFallbackSrc={avatarFallbackSrc}
         getAvatarUrl={getAvatarUrl}
         inputValue={inputValue}
         options={items}

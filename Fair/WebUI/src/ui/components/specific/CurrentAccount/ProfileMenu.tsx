@@ -2,7 +2,7 @@ import { forwardRef, memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SvgChevronRight, SvgPencilSm, SvgPerson2 } from "assets"
-import avatarFallback from "assets/fallback/account-avatar-11xl.png"
+import avatarFallback from "assets/fallback/user-22.5.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
 import { ButtonGhost, CopyAddressButton, ImageFallback, LinkFullscreen } from "ui/components"

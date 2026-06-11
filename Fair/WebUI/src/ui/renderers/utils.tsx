@@ -1,6 +1,7 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
+import avatarFallback from "assets/fallback/author-16.png"
 import { AuthorBaseAvatar, OperationType, Proposal, PublicationImageBase, PublicationProposal } from "types"
 import { ButtonOutline, ButtonPrimary, MemberInfo, PublicationInfo, TableColumn } from "ui/components"
 import {
@@ -17,7 +18,7 @@ import { renderVotes } from "ui/renderers2"
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
 export const renderAuthor2 = (authorTitle: string, authorLogoId?: string) => (
-  <MemberInfo title={authorTitle} avatarSrc={buildFileUrl(authorLogoId)} />
+  <MemberInfo title={authorTitle} fallbackSrc={avatarFallback} avatarSrc={buildFileUrl(authorLogoId)} />
 )
 
 export const renderAuthor = (author: AuthorBaseAvatar) => (
@@ -25,6 +26,7 @@ export const renderAuthor = (author: AuthorBaseAvatar) => (
     title={
       author.title && author.name ? `${author.title} (${author.name})` : (author.title ?? author.name ?? author.id)
     }
+    fallbackSrc={avatarFallback}
     avatarSrc={buildFileUrl(author.avatarId)}
   />
 )

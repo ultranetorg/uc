@@ -2,6 +2,8 @@ import { memo } from "react"
 import { TFunction } from "i18next"
 import { capitalize } from "lodash"
 
+import authorFallback from "assets/fallback/author-16.png"
+import userFallback from "assets/fallback/user-16.png"
 import { MembersChangeType } from "types"
 import { AccountsList, AccountsListItemProps } from "ui/components/AccountsList"
 import { DropdownItem, DropdownSearchMember } from "ui/components/proposal"
@@ -41,13 +43,18 @@ export const MembersPanelList = memo(
         <DropdownSearchMember
           placeholder={memberType === "author" ? t("enterAuthorName") : t("enterModeratorName")}
           items={searchItems}
-          getAvatarUrl={memberType === "author" ? buildFileUrl : buildUserAvatarUrl}
+          getAvatarUrl={memberType === "moderator" ? buildUserAvatarUrl : buildFileUrl}
+          avatarFallbackSrc={memberType === "moderator" ? userFallback : authorFallback}
           inputValue={search}
           onInputChange={onSearchChange}
           onSelect={onSearchItemSelect}
           noOptionsLabel={t("userNotFound")}
         />
-        <AccountsList items={selectedItems} onItemRemove={onSelectedItemRemove} />
+        <AccountsList
+          items={selectedItems}
+          fallbackSrc={memberType === "moderator" ? userFallback : authorFallback}
+          onItemRemove={onSelectedItemRemove}
+        />
       </div>
       <span className="px-4 py-2 text-2xs font-medium leading-4">
         {t("selected")}: {selectedItems.length}

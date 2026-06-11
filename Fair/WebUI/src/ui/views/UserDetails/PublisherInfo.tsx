@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { AuthorBaseAvatar } from "types"
 
-import avatarFallback from "assets/fallback/account-avatar-xl.png"
+import avatarFallback from "assets/fallback/author-8.png"
 import { ImageFallback } from "ui/components"
 import { buildFileUrl } from "utils"
 

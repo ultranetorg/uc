@@ -2,7 +2,7 @@ import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 import { TFunction } from "i18next"
 
-import avatarFallback from "assets/fallback/account-avatar-30.png"
+import avatarFallback from "assets/fallback/author-30.png"
 import { AuthorDetails, PropsWithClassName } from "types"
 import { ExpandableText, ImageFallback } from "ui/components"
 import { buildFileUrl, formatRole } from "utils"

@@ -2,7 +2,7 @@ import { ComponentType, memo } from "react"
 
 import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import avatarFallback from "assets/fallback/account-avatar-3xl.png"
+import avatarFallback from "assets/fallback/user-10.png"
 import { AccountBaseAvatar } from "types"
 import { ImageFallback, RatingBar } from "ui/components"
 import { buildUserAvatarUrl, formatDate } from "utils"

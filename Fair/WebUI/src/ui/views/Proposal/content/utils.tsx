@@ -2,6 +2,8 @@ import { ReactNode } from "react"
 import { Trans } from "react-i18next"
 import { Link } from "react-router-dom"
 
+import authorFallback from "assets/fallback/author-8.png"
+import userFallback from "assets/fallback/user-16.png"
 import {
   CategoryAvatarChange,
   CategoryCreation,
@@ -216,6 +218,7 @@ const getSiteAuthorsRemoval = (operation: SiteAuthorsRemoval): JSX.Element => {
       />
       <MembersList
         items={operation.removals.map(x => ({ id: x.id, title: x.title, avatarSrc: buildFileUrl(x.avatarId) }))}
+        fallbackSrc={authorFallback}
       />
     </div>
   )
@@ -231,7 +234,10 @@ const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element
         className="text-2sm leading-5"
         count={operation.candidates.length}
       />
-      <AccountsList items={operation.candidates.map(x => ({ id: x.id, title: x.name, avatarId: x.id }))} />
+      <AccountsList
+        items={operation.candidates.map(x => ({ id: x.id, title: x.name, avatarId: x.id }))}
+        fallbackSrc={userFallback}
+      />
     </div>
   )
 }
@@ -248,6 +254,7 @@ const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element =
             avatarSrc: buildUserAvatarUrl(operation.moderator.id),
           },
         ]}
+        fallbackSrc={userFallback}
       />
     </div>
   )

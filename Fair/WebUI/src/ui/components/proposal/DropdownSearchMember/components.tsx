@@ -1,12 +1,12 @@
 import Select, { components, ControlProps, IndicatorsContainerProps, OptionProps, Props } from "react-select"
 
 import { SvgSearchSm, SvgXSm } from "assets"
-import avatarFallback from "assets/fallback/account-avatar-xl.png"
 
 import { DropdownItem } from "./types"
 
 export type CustomSelectProps<IsMulti extends boolean> = Props<DropdownItem, IsMulti> & {
   getAvatarUrl?: (avatarId?: string) => string | undefined
+  avatarFallbackSrc: string
 }
 
 export const CustomSelect = <IsMulti extends boolean>(props: CustomSelectProps<IsMulti>) => <Select {...props} />
@@ -44,7 +44,7 @@ export const NoOptionsMessage = ({ noOptionsLabel }: NoOptionsMessageProps) => (
 )
 
 export const Option = (props: OptionProps<DropdownItem, false>) => {
-  const { getAvatarUrl } = props.selectProps as CustomSelectProps<false>
+  const { getAvatarUrl, avatarFallbackSrc } = props.selectProps as CustomSelectProps<false>
 
   return (
     <components.Option {...props}>
@@ -56,7 +56,7 @@ export const Option = (props: OptionProps<DropdownItem, false>) => {
             loading="lazy"
             onError={e => {
               e.currentTarget.onerror = null
-              e.currentTarget.src = avatarFallback
+              e.currentTarget.src = avatarFallbackSrc
             }}
           />
         </div>

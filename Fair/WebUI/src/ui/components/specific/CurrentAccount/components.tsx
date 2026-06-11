@@ -2,8 +2,8 @@ import { forwardRef, memo, MouseEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { CheckCircleFillSvg, SvgXSm } from "assets"
-import avatarFallbackXl from "assets/fallback/account-avatar-xl.png"
-import avatarFallback3xl from "assets/fallback/account-avatar-3xl.png"
+import avatarFallbackXl from "assets/fallback/user-8.png"
+import avatarFallback3xl from "assets/fallback/user-10.png"
 import { AccountBase, PropsWithClassName } from "types"
 import { buildUserAvatarUrl, MakeOptional, shortenAddress } from "utils"
 

@@ -43,7 +43,7 @@ public class PublicationsService
 				LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
 				Updated = product.Updated.Hours,
 				Fields = mappedFields,
-				AuthorId = author.Id.ToString(),
+				AuthorId = author.Avatar?.ToString(),
 				AuthorTitle = author.Title,
 				AuthorLogoId = author.Avatar?.ToString(),
 				CategoryId = category?.Id.ToString(),
