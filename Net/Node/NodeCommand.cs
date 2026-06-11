@@ -43,11 +43,7 @@ public class NodeCommand : McvCommand
 										
 									var a = new Uri(Args[0].Name);
 
-									var h = new HttpClientHandler();
-									h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-									var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
-
-									Cli.ApiClient = new McvApiClient(Args[0].Name, GetString(Apc.AccessKey, null), http);
+									Cli.ApiClient = new McvApiClient(Args[0].Name, GetString(Apc.AccessKey, null));
 
 									while(true)
 									{
@@ -101,11 +97,7 @@ public class NodeCommand : McvCommand
 
 								var a = new Uri(Args[0].Name);
 
-								var h = new HttpClientHandler();
-								h.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-								var http = new HttpClient(h){Timeout = TimeSpan.FromSeconds(60)};
-
-								Cli.ApiClient = new McvApiClient(Args[0].Name, GetString(Apc.AccessKey, null), http);
+								Cli.ApiClient = new McvApiClient(Args[0].Name, GetString(Apc.AccessKey, null));
 
 								if(Has("_confirmation"))
 								{

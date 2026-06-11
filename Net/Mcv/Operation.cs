@@ -21,8 +21,8 @@ public enum OperationClass : uint
 		UserNameChange			= 001_000_003, 
 		UserBandwidthAllocation	= 001_000_004,
 
-	Subnet						= 002, 
-		SubnetAttachment		= 002_000_001,
+	Friend						= 002, 
+		FriendAttachment		= 002_000_001,
 }
 
 
@@ -39,18 +39,18 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			AlreadyTaken = "Already taken";
 	public const string			AtLeastOneOwnerRequired = "At least one owner required";
 	public const string			Denied = "Access denied";
-	public const string			DoesNotSatisfy = "Does Not Satisfy";
-	public const string			ExistingAccountRequired = "ExistingAccountRequired";
+	public const string			ExistingAccountRequired = "Existing account required";
 	public const string			Expired = "Expired";
-	public const string			InvalidName = "Invalid Name";
+	public const string			InvalidName = "Invalid name";
 	public const string			LimitExceeded = "Limit exceeded";
-	public const string			OutOfBounds = "Out Of Bounds";
+	public const string			OutOfBounds = "Out of bounds";
 	public const string			Mismatch = "Mismatch";
 	public const string			NotAllowedForNewUser = "Not allowed for a new user";
-	public const string			NotAvailable = "Not Available";
+	public const string			NotAvailable = "Not available";
+	public const string			NotSatisfy = "Does Not Satisfy";
 	public const string			NotFound = "Not found";
 	public const string			NotSequential = "Not sequential";
-	public const string			NotEnergyHolder = "Not Energy Holder";
+	public const string			NotEnergyHolder = "Not energy holder";
 	public const string			NotEnoughSpacetime = "Not enough spacetime";
 	public const string			NotEnoughEnergy = "Not enough execution units";
 	public const string			NotEnoughEnergyNext = "Not enough energy for next period";

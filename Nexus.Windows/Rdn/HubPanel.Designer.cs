@@ -170,7 +170,6 @@ namespace Uccs.Nexus.Windows
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.ListView Packages;
 		private System.Windows.Forms.ColumnHeader columnHeader14;
-		private System.Windows.Forms.ColumnHeader columnHeader16;
 		private System.Windows.Forms.ComboBox AuthorSearch;
 		private System.Windows.Forms.Button Search;
 		private System.Windows.Forms.Label namelabel;

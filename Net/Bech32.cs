@@ -11,7 +11,7 @@ public static class Bech32
 	private static readonly SearchValues<char> Bech32Chars = SearchValues.Create(Charset + "QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L");
 	private const uint Bech32mConst = 0x2bc830a3;
 
-	public static string Encode(ReadOnlySpan<byte> data, string? tag = null)
+	public static string Encode(ReadOnlySpan<byte> data, string tag = null)
 	{
 		tag ??= string.Empty;
 
@@ -61,7 +61,7 @@ public static class Bech32
 		});
 	}
 
-	public static bool TryDecode(ReadOnlySpan<char> encoded, out byte[] data, out string? tag)
+	public static bool TryDecode(ReadOnlySpan<char> encoded, out byte[] data, out string tag)
 	{
 		data = [];
 		tag = null;

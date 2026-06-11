@@ -17,33 +17,15 @@ public class Nexus : IProgram
 	public Vault.Vault				Vault;
 	public byte[]					VaultAdminKey;
 	public Delegate					Stopped;
-	VoidDelegate					OpenIam;
 
 	public IccpPeering				IccpPeering;
 	public IccpLcpServer			IccpLcpServer;
-
+	
 	public delegate void			Delegate(Nexus d);
-
-	static Nexus()
-	{
-  	  	var h = new HttpClientHandler();
-		h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
-		ApiHttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
-	}
 
 	public Nexus(NetBoot boot, NexusSettings settings, VaultSettings vaultsettings, Flow flow)
 	{
-		Settings = settings ?? new NexusSettings(boot.Zone, boot.Profile);
-
-		if(!File.Exists(Settings.Path))
-		{
-			Settings.Name			= Guid.NewGuid().ToByteArray().ToHex();
-			Settings.Host			= NexusSettings.StandardHost;
-			Settings.IccpPeering	= new PeeringSettings {EP = new (IPAddress.Any, Port.Map(boot.Zone, KnownProtocol.Iccp))};
-			Settings.Save();
-		}
-
-		Settings.Packages = Settings.Packages ?? Path.Join(boot.Profile, "Packages");
+		Settings = settings;
 		Flow = flow;
 
 		var mutex = new Mutex(false, $@"Global\Uos.{GetType().Name}.{boot.Profile.Replace(Path.DirectorySeparatorChar, '_').ToLower()}");
@@ -164,42 +146,99 @@ public class Nexus : IProgram
 		//ApiStarted?.Invoke(this);
 	}
 
-	public void Open(Snp snp, Flow flow)
+	public DeployedNode RunNode(string net, Flow flow)
 	{
-		if(snp.Net == null || snp.Net == Iccn.Root)
+		var node = Settings.Nodes.FirstOrDefault(i => i.Net == net);
+
+		if(node?.Process != null && !node.Process.HasExited)
 		{
-			ActivatePackage(new Ura(snp), flow);
+			node.Process.Kill();
+		}
+
+		if(node == null)
+		{
+			var info = IccpLcpServer.Relay(null, net, new InfoIcca(), null) as InfoIccr; /// get wayin info
+
+			var wi = info.Wayins.FirstOrDefault(i => i.Software != null);
+				
+			if(wi != null)
+			{
+				Snq.Parse(wi.Software, out var s, out var n, out var q);
+			
+				if(s == Iccp.Scheme) /// deploy node software
+				{
+					var p = DeployProduct(Ura.Parse(wi.Software), flow);
+
+					node = new DeployedNode {Net = net, Package = p.Resource.Address.ToString()};
+					Settings.Nodes.Add(node);
+				}
+				else
+					throw new NexusException("Software source is not supported");
+			}
+			else
+				throw new NexusException("No node software");
+
+//
+//			if(wi.Command != null)
+//			{
+//				var ps = new Process();
+//
+//				ps.StartInfo.FileName = null;
+//				ps.StartInfo.Arguments = wi.Command;
+//				ps.StartInfo.UseShellExecute = true;
+//		
+//				ps.Start();
+//			}
+		}
+
+		node.Process = Run(Ura.Parse(node.Package));
+
+		return node;
+	}
+
+	public byte[] Do(Snq snq, Flow flow)
+	{
+		if(snq.Net == null || snq.Net == Iccn.Root)
+		{
+			return RdnDo(new Ura(snq), flow);
 		}
 		else
 		{
-			var r = IccpLcpServer.Relay(null, snp.Net, new InfoIcca(), null) as InfoIccr;
+			var c = IccpLcpServer.Locals.FirstOrDefault(i => i.Net == snq.Net);
 
-			foreach(var wi in r.Wayins)
+			if(c == null)
 			{
-				if(wi.Software != null)
-				{
-					Snp.Parse(wi.Software, out var s, out var n, out var p);
-
-					if(s == Iccp.Scheme)
-					{
-						ActivatePackage(Ura.Parse(wi.Software), flow);
-					}
-				}
+				RunNode(snq.Net, flow);
+			
+//				if(wi.Command != null)
+//				{
+//					var ps = new Process();
+//
+//					ps.StartInfo.FileName = null;
+//					ps.StartInfo.Arguments = wi.Command;
+//					ps.StartInfo.UseShellExecute = true;
+//		
+//					ps.Start();
+//				}
 				
-				if(wi.Command != null)
-				{
-					var ps = new Process();
-					ps.StartInfo.UseShellExecute = true;
-					ps.StartInfo.FileName = null;
-					ps.StartInfo.Arguments = wi.Command;
-	
-					ps.Start();
-				}
 			}
+			
+			while(c == null)
+			{	
+				if(!flow.Active)
+					return null;
+
+				c = IccpLcpServer.Locals.FirstOrDefault(i => i.Net == snq.Net);
+
+				if(c == null)
+					Thread.Sleep(10);
+			}
+			
+			return c.Call<DoIccr>(null, snq.Net, new DoIcca {Query = snq.Query}, null).Response;
 		}
 	}
 
-	void ActivatePackage(Ura ura, Flow flow)
+	LocalPackage DeployProduct(Ura ura, Flow flow)
 	{
 		var r = RdnNode.Peering.Call(new ResourceByAddressPpc(ura), flow)?.Resource;
 		//var d = RdnNode.ResourceHub.Find(ura)?.Last;
@@ -212,11 +251,11 @@ public class Nexus : IProgram
 	
 		if(r.Data.Type.Content == ContentType.Package_Software_ProductManifest)
 		{
-			var lrr = RdnNode.Download(r, flow);
+			//var lrr = RdnNode.Download(r, flow);
 	
-			lock(RdnNode.ResourceHub.Lock)
+			//lock(RdnNode.ResourceHub.Lock)
 			{
-				var m = ProductManifest.FromXon(new Xon(Encoding.UTF8.GetString(RdnNode.ResourceHub.Find(lrr.Address).Find("").Data)));
+				var m = new Reader(r.Data.Value).Read<ProductManifest>();
 	
 				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
 			}
@@ -228,22 +267,41 @@ public class Nexus : IProgram
 		else
 			throw new NexusException("Incorrect resource type");
 	
-		PackageHub.Deploy(aprv, flow);
-	
-		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, aprv), "*." + PackageManifest.Extension).First();
-	
-		var vm = PackageManifest.Load(vmpath);
-	
-		var exe = vm.MatchExecution(Platform.Current);
-	
-		SetupApplicationEnvironemnt(aprv);
+		return PackageHub.Deploy(aprv, flow);
+
+	}
+
+	byte[] RdnDo(Ura ura, Flow flow)
+	{
+		var p = DeployProduct(ura, flow);
+
+		Run(p.Resource.Address);
+
+		return null;
+	}
+
+	Process Run(Ura package)
+	{
+//		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, package), "*." + PackageManifest.Extension).First();
+//	
+//		var vm = PackageManifest.Load(vmpath);
+//	
+//		var exe = vm.MatchExecution(Platform.Current);
+
+		
+
+		var m =	PackageHub.Find(package).Manifest;
+
+		SetupApplicationEnvironemnt(package);
 	
 		var ps = new Process();
 		ps.StartInfo.UseShellExecute = true;
-		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, aprv), exe.Path);
-		ps.StartInfo.Arguments = exe.Arguments;
+		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, package), m.Start[0].Path);
+		ps.StartInfo.Arguments = m.Start[0].Arguments;
 	
 		ps.Start();
+
+		return ps;
 	}
 
 	public void SetupApplicationEnvironemnt(Ura address)

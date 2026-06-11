@@ -90,7 +90,7 @@ public class ResourceHub
 		if(Resources.Any(i => i.Address == resource))
 			throw new ResourceException(ResourceError.AlreadyExists);
 
-		var r = new LocalResource(this, resource) {Datas = new()};
+		var r = new LocalResource(this, resource);
 
 		Resources.Add(r);
 
@@ -303,7 +303,7 @@ public class ResourceHub
 
 			lock(Lock)
 			{
-				foreach(var r in Resources.Where(i => i.Last?.Type.Control == DataType.File || i.Last?.Type.Control == DataType.Directory))
+				foreach(var r in Resources.Where(i => i.Data?.Type.Control == DataType.File || i.Data?.Type.Control == DataType.Directory))
 				{
 					if(r.Id == null)
 					{
@@ -313,9 +313,20 @@ public class ResourceHub
 					else
 					{
 						//foreach(var d in r.Datas)
-						var d = r.Last;
+						var d = r.Data;
 
-						var l = Find(d.Parse<Urr>());
+						Urr a;
+						
+						try
+						{
+							a = d.Parse<Urr>();
+						}
+						catch(Exception ex)
+						{
+							continue;
+						}
+
+						var l = Find(a);
 
 						if(l != null && l.Availability != Availability.None)
 						{
@@ -373,7 +384,7 @@ public class ResourceHub
 														tasks.Remove(r);
 													}
 												}
-												catch(CodeException) ///when(!Debugger.IsAttached)
+												catch(CodeException ex) ///when(!Debugger.IsAttached)
 												{
 												}
 												catch(OperationCanceledException)

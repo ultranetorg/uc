@@ -22,7 +22,7 @@ public abstract class Cryptography
 	public abstract byte[]							Sign(AccountKey pk, byte[] hash);
 	public abstract bool							Verify(AccountAddress address, byte[] hash, byte[] signature);
 
-	public static readonly SecureRandom				Random = new SecureRandom();
+	public static readonly SecureRandom				Random = new ();
 
 	///[ThreadStatic]
 	//public static DZen.Security.Cryptography.SHA3	SHA;
@@ -30,6 +30,13 @@ public abstract class Cryptography
 
 	protected Cryptography()
 	{
+	}
+
+	public static byte[] RandomBytes(int n)
+	{
+		var s = new byte[n];
+		Random.NextBytes(s);
+		return s;
 	}
 
 	public static byte[] Hash(byte[] data)

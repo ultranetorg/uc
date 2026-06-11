@@ -17,7 +17,6 @@ public class Node : IProgram
 	public string				Profile;
 	public Flow					Flow;
 	public VaultApiClient		VaultApi;
-	public HttpClient			HttpClient;
 	public Delegate				Stopped;
 	public string				ExeDirectory;
 	public NexusSettings		NexusSettings;
@@ -50,17 +49,7 @@ public class Node : IProgram
 
 	protected void InitializeVaultClient(IPAddress host)
 	{
-		var h = new HttpClientHandler()
-				{
-					ServerCertificateCustomValidationCallback = (m, c, ch, e) => true
-				};
-
-		HttpClient = new HttpClient(h);
-				 
-		if(Debugger.IsAttached)
-			HttpClient.Timeout = Timeout.InfiniteTimeSpan;
-	
-		VaultApi = new VaultApiClient(Api.ForSystem(Net.Zone, host, Api.Vault), null, HttpClient);
+		VaultApi = new VaultApiClient(Api.ForSystem(Net.Zone, host, Api.Vault), null);
 	}
 
 	public virtual void Stop()

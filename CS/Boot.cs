@@ -2,7 +2,7 @@
 
 public abstract class Boot
 {
-	public const string	FileName = "Uos.boot";
+	public const string	FileName = "Boot.settings";
 
 	public Xon			Default;
 	public Xon			Commnand;
@@ -14,7 +14,11 @@ public abstract class Boot
 
 	public Boot(string exedir)
 	{
-		Default = new Xon(File.ReadAllText(Path.Combine(exedir, FileName)));
+		var f = Path.Combine(exedir, FileName);
+		
+		if(File.Exists(f))
+			Default = new Xon(File.ReadAllText(f));
+
 		Commnand = new Xon(string.Join(' ', Environment.GetCommandLineArgs().Skip(1)));
 	}
 }

@@ -59,7 +59,7 @@ public class PackageCommand : NexusCommand
 
 								if(Has(a.Arguments[4].Name))
 								{
-									ops.Add(new ResourceCreation(Ura.Parse(Args[0].Name), rdn.Call<LocalResource>(new LocalResourceApc {Address = Ura.Parse(Args[0].Name)}, Flow).Last, false));
+									ops.Add(new ResourceCreation(Ura.Parse(Args[0].Name), rdn.Call<LocalResource>(new LocalResourceApc {Address = Ura.Parse(Args[0].Name)}, Flow).Data, false));
 								}
 
 								if(Has(a.Arguments[5].Name))
@@ -74,7 +74,7 @@ public class PackageCommand : NexusCommand
 								}
 								
 								if(ops.Any())
-									Transact(rdn, ops, Cli.Application, GetString(McvCommand.ByArg), McvCommand.GetActionOnResult(Args));
+									Transact(rdn, ops, GetString(McvCommand.ByArg), McvCommand.GetActionOnResult(Args));
 
 								return ops;
 							};

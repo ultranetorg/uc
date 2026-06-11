@@ -167,7 +167,7 @@ public partial class ChainMonitor : UserControl
 						nm		= IntLength(nm);
 						ndate	= IntLength(ndate);
 	
-						var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.User));
+						var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.Member));
 						var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => Mcv.Users.Latest(b.Transaction.User).Id));
 						generators = mems.Union(joins).Order();
 
@@ -224,7 +224,7 @@ public partial class ChainMonitor : UserControl
 		
 								foreach(var m in generators)
 								{
-									var v = r.Votes.FirstOrDefault(i => i.User == m);
+									var v = r.Votes.FirstOrDefault(i => i.Member == m);
 	
 									if(v != null)
 									{

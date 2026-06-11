@@ -13,7 +13,12 @@ public class SubnetPeersPpc : McvPpc<SubnetPeersPpr>
 			if(Mcv.NextVotingRound.Senders.Count() == 0)
 				throw new EntityException(EntityError.NoMembers);
 
-			return new SubnetPeersPpr {Endpoints = Mcv.Friends.Latest(Name).Peers};
+			var f = Mcv.Friends.Latest(Name);
+
+			if(f == null)
+				throw new EntityException(EntityError.NotFound);
+
+			return new SubnetPeersPpr {Endpoints = f.Peers};
 		}
 	}
 }

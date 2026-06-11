@@ -18,8 +18,6 @@ public class Authentication : IBinarySerializable
 	public Trust	Trust { get; set; }
 	public byte[]	Session { get; set; }
 
-	WalletAccount Account;
-
 	public Authentication()
 	{
 	}
@@ -49,9 +47,8 @@ public class Authentication : IBinarySerializable
 		var s = new Blake2Stream();
 		var w = new Writer(s);
 
-		w.WriteUtf8(User);
-		w.WriteUtf8(Application);
 		w.WriteUtf8(Net);
+		w.WriteUtf8(User);
 		w.WriteBytes(Session);
 
 		return s.Hash;
@@ -102,8 +99,6 @@ public class WalletAccount : IBinarySerializable
 			Wallet.AuthenticationHashes.RemoveAll(i => i.SequenceEqual(h));
 		}
 		
-		var s = new byte[32];
-		Cryptography.Random.NextBytes(s);
 	
 		var a = new Authentication
 				{
@@ -111,7 +106,7 @@ public class WalletAccount : IBinarySerializable
 					Application = application, 
 					Logo = logo, 
 					Net = net, 
-					Session = s, 
+					Session = Cryptography.RandomBytes(32), 
 					Trust = trust
 				};
 			

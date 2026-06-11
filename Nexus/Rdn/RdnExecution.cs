@@ -48,6 +48,11 @@ public class RdnExecution : Execution
 		return 10_000_000 * years / (l * l * l * l);
 	}
 
+	public void PayOutwardEnergy(IEnergyHolder spender)
+	{
+		PayEnergy(spender, Net.MigrationEnergyCost);
+	}
+
 	//public void PayForForever(int size)
 	//{
 	//	var s = AffectSigner();

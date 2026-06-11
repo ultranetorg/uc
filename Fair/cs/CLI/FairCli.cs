@@ -17,12 +17,12 @@ public class FairCli : McvCli
 		var b = new NetBoot(ExeDirectory);
 
 		Net				= Fair.ByZone(b.Zone);
-		Settings		= new FairNodeSettings(b.Profile);
-		NexusSettings	= new NexusSettings(b.Zone, Path.Join(b.Profile, ".."));
+		NexusSettings	= new NexusSettings(b.Zone, b.Profile);
+		Settings		= new FairNodeSettings(Path.Join(b.Profile, typeof(FairNode).FullName), b.Zone, NexusSettings);
 
 		Execute(b);
 
-		Node.Stop();
+		Node?.Stop();
 	}
 
 	public FairCli(NexusSettings nexussettings, FairNodeSettings settings, FairApiClient api) : base(nexussettings, settings, api)
@@ -48,13 +48,5 @@ public class FairCli : McvCli
 		}
 		
 		return base.Create(commnad, flow);
-	}
-
-	public override object Execute(NetBoot boot, Flow flow)
-	{
-		Settings = new FairNodeSettings(boot.Profile);
-		Net = Fair.ByZone(boot.Zone);
-
-		return base.Execute(boot, flow);
 	}
 }

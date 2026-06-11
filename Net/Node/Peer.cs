@@ -16,6 +16,8 @@ public enum ConnectionStatus
 
 public abstract class Peer : IBinarySerializable
 {
+	public const int				PacketLengthMaximum = 1024*1024;
+
 	public Endpoint					EP {get; set;} 
 	public long						Roles  {get; set;} 
 	public string					Name;
@@ -38,46 +40,27 @@ public abstract class Peer : IBinarySerializable
 	protected TcpClient				Tcp;
 	protected NetworkStream			Stream;
 	protected Writer				Writer;
+	protected Writer				PacketWriter;
+	protected MemoryStream			WriteStream;
 	protected Reader				Reader;
+	protected byte[]				ReadBuffer;
+	protected Reader				PacketReader;
+	protected MemoryStream			ReadStream;
 	protected Thread				ListenThread;
 	protected int					IdCounter = 0;
 	
 	protected List<RequestPacket>	OutRequests = new();
 
+	protected abstract void			Listening();
+
 	public Peer()
 	{
 	}
-
-//	public Peer(IPAddress ip, ushort port)
-//	{
-//		IP = ip;
-//		Port = port;
-//	}
 
 	public override string ToString()
 	{
 		return $"{Name}, {EP}, {StatusDescription}, Permanent={Permanent}, Roles={Roles}, Forced={Forced}";
 	}
- 		
-//	public static bool operator == (Peer a, Peer b)
-//	{
-//		return a is null && b is null || a is not null && a.Equals(b);
-//	}
-//
-//	public static bool operator != (Peer a, Peer b)
-//	{
-//		return !(a == b);
-//	}
-//
-//	public override bool Equals(object o)
-//	{
-//		return o is Peer a && Equals(a);  
-//	}
-//
-//	public bool Equals(Peer a)
-//	{
-//		return a is not null && EP.Equals(a.EP);
-//	}
 
 	public override int GetHashCode()
 	{
@@ -127,9 +110,9 @@ public abstract class Peer : IBinarySerializable
 		Retries = 0;
 		IdCounter = 0;
 		Inbound = false;
-		///Writer = null; Leave for locks
 		Reader = null;
-	
+		/// Writer = null; Leave to be not null to get System.Net exceptions
+
 		lock(OutRequests)
 		{
 			foreach(var i in OutRequests)
@@ -162,25 +145,86 @@ public abstract class Peer : IBinarySerializable
 		Peering = peering;
 		Tcp = client;
 		
-		Tcp.ReceiveTimeout = Permanent ? 0 : 60 * 1000;
-		Tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : TcpPeering<Peer>.Timeout;
+		Tcp.ReceiveTimeout	= (Permanent || NodeGlobals.InfiniteTimeouts) ? 0 : 60_000;
+		Tcp.SendTimeout		= NodeGlobals.InfiniteTimeouts ? 0 : TcpPeering<Peer>.Timeout;
 
 		PeerRank++;
-		Name		= h.Name;
-		Forced		= false;
-		Status		= ConnectionStatus.OK;
-		Inbound		= inbound;
-		Stream		= client.GetStream();
-		LastSeen	= DateTime.UtcNow;
-		Roles		= h.Roles;
-		Writer		= new Writer(Stream, Peering.Constructor);
-		Reader		= new Reader(Stream, Peering.Constructor);
+		IdCounter		= 0;
+		Name			= h.Name;
+		Forced			= false;
+		Status			= ConnectionStatus.OK;
+		Inbound			= inbound;
+		Stream			= client.GetStream();
+		LastSeen		= DateTime.UtcNow;
+		Roles			= h.Roles;
+		Reader			= new Reader(Stream);
+		Writer			= new Writer(Stream);
+		
+		WriteStream		= new();
+		PacketWriter	= new(WriteStream, Peering.Constructor);
+		
+		ReadBuffer		= new byte[PacketLengthMaximum];
+		ReadStream		= new MemoryStream(ReadBuffer);
+		PacketReader	= new Reader(ReadStream, Peering.Constructor);
 
 		ListenThread = Peering.Program.CreateThread(Listening);
 		ListenThread.Name = $"{Peering.Name} <- {h.Name}";
 		ListenThread.Start();
 	}
 
-	protected abstract void Listening();
+#if DEBUG
+static readonly byte[] checker = [12,34,56,78];
+#endif
+
+	protected void Write(PacketType type, int id, object packet)
+	{
+		lock(Writer)
+		{
+			Writer.Write(type);
+			Writer.Write(id);
+			
+			WriteStream.SetLength(0);
+			BinarySerializator.Serialize(PacketWriter, packet);
+
+			if(WriteStream.Length > PacketLengthMaximum)
+				throw new IntegrityException("PacketLengthMaximum exceeded");
+			
+			Writer.Write((int)WriteStream.Length);
+			Writer.Write(new ReadOnlySpan<byte>(WriteStream.GetBuffer(), 0, (int)WriteStream.Length));
+
+			#if DEBUG
+			Writer.Write(checker);
+			#endif
+		}
+	}
+
+	protected T Read<T>(out int id) where T : class, ITypeCode
+	{
+		id = Reader.ReadInt32();
+		var n = Reader.ReadInt32();
+
+		if(n < 0 || n > ReadBuffer.Length)
+			throw new IntegrityException("PacketLengthMaximum exceeded");
+
+		var s = 0;
+		do
+		{
+			s += Reader.Read(ReadBuffer, s, n - s);
+		}
+		while(s < n);
+
+		ReadStream.Position = 0;
+		//ReadStream.SetLength(n);
+		var o = BinarySerializator.Deserialize<T>(new Reader(ReadStream, Peering.Constructor));
+
+		//var o = BinarySerializator.Deserialize<T>(new Reader(Reader.ReadBytes(l), Peering.Constructor));
+
+		#if DEBUG
+		if(!Reader.ReadBytes(4).SequenceEqual(checker))
+			throw new IntegrityException();
+		#endif
+
+		return o;
+	}
 
 }

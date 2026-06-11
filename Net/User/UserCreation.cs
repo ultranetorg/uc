@@ -74,7 +74,7 @@ public class UserCreation : Operation
 
 		if(Cryptography.Hash([..execution.Mcv.GraphHash, ..Pow]).Sum(i => BitOperations.PopCount(i)) < execution.Net.UserCreationPoWDifficulity)
 		{
-			Error = DoesNotSatisfy;
+			Error = NotSatisfy;
 			return;
 		}
 

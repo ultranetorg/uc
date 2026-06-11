@@ -178,7 +178,6 @@ public partial class TransferPanel : McvPanel
 														a.Id[0] == 0 && a.Id[1] == 0 ? long.Parse(Amount.Text) : 0,
 														a.Id[0] == 0 && a.Id[1] == 1 ? long.Parse(Amount.Text) : 0,
 														a.Id[0] == 1 ? long.Parse(Amount.Text) : 0)], 
-									Node.NexusSettings.Name, 
 									FromUser.Name, 
 									null, 
 									s.Session, 

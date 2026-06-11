@@ -162,7 +162,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public void Add(WriteBatch batch, E entity)
 		{
 			_Entries[entity.Key as ID] = new Item {Entity = entity};
-			batch.Put(entity.Key.Raw, entity.ToMain(), Table.EntityColumn);
+			batch.Put(entity.Key.Raw, entity.ToMain(Table.Mcv.Net.Constructor), Table.EntityColumn);
 		}
 
 		public void Remove(WriteBatch batch, ID id)
@@ -190,7 +190,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 						i.Value.Main = Table.Rocks.Get(i.Key.Raw, Table.EntityColumn);
 					else
 					{
-						i.Value.Main = i.Value.Entity.ToMain();
+						i.Value.Main = i.Value.Entity.ToMain(Table.Mcv.Net.Constructor);
 						batch.Put(i.Key.Raw, i.Value.Main, Table.EntityColumn);
 					}
 				}
@@ -227,7 +227,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 					if(i.Value.Entity == null)
 						i.Value.Main = Table.Rocks.Get(i.Key.Raw, Table.EntityColumn);
 					else
-						i.Value.Main = i.Value.Entity.ToMain();
+						i.Value.Main = i.Value.Entity.ToMain(Table.Mcv.Net.Constructor);
 				}
 
 				w.WriteBytes(i.Value.Main);

@@ -17,20 +17,16 @@ public class Option : IBinarySerializable
 		Title = text;
 	}
 
-	public virtual void Read(Reader reader)
-	{
- 		Title = reader.ReadUtf8();
-
-		Operation = Fair.OContructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as VotableOperation;
- 		Operation.Read(reader); 
-	}
-
 	public virtual void Write(Writer writer)
 	{
  		writer.WriteUtf8(Title);
+		writer.WriteVirtual(Operation);
+	}
 
-		writer.Write(Fair.OCodes[Operation.GetType()]);
-		Operation.Write(writer);
+	public virtual void Read(Reader reader)
+	{
+ 		Title		= reader.ReadUtf8();
+		Operation	= reader.ReadVirtual<Operation>() as VotableOperation;
 	}
 }
 

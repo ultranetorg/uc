@@ -89,13 +89,13 @@ public partial class ChainPanel : McvPanel
 								//r.TransactionPerByteFee.ToHumanString()
 								;
 
-			Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.User)
+			Votes.Items.AddRange(r.Votes.OrderByDescending(i => i.Member)
 										.Select((i, j) =>
 										{
 											var li = new ListViewItem(j.ToString());
 											li.Tag = i;
 											li.SubItems.Add(i.GetType().Name);
-											li.SubItems.Add(i.User.ToString());
+											li.SubItems.Add(i.Member.ToString());
 											return li;
 										}).ToArray());
 

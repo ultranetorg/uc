@@ -4,7 +4,7 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
-public class PlatformExpression
+public class PlatformExpression : IBinarySerializable
 {
 	public string				Operator;
 	public PlatformExpression[] Operands;
@@ -18,6 +18,11 @@ public class PlatformExpression
 	public const string Or = "OR";
 	public const string And = "AND";
 
+	public const string Family = "Family";
+	public const string Brand = "Brand";
+	public const string Version = "Version";
+	public const string Architecture = "Architecture";
+
 	static bool IsOperation(string name) => name == Greater ||
 											name == GreaterOrEqual ||
 											name == Less ||
@@ -27,10 +32,10 @@ public class PlatformExpression
 											name == Or ||
 											name == And;
 
-	public bool Match(Platform platform) => (bool)Evaluate(new(){   {"F", platform.Family},
-																	{"B", platform.Brand},
-																	{"V", platform.Version},
-																	{"A", platform.Architecture}});
+	public bool Match(Platform platform) => (bool)Evaluate(new(){   {Family, platform.Family},
+																	{Brand, platform.Brand},
+																	{Version, platform.Version},
+																	{Architecture, platform.Architecture}});
 
 	public PlatformExpression()
 	{
@@ -114,9 +119,21 @@ public class PlatformExpression
 				return consts.TryGetValue(Operator, out var v) ? v : Platform.ParseIdentifier(Operator);
 		}
 	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteASCII(Operator);
+		writer.Write(Operands);
+	}
+
+	public void Read(Reader reader)
+	{
+		Operator = reader.ReadASCII();
+		Operands = reader.ReadArray<PlatformExpression>();
+	}
 }
 
-public class Realization
+public class Realization : IBinarySerializable
 {
 	public Ura					Latest;
 	public string				Name;
@@ -154,9 +171,25 @@ public class Realization
 
 		return x;
 	}
+
+	public void Read(Reader reader)
+	{
+		Title		= reader.ReadUtf8();
+		Latest		= reader.Read<Ura>();
+		Channel		= reader.ReadUtf8();
+		Condition	= reader.ReadNullable<PlatformExpression>();
+	}				
+
+	public void Write(Writer writer)
+	{
+		writer.WriteUtf8(Title);
+		writer.Write(Latest);
+		writer.WriteUtf8(Channel);
+		writer.WriteNullable(Condition);
+	}
 }
 
-public class ProductManifest
+public class ProductManifest : IBinarySerializable
 {
 	public const string		Extension = "rdnpm";
 
@@ -164,18 +197,6 @@ public class ProductManifest
 	public string			Title;
 
 	public Realization MatchRealization(Platform platform) => Realizations.FirstOrDefault(i => i.Condition.Match(platform));
-
-	public byte[] Raw
-	{
-		get
-		{
-			var s = new MemoryStream();
-
-			ToXon(new RdnXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
-
-			return s.ToArray();
-		}
-	}
 
 	public ProductManifest()
 	{
@@ -209,5 +230,17 @@ public class ProductManifest
 		x.Nodes.AddRange(Realizations.Select(i => i.ToXon(serializator)));
 
 		return x;
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteUtf8(Title);
+		writer.Write(Realizations);
+	}
+
+	public void Read(Reader reader)
+	{
+		Title = reader.ReadUtf8();
+		Realizations = reader.ReadArray<Realization>();
 	}
 }

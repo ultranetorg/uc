@@ -13,8 +13,10 @@ public class NetBoot : Boot
 	{
 		if(Commnand.Has("zone"))
 			Zone = Enum.Parse<Zone>(Commnand.Get<string>("zone"));
-		else
+		else if(Default?.Has("Zone") == true)
 			Zone = Enum.Parse<Zone>(Default.Get<string>("Zone"));
+		else
+			Zone = Zone.Test;
 
 		if(Commnand.Has("profile"))
 			Profile = Commnand.Get<string>("profile");

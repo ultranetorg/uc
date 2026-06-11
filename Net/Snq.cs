@@ -1,28 +1,28 @@
 ﻿namespace Uccs.Net;
 
-public class Snp : IBinarySerializable, IEquatable<Snp>  /// Scheme Net Path
+public class Snq : IBinarySerializable, IEquatable<Snq>  /// Scheme Net Path
 {
 					
 	public string		Scheme { get; set; }
 	public string		Net { get; set; }
-	public string		Path { get; set; }
+	public string		Query { get; set; }
 
 	//public bool Valid => !string.IsNullOrWhiteSpace(Scheme) && !string.IsNullOrWhiteSpace(Entity);
 
-	public Snp()
+	public Snq()
 	{
 	}
 
-	public Snp(string scheme, string net, string path)
+	public Snq(string scheme, string net, string path)
 	{
 		Scheme = scheme;
 		Net = net;
-		Path = path;
+		Query = path;
 	}
 
 	public override string ToString()
 	{
-		return ToString(Scheme, Net, Path);
+		return ToString(Scheme, Net, Query);
 	}
 
 	public static string ToString(string scheme, string net, string entity)
@@ -30,14 +30,14 @@ public class Snp : IBinarySerializable, IEquatable<Snp>  /// Scheme Net Path
 		return $"{(scheme == null ? null : (scheme + ':'))}{net}{(entity == null ? null : ('/' + entity))}";
 	}
 
-	public static Snp Parse(string v)
+	public static Snq Parse(string v)
 	{
 		Parse(v, out var s, out var z, out var e);
 
-		return new Snp(s, z, e);
+		return new Snq(s, z, e);
 	}
 
-	public static void Parse(string v, out string scheme, out string net, out string path)
+	public static void Parse(string v, out string scheme, out string net, out string query)
 	{
 		int s = 0;
 		var i = v.IndexOfAny([':', '/']);
@@ -67,32 +67,32 @@ public class Snp : IBinarySerializable, IEquatable<Snp>  /// Scheme Net Path
 			net = v.Substring(s);
 
 		if(i != -1)
-			path = v.Substring(s);
+			query = v.Substring(s);
 		else
-			path = null;
+			query = null;
 	}
 
 	public override bool Equals(object o)
 	{
-		return o is Snp a && Equals(a);
+		return o is Snq a && Equals(a);
 	}
 
-	public bool Equals(Snp o)
+	public bool Equals(Snq o)
 	{
-		return o is not null && Scheme == o.Scheme && Net == o.Net && Path == o.Path;
+		return o is not null && Scheme == o.Scheme && Net == o.Net && Query == o.Query;
 	}
 
 	public override int GetHashCode()
 	{
-		return Path.GetHashCode();
+		return Query.GetHashCode();
 	}
 
 	public int CompareTo(object obj)
 	{
-		return CompareTo(obj as Snp);
+		return CompareTo(obj as Snq);
 	}
 
-	public int CompareTo(Snp other)
+	public int CompareTo(Snq other)
 	{
 		var c = Scheme.CompareTo(other.Scheme);
 		if(c != 0)
@@ -102,19 +102,19 @@ public class Snp : IBinarySerializable, IEquatable<Snp>  /// Scheme Net Path
 		if(c != 0)
 			return c;
 
-		c = Path.CompareTo(other.Path);
+		c = Query.CompareTo(other.Query);
 		if(c != 0)
 			return c;
 
 		return 0;
 	}
 
-	public static bool operator ==(Snp a, Snp b)
+	public static bool operator ==(Snq a, Snq b)
 	{
 		return a is null && b is null || a is not null && a.Equals(b);
 	}
 
-	public static bool operator !=(Snp left, Snp right)
+	public static bool operator !=(Snq left, Snq right)
 	{
 		return !(left == right);
 	}
@@ -123,13 +123,13 @@ public class Snp : IBinarySerializable, IEquatable<Snp>  /// Scheme Net Path
 	{
 		writer.WriteUtf8(Scheme);
 		writer.WriteUtf8(Net);
-		writer.WriteUtf8(Path);
+		writer.WriteUtf8(Query);
 	}
 
 	public void Read(Reader reader)
 	{
 		Scheme	= reader.ReadUtf8();
 		Net		= reader.ReadUtf8();
-		Path	= reader.ReadUtf8();
+		Query	= reader.ReadUtf8();
 	}
 }

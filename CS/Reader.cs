@@ -21,6 +21,11 @@ public class Reader : BinaryReader
 	{
 	}
 
+	public Reader(byte[] bytes, Constructor constructor) : base(new MemoryStream(bytes))
+	{
+		Constructor = constructor;
+	}
+
 	public byte[] ReadBytes()
 	{
 		var n = Read7BitEncodedInt();
@@ -30,6 +35,8 @@ public class Reader : BinaryReader
 		else
 			return null;
 	}
+
+	public new int Read(Span<byte> buffer) => base.Read(buffer);
 
 	public E Read<E>(E _ignore = default) where E : unmanaged, System.Enum
 	{

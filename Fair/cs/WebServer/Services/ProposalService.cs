@@ -246,10 +246,6 @@ public class ProposalService
 
 	ProposalModel CreateCorrespondedModel(FairOperationClass? operation, Proposal proposal, FairUser by)
 	{
-		switch (operation)
-		{
-		}
-
 		return null;
 	}
 }

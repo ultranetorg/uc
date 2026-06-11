@@ -149,10 +149,11 @@ public class McvSummaryApc : McvApc
 
 		lock(node.Peering.Lock)
 		{
-			f = new () {{"Nexus",						$"{node.NexusSettings.Host}"},
-						{"Profile",						$"{node.Settings.Profile}"},
+			f = new () {{"Zone",						$"{node.Net.Zone}"},
+						{"Nexus",						$"{node.NexusSettings.Host}"},
+						{"Profile",						node.Settings.Profile},
 						{"Peers all/in/out/permanent",	$"{node.Peering.Peers.Count}/{node.Peering.Connections.Count(i => i.Inbound)}/{node.Peering.Connections.Count(i => !i.Inbound)}/{node.Peering.Connections.Count(i => i.Permanent)}, {(node.Peering.MinimalPeersReached ? "OK" : "Low")}"},
-						{"Endpoint",					$"{node.Peering.Settings.EP}"},
+						{"Endpoint",					$"{node.Peering.Settings.Endpoint}"},
 						{"Reported IP",					$"{node.Peering.EP?.IP}"},
 						{"Votes p2p Accepted/Rejected",	$"{node.Peering.Statistics.AcceptedVotes}/{node.Peering.Statistics.RejectedVotes}"},
 						{"Candidate Transactions",		$"{node.Peering.CandidateTransactions.Count}"}};
@@ -168,8 +169,8 @@ public class McvSummaryApc : McvApc
 
 		if(node.Mcv != null)
 		{
-			f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
 			f.Add("Synchronization",		$"{node.Peering.Synchronization}");
+			f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
 			f.Add("Size",					$"{node.Mcv.Size}");
 
 			lock(node.Mcv.Lock)
@@ -205,7 +206,7 @@ public class ChainReportApc : McvApc
 																	Hash = i.Hash,
 																	Votes = i.Votes.Select(b => new Return.Vote
 																								{	
-																									Generator = node.Mcv.Users.Latest(b.User).Name,
+																									Generator = node.Mcv.Users.Latest(b.Member).Name,
 																									IsPayload = b.Transactions.Any(),
 																									/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/
 																								}),
@@ -246,15 +247,15 @@ public class VotesReportApc : McvApc
 	{
 		lock(node.Mcv.Lock)
 			return new VotesReportResponse{Votes = node.Mcv	.FindRound(RoundId)?.Votes
-															.OrderBy(i => i.User)
+															.OrderBy(i => i.Member)
 															.Take(Limit)
 															.Select(i => new VotesReportResponse.Vote
-															{
-																Try = i.Try,
-																ParentSummary = i.TargetHash,
-																Signature = i.Signature,
-																Generator = node.Mcv.Users.Latest(i.User).Name
-															})
+																		 {
+																			Try = i.Try,
+																			ParentSummary = i.TargetHash,
+																			Signature = i.Signature,
+																			Generator = node.Mcv.Users.Latest(i.Member).Name
+																		 })
 															.ToArray()}; 
 	}
 }
@@ -276,7 +277,6 @@ public class TransactApc : McvApc
 {
 	public IEnumerable<Operation>	Operations { get; set; }
 	public string					User { get; set; }
-	public string					Application { get; set; }
 	public byte[]					Tag { get; set; } /// optional
 	public byte[]					Session { get; set; }
 	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
@@ -286,7 +286,7 @@ public class TransactApc : McvApc
 		if(!Operations.Any())
 			throw new ApiCallException("No operations");
 
-		var t = node.Peering.Transact(Operations, Application, User, Tag, Session, ActionOnResult, flow);
+		var t = node.Peering.Transact(Operations, User, Tag, Session, ActionOnResult, flow);
 	
 		return new TransactionApe(t);
 	}
@@ -338,7 +338,7 @@ public class TransactionApe
 	//public TransactionId			Id { get; set; }
 	public int						Nonce { get; set; }
 		
-	public AutoId					Member { get; set; }
+	//public AutoId					Member { get; set; }
 	public int						Expiration { get; set; }
 	public byte[]					Tag { get; set; }
 	public byte[]					Signature { get; set; }
@@ -359,9 +359,9 @@ public class TransactionApe
 	public TransactionApe(Transaction transaction)
 	{
 		Nonce				= transaction.Nonce;
-		Operations			= [..transaction.Operations];
+		Operations			= transaction.Operations;
 		   
-		Member				= transaction.Member;
+		//Member				= transaction.Member;
 		Expiration			= transaction.Expiration;
 		Tag					= transaction.Tag;
 		Signature			= transaction.Signature;

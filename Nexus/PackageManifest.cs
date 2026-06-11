@@ -178,7 +178,7 @@ public class Start// : IBinarySerializable
 		var m = new Start ();
 		m.Path		= x.Get<string>("Path", null);
 		m.Arguments	= x.Get<string>("Arguments", null);
-		m.Condition	= x.Has("Condition") ? PlatformExpression.FromXon(x.One("Condition").Nodes.First()) : new PlatformExpression();
+		m.Condition	= x.Has("Condition") ? PlatformExpression.FromXon(x.One("Condition").Nodes.First()) : null;
 
 		return m;
 	}
@@ -188,8 +188,9 @@ public class Start// : IBinarySerializable
 		var x = new Xon(serializator);
 	
 		x.Add("Path").Value = Path;
-		x.Add("Arguments").Value = Arguments;
-		x.Add("Condition").Nodes.Add(Condition.ToXon(serializator));
+
+		if(Arguments != null)	x.Add(nameof(Arguments)).Value = Arguments;
+		if(Condition != null)	x.Add(nameof(Condition)).Nodes.Add(Condition.ToXon(serializator));
 
 		return x;
 	}
@@ -207,13 +208,13 @@ public class PackageManifest
 	public const string				Extension = "rdnpm";
 
 	public byte[]					CompleteHash { get; set; }
-	public Dependency[]				CompleteDependencies { get; set; }
+	public Dependency[]				CompleteDependencies { get; set; } = [];
 	public byte[]					IncrementalHash { get; set; }
 	public ParentPackage[]			Parents { get; set; }
 	public Ura[]					History { get; set; }
-	public Start[]					Starts { get; set; }
+	public Start[]					Start { get; set; }
 
-	public Start					MatchExecution(Platform platform) => Starts.FirstOrDefault(i => i.Condition.Match(platform)); 
+	public Start					MatchExecution(Platform platform) => Start.FirstOrDefault(i => i.Condition.Match(platform)); 
 
 	[JsonIgnore]
 	public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical);
@@ -258,7 +259,7 @@ public class PackageManifest
 		m.IncrementalHash		= xon.Get<byte[]>("Incremental/Hash", null);
 		m.Parents				= xon.One("Incremental/Parents")?.Nodes.Select(ParentPackage.FromXon).ToArray();
 		m.History				= xon.One("History")?.Nodes.Select(i => Ura.Parse(i.Name)).ToArray();
-		m.Starts				= xon.Many("Execution").Select(Start.FromXon).ToArray();
+		m.Start					= xon.Many(nameof(Start)).Select(Uccs.Nexus.Start.FromXon).ToArray();
 
 		return m;
 	}
@@ -285,10 +286,10 @@ public class PackageManifest
 		if(History != null && History.Any())
 			x.Add("History").Nodes.AddRange(History.Select(i => new Xon(serializator, i.ToString())));
 
-		if(Starts != null && Starts.Any())
-			x.Nodes.AddRange(Starts.Select(i => {
+		if(Start != null && Start.Any())
+			x.Nodes.AddRange(Start.Select(i => {
 													var e = i.ToXon(serializator);
-													e.Name = "Execution";
+													e.Name = nameof(Start);
 													return e;
 												}));
 

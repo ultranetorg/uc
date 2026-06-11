@@ -67,10 +67,10 @@ public interface ITableEntry
 	void		ReadMain(Reader reader);
 	void		WriteMain(Writer writer);
 
-	public byte[] ToMain()
+	public byte[] ToMain(Constructor constructor)
 	{
 		var s = new MemoryStream();
-		var w = new Writer(s);
+		var w = new Writer(s, constructor);
 								
 		WriteMain(w);
 								

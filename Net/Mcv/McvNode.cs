@@ -37,7 +37,7 @@ public abstract class McvPpc<R> : Ppc<R> where R : Result
 //	}
 }
 
-public class McvNode : Node
+public abstract class McvNode : Node
 {
 	public new McvNet				Net => base.Net as McvNet;
 	public Mcv						Mcv;
@@ -47,6 +47,8 @@ public class McvNode : Node
 	public Thread					GuiThread;
 	public Action					ShowGui;
 
+	public abstract byte[]			Do(string query);
+
 	public McvNode(McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(net, profile, nexussettings,  flow)
 	{
 	}
@@ -55,4 +57,5 @@ public class McvNode : Node
 	{
 		return Peering.ToString();
 	}
+
 }
