@@ -7,7 +7,7 @@ public abstract class Packet
 
 public class RequestPacket: Packet
 {
-	public Result					Return;
+	public Result					Result;
 	public ManualResetEvent			Event;
 	public CodeException			Exception;
 }

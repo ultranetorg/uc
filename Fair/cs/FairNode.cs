@@ -18,7 +18,7 @@ public class FairNode : McvNode
 
 		if(settings == null && !System.IO.File.Exists(Settings.Path))
 		{
-			Settings.Peering	= new () {EP = new (IPAddress.Any, Net.PpiPort)};
+			Settings.Peering	= new () {Endpoint = new (IPAddress.Any, Net.PpiPort)};
 			Settings.Api		= new () {LocalIP = nexussettings.Host};
 
 			Settings.Save();
@@ -34,7 +34,7 @@ public class FairNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.EP], clock ?? new RealClock());
+			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], clock ?? new RealClock());
 			base.Mcv.Log = Flow.Log;
 
 			if(Settings.Web != null)
@@ -74,5 +74,10 @@ public class FairNode : McvNode
 		Mcv?.Stop();
 
 		base.Stop();
+	}
+
+	public override byte[] Do(string query)
+	{
+		throw new NotImplementedException();
 	}
 }

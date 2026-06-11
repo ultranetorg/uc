@@ -127,7 +127,7 @@ namespace Uccs.Nexus.Windows
 			// 
 			// NetworkSearch
 			// 
-			NetworkSearch.Location = new Point(835, 5);
+			NetworkSearch.Location = new Point(835, 3);
 			NetworkSearch.Name = "NetworkSearch";
 			NetworkSearch.Size = new Size(186, 28);
 			NetworkSearch.TabIndex = 3;

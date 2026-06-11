@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -25,7 +26,10 @@ public abstract class Api
 
 			var h = new HttpClientHandler();
 			h.ServerCertificateCustomValidationCallback = (m, c, ch, e) => true;
-			_HttpClient = new HttpClient(h) {Timeout = Timeout.InfiniteTimeSpan};
+			_HttpClient = new HttpClient(h);
+
+			if(Debugger.IsAttached)
+				_HttpClient.Timeout = Timeout.InfiniteTimeSpan;
 
 			return _HttpClient;
 		}

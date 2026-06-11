@@ -142,11 +142,11 @@ public class NexusPropertyApc : Apc, INexusApc
 
 public class NexusOpenApc : Apc, INexusApc
 {
-	public Snp Request { get; set; }
+	public Snq Request { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		nexus.Open(Request, flow);
+		nexus.Do(Request, flow);
 
 		return null;
 	}

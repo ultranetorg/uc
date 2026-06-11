@@ -13,7 +13,7 @@ public class Generator
 
 	public override string ToString()
 	{
-		return $"Id={User}, Since={Since}, Till={Till}, BaseRdcIPs={{{GraphPpiEndpoints.Length}}}";
+		return $"{nameof(User)}={User}, {nameof(Since)}={Since}, {nameof(Till)}={Till}, {nameof(GraphPpiEndpoints)}={{{GraphPpiEndpoints.Length}}}";
 	}
 
   	public virtual void WriteMember(Writer writer)
@@ -26,10 +26,10 @@ public class Generator
  
  	public virtual void ReadMember(Reader reader)
  	{
-		User			= reader.Read<AutoId>();
-		GraphPpiEndpoints		= reader.ReadArray<Endpoint>();
- 		Since			= reader.Read7BitEncodedInt();
- 		Till			= reader.Read7BitEncodedInt();
+		User				= reader.Read<AutoId>();
+		GraphPpiEndpoints	= reader.ReadArray<Endpoint>();
+ 		Since				= reader.Read7BitEncodedInt();
+ 		Till				= reader.Read7BitEncodedInt();
 	}
 
   	public virtual void WriteCandidate(Writer writer)
@@ -40,7 +40,7 @@ public class Generator
  
  	public virtual void ReadCandidate(Reader reader)
  	{
-		User		= reader.Read<AutoId>();
+		User				= reader.Read<AutoId>();
 		GraphPpiEndpoints	= reader.ReadArray<Endpoint>();
 	}
 
@@ -55,9 +55,9 @@ public class Generator
 
 	public void Clone(Generator generator)
 	{
-		generator.User			= User;
+		generator.User				= User;
 		generator.GraphPpiEndpoints	= GraphPpiEndpoints;
-		generator.Since			= Since;
-		generator.Till			= Till;
+		generator.Since				= Since;
+		generator.Till				= Till;
 	}
 }

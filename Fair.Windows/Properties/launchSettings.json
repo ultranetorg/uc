@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Uccs.Fair.Windows": {
+      "commandName": "Project"
+    },
+    "node run": {
+      "commandName": "Project",
+      "commandLineArgs": "node run"
+    }
+  }
+}

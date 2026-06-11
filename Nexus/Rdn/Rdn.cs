@@ -12,7 +12,7 @@ public abstract class Rdn : McvNet
 	public override int					TablesCount => Enum.GetValues<RdnTable>().Length;
 	public override int					FreeSpaceMaximum => 4096;
 	public int							FreeNameLengthMinimum => 8;
-	public int							CircularDependeciesChecksMaximum => 100_000;
+	public int							MigrationEnergyCost => 100;
 
 	public static readonly IPAddress[]	LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
 

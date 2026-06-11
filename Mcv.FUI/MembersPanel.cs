@@ -7,7 +7,6 @@ public partial class MembersPanel : McvPanel
 {
 	Font		Bold;
 	McvNode		Node;
-	Net.Mcv		Mcv;
 
 	public MembersPanel(McvNode node)
 	{
@@ -26,7 +25,7 @@ public partial class MembersPanel : McvPanel
 		{
 			var li = Generators.Items.Add(i.User.ToString());
 	
-			if(Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
+			if(Node.Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
 			{
 				li.Font = Bold;
 			}

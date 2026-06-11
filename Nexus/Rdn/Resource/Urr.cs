@@ -42,7 +42,7 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
 
 	public static Urr Parse(string t)
 	{
-		Snp.Parse(t, out var s, out var z, out var o);
+		Snq.Parse(t, out var s, out var z, out var o);
 
 		var a = Enum.Parse<UrrScheme>(s, true)	switch
 												{
@@ -137,7 +137,7 @@ public class Rrrh : Urr /// Rdn Resource Release Hash
 
 	public new static Rrrh Parse(string t)
 	{
-		Snp.Parse(t, out var s, out var z, out var o);
+		Snq.Parse(t, out var s, out var z, out var o);
 
 		var a = new Rrrh();
 
@@ -148,7 +148,7 @@ public class Rrrh : Urr /// Rdn Resource Release Hash
 	}
 	public override string ToString()
 	{
-		return Snp.ToString(Scheme.ToString(), Net, Hash.ToHex());
+		return Snq.ToString(Scheme.ToString(), Net, Hash.ToHex());
 	}
 
 	public override void ParseSpecific(string t)

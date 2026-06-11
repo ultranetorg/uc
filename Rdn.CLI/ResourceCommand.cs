@@ -4,10 +4,10 @@ namespace Uccs.Rdn.CLI;
 
 public class ResourceCommand : RdnCommand
 {
-	Ura First => Ura.Parse(Args[0].Name);
+	Ura			First => Ura.Parse(Args[0].Name);
 
-	Argument Data => new ("data", HEX, "A data to be associated with the resource", Flag.Optional);
-	Argument Dependable => new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", Flag.Optional);
+	Argument	Data		=> new ("data", HEX, "A data to be associated with the resource", Flag.Optional);
+	Argument	Dependable	=> new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", Flag.Optional);
 
 	public ResourceCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
@@ -136,9 +136,7 @@ public class ResourceCommand : RdnCommand
 				
 								if(r != null)
 								{
-									Flow.Log.Dump(	r.Datas, 
-													["Type", "Data", "Length"], 
-													[i => i.Type, i => i.Value.ToHex(32), i => i.Value.Length]);
+									Flow.Log.Dump(r);
 
 									return r;
 								}
@@ -164,12 +162,11 @@ public class ResourceCommand : RdnCommand
 								var r = Api<IEnumerable<LocalResource>>(new LocalResourcesSearchApc {Query = Args.Any() ? Args[0].Name : null});
 				
 								Flow.Log.Dump(	r, 
-												["Address", "Releases", "Type", "Data", "Length"], 
+												["Address", "Type", "Data", "Length"], 
 												[i =>	i.Address.Domain + '/' + i.Address.Resource,
-														i => i.Datas.Count,
-														i => i.Last.Type,
-														i => i.Last.Value.ToHex(32),
-														i => i.Last.Value.Length]);
+														i => i.Data.Type,
+														i => i.Data.Value.ToHex(32),
+														i => i.Data.Value.Length]);
 								return r;
 							};
 		return a;

@@ -17,7 +17,7 @@ public class Friend : IBinarySerializable, ITableEntry
 
 	public AutoId									Id { get; set; }
 	public string									Name { get; set; }
-	public Snp										Client { get; set; }
+	public Snq										Client { get; set; }
 	public Endpoint[]								Peers { get; set; }
 	public IccpTransferResult						LastIncomingTransfer { get; set; }
 	public IccpTransfer								LastOutgoingTransfer { get; set; }
@@ -102,7 +102,7 @@ public class Friend : IBinarySerializable, ITableEntry
 	{
 		Id						= reader.Read<AutoId>();
 		Name					= reader.ReadASCII();
-		Client					= reader.Read<Snp>();
+		Client					= reader.Read<Snq>();
 		Peers					= reader.ReadArray<Endpoint>();
 		LastIncomingTransfer	= reader.Read<IccpTransferResult>();
 		LastOutgoingTransfer	= reader.Read<IccpTransfer>(); 

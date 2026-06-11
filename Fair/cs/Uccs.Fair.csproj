@@ -4,14 +4,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>1.0.925</AssemblyVersion>
-    <FileVersion>1.0.925.0</FileVersion>
-    <Version>1.0.925</Version>
+    <AssemblyVersion>1.0.980</AssemblyVersion>
+    <FileVersion>1.0.980.0</FileVersion>
+    <Version>1.0.980</Version>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
     <AssemblyName>fair</AssemblyName>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SixLaborsLicenseFile>$(UO)\sixlabors.lic</SixLaborsLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;8632</NoWarn>
@@ -20,7 +21,7 @@
     <NoWarn>1701;1702;8632</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Net\Uccs.Net.csproj" />

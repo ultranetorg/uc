@@ -14,7 +14,6 @@ public partial class TextForm : Form
 		var f = new TextForm();
 
 		int d = 0;
-		int x = 0;
 
 		f.Text = title;
 		
@@ -43,7 +42,6 @@ public partial class TextForm : Form
 		f.DialogResult = DialogResult.Cancel;
 
 		int d = 0;
-		int x = 0;
 
 		f.Text = title;
 		

@@ -32,7 +32,7 @@ public class Execution : ITableExecution
 
 	public HashSet<IEnergyHolder>				EnergySpenders;
 	public HashSet<ISpacetimeHolder>			SpacetimeSpenders;
-	public long									EnergyCost;
+	public long									OperationCost;
 
 	public Execution							Parent;
 
@@ -153,6 +153,11 @@ public class Execution : ITableExecution
 
 	public void PayOperationEnergy(IEnergyHolder spender)
 	{
+		PayEnergy(spender, (int)OperationCost);
+	}
+
+	protected void PayEnergy(IEnergyHolder spender, int amount)
+	{
 		if(spender.EnergyPeriod < Time.Hours) /// switch to this day
 		{	
 			if(spender.BandwidthExpiration < Time.Hours) /// bandwidth expired
@@ -162,18 +167,9 @@ public class Execution : ITableExecution
 			spender.EnergyRating	= spender.Bandwidth;
 		}
 
-		spender.EnergyRating -= (int)EnergyCost;
+		spender.EnergyRating -= amount;
 
-		/// var d = spender.BandwidthTodayBalance - EnergyCost;
-		/// 
-		/// if(d < 0)
-		/// {
-		/// 	d = -d;
-		/// 	spender.Energy -= Math.Min(d, EnergyCost);
-		/// 	EnergySpenders.Add(spender);
-		/// }
-		/// 
-		Transaction.EnergyConsumed += EnergyCost;
+		Transaction.EnergyConsumed += amount;
 	}
 
 	public static long ToBD(long length, short time)
@@ -191,12 +187,14 @@ public class Execution : ITableExecution
 		if(space == 0)
 			return;
 
+		var now = Time.Days;
+
 		consumer.Space += space;
 
 		if(consumer.Free && consumer.Space > Net.FreeSpaceMaximum)
 			consumer.Free = false;
 	
-		var n = consumer.Expiration - Time.Days;
+		var n = consumer.Expiration - now;
 
 		if(!consumer.Free)
 		{	
@@ -207,7 +205,7 @@ public class Execution : ITableExecution
 		AffectSpaces();
 
 		for(int i = 0; i < n; i++)
-			Spaces[i] += space;
+			Spaces[now + i] += space;
 	}
 
 	public void Prolong(ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
@@ -225,12 +223,12 @@ public class Execution : ITableExecution
 
 		var exp = start + duration.Days;
 
-		if(exp - now >	Spaces.Length)
-			Spaces = [..Spaces, ..new long[Spaces.Length + exp - now]];
+		if(exp > Spaces.Length)
+			Spaces = [..Spaces, ..new long[exp - Spaces.Length]];
 		else
 			AffectSpaces(); /// needed below
 
-		for(int i = start - now; i < exp - now; i++)
+		for(int i = start; i < exp; i++)
 			Spaces[i] += consumer.Space;
 
 	}
@@ -256,8 +254,8 @@ public class Execution : ITableExecution
 	
 			AffectSpaces();
 			
-			for(int i = 0; i < consumer.Expiration - now; i++)
-				Spaces[i] -= space;
+			for(int i = 0; i < d; i++)
+				Spaces[now + i] -= space;
 		}
 	}
 
@@ -290,7 +288,7 @@ public class Execution : ITableExecution
 		}
 		else
 		{	
-			if(Transaction.Signature != null && !Net.Cryptography.Verify(u.Owner, Transaction.Hashify(), Transaction.Signature)) /// Transaction.Signature == null means synchronization
+			if(Transaction.Signature != null && !Net.Cryptography.Verify(u.Owner, Transaction.Hashify(Net), Transaction.Signature)) /// Transaction.Signature == null means synchronization
 			{
 				Transaction.Error = Operation.Denied;
 				return null;

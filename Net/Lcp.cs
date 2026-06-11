@@ -142,34 +142,36 @@ public abstract class LcpServer
 		Name = pipeName;
 		Flow = flow;
 
-		program.CreateThread(() =>	{ 
-										while(Flow.Active)
-										{
-											try
-											{
-												var pipe = new NamedPipeServerStream(Name,
-																					 PipeDirection.InOut,
-																					 NamedPipeServerStream.MaxAllowedServerInstances,
-																					 PipeTransmissionMode.Byte,
-																					 PipeOptions.Asynchronous);
+		var t = program.CreateThread(() =>	{ 
+												while(Flow.Active)
+												{
+													try
+													{
+														var pipe = new NamedPipeServerStream(Name,
+																							 PipeDirection.InOut,
+																							 NamedPipeServerStream.MaxAllowedServerInstances,
+																							 PipeTransmissionMode.Byte,
+																							 PipeOptions.Asynchronous);
 	
-												pipe.WaitForConnectionAsync(Flow.Cancellation).Wait();
+														pipe.WaitForConnectionAsync(Flow.Cancellation).Wait();
 	
-												LcpConnection c = CreateConnection(pipe);
+														LcpConnection c = CreateConnection(pipe);
 	
-												lock(Connections)
-													Connections.Add(c);
+														lock(Connections)
+															Connections.Add(c);
 	
-												Accept(c);
-												program.CreateThread(() => c.Listen()).Start();
-											}
-											catch(AggregateException ex) when(ex.InnerException is OperationCanceledException)
-											{
-												return;
-											}
-										}
-									})
-									.Start();
+														Accept(c);
+														program.CreateThread(() => c.Listen()).Start();
+													}
+													catch(AggregateException ex) when(ex.InnerException is OperationCanceledException)
+													{
+														return;
+													}
+												}
+											});
+
+		t.Name = $"{Name} {GetType().Name}";
+		t.Start();
 	}
 
 	//{

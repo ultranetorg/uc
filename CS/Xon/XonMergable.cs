@@ -233,35 +233,4 @@ public class XonMergable : Xon
 		}
 		return n;
 	}
-
-	public void Save(IXonWriter w)
-	{
-		w.Start();
-		w.Write(this);
-		w.Finish();
-	}
-
-	public void Save(string path)
-	{
-		using(var s = File.Create(path))
-		{
-			Save(new XonTextWriter(s, Encoding.UTF8));
-		}
-	}
-	
-	public void Dump(Action<Xon, int> write)
-	{
-		void dump(Xon n, int l)
-		{
-			write(n, l);
-
-			foreach(var i in n.Nodes)
-			{
-				dump(i, l + 1);
-			}
-		}
-
-		foreach(var n in Nodes)
-			dump(n, 0);
-	}
 }

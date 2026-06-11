@@ -328,8 +328,8 @@ public abstract class FairOperation : Operation
  		if(!ReviewExists(execution, id, out review, out error))
  			return false; 
 
-		if(review.Creator == User.Id)
-			return true;
+		if(review.Creator != User.Id)
+			return false;
 
  		//if(!PublicationExists(execution, review.Publication, out var p, out error))
  		//	return false; 

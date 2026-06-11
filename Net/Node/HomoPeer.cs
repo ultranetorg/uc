@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 
@@ -27,16 +28,6 @@ public class HomoPeer : Peer, IHomoPeer
 		EP = new Endpoint(ip, port);
 	}
 
-	void Request(int id, PeerRequest request)
-	{
-		lock(Writer)
-		{
-			Writer.Write(PacketType.Request);
-			Writer.Write(id);
-			BinarySerializator.Serialize(Writer, request); 
-		}
-	}
-
 	void Respond(int id, PeerRequest request)
 	{
 		try
@@ -45,22 +36,12 @@ public class HomoPeer : Peer, IHomoPeer
 				
 			if(r != null)
 			{
-				lock(Writer)
-				{
-					Writer.Write(PacketType.Response);
-					Writer.Write(id);
-					BinarySerializator.Serialize(Writer, r);
-				}
+				Write(PacketType.Response, id, r);
 			}
 		}
 		catch(CodeException ex)
 		{
-			lock(Writer)
-			{
-				Writer.Write(PacketType.Failure);
-				Writer.Write(id);
-				BinarySerializator.Serialize(Writer, ex);
-			}
+			Write(PacketType.Failure, id, ex);
 		}
 	}
 
@@ -70,19 +51,18 @@ public class HomoPeer : Peer, IHomoPeer
  		{
 			while(Peering.Flow.Active && Status == ConnectionStatus.OK)
 			{
-				var pk = (PacketType)Reader.ReadByte();
+				var pt = Reader.Read<PacketType>();
 
 				if(Peering.Flow.Aborted || Status != ConnectionStatus.OK)
 					return;
 				
 				Peering.Statistics.Reading.Begin();
 
-				switch(pk)
+				switch(pt)
 				{
  					case PacketType.Request:
  					{
-						var id = Reader.ReadInt32();
-						var rq = BinarySerializator.Deserialize<PeerRequest>(Reader);
+						var rq = Read<PeerRequest>(out var id);
 						rq.Peer = this;
 						rq.Peering = Peering as HomoPeering;
 						
@@ -93,19 +73,16 @@ public class HomoPeer : Peer, IHomoPeer
 
 					case PacketType.Response:
  					{
-						var id = Reader.ReadInt32();
-						var r = BinarySerializator.Deserialize<Result>(Reader);
+						var r = Read<Result>(out var id);
 
 						lock(OutRequests)
 						{
 							var rq = OutRequests.Find(i => i.Id == id);
 
-							if(rq.Event != null)
+							if(rq?.Event != null)
 							{
-								rq.Return = r;
+								rq.Result = r;
 								rq.Event.Set();
- 									
-								OutRequests.Remove(rq);
 							}
 						}
 
@@ -114,8 +91,7 @@ public class HomoPeer : Peer, IHomoPeer
 
  					case PacketType.Failure:
  					{
-						var id = Reader.ReadInt32();
-						var ex = BinarySerializator.Deserialize<CodeException>(Reader);
+						var ex = Read<CodeException>(out var id);
 
 						lock(OutRequests)
 						{
@@ -125,8 +101,6 @@ public class HomoPeer : Peer, IHomoPeer
 							{
 								rq.Exception = ex;
 								rq.Event.Set();
- 									
-								OutRequests.Remove(rq);
 							}
 						}
 
@@ -138,6 +112,9 @@ public class HomoPeer : Peer, IHomoPeer
 			}
  		}
 		catch(Exception ex) when(ex is SocketException || ex is IOException || ex is ObjectDisposedException || !Debugger.IsAttached)
+		{
+		}
+		catch(IntegrityException)
 		{
 		}
 
@@ -160,7 +137,12 @@ public class HomoPeer : Peer, IHomoPeer
 		if(Status != ConnectionStatus.OK)
 			throw new NodeException(NodeError.Connectivity);
 
-		Request(IdCounter++, args);
+		int id;
+
+		lock(OutRequests)
+			id = IdCounter++;
+
+		Write(PacketType.Request, id, args);
 	}
 
 	public Result CallMe(PeerRequest args, Flow flow)
@@ -170,16 +152,16 @@ public class HomoPeer : Peer, IHomoPeer
 
 		var p = new HomoRequestPacket();
 
-		p.Request = args;
-		p.Id = IdCounter++;
+		p.Request	= args;
+		p.Event		= new ManualResetEvent(false);
 
 		lock(OutRequests)
-		{
-			p.Event = new ManualResetEvent(false);
+		{	
+			p.Id = IdCounter++;
 			OutRequests.Add(p);
 		}
 
-		Request(p.Id, args);
+		Write(PacketType.Request, p.Id, args);
 
 		int i = -1;
 
@@ -193,6 +175,9 @@ public class HomoPeer : Peer, IHomoPeer
 		}
 		finally
 		{
+			lock(OutRequests)
+				OutRequests.Remove(p);
+
 			p.Event.Close();
 		}
 
@@ -200,18 +185,13 @@ public class HomoPeer : Peer, IHomoPeer
 		{
 			if(p.Exception == null)
 			{
-				if(p.Return == null)
+				if(p.Result == null)
 					throw new NodeException(NodeError.Connectivity);
 
-				return p.Return;
+				return p.Result;
 			}
 			else
 			{
-				///if(p.Exception is NodeException e)
-				///{
-				///	Peering.OnRequestException(this, e);
-				///}
-
 				throw p.Exception;
 			}
 		}

@@ -25,13 +25,13 @@ public partial class TransactionsPanel : McvPanel
 		{
 			//BindAccounts(Account);
 
-			Reload();
+			DoReload();
 		}
 	}
 
 	private void Refresh_Click(object sender, EventArgs e)
 	{
-		Reload();
+		DoReload();
 	}
 
 	private void Transactions_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -56,7 +56,7 @@ public partial class TransactionsPanel : McvPanel
 		}
 	}
 
-	void Reload()
+	void DoReload()
 	{
 		try
 		{

@@ -43,7 +43,7 @@ namespace Uccs.Mcv.FUI
 			columnHeader5 = new ColumnHeader();
 			label7 = new Label();
 			label1 = new Label();
-			Refresh = new Button();
+			Reload = new Button();
 			label2 = new Label();
 			Log = new TextBox();
 			SuspendLayout();
@@ -147,13 +147,13 @@ namespace Uccs.Mcv.FUI
 			// 
 			// Refresh
 			// 
-			Refresh.Location = new Point(891, 3);
-			Refresh.Name = "Refresh";
-			Refresh.Size = new Size(129, 28);
-			Refresh.TabIndex = 35;
-			Refresh.Text = "Refresh";
-			Refresh.UseVisualStyleBackColor = true;
-			Refresh.Click += Refresh_Click;
+			Reload.Location = new Point(891, 3);
+			Reload.Name = "Refresh";
+			Reload.Size = new Size(129, 28);
+			Reload.TabIndex = 35;
+			Reload.Text = "Refresh";
+			Reload.UseVisualStyleBackColor = true;
+			Reload.Click += Refresh_Click;
 			// 
 			// label2
 			// 
@@ -181,7 +181,7 @@ namespace Uccs.Mcv.FUI
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			Controls.Add(Log);
-			Controls.Add(Refresh);
+			Controls.Add(Reload);
 			Controls.Add(label2);
 			Controls.Add(label1);
 			Controls.Add(label7);
@@ -208,7 +208,7 @@ namespace Uccs.Mcv.FUI
 		private ColumnHeader ChFirstOp;
 		private Label label7;
 		private Label label1;
-		private Button Refresh;
+		private Button Reload;
 		private ColumnHeader ChError;
 		private ColumnHeader ChMemberPeer;
 		private Label label2;

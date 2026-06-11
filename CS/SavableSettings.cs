@@ -38,6 +38,25 @@ public class Settings
 
 			return l;
 		}
+		else if(t.GetInterfaces().Any(i => i == typeof(IList)))
+		{
+			var m = x.Parent.Many(name.TrimEnd('s'));
+			
+			//.Select(i => load(n, t.GetElementType(), i)).ToArray();
+
+
+			var l = t.GetConstructor([]).Invoke(null) as IList;
+			var e = t.GetGenericArguments()[0];
+			var n = m.Count;
+			//var l = a.GetConstructor([typeof(int)]).Invoke([n]);
+
+			for(int i=0; i<n; i++)
+			{
+				l.Add(Load(name.TrimEnd('s'), e, m[i]));
+			}
+
+			return l;
+		}
 		else
 			return x.Get(t);
 	}
@@ -70,6 +89,7 @@ public class SavableSettings : Settings
 	public string					Profile;
 	public virtual string			FileName => GetType().Name.Remove(GetType().Name.Length - nameof(Settings).Length) + Extention;
 	public string					Path => System.IO.Path.Join(Profile, FileName); 
+	public bool						Exists => System.IO.File.Exists(Path);
 	public const string				Extention = ".settings";
 	
 	public SavableSettings(IXonValueSerializator serializator) : base(serializator)
@@ -153,11 +173,22 @@ public class SavableSettings : Settings
 																					parent.Add(name);
 																				}
 																			}
-																			else if(type.IsArray && type != typeof(byte[]) && value != null)
+																			else if(type == typeof(byte[]))	
+																			{ 
+																				parent.Add(name).Value = value;
+																			}
+																			else if(type.IsArray && value != null)
 																			{
 																				foreach(var i in value as IEnumerable)
 																				{
 																					save(parent, name.Trim('s'), type.GetElementType(), i);
+																				}
+																			}
+																			else if(value is IList l)
+																			{
+																				foreach(var i in l)
+																				{
+																					save(parent, name.Trim('s'), type.GetGenericArguments()[0], i);
 																				}
 																			}
 																			else

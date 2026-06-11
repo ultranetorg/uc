@@ -35,7 +35,7 @@ public class RdnNode : McvNode
 		if(settings == null && !File.Exists(Settings.Path))
 		{
 			Settings.DataPath	= ExeDirectory;
-			Settings.Peering	= new () {EP = new (IPAddress.Any, Net.PpiPort)};
+			Settings.Peering	= new () {Endpoint = new (IPAddress.Any, Net.PpiPort)};
 			Settings.Api		= new () {LocalIP = nexussettings.Host};
 			Settings.Seed		= new ();
 
@@ -50,10 +50,9 @@ public class RdnNode : McvNode
 
 		InitializeVaultClient(NexusSettings.Host);
 
-
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.EP], [Settings.Peering.EP], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], [Settings.Peering.Endpoint], clock ?? new RealClock());
 
 			if(Settings.Mcv.Generators.Any())
 			{
@@ -76,7 +75,7 @@ public class RdnNode : McvNode
 																		CurrentOutwards.Remove(i);
 																	}
 																}
-																else if(i.Operation is SubnetAttachment sa)
+																else if(i.Operation is FriendAttachment sa)
 																{
 																	lock(Mcv.Lock)
 																		Mcv.OutwardResults.Add(new OutwardResult {User = i.User, Id = i.Id, Approved = Settings.ProposedFriendAttachments.Contains(sa.Name)});
@@ -88,7 +87,10 @@ public class RdnNode : McvNode
 
 		Iccp = new McvIccpLcpConnection(this, flow);
 
-		ApiServer = new RdnApiServer(this, new IpApiSettings {LocalIP = nexussettings.Host}.ToNodeSettings(Net), Flow);
+		if(Settings.Api != null)
+		{
+			ApiServer = new RdnApiServer(this, Settings.Api.ToNodeSettings(Net), Flow);
+		}
 
 		base.Peering = new RdnTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
@@ -97,7 +99,6 @@ public class RdnNode : McvNode
 			ResourceHub = new ResourceHub(this, Net, Settings.Seed);
 			ResourceHub.RunDeclaring();
 		}
-
 	}
 
 	public override string ToString()
@@ -205,5 +206,10 @@ public class RdnNode : McvNode
 		while(flow.Active);
 
 		throw new OperationCanceledException();
+	}
+
+	public override byte[] Do(string query)
+	{
+		throw new NotImplementedException();
 	}
 }

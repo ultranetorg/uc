@@ -39,11 +39,11 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 		Resource = resource;
 	}
 
-	public Ura(Snp address)
+	public Ura(Snq address)
 	{
 		Net = address.Net;
 
-		Parse(address.Path, out var d, out var r);
+		Parse(address.Query, out var d, out var r);
 		
 		Domain = d;
 		Resource = r;
@@ -58,7 +58,12 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public override string ToString()
 	{
-		return Snp.ToString(Iccp.Scheme, Net, Domain + (Resource != null ? $"/{Resource}" : null));
+		return Snq.ToString(Iccp.Scheme, Net, Domain + (Resource != null ? $"/{Resource}" : null));
+	}
+
+	public Snq ToSnq()
+	{
+		return new Snq(Iccp.Scheme, Net, Domain + (Resource != null ? $"/{Resource}" : null));
 	}
 
 	public override bool Equals(object o)
@@ -119,7 +124,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 	{
 		int i;
 		
-		Snp.Parse(v, out scheme, out net, out string o);
+		Snq.Parse(v, out scheme, out net, out string o);
 
 		var e = o.IndexOf('/');
 			

@@ -26,10 +26,10 @@ public class SubnetCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return	new SubnetAttachment
+								return	new FriendAttachment
 										{
 											Name = First, 
-											Client = Snp.Parse(GetString("client")),
+											Client = Snq.Parse(GetString("client")),
 											Peers =	Args.Where(i => i.Name == "peer").Select(i => Endpoint.Parse(i.Get<string>())).ToArray()
 										};
 							};
