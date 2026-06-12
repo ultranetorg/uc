@@ -85,7 +85,7 @@ public class RdnNode : McvNode
 									};
 		}
 
-		Iccp = new McvIccpLcpConnection(this, flow);
+		Iccp = new McvIccpLcpConnection(this, Name, flow);
 
 		if(Settings.Api != null)
 		{

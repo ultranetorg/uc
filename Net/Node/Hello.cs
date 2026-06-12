@@ -2,7 +2,7 @@
 
 namespace Uccs.Net;
 
-public abstract class Hello
+public abstract class Hello : IBinarySerializable
 {
 	public int[]						Versions;
 	public long							Roles;

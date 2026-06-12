@@ -50,12 +50,11 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		LoadPeers();
 	}
 
-	public override Hello WaitHello(TcpClient client)
+	public override Hello ReadHello(Reader reader)
 	{
-		var r = new Reader(client.GetStream());
 		var h = new HomoHello();
 
-		h.Read(r);
+		h.Read(reader);
 		
 		return h;
 	}

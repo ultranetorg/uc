@@ -3,9 +3,9 @@
     "Uccs.Fair.Windows": {
       "commandName": "Project"
     },
-    "node run": {
+    "node run zone=Simulation": {
       "commandName": "Project",
-      "commandLineArgs": "node run"
+      "commandLineArgs": "node run zone=Simulation"
     }
   }
 }

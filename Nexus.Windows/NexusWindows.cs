@@ -42,6 +42,7 @@ public class Program: ApplicationContext
 			InitializeAuthUI(Nexus);
 
 			var traymenu = new ContextMenuStrip();
+
 			traymenu.Items.Add("-");
 			traymenu.Items.Add("Identity and Activity", null, (s, e) =>	{
 																			var f = new IamForm(Nexus);
@@ -95,6 +96,9 @@ public class Program: ApplicationContext
 						};
 			#pragma warning restore WFO5001
 
+			TrayIcon.ShowBalloonTip(3000, $"Welcome to the Ultranet {b.Zone} Zone", "Click the tray icon to manage your identity and activity", ToolTipIcon.Info);
+			
+			TrayIcon.BalloonTipClicked += (o, a) => new IamForm(Nexus).Show();
 			TrayIcon.DoubleClick += (s, e) => {};
 
 			if(!IsProtocolRegistered())

@@ -14,23 +14,23 @@ public enum IccpLcpConnectionType : byte
 
 public class IccpLcpConnection : LcpConnection
 {
-	public string													Net;
-	public IccpLcpConnectionType									Type;
-	public string													Api { get; set; }
-	Dictionary<Type, Func<string, IccpArgumentation, IccpResult>>	Calls = [];
+	public string														Net;
+	public IccpLcpConnectionType										Type;
+	public string														Api { get; set; }
+	Dictionary<Type, Func<string, IccpArgumentation, Flow, IccpResult>>	Calls = [];
 	
-	public static string GetName(IPAddress ip) => $"{ip.GetAddressBytes()[3]}-{Iccp.Scheme}";
+	public static string												GetName(IPAddress ip) => $"{ip.GetAddressBytes()[3]}-{Iccp.Scheme}";
 
 	public IccpLcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow) : base(program, pipe, server, flow)
 	{
 	}
 
-	public IccpLcpConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	public IccpLcpConnection(IProgram program, string name, string application, Flow flow) : base(program, name, application, flow)
 	{
-		Handler = (from, to, a, c) =>	{
+		Handler = (from, to, a, c, f) =>{
 											if(Calls.TryGetValue(a.GetType(), out var e))
 											{
-												return e(to, a);
+												return e(to, a, f);
 											}
 
 											var m = GetType().GetMethods().First(i =>	i.GetParameters().Length == 2 && 
@@ -40,11 +40,11 @@ public class IccpLcpConnection : LcpConnection
 													??
 													throw new IccpException(IccpError.NotFound);
 
-											var ma = CreateAdapter<Func<string, IccpArgumentation, IccpResult>>(m);
+											var ma = CreateAdapter<Func<string, IccpArgumentation, Flow, IccpResult>>(m);
 										
 											Calls[a.GetType()] = ma;
 
-											return ma(to, a);
+											return ma(to, a, f);
 										};
 	}
 
@@ -87,7 +87,7 @@ public class IccpLcpConnection : LcpConnection
 	{
 		try
 		{
-			var r = Handler(from, to, request.Argumentation as IccpArgumentation, this);
+			var r = Handler(from, to, request.Argumentation as IccpArgumentation, this, Flow);
 	
 			lock(Writer)
 			{
@@ -258,7 +258,7 @@ public class IccpLcpConnection : LcpConnection
 
 public class IccpLcpClientConnection : IccpLcpConnection
 {
-	public IccpLcpClientConnection(IProgram program, string name, Flow flow) : base(program, name, flow)
+	public IccpLcpClientConnection(IProgram program, string name, string application, Flow flow) : base(program, name, application, flow)
 	{
 	}
 

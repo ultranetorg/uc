@@ -140,7 +140,7 @@ public abstract class Peer : IBinarySerializable
 		}
 	}
 
-	public void Start(Peering peering, TcpClient client, Hello h, bool inbound)
+	public void Start(Peering peering, TcpClient client, Hello h, Reader reader, Writer writer,  bool inbound)
 	{
 		Peering = peering;
 		Tcp = client;
@@ -157,8 +157,8 @@ public abstract class Peer : IBinarySerializable
 		Stream			= client.GetStream();
 		LastSeen		= DateTime.UtcNow;
 		Roles			= h.Roles;
-		Reader			= new Reader(Stream);
-		Writer			= new Writer(Stream);
+		Reader			= reader;
+		Writer			= writer;
 		
 		WriteStream		= new();
 		PacketWriter	= new(WriteStream, Peering.Constructor);

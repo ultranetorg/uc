@@ -12,16 +12,13 @@ public class Page : UserControl
 	public virtual void Close(){ }
 	public virtual void PeriodicalRefresh(){ }
 
-	protected IccpLcpClientConnection Iccp;
-
 	public Page()
 	{
 	}
 
-	public Page(Nexus nexus, IccpLcpClientConnection iccp) : this()
+	public Page(Nexus nexus) : this()
 	{
 		Nexus = nexus;
-		Iccp = iccp;
 	}
 
 	public void ShowException(string message, Exception ex)

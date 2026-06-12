@@ -26,6 +26,7 @@ public class LcpRequest : LcpPacket
 public abstract class LcpConnection
 {
 	protected IProgram				Program;
+	public string					Application;
 	public PipeStream				Pipe;
 	public bool						Connected => Pipe != null && Pipe.IsConnected;
 	public Reader					Reader;
@@ -35,11 +36,11 @@ public abstract class LcpConnection
 	protected int					IdCounter = 0;
 	protected Flow					Flow;
 
-	public Func<string, string, IccpArgumentation, IccpLcpConnection, IccpResult>	Handler;
+	public Func<string, string, IccpArgumentation, IccpLcpConnection, Flow, IccpResult>	Handler;
 
 	public abstract void			Listen();
 
-	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow)
+	public LcpConnection(IProgram program, NamedPipeServerStream pipe, LcpServer server, Flow flow) /// For Server
 	{
 		Program		= program;
 		Pipe		= pipe;
@@ -48,12 +49,15 @@ public abstract class LcpConnection
 
 		Reader = new Reader(Pipe, Iccp.Constructor);
 		Writer = new Writer(Pipe, Iccp.Constructor);
+
+		Application = Reader.ReadASCII();
 	}
 
-	public LcpConnection(IProgram program, string name, Flow flow)
+	public LcpConnection(IProgram program, string name, string application, Flow flow) /// For Client
 	{
-		Program	= program;
-		Flow	= flow.CreateNested(name);
+		Program		= program;
+		Application	= application;
+		Flow		= flow.CreateNested(name);
 
 		var t = program.CreateThread(() =>	{ 
 												while(Flow.Active)
@@ -65,13 +69,19 @@ public abstract class LcpConnection
 														Pipe = pipe;
 														IdCounter = 0;
 	
+														flow.Log?.Report(this, $"Listening nexus {name}");
+
 														pipe.ConnectAsync(Flow.Cancellation).Wait();
 	
 														Reader = new Reader(pipe, Iccp.Constructor);
 														Writer = new Writer(pipe, Iccp.Constructor);
-	
+															
+														Writer.WriteASCII(Application);
+
 														Established();
 														Listen();
+
+														flow.Log?.Report(this, $"Established to {name}");
 													}
 													catch(AggregateException ex) when(ex.InnerException is TaskCanceledException)
 													{
@@ -124,17 +134,19 @@ public abstract class LcpServer
 	protected IProgram					Program;
 	protected Flow						Flow;
 	readonly string						Name;
-	public readonly List<LcpConnection>	Connections = new();
-
-	public virtual void					Accept(LcpConnection connection){}
-	public abstract IccpResult			Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection);
-
-	protected abstract LcpConnection	CreateConnection(NamedPipeServerStream pipe);
+	public readonly List<LcpConnection>	Connections = [];
 
 	public delegate void				LcpConnectionDelegate(LcpConnection connection);
 
 	public LcpConnectionDelegate		ConnectionEstablished;
 	public LcpConnectionDelegate		ConnectionLost;
+
+	public virtual void					Accept(LcpConnection connection){}
+	public abstract IccpResult			Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection, Flow flow);
+	public IccpResult					Call(string from, string to, IccpArgumentation call, Flow flow) => Relay(from, to, call, null, flow);
+	public R							Call<R>(string from, string to, IccpArgumentation argumentation, Flow flow) where R : IccpResult => Call(from, to, argumentation, flow) as R;
+
+	protected abstract LcpConnection	CreateConnection(NamedPipeServerStream pipe);
 
 	public LcpServer(IProgram program, string pipeName, Flow flow)
 	{
@@ -142,6 +154,8 @@ public abstract class LcpServer
 		Name = pipeName;
 		Flow = flow;
 
+		flow.Log?.Report(this, $"Listen to {Name}");
+		
 		var t = program.CreateThread(() =>	{ 
 												while(Flow.Active)
 												{
@@ -153,6 +167,7 @@ public abstract class LcpServer
 																							 PipeTransmissionMode.Byte,
 																							 PipeOptions.Asynchronous);
 	
+
 														pipe.WaitForConnectionAsync(Flow.Cancellation).Wait();
 	
 														LcpConnection c = CreateConnection(pipe);
@@ -161,7 +176,13 @@ public abstract class LcpServer
 															Connections.Add(c);
 	
 														Accept(c);
-														program.CreateThread(() => c.Listen()).Start();
+
+														flow.Log?.Report(this, $"Accepted from {c.Application}");
+
+														var t = program.CreateThread(c.Listen);
+
+														t.Name = $"{Name} {nameof(LcpServer)} <- {c.Application}";
+														t.Start();
 													}
 													catch(AggregateException ex) when(ex.InnerException is OperationCanceledException)
 													{

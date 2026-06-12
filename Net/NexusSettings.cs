@@ -45,10 +45,9 @@ public class NexusSettings : SavableSettings
 			Host		= StandardHost;
 			IccpPeering	= new PeeringSettings {Endpoint = new (IPAddress.Any, Port.Map(zone, KnownProtocol.Iccp))};
 			Api			= new () {LocalIP = StandardHost};
+			Packages	= System.IO.Path.Join(profile, "Packages");
 			
 			Save();
 		}
-
-		Packages = Packages ?? System.IO.Path.Join(profile, "Packages");
 	}
 }

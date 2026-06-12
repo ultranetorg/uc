@@ -14,15 +14,7 @@ public class FairNode : McvNode
 
 	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
 	{
-		base.Settings = settings ?? new FairNodeSettings(profile);
-
-		if(settings == null && !System.IO.File.Exists(Settings.Path))
-		{
-			Settings.Peering	= new () {Endpoint = new (IPAddress.Any, Net.PpiPort)};
-			Settings.Api		= new () {LocalIP = nexussettings.Host};
-
-			Settings.Save();
-		}
+		base.Settings = settings;
 
 		if(Flow.Log != null)
 			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
@@ -42,8 +34,9 @@ public class FairNode : McvNode
 				WebServer = new WebServer(this, null);
 			}
 	
-			Iccp = new FairIccpLcpConnection(this, flow);
 		}
+	
+		Iccp = new FairIccpLcpConnection(this, flow);
 		
 		base.Peering = new FairTcpPeering(this, Settings.Peering, Settings.Roles, VaultApi, flow, clock);
 		
@@ -78,6 +71,6 @@ public class FairNode : McvNode
 
 	public override byte[] Do(string query)
 	{
-		throw new NotImplementedException();
+		return null;
 	}
 }

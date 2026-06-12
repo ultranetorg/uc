@@ -38,12 +38,12 @@ public class IccpLcpServer : LcpServer
 			c.Api = connection.Reader.ReadUtf8();
 		}
 
-		connection.Handler = (from, to, a, c) => Relay(from, to, a, c);  /// relay from local nodes
+		connection.Handler = (from, to, a, c, f) => Relay(from, to, a, c, f);  /// relay from local nodes
 
 		ConnectionEstablished?.Invoke(connection);
 	}
 
-	public override IccpResult Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection)
+	public override IccpResult Relay(string from, string to, IccpArgumentation call, IccpLcpConnection connection, Flow flow)
 	{
 		if(call is not TransferRequestIcca tr)
 		{
@@ -53,7 +53,7 @@ public class IccpLcpServer : LcpServer
 			{
 				try
 				{
-					return c.Call(from, to, call, Flow); /// try to relay to local node
+					return c.Call(from, to, call, flow); /// try to relay to local node
 				}
 				catch(IccpException ex)
 				{
@@ -64,7 +64,7 @@ public class IccpLcpServer : LcpServer
 				}
 			}
 
-			return Nexus.IccpPeering.Call(from, to, call, Flow); /// relay to peers
+			return Nexus.IccpPeering.Call(from, to, call, flow); /// relay to peers
 		} 
 		else
 		{

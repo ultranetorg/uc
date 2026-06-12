@@ -16,7 +16,7 @@ public class McvNodeSettings : SavableSettings
 	public McvSettings				Mcv { get; set; }
 	public PeeringSettings			Peering { get; set; } = new();
 	//public PeeringSettings			NnPeering { get; set; }
-	public AccountSessionSettings[]	Sessions { get; set; }
+	public AccountSessionSettings[]	Sessions { get; set; } = [];
 	public bool						Log { get; set; }
 	public int						PoolMaximum { get; set; } = 100_000;
 	public int						PpcTimeout { get; set; } = 5000;

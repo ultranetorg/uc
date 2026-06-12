@@ -35,7 +35,7 @@ public enum IccpClass : uint
 	TransferRequest,
 	LastOutgoingTransfer,
 	LastIncomingTransfer,
-	Request,
+	Do,
 	ShowGui,
 
 	AddressTextToUniversal,

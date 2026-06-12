@@ -11,7 +11,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 	protected string[]	Classes; 
 
-	public McvIccpLcpConnection(McvNode node, Flow flow) : base(node, GetName(node.NexusSettings.Host), flow)
+	public McvIccpLcpConnection(McvNode node, string application, Flow flow) : base(node, GetName(node.NexusSettings.Host), application,  flow)
 	{
 		Classes = [nameof(User)];
 
@@ -419,10 +419,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		return null;
 	}
 
-	public virtual Result Open(string from, DoIcca args)
+	public virtual Result Do(string from, DoIcca args)
 	{
-		Node.Do(args.Query);
-
-		return null;
+		return new DoIccr {Response = Node.Do(args.Query)};
 	}
 }

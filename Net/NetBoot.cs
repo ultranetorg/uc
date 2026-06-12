@@ -2,8 +2,9 @@
 
 public class NetBoot : Boot
 {
-	public Zone				Zone;
-	public const string		DefaultDirectoryName = "Uos";
+	public Zone						Zone;
+	public const string				DefaultDirectoryName = "Uos";
+	public static string			DefaultPath(Zone zone) => Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), DefaultDirectoryName, zone.ToString());
 
 	public NetBoot()
 	{
@@ -21,7 +22,7 @@ public class NetBoot : Boot
 		if(Commnand.Has("profile"))
 			Profile = Commnand.Get<string>("profile");
 		else
-			Profile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), DefaultDirectoryName, Zone.ToString());
+			Profile = DefaultPath(Zone);
 
 	}
 }

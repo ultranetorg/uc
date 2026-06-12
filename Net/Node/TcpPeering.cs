@@ -85,7 +85,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 	protected abstract P						CreatePeer();
 
-	public abstract Hello						WaitHello(TcpClient client);
+	public abstract Hello						ReadHello(Reader reader);
 
 	public TcpPeering(IProgram program, string name, PeeringSettings settings, Flow flow)
 	{
@@ -147,12 +147,12 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 												Settings.Endpoint?.ToString()}.Where(i => !string.IsNullOrWhiteSpace(i)));
 	}
 
-	public void SendHello(TcpClient client, Hello h)
-	{
-		var w = new Writer(client.GetStream());
-
-		h.Write(w);
-	}
+	//public void SendHello(Writer writer, Hello h)
+	//{
+	//	var w = new Writer(client.GetStream());
+	//
+	//	h.Write(w);
+	//}
 
 	protected void Listening()
 	{
@@ -215,14 +215,16 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 							}
 
 							Hello h = null;
-								
+							var r = new Reader(tcp.GetStream());
+							var w = new Writer(tcp.GetStream());
+		
 							try
 							{
 								tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 								tcp.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
-								SendHello(tcp, CreateOutboundHello(peer, permanent));
-								h = WaitHello(tcp);
+								w.Write(CreateOutboundHello(peer, permanent));
+								h = ReadHello(r);
 							}
 							catch(Exception ex)// when(!Settings.Dev.ThrowOnCorrupted)
 							{
@@ -247,7 +249,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 									Flow.Log?.Report(this, $"Reported IP {EP}");
 								}
 
-								peer.Start(this, tcp, h, false);
+								peer.Start(this, tcp, h, r, w, false);
 
 								OnConnected(peer);
 							}
@@ -305,13 +307,15 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 		Task.Run(() =>	{
 							Hello h = null;
+							var r = new Reader(tcp.GetStream());
+							var w = new Writer(tcp.GetStream());
 
 							try
 							{
 								tcp.SendTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 								tcp.ReceiveTimeout = NodeGlobals.InfiniteTimeouts ? 0 : Timeout;
 
-								h = WaitHello(tcp);
+								h = ReadHello(r);
 							}
 							catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 							{
@@ -360,7 +364,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 	
 								try
 								{
-									SendHello(tcp, CreateInboundHello(ip, h));
+									w.Write(CreateInboundHello(ip, h));
 								}
 								catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
 								{
@@ -369,7 +373,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 								}
 
 								peer.Permanent = h.Permanent;
-								peer.Start(this, tcp, h, true);
+								peer.Start(this, tcp, h, r, w, true);
 
 								IncomingConnections.Remove(ip);
 								

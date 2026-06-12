@@ -5,8 +5,6 @@ namespace Uccs.Nexus.Windows;
 
 public partial class IamForm : Form
 {
-	IccpLcpClientConnection Nnp;
-
 	public IamForm()
 	{
 		InitializeComponent();
@@ -16,19 +14,16 @@ public partial class IamForm : Form
 	{
 		InitializeComponent();
 
-		Nnp = nexus.CreateIccpClientConnection();
-
-		WalletsAndAccounts.Tag = new WalletsPage(nexus, Nnp);
-		Sessions.Tag = new SessionsPage(nexus, Nnp);
-		Assets.Tag = new AssetsPage(nexus, Nnp);
-		Transfer.Tag = new TransferPage(nexus, Nnp);
+		WalletsAndAccounts.Tag = new WalletsPage(nexus);
+		Sessions.Tag = new SessionsPage(nexus);
+		Assets.Tag = new AssetsPage(nexus);
+		Transfer.Tag = new TransferPage(nexus);
 
 		WalletsAndAccounts.Checked = true;
 	}
 
 	protected override void OnClosed(EventArgs e)
 	{
-		Nnp.Disconnect();
 		base.OnClosed(e);
 	}
 	

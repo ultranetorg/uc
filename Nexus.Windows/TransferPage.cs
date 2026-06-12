@@ -12,7 +12,7 @@ public partial class TransferPage : Page
 	{
 	}
 
-	public TransferPage(Nexus nexus, IccpLcpClientConnection nnp) : base(nexus, nnp)
+	public TransferPage(Nexus nexus) : base(nexus)
 	{
 		InitializeComponent();
 	}
@@ -107,7 +107,7 @@ public partial class TransferPage : Page
 
 		try
 		{
-			foreach(var i in (Iccp.Call(null, net, new HolderClassesIcca{}, new Flow(5000)) as HolderClassesIccr).Classes)
+			foreach(var i in (Nexus.IccpLcpServer.Call(null, net, new HolderClassesIcca{}, new Flow(5000)) as HolderClassesIccr).Classes)
 				combobox.Items.Add(i);
 		}
 		catch(Exception)
@@ -125,9 +125,9 @@ public partial class TransferPage : Page
 
 		Asset.Items.Clear();
 
-		var e = Iccp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
+		var e = Nexus.IccpLcpServer.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
 
-		foreach(var a in (Iccp.Call(null, FromNet.Text, new HolderAssetsIcca {Entity = e.Universal}, new Flow(5000)) as HolderAssetsIccr).Assets)
+		foreach(var a in (Nexus.IccpLcpServer.Call(null, FromNet.Text, new HolderAssetsIcca {Entity = e.Universal}, new Flow(5000)) as HolderAssetsIccr).Assets)
 		{
 			Asset.Items.Add(a);
 		}
@@ -135,17 +135,17 @@ public partial class TransferPage : Page
 
 	void RefreshBalance()
 	{
-		var e = Iccp.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
+		var e = Nexus.IccpLcpServer.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
 
 		BalanceLabel.Text = "Balance: ";
-		BalanceLabel.Text += (Iccp.Call(	null,
-									FromNet.Text,	
-									new AssetBalanceIcca
-									{
-										Entity = e.Universal,
-										Asset = (Asset.SelectedItem as Asset).Id
-									},
-									new Flow(5000)) as AssetBalanceIccr).Balance.ToString();
+		BalanceLabel.Text += (Nexus.IccpLcpServer.Call(	null,
+														FromNet.Text,	
+														new AssetBalanceIcca
+														{
+															Entity = e.Universal,
+															Asset = (Asset.SelectedItem as Asset).Id
+														},
+														new Flow(5000)) as AssetBalanceIccr).Balance.ToString();
 	}
 
 	private void FromNet_TextUpdate(object sender, EventArgs e)
@@ -178,11 +178,11 @@ public partial class TransferPage : Page
 			var t = new AssetTransfer
 					{
 						FromNet		= FromNet.Text,
-						FromEntity	= Iccp.AddressTextToUniversal(null, FromNet.Text, FromEntity.Text, f),
+						FromEntity	= Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, f).Universal,
 						Asset		= (Asset.SelectedItem as Asset).Id,
 						Amount		= BigInteger.Parse(Amount.Text),
 						ToNet		= ToNet.Text,
-						ToEntity	= Iccp.AddressTextToUniversal(null, ToNet.Text, ToEntity.Text, f),
+						ToEntity	= Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, ToNet.Text, new AddressTextToUniversalIcca {Text = ToEntity.Text}, f).Universal,
 					};
 
 			t.Signature = Nexus.Vault.Authorize(CryptographyType.Iccp,
@@ -193,7 +193,7 @@ public partial class TransferPage : Page
 												t.Hashify(),
 												f);
 
-			Iccp.Call(null, FromNet.Text, new TransactIcca {Transactions = [t]}, f);
+			Nexus.IccpLcpServer.Call(null, FromNet.Text, new TransactIcca {Transactions = [t]}, f);
 		}
 		catch(Exception ex) when(!Debugger.IsAttached)
 		{

@@ -10,7 +10,7 @@ public partial class AssetsPage : Page
 	{
 	}
 
-	public AssetsPage(Nexus nexus, IccpLcpClientConnection nnp) : base(nexus, nnp)
+	public AssetsPage(Nexus nexus) : base(nexus)
 	{
 		InitializeComponent();
 	}
@@ -54,11 +54,11 @@ public partial class AssetsPage : Page
 
 		try
 		{
-			var e = Iccp.Call(null, Nets.Text, new AddressTextToUniversalIcca {Text = entity}, f) as AddressTextToUniversalIccr;
+			var e = Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, Nets.Text, new AddressTextToUniversalIcca {Text = entity}, f);
 
-			foreach(var a in (Iccp.Call(null, Nets.Text, new HolderAssetsIcca {Entity = e.Universal}, f) as HolderAssetsIccr).Assets)
+			foreach(var a in Nexus.IccpLcpServer.Call<HolderAssetsIccr>(null, Nets.Text, new HolderAssetsIcca {Entity = e.Universal}, f).Assets)
 			{
-				var b = (Iccp.Call(null, Nets.Text, new AssetBalanceIcca {Entity = e.Universal, Asset = a.Id}, f) as AssetBalanceIccr).Balance;
+				var b = Nexus.IccpLcpServer.Call<AssetBalanceIccr>(null, Nets.Text, new AssetBalanceIcca {Entity = e.Universal, Asset = a.Id}, f).Balance;
 			
 				var li = new ListViewItem(entity);
 				li.SubItems.Add(a.Name);

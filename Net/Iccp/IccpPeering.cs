@@ -53,12 +53,11 @@ public class IccpPeering : TcpPeering<IccpPeer>
 								}.Where(i => i != null));
 	}
 
-	public override Hello WaitHello(TcpClient client)
+	public override Hello ReadHello(Reader reader)
 	{
-		var r = new Reader(client.GetStream());
 		var h = new IccpHello();
 
-		h.Read(r);
+		h.Read(reader);
 		
 		return h;
 	}

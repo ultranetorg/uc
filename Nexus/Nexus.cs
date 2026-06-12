@@ -117,19 +117,6 @@ public class Nexus : IProgram
 								});
 	}
 
-	public IccpLcpClientConnection CreateIccpClientConnection()
-	{
-		var c = new	IccpLcpClientConnection(this, IccpLcpConnection.GetName(Settings.Host), Flow);
-		return c;
-	}
-
-	//public IccpLcpClientConnection CreateIccpClientConnection(Constructor constructor)
-	//{
-	//	var c = new	IccpLcpClientConnection(this, IccpLcpConnection.GetName(Settings.Host), Flow);
-	//	c.Constructor.Merge(constructor);
-	//	return c;
-	//}
-
 	public void RunApi()
 	{
 		if(!HttpListener.IsSupported)
@@ -157,7 +144,7 @@ public class Nexus : IProgram
 
 		if(node == null)
 		{
-			var info = IccpLcpServer.Relay(null, net, new InfoIcca(), null) as InfoIccr; /// get wayin info
+			var info = IccpLcpServer.Call<InfoIccr>(null, net, new InfoIcca(), flow); /// get wayin info
 
 			var wi = info.Wayins.FirstOrDefault(i => i.Software != null);
 				
@@ -234,7 +221,10 @@ public class Nexus : IProgram
 					Thread.Sleep(10);
 			}
 			
-			return c.Call<DoIccr>(null, snq.Net, new DoIcca {Query = snq.Query}, null).Response;
+			if(snq.Query != null)
+				return c.Call<DoIccr>(null, snq.Net, new DoIcca {Query = snq.Query}, flow).Response;
+			else
+				return null;
 		}
 	}
 

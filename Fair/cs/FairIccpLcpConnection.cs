@@ -8,7 +8,7 @@ public class FairIccpLcpConnection : McvIccpLcpConnection
 {
 	public new FairNode		Node => base.Node as FairNode;
 
-	public FairIccpLcpConnection(FairNode node, Flow flow) : base(node, flow)
+	public FairIccpLcpConnection(FairNode node, Flow flow) : base(node, node.Name, flow)
 	{
 		Classes = [nameof(User), nameof(Author), nameof(Site)];
 	}
