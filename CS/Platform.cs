@@ -4,7 +4,7 @@ namespace Uccs;
 
 public class Platform// : IBinarySerializable
 {
-	public PlatformFamily	Family;
+	public Family	Family;
 	public int				Brand;
 	public int				Version;
 	public Architecture		Architecture;
@@ -15,12 +15,12 @@ public class Platform// : IBinarySerializable
 	{
 		Current = new Platform();
 
-		if(RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))	Current.Family = PlatformFamily.Unix; else
-		if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))	Current.Family = PlatformFamily.Unix; else
-		if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))		Current.Family = PlatformFamily.macOS; else
+		if(RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))	Current.Family = Family.Unix; else
+		if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))	Current.Family = Family.Unix; else
+		if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))		Current.Family = Family.macOS; else
 		if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 		{
-			Current.Family = PlatformFamily.Windows;
+			Current.Family = Family.Windows;
 			Current.Brand = (int)WindowsBrand.MicrosoftWindows;
 			
 			MicrosoftWindowsVersion v = MicrosoftWindowsVersion.Unknown;
@@ -43,19 +43,26 @@ public class Platform// : IBinarySerializable
 								};
 	}
 
-	public static object ParseIdentifier(string t)
+	public static object ParseIdentifier(string text)
 	{
-		var p = t.Split('/');
+		var p = text.Split('/');
 
-		var f = Enum.Parse<PlatformFamily>(p[0]);
+		var f = Enum.Parse<Family>(p[0]);
 		
 		if(p.Skip(1).Any())
 		{
-			var b = Enum.Parse(typeof(Platform).Assembly.GetType(typeof(Platform).Namespace + '.' + f + "Brand"), p[1]);
+			var t = typeof(Platform);
+
+			var b = Enum.Parse(t.Assembly.GetType(t.Namespace + '.' + f + "Brand"), p[1]);
 			
 			if(p.Skip(2).Any())
 			{
-				return Convert.ToInt32(Enum.Parse(typeof(Platform).Assembly.GetType(typeof(Platform).Namespace + '.' + b + "Version"), p[2]));
+				return Convert.ToInt32(Enum.Parse(t.Assembly.GetType(t.Namespace + '.' + b + "Version"), p[2]));
+//
+//				if(p.Skip(3).Any())
+//				{
+//					return Convert.ToInt32(Enum.Parse(t.Assembly.GetType(t.Namespace + '.' + b + "Architecture"), p[2]));
+//				}
 			}
 
 			return Convert.ToInt32(b);
@@ -66,22 +73,147 @@ public class Platform// : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Family			= reader.Read<PlatformFamily>();
+		Family			= reader.Read<Family>();
 		Brand			= reader.Read7BitEncodedInt();
 		Version			= reader.Read7BitEncodedInt();
-		Architecture	= (Architecture)reader.ReadByte();
+		Architecture	= reader.Read<Architecture>();
 	}
 
 	public void Write(Writer writer)
 	{
 		writer.Write(Family);
-		writer.Write7BitEncodedInt((int)Brand);
-		writer.Write7BitEncodedInt((int)Version);
-		writer.Write((byte)Architecture);
+		writer.Write7BitEncodedInt(Brand);
+		writer.Write7BitEncodedInt(Version);
+		writer.Write(Architecture);
 	}
 }
 
-public enum PlatformFamily : byte
+public class Expression : IBinarySerializable
+{
+	public string				Operator;
+	public Expression[]			Operands;
+
+	public const string			Greater = ">";
+	public const string			GreaterOrEqual = ">=";
+	public const string			Less = "<";
+	public const string			LessOrEqual = "<=";
+	public const string			Equal = "==";
+	public const string			Not = "NOT";
+	public const string			Or = "OR";
+	public const string			And = "AND";
+
+	public const string			Family = "Family";
+	public const string			Brand = "Brand";
+	public const string			Version = "Version";
+	public const string			Architecture = "Architecture";
+
+	static bool IsOperation(string name) => name == Greater ||
+											name == GreaterOrEqual ||
+											name == Less ||
+											name == LessOrEqual ||
+											name == Equal ||
+											name == Not ||
+											name == Or ||
+											name == And;
+
+	public bool Match(Platform platform) => (bool)Evaluate(new(){   {Family, platform.Family},
+																	{Brand, platform.Brand},
+																	{Version, platform.Version},
+																	{Architecture, platform.Architecture}});
+
+	public Expression()
+	{
+	}
+
+	public Expression(string @operator, Expression[] operands)
+	{
+		Operator = @operator;
+		Operands = operands;
+	}
+
+	public Expression(string @operator)
+	{
+		Operator = @operator;
+	}
+
+	public Xon ToXon(IXonValueSerializator serializator)
+	{
+		var o = new Xon { Name = Operator };
+
+		if(IsOperation(Operator))
+			o.Nodes.AddRange(Operands.Select(i => i.ToXon(serializator)));
+
+		return o;
+	}
+
+	public static Expression FromXon(Xon xon)
+	{
+		var e = new Expression();
+
+		e.Operator = xon.Name;
+
+		if(IsOperation(xon.Name))
+		{
+			e.Operands = xon.Nodes.Select(FromXon).ToArray();
+		}
+
+		return e;
+		//if(Enum.TryParse<PlatfromOperator>(x.Name, out var o))
+		//	e.Operator = o;
+		//else
+		//	e.Name = x.Name;
+		//
+		//e.Operands = x.Nodes.Select(FromXon).ToArray();
+
+		//return e;
+	}
+
+	public object Evaluate(Dictionary<string, object> consts, Expression left = null)
+	{
+		switch(Operator)
+		{
+			case Not:			 return !(bool)Operands[0].Evaluate(consts);
+			case And:			 return Operands.All(i => (bool)i.Evaluate(consts));
+			case Or:			 return Operands.Any(i => (bool)i.Evaluate(consts));
+			case Equal:			 return Operands[0].Evaluate(consts).Equals(Operands[1].Evaluate(consts, Operands[0]));
+			case Greater:		 return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts, Operands[0])) > 0;
+			case GreaterOrEqual: return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts, Operands[0])) >= 0;
+			case Less:			 return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts, Operands[0])) < 0;
+			case LessOrEqual:	 return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts, Operands[0])) <= 0;
+
+		}
+
+		if(left != null)
+		{
+			switch(left.Operator)
+			{
+				case Family:		 
+				case Brand:		 
+				case Version:		return Platform.ParseIdentifier(Operator);
+				case Architecture:	return Enum.Parse<Architecture>(Operator);
+			}
+		}
+
+		if(consts.TryGetValue(Operator, out var v))
+			return v;
+
+		throw new ArgumentException();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteASCII(Operator);
+		writer.Write(Operands);
+	}
+
+	public void Read(Reader reader)
+	{
+		Operator = reader.ReadASCII();
+		Operands = reader.ReadArray<Expression>();
+	}
+}
+
+public enum Family : byte
 {
 	Unknown = 0,
 

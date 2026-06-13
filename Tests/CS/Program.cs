@@ -13,7 +13,8 @@ class Program
 		//AccountKeyTests.Main();
 		//XonTest.Basic();
 		//ECTests.Move();
-		Serialization.Main();
+		//Serialization.Main();
+		PlatformExpressionTest.Main();
 
 		//UraTests.UAddresses();
 		//UraTests.Resource();

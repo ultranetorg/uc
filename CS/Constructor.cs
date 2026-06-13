@@ -57,8 +57,8 @@ public class Constructor
 				if(!overwrite && Ctors[typeof(T)].ContainsKey((uint)c))
 					throw new ArgumentException();
 
-				var e = Expression.New(i.GetConstructor([]));
-				var l = Expression.Lambda<Func<T>>(e);
+				var e = System.Linq.Expressions.Expression.New(i.GetConstructor([]));
+				var l = System.Linq.Expressions.Expression.Lambda<Func<T>>(e);
 				var f = l.Compile();
 
 				Ctors[typeof(T)][(uint)c] = () =>	{

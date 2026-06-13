@@ -154,7 +154,7 @@ public class Start// : IBinarySerializable
 {
 	public string				Path { get; set; }
 	public string				Arguments { get; set; }
-	public PlatformExpression	Condition { get; set; }
+	public Expression	Condition { get; set; }
 
 	public override string ToString()
 	{
@@ -178,7 +178,7 @@ public class Start// : IBinarySerializable
 		var m = new Start ();
 		m.Path		= x.Get<string>("Path", null);
 		m.Arguments	= x.Get<string>("Arguments", null);
-		m.Condition	= x.Has("Condition") ? PlatformExpression.FromXon(x.One("Condition").Nodes.First()) : null;
+		m.Condition	= x.Has("Condition") ? Expression.FromXon(x.One("Condition").Nodes.First()) : null;
 
 		return m;
 	}

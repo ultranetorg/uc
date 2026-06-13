@@ -25,6 +25,17 @@ public class Snq : IBinarySerializable, IEquatable<Snq>  /// Scheme Net Path
 		return ToString(Scheme, Net, Query);
 	}
 
+	public static string ToCanonical(string address)
+	{
+		if(address == Iccn.Root || address == null || address == string.Empty)
+			return Iccn.Root;
+
+ 		if(!address.EndsWith($".{Iccn.Root}"))
+			return address + $".{Iccn.Root}";
+
+		return address;
+	}
+
 	public static string ToString(string scheme, string net, string entity)
 	{
 		return $"{(scheme == null ? null : (scheme + ':'))}{net}{(entity == null ? null : ('/' + entity))}";

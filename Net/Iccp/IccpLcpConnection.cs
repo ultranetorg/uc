@@ -48,6 +48,11 @@ public class IccpLcpConnection : LcpConnection
 										};
 	}
 
+	public override string ToString()
+	{
+		return $"{Application}, {Net}, {Type}";
+	}
+
 	TFunc CreateAdapter<TFunc>(MethodInfo mi) where TFunc : Delegate
 	{
 		var funcType = typeof(TFunc);
@@ -56,19 +61,19 @@ public class IccpLcpConnection : LcpConnection
 		var delegateParamTypes = invoke.GetParameters().Select(p => p.ParameterType).ToArray();
 		var delegateReturnType = invoke.ReturnType;
 
-		var lp = delegateParamTypes.Select(Expression.Parameter).ToArray();
+		var lp = delegateParamTypes.Select(System.Linq.Expressions.Expression.Parameter).ToArray();
 
 		var methodParams = mi.GetParameters();
 
-		var convertedArgs = methodParams.Select((p, i) => Expression.Convert(lp[i], p.ParameterType)).ToArray();
+		var convertedArgs = methodParams.Select((p, i) => System.Linq.Expressions.Expression.Convert(lp[i], p.ParameterType)).ToArray();
 
-		var call = mi.IsStatic	? Expression.Call(mi, convertedArgs)
-								: Expression.Call(Expression.Constant(this, mi.DeclaringType), mi, convertedArgs);
+		var call = mi.IsStatic	? System.Linq.Expressions.Expression.Call(mi, convertedArgs)
+								: System.Linq.Expressions.Expression.Call(System.Linq.Expressions.Expression.Constant(this, mi.DeclaringType), mi, convertedArgs);
 
-		Expression body = mi.ReturnType == typeof(void)	? Expression.Block(call, Expression.Default(delegateReturnType))
-														: Expression.Convert(call, delegateReturnType);
+		System.Linq.Expressions.Expression body = mi.ReturnType == typeof(void)	? global::System.Linq.Expressions.Expression.Block(call, global::System.Linq.Expressions.Expression.Default(delegateReturnType))
+														: global::System.Linq.Expressions.Expression.Convert(call, delegateReturnType);
 
-		return Expression.Lambda<TFunc>(body, lp).Compile();
+		return System.Linq.Expressions.Expression.Lambda<TFunc>(body, lp).Compile();
 	}
 
 	void Request(string from, string to, LcpRequest request)

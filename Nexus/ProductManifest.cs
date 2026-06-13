@@ -4,141 +4,12 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
-public class PlatformExpression : IBinarySerializable
-{
-	public string				Operator;
-	public PlatformExpression[] Operands;
-
-	public const string Greater = ">";
-	public const string GreaterOrEqual = ">=";
-	public const string Less = "<";
-	public const string LessOrEqual = "<=";
-	public const string Equal = "==";
-	public const string Not = "NOT";
-	public const string Or = "OR";
-	public const string And = "AND";
-
-	public const string Family = "Family";
-	public const string Brand = "Brand";
-	public const string Version = "Version";
-	public const string Architecture = "Architecture";
-
-	static bool IsOperation(string name) => name == Greater ||
-											name == GreaterOrEqual ||
-											name == Less ||
-											name == LessOrEqual ||
-											name == Equal ||
-											name == Not ||
-											name == Or ||
-											name == And;
-
-	public bool Match(Platform platform) => (bool)Evaluate(new(){   {Family, platform.Family},
-																	{Brand, platform.Brand},
-																	{Version, platform.Version},
-																	{Architecture, platform.Architecture}});
-
-	public PlatformExpression()
-	{
-	}
-
-	public PlatformExpression(string @operator, PlatformExpression[] operands)
-	{
-		Operator = @operator;
-		Operands = operands;
-	}
-
-	public PlatformExpression(string @operator)
-	{
-		Operator = @operator;
-	}
-
-	public Xon ToXon(IXonValueSerializator serializator)
-	{
-		var o = new Xon { Name = Operator };
-
-		if(IsOperation(Operator))
-			o.Nodes.AddRange(Operands.Select(i => i.ToXon(serializator)));
-
-		return o;
-	}
-
-	public static PlatformExpression FromXon(Xon xon)
-	{
-		var e = new PlatformExpression();
-
-		e.Operator = xon.Name;
-
-		if(IsOperation(xon.Name))
-		{
-			e.Operands = xon.Nodes.Select(FromXon).ToArray();
-		}
-
-		return e;
-		//if(Enum.TryParse<PlatfromOperator>(x.Name, out var o))
-		//	e.Operator = o;
-		//else
-		//	e.Name = x.Name;
-		//
-		//e.Operands = x.Nodes.Select(FromXon).ToArray();
-
-		//return e;
-	}
-
-	public object Evaluate(Dictionary<string, object> consts)
-	{
-		switch(Operator)
-		{
-			case Not:
-				return !(bool)Operands[0].Evaluate(consts);
-
-			case And:
-				return Operands.All(i => (bool)i.Evaluate(consts));
-
-			case Or:
-				return Operands.Any(i => (bool)i.Evaluate(consts));
-
-			case Equal:
-			{
-				var a = Operands[0].Evaluate(consts);
-				return Operands.Skip(1).All(i => a.Equals(i.Evaluate(consts)));
-			}
-
-			case Greater:
-				return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) > 0;
-
-			case GreaterOrEqual:
-				return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) >= 0;
-
-			case Less:
-				return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) < 0;
-
-			case LessOrEqual:
-				return (Operands[0].Evaluate(consts) as IComparable).CompareTo(Operands[1].Evaluate(consts)) <= 0;
-
-			default:
-				return consts.TryGetValue(Operator, out var v) ? v : Platform.ParseIdentifier(Operator);
-		}
-	}
-
-	public void Write(Writer writer)
-	{
-		writer.WriteASCII(Operator);
-		writer.Write(Operands);
-	}
-
-	public void Read(Reader reader)
-	{
-		Operator = reader.ReadASCII();
-		Operands = reader.ReadArray<PlatformExpression>();
-	}
-}
-
 public class Realization : IBinarySerializable
 {
 	public Ura					Latest;
 	public string				Name;
 	public string				Title;
-	public PlatformExpression	Condition;
+	public Expression	Condition;
 	public string				Channel;
 
 	public Realization()
@@ -153,7 +24,7 @@ public class Realization : IBinarySerializable
 		r.Title		= xon.Get<string>("Title", null);
 		r.Latest	= xon.One("Latest")?.Get<Ura>();
 		r.Channel	= xon.Get<string>("Channel");
-		r.Condition = xon.Has("Condition") ? PlatformExpression.FromXon(xon.One("Condition").Nodes.First()) : null;
+		r.Condition = xon.Has("Condition") ? Expression.FromXon(xon.One("Condition").Nodes.First()) : null;
 
 		return r;
 	}
@@ -177,7 +48,7 @@ public class Realization : IBinarySerializable
 		Title		= reader.ReadUtf8();
 		Latest		= reader.Read<Ura>();
 		Channel		= reader.ReadUtf8();
-		Condition	= reader.ReadNullable<PlatformExpression>();
+		Condition	= reader.ReadNullable<Expression>();
 	}				
 
 	public void Write(Writer writer)

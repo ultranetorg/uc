@@ -133,7 +133,7 @@ public class Nexus : IProgram
 		//ApiStarted?.Invoke(this);
 	}
 
-	public DeployedNode RunNode(string net, Flow flow)
+	public DeployedNode RunNode(string net)
 	{
 		var node = Settings.Nodes.FirstOrDefault(i => i.Net == net);
 
@@ -144,7 +144,7 @@ public class Nexus : IProgram
 
 		if(node == null)
 		{
-			var info = IccpLcpServer.Call<InfoIccr>(null, net, new InfoIcca(), flow); /// get wayin info
+			var info = IccpLcpServer.Call<InfoIccr>(null, net, new InfoIcca(), Flow); /// get wayin info
 
 			var wi = info.Wayins.FirstOrDefault(i => i.Software != null);
 				
@@ -154,7 +154,7 @@ public class Nexus : IProgram
 			
 				if(s == Iccp.Scheme) /// deploy node software
 				{
-					var p = DeployProduct(Ura.Parse(wi.Software), flow);
+					var p = DeployProduct(Ura.Parse(wi.Software), Flow);
 
 					node = new DeployedNode {Net = net, Package = p.Resource.Address.ToString()};
 					Settings.Nodes.Add(node);
@@ -164,18 +164,6 @@ public class Nexus : IProgram
 			}
 			else
 				throw new NexusException("No node software");
-
-//
-//			if(wi.Command != null)
-//			{
-//				var ps = new Process();
-//
-//				ps.StartInfo.FileName = null;
-//				ps.StartInfo.Arguments = wi.Command;
-//				ps.StartInfo.UseShellExecute = true;
-//		
-//				ps.Start();
-//			}
 		}
 
 		node.Process = Run(Ura.Parse(node.Package));
@@ -194,21 +182,7 @@ public class Nexus : IProgram
 			var c = IccpLcpServer.Locals.FirstOrDefault(i => i.Net == snq.Net);
 
 			if(c == null)
-			{
-				RunNode(snq.Net, flow);
-			
-//				if(wi.Command != null)
-//				{
-//					var ps = new Process();
-//
-//					ps.StartInfo.FileName = null;
-//					ps.StartInfo.Arguments = wi.Command;
-//					ps.StartInfo.UseShellExecute = true;
-//		
-//					ps.Start();
-//				}
-				
-			}
+				RunNode(snq.Net);
 			
 			while(c == null)
 			{	

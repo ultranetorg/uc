@@ -1,6 +1,6 @@
 ﻿using Xunit;
 
-namespace Uccs.Net.Tests;
+namespace Uccs.Tests;
 
 public static class BytesTests
 {
