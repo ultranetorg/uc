@@ -270,8 +270,9 @@ public class Nexus : IProgram
 
 	public void SetupApplicationEnvironemnt(Ura address)
 	{
-		Environment.SetEnvironmentVariable(Application.PackageAddressKey,	address.ToString());
-		Environment.SetEnvironmentVariable(Application.ProfileKey,			Settings.Profile);
+		Environment.SetEnvironmentVariable(NetBoot.ZoneEnvironmentKey,		Settings.Zone.ToString());
+		Environment.SetEnvironmentVariable(NetBoot.ProfileEnvironmentKey,	Settings.Profile);
+		Environment.SetEnvironmentVariable(Application.PackageKey,			address.ToString());
 
 		Environment.CurrentDirectory = PackageHub.AddressToDeployment(Settings.Packages, address);
 	}

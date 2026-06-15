@@ -60,10 +60,10 @@ public class FairNode : McvNode
 	{
 		Flow.Abort();
 
-		WebServer?.Stop();
 		ApiServer?.Stop();
 		Peering.Stop();
 		Iccp?.Disconnect();
+		WebServer?.Stop();
 		Mcv?.Stop();
 
 		base.Stop();

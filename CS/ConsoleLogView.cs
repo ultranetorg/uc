@@ -27,13 +27,8 @@ public class ConsoleLogView : ILogView
 	{
 		Log = log;
 
-		lock(Log.Messages)
-		{
-			foreach(var i in Log.Messages)
-			{
-				OnReported(i);
-			}
-		}
+		foreach(var i in Log.Messages)
+			OnReported(i);
 
 		log.Reported += OnReported;
 	}

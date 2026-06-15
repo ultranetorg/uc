@@ -26,13 +26,8 @@ public partial class Logbox : TextBox, ILogView
 
 			if(log != null)
 			{
-				lock(Log.Messages)
-				{
-					foreach(var i in Log.Messages)
-					{
-						OnReported(i);
-					}
-				}
+				foreach(var i in Log.Messages)
+					OnReported(i);
 
 				log.Reported += OnReported;
 			}

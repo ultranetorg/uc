@@ -12,8 +12,6 @@ public abstract class Cli
 	public ConsoleLogView		LogView = new ConsoleLogView(false, true);
 	public Flow					Flow; 
 
-	//public abstract Command		Create(IEnumerable<Xon> commnad, Flow flow);
-
 	public static bool			ConsoleAvailable { get; protected set; }
 
 	static Cli()
@@ -59,7 +57,7 @@ public abstract class Cli
 			var l = new Log();
 			LogView.StartListening(l);
 
-			Execute(boot.Commnand.Nodes, Flow.CreateNested("Command", l));
+			Execute(boot.Commnand.Nodes, Flow);
 		}
 		catch(OperationCanceledException)
 		{

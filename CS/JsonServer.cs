@@ -257,25 +257,26 @@ public abstract class JsonServer
 		}
 	}
 
+	public void RespondJson(HttpListenerResponse response, object t)	
+	{
+		var output = response.OutputStream;
+		var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, Options));
+						
+		response.ContentType = "text/json" ;
+		response.ContentLength64 = buffer.Length;
+
+		output.Write(buffer, 0, buffer.Length);
+	}
+
 	protected virtual void Route(HttpListenerContext context, string call)
 	{
 		var rq = context.Request;
 		var rp = context.Response;
 
-		void respondjson(object t)	{
-										var output = rp.OutputStream;
-										var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, Options));
-						
-										rp.ContentType = "text/json" ;
-										rp.ContentLength64 = buffer.Length;
-
-										output.Write(buffer, 0, buffer.Length);
-									}
-
 		if(call == "Ping")
 		{
 			rp.StatusCode = (int)HttpStatusCode.OK;
-			respondjson(new Pong {Status = "OK"});
+			RespondJson(context.Response, new Pong {Status = "OK"});
 			rp.Close();
 			return;
 		}
@@ -320,7 +321,7 @@ public abstract class JsonServer
 				rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as Apc));
 			}
 
-			respondjson(rs);
+			RespondJson(context.Response, rs);
 		}
 		else
 		{
@@ -328,7 +329,7 @@ public abstract class JsonServer
 
 			//if(r != null)
 			{
-				respondjson(r);
+				RespondJson(context.Response, r);
 			}
 		}
 	}

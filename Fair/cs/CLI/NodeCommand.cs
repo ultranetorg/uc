@@ -28,7 +28,10 @@ public class NodeCommand : Uccs.Net.NodeCommand
 								
 								Cli.Run(this, a);
 
-								Cli.Node.Stop();
+								if(Cli.Node.Flow.Active)
+									Cli.Node.Stop();
+
+								Cli.Node  = null;
 
 								return null;
 							};

@@ -114,12 +114,13 @@ public abstract class McvPeering : HomoPeering
 
 	public override void Stop()
 	{
+		All.Remove(this);
+
 		TransactingThread?.Join();
 		SynchronizingThread?.Join();
 
 		base.Stop();
 
-		All.Remove(this);
 	}
 
 	public override void OnRequestException(Peer peer, NodeException ex)

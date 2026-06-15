@@ -5,11 +5,11 @@ namespace Uccs.Nexus;
 
 public class Application
 {
-	public const string ProfileKey = "UC_Profile";
-	public const string PackageAddressKey = "UC_PackageAddress";
+	public const string PackageKey = "UC_Packages";
 
 	public NexusClient			Nexus;
-	public ApvAddress			Address => ApvAddress.Parse(Environment.GetEnvironmentVariable(PackageAddressKey));
+
+	public ApvAddress			Address => ApvAddress.Parse(Environment.GetEnvironmentVariable(PackageKey));
 
 	public Application()
 	{

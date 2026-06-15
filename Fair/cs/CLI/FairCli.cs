@@ -21,8 +21,6 @@ public class FairCli : McvCli
 		Settings		= new FairNodeSettings(Path.Join(b.Profile, typeof(FairNode).FullName), b.Zone, NexusSettings);
 
 		Execute(b);
-
-		Node?.Stop();
 	}
 
 	public FairCli(NexusSettings nexussettings, FairNodeSettings settings, FairApiClient api) : base(nexussettings, settings, api)

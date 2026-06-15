@@ -129,7 +129,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
 	{
-		return Owners.Contains(signer); /// TODO : Owner only
+		return Owners.Contains(signer);
 	}
 
 	public static bool IsOwner(Author author, User account, Time time)

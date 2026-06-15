@@ -14,6 +14,7 @@ public class FileLog
 	public FileLog(Log log, string name, string destination, Flow flow)
 	{
 		Log = log;
+		Log.Reported += m => Queue.Enqueue(m.ToString());
 		
 		var fs = Directory.EnumerateFiles(destination, Path.Join($"{name}.*.log"));
 
@@ -55,8 +56,5 @@ public class FileLog
 		t.Name = name + " Log";
 		t.Start();
 
-		Log.Reported += m => {
-								Queue.Enqueue(m.ToString());
-							 };
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Net;
 
 namespace Uccs;
@@ -30,11 +31,11 @@ public class Log
 		None, Info, Warning, Error, SubLog
 	}
 
-	public List<LogMessage>		Messages = new List<LogMessage>(10000);
-	public ReportedDelegate		Reported;
-	public Log					Parent;
-	string						Name;
-	public List<Type>			TypesForExpanding { get; } = [];
+	public ConcurrentQueue<LogMessage>	Messages = new ();
+	public ReportedDelegate				Reported;
+	public Log							Parent;
+	string								Name;
+	public List<Type>					TypesForExpanding { get; } = [];
 
 	public int Depth
 	{
@@ -71,14 +72,10 @@ public class Log
 		while(r.Parent != null)
 			r = r.Parent;
 		
-		lock(r.Messages)
-		{
-			r.Messages.Add(m);
+		r.Messages.Enqueue(m);
 
-			if(r.Messages.Count > 10000)
-				r.Messages.RemoveRange(r.Messages.Count - 1000, 1000);
-		
-		}
+		if(r.Messages.Count > 10000)
+			r.Messages.TryDequeue(out _);
 		
 		r.Reported?.Invoke(m);
 	}

@@ -65,13 +65,16 @@ public class ExceptionApc : NodeApc
 	}
 }
 
-public class StopApc : NodeApc
+public class ExitApc : NodeApc
 {
 	public string Reason { get; set; }
 
-	public override object Execute(Node sun, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(Node node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		sun.Stop();
+		response.StatusCode = (int)HttpStatusCode.OK;
+		response.Close();
+		
+		node.Stop();
 		return null;
 	}
 }
@@ -106,7 +109,7 @@ public class LogReportApc : NodeApc
 {
 	public override object Execute(Node node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-		lock(node.Flow.Log.Messages)
+		//lock(node.Flow.Log.Messages)
 			return new Response {Log = node.Flow.Log.Messages.TakeLast(Limit).Select(i => i.ToString()).ToArray() }; 
 	}
 
