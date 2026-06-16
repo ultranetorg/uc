@@ -5,7 +5,7 @@ import { SvgStarXxs } from "assets"
 import { LinkFullscreen } from "ui/components"
 import { ReviewsList } from "ui/components/specific"
 import { AuthorImageTitle } from "ui/components/publication/SoftwareInfo/components"
-import { buildFileUrl, formatAverageRating } from "utils"
+import { buildFileUrl } from "utils"
 
 import { ContentProps } from "../types"
 
@@ -63,7 +63,7 @@ export const MoviePublicationContent = memo(
                 <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
                 <span className={twMerge(VALUE_CLASSNAME, "flex flex-wrap items-center gap-3 whitespace-nowrap")}>
                   <span className="flex items-center gap-1">
-                    <span className="font-semibold">{formatAverageRating(productOrPublication.rating)}</span>
+                    <span className="font-semibold">{productOrPublication.rating}</span>
                     <SvgStarXxs className="fill-favorite" />
                   </span>
                   {movieFields.imdb && (
@@ -160,7 +160,7 @@ export const MoviePublicationContent = memo(
               reviews={reviews}
               error={error}
               onLeaveReviewClick={onLeaveReview}
-              leaveReviewLabel={t("leaveReview")}
+              leaveReviewLabel={t("writeReview")}
               noReviewsLabel={t("noReviews")}
               reviewLabel={t("review", { count: reviews?.totalItems })}
               showMoreReviewsLabel={t("showMoreReviews")}

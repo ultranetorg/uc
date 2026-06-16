@@ -94,7 +94,7 @@ public class PerpetualSurveysService
 			LastWin = survey.LastWin,
 			Options = options,
 			TotalVotes = totalVotes,
-			VotesRequiredToWin = sitePublishersCount / 2 + (sitePublishersCount & 1)
+			VotesRequiredToWin = VotingUtils.CalculateVotesRequiredToWinPerpetualSurvey(sitePublishersCount)
 		};
 	}
 

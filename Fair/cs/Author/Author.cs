@@ -71,7 +71,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	
 	public AutoId[]					Products { get; set; }
 	public AutoId[]					Sites { get; set; }
-	public AuthorReference[]		Referrences { get; set; }
+	public AuthorReference[]		References { get; set; }
 	public AutoId[]					Files  { get; set; }
 
 	public EntityId					Key => Id;
@@ -110,7 +110,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 					Products			= Products,
 					Sites				= Sites,
-					Referrences				= Referrences,
+					References				= References,
 					Files				= Files,
 				};
 
@@ -148,7 +148,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		
 		writer.Write(Products);
 		writer.Write(Sites);
-		writer.Write(Referrences);
+		writer.Write(References);
 	}
 
 	public void ReadMain(Reader reader)
@@ -157,7 +157,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		
 		Products	= reader.ReadArray<AutoId>();
 		Sites		= reader.ReadArray<AutoId>();
-		Referrences	= reader.ReadArray<AuthorReference>();
+		References	= reader.ReadArray<AuthorReference>();
 	}
 
 	public void Cleanup(Round lastInCommit)

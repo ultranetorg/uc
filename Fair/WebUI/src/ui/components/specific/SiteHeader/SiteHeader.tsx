@@ -1,33 +1,36 @@
 import { KeyboardEvent, useCallback, useMemo, useState } from "react"
-import { Link, useMatch, useNavigate, useParams } from "react-router-dom"
+import { useMatch, useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSiteContext, useSearchQueryContext } from "app"
+import { useSiteContext, useSearchQueryContext, useSiteRolesContext, useUserContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 
 import { CategoriesDropdownButton } from "./CategoriesDropdownButton"
-import { LinkCounter } from "./LinkCounter"
+import { GovernanceDropdownButton } from "./GovernanceDropdownButton"
 import { LogoDropdownButton } from "./LogoDropdownButton"
-import { StoreDropdownButton } from "./StoreDropdownButton"
+import { ModerationDropdownButton } from "./ModerationDropdownButton"
+import { UserProfileButton } from "./UserProfileButton"
 import { toSimpleMenuItems } from "./utils"
+import { PublisherMembersDropdownButton } from "./PublisherMembersDropdownButton"
 
 export const SiteHeader = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:siteId/s")
-
+  const { site, rootCategories } = useSiteContext()
+  const { isModerator, isPublisher } = useSiteRolesContext()
   const { t } = useTranslation("site")
+  const { user } = useUserContext()
 
   const { setQuery: setSiteQuery } = useSearchQueryContext()
-  const { site } = useSiteContext()
 
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
-    () => (site?.categories && siteId ? toSimpleMenuItems(site?.categories, siteId) : undefined),
-    [site, siteId],
+    () => (rootCategories && siteId ? toSimpleMenuItems(rootCategories, siteId) : undefined),
+    [rootCategories, siteId],
   )
 
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
@@ -80,9 +83,13 @@ export const SiteHeader = () => {
 
   return (
     <div className="flex items-center justify-between gap-8 pb-8">
-      <Link to={`/${siteId}`}>
-        <LogoDropdownButton title={site.title} imageFileId={site.imageFileId} />
-      </Link>
+      <LogoDropdownButton
+        t={t}
+        siteId={siteId!}
+        title={site.title}
+        imageFileId={site.imageFileId}
+        publishersCount={site.authorsIds.length}
+      />
       <div className="flex w-135 items-center justify-between gap-4">
         {categoriesItems && categoriesItems.length > 0 && (
           <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />
@@ -100,10 +107,10 @@ export const SiteHeader = () => {
         />
       </div>
       <div className="flex items-center gap-8">
-        <LinkCounter to={`/${siteId}/g`} className="w-22.5 justify-center">
-          {t("governance")}
-        </LinkCounter>
-        <StoreDropdownButton site={site} className="w-17" />
+        <GovernanceDropdownButton className="w-28" />
+        {isModerator && <ModerationDropdownButton className="w-28" />}
+        {isPublisher && <PublisherMembersDropdownButton className="w-25" t={t} siteId={siteId!} user={user!} />}
+        <UserProfileButton t={t} />
       </div>
     </div>
   )

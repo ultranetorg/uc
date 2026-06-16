@@ -2,6 +2,7 @@
 
 public class PolicyModel(Policy policy)
 {
-	public FairOperationClass OperationClass { get; set; } = policy.OperationClass;
-	public ApprovalRequirement Approval { get; set; } = policy.Approval;
+	public FairOperationClass OperationClass { get; } = policy.OperationClass;
+	public IEnumerable<Role> Creators { get; } = policy.Creators.GetFlags();
+	public ApprovalRequirement Approval { get; } = policy.Approval;
 }

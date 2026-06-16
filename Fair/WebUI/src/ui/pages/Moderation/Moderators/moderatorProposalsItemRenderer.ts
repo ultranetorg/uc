@@ -3,22 +3,22 @@ import { ReactNode } from "react"
 import { ModeratorProposal } from "types"
 
 import { TableColumn, TableItem } from "ui/components"
-import { renderAccount, renderActionShort, renderCommon } from "ui/renderers/utils"
-import { renderAccountsList } from "ui/renderers2"
+import { renderActionShort, renderCommon } from "ui/renderers/utils"
+import { renderUser, renderUsersList } from "ui/renderers2"
 
 export const getModeratorsProposalsItemRenderer =
-  (t: TFunction) =>
+  (t: TFunction, votesRequired?: number) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const proposal = item as ModeratorProposal
 
     switch (column.type) {
       case "account":
-        return renderAccount(proposal.by)
+        return renderUser(proposal.by)
       case "accounts-list":
-        return proposal.moderators ? renderAccountsList(proposal.moderators) : t("multipleOptions")
+        return renderUsersList(proposal.moderators)
       case "action-short":
         return renderActionShort(t, proposal.operation)
     }
 
-    return renderCommon(t, column, proposal)
+    return renderCommon(t, column, proposal, votesRequired)
   }

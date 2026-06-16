@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 import { isNumber } from "lodash"
 
+import { useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "config"
 import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities"
 import { useUrlParamsState } from "hooks"
@@ -16,6 +17,7 @@ import { PageHeader } from "./PageHeader"
 export const SitesPage = () => {
   const { t } = useTranslation("sites")
   const navigate = useNavigate()
+  const { user } = useUserContext()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -111,7 +113,7 @@ export const SitesPage = () => {
       </div>
       {(sites && sites!.items.length > 0) || (defaultSites && defaultSites!.length > 0) ? (
         <>
-          <SitesGrid items={(sites?.items ?? defaultSites)!} />
+          <SitesGrid items={(sites?.items ?? defaultSites)!} showStar={!!user} />
           {sites && <Pagination page={page} pagesCount={pagesCount} onPageChange={handlePageChange} />}
         </>
       ) : (

@@ -6,7 +6,7 @@ import { useSiteContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchAccounts } from "entities"
 import { AccountBase } from "types"
-import { DropdownItem } from "ui/components/proposal/DropdownSearchAccount"
+import { DropdownItem } from "ui/components/proposal/DropdownSearchMember"
 
 import { MembersPanelList } from "./MembersPanelList"
 

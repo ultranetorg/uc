@@ -1,7 +1,10 @@
 import { useEffect, useMemo } from "react"
 
-import { useCreateProposalContext } from "app"
+import { useParams } from "react-router-dom"
+
+import { useGetCategoriesTree } from "entities"
 import { Dropdown, DropdownProps } from "ui/components"
+import { buildCategoryTree } from "utils"
 
 import { categoriesToDropdownItems, keepSpacesFormatOptionLabel } from "./utils"
 
@@ -21,15 +24,19 @@ export const DropdownSearchCategory = ({
   hasRoot = false,
   ...rest
 }: DropdownSearchCategoryProps) => {
-  const { refetchCategories, categories } = useCreateProposalContext()
+  const { siteId } = useParams()
+  const { refetch, data: categories } = useGetCategoriesTree(siteId, 16)
 
-  const items = useMemo(() => categoriesToDropdownItems(categories, 0, "  ", hasRoot), [categories, hasRoot])
+  const items = useMemo(() => {
+    if (!categories) return undefined
+
+    const categoryTree = buildCategoryTree(categories)
+    return categoriesToDropdownItems(categoryTree, 0, "  ", hasRoot)
+  }, [categories, hasRoot])
 
   useEffect(() => {
-    if (!categories) {
-      refetchCategories?.()
-    }
-  }, [categories, refetchCategories])
+    refetch()
+  }, [refetch])
 
   return (
     <Dropdown

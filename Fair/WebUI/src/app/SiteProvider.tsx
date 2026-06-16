@@ -1,8 +1,8 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from "react"
+import { createContext, memo, PropsWithChildren, useContext, useMemo } from "react"
 import { useLocation, useParams } from "react-router-dom"
 
-import { useGetCategories, useGetSite } from "entities"
-import { CategoryParentBaseWithChildren, Site } from "types"
+import { useGetCategoriesRoot, useGetCategoriesTree, useGetSite } from "entities"
+import { CategoryBase, CategoryParentBaseWithChildren, Site } from "types"
 import { buildCategoryTree } from "utils"
 
 import { LinkFullscreenState } from "ui/components"
@@ -12,7 +12,8 @@ type SiteContextType = {
   site?: Site
   error?: Error
   isCategoriesPending: boolean
-  categories?: CategoryParentBaseWithChildren[]
+  categoriesTree?: CategoryParentBaseWithChildren[]
+  rootCategories?: CategoryBase[]
 }
 
 const SiteContext = createContext<SiteContextType>({
@@ -20,7 +21,7 @@ const SiteContext = createContext<SiteContextType>({
   isCategoriesPending: false,
 })
 
-export const SiteProvider = ({ children }: PropsWithChildren) => {
+export const SiteProvider = memo(({ children }: PropsWithChildren) => {
   const { siteId } = useParams()
   const location = useLocation()
 
@@ -30,7 +31,8 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
   const effectiveSiteId = siteId || state?.siteId
 
   const { data: site, isPending, error } = useGetSite(effectiveSiteId)
-  const { data: categories, isPending: isCategoriesPending } = useGetCategories(effectiveSiteId, 2)
+  const { data: rootCategories } = useGetCategoriesRoot(effectiveSiteId)
+  const { data: categories, isPending: isCategoriesPending } = useGetCategoriesTree(effectiveSiteId, 2)
 
   const categoriesTree = useMemo(() => (Array.isArray(categories) ? buildCategoryTree(categories) : []), [categories])
 
@@ -40,12 +42,13 @@ export const SiteProvider = ({ children }: PropsWithChildren) => {
       site,
       error,
       isCategoriesPending,
-      categories: categoriesTree,
+      categoriesTree,
+      rootCategories,
     }
-  }, [categoriesTree, error, isCategoriesPending, isPending, site])
+  }, [rootCategories, categoriesTree, error, isCategoriesPending, isPending, site])
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>
-}
+})
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useSiteContext = () => useContext(SiteContext)

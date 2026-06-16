@@ -7,16 +7,22 @@ import { AccountsListItem, AccountsListItemProps } from "./AccountsListItem"
 
 type AccountsListBaseProps = {
   items: AccountsListItemProps[]
+  fallbackSrc: string
   onItemRemove?: (id: string) => void
 }
 
 export type AccountsListProps = PropsWithClassName & AccountsListBaseProps
 
-export const AccountsList = memo(({ className, items, onItemRemove }: AccountsListProps) => {
+export const AccountsList = memo(({ className, items, fallbackSrc, onItemRemove }: AccountsListProps) => {
   return (
     <div className={twMerge("flex flex-wrap gap-3", className)}>
       {items.map(x => (
-        <AccountsListItem key={x.id} {...x} onRemove={onItemRemove ? () => onItemRemove(x.id) : undefined} />
+        <AccountsListItem
+          key={x.id}
+          {...x}
+          onRemove={onItemRemove ? () => onItemRemove(x.id) : undefined}
+          fallbackSrc={fallbackSrc}
+        />
       ))}
     </div>
   )

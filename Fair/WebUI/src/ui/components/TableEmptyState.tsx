@@ -1,5 +1,11 @@
-export type TableEmptyStateProps = {
+import { PropsWithClassName } from "types"
+
+type TableEmptyStateBaseProps = {
   message: string
 }
 
-export const TableEmptyState = ({ message }: TableEmptyStateProps) => <>{message}</>
+export type TableEmptyStateProps = PropsWithClassName & TableEmptyStateBaseProps
+
+export const TableEmptyState = ({ className, message }: TableEmptyStateProps) => (
+  <div className={className}>{message}</div>
+)

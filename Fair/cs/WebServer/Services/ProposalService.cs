@@ -60,26 +60,13 @@ public class ProposalService
 			IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
 
 			Policy proposalPolicy = site.Policies.FirstOrDefault(p => p.OperationClass == proposal.OptionClass);
-			int votesRequiredToWin = GetVotesRequiredToWin(proposalPolicy.Approval, site);
+			int votesRequiredToWin = VotingUtils.CalculateVotesRequiredToWinProposal(proposalPolicy.Approval, site);
 
 			return new ProposalDetailsModel(proposal, account, votesRequiredToWin)
 			{
-				Options = options,
-				HoursLeft = ProposalUtils.CalculateHoursLeft(proposal, site)
+				Options = options
 			};
 		}
-	}
-
-	int GetVotesRequiredToWin(ApprovalRequirement approval, Site site)
-	{
-		return approval switch
-		{
-			ApprovalRequirement.AnyModerator => 1,
-			ApprovalRequirement.ModeratorsMajority => site.Moderators.Length / 2 + (site.Moderators.Length & 1),
-			ApprovalRequirement.AllModerators => site.Moderators.Length,
-			ApprovalRequirement.PublishersMajority => site.Publishers.Length / 2 + (site.Publishers.Length & 1),
-			_ => -1
-		};
 	}
 
 	//bool won(AutoId[] votes)
@@ -155,7 +142,8 @@ public class ProposalService
 		var proposals = new List<Proposal>(pageSize);
 		int totalItems = 0;
 
-		foreach (var proposalId in site.Proposals)
+		IEnumerable<AutoId> reversedIds = site.Proposals.Reverse();
+		foreach (var proposalId in reversedIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				return ToTotalItemsResult(proposals, totalItems);
@@ -163,8 +151,8 @@ public class ProposalService
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
 			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
-				ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsUserOperation(proposal) ||
-				ProposalUtils.IsModeratorOperation(proposal) || ProposalUtils.IsPublisherOperation(proposal))
+				ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsUserRegistrationOperation(proposal) ||
+				ProposalUtils.IsUserUnregistrationOperation(proposal) || ProposalUtils.IsModeratorOperation(proposal) || ProposalUtils.IsPublisherOperation(proposal))
 			{
 				continue;
 			}
@@ -202,7 +190,7 @@ public class ProposalService
 		};
 	}
 
-	public TotalItemsResult<BaseProposalModel> GetProposals([NotEmpty][NotNull] string siteId, FairOperationClass? operationClass, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ProposalModel> GetProposals([NotEmpty][NotNull] string siteId, FairOperationClass? operationClass, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{SiteId}}, {{OperationClass}}, {{Page}}, {{PageSize}}", siteId, operationClass, page, pageSize);
 
@@ -224,18 +212,18 @@ public class ProposalService
 		}
 	}
 
-	TotalItemsResult<BaseProposalModel> LoadProposalsPagedNotOptimized(IEnumerable<AutoId> proposalIds, FairOperationClass? operation, int page, int pageSize, CancellationToken cancellationToken)
+	TotalItemsResult<ProposalModel> LoadProposalsPagedNotOptimized(IEnumerable<AutoId> proposalIds, FairOperationClass? operation, int page, int pageSize, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
-			return TotalItemsResult<BaseProposalModel>.Empty;
+			return TotalItemsResult<ProposalModel>.Empty;
 
-		var items = new List<BaseProposalModel>(pageSize);
+		var items = new List<ProposalModel>(pageSize);
 		int totalItems = 0;
 
 		foreach (var proposalId in proposalIds)
 		{
 			if(cancellationToken.IsCancellationRequested)
-				return new TotalItemsResult<BaseProposalModel> {Items = items, TotalItems = totalItems};
+				return new TotalItemsResult<ProposalModel> {Items = items, TotalItems = totalItems};
 
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 			if (proposal.OptionClass != operation)
@@ -246,17 +234,17 @@ public class ProposalService
 			if (totalItems >= page * pageSize && totalItems < (page + 1) * pageSize)
 			{
 				FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
-				BaseProposalModel model = CreateCorrespondedModel(operation, proposal, by);
+				ProposalModel model = CreateCorrespondedModel(operation, proposal, by);
 				items.Add(model);
 			}
 
 			++totalItems;
 		}
 
-		return new TotalItemsResult<BaseProposalModel> { Items = items, TotalItems = totalItems };
+		return new TotalItemsResult<ProposalModel> { Items = items, TotalItems = totalItems };
 	}
 
-	BaseProposalModel CreateCorrespondedModel(FairOperationClass? operation, Proposal proposal, FairUser by)
+	ProposalModel CreateCorrespondedModel(FairOperationClass? operation, Proposal proposal, FairUser by)
 	{
 		return null;
 	}

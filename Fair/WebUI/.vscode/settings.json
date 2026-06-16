@@ -7,7 +7,9 @@
     "btih",
     "cpuarchitecture",
     "Descrs",
+    "dont",
     "grayscale",
+    "iccp",
     "imdb",
     "Ipfs",
     "lightgray",
@@ -19,10 +21,13 @@
     "uccs",
     "ultranet",
     "unregistration",
+    "unregistrations",
     "updation",
     "usehooks",
     "vite",
+    "votings",
     "webui",
+    "worktrees",
     "youtu"
   ],
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
@@ -51,7 +56,9 @@
   "prettier.requireConfig": true,
   "files.exclude": {
     "**/.husky": true,
-    "**/.idea": true
+    "**/.idea": true,
+    "**/dist": true,
+    "**/node_modules": true
   },
   "search.exclude": {
     "**/archive": true

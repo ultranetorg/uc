@@ -6,7 +6,7 @@ public class AuthorsService
 (
 	ILogger<AuthorsService> logger,
 	FairMcv mcv
-): IAuthorsService
+)
 {
 	public AuthorDetailsModel GetDetails(string authorId)
 	{
@@ -24,9 +24,21 @@ public class AuthorsService
 				throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
 			}
 
-			byte[]? avatar = author.Avatar != null ? mcv.Files.Latest(author.Avatar).Data : null;
-
-			return new AuthorDetailsModel(author, avatar);
+			return new AuthorDetailsModel(author)
+			{
+				Description = author.Description,
+				AvatarId = author.Avatar?.ToString(),
+				OwnersIds = LoadOwners(author.Owners)
+			};
 		}
+	}
+
+	IEnumerable<UserModel> LoadOwners(IEnumerable<AutoId> ownersIds)
+	{
+		return ownersIds.Select(x =>
+		{
+			FairUser user = (FairUser)mcv.Users.Latest(x);
+			return new UserModel(user);
+		}).ToArray();
 	}
 }

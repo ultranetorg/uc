@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -11,32 +10,64 @@ public class SitesController
 	IPaginationValidator paginationValidator,
 	ISiteSearchQueryValidator siteSearchQueryValidator,
 	ISearchQueryValidator searchQueryValidator,
+	LimitValidator limitValidator,
 	SitesService sitesService,
+	UsersService usersService,
 	SearchService searchService
 ) : BaseController
 {
 	[HttpGet("default")]
 	public IEnumerable<SiteBaseModel> Default(CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called without parameters", nameof(SitesController), nameof(SitesController.Default));
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called without parameters", nameof(SitesController), nameof(SitesController.Default));
 
 		return sitesService.GetDefaultSites(cancellationToken);
 	}
 
-	[HttpGet("{siteId}/publishers")]
-	public IEnumerable<PublisherModel> GetPublishers(string siteId, CancellationToken cancellationToken)
+	[HttpGet("{siteId}/users")]
+	public IEnumerable<UserModel> GetUsers(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPublishers), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {SiteId}, {Pagination}", nameof(SitesController), nameof(GetUsers), siteId, pagination);
+
+		autoIdValidator.Validate(siteId, nameof(Site));
+		paginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<UserModel> result = usersService.GetSiteUsers(siteId, page, pageSize, cancellationToken);
+
+		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
+	}
+
+	[HttpGet("{siteId}/users/search")]
+	public IEnumerable<UserModel> SearchSiteUsers(string siteId, [FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {SiteId}, {Query}, {Limit}", nameof(SitesController), nameof(SearchSiteUsers), siteId, query, limit);
+
+		autoIdValidator.Validate(siteId, nameof(Site));
+		siteSearchQueryValidator.Validate(query);
+		limitValidator.Validate(limit);
+
+		return searchService.SearchSiteUsers(siteId, query, limit ?? SearchConstants.SearchAccountsLimit, cancellationToken);
+	}
+
+	[HttpGet("{siteId}/publishers")]
+	public IEnumerable<PublisherModel> GetPublishers(string siteId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Search}, {Pagination}", nameof(SitesController), nameof(GetPublishers), siteId, search, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
 
-		return sitesService.GetPublishers(siteId, cancellationToken);
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<PublisherModel> publishers = sitesService.GetPublishers(siteId, page, pageSize, search, cancellationToken);
+
+		return this.OkPaged(publishers.Items, page, pageSize, publishers.TotalItems);
 	}
 
 	[HttpGet("{siteId}/moderators")]
 	public IEnumerable<ModeratorModel> GetModerators(string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetModerators), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetModerators), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
@@ -46,7 +77,7 @@ public class SitesController
 	[HttpGet("{siteId}/policies")]
 	public IEnumerable<PolicyModel> GetPolicies(string siteId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(GetPolicies), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetPolicies), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
@@ -56,7 +87,7 @@ public class SitesController
 	[HttpGet]
 	public IEnumerable<SiteBaseModel> Search([FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}, {Page}", nameof(SitesController), nameof(Search), query, page);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Page}", nameof(SitesController), nameof(Search), query, page);
 
 		paginationValidator.Validate(page);
 		siteSearchQueryValidator.Validate(query);
@@ -70,7 +101,7 @@ public class SitesController
 	[HttpGet("search")]
 	public IEnumerable<SiteSearchLiteModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}", nameof(SitesController), nameof(SearchLite), query);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}", nameof(SitesController), nameof(SearchLite), query);
 
 		searchQueryValidator.Validate(query);
 
@@ -78,12 +109,12 @@ public class SitesController
 	}
 
 	[HttpGet("{siteId}")]
-	public SiteModel Get(string siteId)
+	public SiteModel GetDetails(string siteId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SitesController), nameof(Get), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetDetails), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
-		return sitesService.GetSite(siteId);
+		return sitesService.GetDetails(siteId);
 	}
 }

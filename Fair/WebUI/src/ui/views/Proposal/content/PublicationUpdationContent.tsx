@@ -17,7 +17,7 @@ export const PublicationUpdationContent = memo(({ proposal }: ProposalViewConten
   if (isFetching || !publication) return <div>LOADING</div>
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
       <ModerationPublicationHeader
         title={publication.title}
         logoId={publication.logoId}

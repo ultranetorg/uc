@@ -12,7 +12,7 @@ public class FilesController
 	[HttpGet("{fileId}")]
 	public FileContentResult Get(string fileId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {FileId}", nameof(FilesController), nameof(Get), fileId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {FileId}", nameof(FilesController), nameof(Get), fileId);
 
 		autoIdValidator.Validate(fileId, nameof(Uccs.Fair.File).ToLower());
 

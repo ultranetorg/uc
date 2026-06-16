@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query"
 
 import { getVaultApi } from "api"
-import { useGetVaultUrl } from "entities/node"
+import { useGetVaultUrl } from "entities/localFair"
 
 const vaultApi = getVaultApi()
 

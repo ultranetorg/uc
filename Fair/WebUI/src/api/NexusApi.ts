@@ -1,5 +1,5 @@
-import { NnpNode } from "types/nexus"
+import { IccpNode } from "types/nexus"
 
 export type NexusApi = {
-  getNodeUrl(baseUrl: string): Promise<NnpNode>
+  getIccpNodeUrl(nexusUrl: string): Promise<IccpNode>
 }

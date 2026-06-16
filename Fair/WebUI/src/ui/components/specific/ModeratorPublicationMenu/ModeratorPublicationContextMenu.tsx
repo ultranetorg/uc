@@ -11,7 +11,7 @@ import {
 } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
-import { useModerationContext } from "app"
+import { useSiteRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { PropsWithClassName } from "types"
@@ -23,15 +23,16 @@ type ContextMenuButtonSize = "medium" | "large"
 
 type ModeratorPublicationContextMenuBaseProps = {
   publicationId: string
+  publicationTitle?: string
   size?: ContextMenuButtonSize
 }
 
 export type ModeratorPublicationContextMenuProps = PropsWithClassName & ModeratorPublicationContextMenuBaseProps
 
 export const ModeratorPublicationContextMenu = memo(
-  ({ className, publicationId, size = "medium" }: ModeratorPublicationContextMenuProps) => {
-    const { isModerator } = useModerationContext()
-    const { menuItems } = useModeratorPublicationMenuItems(publicationId)
+  ({ className, publicationId, publicationTitle, size = "medium" }: ModeratorPublicationContextMenuProps) => {
+    const { isModerator } = useSiteRolesContext()
+    const { menuItems } = useModeratorPublicationMenuItems(publicationId, publicationTitle, true)
 
     const [isExpanded, setExpanded] = useState(false)
 
@@ -59,7 +60,7 @@ export const ModeratorPublicationContextMenu = memo(
         <div className={className} ref={refs.setReference} {...getReferenceProps()}>
           <SvgThreeDotsSm
             className={twMerge(
-              "hove:opacity-80 size-5 cursor-pointer rounded bg-white fill-gray-500 opacity-50 hover:fill-gray-800",
+              "size-5 cursor-pointer rounded bg-white fill-gray-500 opacity-50 hover:fill-gray-800 hover:opacity-80",
               size === "large" && "size-8",
             )}
           />

@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge"
 
-import avatarFallback3xl from "assets/fallback/account-avatar-3xl.png"
+import avatarFallback3xl from "assets/fallback/user-10.png"
 import { ImageFallback } from "ui/components"
 import { buildUserAvatarUrl } from "utils"
 
@@ -16,7 +16,9 @@ export const ActiveUser = ({ id, name, disabled = false, onClick }: ActiveUserPr
     className={twMerge("flex cursor-pointer gap-3 rounded-lg bg-gray-100 p-2", disabled && "cursor-not-allowed")}
     onClick={!disabled ? onClick : undefined}
   >
-    <ImageFallback src={buildUserAvatarUrl(name)} fallbackSrc={avatarFallback3xl} className="size-10" />
+    <div className="size-10 overflow-hidden rounded-full">
+      <ImageFallback src={buildUserAvatarUrl(id)} fallbackSrc={avatarFallback3xl} className="size-full object-cover" />
+    </div>
     <div className="flex flex-col gap-1">
       <span className="text-2sm font-medium leading-4.5">{name}</span>
       <span className="text-xs leading-3.75 text-gray-500">{id}</span>

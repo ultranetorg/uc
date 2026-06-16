@@ -1,13 +1,13 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react"
 
 import { useGetUserDetails } from "entities"
-import { Account } from "types"
+import { UserDetails } from "types"
 
 import { useAuthenticationContext } from "./AuthenticationProvider"
 
 type UserContextType = {
   isFetching: boolean
-  user?: Account
+  user?: UserDetails
   refetch: () => void
 }
 
@@ -17,7 +17,7 @@ const UserContext = createContext<UserContextType>({
 })
 
 export const UserProvider = ({ children }: PropsWithChildren) => {
-  const [currentUser, setCurrentUser] = useState<Account | undefined>()
+  const [currentUser, setCurrentUser] = useState<UserDetails | undefined>()
 
   const { selectedUserName } = useAuthenticationContext()
 

@@ -1,6 +1,6 @@
 import { memo, ReactNode } from "react"
 
-import { useTabsContext } from "app"
+import { useTabsContext } from "ui/components"
 
 export type TabContentProps = {
   when: string

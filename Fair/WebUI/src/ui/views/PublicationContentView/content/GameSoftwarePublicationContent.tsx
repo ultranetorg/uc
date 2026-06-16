@@ -3,9 +3,9 @@ import { sortBy } from "lodash"
 import { Trans } from "react-i18next"
 
 import { SvgImageSlash } from "assets"
-import { TagsList, TextModal } from "ui/components"
+import { CommentContextMenuProps, TagsList, TextModal } from "ui/components"
 import { Description, SiteLink, Slider, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
-import { ReviewsList } from "ui/components/specific"
+import { CommentContextMenu, ReviewsList } from "ui/components/specific"
 
 import { ContentProps } from "../types"
 
@@ -25,7 +25,16 @@ import {
 const platformOrder = ["windows", "macos", "linux"]
 
 export const GameSoftwarePublicationContent = memo(
-  ({ t, siteId, productOrPublication, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
+  ({
+    t,
+    siteId,
+    productOrPublication,
+    isPendingReviews,
+    reviews,
+    error,
+    onLeaveReview,
+    onEditReview,
+  }: ContentProps) => {
     const [isEulaOpen, setIsEulaOpen] = useState(false)
     const [platform, setPlatform] = useState<string | undefined>()
     const [version, setVersion] = useState<string | undefined>()
@@ -89,6 +98,12 @@ export const GameSoftwarePublicationContent = memo(
     const handleVersionChange = useCallback((version?: string) => setVersion(version), [])
     const handlePlatformChange = useCallback((platform: string) => setPlatform(platform), [])
 
+    const commentContextMenu = useMemo(
+      () => (props: CommentContextMenuProps) =>
+        onEditReview ? <CommentContextMenu {...props} onEditReview={onEditReview} /> : undefined,
+      [onEditReview],
+    )
+
     useEffect(() => {
       if (systemRequirements && systemRequirements.length > 0) setPlatform(systemRequirements[0].key)
     }, [systemRequirements])
@@ -101,7 +116,7 @@ export const GameSoftwarePublicationContent = memo(
           ) : (
             <div className="flex h-[416px] w-[750px] select-none flex-col items-center justify-center gap-6 rounded-lg bg-[#7E8095] text-center text-2xs text-gray-300">
               <SvgImageSlash className="stroke-[#A2A4AF]" />
-              <Trans ns="publication" i18nKey={"noScreenshots"} components={{ br: <br /> }} className=" " />
+              <Trans ns="publication" i18nKey={"noScreenshots"} components={{ br: <br /> }} />
             </div>
           )}
           {descriptions && descriptions.length > 0 && (
@@ -120,16 +135,17 @@ export const GameSoftwarePublicationContent = memo(
               onTabChange={handlePlatformChange}
             />
           )}
-          {reviews && onLeaveReview && (
+          {reviews && (
             <ReviewsList
               isPending={isPendingReviews!}
               reviews={reviews}
               error={error}
               onLeaveReviewClick={onLeaveReview}
-              leaveReviewLabel={t("leaveReview")}
+              leaveReviewLabel={t("writeReview")}
               noReviewsLabel={t("noReviews")}
               reviewLabel={t("review", { count: reviews?.totalItems })}
               showMoreReviewsLabel={t("showMoreReviews")}
+              contextMenu={commentContextMenu}
             />
           )}
         </div>

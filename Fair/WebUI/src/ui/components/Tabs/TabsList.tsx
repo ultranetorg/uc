@@ -1,8 +1,9 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { useTabsContext } from "app"
 import { PropsWithClassName } from "types"
+
+import { useTabsContext } from "./TabsProvider"
 
 export type TabsListItem = { key: string; label: string }
 

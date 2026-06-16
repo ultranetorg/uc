@@ -1,0 +1,10 @@
+export type FairOperationType =
+  | "AccountNicknameChange"
+  | "FavoriteSiteChange"
+  | "FileCreation"
+  | "FileDeletion"
+  | "PerpetualVoting"
+  | "ProposalCreation"
+  | "ProposalCommentCreation"
+  | "ProposalVoting"
+  | "UserCreation"

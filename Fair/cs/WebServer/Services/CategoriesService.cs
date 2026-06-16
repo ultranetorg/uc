@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
@@ -7,11 +8,35 @@ public class CategoriesService
 (
 	ILogger<CategoriesService> logger,
 	FairMcv mcv
-) : ICategoriesService
+)
 {
-	public CategoryModel GetCategory(string categoryId, CancellationToken cancellationToken)
+	public IEnumerable<CategoryBaseModel> GetRoot([NotNull][NotEmpty] string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(CategoriesService)}.{nameof(CategoriesService.GetCategory)} method called with {{CategoryId}}", categoryId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(CategoriesService), nameof(GetRoot), siteId);
+
+		Guard.Against.NullOrEmpty(siteId);
+
+		AutoId id = AutoId.Parse(siteId);
+
+		lock (mcv.Lock)
+		{
+			Site site = mcv.Sites.Latest(id);
+			if (site == null)
+			{
+				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			}
+			if (site.Categories.Length == 0)
+			{
+				return [];
+			}
+
+			return LoadCategories(site.Categories);
+		}
+	}
+
+	public CategoryModel GetDetails([NotNull][NotEmpty] string categoryId, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}", nameof(CategoriesService), nameof(GetDetails), categoryId);
 
 		Guard.Against.NullOrEmpty(categoryId);
 
@@ -49,9 +74,9 @@ public class CategoriesService
 		}).ToArray();
 	}
 
-	public IEnumerable<CategoryParentBaseModel> GetCategories(string siteId, int? depth, CancellationToken cancellationToken)
+	public IEnumerable<CategoryParentBaseModel> GetTree([NotEmpty] string siteId, [NonNegativeValue] int? depth, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(CategoriesService)}.{nameof(CategoriesService.GetCategories)} method called with {{SiteId}}, {{Depth}}", siteId, depth);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Depth}", nameof(CategoriesService), nameof(GetTree), siteId, depth);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.DepthValid(depth);

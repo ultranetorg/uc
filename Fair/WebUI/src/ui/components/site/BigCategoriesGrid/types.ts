@@ -1,7 +1,7 @@
 export type BigCategoriesGridItem = {
   id: string
   title: string
-  avatar?: string
+  avatarId?: string
 }
 
 export type BigCategoriesGridProps = {

@@ -1,0 +1,3 @@
+export const PROPOSAL_TITLE_MAX_LENGTH = 64
+
+export const PROPOSAL_TEXT_MAX_LENGTH = 65535

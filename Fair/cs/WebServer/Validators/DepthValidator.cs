@@ -7,7 +7,7 @@ public class DepthValidator : IDepthValidator
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(int? depth)
 	{
-		if (depth.HasValue && (depth < 0 || depth > 2))
+		if (depth.HasValue && (depth < 0 || depth > 16))
 		{
 			throw new InvalidDepthException(depth.Value);
 		}

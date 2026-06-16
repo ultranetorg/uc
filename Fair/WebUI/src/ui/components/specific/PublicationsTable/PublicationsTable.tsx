@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { PropsWithClassName, PublicationAuthor } from "types"
@@ -11,15 +12,15 @@ export type PublicationsTableBaseProps = {
 
 export type PublicationsTableProps = PropsWithClassName & PublicationsTableBaseProps
 
-export const PublicationsTable = ({ className, items, onPublicationStoresClick }: PublicationsTableProps) => {
+export const PublicationsTable = memo(({ className, items, onPublicationStoresClick }: PublicationsTableProps) => {
   const { t } = useTranslation("profile")
 
   return (
     <div className={className}>
       <div className="flex justify-between bg-gray-200 px-4 py-2 text-2xs font-medium leading-4">
-        <span className="w-2/5">{t("title")}</span>
-        <span className="w-[30%]">{t("publicationType")}</span>
-        <span className="w-1/5">{t("publishedIn")}</span>
+        <span className="w-[43%] capitalize">{t("common:publication")}</span>
+        <span className="w-[30%] capitalize">{t("common:category")}</span>
+        <span className="w-[27%]">{t("totalPublications")}</span>
       </div>
       <div className="divide-y divide-gray-300">
         {items.map(x => (
@@ -28,4 +29,4 @@ export const PublicationsTable = ({ className, items, onPublicationStoresClick }
       </div>
     </div>
   )
-}
+})

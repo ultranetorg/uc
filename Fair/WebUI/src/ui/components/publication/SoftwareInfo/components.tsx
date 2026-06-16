@@ -1,7 +1,8 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { TEST_PUBLISHER_SRC } from "testConfig"
+import avatarFallback from "assets/fallback/author-8.png"
+import { ImageFallback } from "ui/components/ImageFallback"
 import { buildFileUrl } from "utils"
 
 export type AuthorImageTitleProps = {
@@ -12,7 +13,7 @@ export type AuthorImageTitleProps = {
 export const AuthorImageTitle = memo(({ title, authorFileId }: AuthorImageTitleProps) => (
   <div className="flex items-center gap-2">
     <div className="size-8 overflow-hidden rounded-full">
-      <img src={authorFileId ? buildFileUrl(authorFileId) : TEST_PUBLISHER_SRC} className="size-full object-cover" />
+      <ImageFallback src={buildFileUrl(authorFileId)} fallbackSrc={avatarFallback} className="size-full object-cover" />
     </div>
     <span
       className={twMerge(

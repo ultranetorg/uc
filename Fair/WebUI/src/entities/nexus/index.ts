@@ -1,1 +1,1 @@
-export * from "./useGetNodeUrl"
+export * from "./useGetIccpNodeUrl"

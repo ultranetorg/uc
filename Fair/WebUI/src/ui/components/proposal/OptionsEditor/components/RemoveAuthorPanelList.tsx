@@ -6,8 +6,9 @@ import { useSiteContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchAuthors } from "entities"
 import { AuthorBaseAvatar } from "types"
-import { DropdownItem } from "ui/components/proposal/DropdownSearchAccount"
+import { DropdownItem } from "ui/components/proposal/DropdownSearchMember"
 
+import { buildFileUrl } from "utils"
 import { MembersPanelList } from "./MembersPanelList"
 
 export type RemoveAuthorPanelListProps = {
@@ -29,16 +30,16 @@ export const RemoveAuthorPanelList = memo(({ value: selectedAuthors = [], onChan
       publishers
         .filter(x => selectedAuthors.every(a => a.id !== x.id)) // Do not display authors that have already been selected
         .filter(x => site?.authorsIds.some(m => m === x.id)) // Do not display authors who are not publishers
-        .map(x => ({ label: x.name ?? x.id, value: x.id, avatarId: x.avatarId })) || [],
+        .map(x => ({ value: x.id, label: x.title, avatarId: x.avatarId })) || [],
     [publishers, selectedAuthors, site?.authorsIds],
   )
 
   const selectedItems = useMemo(
     () =>
-      selectedAuthors.map(({ id, name, avatarId }) => ({
+      selectedAuthors.map(({ id, title, avatarId }) => ({
         id,
-        title: name ?? id,
-        avatarId,
+        title,
+        avatarSrc: buildFileUrl(avatarId),
       })),
     [selectedAuthors],
   )
@@ -47,6 +48,7 @@ export const RemoveAuthorPanelList = memo(({ value: selectedAuthors = [], onChan
     (item: DropdownItem) => {
       const accountToAdd: AuthorBaseAvatar = {
         id: item.value,
+        title: item.label,
         name: item.label,
         avatarId: item.avatarId,
       }

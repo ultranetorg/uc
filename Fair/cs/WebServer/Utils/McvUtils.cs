@@ -2,20 +2,20 @@
 
 public static class McvUtils
 {
-	public static IEnumerable<AccountBaseModel> LoadAccounts(Mcv mcv, AutoId[] accountsIds, CancellationToken cancellationToken)
+	public static IEnumerable<UserModel> LoadUsers(FairMcv mcv, AutoId[] usersIds, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
 		
-		List<AccountBaseModel> result = new(accountsIds.Length);
+		List<UserModel> result = new(usersIds.Length);
 		
-		foreach(AutoId id in accountsIds)
+		foreach(AutoId id in usersIds)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				return result;
 			
-			FairUser account = (FairUser) mcv.Users.Latest(id);
-			AccountBaseModel model = new(account);
+			FairUser user = (FairUser) mcv.Users.Latest(id);
+			UserModel model = new(user);
 			result.Add(model);
 		}
 

@@ -5,39 +5,46 @@ import {
   AboutPage,
   AuthorPage,
   CategoryPage,
-  CreateDiscussionPage,
-  CreateReferendumPage,
-  ProposalPage,
-  ProposalsPage,
   ErrorPage,
-  ModeratorCreatePublicationPage,
-  ModeratorPublicationPage,
-  ModeratorsPage,
-  PerpetualSurveyPage,
-  PreviewPage,
   ProfilePage,
   PublicationPage,
-  PublicationsPage,
-  PublishersPage,
-  ReferendumPage,
-  ReferendumsPage,
-  ReviewsPage,
   SearchPage,
   SitePage,
   SitesPage,
   UserPage,
-  UsersPage,
-  ModeratorChangedPublicationPage,
-  UnpublishedPublicationPage,
-  ModeratorProposalPage,
-  PublisherProposalPage,
 } from "ui/pages"
+import {
+  CreateReferendumPage,
+  PerpetualSurveyPage,
+  PerpetualSurveysPage,
+  ReferendumPage,
+  ReferendumsPage,
+} from "ui/pages/governance"
+import {
+  CreateDiscussionPage,
+  ModeratorChangedPublicationPage,
+  ModeratorCreatePublicationPage,
+  ModeratorProposalPage,
+  ModeratorPublicationPage,
+  ModeratorsPage,
+  PreviewPage,
+  ProposalPage,
+  ProposalsPage,
+  PublicationsPage,
+  PublisherProposalPage,
+  PublisherPage,
+  PublishersPage,
+  ReviewsPage,
+  UnpublishedPublicationPage,
+  UsersPage as ModerationUsersPage,
+} from "ui/pages/moderation"
+import { CreateProposalProvider } from "ui/views"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
-import { CreateProposalProvider } from "./CreateProposalProvider"
-import { ModerationProvider } from "./ModerationProvider"
-import { NodeCheckerProvider } from "./NodeCheckerProvider"
+import { SignInProvider } from "./SignInProvider"
 import { SiteProvider } from "./SiteProvider"
+import { SitePoliciesProvider } from "./SitePoliciesProvider"
+import { SiteRolesProvider } from "./SiteRolesProvider"
 import { UserProvider } from "./UserProvider"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
@@ -46,13 +53,15 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: (
-      <NodeCheckerProvider>
-        <AuthenticationProvider>
+      <AuthenticationProvider>
+        <SignInProvider>
           <UserProvider>
-            <BaseLayout />
+            <SiteProvider>
+              <BaseLayout />
+            </SiteProvider>
           </UserProvider>
-        </AuthenticationProvider>
-      </NodeCheckerProvider>
+        </SignInProvider>
+      </AuthenticationProvider>
     ),
     errorElement: (
       <AppLayout>
@@ -70,17 +79,18 @@ const routes: RouteObject[] = [
       {
         path: ":siteId",
         element: (
-          <SiteProvider>
-            <ModerationProvider>
+          <SiteRolesProvider>
+            <SitePoliciesProvider>
               <SiteLayout />
-            </ModerationProvider>
-          </SiteProvider>
+            </SitePoliciesProvider>
+          </SiteRolesProvider>
         ),
         children: [
           {
             index: true,
             element: <SitePage />,
           },
+
           {
             path: "c/:categoryId",
             element: <CategoryPage />,
@@ -96,6 +106,15 @@ const routes: RouteObject[] = [
           {
             path: "i",
             element: <AboutPage />,
+          },
+
+          {
+            path: "u/:userId",
+            element: <UserPage isFromModeration={false} />,
+          },
+          {
+            path: "e/:publisherId",
+            element: <PublisherPage isFromModeration={false} />,
           },
 
           // Governance
@@ -116,7 +135,11 @@ const routes: RouteObject[] = [
             element: <ReferendumPage />,
           },
           {
-            path: "g/:tabKey?",
+            path: "g/p",
+            element: <PerpetualSurveysPage />,
+          },
+          {
+            path: "g/r",
             element: <ReferendumsPage />,
           },
 
@@ -178,6 +201,10 @@ const routes: RouteObject[] = [
                 element: <PublishersPage />,
               },
               {
+                path: "a/p/:publisherId",
+                element: <PublisherPage />,
+              },
+              {
                 path: "r",
                 element: <ReviewsPage />,
               },
@@ -187,10 +214,11 @@ const routes: RouteObject[] = [
                 children: [
                   {
                     index: true,
-                    element: <UsersPage />,
+                    path: ":tabKey?",
+                    element: <ModerationUsersPage />,
                   },
                   {
-                    path: ":name",
+                    path: "u/:userId",
                     element: <UserPage />,
                   },
                 ],

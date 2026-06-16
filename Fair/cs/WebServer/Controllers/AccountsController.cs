@@ -9,24 +9,13 @@ public class AccountsController
 	SearchService searchService,
 	IAutoIdValidator autoIdValidator,
 	ISearchQueryValidator searchQueryValidator,
-	LimitValidator limitValidator,
-	UserNameValidator userNameValidator
+	LimitValidator limitValidator
 ) : BaseController
 {
-	[HttpGet("/api/users/{name}/details")]
-	public AccountModel GetDetails(string name)
-	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} called with {Name}", nameof(AccountsController), nameof(GetDetails), name);
-
-		userNameValidator.Validate(name);
-
-		return accountsService.GetDetails(name);
-	}
-
 	[HttpGet]
 	public IEnumerable<AccountBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}, {Limit}", nameof(AccountsController), nameof(Search), query, limit);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(AccountsController), nameof(Search), query, limit);
 
 		searchQueryValidator.Validate(query);
 		limitValidator.Validate(limit);
@@ -37,7 +26,7 @@ public class AccountsController
 	[HttpGet("search")]
 	public IEnumerable<AccountSearchLiteModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Query}", nameof(AccountsController), nameof(SearchLite), query);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}", nameof(AccountsController), nameof(SearchLite), query);
 
 		searchQueryValidator.Validate(query);
 
@@ -48,20 +37,10 @@ public class AccountsController
 	[HttpGet("{accountId}/avatar")]
 	public FileContentResult GetAvatar(string accountId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {AccountId}", nameof(AccountsController), nameof(GetAvatar), accountId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {AccountId}", nameof(AccountsController), nameof(GetAvatar), accountId);
 
 		autoIdValidator.Validate(accountId, nameof(Net.User).ToLower());
 
 		return accountsService.GetAvatar(accountId);
-	}
-
-	[HttpGet("/api/users/{name}/avatar")]
-	public FileContentResult GetUserAvatar(string name)
-	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {Name}", nameof(AccountsController), nameof(GetUserAvatar), name);
-
-		userNameValidator.Validate(name);
-
-		return accountsService.GetUserAvatar(name);
 	}
 }

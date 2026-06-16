@@ -43,7 +43,7 @@ public class PublicationsService
 				LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
 				Updated = product.Updated.Hours,
 				Fields = mappedFields,
-				AuthorId = author.Id.ToString(),
+				AuthorId = author.Avatar?.ToString(),
 				AuthorTitle = author.Title,
 				AuthorLogoId = author.Avatar?.ToString(),
 				CategoryId = category?.Id.ToString(),
@@ -152,19 +152,27 @@ public class PublicationsService
 			{
 				publication = mcv.Publications.Latest(publicationId);
 				product = mcv.Products.Latest(publication.Product);
-			}
 
-			if (product.Author != context.AuthorId)
-			{
-				continue;
-			}
+				if (product.Author != context.AuthorId)
+				{
+					continue;
+				}
 
-			if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
-			{
-				AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-				byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
-				var resultItem = new PublicationAuthorModel(publication, product, logo);
-				context.Items.Add(resultItem);
+				if (context.TotalItems >= context.Page * context.PageSize && context.TotalItems < (context.Page + 1) * context.PageSize)
+				{
+					Category category = mcv.Categories.Latest(publication.Category);
+
+					AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+					byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+					var resultItem = new PublicationAuthorModel(publication, product)
+					{
+						ProductId = product.Id.ToString(),
+						LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
+						CategoryId = publication.Category.ToString(),
+						CategoryTitle = category.Title
+					};
+					context.Items.Add(resultItem);
+				}
 			}
 
 			++context.TotalItems;
@@ -204,13 +212,16 @@ public class PublicationsService
 			return new TotalItemsResult<PublicationModel>
 			{
 				Items = context.Items,
-				TotalItems = context.TotalItems
+				TotalItems = category.Publications.Length
 			};
 		}
 	}
 
 	void LoadPublications(Category category, SearchContext<PublicationModel> context, CancellationToken cancellationToken)
 	{
+		if (cancellationToken.IsCancellationRequested)
+			return;
+
 		foreach(AutoId publicationId in category.Publications)
 		{
 			if(cancellationToken.IsCancellationRequested)
@@ -404,7 +415,7 @@ public class PublicationsService
 
 			IEnumerable<AutoId> publicationsIds = site.ChangedPublications.Skip(page * pageSize).Take(pageSize);
 			IEnumerable<AutoId> reversed = publicationsIds.Reverse();
-			List<ChangedPublicationModel> result = LoadChangedPublications<ChangedPublicationModel>(reversed, pageSize, cancellationToken);
+			List<ChangedPublicationModel> result = LoadChangedPublications<ChangedPublicationModel>(site, reversed, pageSize, cancellationToken);
 
 			return new TotalItemsResult<ChangedPublicationModel>
 			{
@@ -414,7 +425,21 @@ public class PublicationsService
 		}
 	}
 
-	List<ChangedPublicationModel> LoadChangedPublications<T>(IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+	bool HasProductUpdationProposalForProduct(Site site, AutoId publicationId)
+	{
+		return site.Proposals.Any(x =>
+		{
+			Proposal proposal = mcv.Proposals.Latest(x);
+			if(proposal.OptionClass != FairOperationClass.PublicationUpdation)
+			{
+				return false;
+			}
+
+			return (proposal.Options[0].Operation as PublicationUpdation).Publication == publicationId;
+		});
+	}
+
+	List<ChangedPublicationModel> LoadChangedPublications<T>(Site site, IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
@@ -424,6 +449,9 @@ public class PublicationsService
 		{
 			if(cancellationToken.IsCancellationRequested)
 				return result;
+
+			if (HasProductUpdationProposalForProduct(site, publicationId))
+				continue;
 
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);

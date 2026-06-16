@@ -11,4 +11,7 @@ public class ReviewModel(Review review, FairUser account)
 	public int Created { get; set; } = review.Created.Days;
 
 	public AccountBaseAvatarModel CreatorAccount { get; set; } = new(account);
+
+	public string PublicationId { get; init; }
+	public string PublicationTitle { get; init; }
 }

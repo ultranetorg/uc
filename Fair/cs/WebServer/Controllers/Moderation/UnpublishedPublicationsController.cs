@@ -9,30 +9,30 @@ public class UnpublishedPublicationsController
 	ILogger<UnpublishedPublicationsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
-	UnpublishedPublicationsService unpublishedPublicationsSerivce
+	UnpublishedPublicationsService unpublishedPublicationsService
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
 	public PublicationDetailsModel GetDetails(string siteId, string publicationId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {PublicationId}", nameof(UnpublishedPublicationsController), nameof(GetDetails), siteId, publicationId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PublicationId}", nameof(UnpublishedPublicationsController), nameof(GetDetails), siteId, publicationId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
-		return unpublishedPublicationsSerivce.GetDetails(siteId, publicationId);
+		return unpublishedPublicationsService.GetDetails(siteId, publicationId);
 	}
 
 	[HttpGet]
 	public IEnumerable<UnpublishedPublicationModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(GetAll), siteId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(GetAll), siteId, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<UnpublishedPublicationModel> products = unpublishedPublicationsSerivce.GetAll(siteId, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<UnpublishedPublicationModel> products = unpublishedPublicationsService.GetAll(siteId, pageValue, pageSizeValue, cancellationToken);
 
 		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
 	}

@@ -1,24 +1,22 @@
+import { useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { truncate } from "lodash"
 
-import { useMemo } from "react"
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { SvgEyeSm } from "assets"
-import { useGetUnpublishedPublication } from "entities"
+import { unpublishedPublicationsKeys, useGetUnpublishedPublication } from "entities"
 import { OperationClass } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 
 export const UnpublishedPublicationPage = () => {
   const { siteId, publicationId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("publication-updation")
   const { t } = useTranslation("unpublishedPublicationPage")
-
-  const voterId = getOperationVoterId("publication-updation")
 
   const parentBreadcrumbs = useMemo(
     () => [
-      { title: t("common:proposals"), path: `/${siteId}/m` },
       { title: t("common:publications"), path: `/${siteId}/m/c` },
       { title: t("common:unpublished"), path: `/${siteId}/m/c/u` },
     ],
@@ -43,11 +41,13 @@ export const UnpublishedPublicationPage = () => {
                   state={{
                     parentBreadcrumbs,
                     title: publication.title
-                      ? t("publish", { publicationTitle: publication.title })
+                      ? `Publish "${truncate(publication.title, { length: 46 })}" product`
                       : t("publishNoTitle"),
                     type: "publication-publish" as OperationClass,
                     publicationId: publication.id,
-                    previousPath: `/${siteId}/m/c`,
+                    redirectAfterProposalCreation: `/${siteId}/m/c/p/`,
+                    redirectAfterProposalExecution: `/${siteId}/m/c/u/`,
+                    invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
                   }}
                 >
                   <ButtonPrimary className="h-11 w-40 capitalize" label={t("common:publish")} />
@@ -72,13 +72,15 @@ export const UnpublishedPublicationPage = () => {
         }
       />
 
-      <ModerationPublicationHeader
-        title={publication.title}
-        logoId={publication.logoId}
-        authorId={publication.authorId}
-        authorTitle={publication.authorTitle}
-      />
-      <ProductFieldsTree productFields={publication.fields} />
+      <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
+        <ModerationPublicationHeader
+          title={publication.title}
+          logoId={publication.logoId}
+          authorId={publication.authorId}
+          authorTitle={publication.authorTitle}
+        />
+        <ProductFieldsTree productFields={publication.fields} />
+      </div>
     </div>
   )
 }

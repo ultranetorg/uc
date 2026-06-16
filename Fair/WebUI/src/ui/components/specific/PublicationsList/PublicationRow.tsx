@@ -20,7 +20,7 @@ export const PublicationRow = ({ id, title, logo, authorTitle, categoryTitle }: 
       {authorTitle && <span className="w-1/4 max-w-60 truncate">{authorTitle}</span>}
       <span className="w-1/4 max-w-60 truncate">{categoryTitle}</span>
 
-      <ModeratorPublicationContextMenu publicationId={id} size="large" />
+      <ModeratorPublicationContextMenu publicationId={id} publicationTitle={title} size="large" />
     </div>
   )
 }

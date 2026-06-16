@@ -10,4 +10,5 @@ export type ContentProps = {
   reviews?: TotalItemsResult<Review>
   error?: Error
   onLeaveReview?: () => void
+  onEditReview?: (id: string, text: string) => void
 }
