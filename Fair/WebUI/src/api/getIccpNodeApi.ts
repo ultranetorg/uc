@@ -5,8 +5,12 @@ import { Pong, TransactionApe } from "types/iccpNode"
 import { IccpNodeApi } from "./IccpNodeApi"
 import { keysToCamelCase, keysToPascalCase } from "./utils"
 
-const outgoingTransaction = async (baseUrl: string, tag: string): Promise<TransactionApe> => {
-  const response = await fetch(`${baseUrl}/OutgoingTransaction`, {
+const { VITE_APP_ICCP_NODE_TEST_URL: BASE_URL } = import.meta.env
+
+const PING_TIMEOUT = 10000
+
+const outgoingTransaction = async (iccpNodeUrl: string, tag: string): Promise<TransactionApe> => {
+  const response = await fetch(`${iccpNodeUrl}/OutgoingTransaction`, {
     method: "POST",
     body: JSON.stringify({
       Tag: tag,
@@ -16,9 +20,9 @@ const outgoingTransaction = async (baseUrl: string, tag: string): Promise<Transa
   return keysToCamelCase(data) as TransactionApe
 }
 
-const ping = async (baseUrl: string): Promise<boolean> => {
+const ping = async (iccpNodeUrl: string): Promise<boolean> => {
   try {
-    const res = await fetch(`${baseUrl}/Ping`)
+    const res = await fetch(`${BASE_URL ?? iccpNodeUrl}/Ping`, { signal: AbortSignal.timeout(PING_TIMEOUT) })
     const data = await res.json()
     const normalized = keysToCamelCase(data) as Pong
     return normalized.status == "OK"
@@ -28,7 +32,7 @@ const ping = async (baseUrl: string): Promise<boolean> => {
 }
 
 const transact = async (
-  baseUrl: string,
+  iccpNodeUrl: string,
   operations: BaseFairOperation[],
   userName: string,
   session: string,
@@ -36,7 +40,7 @@ const transact = async (
 ): Promise<TransactionApe> => {
   const mapped = operations.map(x => keysToPascalCase(x))
 
-  const response = await fetch(`${baseUrl}/Transact`, {
+  const response = await fetch(`${iccpNodeUrl}/Transact`, {
     method: "POST",
     body: JSON.stringify({
       Application: VAULT.APPLICATION,
