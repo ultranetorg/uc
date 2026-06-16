@@ -12,6 +12,7 @@ export type ProposalViewContentProps = {
   t: TFunction
   pageState?: PageState
   proposal: ProposalDetails
+  isReferendum?: boolean
   voteStatus?: VoteStatus
   votedValue?: number
   onVoteClick?: (value: number) => void

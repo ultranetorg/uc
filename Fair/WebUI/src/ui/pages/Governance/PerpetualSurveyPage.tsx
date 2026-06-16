@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { useSiteRolesContext } from "app"
+import { useSignInContext, useSiteRolesContext } from "app"
 import { sitesKeys, useGetPerpetualSurveyDetails } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { OperationType, PerpetualVoting, SiteApprovalPolicyChange } from "types"
@@ -18,7 +18,8 @@ export const PerpetualSurveyPage = () => {
   const { siteId, perpetualSurveyId } = useParams()
   const queryClient = useQueryClient()
 
-  const { isPublisher, publisherIds } = useSiteRolesContext()
+  const { startSignIn } = useSignInContext()
+  const { publisherIds } = useSiteRolesContext()
   const { mutate } = useTransactMutationWithStatus()
 
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()
@@ -43,15 +44,19 @@ export const PerpetualSurveyPage = () => {
     [],
   )
 
-  const handleVote = useCallback(
+  const handleSignInOrVote = useCallback(
     (choiceId: string | number) => {
+      if (!publisherIds) {
+        startSignIn("author")
+        return
+      }
+
       const publisherId = publisherIds![0]
       const operation = new PerpetualVoting(siteId!, Number(perpetualSurveyId), publisherId, Number(choiceId))
       mutate(operation, {
         onSuccess: () => {
           const invalidateKeys =
             invalidateQueryKeysByOperationType[survey?.options[0].operation.operation as OperationType]
-          console.log(invalidateKeys, survey?.options[0].operation.operation)
           if (invalidateKeys) {
             invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
           }
@@ -70,6 +75,7 @@ export const PerpetualSurveyPage = () => {
       queryClient,
       refetch,
       siteId,
+      startSignIn,
       survey?.options,
       t,
     ],
@@ -121,10 +127,10 @@ export const PerpetualSurveyPage = () => {
           <OptionsCollapsesList
             items={items!}
             showResults={true}
-            showVoteButton={isPublisher}
+            showVoteButton={true}
             votesText={t("common:votes")}
             onExpand={handleExpand}
-            onVoteClick={handleVote}
+            onVoteClick={handleSignInOrVote}
           />
         </div>
       </div>

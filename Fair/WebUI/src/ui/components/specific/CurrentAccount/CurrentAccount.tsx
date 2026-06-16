@@ -1,11 +1,10 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
-import { useAuthenticationContext, useUserContext } from "app"
+import { useAuthenticationContext, useSignInContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
-import { SignInModal } from "ui/components/specific"
 
 import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
 import { CurrentAccountButton } from "./components"
@@ -23,10 +22,9 @@ export const CurrentAccount = () => {
   const accountsMenu = useSubmenu({ placement: "right-end" })
   useScrollOrResize(() => profileMenu.setOpen(false))
 
-  const [showSignInModal, setShowUserModal] = useState(false)
-
   const { user } = useUserContext()
   const { selectedUserName, users, removeUser, selectUser } = useAuthenticationContext()
+  const { startSignIn, openSignInModal } = useSignInContext()
 
   const userItems = useMemo(
     () =>
@@ -37,13 +35,13 @@ export const CurrentAccount = () => {
     [users],
   )
 
-  const handleAuthenticate = useCallback(() => setShowUserModal(true), [])
+  const handleAuthenticate = useCallback(() => startSignIn("user"), [startSignIn])
 
   const handleAccountAdd = useCallback(() => {
-    setShowUserModal(true)
+    openSignInModal()
     accountsMenu.setOpen(false)
     profileMenu.setOpen(false)
-  }, [accountsMenu, profileMenu])
+  }, [accountsMenu, openSignInModal, profileMenu])
 
   const handleUserRemove = useCallback(
     (userName: string) => {
@@ -128,7 +126,6 @@ export const CurrentAccount = () => {
           {...accountsMenu.getFloatingProps()}
         />
       )}
-      {showSignInModal && <SignInModal onClose={() => setShowUserModal(false)} />}
     </>
   )
 }

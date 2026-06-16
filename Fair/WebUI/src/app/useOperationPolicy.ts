@@ -19,9 +19,12 @@ export const useOperationPolicy = (operation?: OperationType): OperationPolicyRe
   const { user } = useUserContext()
 
   return useMemo<OperationPolicyResult>(() => {
-    if (!operation || !user) return {}
+    if (!operation) return {}
+
     const policy = policies?.find(x => x.operationClass === operation)
     if (!policy) return {}
+
+    if (!user) return { policy }
 
     const voterId =
       policy.approval === "publishers-majority" && isModerator

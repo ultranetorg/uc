@@ -41,7 +41,7 @@ import {
 import { CreateProposalProvider } from "ui/views"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
-import { IccpNodeConnectivityProvider } from "./IccpNodeConnectivityProvider"
+import { SignInProvider } from "./SignInProvider"
 import { SiteProvider } from "./SiteProvider"
 import { SitePoliciesProvider } from "./SitePoliciesProvider"
 import { SiteRolesProvider } from "./SiteRolesProvider"
@@ -53,15 +53,15 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: (
-      <IccpNodeConnectivityProvider>
-        <AuthenticationProvider>
+      <AuthenticationProvider>
+        <SignInProvider>
           <UserProvider>
             <SiteProvider>
               <BaseLayout />
             </SiteProvider>
           </UserProvider>
-        </AuthenticationProvider>
-      </IccpNodeConnectivityProvider>
+        </SignInProvider>
+      </AuthenticationProvider>
     ),
     errorElement: (
       <AppLayout>

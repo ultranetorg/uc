@@ -8,7 +8,7 @@ import { ProposalViewContentProps } from "./types"
 import { renderDescription } from "./utils"
 
 export const DefaultContent = memo(
-  ({ t, pageState, proposal, voteStatus, votedValue, onVoteClick }: ProposalViewContentProps) => {
+  ({ t, pageState, proposal, isReferendum, voteStatus, votedValue, onVoteClick }: ProposalViewContentProps) => {
     const { voterId } = useOperationPolicy(proposal.operation)
     const { siteId } = useParams()
 
@@ -33,7 +33,7 @@ export const DefaultContent = memo(
         className="max-w-187.5"
         items={items}
         showResults={pageState == "results"}
-        showVoteButton={voteStatus !== "voted" && !!voterId}
+        showVoteButton={isReferendum || (voteStatus !== "voted" && !!voterId)}
         votesText={t("common:votes")}
         votedValue={votedValue}
         onVoteClick={onVoteClick}

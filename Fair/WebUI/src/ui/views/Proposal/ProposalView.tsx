@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { useOperationPolicy } from "app"
+import { useOperationPolicy, useSignInContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import { categoriesKeys, proposalsKeys, publicationsKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -43,11 +43,15 @@ export type ProposalViewProps = {
 
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
   const { siteId } = useParams()
-  const { voter: approval } = useOperationPolicy(proposal?.operation)
+  const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { mutate } = useTransactMutationWithStatus()
   const { t } = useTranslation("proposalView")
+
+  const { startSignIn } = useSignInContext()
+
+  const isReferendum = policy?.approval === "publishers-majority"
 
   const [voteStatus, setVoteStatus] = useState<VoteStatus>("idle")
   const [pageState, setPageState] = useState<PageState>("voting")
@@ -103,6 +107,11 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
 
   const handleVoteClick = useCallback(
     (value: number) => {
+      if (isReferendum && !approval) {
+        startSignIn("author")
+        return
+      }
+
       setVotedValue(value)
       setVoteStatus("voting")
       const operation = new ProposalVoting(proposal!.id, approval!.id, value)
@@ -125,7 +134,19 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         onSettled: () => setVotedValue(undefined),
       })
     },
-    [invalidateQueryKeysByOperationType, mutate, navigate, previousPath, proposal, queryClient, siteId, t, approval],
+    [
+      isReferendum,
+      approval,
+      proposal,
+      mutate,
+      startSignIn,
+      t,
+      invalidateQueryKeysByOperationType,
+      navigate,
+      previousPath,
+      siteId,
+      queryClient,
+    ],
   )
 
   const vote = useCallback(
@@ -242,6 +263,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
             <DefaultContent
               t={t}
               proposal={proposal}
+              isReferendum={isReferendum}
               pageState={pageState}
               voteStatus={voteStatus}
               votedValue={votedValue}

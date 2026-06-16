@@ -1,3 +1,5 @@
+export * from "./installModals"
+
 export * from "./MemberFilesModal"
 export * from "./CategoriesList"
 export * from "./CategoriesPublicationsList"
@@ -24,7 +26,6 @@ export * from "./ModerationHeader"
 export * from "./ModerationPublicationHeader"
 export * from "./ModeratorOptionsMenu"
 export * from "./ModeratorUserMenu"
-export * from "./NodeInstallModal"
 export * from "./PageBanner"
 export * from "./ScrollToTop"
 export * from "./SignInModal"
