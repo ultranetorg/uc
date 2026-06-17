@@ -2,10 +2,10 @@ import { createContext, PropsWithChildren, useCallback, useContext, useEffect, u
 import { useLocalStorage } from "usehooks-ts"
 
 import { LOCAL_STORAGE_KEYS } from "constants/"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useAuthenticateMutation, useIsAuthenticatedMutation, useRegisterMutation } from "entities/vault"
-import { UserFreeCreation } from "types"
+import { UserCreation } from "types"
 import { AuthenticationResult } from "types/vault"
-import { useTransactMutationWithStatus } from "entities/node"
 
 type Callbacks = {
   onSuccess?: (data: AuthenticationResult | null) => void
@@ -14,8 +14,8 @@ type Callbacks = {
 }
 
 type StoredUser = {
-  name: string
   owner: string
+  name: string
 }
 
 type StoredUserSession = {
@@ -33,7 +33,7 @@ type AuthenticationContextType = {
   selectedUserName?: string
   isPending: boolean
   authenticate(userName: string, owner: string, callbacks?: Callbacks): void
-  logout(userName: string): void
+  removeUser(userName: string): void
   register(userName: string, callbacks?: Callbacks): void
   selectUser(userName: string): void
 }
@@ -42,7 +42,7 @@ const AuthenticationContext = createContext<AuthenticationContextType>({
   isPending: false,
   users: [],
   authenticate: () => {},
-  logout: () => {},
+  removeUser: () => {},
   register: () => {},
   selectUser: () => {},
 })
@@ -90,7 +90,7 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
               return
             }
 
-            const operation = new UserFreeCreation()
+            const operation = new UserCreation(data.signer)
             transactMutation(
               operation,
               {
@@ -112,6 +112,8 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
                 onError: error => callbacks?.onError?.(error),
               },
               userName,
+              data.session,
+              data.signer,
             )
           },
           onError: error => callbacks?.onError?.(error),
@@ -196,15 +198,13 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
     [storage.selectedUserName, storage.users.length, isAuthenticatedMutation, setStorage, removeUser],
   )
 
-  const logout = useCallback((userName: string) => removeUser(userName), [removeUser])
-
   const value = useMemo(
     () => ({
       users: storage.users,
       selectedUserName: storage.selectedUserName,
       isPending: isAuthenticatePending || isAuthenticatedPending || isRegisterPending || isTransactPending,
       authenticate,
-      logout,
+      removeUser,
       selectUser,
       register,
     }),
@@ -216,7 +216,7 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
       isRegisterPending,
       isTransactPending,
       authenticate,
-      logout,
+      removeUser,
       selectUser,
       register,
     ],

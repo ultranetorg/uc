@@ -3,37 +3,34 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy, useSiteContext, useSitePoliciesContext, useSiteRolesContext } from "app"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
-import { useTransactMutationWithStatus } from "entities/node"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
 import { ModerationPublicationHeader, ModerationHeader, ProductFieldsTree } from "ui/components/specific"
-import { showToast } from "utils"
+import { isVotingRequired, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const { siteId } = useParams()
-  const { getOperationVoterId, isModerator } = useModerationContext()
+  const { isModerator } = useSiteRolesContext()
+  const { policies } = useSitePoliciesContext()
+  const { voterId } = useOperationPolicy("publication-creation")
+  const { site } = useSiteContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
   const navigate = useNavigate()
   const { t } = useTranslation("createPublication")
 
-  const voterId = getOperationVoterId("publication-creation")
+  const isRequiredVoting = isVotingRequired("publication-creation", site, policies)
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get("productId") ?? "")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
   const { data: product, isError } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
 
-  const parentBreadcrumbs = useMemo(
-    () => [
-      { title: t("common:proposals"), path: `/${siteId}/m` },
-      { title: t("common:publications"), path: `/${siteId}/m/c` },
-    ],
-    [siteId, t],
-  )
+  const parentBreadcrumbs = useMemo(() => [{ title: t("common:publications"), path: `/${siteId}/m/c` }], [siteId, t])
 
   useEffect(() => {
     setSearchParams(product?.id ? { productId: product.id } : {}, { replace: true })
@@ -56,82 +53,89 @@ export const ModeratorCreatePublicationPage = () => {
     mutate(operation, {
       onSuccess: () => {
         showToast(t("toast:publicationCreated"), "success")
-        navigate(`/${siteId}/m/c`)
+
+        if (isRequiredVoting) {
+          navigate(`/${siteId}/m/c`)
+        } else {
+          navigate(`/${siteId}/m/c/u`)
+        }
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [isModerator, mutate, navigate, product, siteId, t, voterId])
+  }, [isModerator, isRequiredVoting, mutate, navigate, product, siteId, t, voterId])
 
   const isProductValid = !isError && !!product && !!product.fields && product.fields.length > 0
 
   return (
     <div className="flex flex-col gap-6">
       <ModerationHeader title={t("searchProduct")} parentBreadcrumbs={parentBreadcrumbs} />
-      <div className="max-w-120">
-        <Input
-          value={query}
-          onChange={setQuery}
-          placeholder={t("placeholders:enterProductId")}
-          className="max-w-120 placeholder:text-gray-500"
-          iconAfter={
-            <>
-              {query && (
-                <div onClick={handleInputClear} className="cursor-pointer">
-                  <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
-                </div>
-              )}
-              <SvgSearchMd className="size-5 stroke-gray-500" />
-            </>
-          }
-        />
-      </div>
-
-      {!!debouncedQuery && isProductValid ? (
-        <>
-          <ModerationPublicationHeader
-            title={product.title}
-            logoId={product.logoId}
-            authorId={product.authorId}
-            authorTitle={product.authorTitle}
-            components={
+      <div className="flex flex-col gap-12">
+        <div className="max-w-120">
+          <Input
+            value={query}
+            onChange={setQuery}
+            placeholder={t("placeholders:enterProductId")}
+            className="max-w-120 placeholder:text-gray-500"
+            iconAfter={
               <>
-                {isProductValid && !!voterId && (
-                  <ButtonBar className="items-center">
-                    <ButtonPrimary
-                      className="h-11 w-40 capitalize"
-                      label={t("common:create")}
-                      onClick={handleCreatePublication}
-                      disabled={isPending}
-                      loading={isPending}
-                    />
-                    <Link
-                      to={`/${siteId}/m/v`}
-                      state={{
-                        productId: product.id,
-                        previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
-                        parentBreadcrumbs: [
-                          ...parentBreadcrumbs,
-                          { title: t("searchProduct"), path: `/${siteId}/m/new-publication?productId=${product.id}` },
-                        ],
-                      }}
-                    >
-                      <ButtonOutline
-                        disabled={isPending}
-                        className="h-11 w-40 capitalize"
-                        label={t("common:preview")}
-                        iconBefore={<SvgEyeSm className="fill-gray-800" />}
-                      />
-                    </Link>
-                  </ButtonBar>
+                {query && (
+                  <div onClick={handleInputClear} className="cursor-pointer">
+                    <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
+                  </div>
                 )}
+                <SvgSearchMd className="size-5 shrink-0 stroke-gray-500" />
               </>
             }
           />
-          <ProductFieldsTree productFields={product.fields} />
-        </>
-      ) : debouncedQuery ? (
-        <MessageBox className="p-6" message={isError || !product ? t("productNotFound") : t("productHasNoField")} />
-      ) : null}
+        </div>
+
+        {!!debouncedQuery && isProductValid ? (
+          <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
+            <ModerationPublicationHeader
+              title={product.title}
+              logoId={product.logoId}
+              authorId={product.authorId}
+              authorTitle={product.authorTitle}
+              components={
+                <>
+                  {isProductValid && !!voterId && (
+                    <ButtonBar className="items-center">
+                      <ButtonPrimary
+                        className="h-11 w-40 capitalize"
+                        label={t("common:create")}
+                        onClick={handleCreatePublication}
+                        disabled={isPending}
+                        loading={isPending}
+                      />
+                      <Link
+                        to={`/${siteId}/m/v`}
+                        state={{
+                          productId: product.id,
+                          previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
+                          parentBreadcrumbs: [
+                            ...parentBreadcrumbs,
+                            { title: t("searchProduct"), path: `/${siteId}/m/new-publication?productId=${product.id}` },
+                          ],
+                        }}
+                      >
+                        <ButtonOutline
+                          disabled={isPending}
+                          className="h-11 w-40 capitalize"
+                          label={t("common:preview")}
+                          iconBefore={<SvgEyeSm className="fill-gray-800" />}
+                        />
+                      </Link>
+                    </ButtonBar>
+                  )}
+                </>
+              }
+            />
+            <ProductFieldsTree productFields={product.fields} />
+          </div>
+        ) : debouncedQuery ? (
+          <MessageBox className="p-6" message={isError || !product ? t("productNotFound") : t("productHasNoField")} />
+        ) : null}
+      </div>
     </div>
   )
 }

@@ -39,4 +39,32 @@ public class ProposalsController
 
 		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
 	}
+
+	[HttpGet("user-registrations")]
+	public IEnumerable<ProposalModel> GetUserRegistrations(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ProposalsController), nameof(GetUserRegistrations), siteId, pagination);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<ProposalModel> discussions = proposalsService.GetUserRegistrations(siteId, page, pageSize, cancellationToken);
+
+		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
+	}
+
+	[HttpGet("user-unregistrations")]
+	public IEnumerable<UserUnregistrationProposalModel> GetUserUnregistrations(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ProposalsController), nameof(GetUserUnregistrations), siteId, pagination);
+
+		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<UserUnregistrationProposalModel> discussions = proposalsService.GetUserUnregistrations(siteId, page, pageSize, cancellationToken);
+
+		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
+	}
 }

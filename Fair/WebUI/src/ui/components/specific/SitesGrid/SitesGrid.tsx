@@ -3,19 +3,21 @@ import { Link } from "react-router-dom"
 
 import { SiteBase } from "types"
 
-import { SiteCard } from "./SiteCard"
+import { SiteCard, SiteCardProps } from "./SiteCard"
 
-export type SitesGridProps = {
+type SitesGridBaseProps = {
   items: SiteBase[]
 }
 
-export const SitesGrid = memo(({ items }: SitesGridProps) => (
+export type SitesGridProps = Pick<SiteCardProps, "showStar"> & SitesGridBaseProps
+
+export const SitesGrid = memo(({ items, showStar }: SitesGridProps) => (
   <div className="flex flex-col gap-3">
     <div className="flex justify-center">
       <div className="flex size-full max-w-[1248px] flex-wrap items-center justify-center gap-6">
         {items.map(x => (
           <Link key={x.id} to={`/${x.id}`}>
-            <SiteCard title={x.title} description={x.description} imageFileId={x.imageFileId} />
+            <SiteCard title={x.title} description={x.description} imageFileId={x.imageFileId} showStar={showStar} />
           </Link>
         ))}
       </div>

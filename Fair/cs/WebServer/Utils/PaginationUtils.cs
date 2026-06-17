@@ -13,8 +13,8 @@ public static class PaginationUtils
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static (int page, int pageSize) GetPaginationParams(int? page)
+	public static (int page, int pageSize) GetPaginationParams(int? page, int? pageSize = null)
 	{
-		return (page: page ?? 0, pageSize: Pagination.PageSize30);
+		return (page: page ?? 0, pageSize: pageSize ?? Pagination.PageSize30);
 	}
 }

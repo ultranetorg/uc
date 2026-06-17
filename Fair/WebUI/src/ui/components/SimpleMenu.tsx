@@ -14,12 +14,14 @@ export type SimpleMenuChildItem =
   | {
       label: string
       to: To
+      state?: unknown
       onClick?: never
     }
   | {
       label: string
       onClick: (e: MouseEvent<HTMLDivElement>) => void
       to?: never
+      state?: never
     }
 
 export type SimpleMenuItem =
@@ -148,6 +150,7 @@ export const SimpleMenu = memo(
                           <Link
                             key={makeKey(i, j, k)}
                             to={child.to}
+                            state={child.state}
                             className={twMerge(MENU_ITEM_CLASSNAME, menuItemClassName)}
                             title={child.label}
                           >

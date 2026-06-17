@@ -1,42 +1,33 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import {
-  AccountBaseAvatar,
-  AuthorBaseAvatar,
-  BaseProposal,
-  OperationType,
-  PublicationImageBase,
-  PublicationProposal,
-} from "types"
-import { AccountInfo, ButtonOutline, ButtonPrimary, PublicationInfo, TableColumn } from "ui/components"
+import avatarFallback from "assets/fallback/author-16.png"
+import { AuthorBaseAvatar, OperationType, Proposal, PublicationImageBase, PublicationProposal } from "types"
+import { ButtonOutline, ButtonPrimary, MemberInfo, PublicationInfo, TableColumn } from "ui/components"
 import {
   formatNabb,
   formatNabbShort,
-  formatDate,
   formatDuration,
-  formatVotes,
   getHoursPassedFromStart,
-  shortenAddress,
   formatArShort,
   formatAr,
+  buildFileUrl,
 } from "utils"
+import { renderVotes } from "ui/renderers2"
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
 export const renderAuthor2 = (authorTitle: string, authorLogoId?: string) => (
-  <AccountInfo title={authorTitle} fullTitle={authorTitle} avatarId={authorLogoId} />
+  <MemberInfo title={authorTitle} fallbackSrc={avatarFallback} avatarSrc={buildFileUrl(authorLogoId)} />
 )
 
 export const renderAuthor = (author: AuthorBaseAvatar) => (
-  <AccountInfo title={author.name || author.id} fullTitle={author.name || author.id} avatarId={author.avatarId} />
-)
-
-export const renderAccount = (account: AccountBaseAvatar) => (
-  <AccountInfo
-    title={account.nickname || shortenAddress(account.address)}
-    fullTitle={account.nickname || account.address}
-    avatar={account.avatar}
+  <MemberInfo
+    title={
+      author.title && author.name ? `${author.title} (${author.name})` : (author.title ?? author.name ?? author.id)
+    }
+    fallbackSrc={avatarFallback}
+    avatarSrc={buildFileUrl(author.avatarId)}
   />
 )
 
@@ -54,10 +45,8 @@ export const renderActionShort = (t: TFunction, operationType: OperationType) =>
 )
 
 export const renderAr = (t: TFunction, proposal: PublicationProposal) => {
-  const approved =
-    proposal.optionsVotesCount && proposal.optionsVotesCount.length > 0 ? proposal.optionsVotesCount[0] : 0
-  const title = formatAr(t, approved, proposal.neitherCount)
-  const value = formatArShort(approved, proposal.neitherCount)
+  const title = formatAr(t, proposal.yes[0].length, proposal.neither.length)
+  const value = formatArShort(proposal.yes[0].length, proposal.neither.length)
   return (
     <div className="truncate" title={title}>
       {value}
@@ -65,9 +54,14 @@ export const renderAr = (t: TFunction, proposal: PublicationProposal) => {
   )
 }
 
-export const renderNabb = (t: TFunction, proposal: BaseProposal) => {
-  const title = formatNabb(t, proposal.neitherCount, proposal.anyCount, proposal.banCount, proposal.banishCount)
-  const value = formatNabbShort(proposal.neitherCount, proposal.anyCount, proposal.banCount, proposal.banishCount)
+export const renderNabb = (t: TFunction, proposal: Proposal) => {
+  const title = formatNabb(t, proposal.neither.length, proposal.any.length, proposal.ban.length, proposal.banish.length)
+  const value = formatNabbShort(
+    proposal.neither.length,
+    proposal.any.length,
+    proposal.ban.length,
+    proposal.banish.length,
+  )
   return (
     <div className="truncate" title={title}>
       {value}
@@ -80,8 +74,6 @@ export const renderCategory = (title: string) => (
     {title}
   </div>
 )
-
-export const renderDate = (date: number) => <span className={FONT_SM_CLASSNAME}>{formatDate(date)}</span>
 
 export const renderLastsFor = (t: TFunction, creationTime: number) => {
   const hoursPassed = getHoursPassedFromStart()
@@ -115,23 +107,22 @@ export const renderTitle = (title: string, text: string) => (
   </div>
 )
 
-export const renderVotes = (votes: number[]) => {
-  const formatted = formatVotes(votes)
-  return (
-    <div className="truncate" title={formatted}>
-      {formatted}
-    </div>
-  )
-}
-
-export const renderCommon = (t: TFunction, column: TableColumn, proposal: BaseProposal): ReactNode => {
+export const renderCommon = (
+  t: TFunction,
+  column: TableColumn,
+  proposal: Proposal,
+  votesRequired?: number,
+): ReactNode => {
   switch (column.type) {
     case "nabb":
       return renderNabb(t, proposal)
     case "lasts-for":
       return renderLastsFor(t, proposal.creationTime)
     case "votes":
-      return renderVotes(proposal.optionsVotesCount)
+      return renderVotes(
+        proposal.yes.map(x => x.length),
+        votesRequired,
+      )
   }
 
   return undefined
@@ -144,7 +135,7 @@ export const renderActions = (
   loadingAction?: "approve" | "reject",
   locked?: boolean,
 ) => (
-  <div className="flex gap-5">
+  <div className="flex justify-end gap-5">
     <ButtonPrimary
       className="h-9 w-20 capitalize"
       label={t("common:approve")}

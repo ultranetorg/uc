@@ -15,7 +15,7 @@ public class AuthorPerpetualSurveysController
 	[HttpGet]
 	public IEnumerable<PerpetualSurveyModel> Get(string siteId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.Get), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.Get), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 
@@ -25,7 +25,7 @@ public class AuthorPerpetualSurveysController
 	[HttpGet("{perpetualSurveyId}")]
 	public PerpetualSurveyDetailsModel GetDetails(string siteId, int perpetualSurveyId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {PerpetualSurveyId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetDetails), siteId, perpetualSurveyId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PerpetualSurveyId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetDetails), siteId, perpetualSurveyId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		ValidatePerpetualSurveyId(perpetualSurveyId);
@@ -36,7 +36,7 @@ public class AuthorPerpetualSurveysController
 	//[HttpGet("{perpetualSurveyId}/comments")]
 	//public IEnumerable<ProposalCommentModel> GetComments(string siteId, int perpetualSurveyId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	//{
-	//	logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {PerpetualSurveyId}, {Pagination}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetComments), siteId, perpetualSurveyId, pagination);
+	//	logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PerpetualSurveyId}, {Pagination}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetComments), siteId, perpetualSurveyId, pagination);
 
 	//	autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 	//	ValidatePerpetualSurveyId(perpetualSurveyId);

@@ -20,6 +20,7 @@ export const PublicationContentView = ({
   error,
   reviews,
   onLeaveReview,
+  onEditReview,
 }: PublicationContentViewProps) => {
   const { siteId } = useParams()
   const { t } = useTranslation("publication")
@@ -36,6 +37,7 @@ export const PublicationContentView = ({
       error={error}
       reviews={reviews}
       onLeaveReview={onLeaveReview}
+      onEditReview={onEditReview}
     />
   )
 }

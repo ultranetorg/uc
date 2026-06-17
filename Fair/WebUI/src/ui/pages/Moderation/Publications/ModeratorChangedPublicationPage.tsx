@@ -2,10 +2,10 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy, useSiteRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication } from "entities"
-import { useTransactMutationWithStatus } from "entities/node"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
@@ -13,20 +13,18 @@ import { showToast } from "utils"
 
 export const ModeratorChangedPublicationPage = () => {
   const { siteId, publicationId } = useParams()
-  const { getOperationVoterId, isModerator } = useModerationContext()
+  const { isModerator } = useSiteRolesContext()
+  const { voterId } = useOperationPolicy("publication-updation")
   const { mutate } = useTransactMutationWithStatus()
   const navigate = useNavigate()
   const { t } = useTranslation()
 
   const [isPending, setPending] = useState<boolean | undefined>()
 
-  const voterId = getOperationVoterId("publication-updation")
-
   const { isLoading, data: publication } = useGetChangedPublication(siteId, publicationId)
 
   const parentBreadcrumbs = useMemo(
     () => [
-      { title: t("common:proposals"), path: `/${siteId}/m` },
       { title: t("common:publications"), path: `/${siteId}/m/c` },
       { title: t("common:changed"), path: `/${siteId}/m/c/c` },
     ],
@@ -100,13 +98,15 @@ export const ModeratorChangedPublicationPage = () => {
         }
       />
 
-      <ModerationPublicationHeader
-        title={publication.title}
-        logoId={publication.logoId}
-        authorId={publication.authorId}
-        authorTitle={publication.authorTitle}
-      />
-      <ProductFieldsDiff from={publication.fields} to={publication.fieldsTo} />
+      <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
+        <ModerationPublicationHeader
+          title={publication.title}
+          logoId={publication.logoId}
+          authorId={publication.authorId}
+          authorTitle={publication.authorTitle}
+        />
+        <ProductFieldsDiff from={publication.fields} to={publication.fieldsTo} />
+      </div>
     </div>
   )
 }

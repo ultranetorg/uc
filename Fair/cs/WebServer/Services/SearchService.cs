@@ -143,6 +143,53 @@ public class SearchService
 		}
 	}
 
+	public IEnumerable<UserModel> SearchSiteUsers([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Query}, {Limit}", nameof(SearchService), nameof(SearchSiteUsers), siteId, query, limit);
+
+		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(query);
+		Guard.Against.NegativeOrZero(limit);
+
+		AutoId siteEntityId = AutoId.Parse(siteId);
+
+		lock(mcv.Lock)
+		{
+			if(AutoId.TryParse(query, out AutoId entityId))
+			{
+				FairUser user = (FairUser) mcv.Users.Latest(entityId);
+				return user != null && user.Sites.Contains(siteEntityId) ? [new UserModel(user)] : [];
+			}
+
+			string lowercase = query.ToLower();
+			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
+
+			return LoadUsers(siteEntityId, searchResult, cancellationToken);
+		}
+	}
+
+	IEnumerable<UserModel> LoadUsers(AutoId siteId, IEnumerable<AutoId> usersIds, CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		var result = new List<UserModel>(usersIds.Count());
+
+		foreach(AutoId id in usersIds)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+
+			FairUser user = (FairUser) mcv.Users.Latest(id);
+
+			if (user.Sites.Contains(siteId))
+			{
+				var model = new UserModel(user);
+				result.Add(model);
+			}
+		}
+
+		return result;
+	}
+
 	public IEnumerable<AccountBaseAvatarModel> SearchAccount([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchAccount), query, limit);

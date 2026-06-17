@@ -1,4 +1,4 @@
-export * from "./DropdownSearchAccount"
+export * from "./DropdownSearchMember"
 export * from "./OptionsCollapsesList"
 export * from "./OptionsEditor"
 

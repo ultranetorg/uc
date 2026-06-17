@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
 import { useSiteContext, useUserContext } from "app"
-import { useTransactMutationWithStatus } from "entities/node"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { FavoriteSiteChange, PropsWithClassName, SiteBase } from "types"
 import { SitesList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"

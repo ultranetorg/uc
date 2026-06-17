@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 import { SvgBoxArrowUpRight, SvgStarXxs } from "assets"
 import { DownloadSource, ProductDetails, PublicationDetails } from "types"
 import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
-import { formatAverageRating, formatDate, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq } from "utils"
+import { formatDate, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq } from "utils"
 
 import { AuthorImageTitle } from "./components"
 
@@ -107,7 +107,10 @@ export const SoftwareInfo = memo(
         <div className="flex flex-col gap-2">
           <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
           <LinkFullscreen to={`/${siteId}/a/${productOrPublication.authorId}`}>
-            <AuthorImageTitle title={productOrPublication.authorTitle} authorFileId={productOrPublication.authorId} />
+            <AuthorImageTitle
+              title={productOrPublication.authorTitle}
+              authorFileId={productOrPublication.authorLogoId}
+            />
           </LinkFullscreen>
         </div>
 
@@ -154,7 +157,7 @@ export const SoftwareInfo = memo(
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{ratingLabel}</span>
             <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>
-              {formatAverageRating(productOrPublication.rating)} <SvgStarXxs className="fill-favorite" />
+              {productOrPublication.rating} <SvgStarXxs className="fill-favorite" />
             </div>
           </div>
         )}

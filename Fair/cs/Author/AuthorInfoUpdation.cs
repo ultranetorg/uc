@@ -137,12 +137,12 @@ public class AuthorInfoUpdation : FairOperation
 
 		if(Changes.Any(i => i.Field == AuthorField.Reference))
 		{
-			if(a.Referrences.Length > 0)
-				execution.Free(a, a, a.Referrences.Sum(i => Encoding.UTF8.GetByteCount(i.Text) + Encoding.UTF8.GetByteCount(i.Uri)));
+			if(a.References.Length > 0)
+				execution.Free(a, a, a.References.Sum(i => Encoding.UTF8.GetByteCount(i.Text) + Encoding.UTF8.GetByteCount(i.Uri)));
 
-			a.Referrences = Changes.Where(i => i.Field == AuthorField.Reference).Select(i => new AuthorReference(i.X, i.Y)).ToArray();
+			a.References = Changes.Where(i => i.Field == AuthorField.Reference).Select(i => new AuthorReference(i.X, i.Y)).ToArray();
 
-			execution.Allocate(a, a, a.Referrences.Sum(i => Encoding.UTF8.GetByteCount(i.Text) + Encoding.UTF8.GetByteCount(i.Uri)));
+			execution.Allocate(a, a, a.References.Sum(i => Encoding.UTF8.GetByteCount(i.Text) + Encoding.UTF8.GetByteCount(i.Uri)));
 		}
 
 		execution.PayOperationEnergy(a);

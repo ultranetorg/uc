@@ -1,12 +1,12 @@
 import { ReactNode } from "react"
 
-import { UnpublishedPublication } from "types"
+import { PublicationUnpublished } from "types"
 import { TableColumn, TableItem } from "ui/components"
 
 import { renderAuthor2, renderPublication2 } from "./utils"
 
 export const unpublishedPublicationsItemRenderer = (item: TableItem, column: TableColumn): ReactNode => {
-  const publication = item as UnpublishedPublication
+  const publication = item as PublicationUnpublished
 
   switch (column.type) {
     case "publication":

@@ -4,15 +4,13 @@ import { useParams } from "react-router-dom"
 
 import { useGetSiteModerators } from "entities"
 import { Table, TableEmptyState } from "ui/components"
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { moderatorsTabItemRenderer } from "./moderatorsTabItemRenderer"
 
 export const ModeratorsTab = () => {
   const { siteId } = useParams()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("site-moderator-removal")
   const { t } = useTranslation("moderatorsPage")
-  const voterId = getOperationVoterId("site-moderator-removal")
-  console.log("voter", voterId)
 
   const { data: moderators } = useGetSiteModerators(siteId)
 
@@ -31,7 +29,7 @@ export const ModeratorsTab = () => {
               accessor: "actions",
               label: t("common:actions"),
               type: "actions",
-              className: "w-[15%] first-letter:uppercase",
+              className: "w-[10%] text-center first-letter:uppercase",
             },
           ]
         : []),

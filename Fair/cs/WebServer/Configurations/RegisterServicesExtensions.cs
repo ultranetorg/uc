@@ -19,12 +19,12 @@ public static class RegisterServicesExtensions
 
 	private static void RegisterServicesInternal(IServiceCollection services, FairNode node)
 	{
-		services.AddSingleton<IAuthorsService, AuthorsService>();
-		services.AddSingleton<ICategoriesService, CategoriesService>();
+		services.AddSingleton<AuthorsService>();
+		services.AddSingleton<CategoriesService>();
 		services.AddSingleton<FilesService>();
 		services.AddSingleton<ProposalService>();
 		services.AddSingleton<PublicationsService>();
-		services.AddSingleton<IReviewsService, ReviewsService>();
+		services.AddSingleton<ReviewsService>();
 		services.AddSingleton<SearchService>();
 		services.AddSingleton<SitesService>();
 		services.AddSingleton<PerpetualSurveysService>();
@@ -34,6 +34,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<UnpublishedPublicationsService>();
 		services.AddSingleton<UnpublishedSiteProductsService>();
+		services.AddSingleton<UsersService>();
 	}
 
 	private static void RegisterValidators(IServiceCollection services)

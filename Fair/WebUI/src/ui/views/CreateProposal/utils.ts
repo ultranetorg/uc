@@ -5,10 +5,7 @@ import {
   CreateProposalData,
   CreateProposalDataOption,
   OperationType,
-  Policy,
   ProposalOption,
-  ProposalType,
-  Site,
 } from "types"
 import { getFairOperationType } from "utils"
 
@@ -32,17 +29,22 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
 
     // Publication
     case "publication-creation":
-      return { productId: data.productId }
+      return { product: data.productId }
     case "publication-deletion":
       return { publication: data.publicationId }
     case "publication-publish":
+      // @ts-expect-error fix
       return { publication: data.publicationId, category: option.categoryId! }
     case "publication-updation":
-      return { publicationId: data.publicationId, version: option.version }
+      // @ts-expect-error fix
+      return { publication: data.publicationId, version: option.version }
+    case "publication-unpublish":
+      return { publication: data.publicationId }
 
     // Review
     case "review-status-change":
-      return { reviewId: data.reviewId, status: option.status }
+      // @ts-expect-error fix
+      return { review: data.reviewId, status: option.status }
 
     // Site
     case "site-authors-removal":
@@ -86,30 +88,4 @@ export const prepareProposalOptions = (data: CreateProposalData): ProposalOption
     title: option.title,
     operation: { $type, ...mapOptionOperation(type, data, option) },
   }))
-}
-
-export const isVotingRequired = (
-  proposalType: ProposalType,
-  site?: Site,
-  operation?: OperationType,
-  policies?: Policy[],
-): boolean => {
-  if (!site || !operation || !policies) return true
-
-  const votersCount = proposalType === "discussion" ? site.moderatorsIds.length : site.authorsIds.length
-  const policy = policies.find(x => x.operationClass === operation)
-
-  if (policy) {
-    switch (policy.approval) {
-      case "any-moderator":
-        return false
-      case "moderators-majority":
-      case "publishers-majority":
-        return votersCount > 2
-      case "all-moderators":
-        return votersCount > 1
-    }
-  }
-
-  return true
 }

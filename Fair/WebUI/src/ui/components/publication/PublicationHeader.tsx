@@ -13,7 +13,7 @@ export type PublicationHeaderProps = {
 export const PublicationHeader = memo(({ id, title, logoFileId, categories, components }: PublicationHeaderProps) => (
   <div className="flex items-center justify-between">
     <SoftwarePublicationLogo logoFileId={logoFileId} title={title} categories={categories} />
-    {id && <ModeratorOptionsMenu className="ml-auto" publicationId={id} />}
+    {id && <ModeratorOptionsMenu className="ml-auto" publicationId={id} publicationTitle={title} />}
     {components}
   </div>
 ))

@@ -14,6 +14,6 @@ export const MovePublicationCard = ({ id, title, authorTitle }: PublicationCardP
       <span className="truncate text-2xs leading-4 text-gray-500">{authorTitle}</span>
     </div>
 
-    <ModeratorPublicationContextMenu publicationId={id} className="absolute right-1 top-1" />
+    <ModeratorPublicationContextMenu publicationId={id} publicationTitle={title} className="absolute right-1 top-1" />
   </div>
 )

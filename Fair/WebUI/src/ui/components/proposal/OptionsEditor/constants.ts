@@ -8,7 +8,7 @@ import {
   validateUniqueCategoryType,
   validateUniqueFileId,
   validateUniqueParentCategory,
-  validateUniqueSiteNickname,
+  validateUniqueSiteNickname as validateUniqueSiteName,
 } from "./validations"
 
 const atLeastOneSiteTextField = (_: unknown, formValues: CreateProposalData) =>
@@ -46,8 +46,10 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       operationType: "category-creation",
       parameterValueType: "category",
       parameterName: "categoryId",
-      parameterLabel: t("common:category"),
+      parameterLabel: t("common:parentCategory"),
       parameterPlaceholder: t("placeholders:selectCategory"),
+      parameterRules: { required: false },
+      parameterHasRoot: true,
       fields: [
         {
           valueType: "string",
@@ -208,13 +210,13 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
         {
           valueType: "string",
           name: "name",
-          placeholder: t("placeholders:enterNickname"),
+          placeholder: t("placeholders:enterName"),
           rules: {
             required: t("validation:required"),
             minLength: { value: 5, message: t("validation:minLength", { count: 5 }) },
             maxLength: { value: 32, message: t("validation:maxLength", { count: 32 }) },
             pattern: { value: /^[a-z0-9_]+$/, message: t("validation:onlyLowercaseLatinNumbersAndUnderscores") },
-            validate: validateUniqueSiteNickname(t),
+            validate: validateUniqueSiteName(t),
           },
         },
       ],

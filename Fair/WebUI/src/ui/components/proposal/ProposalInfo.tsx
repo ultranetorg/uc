@@ -1,20 +1,21 @@
+import { useTranslation } from "react-i18next"
 import { Link, useParams } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
-import { AccountBaseAvatar, PropsWithClassName } from "types"
-import { AccountInfo } from "ui/components"
-import { formatDate, formatDaysLeft, shortenAddress } from "utils"
+import { PropsWithClassName, User } from "types"
+import { renderUser } from "ui/renderers2"
+import { formatDate, formatLastsFor } from "utils"
 
 type ProposalInfoBaseProps = {
-  createdBy: AccountBaseAvatar
+  createdBy: User
   createdAt: number
-  hoursLeft: number
 }
 
 export type ProposalInfoProps = ProposalInfoBaseProps & PropsWithClassName
 
-export const ProposalInfo = ({ className, createdBy, createdAt, hoursLeft }: ProposalInfoProps) => {
+export const ProposalInfo = ({ className, createdBy, createdAt }: ProposalInfoProps) => {
   const { siteId } = useParams()
+  const { t } = useTranslation()
 
   return (
     <div
@@ -25,24 +26,16 @@ export const ProposalInfo = ({ className, createdBy, createdAt, hoursLeft }: Pro
     >
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">Created By:</span>
-        <Link to={`/${siteId}/a/${createdBy.id}`}>
-          <AccountInfo
-            title={createdBy.nickname || shortenAddress(createdBy.address)}
-            fullTitle={createdBy.nickname || createdBy.address}
-            avatar={createdBy.avatar}
-          />
-        </Link>
+        <Link to={`/${siteId}/a/${createdBy.id}`}>{renderUser(createdBy)}</Link>
       </div>
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">Created At:</span>
         <span>{formatDate(createdAt)}</span>
       </div>
-      {hoursLeft !== -1 && (
-        <div className="flex flex-col gap-2">
-          <span className="text-gray-500">Days Left:</span>
-          <span>{formatDaysLeft(createdAt, hoursLeft)}</span>
-        </div>
-      )}
+      <div className="flex flex-col gap-2">
+        <span className="text-gray-500">Lasts for:</span>
+        <span>{formatLastsFor(t, createdAt)}</span>
+      </div>
     </div>
   )
 }

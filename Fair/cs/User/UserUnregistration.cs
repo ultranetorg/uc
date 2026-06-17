@@ -2,16 +2,16 @@
 
 public class UserUnregistration : VotableOperation
 {
-	public new  AutoId			User { get; set; }
+	public new AutoId			User { get; set; }
 
 	public override string		Explanation => $"User={User}";
 	
 	public UserUnregistration()
 	{
 	}
-	
+
 	public override bool IsValid(McvNet net)
-	{ 
+	{
 		return true;
 	}
 
@@ -30,8 +30,8 @@ public class UserUnregistration : VotableOperation
 		return other is UserUnregistration o && o.User == User;
 	}
 
- 	public override bool ValidateProposal(FairExecution execution, out string error)
- 	{
+	public override bool ValidateProposal(FairExecution execution, out string error)
+	{
 		if(!Site.Users.Contains(User))
 		{
 			error = NotFound;
@@ -40,7 +40,7 @@ public class UserUnregistration : VotableOperation
 
 		error = null;
 		return true;
- 	}
+	}
 
 	public override void Execute(FairExecution execution)
 	{

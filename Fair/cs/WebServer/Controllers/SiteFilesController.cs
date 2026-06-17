@@ -15,7 +15,7 @@ public class SiteFilesController
 	[HttpGet]
 	public IEnumerable<FileModel> Get(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}", nameof(SiteFilesController), nameof(Get), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SiteFilesController), nameof(Get), siteId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);

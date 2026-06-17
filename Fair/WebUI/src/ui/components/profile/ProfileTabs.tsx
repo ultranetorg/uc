@@ -1,7 +1,8 @@
 import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { TabsProvider, useModerationContext, useUserContext } from "app"
+import { useSiteRolesContext, useUserContext } from "app"
+import { TabsProvider } from "ui/components"
 
 import { EditProfileInfo } from "./EditProfileInfo"
 // import { ModeratedSites } from "./ModeratedSites"
@@ -19,7 +20,7 @@ export type ProfileTabsProps = {
 export const ProfileTabs = memo(({ defaultTabKey, tabsListClassName, onTabSelect }: ProfileTabsProps) => {
   const { t } = useTranslation("profile")
 
-  const { isPublisher, isModerator } = useModerationContext()
+  const { isPublisher, isModerator } = useSiteRolesContext()
   const { user } = useUserContext()
 
   const roles = useMemo(() => {
@@ -34,12 +35,10 @@ export const ProfileTabs = memo(({ defaultTabKey, tabsListClassName, onTabSelect
       <div className="flex grow gap-8">
         <div className="flex-1">
           <TabContent when="profile">
-            {user && (
-              <ProfileInfo nickname={user.nickname} address={user.address} roles={roles} onTabSelect={onTabSelect} />
-            )}
+            {user && <ProfileInfo nickname={user.name} address={user.owner} roles={roles} onTabSelect={onTabSelect} />}
           </TabContent>
           <TabContent when="profileSettings">
-            <EditProfileInfo t={t} nickname={user?.nickname} />
+            <EditProfileInfo t={t} nickname={user?.name} />
           </TabContent>
           {/*
             <TabContent when="authors">

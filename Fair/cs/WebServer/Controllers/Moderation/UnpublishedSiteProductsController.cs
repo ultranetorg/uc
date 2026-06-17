@@ -16,7 +16,7 @@ public class UnpublishedSiteProductsController
 	[HttpGet("{productId}")]
 	public ProductDetailsModel GetDetails(string siteId, string productId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {ProductId}", nameof(UnpublishedSiteProductsController), nameof(GetDetails), siteId, productId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {ProductId}", nameof(UnpublishedSiteProductsController), nameof(GetDetails), siteId, productId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(productId, nameof(Product).ToLower());

@@ -2,7 +2,6 @@ import { AccountBase, AuthorBaseAvatar } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
-  AddAuthorPanelList,
   AddModeratorPanelList,
   DropdownSearchCategory,
   DropdownWithTranslation,
@@ -16,7 +15,7 @@ import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterVa
 
 export const renderByParameterValueType: Record<
   ParameterValueType,
-  (field: EditorOperationFields, value: string | undefined, onChange: (value: string) => void) => JSX.Element
+  (field: EditorOperationFields, value: string | undefined, onChange: (value: string | null) => void) => JSX.Element
 > = {
   category: (field, value, onChange) => (
     <DropdownSearchCategory
@@ -24,6 +23,7 @@ export const renderByParameterValueType: Record<
       size="large"
       placeholder={field.parameterPlaceholder}
       value={value}
+      hasRoot={field.parameterHasRoot}
       onChange={item => onChange(item.value)}
     />
   ),
@@ -66,11 +66,6 @@ export const renderByParameterValueType: Record<
 }
 
 export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
-  "authors-additions": ({ errorMessage, value, onChange }) => (
-    <ValidationWrapper message={errorMessage}>
-      <AddAuthorPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />
-    </ValidationWrapper>
-  ),
   "authors-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <RemoveAuthorPanelList value={value as AuthorBaseAvatar[]} onChange={onChange} />

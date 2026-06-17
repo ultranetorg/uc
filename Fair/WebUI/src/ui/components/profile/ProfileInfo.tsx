@@ -1,10 +1,9 @@
 import { useTranslation } from "react-i18next"
 
 import { PROFILE_SRC } from "testConfig"
-import { ButtonGhost, CopyButton } from "ui/components"
+import { ButtonGhost, CopyButton, useTabsContext } from "ui/components"
 import { formatRoles } from "utils"
 
-import { useTabsContext } from "app"
 import { SvgPencilSm } from "assets"
 import pngBackground from "./background.png"
 

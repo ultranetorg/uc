@@ -8,7 +8,7 @@ export type TextareaBaseProps = {
   onChange: (value: string) => void
 }
 
-export type TextareaProps = Pick<TextareaHTMLAttributes<HTMLTextAreaElement>, "placeholder" | "rows"> &
+export type TextareaProps = Pick<TextareaHTMLAttributes<HTMLTextAreaElement>, "maxLength" | "placeholder" | "rows"> &
   PropsWithClassName &
   TextareaBaseProps
 

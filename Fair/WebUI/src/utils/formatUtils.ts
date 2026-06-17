@@ -4,6 +4,7 @@ import { capitalize } from "lodash"
 
 import { START_DATE } from "config"
 import { BaseVotableOperation } from "types"
+import { getHoursPassedFromStart } from "./dateUtils"
 
 const OS_DIVIDER = " | "
 const ROLES_DELIMITER = ", "
@@ -22,12 +23,8 @@ export const formatNabb = (t: TFunction, neither: number, any: number, ban: numb
 export const formatNabbShort = (neither: number, any: number, ban: number, banish: number) =>
   `${neither} / ${any} / ${ban} / ${banish}`
 
-export const formatAverageRating = (value: number): string => (value / 10).toFixed(1)
-
 export const formatDate = (hours: number): string =>
   dayjs(START_DATE).add(hours, "hour").startOf("day").format("DD.MM.YYYY")
-
-export const formatDaysLeft = (createdAt: number, hoursLeft: number): number => Math.ceil((createdAt - hoursLeft) / 24)
 
 export const formatSupportedPlatforms = (platforms: string[]): string => platforms.join(" / ")
 
@@ -69,6 +66,12 @@ export const formatDuration = (t: TFunction, durationInHours: number): string =>
   return t("date:hour", { count: Math.floor(durationInHours) })
 }
 
+export const formatLastsFor = (t: TFunction, creationTime: number) => {
+  const hoursPassed = getHoursPassedFromStart()
+  const hoursDuration = hoursPassed - creationTime
+  return formatDuration(t, hoursDuration)
+}
+
 export const formatOption = (option: BaseVotableOperation, t: TFunction) => {
   return t(`operations:${option.$type}`)
 }
@@ -99,3 +102,12 @@ export function ensureHttp(uri: string) {
   if (/^(https?:)?\/\//i.test(uri)) return uri
   return `https://${uri}`
 }
+
+export const formatRole = (t: TFunction, isPublisher: boolean, isModerator: boolean): string =>
+  isPublisher && isModerator
+    ? `${t("common:publisher")}, ${t("common:moderator")}`
+    : isPublisher
+      ? t("common:publisher")
+      : isModerator
+        ? t("common:moderator")
+        : t("common:user")

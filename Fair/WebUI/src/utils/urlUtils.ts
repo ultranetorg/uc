@@ -1,15 +1,10 @@
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
-/**
- * @deprecated This method is deprecated use `buildUserAvatarUrl` instead.
- */
-export const buildAccountAvatarUrl = (accountId?: string): string | undefined =>
-  accountId ? `${BASE_URL}/accounts/${accountId}/avatar` : undefined
-
 export const buildFileUrl = (fileId?: string): string | undefined =>
   fileId ? `${BASE_URL}/files/${fileId}` : undefined
 
-export const buildUserAvatarUrl = (name: string): string => `${BASE_URL}/users/${name}/avatar`
+export const buildUserAvatarUrl = (userId?: string): string | undefined =>
+  userId ? `${BASE_URL}/users/${userId}/avatar` : undefined
 
 export const isValidUrl = (value: string): boolean => {
   try {

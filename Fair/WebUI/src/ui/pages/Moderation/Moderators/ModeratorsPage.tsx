@@ -2,10 +2,11 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
-import { TabsProvider, useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { ModerationHeader } from "ui/components/specific"
-import { ButtonPrimary, TabContent, TabsList, TabsListItem } from "ui/components"
+import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
+import { sitesKeys } from "entities"
 import { ModeratorsTab } from "./ModeratorsTab"
 import { ModeratorsProposalsTab } from "./ModeratorsProposalsTab"
 
@@ -15,11 +16,9 @@ const routeToTabKey: Record<string, string> = {
 
 export const ModeratorsPage = () => {
   const navigate = useNavigate()
-  const { getOperationVoterId } = useModerationContext()
+  const { voterId } = useOperationPolicy("site-moderator-addition")
   const { siteId, tabKey } = useParams()
   const { t } = useTranslation("moderatorsPage")
-
-  const voterId = getOperationVoterId("site-moderator-addition")
 
   const key = routeToTabKey[tabKey!]
 
@@ -28,8 +27,6 @@ export const ModeratorsPage = () => {
       navigate(item.route ? `/${siteId}/m/m/${item.route}` : `/${siteId}/m/m`),
     [navigate, siteId],
   )
-
-  const parentBreadcrumbs = useMemo(() => [{ path: `/${siteId}/m`, title: t("common:proposals") }], [siteId, t])
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
@@ -43,17 +40,18 @@ export const ModeratorsPage = () => {
     <>
       <ModerationHeader
         title={t("title")}
-        parentBreadcrumbs={parentBreadcrumbs}
         components={
           <>
             {voterId && (
               <Link
                 to={`/${siteId}/g/new`}
                 state={{
-                  parentBreadcrumbs: [...parentBreadcrumbs, { path: `/${siteId}/m/m/`, title: t("title") }],
+                  parentBreadcrumbs: [{ path: `/${siteId}/m/m/`, title: t("title") }],
                   title: t("addModerator"),
                   type: "site-moderator-addition",
-                  previousPath: `/${siteId}/m/m/`,
+                  redirectAfterProposalCreation: `/${siteId}/m/m/p/`,
+                  redirectAfterProposalExecution: location.pathname,
+                  invalidateQueryKeys: sitesKeys.publishers(siteId!),
                 }}
               >
                 <ButtonPrimary label={t("addModerator")} />

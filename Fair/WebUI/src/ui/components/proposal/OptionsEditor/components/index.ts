@@ -1,4 +1,3 @@
-export * from "./AddAuthorPanelList"
 export * from "./AddModeratorPanelList"
 export * from "./DropdownSearchCategory"
 export * from "./DropdownWithTranslation"

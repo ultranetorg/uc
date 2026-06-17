@@ -13,7 +13,9 @@ public static class ProposalUtils
 
 	public static bool IsReviewOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;
 
-	public static bool IsUserOperation(Proposal proposal) => proposal.Options[0].Operation is UserUnregistration or UserRegistration;
+	public static bool IsUserRegistrationOperation(Proposal proposal) => proposal.Options[0].Operation is UserRegistration;
+
+	public static bool IsUserUnregistrationOperation(Proposal proposal) => proposal.Options[0].Operation is UserUnregistration;
 
 	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is SiteModeratorAddition or SiteModeratorRemoval;
 
@@ -32,6 +34,7 @@ public static class ProposalUtils
 			PublicationCreation operation => new PublicationCreationModel(operation),
 			PublicationDeletion operation => new PublicationDeletionModel(operation),
 			PublicationUpdation operation => new PublicationUpdationModel(operation),
+			PublicationUnpublish operation => CreatePublicationUnpublishModel(mcv, operation),
 			ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
@@ -42,7 +45,7 @@ public static class ProposalUtils
 			SiteModeratorRemoval operation => CreateSiteModeratorRemovalModel(mcv, operation),
 			SiteNameChange operation => CreateSiteNameChangeModel(operation),
 			SiteTextChange operation => new SiteTextChangeModel(operation),
-			UserUnregistration operation => new UserDeletionModel(operation),
+			UserUnregistration operation => new UserUnregistrationModel(operation),
 			UserRegistration operation => new UserRegistrationModel(operation),
 			_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
 		};
@@ -81,10 +84,10 @@ public static class ProposalUtils
 
 	static SiteAuthorsRemovalModel CreateSiteAuthorsRemovalModel(FairMcv mcv, SiteAuthorsRemoval operation)
 	{
-		IEnumerable<AuthorBaseModel> removals = operation.Authors.Select(authorId =>
+		IEnumerable<AuthorBaseAvatarModel> removals = operation.Authors.Select(authorId =>
 		{
 			Author author = mcv.Authors.Latest(authorId);
-			return new AuthorBaseModel(author);
+			return new AuthorBaseAvatarModel(author);
 		});
 
 		return new SiteAuthorsRemovalModel(operation)
@@ -131,12 +134,23 @@ public static class ProposalUtils
 		return new PublicationPublishModel(operation, product, category);
 	}
 
-	public static int CalculateHoursLeft(Proposal proposal, Site site)
+	static PublicationUnpublishModel CreatePublicationUnpublishModel(FairMcv mcv, PublicationUnpublish operation)
 	{
-		if (site.Policies.First(i => i.OperationClass == proposal.OptionClass).Approval == ApprovalRequirement.PublishersMajority)
-			return -1;
-		if (Site.Restrictions.First(i => i.OperationClass == proposal.OptionClass).Flags.HasFlag(PolicyFlag.Infinite))
-			return -1;
-		return (proposal.CreationTime - Time.FromDays(30)).Hours;
+		Publication publication = mcv.Publications.Latest(operation.Publication);
+		Product product = mcv.Products.Latest(publication.Product);
+		Category category = mcv.Categories.Latest(publication.Category);
+		return new PublicationUnpublishModel(operation, product, category);
 	}
 }
+
+//public static int CalculateHoursLeft(Proposal proposal, Site site)
+//{
+//	if (site.Policies.First(i => i.OperationClass == proposal.OptionClass).Approval == ApprovalRequirement.PublishersMajority)
+//		return -1;
+
+//	Restiction? restriction = Site.Restrictions.FirstOrDefault(x => x.OperationClass == proposal.OptionClass);
+//	if(restriction == null || restriction.Flags.HasFlag(PolicyFlag.Infinite))
+//		return -1;
+
+//	return (proposal.CreationTime - Time.FromDays(30)).Hours;
+//}

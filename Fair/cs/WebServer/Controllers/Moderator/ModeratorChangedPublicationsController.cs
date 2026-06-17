@@ -15,7 +15,7 @@ public class ModeratorChangedPublicationsController
 	[HttpGet("{changedPublicationId}")]
 	public ChangedPublicationDetailsModel GetDetails(string siteId, string changedPublicationId)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {ChangedPublicationId}", nameof(ModeratorChangedPublicationsController), nameof(GetDetails), siteId, changedPublicationId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {ChangedPublicationId}", nameof(ModeratorChangedPublicationsController), nameof(GetDetails), siteId, changedPublicationId);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		autoIdValidator.Validate(changedPublicationId, nameof(EntityNames.ChangedPublicationEntityName).ToLower());
@@ -26,7 +26,7 @@ public class ModeratorChangedPublicationsController
 	[HttpGet]
 	public IEnumerable<ChangedPublicationModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{MethodName} method called with {SiteId}, {Pagination}", nameof(ModeratorChangedPublicationsController), nameof(GetAll), siteId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ModeratorChangedPublicationsController), nameof(GetAll), siteId, pagination);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		paginationValidator.Validate(pagination);

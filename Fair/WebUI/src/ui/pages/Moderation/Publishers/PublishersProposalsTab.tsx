@@ -3,17 +3,20 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
+import { useSiteContext, useSitePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublisherProposals } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { parseInteger } from "utils"
+import { calculateVotesRequiredToWinProposal, parseInteger } from "utils"
 
 import { getPublisherProposalsItemRenderer } from "./publisherProposalsItemRenderer"
 
 export const PublishersProposalsTab = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
+  const { site } = useSiteContext()
+  const { policies } = useSitePoliciesContext()
   const { t } = useTranslation("publishersProposalsTab")
 
   const [state, setState] = useUrlParamsState({
@@ -41,12 +44,18 @@ export const PublishersProposalsTab = () => {
       { accessor: "by", label: t("common:createdBy"), type: "account", className: "w-[12%]" },
       { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[12%]" },
       { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for", className: "w-[12%]" },
-      { accessor: "votes", label: t("common:votes"), type: "votes", className: "capitalize w-[12%]" },
+      { accessor: "votes", label: t("common:votes"), type: "votes", className: "capitalize w-[12%] text-center" },
       { accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull"), className: "w-[12%]" },
     ],
     [t],
   )
-  const itemRenderer = useMemo(() => getPublisherProposalsItemRenderer(t), [t])
+
+  const votesRequired = useMemo(
+    () => calculateVotesRequiredToWinProposal("site-authors-removal", site, policies),
+    [policies, site],
+  )
+
+  const itemRenderer = useMemo(() => getPublisherProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 
   const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/a/r/${id}`), [navigate, siteId])
 

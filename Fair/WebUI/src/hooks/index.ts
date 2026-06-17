@@ -1,3 +1,4 @@
+export * from "./useCloseOnScrollOrResize"
 export * from "./useEscapeKey"
 export * from "./useConfirmationModal"
 export * from "./useInfiniteScrollWithPosition"

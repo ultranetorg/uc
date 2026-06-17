@@ -1,17 +1,16 @@
 import { memo, useMemo } from "react"
 import { useParams } from "react-router-dom"
 
-import { useModerationContext } from "app"
+import { useOperationPolicy } from "app"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 
 import { ProposalViewContentProps } from "./types"
 import { renderDescription } from "./utils"
 
 export const DefaultContent = memo(
-  ({ t, pageState, proposal, voteStatus, votedValue, onVoteClick }: ProposalViewContentProps) => {
-    const { getOperationVoterId } = useModerationContext()
+  ({ t, pageState, proposal, isReferendum, voteStatus, votedValue, onVoteClick }: ProposalViewContentProps) => {
+    const { voterId } = useOperationPolicy(proposal.operation)
     const { siteId } = useParams()
-    const voterId = getOperationVoterId(proposal.operation)
 
     const items = useMemo<OptionsCollapsesListItem[]>(
       () =>
@@ -21,12 +20,12 @@ export const DefaultContent = memo(
           value: i,
           votePercents:
             proposal.votesRequiredToWin > 0
-              ? Math.min(100, Math.round((proposal.optionsVotesCount[i] / proposal.votesRequiredToWin) * 100))
+              ? Math.min(100, Math.round((proposal.yes[i].length / proposal.votesRequiredToWin) * 100))
               : 0,
           voted: i === votedValue,
-          votesCount: proposal.optionsVotesCount[i],
+          votesCount: proposal.yes[i].length,
         })),
-      [proposal.options, proposal.optionsVotesCount, proposal.votesRequiredToWin, siteId, t, votedValue],
+      [proposal.options, proposal.votesRequiredToWin, proposal.yes, siteId, t, votedValue],
     )
 
     return (
@@ -34,7 +33,7 @@ export const DefaultContent = memo(
         className="max-w-187.5"
         items={items}
         showResults={pageState == "results"}
-        showVoteButton={voteStatus !== "voted" && !!voterId}
+        showVoteButton={isReferendum || (voteStatus !== "voted" && !!voterId)}
         votesText={t("common:votes")}
         votedValue={votedValue}
         onVoteClick={onVoteClick}

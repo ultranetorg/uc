@@ -2,6 +2,8 @@ import { ReactNode } from "react"
 import { Trans } from "react-i18next"
 import { Link } from "react-router-dom"
 
+import authorFallback from "assets/fallback/author-8.png"
+import userFallback from "assets/fallback/user-16.png"
 import {
   CategoryAvatarChange,
   CategoryCreation,
@@ -10,6 +12,7 @@ import {
   CategoryTypeChange,
   ProposalOption,
   PublicationPublish,
+  PublicationUnpublish,
   SiteAuthorsRemoval,
   SiteAvatarChange,
   SiteModeratorAddition,
@@ -19,7 +22,7 @@ import {
 } from "types"
 import { AccountsList } from "ui/components"
 import { MembersList } from "ui/components/MembersList"
-import { buildFileUrl } from "utils"
+import { buildFileUrl, buildUserAvatarUrl } from "utils"
 
 const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
   <>
@@ -155,6 +158,26 @@ const getPublicationPublish = (siteId: string, operation: PublicationPublish): J
   />
 )
 
+const getPublicationUnpublish = (siteId: string, operation: PublicationPublish): JSX.Element => (
+  <Trans
+    ns="proposalView"
+    i18nKey={`${operation.$type}`}
+    components={{
+      PublicationLink: (
+        <Link to={`/${siteId}/p/${operation.publicationId}`} className="underline">
+          {operation.publicationTitle}
+        </Link>
+      ),
+      CategoryLink: (
+        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+          {operation.categoryTitle}
+        </Link>
+      ),
+    }}
+    parent={"p"}
+  />
+)
+
 const getSiteAvatarChange = (operation: SiteAvatarChange): JSX.Element => (
   <>
     <Trans ns="proposalView" i18nKey={operation.$type} parent={"p"} />
@@ -171,12 +194,7 @@ const getSiteNameChange = (operation: SiteNameChange): JSX.Element =>
       parent={"p"}
     />
   ) : (
-    <Trans
-      ns="proposalView"
-      i18nKey={`${operation.$type}_empty`}
-      values={{ siteName: operation.siteName }}
-      parent={"p"}
-    />
+    <Trans ns="proposalView" i18nKey={`${operation.$type}_empty`} values={{ name: operation.name }} parent={"p"} />
   )
 
 const getSiteTextChange = (operation: SiteTextChange): JSX.Element => (
@@ -199,7 +217,8 @@ const getSiteAuthorsRemoval = (operation: SiteAuthorsRemoval): JSX.Element => {
         count={operation.removals.length}
       />
       <MembersList
-        items={operation.removals.map(x => ({ id: x.id, title: x.nickname ?? x.title, avatarSrc: buildFileUrl(x.id) }))}
+        items={operation.removals.map(x => ({ id: x.id, title: x.title, avatarSrc: buildFileUrl(x.avatarId) }))}
+        fallbackSrc={authorFallback}
       />
     </div>
   )
@@ -215,7 +234,10 @@ const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element
         className="text-2sm leading-5"
         count={operation.candidates.length}
       />
-      <AccountsList items={operation.candidates.map(x => ({ id: x.id, title: x.name, avatarId: x.id }))} />
+      <AccountsList
+        items={operation.candidates.map(x => ({ id: x.id, title: x.name, avatarId: x.id }))}
+        fallbackSrc={userFallback}
+      />
     </div>
   )
 }
@@ -225,7 +247,14 @@ const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element =
     <div className="flex flex-col gap-2">
       <Trans ns="proposalView" i18nKey={`${operation.$type}`} parent={"p"} className="text-2sm leading-5" />
       <AccountsList
-        items={[{ id: operation.moderator.id, title: operation.moderator.name, avatarId: operation.moderator.id }]}
+        items={[
+          {
+            id: operation.moderator.id,
+            title: operation.moderator.name,
+            avatarSrc: buildUserAvatarUrl(operation.moderator.id),
+          },
+        ]}
+        fallbackSrc={userFallback}
       />
     </div>
   )
@@ -246,6 +275,8 @@ export const renderDescription = (siteId: string, option: ProposalOption): React
 
     case "publication-publish":
       return getPublicationPublish(siteId, option.operation as PublicationPublish)
+    case "publication-unpublish":
+      return getPublicationUnpublish(siteId, option.operation as PublicationUnpublish)
 
     case "site-avatar-change":
       return getSiteAvatarChange(option.operation as SiteAvatarChange)

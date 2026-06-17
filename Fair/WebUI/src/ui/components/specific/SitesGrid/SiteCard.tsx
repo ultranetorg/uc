@@ -11,9 +11,10 @@ export type SiteCardProps = {
   description?: string
   imageFileId?: string
   isStarred?: boolean
+  showStar?: boolean
 }
 
-export const SiteCard = memo(({ title, description, imageFileId, isStarred = false }: SiteCardProps) => (
+export const SiteCard = memo(({ title, description, imageFileId, isStarred = false, showStar }: SiteCardProps) => (
   <div
     className="group relative flex h-48.5 w-55 flex-col gap-4 rounded-lg bg-gray-100 px-2 py-6 hover:bg-gray-200"
     title={title}
@@ -27,11 +28,13 @@ export const SiteCard = memo(({ title, description, imageFileId, isStarred = fal
         <span className="line-clamp-2 h-8 overflow-hidden text-2xs leading-4 text-gray-500">{description}</span>
       )}
     </div>
-    <StarSvg
-      className={twMerge(
-        "invisible absolute right-3 top-3 group-hover:visible",
-        isStarred !== true ? "stroke-gray-400" : "fill-favorite stroke-favorite",
-      )}
-    />
+    {showStar && (
+      <StarSvg
+        className={twMerge(
+          "invisible absolute right-3 top-3 group-hover:visible",
+          isStarred !== true ? "stroke-gray-400" : "fill-favorite stroke-favorite",
+        )}
+      />
+    )}
   </div>
 ))

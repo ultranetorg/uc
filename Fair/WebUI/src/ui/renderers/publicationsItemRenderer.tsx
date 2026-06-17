@@ -3,16 +3,9 @@ import { TFunction } from "i18next"
 
 import { PublicationProposal } from "types"
 import { TableColumn, TableItem } from "ui/components"
+import { renderUser } from "ui/renderers2"
 
-import {
-  renderAccount,
-  renderActionShort,
-  renderAr,
-  renderAuthor2,
-  renderCommon,
-  renderPublication,
-  renderTitle,
-} from "./utils"
+import { renderActionShort, renderAr, renderAuthor2, renderCommon, renderPublication, renderTitle } from "./utils"
 
 export const getPublicationsItemRenderer =
   (t: TFunction) =>
@@ -31,7 +24,7 @@ export const getPublicationsItemRenderer =
       case "ar":
         return renderAr(t, proposal)
       case "account":
-        return renderAccount(proposal.by)
+        return renderUser(proposal.by)
     }
 
     return renderCommon(t, column, proposal)

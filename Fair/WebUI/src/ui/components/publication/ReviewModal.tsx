@@ -1,14 +1,22 @@
 import { memo, useCallback, useState } from "react"
+import { useParams } from "react-router-dom"
 
+import { useOperationPolicy } from "app"
 import { SvgCheckCircleFill3XLColored, SvgX } from "assets"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useEscapeKey } from "hooks"
+import { BaseVotableOperation, ProposalCreation, ProposalOption } from "types"
 import { ButtonOutline, ButtonPrimary, Modal, ModalProps, Textarea } from "ui/components"
+import { showToast } from "utils"
 
 import { YourRatingBar } from "./YourRatingBar"
 
 const LABEL_CLASSNAME = "text-2xs font-medium leading-4 text-gray-800 select-none"
 
 type ReviewModalBaseProps = {
+  publicationId: string
+  reviewId?: string
+  initialText?: string
   onSubmit(): void
   cancelLabel: string
   submitLabel: string
@@ -22,6 +30,9 @@ export type ReviewModalProps = ModalProps & ReviewModalBaseProps
 
 export const ReviewModal = memo(
   ({
+    publicationId,
+    reviewId,
+    initialText,
     title,
     onClose,
     onSubmit,
@@ -33,15 +44,50 @@ export const ReviewModal = memo(
     yourReviewLabel,
     ...rest
   }: ReviewModalProps) => {
+    const isEditMode = !!reviewId
+    const { creator } = useOperationPolicy(isEditMode ? "review-edit" : "review-creation")
+    const { siteId } = useParams()
+    const { mutate } = useTransactMutationWithStatus()
+
     const [step, setStep] = useState(0)
-    const [reviewText, setReviewText] = useState("")
+    const [rating, setRating] = useState(5)
+    const [reviewText, setReviewText] = useState(initialText ?? "")
 
     const handleSubmit = useCallback(() => {
-      setStep(1)
-      setTimeout(() => {
-        onSubmit?.()
-      }, 2000)
-    }, [onSubmit])
+      const options = isEditMode
+        ? ([
+            {
+              title: "",
+              operation: {
+                $type: "ReviewEdit",
+                Review: reviewId,
+                Text: reviewText,
+              } as unknown as BaseVotableOperation,
+            },
+          ] as ProposalOption[])
+        : ([
+            {
+              title: "",
+              operation: {
+                $type: "ReviewCreation",
+                Publication: publicationId,
+                Text: reviewText,
+                Rating: rating,
+              } as unknown as BaseVotableOperation,
+            },
+          ] as ProposalOption[])
+
+      const operation = new ProposalCreation(siteId!, creator!.id, creator!.role, "", options, "")
+      mutate(operation, {
+        onSuccess: () => {
+          setStep(1)
+          setTimeout(() => {
+            onSubmit?.()
+          }, 2000)
+        },
+        onError: err => showToast(err.toString(), "error"),
+      })
+    }, [creator, isEditMode, mutate, onSubmit, publicationId, rating, reviewId, reviewText, siteId])
 
     useEscapeKey(onClose)
 
@@ -55,7 +101,7 @@ export const ReviewModal = memo(
             </div>
             <div className="flex flex-col gap-2">
               <span className={LABEL_CLASSNAME}>{yourRatingLabel}</span>
-              <YourRatingBar value={3} />
+              <YourRatingBar value={rating} onRatingChange={setRating} />
             </div>
             <div className="flex flex-col gap-2">
               <span className={LABEL_CLASSNAME}>{yourReviewLabel}</span>

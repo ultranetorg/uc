@@ -1,8 +1,14 @@
 namespace Uccs.Fair;
 
-public class PublicationAuthorModel(Publication publication, Product product, byte[]? logo)
+public class PublicationAuthorModel(Publication publication, Product product)
 	: PublicationBaseModel(publication, product)
 {
-	public byte[]? Logo { get; set; } = logo;
-	public int PublicationsCount { get; set; } = product.Publications.Length;
+	public string ProductId { get; init; }
+
+	public string? LogoId { get; init; }
+
+	public int PublicationsCount { get; init; } = product.Publications.Length;
+
+	public string CategoryId { get; init; }
+	public string CategoryTitle { get; init; }
 }
