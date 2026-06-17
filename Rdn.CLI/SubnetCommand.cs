@@ -10,12 +10,12 @@ public class SubnetCommand : RdnCommand
 	{
 	}
 
-	public CommandAction Attachment()
+	public CommandAction Attach()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "a";
-		a.Description = "Request subnet attachement voting";
+		a.Description = "Request subnet attachment voting";
 		a.Arguments =	[
 							new (null, SNN, "A name of a subnet to attach", Flag.First),
 							new ("peer", IP, "A list of ipadddress:port of peers of subnet", Flag.Multi),

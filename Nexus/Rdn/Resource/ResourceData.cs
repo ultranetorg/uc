@@ -6,10 +6,10 @@ namespace Uccs.Rdn;
 
 public class DataType : IEquatable<DataType>, IBinarySerializable
 {
-	public ushort		Control { get; set; }
+	public ushort		Meaning { get; set; }
 	public ContentType	Content { get; set; }
 
-	public const ushort	Raw								= 000;
+	public const ushort	Self							= 000;
 	public const ushort	File							= 001;
 	public const ushort	Directory						= 002;
 	public const ushort	Redirect						= 010;
@@ -19,9 +19,9 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 	{
 	}
 
-	public DataType(ushort control, ContentType content)
+	public DataType(ushort meaning, ContentType content)
 	{
-		Control = control;
+		Meaning = meaning;
 		Content = content;
 	}
 
@@ -30,14 +30,19 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 		return x.ToHex();
 	}
 
-	public static ushort Parse(string t)
+	public static DataType Parse(string t)
 	{
-		return (ushort)typeof(DataType).GetField(t).GetValue(null);
+		var i = t.IndexOf('/');
+
+		if(i == -1)
+			return new DataType((ushort)typeof(DataType).GetField(t).GetValue(null), ContentType.Unknown);
+		else
+			return new DataType((ushort)typeof(DataType).GetField(t.Substring(0, i)).GetValue(null), Enum.Parse<ContentType>(t.AsSpan(i + 1, t.Length - i - 1), true));
 	}
 
 	public override string ToString()
 	{
-		return $"{Control}, {Content}";
+		return $"{Meaning}, {Content}";
 	}
 
 	public override bool Equals(object obj)
@@ -47,12 +52,12 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 
 	public bool Equals(DataType o)
 	{
-		return o is not null && Control == o.Control && Content == o.Content;
+		return o is not null && Meaning == o.Meaning && Content == o.Content;
 	}
 
 	public override int GetHashCode()
 	{
-		return HashCode.Combine(Control, Content);
+		return HashCode.Combine(Meaning, Content);
 	}
 
 	public static bool operator == (DataType left, DataType right)
@@ -67,33 +72,35 @@ public class DataType : IEquatable<DataType>, IBinarySerializable
 
 	public void Write(Writer writer)
 	{
-		writer.Write(Control);
+		writer.Write(Meaning);
 		writer.Write(Content);
 	}
 
 	public void Read(Reader reader)
 	{
-		Control	= reader.ReadUInt16();
+		Meaning	= reader.ReadUInt16();
 		Content = reader.Read<ContentType>();
 	}
 }
 
 public enum ContentType : uint
 {
-	Unknown 								= 0,
-	Raw 									= 0,
-	Text									= 0010,
-	Image									= 0020,
-	Audio									= 0030,
-	Video									= 0040,
-	Font									= 0050,
-	Package									= 1000,
-		Package_Software					= 1000_000,
-			Package_Software_ProductManifest= 1000_000_000,
-			Package_Software_VersionManifest= 1000_000_001,
-	Ampp									= 1000_001,
-		Ampp_Council						= 1000_001_000,
-		Ampp_Analysis						= 1000_001_001,
+	Unknown 									= 0,
+	Raw 										= 0,
+	Text										= 0001,
+	Image										= 0002,
+	Audio										= 0003,
+	Video										= 0004,
+	Font										= 0005,
+	Package										= 1000,
+		Package_Software						= 1000_000,
+			Package_Software_ProductManifest	= 1000_000_000,
+			Package_Software_VersionManifest	= 1000_000_001,
+	Ampp										= 1000_001,
+		Ampp_Council							= 1000_001_000,
+		Ampp_Analysis							= 1000_001_001,
+	Dns											= 1000_002,
+		DnsRecord								= 1000_002_000,
 }
 
 public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
@@ -142,6 +149,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 			case AprvAddress s:	return Encoding.UTF8.GetBytes(s.ToString());
 			case Consil a:		return (a as IBinarySerializable).ToRaw();
 			case Analysis a:	return (a as IBinarySerializable).ToRaw();
+			case DnsRecord a:	return (a as IBinarySerializable).ToRaw();
 
 			default :
 				throw new ResourceException(ResourceError.UnknownDataType);

@@ -23,10 +23,11 @@ public enum ResourceChanges : byte
 [Flags]
 public enum ResourceLinkType : byte
 {
-	None		= 0,
-	Hierarchy	= 1,
-	Dependency	= 2,
-	Extra		= 4,
+	None			= 0,
+	Organizational	= 1,
+	Dependency		= 2,
+	Dns				= 3,
+	Extra			= 4,
 	//AntimalwareAnalysis,
 }
 

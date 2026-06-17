@@ -303,7 +303,7 @@ public class ResourceHub
 
 			lock(Lock)
 			{
-				foreach(var r in Resources.Where(i => i.Data?.Type.Control == DataType.File || i.Data?.Type.Control == DataType.Directory))
+				foreach(var r in Resources.Where(i => i.Data?.Type.Meaning == DataType.File || i.Data?.Type.Meaning == DataType.Directory))
 				{
 					if(r.Id == null)
 					{

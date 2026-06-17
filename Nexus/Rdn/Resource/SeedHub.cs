@@ -67,7 +67,7 @@ public class SeedHub
 						{
 							var r = Mcv.Resources.Latest(rsd.Resource);
 	
-							if((r?.Data?.Type.Control == DataType.File || r?.Data?.Type.Control == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
+							if((r?.Data?.Type.Meaning == DataType.File || r?.Data?.Type.Meaning == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
 							{
 								return true;
 							}
