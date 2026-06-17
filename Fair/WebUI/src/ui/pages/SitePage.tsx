@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
 import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
+import { useSiteTitle } from "hooks"
 import { BigCategoriesGrid } from "ui/components/site"
 import { CategoriesPublicationsList, ModeratorSiteMenu } from "ui/components/specific"
 
@@ -10,6 +11,8 @@ export const SitePage = () => {
   const { siteId } = useParams()
   const { t } = useTranslation("site")
   const { isPending, site } = useSiteContext()
+
+  useSiteTitle(site?.title ? `Store - ${site?.title}` : "Store")
 
   const { isPending: isCategoriesPending, data: categories } = useGetCategoriesRoot(site?.id)
   const { isPending: isCategoriesPublicationsPending, data: categoriesPublications } = useGetCategoriesPublications(

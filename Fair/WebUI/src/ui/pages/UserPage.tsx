@@ -5,7 +5,7 @@ import { isNumber } from "lodash"
 
 import { useSiteRolesContext } from "app"
 import { useGetUserAuthors, useGetUserReviews } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useSiteTitle, useUrlParamsState } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { UserDetailsView } from "ui/views"
 import { parseInteger } from "utils"
@@ -29,6 +29,8 @@ export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
 
   const { data: user } = useGetUserAuthors(userId)
   const { data: reviews } = useGetUserReviews(user?.id, state.page)
+
+  useSiteTitle(user?.name ? `User - ${user?.name}` : undefined)
 
   if (!user) return <>LOADING</>
 

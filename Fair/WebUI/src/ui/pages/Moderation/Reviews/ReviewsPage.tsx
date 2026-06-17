@@ -7,7 +7,7 @@ import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useUrlParamsState } from "hooks"
+import { useSiteTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, SpecialChoice } from "types"
 import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
@@ -21,6 +21,8 @@ export const ReviewsPage = () => {
   const { site } = useSiteContext()
   const { policies } = useSitePoliciesContext()
   const { t } = useTranslation("reviewsPage")
+
+  useSiteTitle(site?.title, "Reviews")
 
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
   const [selectedReviewText, setSelectedReviewText] = useState<string | undefined>()

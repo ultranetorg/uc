@@ -1,9 +1,12 @@
 import { useTranslation } from "react-i18next"
 
+import { useSiteTitle } from "hooks"
 import { ButtonPrimary, ErrorInfo } from "ui/components"
 
 export const ErrorPage = () => {
   const { t } = useTranslation("error")
+
+  useSiteTitle("Error - Page Not Found")
 
   return (
     <div className="flex flex-col items-center justify-center gap-8">

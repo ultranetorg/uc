@@ -2,7 +2,9 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
+import { useSiteContext } from "app"
 import { useGetSitePolicies, useGetPerpetualSurveys } from "entities"
+import { useSiteTitle } from "hooks"
 import { Table, TableEmptyState } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { perpetualSurveysItemRenderer } from "ui/renderers"
@@ -10,7 +12,10 @@ import { perpetualSurveysItemRenderer } from "ui/renderers"
 export const PerpetualSurveysPage = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
+  const { site } = useSiteContext()
   const { t } = useTranslation("perpetualSurveysPage")
+
+  useSiteTitle(site?.title, "Perpetual Surveys")
 
   const columns = useMemo(
     () => [

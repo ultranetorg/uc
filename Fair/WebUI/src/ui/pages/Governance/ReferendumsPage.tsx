@@ -3,9 +3,10 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber, startCase } from "lodash"
 
+import { useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthorReferendums } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useSiteTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
 import { parseInteger } from "utils"
@@ -14,6 +15,9 @@ export const ReferendumsPage = () => {
   const { siteId } = useParams()
   const navigate = useNavigate()
   const { t } = useTranslation("referendumsPage")
+  const { site } = useSiteContext()
+
+  useSiteTitle(site?.title, "Referendums")
 
   const [state, setState] = useUrlParamsState({
     page: {
