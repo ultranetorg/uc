@@ -2,14 +2,14 @@
 
 public abstract class RdnCommand : McvCommand
 {
-	public static readonly ArgumentType DA		= new ("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"demo.application.company"]);
+	public static readonly ArgumentType DA		= new ("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"application.company"]);
 	public static readonly ArgumentType RDA		= new ("RDA",	@"Root domain address",														[@"ultranet123"]);
 	public static readonly ArgumentType SDA		= new ("SDA",	@"Subdoman address",														[@"application.company"]);
-	public static readonly ArgumentType DCP		= new ("DCP",	@"Domain child address",													[DomainChildPolicy.FullFreedom.ToString()]);
+	public static readonly ArgumentType DCP		= new ("DCP",	@"Domain child address",													Enum.GetNames<DomainChildPolicy>());
 	public static readonly ArgumentType RA		= new ("RA",	@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"rdn/company/application", "/author/product"]);
-	public static readonly ArgumentType TLD		= new ("TLD",	@"Web top-level domain",													[@"com"]);
-	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",															[$@"{UrrScheme.Rrrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
-	public static readonly ArgumentType LT		= new ("RLT",	@"Resource link type",														[ResourceLinkType.Hierarchy.ToString()]);
+	public static readonly ArgumentType TLD		= new ("TLD",	@"Web top-level domain",													Domain.ExclusiveTlds);
+	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",															[$"{UrrScheme.Rrrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType LT		= new ("RLT",	@"Resource link type",														Enum.GetNames<ResourceLinkType>());
 	public static readonly ArgumentType SNN		= new ("SNN",	@"Subnet name",																["fair"]);
 
 	protected RdnCli			Program;
@@ -59,31 +59,43 @@ public abstract class RdnCommand : McvCommand
 		{
 			if(d.Nodes.Any())
 			{
-				var ctl = DataType.Parse(GetString("data"));
-				var cnt = GetEnum("data/type", ContentType.Unknown);
-				var t = new DataType(ctl, cnt);
+				var t = DataType.Parse(d.Get<string>());
 
-				if(ctl == DataType.Raw)
+				if(t.Meaning == DataType.Self)
 				{	
-					if(cnt == ContentType.Unknown)
+					if(t.Content == ContentType.Unknown)
 						return new ResourceData(t, d.Get<string>("hex").FromHex());
 			
-					if(cnt == ContentType.Ampp_Council)
-						return new ResourceData(t, new Consil  {Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
-																SizeEnergyFeeMinimum = d.Get<long>("sefm"),
-																ResultEnergyFeeMinimum = d.Get<long>("refm"),
-																ResultSpacetimeFeeMinimum = d.Get<long>("rstfm")});
+					if(t.Content == ContentType.Ampp_Council)
+						return new ResourceData(t,	new Consil
+													{
+														Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
+														SizeEnergyFeeMinimum = d.Get<long>("sefm"),
+														ResultEnergyFeeMinimum = d.Get<long>("refm"),
+														ResultSpacetimeFeeMinimum = d.Get<long>("rstfm")
+													});
 					
-					if(cnt == ContentType.Ampp_Analysis)
-						return new ResourceData(t, new Analysis{Release			= Urr.Parse(d.Get<string>("release")), 
-																EnergyReward	= d.Get<long>("ereward"),
-																SpacetimeReward	= d.Get<long>("streward"),
-																Consil			= GetResourceId(d.Get<string>("consil"))});
+					if(t.Content == ContentType.Ampp_Analysis)
+						return new ResourceData(t,	new Analysis
+													{
+														Release			= Urr.Parse(d.Get<string>("release")), 
+														EnergyReward	= d.Get<long>("ereward"),
+														SpacetimeReward	= d.Get<long>("streward"),
+														Consil			= GetResourceId(d.Get<string>("consil"))
+													});
+					
+					if(t.Content == ContentType.DnsRecord)
+						return new ResourceData(t,	new DnsRecord
+													{
+														Type	= d.GetEnum<DnsRecordType>("type"), 
+														Value	= d.Get<string>("value"),
+														TTL		= d.Get("ttl", 3600)
+													});
 				}
 				else
 				{
-					if(	ctl == DataType.File ||
-						ctl == DataType.Directory)
+					if(	t.Meaning == DataType.File ||
+						t.Meaning == DataType.Directory)
 						return new ResourceData(t, Urr.Parse(d.Get<string>("address")));
 				}
 

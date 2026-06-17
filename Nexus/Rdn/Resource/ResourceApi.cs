@@ -40,7 +40,7 @@ public class ResourceDownloadApc : RdnApc
 		if(r.Resource.Data == null)
 			throw new ResourceException(ResourceError.NoData);
 
-		if(r.Resource.Data.Type.Control != DataType.File && r.Resource.Data.Type.Control != DataType.Directory)
+		if(r.Resource.Data.Type.Meaning != DataType.File && r.Resource.Data.Type.Meaning != DataType.Directory)
 			throw new ResourceException(ResourceError.NotSupportedDataControl);
 
 		IIntegrity itg;
@@ -69,11 +69,11 @@ public class ResourceDownloadApc : RdnApc
 
 			var lrl = node.ResourceHub.Find(urr) ?? node.ResourceHub.Add(urr);
 
-			if(r.Resource.Data.Type.Control == DataType.File)
+			if(r.Resource.Data.Type.Meaning == DataType.File)
 			{
 				node.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? node.ResourceHub.ToReleases(urr), itg, null, workflow);
 			}
-			else if(r.Resource.Data.Type.Control == DataType.Directory)
+			else if(r.Resource.Data.Type.Meaning == DataType.Directory)
 			{
 				node.ResourceHub.DownloadDirectory(lrl, LocalPath ?? node.ResourceHub.ToReleases(urr), itg, workflow);
 			}

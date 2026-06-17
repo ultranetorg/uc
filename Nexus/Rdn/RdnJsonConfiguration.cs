@@ -148,11 +148,11 @@ public class HttpGetApc : RdnApc
 			switch(ra)
 			{ 
 				case Rrrh x :
-					if(r.Data.Type.Control == DataType.File)
+					if(r.Data.Type.Meaning == DataType.File)
 					{
 						itg = new DHIntegrity(x.Hash); 
 					}
-					else if(r.Data.Type.Control == DataType.Directory)
+					else if(r.Data.Type.Meaning == DataType.Directory)
 					{
 						var	f = rdn.ResourceHub.GetFile(z, false, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
 
