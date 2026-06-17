@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
 import { CategoryBase } from "types"
+import { routes } from "utils"
 
 import { CategoryCard } from "./CategoryCard"
 import { MoreDropdownButton } from "./MoreDropdownButton"
@@ -41,7 +42,7 @@ export const CategoriesList = memo(({ siteId, categories }: CategoriesListProps)
           {categories.map((x, i) => (
             <Link
               key={x.id}
-              to={`/${siteId}/c/${x.id}`}
+              to={routes.category(siteId, x.id)}
               ref={el => (itemRefs.current[i] = el)}
               className={twMerge(i >= visibleCount && "invisible")}
             >

@@ -8,7 +8,7 @@ import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { FavoriteSiteChange, PropsWithClassName, SiteBase } from "types"
 import { SitesList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"
-import { showToast } from "utils"
+import { routes, showToast } from "utils"
 
 import { AllSitesButton } from "./components"
 
@@ -57,7 +57,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
   return (
     <div className={twMerge("flex w-65 min-w-65 flex-col gap-6 p-2", className)}>
       <div className="flex grow flex-col gap-8 p-2">
-        <Link to="/">
+        <Link to={routes.home()}>
           <AllSitesButton title={t("allSites")} />
         </Link>
         {site && (

@@ -8,7 +8,7 @@ import { useGetModeratorProposals } from "entities"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { calculateVotesRequiredToWinProposal, parseInteger } from "utils"
+import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
 
 import { getModeratorsProposalsItemRenderer } from "./moderatorProposalsItemRenderer"
 
@@ -57,7 +57,10 @@ export const ModeratorsProposalsTab = () => {
 
   const itemRenderer = useMemo(() => getModeratorsProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/m/p/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback(
+    (id: string) => navigate(routes.moderation.moderatorProposal(siteId!, id)),
+    [navigate, siteId],
+  )
 
   const handlePageChange = useCallback(
     (page: number) => {

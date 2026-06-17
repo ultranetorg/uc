@@ -4,6 +4,7 @@ import { useLocation, useParams } from "react-router-dom"
 import { truncate } from "lodash"
 
 import { categoriesKeys } from "entities"
+import { routes } from "utils"
 
 export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle: string) => {
   const location = useLocation()
@@ -14,58 +15,58 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
     () => [
       {
         label: t("moderatorCategoryMenu:avatarChange"),
-        to: `/${siteId}/m/new`,
+        to: routes.moderation.create(siteId!),
         state: {
           title: `Change category "${truncate(categoryTitle, { length: 39 })}" avatar`,
           type: "category-avatar-change",
           categoryId,
-          parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-          redirectAfterProposalCreation: `/${siteId}/m/`,
+          parentBreadcrumbs: [{ path: routes.moderation.root(siteId!), title: t("common:proposals") }],
+          redirectAfterProposalCreation: routes.moderation.root(siteId!),
           redirectAfterProposalExecution: location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!), // TODO: update all except tree
         },
       },
       {
         label: t("moderatorCategoryMenu:typeChange"),
-        to: `/${siteId}/m/new`,
+        to: routes.moderation.create(siteId!),
         state: {
           title: `Change category "${truncate(categoryTitle, { length: 41 })}" type`,
           type: "category-type-change",
           categoryId,
-          parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-          redirectAfterProposalCreation: `/${siteId}/m/`,
+          parentBreadcrumbs: [{ path: routes.moderation.root(siteId!), title: t("common:proposals") }],
+          redirectAfterProposalCreation: routes.moderation.root(siteId!),
           redirectAfterProposalExecution: location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!), // TODO: update all except tree
         },
       },
       {
         label: t("moderatorCategoryMenu:move"),
-        to: `/${siteId}/m/new`,
+        to: routes.moderation.create(siteId!),
         state: {
           title: `Move "${truncate(categoryTitle, { length: 48 })}" category`,
           type: "category-movement",
           categoryId,
           parentBreadcrumbs: [
-            { path: `/${siteId}/m/`, title: t("common:proposals") },
-            { path: `/${siteId}/m/c/`, title: t("common:publications") },
+            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
-          redirectAfterProposalCreation: `/${siteId}/m/`,
-          redirectAfterProposalExecution: paramCategoryId === categoryId ? `/${siteId}` : location.pathname,
+          redirectAfterProposalCreation: routes.moderation.root(siteId!),
+          redirectAfterProposalExecution: paramCategoryId === categoryId ? routes.site(siteId!) : location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },
       {
         label: t("moderatorCategoryMenu:categoryCreate"),
-        to: `/${siteId}/m/new`,
+        to: routes.moderation.create(siteId!),
         state: {
           title: "Create new category",
           type: "category-creation",
           categoryId,
           parentBreadcrumbs: [
-            { path: `/${siteId}/m/`, title: t("common:proposals") },
-            { path: `/${siteId}/m/c/`, title: t("common:publications") },
+            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
-          redirectAfterProposalCreation: `/${siteId}/m/`,
+          redirectAfterProposalCreation: routes.moderation.root(siteId!),
           redirectAfterProposalExecution: location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
@@ -75,14 +76,14 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
       },
       {
         label: t("moderatorCategoryMenu:remove"),
-        to: `/${siteId}/m/new`,
+        to: routes.moderation.create(siteId!),
         state: {
           title: `Remove category "${truncate(categoryTitle, { length: 46 })}"`,
           type: "category-deletion",
           categoryId,
-          parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-          redirectAfterProposalCreation: `/${siteId}/m/`,
-          redirectAfterProposalExecution: paramCategoryId === categoryId ? `/${siteId}` : location.pathname,
+          parentBreadcrumbs: [{ path: routes.moderation.root(siteId!), title: t("common:proposals") }],
+          redirectAfterProposalCreation: routes.moderation.root(siteId!),
+          redirectAfterProposalExecution: paramCategoryId === categoryId ? routes.site(siteId!) : location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },
       },

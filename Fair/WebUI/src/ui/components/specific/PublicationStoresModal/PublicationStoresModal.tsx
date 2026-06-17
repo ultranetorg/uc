@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import { SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { Modal, ModalProps } from "ui/components"
+import { routes } from "utils"
 
 import { useGetProductSites } from "entities"
 
@@ -41,7 +42,7 @@ export const PublicationStoresModal = memo(({ onClose, publicationId }: Publicat
           </div>
           <div className="max-h-[448px] overflow-y-scroll">
             {sites.items.map(x => (
-              <Link to={`/${x.id}`} title={x.title}>
+              <Link to={routes.site(x.id)} title={x.title}>
                 <PublicationStoreRow key={x.id} title={x.title} avatarId={x.avatarId} />
               </Link>
             ))}

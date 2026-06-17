@@ -6,6 +6,7 @@ import { useAuthenticationContext } from "app"
 import { SvgProfilePageClose } from "assets"
 import { ProfileTabs } from "ui/components/profile"
 import { useEscapeKey, useSiteTitle } from "hooks"
+import { routes } from "utils"
 
 export const ProfilePage = () => {
   const location = useLocation()
@@ -31,7 +32,7 @@ export const ProfilePage = () => {
   const handleTabSelect = useCallback((tab: string) => setTitleKey(tab), [])
 
   if (!selectedUserName) {
-    return <Navigate to="/" replace={true} />
+    return <Navigate to={routes.home()} replace={true} />
   }
 
   return (
@@ -51,7 +52,7 @@ export const ProfilePage = () => {
               {backgroundLocation ? (
                 <SvgProfilePageClose className="cursor-pointer" onClick={close} />
               ) : (
-                <Link to={`/`}>
+                <Link to={routes.home()}>
                   <SvgProfilePageClose className="cursor-pointer" />
                 </Link>
               )}

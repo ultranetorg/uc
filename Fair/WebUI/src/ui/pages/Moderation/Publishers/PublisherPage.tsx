@@ -7,6 +7,7 @@ import { useGetAuthor } from "entities"
 import { Breadcrumbs } from "ui/components"
 import { AuthorPublicationsView } from "ui/views"
 import { useEscapeKey, useSiteTitle } from "hooks"
+import { routes } from "utils"
 
 export type PublisherPageProps = {
   isFromModeration?: boolean
@@ -26,7 +27,7 @@ export const PublisherPage = memo(({ isFromModeration = true }: PublisherPagePro
   const breadcrumbs = useMemo(
     () =>
       isFromModeration
-        ? [{ path: `/${siteId}/m/a/`, title: t("common:publishers") }]
+        ? [{ path: routes.moderation.publishers(siteId!), title: t("common:publishers") }]
         : [{ title: t("common:members") }],
     [isFromModeration, siteId, t],
   )
@@ -41,7 +42,7 @@ export const PublisherPage = memo(({ isFromModeration = true }: PublisherPagePro
     <div className="flex max-w-[730px] flex-col gap-6">
       <Breadcrumbs
         fullPath={true}
-        items={[{ path: `/${siteId}`, title: t("common:home") }, ...breadcrumbs, { title: author.title }]}
+        items={[{ path: routes.site(siteId!), title: t("common:home") }, ...breadcrumbs, { title: author.title }]}
       />
       <AuthorPublicationsView
         size="full"

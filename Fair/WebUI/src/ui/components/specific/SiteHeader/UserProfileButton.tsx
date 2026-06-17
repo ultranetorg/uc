@@ -5,7 +5,7 @@ import { TFunction } from "i18next"
 
 import { useOperationPolicy, useSiteRolesContext, useUserContext } from "app"
 import { useCreateProposal } from "hooks/useCreateProposal"
-import { showToast } from "utils"
+import { routes, showToast } from "utils"
 
 import { MENU_ITEM_STYLE } from "./styles"
 
@@ -40,7 +40,7 @@ export const UserProfileButton = memo(({ t }: UserProfileButtonProps) => {
       {t("common:join")}
     </button>
   ) : (
-    <Link to={`/${siteId}/u/${user.id}`} className={twMerge(MENU_ITEM_STYLE, "w-12")}>
+    <Link to={routes.user(siteId!, user.id)} className={twMerge(MENU_ITEM_STYLE, "w-12")}>
       {t("common:profile")}
     </Link>
   )

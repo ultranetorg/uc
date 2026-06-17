@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 
 import { Publication, PublicationExtended } from "types"
+import { routes } from "utils"
 
 import { PublicationRow } from "./PublicationRow"
 
@@ -18,7 +19,7 @@ export const PublicationsList = ({ isLoading, siteId, publications }: Publicatio
   return (
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300">
       {publications.map(x => (
-        <Link className="block" to={`/${siteId}/p/${x.id}`} key={x.id}>
+        <Link className="block" to={routes.publication(siteId!, x.id)} key={x.id}>
           <PublicationRow {...x} />
         </Link>
       ))}

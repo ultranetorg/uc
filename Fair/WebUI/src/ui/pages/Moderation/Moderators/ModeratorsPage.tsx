@@ -8,6 +8,7 @@ import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
 import { sitesKeys } from "entities"
+import { routes } from "utils"
 import { ModeratorsTab } from "./ModeratorsTab"
 import { ModeratorsProposalsTab } from "./ModeratorsProposalsTab"
 
@@ -27,8 +28,7 @@ export const ModeratorsPage = () => {
   const key = routeToTabKey[tabKey!]
 
   const handleTabSelect = useCallback(
-    (item: TabsListItem & { route?: string }) =>
-      navigate(item.route ? `/${siteId}/m/m/${item.route}` : `/${siteId}/m/m`),
+    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.moderators(siteId!, item.route)),
     [navigate, siteId],
   )
 
@@ -48,12 +48,12 @@ export const ModeratorsPage = () => {
           <>
             {voterId && (
               <Link
-                to={`/${siteId}/g/new`}
+                to={routes.governance.create(siteId!)}
                 state={{
-                  parentBreadcrumbs: [{ path: `/${siteId}/m/m/`, title: t("title") }],
+                  parentBreadcrumbs: [{ path: routes.moderation.moderators(siteId!), title: t("title") }],
                   title: t("addModerator"),
                   type: "site-moderator-addition",
-                  redirectAfterProposalCreation: `/${siteId}/m/m/p/`,
+                  redirectAfterProposalCreation: routes.moderation.moderators(siteId!, "p"),
                   redirectAfterProposalExecution: location.pathname,
                   invalidateQueryKeys: sitesKeys.publishers(siteId!),
                 }}

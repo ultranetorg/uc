@@ -8,7 +8,7 @@ import { useGetChangedPublications } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { changedPublicationItemRenderer } from "ui/renderers"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 export const ChangedPublicationsTab = () => {
   const { t } = useTranslation("tabChangedPublications")
@@ -61,7 +61,11 @@ export const ChangedPublicationsTab = () => {
     ],
     [t],
   )
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/c/c/${id}`), [navigate, siteId])
+
+  const handleTableRowClick = useCallback(
+    (id: string) => navigate(routes.moderation.changedPublication(siteId!, id)),
+    [navigate, siteId],
+  )
 
   const handlePageChange = useCallback(
     (page: number) => {

@@ -9,7 +9,7 @@ import { useGetAuthorReferendums } from "entities"
 import { useSiteTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 export const ReferendumsPage = () => {
   const { siteId } = useParams()
@@ -44,7 +44,10 @@ export const ReferendumsPage = () => {
     [setState, state.query],
   )
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/g/r/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback(
+    (id: string) => navigate(routes.governance.referendum(siteId!, id)),
+    [navigate, siteId],
+  )
 
   const handleSearchChange = useCallback(
     (query: string) => {

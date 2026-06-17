@@ -9,7 +9,7 @@ import { useGetModeratorDiscussions } from "entities"
 import { useSiteTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 export const ProposalsPage = () => {
   const { t } = useTranslation("proposalsPage")
@@ -44,7 +44,10 @@ export const ProposalsPage = () => {
     [setState, state.query],
   )
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/p/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback(
+    (id: string) => navigate(routes.moderation.proposal(siteId!, id)),
+    [navigate, siteId],
+  )
 
   const handleSearchChange = useCallback(
     (query: string) => {

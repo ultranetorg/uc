@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useSiteContext } from "app"
 import { useSiteTitle } from "hooks"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
+import { routes } from "utils"
 
 import { NewUsersTab } from "./NewUsersTab"
 import { UsersRemovalsTab } from "./RemoveUsersTab"
@@ -27,8 +28,7 @@ export const UsersPage = () => {
   const key = routeToTabKey[tabKey!]
 
   const handleTabSelect = useCallback(
-    (item: TabsListItem & { route?: string }) =>
-      navigate(item.route ? `/${siteId}/m/u/${item.route}` : `/${siteId}/m/u`),
+    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.users(siteId!, item.route)),
     [navigate, siteId],
   )
 

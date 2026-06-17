@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom"
 
 import { useSiteContext } from "app"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
+import { routes } from "utils"
 
 export type ModerationHeaderProps = {
   title: string
@@ -24,7 +25,7 @@ export const ModerationHeader = memo(
           <Breadcrumbs
             fullPath={true}
             items={[
-              { path: `/${siteId}`, title: t("common:home") },
+              { path: routes.site(siteId!), title: t("common:home") },
               ...(parentBreadcrumbs
                 ? Array.isArray(parentBreadcrumbs)
                   ? parentBreadcrumbs

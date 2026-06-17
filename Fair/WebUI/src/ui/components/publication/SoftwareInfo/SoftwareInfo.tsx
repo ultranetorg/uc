@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 import { SvgBoxArrowUpRight, SvgStarXxs } from "assets"
 import { DownloadSource, ProductDetails, PublicationDetails } from "types"
 import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
-import { formatDate, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq } from "utils"
+import { formatDate, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq, routes } from "utils"
 
 import { AuthorImageTitle } from "./components"
 
@@ -106,7 +106,7 @@ export const SoftwareInfo = memo(
       <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
         <div className="flex flex-col gap-2">
           <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
-          <LinkFullscreen to={`/${siteId}/a/${productOrPublication.authorId}`}>
+          <LinkFullscreen to={routes.author(siteId, productOrPublication.authorId)}>
             <AuthorImageTitle
               title={productOrPublication.authorTitle}
               authorFileId={productOrPublication.authorLogoId}

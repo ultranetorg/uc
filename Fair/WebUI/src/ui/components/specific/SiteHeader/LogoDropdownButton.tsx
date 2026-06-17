@@ -4,7 +4,7 @@ import { TFunction } from "i18next"
 
 import { SvgSiteLogo } from "assets/fallback"
 import { ImageFallback } from "ui/components"
-import { buildFileUrl } from "utils"
+import { buildFileUrl, routes } from "utils"
 
 export type LogoDropdownButtonProps = {
   t: TFunction
@@ -18,11 +18,11 @@ export const LogoDropdownButton = memo(
   ({ t, siteId, title, imageFileId, publishersCount }: LogoDropdownButtonProps) => (
     <div className="flex cursor-pointer items-center rounded-xl p-1" title={title}>
       <div className="flex select-none items-center gap-3">
-        <Link to={`/${siteId}`} className="size-10 overflow-hidden rounded-lg">
+        <Link to={routes.site(siteId)} className="size-10 overflow-hidden rounded-lg">
           <ImageFallback src={buildFileUrl(imageFileId)} fallback={<SvgSiteLogo className="size-10" />} />
         </Link>
         <div className="flex flex-col">
-          <Link to={`/${siteId}/i`} className="w-44 truncate text-2base font-medium leading-5.25 text-gray-800">
+          <Link to={routes.about(siteId)} className="w-44 truncate text-2base font-medium leading-5.25 text-gray-800">
             {title}
           </Link>
           <span className="text-2xs font-medium leading-5 text-gray-500">

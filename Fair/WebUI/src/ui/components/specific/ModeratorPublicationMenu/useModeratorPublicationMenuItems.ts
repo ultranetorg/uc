@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom"
 import { truncate } from "lodash"
 
 import { unpublishedPublicationsKeys } from "entities"
+import { routes } from "utils"
 
 export const useModeratorPublicationMenuItems = (
   publicationId: string,
@@ -17,7 +18,7 @@ export const useModeratorPublicationMenuItems = (
     () => [
       {
         label: t("unpublishPublication"),
-        to: `/${siteId}/m/new`,
+        to: routes.moderation.create(siteId!),
         state: {
           title: publicationTitle
             ? `Unpublish publication "${truncate(publicationTitle, { length: 40 })}"`
@@ -25,18 +26,18 @@ export const useModeratorPublicationMenuItems = (
           type: "publication-unpublish",
           publicationId,
           parentBreadcrumbs: [
-            { path: `/${siteId}/m/`, title: t("common:proposals") },
-            { path: `/${siteId}/m/c/`, title: t("common:publications") },
+            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
-          redirectAfterProposalCreation: `/${siteId}/m/c/`,
-          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : `/${siteId}`,
+          redirectAfterProposalCreation: routes.moderation.publications(siteId!),
+          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.site(siteId!),
           invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
         },
       },
       { separator: true },
       {
         label: t("removePublication"),
-        to: `/${siteId}/m/new`,
+        to: routes.moderation.create(siteId!),
         state: {
           title: publicationTitle
             ? `Remove publication "${truncate(publicationTitle, { length: 43 })}"`
@@ -44,11 +45,11 @@ export const useModeratorPublicationMenuItems = (
           type: "publication-deletion",
           publicationId,
           parentBreadcrumbs: [
-            { path: `/${siteId}/m/`, title: t("common:proposals") },
-            { path: `/${siteId}/m/c/`, title: t("common:publications") },
+            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
-          redirectAfterProposalCreation: `/${siteId}/m/c/`,
-          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : `/${siteId}`,
+          redirectAfterProposalCreation: routes.moderation.publications(siteId!),
+          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.site(siteId!),
         },
       },
     ],

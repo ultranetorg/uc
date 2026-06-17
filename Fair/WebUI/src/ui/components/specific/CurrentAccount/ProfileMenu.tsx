@@ -6,7 +6,7 @@ import avatarFallback from "assets/fallback/user-22.5.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
 import { ButtonGhost, CopyAddressButton, ImageFallback, LinkFullscreen } from "ui/components"
-import { buildUserAvatarUrl } from "utils"
+import { buildUserAvatarUrl, routes } from "utils"
 
 import pngBackground from "./background.png"
 import { AccountSwitcher, AccountSwitcherBaseProps } from "./AccountSwitcher"
@@ -55,7 +55,7 @@ export const ProfileMenu = memo(
                   {selectedUserName}
                 </span>
               ) : (
-                <LinkFullscreen to={`/p/${address}`} params={{ defaultTabKey: "profileSettings" }}>
+                <LinkFullscreen to={routes.profile(address)} params={{ defaultTabKey: "profileSettings" }}>
                   <ButtonGhost
                     className="text-2sm leading-5"
                     label={t("createNickname")}

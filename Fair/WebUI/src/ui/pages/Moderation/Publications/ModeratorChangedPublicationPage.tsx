@@ -10,7 +10,7 @@ import { useSiteTitle } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
-import { showToast } from "utils"
+import { routes, showToast } from "utils"
 
 export const ModeratorChangedPublicationPage = () => {
   const navigate = useNavigate()
@@ -31,8 +31,8 @@ export const ModeratorChangedPublicationPage = () => {
 
   const parentBreadcrumbs = useMemo(
     () => [
-      { title: t("common:publications"), path: `/${siteId}/m/c` },
-      { title: t("common:changed"), path: `/${siteId}/m/c/c` },
+      { title: t("common:publications"), path: routes.moderation.publications(siteId!) },
+      { title: t("common:changed"), path: routes.moderation.publications(siteId!, "c") },
     ],
     [siteId, t],
   )
@@ -55,7 +55,7 @@ export const ModeratorChangedPublicationPage = () => {
     mutate(operation, {
       onSuccess: () => {
         showToast(t("toast:publicationUpdated"), "success")
-        navigate(`/${siteId}/m/c`)
+        navigate(routes.moderation.publications(siteId!))
       },
       onError: err => showToast(err.toString(), "error"),
     })
@@ -84,10 +84,10 @@ export const ModeratorChangedPublicationPage = () => {
                   loading={!!isPending}
                 />
                 <Link
-                  to={`/${siteId}/m/v`}
+                  to={routes.moderation.preview(siteId!)}
                   state={{
                     publicationId: publication.id,
-                    previousPath: `/${siteId}/m/c/c/${publication.id}`,
+                    previousPath: routes.moderation.changedPublication(siteId!, publication.id),
                     parentBreadcrumbs,
                   }}
                 >

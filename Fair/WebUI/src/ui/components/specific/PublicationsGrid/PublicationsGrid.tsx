@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 
 import { ProductType, Publication, PublicationExtended } from "types"
+import { routes } from "utils"
 
 import { getCardComponentForCategory } from "./utils"
 
@@ -20,7 +21,7 @@ export const PublicationsGrid = ({ siteId, isPending, publications, productType 
       ) : (
         <>
           {publications!.map(x => (
-            <Link key={x.id} to={`/${siteId}/p/${x.id}`}>
+            <Link key={x.id} to={routes.publication(siteId, x.id)}>
               <CardComponent siteId={siteId} {...x} />
             </Link>
           ))}

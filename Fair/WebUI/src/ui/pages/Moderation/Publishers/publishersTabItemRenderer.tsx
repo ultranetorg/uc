@@ -7,6 +7,7 @@ import { Publisher } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { renderAuthor } from "ui/renderers/utils"
 import { sitesKeys } from "entities"
+import { routes } from "utils"
 
 export const getPublishersTabItemRenderer =
   (t: TFunction, siteId: string, pathname: string) =>
@@ -15,7 +16,9 @@ export const getPublishersTabItemRenderer =
 
     switch (column.type) {
       case "author":
-        return <Link to={`/${siteId}/m/a/p/${publisher.author.id}`}> {renderAuthor(publisher.author)}</Link>
+        return (
+          <Link to={routes.moderation.publisher(siteId, publisher.author.id)}> {renderAuthor(publisher.author)}</Link>
+        )
 
       case "banned":
         return publisher.bannedTill !== 0 ? publisher.bannedTill : ""
@@ -24,17 +27,17 @@ export const getPublishersTabItemRenderer =
         return (
           <div className="flex justify-end">
             <Link
-              to={`/${siteId}/m/new`}
+              to={routes.moderation.create(siteId)}
               state={{
                 parentBreadcrumbs: [
-                  { path: `/${siteId}/m/a`, title: t("common:proposals") },
-                  { path: `/${siteId}/m/a/p/`, title: t("title") },
+                  { path: routes.moderation.publishers(siteId), title: t("common:proposals") },
+                  { path: routes.moderation.publishers(siteId, "p"), title: t("title") },
                 ],
                 previousPath: pathname,
                 title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
                 type: "site-authors-removal",
                 authors: [publisher.author],
-                redirectAfterProposalCreation: `/${siteId}/m/a/r/`,
+                redirectAfterProposalCreation: routes.moderation.publishers(siteId, "r"),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.publishers(siteId),
               }}

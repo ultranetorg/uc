@@ -8,6 +8,7 @@ import { SEARCH_DELAY } from "config"
 import { useSearchSiteUsers } from "entities"
 import { DropdownSearchAccountsItem, DropdownSearchAccount } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
+import { routes } from "utils"
 
 export const UsersLayout = memo(({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
@@ -40,7 +41,7 @@ export const UsersLayout = memo(({ children }: PropsWithChildren) => {
   const handleSelectUser = useCallback(
     (item: DropdownSearchAccountsItem) => {
       setQuery("")
-      navigate(`/${siteId}/m/u/u/${item.value}`)
+      navigate(routes.moderation.user(siteId!, item.value))
     },
     [navigate, siteId],
   )
@@ -50,7 +51,9 @@ export const UsersLayout = memo(({ children }: PropsWithChildren) => {
       <ModerationHeader
         title={headerTitle}
         breadcrumbTitle={!userId ? t("title") : userId}
-        parentBreadcrumbs={userId !== undefined ? { path: `/${siteId}/m/u/u`, title: t("common:users") } : undefined}
+        parentBreadcrumbs={
+          userId !== undefined ? { path: routes.moderation.users(siteId!, "u"), title: t("common:users") } : undefined
+        }
         components={
           <DropdownSearchAccount
             items={items}

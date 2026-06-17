@@ -10,7 +10,7 @@ import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities
 import { useSiteTitle, useUrlParamsState } from "hooks"
 import { Pagination, SearchDropdown, SearchDropdownItem } from "ui/components"
 import { SitesGrid, SitesGridEmpty } from "ui/components/specific"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 import { PageHeader } from "./PageHeader"
 
@@ -51,7 +51,7 @@ export const SitesPage = () => {
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
       if (item) {
-        navigate(`/${item.value}`)
+        navigate(routes.site(item.value))
       }
     },
     [navigate],
@@ -91,7 +91,6 @@ export const SitesPage = () => {
   )
 
   if (isDefaultFetching || isSitesFetching) {
-    // TODO: add spinner or skeleton
     return <>🕑 LOADING</>
   }
 

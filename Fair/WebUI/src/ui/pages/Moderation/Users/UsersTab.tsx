@@ -7,7 +7,7 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetSiteUsers } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 import { usersTabItemRenderer } from "./usersTabItemRenderer"
 
@@ -30,7 +30,7 @@ export const UsersTab = () => {
 
   const columns = useMemo(() => [{ accessor: "user", label: t("common:user"), type: "user" }], [t])
 
-  const handleRowClick = useCallback((id: string) => navigate(`/${siteId}/m/u/u/${id}`), [navigate, siteId])
+  const handleRowClick = useCallback((id: string) => navigate(routes.moderation.user(siteId!, id)), [navigate, siteId])
 
   const handlePageChange = useCallback(
     (page: number) => {

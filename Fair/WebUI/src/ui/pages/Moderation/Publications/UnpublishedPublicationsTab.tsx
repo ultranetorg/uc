@@ -8,7 +8,7 @@ import { useGetUnpublishedPublications } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { unpublishedPublicationsItemRenderer } from "ui/renderers"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 export const UnpublishedPublicationsTab = () => {
   const { t } = useTranslation("tabUnpublishedPublications")
@@ -39,7 +39,10 @@ export const UnpublishedPublicationsTab = () => {
     [t],
   )
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/c/u/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback(
+    (id: string) => navigate(routes.moderation.unpublishedPublication(siteId!, id)),
+    [navigate, siteId],
+  )
 
   const handlePageChange = useCallback(
     (page: number) => {

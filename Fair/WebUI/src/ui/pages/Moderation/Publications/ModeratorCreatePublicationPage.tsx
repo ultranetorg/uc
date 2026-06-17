@@ -12,7 +12,7 @@ import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
 import { ModerationPublicationHeader, ModerationHeader, ProductFieldsTree } from "ui/components/specific"
-import { isVotingRequired, showToast } from "utils"
+import { isVotingRequired, routes, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const navigate = useNavigate()
@@ -34,7 +34,10 @@ export const ModeratorCreatePublicationPage = () => {
 
   useSiteTitle(site?.title, query ? `Search Product - ${query}` : "Search Product")
 
-  const parentBreadcrumbs = useMemo(() => [{ title: t("common:publications"), path: `/${siteId}/m/c` }], [siteId, t])
+  const parentBreadcrumbs = useMemo(
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(siteId!) }],
+    [siteId, t],
+  )
 
   useEffect(() => {
     setSearchParams(product?.id ? { productId: product.id } : {}, { replace: true })
@@ -59,9 +62,9 @@ export const ModeratorCreatePublicationPage = () => {
         showToast(t("toast:publicationCreated"), "success")
 
         if (isRequiredVoting) {
-          navigate(`/${siteId}/m/c`)
+          navigate(routes.moderation.publications(siteId!))
         } else {
-          navigate(`/${siteId}/m/c/u`)
+          navigate(routes.moderation.publications(siteId!, "u"))
         }
       },
       onError: err => showToast(err.toString(), "error"),
@@ -112,13 +115,16 @@ export const ModeratorCreatePublicationPage = () => {
                         loading={isPending}
                       />
                       <Link
-                        to={`/${siteId}/m/v`}
+                        to={routes.moderation.preview(siteId!)}
                         state={{
                           productId: product.id,
-                          previousPath: `/${siteId}/m/new-publication?productId=${product.id}`,
+                          previousPath: `${routes.moderation.createPublication(siteId!)}?productId=${product.id}`,
                           parentBreadcrumbs: [
                             ...parentBreadcrumbs,
-                            { title: t("searchProduct"), path: `/${siteId}/m/new-publication?productId=${product.id}` },
+                            {
+                              title: t("searchProduct"),
+                              path: `${routes.moderation.createPublication(siteId!)}?productId=${product.id}`,
+                            },
                           ],
                         }}
                       >

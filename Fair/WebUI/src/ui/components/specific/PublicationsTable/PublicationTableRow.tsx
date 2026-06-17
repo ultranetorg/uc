@@ -4,7 +4,7 @@ import { memo } from "react"
 
 import { SvgSoftwareLogo } from "assets/fallback"
 import { ButtonOutline, ImageFallback } from "ui/components"
-import { buildFileUrl } from "utils"
+import { buildFileUrl, routes } from "utils"
 
 export type PublicationTableRowProps = {
   id: string
@@ -34,7 +34,7 @@ export const PublicationTableRow = memo(
     return (
       <div className="flex items-center justify-between p-4 text-2sm leading-5">
         <div className="w-[43%]">
-          <Link to={`/${siteId}/p/${id}`} className="flex w-fit items-center gap-2">
+          <Link to={routes.publication(siteId!, id)} className="flex w-fit items-center gap-2">
             <div className="size-8 shrink-0 overflow-hidden rounded-lg">
               <ImageFallback
                 src={buildFileUrl(logoId)}
@@ -46,7 +46,7 @@ export const PublicationTableRow = memo(
           </Link>
         </div>
         <span className="w-[30%]">
-          <Link to={`/${siteId}/c/${categoryId}`}>{categoryTitle}</Link>
+          <Link to={routes.category(siteId!, categoryId)}>{categoryTitle}</Link>
         </span>
         <div className="flex w-[27%] justify-center">
           <ButtonOutline

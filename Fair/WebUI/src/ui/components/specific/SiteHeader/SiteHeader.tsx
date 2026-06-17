@@ -7,6 +7,7 @@ import { useSiteContext, useSearchQueryContext, useSiteRolesContext, useUserCont
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
+import { routes } from "utils"
 
 import { CategoriesDropdownButton } from "./CategoriesDropdownButton"
 import { GovernanceDropdownButton } from "./GovernanceDropdownButton"
@@ -44,7 +45,7 @@ export const SiteHeader = () => {
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
       if (item) {
-        navigate(`/${siteId}/p/${item.value}`)
+        navigate(routes.publication(siteId!, item.value))
       }
     },
     [navigate, siteId],
@@ -65,7 +66,7 @@ export const SiteHeader = () => {
     (e: KeyboardEvent) => {
       if (e.key === "Enter" && query) {
         setSiteQuery(query)
-        navigate(`/${siteId}/s`)
+        navigate(routes.search(siteId!))
       }
     },
     [query, navigate, siteId, setSiteQuery],

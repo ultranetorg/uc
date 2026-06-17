@@ -8,6 +8,7 @@ import { useSiteTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonPrimary } from "ui/components"
 import { PublicationHeader } from "ui/components/publication"
 import { PublicationContentView } from "ui/views"
+import { routes } from "utils"
 
 export const PreviewPage = () => {
   const location = useLocation()
@@ -34,7 +35,7 @@ export const PreviewPage = () => {
     (product && (product.type === "game" || product.type === "software")) ||
     (publication && (publication.type === "game" || publication.type === "software"))
 
-  if (!previousPath || (!productId && !publicationId)) return <Navigate to={`/${siteId}`} />
+  if (!previousPath || (!productId && !publicationId)) return <Navigate to={routes.site(siteId!)} />
 
   if (isProductPending && isPublicationPending && !product && !publication) {
     return <>🕑 LOADING</>
@@ -46,7 +47,7 @@ export const PreviewPage = () => {
         <Breadcrumbs
           fullPath={true}
           items={[
-            { path: `/${siteId}`, title: t("common:home") },
+            { path: routes.site(siteId!), title: t("common:home") },
             ...(parentBreadcrumbs ? (Array.isArray(parentBreadcrumbs) ? parentBreadcrumbs : [parentBreadcrumbs]) : []),
             { title: product?.id ?? publication?.id ?? "" },
           ]}

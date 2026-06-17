@@ -8,7 +8,7 @@ import { useGetUserAuthors, useGetUserReviews } from "entities"
 import { useSiteTitle, useUrlParamsState } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { UserDetailsView } from "ui/views"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 export type UserPageProps = {
   isFromModeration?: boolean
@@ -39,7 +39,11 @@ export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
       {!isFromModeration && (
         <Breadcrumbs
           fullPath={true}
-          items={[{ path: `/${siteId}`, title: t("common:home") }, { title: t("common:users") }, { title: user.name }]}
+          items={[
+            { path: routes.site(siteId!), title: t("common:home") },
+            { title: t("common:users") },
+            { title: user.name },
+          ]}
         />
       )}
       <UserDetailsView user={user} reviews={reviews} isPublisher={isPublisher} isModerator={isModerator} />

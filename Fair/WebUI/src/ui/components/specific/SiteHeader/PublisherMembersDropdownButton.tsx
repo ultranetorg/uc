@@ -6,6 +6,7 @@ import { TFunction } from "i18next"
 import { useGetUserAuthors } from "entities"
 import { PropsWithClassName, UserDetails } from "types"
 import { SimpleMenuItem } from "ui/components"
+import { routes } from "utils"
 
 import { HeaderDropdownButton } from "./HeaderDropdownButton"
 import { MENU_ITEM_STYLE } from "./styles"
@@ -25,13 +26,13 @@ export const PublisherMembersDropdownButton = ({ className, t, siteId, user }: P
     () =>
       userAuthors?.authors.map(x => ({
         label: x.title,
-        to: `/${siteId}/e/${x.id}`,
+        to: routes.publisher(siteId, x.id),
       })) ?? [],
     [siteId, userAuthors?.authors],
   )
 
   return user.authorsIds.length <= 1 ? (
-    <Link to={`/${siteId}/e/${user!.authorsIds[0]}`} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
+    <Link to={routes.publisher(siteId, user!.authorsIds[0])} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
       {t("common:member")}
     </Link>
   ) : (

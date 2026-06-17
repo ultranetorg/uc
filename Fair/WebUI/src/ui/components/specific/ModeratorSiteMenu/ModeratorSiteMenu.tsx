@@ -10,6 +10,7 @@ import { categoriesKeys } from "entities"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
+import { routes } from "utils"
 
 export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
   const location = useLocation()
@@ -24,16 +25,16 @@ export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
     () => [
       {
         label: t("moderatorCategoryMenu:categoryCreate"),
-        to: `/${siteId}/m/new`,
+        to: routes.moderation.create(siteId!),
         state: {
           title: "Create category",
           type: "category-creation",
           parentBreadcrumbs: [
-            { path: `/${siteId}/m/`, title: t("common:proposals") },
-            { path: `/${siteId}/m/c/`, title: t("common:publications") },
+            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
           categoryId: null,
-          redirectAfterProposalCreation: `/${siteId}/m/`,
+          redirectAfterProposalCreation: routes.moderation.root(siteId!),
           redirectAfterProposalExecution: location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },

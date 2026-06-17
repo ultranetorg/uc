@@ -4,7 +4,7 @@ import { ControlledMenu, FocusableItem, SubMenu, useClick } from "@szhsin/react-
 
 import { useSiteContext } from "app"
 import { Button } from "ui/components"
-import { formatTitle } from "utils"
+import { formatTitle, routes } from "utils"
 import { GridSvg } from "assets"
 
 function LinkItem({ to, children, ...rest }: { to: string; children: ReactNode }) {
@@ -46,18 +46,18 @@ export const CategoriesButton = memo(({ siteId }: CategoriesButtonProps) => {
       x.children.length > 0 ? (
         <SubMenu
           key={x.id}
-          label={<Link to={`/${siteId}/c/${x.id}`}>{formatTitle(x.title)}</Link>}
+          label={<Link to={routes.category(siteId, x.id)}>{formatTitle(x.title)}</Link>}
           className="cursor-pointer"
           itemProps={{ onClick: () => setOpen(false) }}
         >
           {x.children.map(y => (
-            <LinkItem key={y.id} to={`/${siteId}/c/${y.id}`}>
+            <LinkItem key={y.id} to={routes.category(siteId, y.id)}>
               {formatTitle(y.title)}
             </LinkItem>
           ))}
         </SubMenu>
       ) : (
-        <LinkItem key={x.id} to={`/${siteId}/c/${x.id}`}>
+        <LinkItem key={x.id} to={routes.category(siteId, x.id)}>
           {formatTitle(x.title)}
         </LinkItem>
       ),

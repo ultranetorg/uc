@@ -6,6 +6,7 @@ import { useSiteContext } from "app"
 import { useGetModeratorDiscussion } from "entities"
 import { useSiteTitle } from "hooks"
 import { ProposalView } from "ui/views"
+import { routes } from "utils"
 
 export const PublisherProposalPage = memo(() => {
   const { siteId, proposalId } = useParams()
@@ -18,10 +19,10 @@ export const PublisherProposalPage = memo(() => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={[{ title: t("common:publishers"), path: `/${siteId}/m/a/r` }]}
+      parentBreadcrumbs={[{ title: t("common:publishers"), path: routes.moderation.publishers(siteId!, "r") }]}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={`/${siteId}/m/a/r`}
+      previousPath={routes.moderation.publishers(siteId!, "r")}
     />
   )
 })

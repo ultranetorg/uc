@@ -22,7 +22,7 @@ import {
   ValidationWrapper,
 } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
-import { isArrayOfArrays, isVotingRequired, showToast } from "utils"
+import { isArrayOfArrays, isVotingRequired, routes, showToast } from "utils"
 
 import { prepareProposalOptions } from "./utils"
 
@@ -55,7 +55,8 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
-  const parentPath = proposalType === "discussion" ? `/${siteId}/m` : `/${siteId}/g/r`
+  const parentPath =
+    proposalType === "discussion" ? routes.moderation.root(siteId!) : routes.governance.referendums(siteId!)
   const isRequiredVoting = isVotingRequired(formData.type, site, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])
@@ -108,7 +109,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     !location.state?.redirectAfterProposalCreation ||
     !location.state?.redirectAfterProposalExecution
   ) {
-    return <Navigate to={`/${siteId}`} />
+    return <Navigate to={routes.site(siteId!)} />
   }
 
   return (

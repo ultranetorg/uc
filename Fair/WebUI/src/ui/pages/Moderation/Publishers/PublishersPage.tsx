@@ -6,6 +6,7 @@ import { useSiteContext } from "app"
 import { useSiteTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
+import { routes } from "utils"
 
 import { PublishersTab } from "./PublishersTab"
 import { PublishersProposalsTab } from "./PublishersProposalsTab"
@@ -26,8 +27,7 @@ export const PublishersPage = () => {
   const key = routeToTabKey[tabKey!]
 
   const handleTabSelect = useCallback(
-    (item: TabsListItem & { route?: string }) =>
-      navigate(item.route ? `/${siteId}/m/a/${item.route}` : `/${siteId}/m/a`),
+    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.publishers(siteId!, item.route)),
     [navigate, siteId],
   )
 

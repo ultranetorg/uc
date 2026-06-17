@@ -1,6 +1,7 @@
 import { memo, PropsWithChildren } from "react"
 
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
+import { routes } from "utils"
 
 type PageHeaderBaseProps = {
   siteId: string
@@ -18,7 +19,7 @@ export const PageHeader = memo(
       <Breadcrumbs
         fullPath={true}
         items={[
-          { path: `/${siteId}`, title: homeLabel },
+          { path: routes.site(siteId), title: homeLabel },
           ...(parentBreadcrumbs ? (Array.isArray(parentBreadcrumbs) ? parentBreadcrumbs : [parentBreadcrumbs]) : []),
           { title: title },
         ]}

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useAuthenticationContext, useSignInContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
+import { routes } from "utils"
 
 import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
 import { CurrentAccountButton } from "./components"
@@ -59,7 +60,7 @@ export const CurrentAccount = () => {
       profileMenu.setOpen(false)
 
       if (siteId) {
-        navigate(`/${siteId}`)
+        navigate(routes.site(siteId))
       }
     },
     [accountsMenu, navigate, profileMenu, selectUser, siteId],

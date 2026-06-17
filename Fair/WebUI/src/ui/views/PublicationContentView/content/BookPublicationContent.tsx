@@ -5,7 +5,7 @@ import { SvgStarXxs } from "assets"
 import { LinkFullscreen } from "ui/components"
 import { AuthorImageTitle } from "ui/components/publication/SoftwareInfo/components"
 import { ReviewsList } from "ui/components/specific"
-import { buildFileUrl, formatDate } from "utils"
+import { buildFileUrl, formatDate, routes } from "utils"
 
 import { ContentProps } from "../types"
 
@@ -62,7 +62,7 @@ export const BookPublicationContent = memo(
             {/* Publisher (account with avatar) */}
             <div className="flex items-center gap-4">
               <span className={LABEL_CLASSNAME}>{t("publisher")}:</span>
-              <LinkFullscreen to={`/${siteId}/a/${productOrPublication.authorId}`}>
+              <LinkFullscreen to={routes.author(siteId, productOrPublication.authorId)}>
                 <AuthorImageTitle title={publisherAccountName} authorFileId={productOrPublication.authorId} />
               </LinkFullscreen>
             </div>

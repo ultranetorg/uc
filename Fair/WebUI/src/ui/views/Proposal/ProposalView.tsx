@@ -11,7 +11,7 @@ import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
 import { ModerationHeader } from "ui/components/specific"
-import { getVotedIndex, isVoted, showToast } from "utils"
+import { getVotedIndex, isVoted, routes, showToast } from "utils"
 
 import {
   DefaultContent,
@@ -99,7 +99,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         ? Array.isArray(parentBreadcrumbs)
           ? [...parentBreadcrumbs]
           : [parentBreadcrumbs]
-        : { title: t("common:proposals"), path: `/${siteId}/m` },
+        : { title: t("common:proposals"), path: routes.moderation.root(siteId!) },
     [parentBreadcrumbs, siteId, t],
   )
 
@@ -125,7 +125,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
             invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
           }
 
-          navigate(previousPath ?? `/${siteId}/m`)
+          navigate(previousPath ?? routes.moderation.root(siteId!))
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -157,7 +157,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:publicationVoted"), "success")
-          navigate(`/${siteId}/m/c/p`)
+          navigate(routes.moderation.publications(siteId!, "p"))
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -236,12 +236,12 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
               />
               <Separator className="h-8" />
               <Link
-                to={`/${siteId}/m/v`}
+                to={routes.moderation.preview(siteId!)}
                 state={{
                   productId,
                   publicationId,
                   proposalId: proposal.id,
-                  previousPath: `/${siteId}/m/c/p/${proposal.id}`,
+                  previousPath: routes.moderation.moderatorPublication(siteId!, proposal.id),
                   parentBreadcrumbs,
                 }}
               >

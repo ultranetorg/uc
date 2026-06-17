@@ -7,6 +7,7 @@ import { Moderator } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { sitesKeys } from "entities"
 import { renderUser } from "ui/renderers2"
+import { routes } from "utils"
 
 export const moderatorsTabItemRenderer =
   (t: TFunction, siteId: string) =>
@@ -24,13 +25,13 @@ export const moderatorsTabItemRenderer =
         return (
           <div className="flex justify-end">
             <Link
-              to={`/${siteId}/g/new`}
+              to={routes.governance.create(siteId)}
               state={{
-                parentBreadcrumbs: [{ path: `/${siteId}/m/m/`, title: t("title") }],
+                parentBreadcrumbs: [{ path: routes.moderation.moderators(siteId), title: t("title") }],
                 title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
                 type: "site-moderator-removal",
                 moderators: [moderator.user],
-                redirectAfterProposalCreation: `/${siteId}/m/m/p/`,
+                redirectAfterProposalCreation: routes.moderation.moderators(siteId, "p"),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.moderators(siteId),
               }}

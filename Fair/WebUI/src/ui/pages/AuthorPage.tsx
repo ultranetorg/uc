@@ -5,6 +5,7 @@ import { SvgProfilePageClose } from "assets"
 import { useGetAuthor } from "entities"
 import { useEscapeKey, useSiteTitle } from "hooks"
 import { AuthorPublicationsView } from "ui/views"
+import { routes } from "utils"
 
 export const AuthorPage = () => {
   const location = useLocation()
@@ -54,7 +55,7 @@ export const AuthorPage = () => {
                 {backgroundLocation ? (
                   <SvgProfilePageClose className="cursor-pointer" onClick={close} />
                 ) : (
-                  <Link to={`/`}>
+                  <Link to={routes.home()}>
                     <SvgProfilePageClose className="cursor-pointer" />
                   </Link>
                 )}

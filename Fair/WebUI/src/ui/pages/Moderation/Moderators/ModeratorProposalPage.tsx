@@ -6,6 +6,7 @@ import { useSiteContext } from "app"
 import { useGetAuthorReferendum } from "entities"
 import { useSiteTitle } from "hooks"
 import { ProposalView } from "ui/views"
+import { routes } from "utils"
 
 export const ModeratorProposalPage = memo(() => {
   const { t } = useTranslation()
@@ -18,10 +19,10 @@ export const ModeratorProposalPage = memo(() => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={[{ title: t("common:moderators"), path: `/${siteId}/m/m` }]}
+      parentBreadcrumbs={[{ title: t("common:moderators"), path: routes.moderation.moderators(siteId!) }]}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={`/${siteId}/m/m/p`}
+      previousPath={routes.moderation.moderators(siteId!, "p")}
     />
   )
 })

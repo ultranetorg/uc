@@ -8,7 +8,7 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublisherProposals } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { calculateVotesRequiredToWinProposal, parseInteger } from "utils"
+import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
 
 import { getPublisherProposalsItemRenderer } from "./publisherProposalsItemRenderer"
 
@@ -57,7 +57,10 @@ export const PublishersProposalsTab = () => {
 
   const itemRenderer = useMemo(() => getPublisherProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/a/r/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback(
+    (id: string) => navigate(routes.moderation.publisherProposal(siteId!, id)),
+    [navigate, siteId],
+  )
 
   const handlePageChange = useCallback(
     (page: number) => {

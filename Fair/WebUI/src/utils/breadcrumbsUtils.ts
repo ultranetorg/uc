@@ -1,6 +1,8 @@
 import { TFunction } from "i18next"
 import { BreadcrumbsItemProps } from "ui/components"
 
+import { routes } from "./routes"
+
 export const createBreadcrumbs = (
   siteId: string,
   parentId: string,
@@ -10,8 +12,8 @@ export const createBreadcrumbs = (
 ): BreadcrumbsItemProps[] =>
   parentId
     ? [
-        { path: `/${siteId}`, title: t("common:home") },
-        { path: `/${siteId}/c/${parentId}`, title: parentTitle },
+        { path: routes.site(siteId), title: t("common:home") },
+        { path: routes.category(siteId, parentId), title: parentTitle },
         { title: title },
       ]
-    : [{ path: `/${siteId}`, title: t("common:home") }, { title: title }]
+    : [{ path: routes.site(siteId), title: t("common:home") }, { title: title }]

@@ -8,6 +8,7 @@ import { useSiteTitle } from "hooks"
 import { Table, TableEmptyState } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { perpetualSurveysItemRenderer } from "ui/renderers"
+import { routes } from "utils"
 
 export const PerpetualSurveysPage = () => {
   const { siteId } = useParams()
@@ -54,7 +55,10 @@ export const PerpetualSurveysPage = () => {
   const { data: surveys } = useGetPerpetualSurveys(siteId)
   const { data: policies } = useGetSitePolicies(true, siteId)
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/g/p/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback(
+    (id: string) => navigate(routes.governance.survey(siteId!, id)),
+    [navigate, siteId],
+  )
 
   const itemRenderer = useMemo(() => perpetualSurveysItemRenderer(t, policies), [policies, t])
 

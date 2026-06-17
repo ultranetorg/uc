@@ -10,6 +10,7 @@ import { useSiteTitle } from "hooks"
 import { OperationClass } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
+import { routes } from "utils"
 
 export const UnpublishedPublicationPage = () => {
   const { siteId, publicationId } = useParams()
@@ -20,8 +21,8 @@ export const UnpublishedPublicationPage = () => {
 
   const parentBreadcrumbs = useMemo(
     () => [
-      { title: t("common:publications"), path: `/${siteId}/m/c` },
-      { title: t("common:unpublished"), path: `/${siteId}/m/c/u` },
+      { title: t("common:publications"), path: routes.moderation.publications(siteId!) },
+      { title: t("common:unpublished"), path: routes.moderation.publications(siteId!, "u") },
     ],
     [siteId, t],
   )
@@ -43,7 +44,7 @@ export const UnpublishedPublicationPage = () => {
             {!!voterId && (
               <ButtonBar className="items-center">
                 <Link
-                  to={`/${siteId}/m/new`}
+                  to={routes.moderation.create(siteId!)}
                   state={{
                     parentBreadcrumbs,
                     title: publication.title
@@ -51,18 +52,18 @@ export const UnpublishedPublicationPage = () => {
                       : t("publishNoTitle"),
                     type: "publication-publish" as OperationClass,
                     publicationId: publication.id,
-                    redirectAfterProposalCreation: `/${siteId}/m/c/p/`,
-                    redirectAfterProposalExecution: `/${siteId}/m/c/u/`,
+                    redirectAfterProposalCreation: routes.moderation.publications(siteId!, "p"),
+                    redirectAfterProposalExecution: routes.moderation.publications(siteId!, "u"),
                     invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
                   }}
                 >
                   <ButtonPrimary className="h-11 w-40 capitalize" label={t("common:publish")} />
                 </Link>
                 <Link
-                  to={`/${siteId}/m/v`}
+                  to={routes.moderation.preview(siteId!)}
                   state={{
                     publicationId: publication.id,
-                    previousPath: `/${siteId}/m/c/u/${publication.id}`,
+                    previousPath: routes.moderation.unpublishedPublication(siteId!, publication.id),
                     parentBreadcrumbs,
                   }}
                 >

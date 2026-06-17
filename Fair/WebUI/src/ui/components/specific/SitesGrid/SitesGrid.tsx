@@ -2,6 +2,7 @@ import { memo } from "react"
 import { Link } from "react-router-dom"
 
 import { SiteBase } from "types"
+import { routes } from "utils"
 
 import { SiteCard, SiteCardProps } from "./SiteCard"
 
@@ -16,7 +17,7 @@ export const SitesGrid = memo(({ items, showStar }: SitesGridProps) => (
     <div className="flex justify-center">
       <div className="flex size-full max-w-[1248px] flex-wrap items-center justify-center gap-6">
         {items.map(x => (
-          <Link key={x.id} to={`/${x.id}`}>
+          <Link key={x.id} to={routes.site(x.id)}>
             <SiteCard title={x.title} description={x.description} imageFileId={x.imageFileId} showStar={showStar} />
           </Link>
         ))}

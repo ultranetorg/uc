@@ -11,7 +11,7 @@ import { OperationType, PerpetualVoting, SiteApprovalPolicyChange } from "types"
 import { useSiteTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
-import { showToast } from "utils"
+import { routes, showToast } from "utils"
 
 export type PageState = "voting" | "results"
 
@@ -118,8 +118,8 @@ export const PerpetualSurveyPage = () => {
         <Breadcrumbs
           fullPath={true}
           items={[
-            { path: `/${siteId}`, title: t("home") },
-            { title: t("common:publisherSurveys"), path: `/${siteId}/g/p` },
+            { path: routes.site(siteId!), title: t("home") },
+            { title: t("common:publisherSurveys"), path: routes.governance.surveys(siteId!) },
             { title: title! },
           ]}
         />

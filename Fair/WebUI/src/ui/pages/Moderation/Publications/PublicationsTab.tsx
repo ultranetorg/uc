@@ -8,7 +8,7 @@ import { useGetPublicationProposals } from "entities"
 import { useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getPublicationsItemRenderer } from "ui/renderers"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 export const PublicationsTab = () => {
   const { t } = useTranslation("tabPublications")
@@ -42,9 +42,13 @@ export const PublicationsTab = () => {
     ],
     [t],
   )
+
   const itemRenderer = useMemo(() => getPublicationsItemRenderer(t), [t])
 
-  const handleTableRowClick = useCallback((id: string) => navigate(`/${siteId}/m/c/p/${id}`), [navigate, siteId])
+  const handleTableRowClick = useCallback(
+    (id: string) => navigate(routes.moderation.moderatorPublication(siteId!, id)),
+    [navigate, siteId],
+  )
 
   const handlePageChange = useCallback(
     (page: number) => {

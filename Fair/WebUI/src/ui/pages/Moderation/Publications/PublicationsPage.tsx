@@ -6,6 +6,7 @@ import { useOperationPolicy, useSiteContext } from "app"
 import { useSiteTitle } from "hooks"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
+import { routes } from "utils"
 
 import { ChangedPublicationsTab } from "./ChangedPublicationsTab"
 import { PublicationsTab } from "./PublicationsTab"
@@ -28,11 +29,13 @@ export const PublicationsPage = () => {
 
   const key = routeToTabKey[tabKey!]
 
-  const handleSearchProduct = useCallback(() => navigate(`/${siteId}/m/new-publication`), [navigate, siteId])
+  const handleSearchProduct = useCallback(
+    () => navigate(routes.moderation.createPublication(siteId!)),
+    [navigate, siteId],
+  )
 
   const handleTabSelect = useCallback(
-    (item: TabsListItem & { route?: string }) =>
-      navigate(item.route ? `/${siteId}/m/c/${item.route}` : `/${siteId}/m/c`),
+    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.publications(siteId!, item.route)),
     [navigate, siteId],
   )
 

@@ -9,7 +9,7 @@ import { useSearchPublications } from "entities"
 import { useSiteTitle, useUrlParamsState } from "hooks"
 import { Pagination } from "ui/components"
 import { PublicationsList, SearchPageHeader } from "ui/components/specific"
-import { parseInteger } from "utils"
+import { parseInteger, routes } from "utils"
 
 export const SearchPage = () => {
   const { siteId } = useParams()
@@ -51,7 +51,7 @@ export const SearchPage = () => {
   }, [searchQuery, setState, state])
 
   if (!searchQuery) {
-    return <Navigate to={`/${siteId}`} />
+    return <Navigate to={routes.site(siteId!)} />
   }
 
   return (

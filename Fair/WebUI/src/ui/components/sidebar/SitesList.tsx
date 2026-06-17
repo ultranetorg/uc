@@ -2,6 +2,7 @@ import { memo } from "react"
 import { Link } from "react-router-dom"
 
 import { SiteBase } from "types"
+import { routes } from "utils"
 
 import { Site } from "./Site"
 import { SiteSkeleton } from "./SiteSkeleton"
@@ -35,7 +36,7 @@ export const SitesList = memo(
         {(items && items.length > 0) || showPending === true ? (
           <>
             {items.map(x => (
-              <Link key={x.id} to={`${x.id}`}>
+              <Link key={x.id} to={routes.site(x.id)}>
                 <Site
                   disabled={disabledIds?.includes(x.id)}
                   disabledFavorite={disabledFavorite}

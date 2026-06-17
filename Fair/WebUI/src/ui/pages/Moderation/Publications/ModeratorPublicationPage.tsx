@@ -5,6 +5,7 @@ import { useSiteContext } from "app"
 import { useGetModeratorDiscussion } from "entities"
 import { useSiteTitle } from "hooks"
 import { ProposalView } from "ui/views"
+import { routes } from "utils"
 
 export const ModeratorPublicationPage = () => {
   const { siteId, proposalId } = useParams()
@@ -17,10 +18,10 @@ export const ModeratorPublicationPage = () => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={{ title: t("common:publications"), path: `/${siteId}/m/c` }}
+      parentBreadcrumbs={{ title: t("common:publications"), path: routes.moderation.publications(siteId!) }}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={`/${siteId}/m/c/p`}
+      previousPath={routes.moderation.publications(siteId!, "p")}
     />
   )
 }

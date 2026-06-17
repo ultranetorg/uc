@@ -5,6 +5,7 @@ import { useSiteContext } from "app"
 import { useGetAuthorReferendum } from "entities"
 import { useSiteTitle } from "hooks"
 import { ProposalView } from "ui/views"
+import { routes } from "utils"
 
 export const ReferendumPage = () => {
   const { siteId, referendumId } = useParams()
@@ -17,10 +18,10 @@ export const ReferendumPage = () => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={{ title: t("common:publisherReferendums"), path: `/${siteId}/g/r` }}
+      parentBreadcrumbs={{ title: t("common:publisherReferendums"), path: routes.governance.referendums(siteId!) }}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={`/${siteId}/g/r/`}
+      previousPath={routes.governance.referendums(siteId!)}
     />
   )
 }

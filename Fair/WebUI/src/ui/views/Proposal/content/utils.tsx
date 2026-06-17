@@ -22,7 +22,7 @@ import {
 } from "types"
 import { AccountsList } from "ui/components"
 import { MembersList } from "ui/components/MembersList"
-import { buildFileUrl, buildUserAvatarUrl } from "utils"
+import { buildFileUrl, buildUserAvatarUrl, routes } from "utils"
 
 const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
   <>
@@ -31,7 +31,7 @@ const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange
       i18nKey={operation.$type}
       components={{
         CategoryLink: (
-          <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+          <Link to={routes.category(siteId, operation.categoryId)} className="underline">
             {operation.categoryTitle}
           </Link>
         ),
@@ -49,7 +49,7 @@ const getCategoryCreation = (siteId: string, operation: CategoryCreation): JSX.E
       i18nKey={operation.$type}
       components={{
         ParentLink: (
-          <Link to={`/${siteId}/c/${operation.parentCategoryId}`} className="underline">
+          <Link to={routes.category(siteId, operation.parentCategoryId)} className="underline">
             {operation.parentCategoryTitle}
           </Link>
         ),
@@ -63,7 +63,7 @@ const getCategoryCreation = (siteId: string, operation: CategoryCreation): JSX.E
       i18nKey={`${operation.$type}_root`}
       components={{
         ParentLink: (
-          <Link to={`/${siteId}/c/${operation.parentCategoryId}`} className="underline">
+          <Link to={routes.category(siteId, operation.parentCategoryId ?? "")} className="underline">
             {operation.parentCategoryTitle}
           </Link>
         ),
@@ -79,7 +79,7 @@ const getCategoryDeletion = (siteId: string, operation: CategoryDeletion): JSX.E
     i18nKey={`${operation.$type}`}
     components={{
       CategoryLink: (
-        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+        <Link to={routes.category(siteId, operation.categoryId)} className="underline">
           {operation.categoryTitle}
         </Link>
       ),
@@ -95,12 +95,12 @@ const getCategoryMovement = (siteId: string, operation: CategoryMovement): JSX.E
       i18nKey={operation.$type}
       components={{
         CategoryLink: (
-          <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+          <Link to={routes.category(siteId, operation.categoryId)} className="underline">
             {operation.categoryTitle}
           </Link>
         ),
         ParentLink: (
-          <Link to={`/${siteId}/c/${operation.parentCategoryId}`} className="underline">
+          <Link to={routes.category(siteId, operation.parentCategoryId)} className="underline">
             {operation.parentCategoryTitle}
           </Link>
         ),
@@ -113,7 +113,7 @@ const getCategoryMovement = (siteId: string, operation: CategoryMovement): JSX.E
       i18nKey={`${operation.$type}_root`}
       components={{
         CategoryLink: (
-          <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+          <Link to={routes.category(siteId, operation.categoryId)} className="underline">
             {operation.categoryTitle}
           </Link>
         ),
@@ -128,7 +128,7 @@ const getCategoryTypeChange = (siteId: string, operation: CategoryTypeChange): J
     i18nKey={`${operation.$type}`}
     components={{
       CategoryLink: (
-        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+        <Link to={routes.category(siteId, operation.categoryId)} className="underline">
           {operation.categoryTitle}
         </Link>
       ),
@@ -144,12 +144,12 @@ const getPublicationPublish = (siteId: string, operation: PublicationPublish): J
     i18nKey={`${operation.$type}`}
     components={{
       PublicationLink: (
-        <Link to={`/${siteId}/m/c/u/${operation.publicationId}`} className="underline">
+        <Link to={routes.moderation.unpublishedPublication(siteId, operation.publicationId)} className="underline">
           {operation.publicationTitle}
         </Link>
       ),
       CategoryLink: (
-        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+        <Link to={routes.category(siteId, operation.categoryId)} className="underline">
           {operation.categoryTitle}
         </Link>
       ),
@@ -164,12 +164,12 @@ const getPublicationUnpublish = (siteId: string, operation: PublicationPublish):
     i18nKey={`${operation.$type}`}
     components={{
       PublicationLink: (
-        <Link to={`/${siteId}/p/${operation.publicationId}`} className="underline">
+        <Link to={routes.publication(siteId, operation.publicationId)} className="underline">
           {operation.publicationTitle}
         </Link>
       ),
       CategoryLink: (
-        <Link to={`/${siteId}/c/${operation.categoryId}`} className="underline">
+        <Link to={routes.category(siteId, operation.categoryId)} className="underline">
           {operation.categoryTitle}
         </Link>
       ),

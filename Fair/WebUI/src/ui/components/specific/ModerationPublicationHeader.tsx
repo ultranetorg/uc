@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 
 import { SvgSoftwareLogo } from "assets/fallback"
 import { ImageFallback, LinkFullscreen } from "ui/components"
-import { buildFileUrl } from "utils"
+import { buildFileUrl, routes } from "utils"
 
 export type ModerationPublicationHeaderProps = {
   title?: string
@@ -28,7 +28,7 @@ export const ModerationPublicationHeader = memo(
               {title}
             </span>
           )}
-          <LinkFullscreen to={`/${siteId}/a/${authorId}`} className="w-fit" title={authorTitle}>
+          <LinkFullscreen to={routes.author(siteId!, authorId)} className="w-fit" title={authorTitle}>
             <span className="truncate text-2sm font-medium leading-5">{authorTitle}</span>
           </LinkFullscreen>
         </div>

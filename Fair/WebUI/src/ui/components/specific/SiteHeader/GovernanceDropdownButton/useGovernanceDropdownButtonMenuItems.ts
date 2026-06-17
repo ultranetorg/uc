@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom"
 
 import { useSitePoliciesContext } from "app"
 import { sitesKeys } from "entities"
-import { isPublisherVoting } from "utils"
+import { isPublisherVoting, routes } from "utils"
 import { SimpleMenuItem } from "ui/components/SimpleMenu"
 
 export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenuItem[] => {
@@ -18,13 +18,13 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("avatarChange"),
-              to: `/${siteId}/m/new`,
+              to: routes.moderation.create(siteId),
               state: {
                 title: `Change site avatar`,
                 type: "site-avatar-change",
                 siteId,
-                parentBreadcrumbs: [{ path: `/${siteId}/m/`, title: t("common:proposals") }],
-                redirectAfterProposalCreation: `/${siteId}/m/`,
+                parentBreadcrumbs: [{ path: routes.moderation.root(siteId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.moderation.root(siteId),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.detail(siteId),
               },
@@ -35,13 +35,13 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("nameChange"),
-              to: `/${siteId}/g/new`,
+              to: routes.governance.create(siteId),
               state: {
                 title: `Change site name`,
                 type: "site-name-change",
                 siteId,
-                parentBreadcrumbs: [{ path: `/${siteId}/g/r/`, title: t("common:proposals") }],
-                redirectAfterProposalCreation: `/${siteId}/g/r/`,
+                parentBreadcrumbs: [{ path: routes.governance.referendums(siteId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.governance.referendums(siteId),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.detail(siteId),
               },
@@ -52,13 +52,13 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("textChange"),
-              to: `/${siteId}/g/new`,
+              to: routes.governance.create(siteId),
               state: {
                 title: `Change site text`,
                 type: "site-text-change",
                 siteId,
-                parentBreadcrumbs: [{ path: `/${siteId}/g/`, title: t("common:proposals") }],
-                redirectAfterProposalCreation: `/${siteId}/g/`,
+                parentBreadcrumbs: [{ path: routes.governance.referendums(siteId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.governance.referendums(siteId),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.detail(siteId),
               },
@@ -71,8 +71,8 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
 
   const menuItems = useMemo(
     () => [
-      { label: t("common:surveys"), to: `/${siteId}/g/p` },
-      { label: t("common:referendums"), to: `/${siteId}/g/r` },
+      { label: t("common:surveys"), to: routes.governance.surveys(siteId) },
+      { label: t("common:referendums"), to: routes.governance.referendums(siteId) },
       ...(siteItems.length > 0 ? [{ separator: true }, ...siteItems] : []),
     ],
     [siteId, siteItems, t],

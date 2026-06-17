@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import avatarFallback from "assets/fallback/user-10.png"
 import { AccountBaseAvatar } from "types"
 import { ImageFallback, RatingBar } from "ui/components"
-import { buildUserAvatarUrl, formatDate } from "utils"
+import { buildUserAvatarUrl, formatDate, routes } from "utils"
 
 const NAME_CLASSNAME = "text-2sm font-semibold leading-4.5"
 const TEXT_CLASSNAME = "text-2sm leading-5"
@@ -51,7 +51,7 @@ export const Comment = memo(
             </div>
             <div className="flex flex-1 flex-col justify-center gap-2">
               <div className="flex items-center justify-between">
-                <Link to={`/${siteId}/u/${account.id}`} className={NAME_CLASSNAME} title={displayName}>
+                <Link to={routes.user(siteId!, account.id)} className={NAME_CLASSNAME} title={displayName}>
                   {displayName}
                 </Link>
                 {ContextMenu && (
@@ -81,7 +81,7 @@ export const Comment = memo(
               {publication && (
                 <>
                   <span>{t("common:to")}:</span>
-                  <Link to={`/${siteId}/p/${publication.id}`} className="text-sm font-semibold">
+                  <Link to={routes.publication(siteId!, publication.id)} className="text-sm font-semibold">
                     {publication.title}
                   </Link>
                 </>
