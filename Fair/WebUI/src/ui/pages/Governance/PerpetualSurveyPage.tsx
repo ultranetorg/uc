@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { startCase } from "lodash"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { useSignInContext, useSiteRolesContext } from "app"
+import { useSignInContext, useSiteContext, useSiteRolesContext } from "app"
 import { sitesKeys, useGetPerpetualSurveyDetails } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { OperationType, PerpetualVoting, SiteApprovalPolicyChange } from "types"
+import { useSiteTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 import { showToast } from "utils"
@@ -17,6 +19,7 @@ export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurveyPage")
   const { siteId, perpetualSurveyId } = useParams()
   const queryClient = useQueryClient()
+  const { site } = useSiteContext()
 
   const { startSignIn } = useSignInContext()
   const { publisherIds } = useSiteRolesContext()
@@ -28,6 +31,8 @@ export const PerpetualSurveyPage = () => {
 
   const operation = (survey?.options[0].operation as SiteApprovalPolicyChange)?.operation
   const title = operation !== undefined ? t(`operations:${operation}`) : undefined
+
+  useSiteTitle(site?.title, `Perpetual Survey - ${startCase(title)}`)
 
   const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({

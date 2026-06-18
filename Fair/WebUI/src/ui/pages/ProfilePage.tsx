@@ -5,7 +5,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom"
 import { useAuthenticationContext } from "app"
 import { SvgProfilePageClose } from "assets"
 import { ProfileTabs } from "ui/components/profile"
-import { useEscapeKey } from "hooks"
+import { useEscapeKey, useSiteTitle } from "hooks"
 
 export const ProfilePage = () => {
   const location = useLocation()
@@ -19,6 +19,8 @@ export const ProfilePage = () => {
   const defaultTabKey = state?.defaultTabKey as string | undefined
 
   const { selectedUserName } = useAuthenticationContext()
+
+  useSiteTitle(`Profile - ${selectedUserName}`)
 
   const close = useCallback(() => {
     navigate(-1)

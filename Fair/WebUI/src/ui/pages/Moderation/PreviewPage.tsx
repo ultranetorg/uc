@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next"
 import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 
+import { useSiteContext } from "app"
 import { SvgXSm } from "assets"
 import { useGetProductDetails, useGetPublicationDetails } from "entities"
+import { useSiteTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonPrimary } from "ui/components"
 import { PublicationHeader } from "ui/components/publication"
 import { PublicationContentView } from "ui/views"
@@ -10,6 +12,7 @@ import { PublicationContentView } from "ui/views"
 export const PreviewPage = () => {
   const location = useLocation()
   const { siteId } = useParams()
+  const { site } = useSiteContext()
   const { t } = useTranslation()
 
   const productId = location.state?.productId as string | undefined
@@ -22,6 +25,9 @@ export const PreviewPage = () => {
 
   const { data: product, isPending: isProductPending } = useGetProductDetails(productId)
   const { data: publication, isPending: isPublicationPending } = useGetPublicationDetails(publicationId)
+
+  const pageTitle = product?.title ?? publication?.title
+  useSiteTitle(site?.title, pageTitle ? `Preview - ${pageTitle}` : "Preview")
 
   // Show logo only for game or software.
   const showLogo =

@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
-import { useDocumentTitle } from "usehooks-ts"
 
 import { SvgProfilePageClose } from "assets"
 import { useGetAuthor } from "entities"
-import { useEscapeKey } from "hooks"
+import { useEscapeKey, useSiteTitle } from "hooks"
 import { AuthorPublicationsView } from "ui/views"
 
 export const AuthorPage = () => {
@@ -16,7 +15,7 @@ export const AuthorPage = () => {
 
   const { isPending, data: author } = useGetAuthor(authorId)
 
-  useDocumentTitle(author?.title ? `Author - ${author?.title} | Fair` : "Author | Fair")
+  useSiteTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 
   const state = location.state as { backgroundLocation?: Location } | undefined
   const backgroundLocation = state?.backgroundLocation

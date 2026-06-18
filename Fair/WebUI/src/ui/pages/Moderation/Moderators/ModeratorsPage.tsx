@@ -2,7 +2,8 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
-import { useOperationPolicy } from "app"
+import { useOperationPolicy, useSiteContext } from "app"
+import { useSiteTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
@@ -18,7 +19,10 @@ export const ModeratorsPage = () => {
   const navigate = useNavigate()
   const { voterId } = useOperationPolicy("site-moderator-addition")
   const { siteId, tabKey } = useParams()
+  const { site } = useSiteContext()
   const { t } = useTranslation("moderatorsPage")
+
+  useSiteTitle(site?.title, "Moderators")
 
   const key = routeToTabKey[tabKey!]
 

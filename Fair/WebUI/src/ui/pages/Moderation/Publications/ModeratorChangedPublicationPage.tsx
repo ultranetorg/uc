@@ -2,26 +2,32 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
-import { useOperationPolicy, useSiteRolesContext } from "app"
+import { useOperationPolicy, useSiteContext, useSiteRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
+import { useSiteTitle } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { showToast } from "utils"
 
 export const ModeratorChangedPublicationPage = () => {
-  const { siteId, publicationId } = useParams()
-  const { isModerator } = useSiteRolesContext()
-  const { voterId } = useOperationPolicy("publication-updation")
-  const { mutate } = useTransactMutationWithStatus()
   const navigate = useNavigate()
+  const { siteId, publicationId } = useParams()
   const { t } = useTranslation()
+
+  const { voterId } = useOperationPolicy("publication-updation")
+  const { site } = useSiteContext()
+  const { isModerator } = useSiteRolesContext()
+  const { mutate } = useTransactMutationWithStatus()
 
   const [isPending, setPending] = useState<boolean | undefined>()
 
   const { isLoading, data: publication } = useGetChangedPublication(siteId, publicationId)
+
+  const pageTitle = publication?.title ?? publication?.id
+  useSiteTitle(site?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
 
   const parentBreadcrumbs = useMemo(
     () => [

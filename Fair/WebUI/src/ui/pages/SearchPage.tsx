@@ -3,10 +3,10 @@ import { Navigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useSearchQueryContext } from "app"
+import { useSearchQueryContext, useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE } from "config"
 import { useSearchPublications } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useSiteTitle, useUrlParamsState } from "hooks"
 import { Pagination } from "ui/components"
 import { PublicationsList, SearchPageHeader } from "ui/components/specific"
 import { parseInteger } from "utils"
@@ -27,7 +27,11 @@ export const SearchPage = () => {
     },
   })
 
+  const { site } = useSiteContext()
   const { query: searchQuery } = useSearchQueryContext()
+
+  const pageTitle = state.query || searchQuery
+  useSiteTitle(site?.title, pageTitle ? `Search - ${pageTitle}` : undefined)
 
   const { isPending, data: publications } = useSearchPublications(siteId, state.page, state.query || searchQuery)
   const pagesCount =

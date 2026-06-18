@@ -2,6 +2,8 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
+import { useSiteContext } from "app"
+import { useSiteTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
@@ -16,7 +18,10 @@ const routeToTabKey: Record<string, string> = {
 export const PublishersPage = () => {
   const navigate = useNavigate()
   const { siteId, tabKey } = useParams()
+  const { site } = useSiteContext()
   const { t } = useTranslation("publishersPage")
+
+  useSiteTitle(site?.title, "Publishers")
 
   const key = routeToTabKey[tabKey!]
 

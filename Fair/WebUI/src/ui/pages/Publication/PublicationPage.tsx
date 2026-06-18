@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { useDocumentTitle } from "usehooks-ts"
 
-import { useOperationPolicy, useSignInContext } from "app"
+import { useOperationPolicy, useSignInContext, useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublicationDetails, useGetReviews } from "entities"
+import { useSiteTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, PublicationHeader } from "ui/components/publication"
 import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
@@ -16,7 +16,7 @@ export const PublicationPage = () => {
   const { t } = useTranslation("publication")
   const { creator: create } = useOperationPolicy("review-creation")
   const { siteId, publicationId } = useParams()
-  useDocumentTitle(t("title", { publicationId }))
+  const { site } = useSiteContext()
 
   const { startSignIn } = useSignInContext()
 
@@ -24,6 +24,9 @@ export const PublicationPage = () => {
   const [editReview, setEditReview] = useState<{ id: string; text: string } | null>(null)
 
   const { isPending, data: publication } = useGetPublicationDetails(publicationId)
+
+  useSiteTitle(site?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
+
   const { isPending: isPendingReviews, data: reviews, error } = useGetReviews(publicationId, 0, DEFAULT_PAGE_SIZE_20)
 
   const handleEditReview = useCallback((id: string, text: string) => setEditReview({ id, text }), [])

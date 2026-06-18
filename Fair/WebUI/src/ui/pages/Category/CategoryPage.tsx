@@ -4,9 +4,10 @@ import { useParams } from "react-router-dom"
 import { useLocalStorage } from "usehooks-ts"
 import { isNumber } from "lodash"
 
+import { useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE_24 } from "config"
 import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useSiteTitle, useUrlParamsState } from "hooks"
 import { Pagination } from "ui/components"
 import { CategoriesList, PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
 import { parseInteger } from "utils"
@@ -15,6 +16,7 @@ import { CategoryHeader } from "./CategoryHeader"
 
 export const CategoryPage = () => {
   const { siteId, categoryId } = useParams()
+  const { site } = useSiteContext()
   const { t } = useTranslation("category")
 
   const [state, setState] = useUrlParamsState({
@@ -27,6 +29,9 @@ export const CategoryPage = () => {
 
   const { data: category, isPending } = useGetCategoryDetails(siteId, categoryId)
   const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, state.page)
+
+  useSiteTitle(site?.title, category?.title ? `Category - ${category?.title}` : undefined)
+
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0
       ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_24)

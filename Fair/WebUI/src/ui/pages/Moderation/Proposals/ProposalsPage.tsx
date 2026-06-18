@@ -3,9 +3,10 @@ import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 import { isNumber, startCase } from "lodash"
 
+import { useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorDiscussions } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useSiteTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
 import { parseInteger } from "utils"
@@ -14,6 +15,9 @@ export const ProposalsPage = () => {
   const { t } = useTranslation("proposalsPage")
   const navigate = useNavigate()
   const { siteId } = useParams()
+  const { site } = useSiteContext()
+
+  useSiteTitle(site?.title, "Proposals")
 
   const [state, setState] = useUrlParamsState({
     page: {

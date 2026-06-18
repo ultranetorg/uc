@@ -3,17 +3,20 @@ import { Link, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
-import { useOperationPolicy } from "app"
+import { useOperationPolicy, useSiteContext } from "app"
 import { SvgEyeSm } from "assets"
 import { unpublishedPublicationsKeys, useGetUnpublishedPublication } from "entities"
+import { useSiteTitle } from "hooks"
 import { OperationClass } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 
 export const UnpublishedPublicationPage = () => {
   const { siteId, publicationId } = useParams()
-  const { voterId } = useOperationPolicy("publication-updation")
   const { t } = useTranslation("unpublishedPublicationPage")
+
+  const { voterId } = useOperationPolicy("publication-updation")
+  const { site } = useSiteContext()
 
   const parentBreadcrumbs = useMemo(
     () => [
@@ -24,6 +27,9 @@ export const UnpublishedPublicationPage = () => {
   )
 
   const { isLoading, data: publication } = useGetUnpublishedPublication(siteId, publicationId)
+
+  const pageTitle = publication?.title ?? publication?.id
+  useSiteTitle(site?.title, pageTitle ? `Unpublished Publication - ${pageTitle}` : "Unpublished Publication")
 
   if (isLoading || !publication) return <div>LOADING</div>
 

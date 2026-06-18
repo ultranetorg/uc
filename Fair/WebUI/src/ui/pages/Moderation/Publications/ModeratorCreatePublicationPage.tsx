@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useOperationPolicy, useSiteContext, useSitePoliciesContext, useSiteRolesContext } from "app"
+import { useSiteTitle } from "hooks"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
@@ -14,14 +15,15 @@ import { ModerationPublicationHeader, ModerationHeader, ProductFieldsTree } from
 import { isVotingRequired, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
+  const navigate = useNavigate()
   const { siteId } = useParams()
-  const { isModerator } = useSiteRolesContext()
-  const { policies } = useSitePoliciesContext()
+  const { t } = useTranslation("createPublication")
+
   const { voterId } = useOperationPolicy("publication-creation")
   const { site } = useSiteContext()
+  const { policies } = useSitePoliciesContext()
+  const { isModerator } = useSiteRolesContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
-  const navigate = useNavigate()
-  const { t } = useTranslation("createPublication")
 
   const isRequiredVoting = isVotingRequired("publication-creation", site, policies)
 
@@ -29,6 +31,8 @@ export const ModeratorCreatePublicationPage = () => {
   const [query, setQuery] = useState(searchParams.get("productId") ?? "")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
   const { data: product, isError } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
+
+  useSiteTitle(site?.title, query ? `Search Product - ${query}` : "Search Product")
 
   const parentBreadcrumbs = useMemo(() => [{ title: t("common:publications"), path: `/${siteId}/m/c` }], [siteId, t])
 

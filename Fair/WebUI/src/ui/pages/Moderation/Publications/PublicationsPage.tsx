@@ -2,7 +2,8 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
-import { useOperationPolicy } from "app"
+import { useOperationPolicy, useSiteContext } from "app"
+import { useSiteTitle } from "hooks"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 
@@ -20,7 +21,10 @@ export const PublicationsPage = () => {
   const navigate = useNavigate()
   const { voterId } = useOperationPolicy("publication-creation")
   const { siteId, tabKey } = useParams()
+  const { site } = useSiteContext()
   const { t } = useTranslation("publicationsPage")
+
+  useSiteTitle(site?.title, "Publications")
 
   const key = routeToTabKey[tabKey!]
 

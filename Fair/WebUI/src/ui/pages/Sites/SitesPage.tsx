@@ -7,7 +7,7 @@ import { isNumber } from "lodash"
 import { useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "config"
 import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useSiteTitle, useUrlParamsState } from "hooks"
 import { Pagination, SearchDropdown, SearchDropdownItem } from "ui/components"
 import { SitesGrid, SitesGridEmpty } from "ui/components/specific"
 import { parseInteger } from "utils"
@@ -18,6 +18,8 @@ export const SitesPage = () => {
   const { t } = useTranslation("sites")
   const navigate = useNavigate()
   const { user } = useUserContext()
+
+  useSiteTitle()
 
   const [state, setState] = useUrlParamsState({
     page: {
