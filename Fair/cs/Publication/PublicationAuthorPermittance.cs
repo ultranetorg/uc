@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationAuthorApproval : FairOperation
+public class PublicationAuthorPermittance : FairOperation
 {
 	public AutoId				Publication { get; set; }
 	public bool					Approved { get; set; }
@@ -8,7 +8,7 @@ public class PublicationAuthorApproval : FairOperation
 	public override bool		IsValid(McvNet net) => true;
 	public override string		Explanation => $"{Publication}, [{Approved}]";
 
-	public PublicationAuthorApproval()
+	public PublicationAuthorPermittance()
 	{
 	}
 

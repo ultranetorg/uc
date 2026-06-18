@@ -40,7 +40,7 @@ public class PublicationCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Permission()
+	public CommandAction Permittance()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
@@ -55,7 +55,7 @@ public class PublicationCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var o = new PublicationAuthorApproval
+								var o = new PublicationAuthorPermittance
 										{
 											Publication = FirstAutoId,
 											Approved = GetString(publish) == "approve" ? true : 

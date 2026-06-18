@@ -164,7 +164,7 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new AuthorModerationReward { AuthorId = FirstAutoId, Energy = GetLong(energy)};
+								return new AuthorModerationReward {AuthorId = FirstAutoId, Energy = GetLong(energy)};
 							};
 		return a;
 	}
