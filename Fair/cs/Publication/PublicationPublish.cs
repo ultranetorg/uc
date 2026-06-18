@@ -35,7 +35,10 @@ public class PublicationPublish : VotableOperation
 			return false;
 
 		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{
+			error = NotApproved;
 			return false;
+		}
 
 		if(!CategoryExists(execution, Category, out var c, out error))
 			return false;
@@ -60,10 +63,15 @@ public class PublicationPublish : VotableOperation
 		var p = execution.Publications.Affect(Publication);
 		var r = execution.Products.Find(p.Product);
 
-		if(p.Category != Category && p.Category != null)
+		if(p.Category != null && p.Category != Category)
 		{
-			var x = execution.Categories.Affect(p.Category);
-			x.Publications = x.Publications.Remove(p.Id);
+			var old = execution.Categories.Find(p.Category);
+			
+			if(old != null)
+			{
+				old = execution.Categories.Affect(old.Id);
+				old.Publications = old.Publications.Remove(p.Id);
+			}
 		}
 
 		p.Category = Category;

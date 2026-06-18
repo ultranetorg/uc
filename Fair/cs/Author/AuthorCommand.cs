@@ -93,11 +93,11 @@ public class AuthorCommand : FairCommand
 								
 								if(Has(ao))
 								{
-									o = new AuthorOwnerAddition {AuthorId = FirstEntityId, Owner = GetAutoId(ao)};
+									o = new AuthorOwnerAddition {AuthorId = FirstAutoId, Owner = GetAutoId(ao)};
 								}
 								if(Has(ro))
 								{
-									o = new AuthorOwnerRemoval {AuthorId = FirstEntityId, Owner = GetAutoId(ao)};
+									o = new AuthorOwnerRemoval {AuthorId = FirstAutoId, Owner = GetAutoId(ao)};
 								}
 
 								return o ?? throw new SyntaxException("Unknown parameters");
@@ -114,17 +114,61 @@ public class AuthorCommand : FairCommand
 		a.Name = "r";
 		a.Description = "Prolongs current expiration date of an author for a specified number of years";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
-						new (years, YEARS, "A number of years to renew author for. Allowed during the last year of current period only."),
+						new (years, YEARS, "A number of years to renew author for. "),
 						ByArgument("Address of account that owns the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new AuthorRenewal {AuthorId = FirstEntityId, Years = byte.Parse(GetString(years))};
+								return new AuthorRenewal {AuthorId = FirstAutoId, Years = byte.Parse(GetString(years))};
 							};
 		return a;
 	}
-	
+		
+	public CommandAction PulisherLimits()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+		
+		const string site = "site";
+		const string energy = "energy";
+		const string spacetime = "spacetime";
+
+		a.Name = "pl";
+		a.Description = "Sets a utility limits for the specified author of the specfied site";
+		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+						new (site, EID, "Id of a site where author is the member"),
+						new (energy, INT, "A new limit for the energy"),
+						new (spacetime, INT, "A new limit for the spacetime"),
+						ByArgument("Address of account that owns the author")];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+
+								return new PublisherLimitsUpdation {Author = FirstAutoId, Site = GetAutoId(site), EnergyLimit = GetLong(energy), SpacetimeLimit = GetLong(spacetime)};
+							};
+		return a;
+	}
+		
+	public CommandAction ModerationReward()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+		
+		const string energy = "energy";
+
+		a.Name = "mr";
+		a.Description = "Sets the moderation reward for the specified author";
+		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+						new (energy, INT, "Amount of energy for reward"),
+						ByArgument("Address of account that owns the author")];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+
+								return new AuthorModerationReward { AuthorId = FirstAutoId, Energy = GetLong(energy)};
+							};
+		return a;
+	}
+
 	public CommandAction Avatar()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

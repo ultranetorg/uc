@@ -88,7 +88,7 @@ public class CategoryCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new CategoryPublicationsPpc(FirstEntityId));
+								var rp = Ppc(new CategoryPublicationsPpc(FirstAutoId));
 
 								Flow.Log.DumpFixed(rp.Publications.Select(i => Ppc(new PublicationPpc(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
 					
@@ -108,7 +108,7 @@ public class CategoryCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new CategoryCategoriesPpc(FirstEntityId));
+								var rp = Ppc(new CategoryCategoriesPpc(FirstAutoId));
 
 								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					

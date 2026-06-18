@@ -191,16 +191,16 @@ public class FairExecution : Execution
 
 		if(b.SpacetimeLimit != Publisher.Unlimit)
 		{
-			site.Publishers = [..site.Publishers];
-			b = site.Publishers[i] = site.Publishers[i].Clone(); 
-
-			b.SpacetimeLimit -= space;
-
-			if(b.SpacetimeLimit < 0)
+			if(b.SpacetimeLimit - space < 0)
 			{
 				error = Operation.LimitExceeded;
 				return;
 			}
+
+			site.Publishers = [..site.Publishers];
+			b = site.Publishers[i] = site.Publishers[i].Clone(); 
+
+			b.SpacetimeLimit -= space;
 		}
 		
 		Allocate(author, author, space);
@@ -208,6 +208,8 @@ public class FairExecution : Execution
 
 	public void RewardForModeration(Site site, Author author, out string error)
 	{
+		error = null;
+
 		var i = Array.FindIndex(site.Publishers, i => i.Author == author.Id);
 		var b = site.Publishers[i];
 
@@ -222,15 +224,14 @@ public class FairExecution : Execution
 			site.Publishers = [..site.Publishers];
 			b = site.Publishers[i] = site.Publishers[i].Clone(); 
 
-			author.Energy -= author.ModerationReward;
-			site.Energy += author.ModerationReward;
-
-			EnergySpenders.Add(author);
+			b.EnergyLimit -= author.ModerationReward;
 		}
-		
-		error = null;
-	}
 
+		author.Energy -= author.ModerationReward;
+		site.Energy += author.ModerationReward;
+
+		EnergySpenders.Add(author);
+	}
 
 	public void Unpublish(Site site, AutoId publication, out string error)
 	{

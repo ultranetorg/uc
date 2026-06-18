@@ -39,7 +39,10 @@ public class PublicationUpdation : VotableOperation
 			return false;
 
 		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{
+			error = NotApproved;
 			return false;
+		}
 
 		var r = execution.Products.Find(p.Product);
 

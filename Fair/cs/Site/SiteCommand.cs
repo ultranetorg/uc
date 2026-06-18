@@ -38,7 +38,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new SitePpc(FirstEntityId));
+								var rp = Ppc(new SitePpc(FirstAutoId));
 
 								Flow.Log.Dump(rp.Site);
 					
@@ -62,7 +62,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new SiteRenewal {SiteId = FirstEntityId, Years = byte.Parse(GetString(years))};
+								return new SiteRenewal {SiteId = FirstAutoId, Years = byte.Parse(GetString(years))};
 							};
 		return a;
 	}
@@ -84,7 +84,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@As), new SiteNameChange {Name = GetString(nickname)}); 
+								return new ProposalCreation(FirstAutoId, SecondAutoId, GetEnum<Role>(@As), new SiteNameChange {Name = GetString(nickname)}); 
 							};
 		return a;
 	}
@@ -100,7 +100,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new SiteCategoriesPpc(FirstEntityId));
+								var rp = Ppc(new SiteCategoriesPpc(FirstAutoId));
 
 								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
@@ -136,7 +136,7 @@ public class SiteCommand : FairCommand
 								o.Slogan		= GetString(s, null); 
 								o.Description	= GetString(d, null); 
 
-								return new ProposalCreation(FirstEntityId, SecondEntityId, GetEnum<Role>(@As, Uccs.Fair.Role.Moderator), o);
+								return new ProposalCreation(FirstAutoId, SecondAutoId, GetEnum<Role>(@As, Uccs.Fair.Role.Moderator), o);
 							};
 		return a;
 	}

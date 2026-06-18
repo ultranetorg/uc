@@ -18,6 +18,7 @@ public enum FairOperationClass : uint
 		AuthorNameChange			= 101_000_006,
 		AuthorAvatarChange			= 100_000_007,
 		AuthorInfoUpdation			= 100_000_008,
+		PublisherLimitsUpdation		= 100_000_009,
 	
 	Product							= 102, 
 		ProductCreation				= 102_000_001, 
@@ -100,6 +101,7 @@ public abstract class FairOperation : Operation
 	public const string			TypeAlreadyDefined = "Type already defined";
 	public const string			NotPublished = "Not published";
 	public const string			NotSupported = "Not supported";
+	public const string			NotApproved = "Not approved";
 
 	public new FairUser			User { get => base.User as FairUser; set => base.User = value; }
 

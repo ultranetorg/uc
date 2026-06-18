@@ -57,8 +57,10 @@ public class PublicationCommand : FairCommand
 
 								var o = new PublicationAuthorApproval
 										{
-											Publication = AutoId.Parse(Args[0].Name),
-											Approved = GetString(publish) == "approve" ? true : (GetString(publish) == "revoke" ? false : throw new SyntaxException($"Unknown '{publish}' value"))
+											Publication = FirstAutoId,
+											Approved = GetString(publish) == "approve" ? true : 
+																						 (GetString(publish) == "revoke" ?	false : 
+																															throw new SyntaxException($"Unknown '{publish}' value"))
 										};
 								
 								return o;

@@ -9,8 +9,8 @@ public abstract class FairCommand : McvCommand
 	//															@"Page security definition in form of {Change0=Actor,Actor,Actor... Change1=Actor,Actor,Actor...}",
 	//															[$"{{{TopicChange.AddPages}={Actor.Owner},{Actor.SiteUser} {TopicChange.Security}={Actor.Owner}}}"]);
 	//
-	protected AutoId				FirstEntityId => AutoId.Parse(Args[0].Name);
-	protected AutoId				SecondEntityId => AutoId.Parse(Args[1].Name);
+	protected AutoId				FirstAutoId => AutoId.Parse(Args[0].Name);
+	protected AutoId				SecondAutoId => AutoId.Parse(Args[1].Name);
 
 	protected string				As = "as";
 

@@ -41,7 +41,10 @@ public class ReviewEdit : VotableOperation
 		var p = execution.Publications.Find(r.Publication);
 
 		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{
+			error = NotApproved;
 			return false;
+		}
 
 		return true;
 	}

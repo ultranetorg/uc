@@ -38,7 +38,10 @@ public class ReviewCreation : VotableOperation
 			return false;
 
 		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{
+			error = NotApproved;
 			return false;
+		}
 
 		if(p.Category == null)
 		{
