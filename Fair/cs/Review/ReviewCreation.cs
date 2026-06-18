@@ -37,6 +37,9 @@ public class ReviewCreation : VotableOperation
 		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
 
+		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+			return false;
+
 		if(p.Category == null)
 		{
 			error = NotPublished;
@@ -63,16 +66,10 @@ public class ReviewCreation : VotableOperation
 
 		User.Reviews = [..User.Reviews, v.Id];
 
-		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
-		{ 
-			var x = execution.Products.Find(p.Product);
-			var a = execution.Authors.Affect(x.Author);
-			var pb = Site.Publishers.First(i => i.Author == a.Id);
-			
-			RewardForModeration(execution, a, Site);
-			execution.Allocate(a, pb, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text), out Error);
-		}
-		else
-			execution.Allocate(Site, Site, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+		var r = execution.Products.Find(p.Product);
+		var a = execution.Authors.Affect(r.Author);
+		
+		execution.Allocate(Site, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text), out Error);
+		execution.RewardForModeration(Site, a, out Error);
 	}
 }

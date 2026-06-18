@@ -63,25 +63,6 @@ public class FairExecution : Execution
 		return e;
 	}
 
-
-	public void Allocate(Author author, Publisher publisher, int space, out string error)
-	{
-		error = null;
-
-		if(publisher.SpacetimeLimit != Publisher.Unlimit)
-		{
-			publisher.SpacetimeLimit -= space;
-
-			if(publisher.SpacetimeLimit < 0)
-			{
-				error = Operation.LimitExceeded;
-				return;
-			}
-		}
-		
-		Allocate(author, author, space);
-	}
-
 	public void Absorb(FairExecution execution)
 	{
 		foreach(var i in execution.AffectedUsers)
@@ -200,6 +181,82 @@ public class FairExecution : Execution
 // 				DeleteAuthor(i);
 // 		}
 	}
+
+	public void Allocate(Site site, Author author, int space, out string error)
+	{
+		error = null;
+
+		var i = Array.FindIndex(site.Publishers, i => i.Author == author.Id);
+		var b = site.Publishers[i];
+
+		if(b.SpacetimeLimit != Publisher.Unlimit)
+		{
+			site.Publishers = [..site.Publishers];
+			b = site.Publishers[i] = site.Publishers[i].Clone(); 
+
+			b.SpacetimeLimit -= space;
+
+			if(b.SpacetimeLimit < 0)
+			{
+				error = Operation.LimitExceeded;
+				return;
+			}
+		}
+		
+		Allocate(author, author, space);
+	}
+
+	public void RewardForModeration(Site site, Author author, out string error)
+	{
+		var i = Array.FindIndex(site.Publishers, i => i.Author == author.Id);
+		var b = site.Publishers[i];
+
+		if(b.EnergyLimit != Publisher.Unlimit)
+		{
+			if(b.EnergyLimit - author.ModerationReward < 0)
+			{
+				error = Operation.LimitExceeded;
+				return;
+			}
+
+			site.Publishers = [..site.Publishers];
+			b = site.Publishers[i] = site.Publishers[i].Clone(); 
+
+			author.Energy -= author.ModerationReward;
+			site.Energy += author.ModerationReward;
+
+			EnergySpenders.Add(author);
+		}
+		
+		error = null;
+	}
+
+
+	public void Unpublish(Site site, AutoId publication, out string error)
+	{
+		if(site.UnpublishedPublications.Contains(publication))
+		{
+			error = FairOperation.NotPublished;
+			return;
+		}
+
+		error = null;
+
+		var p = Publications.Affect(publication);
+		var	c = Categories.Affect(p.Category);
+		var r = Products.Find(p.Product);
+
+		c.Publications				 = c.Publications.Remove(publication);
+		site.UnpublishedPublications = [..site.UnpublishedPublications, p.Id];
+		
+		var f = r.Versions.First(i => i.Id == p.ProductVersion).Fields.FirstOrDefault(f => f.Name == Token.Title);
+		
+		if(f != null)
+		{
+			PublicationTitles.Deindex(c.Site, f.AsUtf8);
+		}
+	}
+
 
 //	public File AllocateFile(AutoId creator, AutoId current, ISpacetimeHolder holder, ISpaceConsumer consumer, byte[] data)
 //	{

@@ -239,8 +239,7 @@ public class ProposalCreation : FairOperation
 			else if(As == Role.Publisher)
  			{
 				var a = execution.Authors.Affect(By);
-				var pb = s.Publishers.First(i => i.Author == By);
- 				execution.Allocate(a, pb, l, out Error);
+ 				execution.Allocate(s, a, l, out Error);
  			}
 			else if(As == Role.Candidate)
  			{

@@ -3,7 +3,8 @@ namespace Uccs.Fair;
 public enum PublicationFlags : byte
 {
 	None,
-	ApprovedByAuthor	= 0b0000_0001,
+	RequestedByAuthor	= 0b0000_0001,
+	ApprovedByAuthor	= 0b0000_0010,
 	//ApprovedByModerator	= 0b0000_0010,
 }
 

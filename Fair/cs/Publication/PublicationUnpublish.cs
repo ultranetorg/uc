@@ -36,31 +36,6 @@ public class PublicationUnpublish : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-//		var p = execution.Publications.Affect(Publication);
-//		var r = execution.Products.Find(p.Product);
-//		var x = execution.Categories.Affect(p.Category);
-//
-//		x.Publications = x.Publications.Remove(p.Id);
-//		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
-//
-//		var tr = r.Versions.Last().Fields.FirstOrDefault(f => f.Name == Token.Title);
-//			
-//		if(tr != null)
-//			execution.PublicationTitles.Deindex(Site.Id, tr.AsUtf8);
-
-		var p = execution.Publications.Affect(Publication);
-		var	c = execution.Categories.Affect(p.Category);
-		var r = execution.Products.Find(p.Product);
-
-		c.Publications				 = c.Publications.Remove(Publication);
-		//r.Publications				 = r.Publications.Remove(r.Id);
-		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
-		
-		var f = r.Versions.First(i => i.Id == p.ProductVersion).Fields.FirstOrDefault(f => f.Name == Token.Title);
-		
-		if(f != null)
-		{
-			execution.PublicationTitles.Deindex(c.Site, f.AsUtf8);
-		}
+		execution.Unpublish(Site, Publication, out Error);	
 	}
 }

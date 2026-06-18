@@ -16,6 +16,7 @@ public abstract class McvCommand : NetCommand
 	public static readonly ArgumentType	ET		= new ("ET",	@"Entity Type",		[@"Account", @"Domain"]);
 	public static readonly ArgumentType	EID		= new ("EID",	@"Entity Id",		[@"1111-22", @"123456-789", @"22222-333"]);
 	public static readonly ArgumentType	EA		= new ("EA",	@"Entity address",	[@"Account/1111-22", @"Account/123456-789", @"Account/22222-333"]);
+	public static readonly ArgumentType	BOOL	= new ("BOOL",	@"Yes or No",		[@"yes, no"]);
 
 	protected Argument					ByArgument(string description = "User name") => new (ByArg, NAME, description);
 

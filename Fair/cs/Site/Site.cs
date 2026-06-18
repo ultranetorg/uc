@@ -57,6 +57,11 @@ public class Publisher : IBinarySerializable
 		writer.Write7BitEncodedInt64(EnergyLimit);
 		writer.Write7BitEncodedInt64(SpacetimeLimit);
 	}
+
+	public Publisher Clone()
+	{
+		return new Publisher {Author = Author, EnergyLimit = EnergyLimit, SpacetimeLimit = SpacetimeLimit, BannedTill = BannedTill};
+	}
 }
 
 

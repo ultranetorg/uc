@@ -140,7 +140,7 @@ public class AuthorInfoUpdation : FairOperation
 			if(a.References.Length > 0)
 				execution.Free(a, a, a.References.Sum(i => Encoding.UTF8.GetByteCount(i.Text) + Encoding.UTF8.GetByteCount(i.Uri)));
 
-			a.References = Changes.Where(i => i.Field == AuthorField.Reference).Select(i => new AuthorReference(i.X, i.Y)).ToArray();
+			a.References = Changes.Where(i => i.Field == AuthorField.Reference).Select(i => new UriReference(i.X, i.Y)).ToArray();
 
 			execution.Allocate(a, a, a.References.Sum(i => Encoding.UTF8.GetByteCount(i.Text) + Encoding.UTF8.GetByteCount(i.Uri)));
 		}

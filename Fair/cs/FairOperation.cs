@@ -55,6 +55,7 @@ public enum FairOperationClass : uint
 			PublicationPublish			= 103_003_002,
 			PublicationUnpublish		= 103_003_003,
 			PublicationUpdation			= 103_003_004,
+			PublicationAuthorApproval	= 103_003_005,
 			PublicationDeletion			= 103_003_999,
 
 		Review							= 103_004,
@@ -202,6 +203,22 @@ public abstract class FairOperation : Operation
 	{
 		if(!ProductExists(execution, id, out  author, out product, out error))
 			return false; 
+
+		if(!CanAccessAuthor(execution, product.Author, out author, out error))
+			return false; 
+
+		return true; 
+	}
+
+	public bool CanAccessPublication(FairExecution execution, AutoId id, out Publication publication, out Author author, out Product product, out string error)
+	{
+		product = null;
+		author	= null;
+
+		if(!PublicationExists(execution, id, out publication, out error))
+			return false; 
+
+		product = execution.Products.Find(publication.Product);
 
 		if(!CanAccessAuthor(execution, product.Author, out author, out error))
 			return false; 
@@ -429,14 +446,6 @@ public abstract class FairOperation : Operation
 	//	EnergyFeePayer = a;
 	//	EnergySpenders = [a];
 	//}
-
-	protected void RewardForModeration(FairExecution execution, Author author, Site site)
-	{
-		author.Energy -= author.ModerationReward;
-		site.Energy += author.ModerationReward;
-			
-		execution.EnergySpenders.Add(author);
-	}
 
 	//protected void PayEnergyBySiteOrAuthor(FairExecution execution, Publication publication, Author author = null)
 	//{

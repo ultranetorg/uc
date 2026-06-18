@@ -12,16 +12,16 @@ public enum AuthorLink : byte
 	Custom, Website, Youtube, Facebook, X, Github, Linkedin, Instagram, 
 }
 
-public class AuthorReference : IBinarySerializable
+public class UriReference : IBinarySerializable
 {
 	public string	Text { get; set; }
 	public string	Uri { get; set; }
 
-	public AuthorReference()
+	public UriReference()
 	{
 	}
 
-	public AuthorReference(string text, string value)
+	public UriReference(string text, string value)
 	{
 		Text = text;
 		Uri = value;
@@ -71,7 +71,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	
 	public AutoId[]					Products { get; set; }
 	public AutoId[]					Sites { get; set; }
-	public AuthorReference[]		References { get; set; }
+	public UriReference[]			References { get; set; }
 	public AutoId[]					Files  { get; set; }
 
 	public EntityId					Key => Id;
@@ -157,7 +157,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		
 		Products	= reader.ReadArray<AutoId>();
 		Sites		= reader.ReadArray<AutoId>();
-		References	= reader.ReadArray<AuthorReference>();
+		References	= reader.ReadArray<UriReference>();
 	}
 
 	public void Cleanup(Round lastInCommit)

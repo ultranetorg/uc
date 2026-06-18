@@ -112,7 +112,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 			Execution.PublicationTitles.Deindex(c.Site, f.AsUtf8);
 		}
 
-		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		if(p.Flags.HasFlag(PublicationFlags.RequestedByAuthor))
 		{ 
 			var a = Execution.Authors.Affect(r.Author);
 			Execution.Free(a, a, Execution.Net.EntityLength);

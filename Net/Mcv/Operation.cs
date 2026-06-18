@@ -57,6 +57,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			NotEnoughBandwidth = "Not enough bandwidth";
 	public const string			NotSpacetimeHolder = "Not spacetime holder";
 	public const string			NothingLastCreated = "Nothing last created";
+	public const string			NothingToDo = "Nothing to do";
 	public const string			NotReady = "Not ready";
 	public const string			PublicationsExist = "Existing publications must be removed first";
 	public const string			Rejected = "Rejected";

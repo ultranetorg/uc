@@ -34,6 +34,9 @@ public class PublicationPublish : VotableOperation
 		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
 
+		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+			return false;
+
 		if(!CategoryExists(execution, Category, out var c, out error))
 			return false;
 
@@ -70,16 +73,12 @@ public class PublicationPublish : VotableOperation
 
 		Site.UnpublishedPublications = Site.UnpublishedPublications.Remove(p.Id);
 
-		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
-		{ 
-			var a = execution.Authors.Affect(r.Author);
-
-			RewardForModeration(execution, a, Site);
-		}
-
 		var tr = r.Versions.Last().Fields.FirstOrDefault(f => f.Name == Token.Title);
 			
 		if(tr != null)
 			execution.PublicationTitles.Index(Site.Id, p.Id, tr.AsUtf8);
+
+		var a = execution.Authors.Affect(r.Author);
+		execution.RewardForModeration(Site, a, out Error);
 	}
 }

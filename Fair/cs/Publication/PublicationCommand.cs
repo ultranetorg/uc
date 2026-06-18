@@ -2,39 +2,69 @@
 
 namespace Uccs.Fair;
 
-// public class PublicationCommand : FairCommand
-// {
-// 	public PublicationCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
-// 	{
-// 		
-// 	}
-// 
-// 	public CommandAction Create()
-// 	{
-// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-// 
-// 		const string p = "product";
-// 		const string c = "category";
-// 
-// 		a.Name = "c";
-// 		a.Description = "Creates a new product publication",
-// 						Syntax = $"{Keyword} {a.NamesSyntax} {p}={EID} {c}={EID} {SignerArg}={AA}",
-// 
-// 						Arguments =	[new (p, "An id of a product to add a publication of"),
-// 									 new (c, "An id of category to publicate product under"),
-// 									 new (SignerArg, "Address of account with corresponding permissions")],
-// 
-// 						Examples =	[new (null, $"{Keyword} {a.Name} {p}={EID.Example} {c}={EID.Examples[1]} {SignerArg}={AA.Example}")];
-// 
-// 		a.Execute = () =>	{
-// 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-// 
-// 								var o = new PublicationCreation() {Product = GetEntityId(p), Category = GetEntityId(c)};
-// 								
-// 								return o;
-// 							};
-// 		return a;
-// 	}
+public class PublicationCommand : FairCommand
+{
+	public PublicationCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
+	{
+		
+	}
+
+	public CommandAction Create()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		const string product = "product";
+		const string site = "site";
+
+		a.Name = "c";
+		a.Description = "Creates a new product publication";
+		a.Arguments =  [new (product, EID, "Id of a product to create publication for", Flag.First),
+						new (site, EID, "Id of a site to create publication at"),
+						ByArgument()];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+
+								var	p = Ppc(new ProductPpc(GetAutoId(product))).Product;
+								var	a = Ppc(new AuthorPpc(p.Author)).Author;
+
+								var o = new ProposalCreation
+										{
+											As = a.Sites.Contains(GetAutoId(site)) ? Role.Publisher : Role.Candidate, 
+											Site = GetAutoId(site), 
+											Options = [new Option(new PublicationCreation(GetAutoId(product)))]
+										};
+								
+								return o;
+							};
+		return a;
+	}
+
+	public CommandAction Permission()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		const string publish = "publish";
+
+		a.Name = "p";
+		a.Description = "Approve or revoke permission for a site to publish a publication";
+		a.Arguments =  [new (null,		EID, "Id of a publication to manage", Flag.First),
+						new (publish,	NAME, "Approve or revoke a permission to publish (approve/revoke)"),
+						ByArgument()];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+
+								var o = new PublicationAuthorApproval
+										{
+											Publication = AutoId.Parse(Args[0].Name),
+											Approved = GetString(publish) == "approve" ? true : (GetString(publish) == "revoke" ? false : throw new SyntaxException($"Unknown '{publish}' value"))
+										};
+								
+								return o;
+							};
+		return a;
+	}
 // 
 // 	public CommandAction Update()
 // 	{
@@ -128,5 +158,4 @@ namespace Uccs.Fair;
 // 							};
 // 		return a;
 // 	}
-// 
-// }
+}
