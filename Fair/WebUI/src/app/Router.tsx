@@ -236,10 +236,10 @@ const routes: RouteObject[] = [
         path: ":siteId/a/:authorId",
         element: <AuthorPage />,
       },
-      {
-        path: "p/:address",
-        element: <ProfilePage />,
-      },
+      // {
+      //   path: "p/:address",
+      //   element: <ProfilePage />,
+      // },
     ],
   },
 ]
