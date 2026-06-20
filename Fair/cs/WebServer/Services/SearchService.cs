@@ -95,7 +95,7 @@ public class SearchService
 
 		lock (mcv.Lock)
 		{
-			SearchResult[] searchResult = mcv.Sites.Search(query ?? "", page * pageSize, pageSize);
+			SearchResult[] searchResult = mcv.SiteTitles.Search(query ?? "", page * pageSize, pageSize);
 			if (searchResult.Length == 0)
 			{
 				return TotalItemsResult<SiteBaseModel>.Empty;
@@ -138,7 +138,7 @@ public class SearchService
 
 		lock (mcv.Lock)
 		{
-			SearchResult[] result = mcv.Sites.Search(query, page * pageSize, pageSize);
+			SearchResult[] result = mcv.SiteTitles.Search(query, page * pageSize, pageSize);
 			return result.Select(x => new SiteSearchLiteModel(x.Entity.ToString(), x.Text));
 		}
 	}

@@ -81,8 +81,6 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	public readonly int							Threshold;
 	public readonly int							MinDiversity;
 
-	//public List<E>								EntryPoints = new();
-
 	public new HnswTableState<D, E>				Assosiated => base.Assosiated as HnswTableState<D, E>;
 
 	public override bool						IsIndex => true;
@@ -200,7 +198,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		}
 	}
 
-	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 1 << HnswId.LevelBits, int maxConnections = 5, int efConstruction = 64, int threshold = 100, int minDiversity = 100) : base(mcv)
+	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 1 << HnswId.LevelBits, int maxConnections = 5, int efConstruction = 64, int threshold = 200, int minDiversity = 100) : base(mcv)
 	{
 		Metric = metric;
 		MaxLevel = maxLevel;
@@ -208,101 +206,12 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		EfConstruction = efConstruction;
 		Threshold = threshold;
 		MinDiversity = minDiversity;
-
-		//using(var i = Rocks.NewIterator(StateColumn))
-		//{
-		//	for(i.SeekToFirst(); i.Valid(); i.Next())
-		//	{
-		//		var e = Create();
-		//
-		//		e.Read(new BinaryReader(new MemoryStream(i.Value())));
-		//
-		//		EntryPoints.Add(e);
-		//	}
-		//}
-
-		//EntryPoints = (Meta as HnswTableState<D, E>).EntryPoints;
 	}
 
 	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase assosiated, Round lastInCommit)
 	{
 		base.Commit(batch, entities, assosiated, lastInCommit);
-
-		/// ????? Assosiated.EntryPoints = (state as HnswTableState<D, E>).EntryPoints;
-
-		//var s = new MemoryStream();
-		//var w = new BinaryWriter(s);
-		//
-		//w.Write(EntryPoints);
-		//
-		//Rocks.Put(new byte[]{0}, s.ToArray(), StateColumn);
-
-		//foreach(var i in EntryPoints)
-		//{
-		//	batch.Put(i.Id.Raw, ((IBinarySerializable)i).Raw, StateColumn);
-		//}
 	}
-
-	///public override TableStateBase CreateAssosiated()
-	///{
-	///	return new HnswTableState<D, E>(this) {EntryPoints = []};
-	///}
-
-	/// 	public void Remove(string data)
-	/// 	{
-	/// 		bool removedEntry = false;
-	/// 
-	/// 		foreach(var level in Layers.Keys.ToList())
-	/// 		{
-	/// 			var node = Layers[level].FirstOrDefault(n => n.Data == data);
-	/// 			if(node != null)
-	/// 			{
-	/// 				foreach(var conn in node.Connections.GetValueOrDefault(level, new()))
-	/// 					conn.Connections[level]?.RemoveAll(n => n.Data == data);
-	/// 
-	/// 				Layers[level].Remove(node);
-	/// 
-	/// 				if(Layers[level].Count == 0)
-	/// 					Layers.Remove(level);
-	/// 
-	/// 				if(EntryPoints.Contains(node))
-	/// 					removedEntry = true;
-	/// 			}
-	/// 		}
-	/// 
-	/// 		if(removedEntry)
-	/// 		{
-	/// 			var all = Layers.SelectMany(kvp => kvp.Value).ToList();
-	/// 			if(all.Any())
-	/// 			{
-	/// 				var newEntry = all.OrderByDescending(n => n.Level).First();
-	/// 				EntryPoints.Clear();
-	/// 				EntryPoints.Add(newEntry);
-	/// 			}
-	/// 			else
-	/// 			{
-	/// 				EntryPoints.Clear();
-	/// 			}
-	/// 		}
-	/// 	}
-
-	/// 	public void Rebuild()
-	/// 	{
-	/// 		Console.WriteLine("[HNSW] Rebuilding graph...");
-	/// 		var allData = Layers
-	/// 			.SelectMany(kv => kv.Value)
-	/// 			.Select(n => n.Data)
-	/// 			.Distinct()
-	/// 			.ToList();
-	/// 
-	/// 		Layers.Clear();
-	/// 		EntryPoints.Clear();
-	/// 
-	/// 		foreach(var item in allData)
-	/// 			Add(item);
-	/// 
-	/// 		Console.WriteLine($"[HNSW] Rebuild complete. Total nodes: {allData.Count}");
-	/// 	}
 
 	public IEnumerable<E> Search(D query, int skip, int take, Func<E, bool> criteria, Func<HnswId, E> latest)
 	{
@@ -359,6 +268,9 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 				var neighbor = find(id);
 
 				int dist = Metric.ComputeDistance(query, neighbor.Data);
+
+				if(dist > Threshold)
+					continue;
 
 				var candidate = (dist, neighbor);
 				candidates.Enqueue(neighbor, dist);

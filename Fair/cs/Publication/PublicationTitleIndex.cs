@@ -71,7 +71,7 @@ public class PublicationTitleIndex : HnswTable<string, StringToDictionaryHnswEnt
 		return result.Select(i =>	new PublicationGlobalSearchResult
 									{
 										Publications = i.References.Values.ToArray(), 
-										Text = i.Text
+										Title = i.Text
 									})
 									.ToArray();
 	}

@@ -165,12 +165,12 @@ public class SearchResult
 
 public class PublicationGlobalSearchResult
 {
-	public string		Text { get; set; }
+	public string		Title { get; set; }
 	public AutoId[]		Publications { get; set; }
 
 	public override string ToString()
 	{
-		return $"{Text}, Publications={{{Publications.Length}}}";
+		return $"{Title}, Publications={{{Publications.Length}}}";
 	}
 }
 
