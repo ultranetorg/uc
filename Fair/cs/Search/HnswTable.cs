@@ -78,7 +78,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	public readonly int							MaxLevel;
 	public readonly int							MaxConnections;
 	public readonly int							EfConstruction;
-	public readonly int							Threshold;
+	public readonly int							SearchThreshold;
 	public readonly int							MinDiversity;
 
 	public new HnswTableState<D, E>				Assosiated => base.Assosiated as HnswTableState<D, E>;
@@ -198,13 +198,13 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		}
 	}
 
-	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 1 << HnswId.LevelBits, int maxConnections = 5, int efConstruction = 64, int threshold = 200, int minDiversity = 100) : base(mcv)
+	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 1 << HnswId.LevelBits, int maxConnections = 5, int efConstruction = 64, int searchthreshold = 200, int minDiversity = 100) : base(mcv)
 	{
 		Metric = metric;
 		MaxLevel = maxLevel;
 		MaxConnections = maxConnections;
 		EfConstruction = efConstruction;
-		Threshold = threshold;
+		SearchThreshold = searchthreshold;
 		MinDiversity = minDiversity;
 	}
 
@@ -269,7 +269,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 
 				int dist = Metric.ComputeDistance(query, neighbor.Data);
 
-				if(dist > Threshold)
+				if(dist > SearchThreshold)
 					continue;
 
 				var candidate = (dist, neighbor);
@@ -325,44 +325,9 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 
 public class HnswTableState<D, E> : TableState<HnswId, E> where E : HnswNode<D>
 {
-	//public List<E>							EntryPoints;
-	public new HnswTable<D, E>				Table => base.Table as HnswTable<D, E>;
+	public new HnswTable<D, E>		Table => base.Table as HnswTable<D, E>;
 
 	public HnswTableState(HnswTable<D, E> table) : base(table)
 	{
 	}
-
-	public override void StartRoundExecution(Round round)
-	{
-		base.StartRoundExecution(round);
-
-		//EntryPoints = round.Id == 0 ? [] : round.Previous.FindState<HnswTableState<D, E>>(Table).EntryPoints;
-	}
-
-	public override void Absorb(TableStateBase execution)
-	{
-		base.Absorb(execution);
-
-		//var e = execution as HnswTableState<D, E>;
-
-		//EntryPoints = e.EntryPoints;
-	}
-
-	public override void Write(Writer writer)
-	{
-		base.Write(writer);
-
-		//writer.Write(EntryPoints);
-	}
-
-	public override void Read(Reader reader)
-	{
-		base.Read(reader);
-
-		//EntryPoints = reader.ReadList(() => {
-		//										var e = Table.Create(); 
-		//										e.Read(reader); 
-		//										return e;
-		//									});
-	}	//
 }
