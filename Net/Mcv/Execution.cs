@@ -141,13 +141,15 @@ public class Execution : ITableExecution
 	
 	public void TransferEnergyIfNeeded(IEnergyHolder a)
 	{
-		if(a.EnergyThisPeriod != Time.Days/Net.ECLifetime.Days)
+		var now = Time.Days/Net.ECLifetime.Days;
+
+		if(a.EnergyThisPeriod != now)
 		{
-			if(a.EnergyThisPeriod + 1 == Time.Days/Net.ECLifetime.Days) /// if this is next period only
+			if(a.EnergyThisPeriod + 1 == now) /// if this is next period only
 				a.Energy = a.EnergyNext;
 	
 			a.EnergyNext = 0;
-			a.EnergyThisPeriod	= (byte)(Time.Days/Net.ECLifetime.Days);
+			a.EnergyThisPeriod	= (byte)now;
 		}
 	}
 
@@ -158,7 +160,7 @@ public class Execution : ITableExecution
 
 	protected void PayEnergy(IEnergyHolder spender, int amount)
 	{
-		if(spender.EnergyPeriod < Time.Hours) /// switch to this day
+		if(spender.EnergyPeriod < Time.Hours) /// switch to this hour
 		{	
 			if(spender.BandwidthExpiration < Time.Hours) /// bandwidth expired
 				spender.Bandwidth = 0;

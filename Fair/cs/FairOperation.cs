@@ -57,6 +57,7 @@ public enum FairOperationClass : uint
 			PublicationUnpublish		= 103_003_003,
 			PublicationUpdation			= 103_003_004,
 			PublicationAuthorPermittance= 103_003_005,
+			PublicationPrioritization	= 103_003_006,
 			PublicationDeletion			= 103_003_999,
 
 		Review							= 103_004,

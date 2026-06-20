@@ -304,8 +304,10 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	/// 		Console.WriteLine($"[HNSW] Rebuild complete. Total nodes: {allData.Count}");
 	/// 	}
 
-	public IEnumerable<E> Search(D query, int skip, int take, Func<E, bool> criteria, Func<HnswId, E> find, E[] entrypoints)
+	public IEnumerable<E> Search(D query, int skip, int take, Func<E, bool> criteria, Func<HnswId, E> latest)
 	{
+		var entrypoints = latest(HnswId.Entry)?.Connections[-1].Select(i => latest(i)).ToArray();
+
 		if(entrypoints == null)
 			return [];
 
@@ -313,9 +315,9 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		var current = entrypoints[0];
 
 		for(var level = current.Level; level >= 1; level--)
-			current = SearchBestNeighbor(query, current, level, find);
+			current = SearchBestNeighbor(query, current, level, latest);
 
-		var resultNodes = EfSearch(query, current, 0, (skip + take) * 2, criteria, find);
+		var resultNodes = EfSearch(query, current, 0, (skip + take) * 2, criteria, latest);
 
 		return resultNodes.Skip(skip).Take(take);
 	}
@@ -373,7 +375,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		return topCandidates.Select(x => x.node);
 	}
 
-	private E SearchBestNeighbor(D query, E start, int level, Func<HnswId, E> find)
+	E SearchBestNeighbor(D query, E start, int level, Func<HnswId, E> find)
 	{
 		var visited = new HashSet<HnswId>();
 		var queue = new Queue<E>();

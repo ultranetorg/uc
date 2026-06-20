@@ -141,7 +141,7 @@ public class ProposalCreation : FairOperation
  			Error = AlreadyExists;
  			return;
  		}
-
+		
 		s = execution.Sites.Affect(s.Id);
 
 		if(As == Role.Publisher && p.Creators.HasFlag(Role.Publisher))

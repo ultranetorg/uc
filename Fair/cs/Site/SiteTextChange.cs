@@ -11,7 +11,7 @@ public class SiteTextChange : VotableOperation
 	public override bool		IsValid(McvNet net) =>	(Title == null || Title.Length <= Fair.TitleLengthMaximum) && 
 														(Slogan == null || Slogan.Length <= Fair.SloganLengthMaximum) && 
 														(Description == null || Description.Length <= Fair.PostLengthMaximum);
-	public override string		Explanation => $"Description={Description}, Slogan={Slogan}, Description={Description}";
+	public override string		Explanation => $"Title={Title}, Slogan={Slogan}, Description={Description}";
 	
 	public override void Read(Reader reader)
 	{

@@ -134,8 +134,11 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public string						Slogan { get; set; }
 	public string						Description { get; set; }
 	public int							ModerationReward { get; set; }
+	public int							CandidateRequestFee { get; set; }
 	public int							PoWComplexity { get; set; }
 	public AutoId						Avatar  { get; set; }
+
+	public Policy[]						Policies { get; set; }
 
 	public short						Expiration { get; set; }
 	public long							Space { get; set; }
@@ -145,15 +148,12 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public Publisher[]					Publishers { get; set; }
 	public Moderator[]					Moderators { get; set; }
 	public AutoId[]						Categories { get; set; }
-	public PerpetualSurvey[]			PerpetualSurveys { get; set; }
 	public AutoId[]						Proposals { get; set; }
+	public PerpetualSurvey[]			PerpetualSurveys { get; set; }
 	public AutoId[]						UnpublishedPublications { get; set; }
 	public AutoId[]						ChangedPublications { get; set; }
 	public AutoId[]						Files { get; set; }
 	public AutoId[]						Users { get; set; }
-
-	public int							PublicationsCount { get; set; }
-	public int							CandidateRequestFee { get; set; }
 
 	public long							Energy { get; set; }
 	public byte							EnergyThisPeriod { get; set; }
@@ -163,7 +163,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public int							EnergyPeriod { get; set; }
 	public int							EnergyRating { get; set; }
 	
-	public Policy[]						Policies { get; set; }
+	public int							PublicationsCount { get; set; }
 
 	public EntityId						Key => Id;
 	public bool							Deleted { get; set; }
@@ -236,34 +236,34 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		var a = new Site(Mcv)  
 				{
 					Id						= Id,
+					Name					= Name,
 					Title					= Title,
 					Slogan					= Slogan,
 					Description				= Description,
-					Name					= Name,
 					ModerationReward		= ModerationReward,
 					CandidateRequestFee		= CandidateRequestFee,
-					Avatar					= Avatar,
 					PoWComplexity			= PoWComplexity,
+					Avatar					= Avatar,
 					
 					Policies				= Policies,
 
 					Expiration				= Expiration,
 					Space					= Space,
 					Spacetime				= Spacetime,
-
-					PublicationsCount		= PublicationsCount,
+					Free					= Free,
 
 					Publishers				= Publishers,
 					Moderators				= Moderators,
 					Categories				= Categories,
-					Proposals				= Proposals,
 					PerpetualSurveys		= PerpetualSurveys,
+					Proposals				= Proposals,
 					UnpublishedPublications	= UnpublishedPublications,
 					ChangedPublications		= ChangedPublications,
 					Files					= Files,
-					Users					= Users
+					Users					= Users,
+
+					PublicationsCount		= PublicationsCount,
 				};
-								
 		
 		((IEnergyHolder)this).Clone(a);
 
@@ -288,7 +288,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 	public void Read(Reader reader)
 	{
 		Id							= reader.Read<AutoId>();
-		Name					= reader.ReadUtf8();
+		Name						= reader.ReadUtf8();
 		Title						= reader.ReadUtf8();
 		Slogan						= reader.ReadUtf8();
 		Description					= reader.ReadUtf8();
@@ -302,18 +302,19 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		Expiration					= reader.ReadInt16();
 		Space						= reader.Read7BitEncodedInt64();
 		Spacetime					= reader.Read7BitEncodedInt64();
+		Free						= reader.ReadBoolean();
 		
-		PublicationsCount			= reader.Read7BitEncodedInt();
-
 		Publishers					= reader.ReadArray<Publisher>();
 		Moderators					= reader.ReadArray<Moderator>();
-		Users						= reader.ReadArray<AutoId>();
 		Categories					= reader.ReadArray<AutoId>();
 		Proposals					= reader.ReadArray<AutoId>();
 		PerpetualSurveys			= reader.ReadArray<PerpetualSurvey>();
 		UnpublishedPublications		= reader.ReadArray<AutoId>();
 		ChangedPublications			= reader.ReadArray<AutoId>();
 		Files						= reader.ReadArray<AutoId>();
+		Users						= reader.ReadArray<AutoId>();
+
+		PublicationsCount			= reader.Read7BitEncodedInt();
 
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}
@@ -335,18 +336,19 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 		writer.Write(Expiration);
 		writer.Write7BitEncodedInt64(Space);
 		writer.Write7BitEncodedInt64(Spacetime);
-
-		writer.Write7BitEncodedInt(PublicationsCount);
+		writer.Write(Free);
 
 		writer.Write(Publishers);
 		writer.Write(Moderators);
-		writer.Write(Users);
 		writer.Write(Categories);
 		writer.Write(Proposals);
 		writer.Write(PerpetualSurveys);
 		writer.Write(UnpublishedPublications);
 		writer.Write(ChangedPublications);
 		writer.Write(Files);
+		writer.Write(Users);
+
+		writer.Write7BitEncodedInt(PublicationsCount);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
 	}

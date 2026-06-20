@@ -16,41 +16,6 @@ public class PublicationTable : Table<AutoId, Publication>
 	{
 		return new Publication(Mcv);
 	}
-
-	public override void Index(WriteBatch batch, Round lastincommit)
-	{
-		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
-
-		foreach(var i in GraphEntities)
-		{
-			//var c = e.Categories.Find(i.Category);
-			var r = Mcv.Products.Find(i.Product);
-			var f = r.Versions[i.ProductVersion].Fields.FirstOrDefault(f => f.Name == Token.Title);
-
-			if(f != null)
-			{
-				e.PublicationTitles.Index(i.Site, i.Id, f.AsUtf8);
-			}
-		}
-			
-		Mcv.PublicationTitles.Commit(batch, e.PublicationTitles.Affected.Values, e.PublicationTitles, null);
-		//(lastincommit as FairRound).PublicationTitles = new (Mcv.PublicationTitles) { EntryPoints = e.PublicationTitles.EntryPoints};
-	}
-
-	public SearchResult[] Search(AutoId site, string query, int skip, int take)
-	{
-		var result = Mcv.PublicationTitles.Search(	query.ToLowerInvariant(), 
-													skip, 
-													take, 
-													i => i.References.ContainsKey(site),
-													Mcv.PublicationTitles.Latest, 
-													Mcv.PublicationTitles.Latest(HnswId.Entry)?.Connections[-1].Select(i => Mcv.PublicationTitles.Latest(i)).ToArray());
-
-		return result.Select(i =>	{
-										return new SearchResult {Entity = i.References[site], Text = i.Text};
-																								 
-									}).ToArray();
-	}
 }
 
 public class PublicationExecution : TableExecution<AutoId, Publication>
@@ -84,7 +49,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 		var r = Execution.Products.Affect(p.Product);
 		//var a = execution.Authors.Find(.Author);
 
-		r.Publications = r.Publications.Remove(r.Id);
+		r.Publications = r.Publications.Remove(id);
 
 		if(c.Publications.Contains(p.Id))
 		{
@@ -94,7 +59,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 			s.PublicationsCount--;
 		}
 		
-		s.UnpublishedPublications = s.UnpublishedPublications.Remove(p.Id);
+		s.UnpublishedPublications = s.UnpublishedPublications.Remove(id);
 
 		foreach(var i in p.Reviews)
 		{

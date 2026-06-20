@@ -206,7 +206,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(GraphState != null)
 		{
-			var r = new Reader(GraphState);
+			var r = new Reader(GraphState, Net.Constructor);
 	
 			LastCommitedRound = CreateRound();
 			LastCommitedRound.ReadGraphState(r);
@@ -223,7 +223,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(Settings.Chain != null)
 		{
-			var rd = new BinaryReader(new MemoryStream(Rocks.Get(ChainStateKey)));
+			var rd = new Reader(new MemoryStream(Rocks.Get(ChainStateKey)), Net.Constructor);
 		
 			var lcr = FindRound(rd.Read7BitEncodedInt());
 				
@@ -462,16 +462,11 @@ public abstract class Mcv /// Mutual chain voting
 				if(!m.Key.SequenceEqual(t.Hash))
 				{
 					#if DEBUG
-					///var x = r.Eligible.Select(i => i.ParentHash.ToHex());
-					///var a = SunGlobals.Suns.Select(i => i.Mcv.FindRound(r.ParentId)?.Hash?.ToHex());
-						
-						
-					//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
-					//lock(Mcv.Lock)
-					//	Mcv.Dump();
-					//			
-					//lock(McvTcpPeering.All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
-					//	All.First(i => i.Node.Name == peer.Name).Mcv.Dump();
+						Dump();
+					
+						foreach(var i in McvPeering.All.Where(i => i.Mcv != null && i.Mcv != this))
+							lock(i.Mcv.Lock)
+								i.Mcv.Dump();
 					#endif
 
 					throw new ConfirmationException(t, m.Key);
@@ -657,7 +652,7 @@ public abstract class Mcv /// Mutual chain voting
 			LastCommitedRound = round;
 					
 			var s = new MemoryStream();
-			var w = new Writer(s);
+			var w = new Writer(s, Net.Constructor);
 	
 			LastCommitedRound.WriteGraphState(w);
 	
@@ -672,7 +667,7 @@ public abstract class Mcv /// Mutual chain voting
 		if(Settings.Chain != null)
 		{
 			var s = new MemoryStream();
-			var w = new Writer(s);
+			var w = new Writer(s, Net.Constructor);
 
 			w.Write7BitEncodedInt(round.Id);
 

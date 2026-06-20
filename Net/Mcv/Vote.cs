@@ -126,7 +126,7 @@ public class Vote : IBinarySerializable
 	public byte[] Hashify()
 	{
 		var s = new Blake2Stream();
-		var w = new Writer(s);
+		var w = new Writer(s, Mcv.Net.Constructor);
 
 		w.Write((byte)Mcv.Net.Zone);
 		w.WriteUtf8(Mcv.Net.Address);

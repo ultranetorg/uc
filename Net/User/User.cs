@@ -39,7 +39,7 @@ public interface IEnergyHolder : IHolder
 	long		Energy { get; set; }
 	byte		EnergyThisPeriod { get; set; }
 	long		EnergyNext { get; set; }
-	int			EnergyPeriod { get; set; }
+	int			EnergyPeriod { get; set; } ///  1 hour
 	int			EnergyRating { get; set; }
 	
 	int			Bandwidth { get; set; }

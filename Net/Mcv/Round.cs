@@ -236,8 +236,8 @@ public abstract class Round : IBinarySerializable
 
 	public byte[] Summarize()
 	{
-		///if(Selected.Count < MinimumForConsensus)
-		///	return null;
+		if(Selected.Count < MinimumForConsensus)
+			return null;
 
 		var min = MinimumForConsensus;
 					

@@ -68,12 +68,10 @@ public abstract class McvPeering : HomoPeering
 		VaultApi = vaultapi;
 
 		Constructor.Merge(node.Net.Constructor);
+		Constructor.Register(() => new Vote(Mcv));
 		Constructor.Register<PeerRequest> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
 		Constructor.Register<Result>	  (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 		Constructor.Register<CodeException>(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
-
-		//Constructor.Register(() => new Transaction {});
-		Constructor.Register(() => new Vote(Mcv));
 
 		if(Mcv != null)
 		{
@@ -295,7 +293,7 @@ public abstract class McvPeering : HomoPeering
 		
 					var r = Mcv.CreateRound();
 					r.Confirmed = true;
-					r.ReadGraphState(new Reader(stamp.GraphState));
+					r.ReadGraphState(new Reader(stamp.GraphState, Constructor));
 		
 					var s = Call(peer, new StampPpc(), Flow);
 	
@@ -604,7 +602,7 @@ public abstract class McvPeering : HomoPeering
 								
 					var cs = new CountStream();
 					v.Signature = Net.Cryptography.ZeroSignature;
-					v.Write(new Writer(cs));
+					v.Write(new Writer(cs, Constructor));
 					v.RawPayload = null;
 					var l = cs.Length;
 

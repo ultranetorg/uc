@@ -52,8 +52,7 @@ public class SiteTable : Table<AutoId, Site>
 											skip, 
 											take, 
 											null,
-											Mcv.SiteTitles.Latest, 
-											Mcv.SiteTitles.Latest(HnswId.Entry)?.Connections[-1].Select(i => Mcv.SiteTitles.Latest(i)).ToArray());
+											Mcv.SiteTitles.Latest);
 
 		return result.SelectMany(i =>	{
 											return i.References.Select(j => new SearchResult {Entity = j, Text = i.Text});

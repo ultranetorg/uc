@@ -67,6 +67,25 @@ public class PublicationCommand : FairCommand
 							};
 		return a;
 	}
+
+	public CommandAction Priority()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Name = "o";
+		a.Description = "Make specified publication(store) default in search results";
+		a.Arguments =  [new (null,		EID, "Id of a publication to have highest priority", Flag.First),
+						ByArgument()];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+
+								var o = new PublicationPrioritization {Publication = FirstAutoId};
+								
+								return o;
+							};
+		return a;
+	}
 // 
 // 	public CommandAction Update()
 // 	{

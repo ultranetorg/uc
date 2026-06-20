@@ -163,6 +163,17 @@ public class SearchResult
 	}
 }
 
+public class PublicationGlobalSearchResult
+{
+	public string		Text { get; set; }
+	public AutoId[]		Publications { get; set; }
+
+	public override string ToString()
+	{
+		return $"{Text}, Publications={{{Publications.Length}}}";
+	}
+}
+
 public class PublicationsSearchApc : FairApc
 {
 	public AutoId		Site { get; set; }
@@ -173,6 +184,6 @@ public class PublicationsSearchApc : FairApc
 	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.Mcv.Lock)
-			return node.Mcv.Publications.Search(Site, Query, Skip, Take);
+			return node.Mcv.PublicationTitles.Search(Site, Query, Skip, Take);
 	}
 }

@@ -87,7 +87,7 @@ public class SiteCreation : FairOperation
 																																			}))
 																											.ToArray();
 														return z;
-													}).ToArray();;
+													}).ToArray();
 
 
 		User.ModeratedSites = [..User.ModeratedSites, s.Id];

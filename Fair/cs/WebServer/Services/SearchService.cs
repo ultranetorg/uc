@@ -26,7 +26,7 @@ public class SearchService
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			SearchResult[] searchResult = mcv.Publications.Search(id, query, page * pageSize, pageSize);
+			SearchResult[] searchResult = mcv.PublicationTitles.Search(id, query, page * pageSize, pageSize);
 			if (searchResult.Length == 0)
 			{
 				return TotalItemsResult<PublicationExtendedModel>.Empty;
@@ -78,7 +78,7 @@ public class SearchService
 
 		lock (mcv.Lock)
 		{
-			SearchResult[] result = mcv.Publications.Search(id, query, page * pageSize, pageSize);
+			SearchResult[] result = mcv.PublicationTitles.Search(id, query, page * pageSize, pageSize);
 			return result.Select(x => new PublicationBaseModel(x.Entity.ToString(), x.Text));
 		}
 	}
