@@ -168,6 +168,26 @@ public class AuthorCommand : FairCommand
 							};
 		return a;
 	}
+		
+	public CommandAction Verification()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+		
+		const string domain = "domain";
+
+		a.Name = "v";
+		a.Description = "Requests the net to check ownership of web domain for the specified author";
+		a.Arguments =  [new (null, EID, "Id of an author to verify", Flag.First),
+						new (domain, NAME, "Web domain name"),
+						ByArgument("Address of account that owns the author")];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+
+								return new AuthorVerification {Author = FirstAutoId, Webdomain = GetString(domain)};
+							};
+		return a;
+	}
 
 	public CommandAction Avatar()
 	{

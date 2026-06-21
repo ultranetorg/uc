@@ -265,7 +265,7 @@ public class Site : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpace
 					PublicationsCount		= PublicationsCount,
 				};
 		
-		((IEnergyHolder)this).Clone(a);
+		((IEnergyHolder)this).Copy(a);
 
 		return a;
 	}

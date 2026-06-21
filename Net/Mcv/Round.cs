@@ -2,41 +2,6 @@
 
 namespace Uccs.Net;
 
-public abstract class OutwardOperation : Operation
-{	
-	public abstract void ConfirmedExecute(Execution execution, OutwardTransaction task);
-}
-
-public class OutwardTransaction : IBinarySerializable
-{
-	public int				Id;
-	public Time				Expiration;
-	//public AutoId			Generator;
-	public AutoId			User;
-	public OutwardOperation	Operation;
-
-	public virtual void Write(Writer writer)
-	{
-		writer.Write7BitEncodedInt(Id);
-		writer.Write(User);
-		//writer.Write(Generator);
-		writer.Write(Expiration);
-		writer.Write(writer.Constructor.TypeToCode(Operation.GetType())); 
-		Operation.Write(writer); 
-	}
-
-	public virtual void Read(Reader reader)
-	{
-		Id			= reader.Read7BitEncodedInt();
-		User		= reader.Read<AutoId>();
-		//Generator	= reader.Read<AutoId>();
-		Expiration	= reader.Read<Time>();
-		Operation	= reader.Constructor.Construct(typeof(Operation), reader.ReadUInt32()) as OutwardOperation;
-		Operation.Read(reader); 
-	}
-}
-
-
 public abstract class Round : IBinarySerializable
 {
 	public int											Id;
@@ -681,7 +646,7 @@ public abstract class Round : IBinarySerializable
 
 			if(i.Approved)
 			{
-				e.Operation.ConfirmedExecute(execution, e);
+				(e.Operation as IOutwardOperation).SuccessExecute(execution, e);
 			} 
 			//else
 			//	execution.AffectUser(e.Generator).AverageUptime -= 10;

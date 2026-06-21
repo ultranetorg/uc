@@ -45,6 +45,10 @@ public class FairTcpPeering : McvPeering
 
 	public override bool ValidateIncoming(Operation o)
 	{
+		/// TODO: remake as async
+		/// if(o is AuthorVerification m && !Node.IsWebdomainOwner($"{m.Name}.{m.Tld}", ))
+		/// 	return false;
+
 		return o is not VotableOperation;
 	}
 

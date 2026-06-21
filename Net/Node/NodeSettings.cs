@@ -7,7 +7,6 @@ public class PeeringSettings : Settings
 {
 	public Endpoint			Endpoint { get; set; }
 	public int				PermanentMin { get; set; } = 6;
-	//public int				PermanentGraphsMin { get; set; } = 6;
 	public int				PermanentInboundMax { get; set; } = 128;
 	public int				InboundMax { get; set; } = 16 * 1024;
 	public bool				InitialRandomization { get; set; } = true;
@@ -16,28 +15,6 @@ public class PeeringSettings : Settings
 	{
 	}
 }
-
-//	public class RdnNodeSettings : SavableSettings
-//	{
-//		public ApiSettings			Api { get; set; }
-//		public bool					Log { get; set; }
-//		public int					RdcQueryTimeout { get; set; } = 5000;
-//		public int					RdcTransactingTimeout { get; set; } = 5*60*1000;
-//		public PeeringSettings		Peering { get; set; } = new();
-//
-//		public NodeSettings() : base(NetXonTextValueSerializator.Default)
-//		{
-//		}
-//
-//		public NodeSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
-//		{
-//			if(Debugger.IsAttached)
-//			{
-//				RdcQueryTimeout = int.MaxValue;
-//				RdcTransactingTimeout = int.MaxValue;
-//			}
-//		}
-//	}
 
 public class SecretSettings
 {
@@ -53,7 +30,7 @@ public class SecretSettings
 	{
 		var d = new Xon(File.ReadAllText(path));
 		
-		Password			= d.Get<string>("Password");
+		Password = d.Get<string>("Password");
 	}
 }
 

@@ -118,7 +118,7 @@ public class ProposalCreation : FairOperation
  		if(!Options.All(i => i.Operation.ValidateProposal(execution, out Error)))
  			return;
  
-        var c = (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
+        var c = (FairOperationClass)execution.Mcv.Net.Constructor.TypeToCode(Options[0].Operation.GetType());
 
 		var p = s.Policies.First(i => i.OperationClass == c);
  		///if(p == null)
@@ -249,7 +249,7 @@ public class ProposalCreation : FairOperation
 		}
 
 		foreach(var i in s.Proposals.Select(i => execution.Proposals.Find(i)).Where(i => {
-																							var oc = (FairOperationClass)Fair.OCodes[i.Options[0].Operation.GetType()];
+																							var oc = (FairOperationClass)execution.Mcv.Net.Constructor.TypeToCode(i.Options[0].Operation.GetType());
 																							
 																							return	s.Policies.First(i => i.OperationClass == oc).Approval == ApprovalRequirement.PublishersMajority && 
 																									!Uccs.Fair.Site.Restrictions.First(i => i.OperationClass == oc).Flags.HasFlag(PolicyFlag.Infinite) && 

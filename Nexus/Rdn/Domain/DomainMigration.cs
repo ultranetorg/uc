@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public class DomainMigration : OutwardOperation
+public class DomainMigration : RdnOperation, IOutwardOperation
 { 
 	public string			Name  { get; set; }
 	public string			Tld  { get; set; }
@@ -22,7 +22,7 @@ public class DomainMigration : OutwardOperation
 		if(!Domain.Valid(Name))
 			return false;
 
-		if(!Domain.ExclusiveTlds.Contains(Tld))
+		if(!Domain.PriorityTlds.Contains(Tld))
 			return false;
 
 		return true;
@@ -54,7 +54,7 @@ public class DomainMigration : OutwardOperation
 	//	Generator	= reader.Read<AutoId>();
 	//}
 
-	public override void Execute(Execution execution)
+	public override void Execute(RdnExecution execution)
 	{
 		if(execution.OutwardTransactions.Count >= McvNet.OutwardsMaximum)
 		{
@@ -91,7 +91,7 @@ public class DomainMigration : OutwardOperation
 												User		= User.Id, 
 												//Generator	= Transaction.Vote.Member,  
 												Operation	= this,
-												Expiration	= execution.Time + execution.Net.ForeignVerificationDurationLimit
+												Expiration	= execution.Time + execution.Net.OutwardVerificationDurationLimit
 											 });
 
 	
@@ -99,7 +99,7 @@ public class DomainMigration : OutwardOperation
 		(execution as RdnExecution).PayOutwardEnergy(User);
 	}
 
-	public override void ConfirmedExecute(Execution execution, OutwardTransaction task)
+	public void SuccessExecute(Execution execution, OutwardTransaction task)
 	{
 		var e = execution as RdnExecution;
 		var a = e.Domains.Affect(Name);

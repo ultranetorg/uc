@@ -158,7 +158,7 @@ public class Execution : ITableExecution
 		PayEnergy(spender, (int)OperationCost);
 	}
 
-	protected void PayEnergy(IEnergyHolder spender, int amount)
+	public void PayEnergy(IEnergyHolder spender, int amount)
 	{
 		if(spender.EnergyPeriod < Time.Hours) /// switch to this hour
 		{	

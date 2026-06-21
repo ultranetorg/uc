@@ -109,7 +109,7 @@ public abstract class McvNet : Net
 
  	public Cryptography						Cryptography							= Cryptography.Mcv;
 	public int								AffectedCountMaximum					= 100_000;
-	public Time								ForeignVerificationDurationLimit		= Time.FromHours(1);
+	public Time								OutwardVerificationDurationLimit		= Time.FromHours(1);
 	public int								MembersLimit							= 1000;
 	public long								CandidatesMaximum						= 1000 * 10;
 	

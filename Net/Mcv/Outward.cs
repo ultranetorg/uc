@@ -1,4 +1,35 @@
-﻿namespace Uccs.Net;
+using System;
+
+namespace Uccs.Net;
+
+public interface IOutwardOperation
+{	
+	public abstract void SuccessExecute(Execution execution, OutwardTransaction task);
+}
+
+public class OutwardTransaction : IBinarySerializable
+{
+	public int					Id;
+	public Time					Expiration;
+	public AutoId				User;
+	public Operation			Operation;
+
+	public virtual void Write(Writer writer)
+	{
+		writer.Write7BitEncodedInt(Id);
+		writer.Write(User);
+		writer.Write(Expiration);
+		writer.WriteVirtual(Operation); 
+	}
+
+	public virtual void Read(Reader reader)
+	{
+		Id			= reader.Read7BitEncodedInt();
+		User		= reader.Read<AutoId>();
+		Expiration	= reader.Read<Time>();
+		Operation	= reader.ReadVirtual<Operation>(); 
+	}
+}
 
 public struct OutwardResult : IBinarySerializable, IEquatable<OutwardResult>, IComparable<OutwardResult>
 {

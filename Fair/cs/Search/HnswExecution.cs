@@ -8,7 +8,6 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
 	public FairExecution					Execution;
 	public HnswExecution<D, E>				Parent;
 
-	//public abstract  E						Affect(HnswId id);
 	protected abstract int					DataToBucket(D data);
 
 	public class LevelEnumerator : IEnumerator<E>
@@ -74,15 +73,7 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
 	protected HnswExecution(FairExecution execution, HnswTable<D, E> table) : base(table)
 	{
 		Execution = execution;
-		//EntryPoints = execution.Round.FindState<HnswTableState<D, E>>(Table).EntryPoints ?? Table.Assosiated.EntryPoints;
 	}
-	
-	//public List<E> AffectEntryPoints()
-	//{
-	//	EntryPoints = new(EntryPoints);
-	//
-	//	return EntryPoints;
-	//}
 
 	public byte RandomLevel(byte[] start)
 	{
@@ -256,15 +247,6 @@ public abstract class HnswExecution<D, E> : HnswTableState<D, E>  where E : Hnsw
  
 		a = a.Clone() as E;
 
-//		var ep = EntryPoints.Find(i => i.Id == a.Id);
-//			
-//		if(ep != null)
-//		{
-//			AffectEntryPoints();
-//			EntryPoints.Remove(ep);
-//			EntryPoints.Add(a);
-//		}
-
  		return Affected[id] = a;
 	}
 }
@@ -296,7 +278,6 @@ public class StringHnswTableExecution<E> : HnswExecution<string, E>  where E : S
   			e = Create(id);
   	
   			e.Text  = text;
- 			//e.Hash = Metric.Hashify(text);
   			
   			Add(e);
   		}

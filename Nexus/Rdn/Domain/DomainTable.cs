@@ -46,7 +46,7 @@ public class DomainExecution : TableExecution<AutoId, Domain>
 		lock(Priority)
 			if(Priority.Count == 0)
 			{
-				foreach(var tld in Domain.ExclusiveTlds)
+				foreach(var tld in Domain.PriorityTlds)
 				{
 					foreach(var i in File.ReadLines(Path.Join(execution.Mcv.Datapath, tld)))
 						(Priority.ContainsKey(tld) ? Priority[tld] : (Priority[tld] = [])).Add(i);

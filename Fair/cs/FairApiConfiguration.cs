@@ -28,43 +28,32 @@ public class FairTypeResolver : ApiTypeResolver
         if(ti.Type == typeof(PeerRequest))
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-
         else if(ti.Type == typeof(Result))
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-
         else if(ti.Type == typeof(CodeException))
 			foreach(var i in typeof(ProductException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-
         else if(ti.Type == typeof(SiteOperation))
- 		{
-            ti.PolymorphismOptions = new JsonPolymorphismOptions
-									 {
-										TypeDiscriminatorPropertyName = "$type",
-										IgnoreUnrecognizedTypeDiscriminators = true,
-										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
-									 };
+		{
+			ti.PolymorphismOptions ??= new();
+
 			foreach(var i in typeof(SiteOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(SiteOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 		}
-
         else if(ti.Type == typeof(VotableOperation))
- 		{
-            ti.PolymorphismOptions = new JsonPolymorphismOptions
-									 {
-										TypeDiscriminatorPropertyName = "$type",
-										IgnoreUnrecognizedTypeDiscriminators = true,
-										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
-									 };
-
 			foreach(var i in typeof(VotableOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(VotableOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
-		}
-
         else if(ti.Type == typeof(Operation))
- 			foreach(var i in typeof(FairOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(FairOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
- 				ti.PolymorphismOptions.DerivedTypes.Add(i);
+ 		{	
+			foreach(var i in Enum.GetNames<FairOperationClass>())
+			{ 
+				var t = GetType().Assembly.GetType($"{GetType().Namespace}.{i}");
+				
+				if(t != null && !t.IsAbstract && !t.IsGenericType && t.IsSubclassOf(typeof(Operation)))
+ 					ti.PolymorphismOptions.DerivedTypes.Add(new JsonDerivedType(t, i));
+			}
+		}
 
         return ti;
     }

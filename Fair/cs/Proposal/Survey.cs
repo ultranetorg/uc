@@ -18,15 +18,13 @@ public class SurveyOption : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Operation = Fair.OContructors[typeof(Operation)][reader.ReadUInt32()].Invoke(null) as SiteOperation;
- 		Operation.Read(reader); 
+		Operation = reader.ReadVirtual<Operation>() as SiteOperation;
  		Yes = reader.ReadArray<AutoId>();
 	}
 
 	public void Write(Writer writer)
 	{
-		writer.Write(Fair.OCodes[Operation.GetType()]);
-		Operation.Write(writer);
+		writer.WriteVirtual(Operation);
  		writer.Write(Yes);
 	}
 }

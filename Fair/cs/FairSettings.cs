@@ -32,7 +32,8 @@ public class WebSettings : Settings
 
 public class FairNodeSettings : McvNodeSettings
 {
-	public WebSettings	Web { get; set; }
+	public WebSettings		Web { get; set; }
+	public string			DataPath { get; set; }
 
 	public FairNodeSettings()
 	{
@@ -61,7 +62,8 @@ public class FairNodeSettings : McvNodeSettings
 
 	public void SetDefaults(Zone zone, NexusSettings settings)
 	{
-		Peering	= new () {Endpoint = new (IPAddress.Any, Fair.ByZone(zone).PpiPort)};
-		Api		= new () {LocalIP = settings.Host};
+		Peering		= new () {Endpoint = new (IPAddress.Any, Fair.ByZone(zone).PpiPort)};
+		Api			= new () {LocalIP = settings.Host};
+		DataPath	= FairNode.ExeDirectory;
 	}
 }
