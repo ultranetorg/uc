@@ -46,7 +46,7 @@ public class FairMcv : Mcv
 	{
   	}
 
-	public FairMcv(Fair net, McvSettings settings, string databasepath, Net.Endpoint[] grpaheps, IClock clock) : base(net, settings, null, databasepath, new Genesis(), clock)
+	public FairMcv(Fair net, McvSettings settings, string datapath, string databasepath, Net.Endpoint[] grpaheps, IClock clock) : base(net, settings, datapath, databasepath, new Genesis(), clock)
 	{
 		GraphIPs = grpaheps;
 	}

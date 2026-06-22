@@ -47,6 +47,9 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 			{	
 				a = Webdomains[h] = [];
 
+				if(!System.IO.File.Exists(Path.Join(execution.Mcv.Datapath, h)))
+					return -1;
+
 				foreach(var i in System.IO.File.ReadLines(Path.Join(execution.Mcv.Datapath, h)))
 				{	
 					var j = i.IndexOf(' ');

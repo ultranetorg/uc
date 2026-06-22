@@ -64,6 +64,6 @@ public class FairNodeSettings : McvNodeSettings
 	{
 		Peering		= new () {Endpoint = new (IPAddress.Any, Fair.ByZone(zone).PpiPort)};
 		Api			= new () {LocalIP = settings.Host};
-		DataPath	= FairNode.ExeDirectory;
+		DataPath	= System.IO.Path.Join(FairNode.ExeDirectory, "Data");
 	}
 }

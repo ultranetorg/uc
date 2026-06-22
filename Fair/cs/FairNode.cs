@@ -27,7 +27,7 @@ public class FairNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], clock ?? new RealClock());
+			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, settings.DataPath, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], clock ?? new RealClock());
 			base.Mcv.Log = Flow.Log;
 
 			Mcv.Confirmed += r =>	{

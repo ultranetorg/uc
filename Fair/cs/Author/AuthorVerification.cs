@@ -70,13 +70,16 @@ public class AuthorVerification : FairOperation, IOutwardOperation
 		var a = e.Authors.Affect(Author);
 
 		a.VerifiedWebdomain		= Webdomain;
-		a.VerifiedWebdomainRank	= 1_000_000_000 / AuthorExecution.GetRank(e, Webdomain);
+		a.VerifiedWebdomainRank	= AuthorExecution.GetRank(e, Webdomain);
 
-		foreach(var p in a.Products.Select(i => e.Products.Find(i)))
+		if(a.VerifiedWebdomainRank != -1)
 		{
-			foreach(var b in p.Publications.Select(i => e.Publications.Affect(i)))
+			foreach(var p in a.Products.Select(i => e.Products.Find(i)))
 			{
-				b.AuthorRank = a.VerifiedWebdomainRank;
+				foreach(var b in p.Publications.Select(i => e.Publications.Affect(i)))
+				{
+					b.AuthorRank = a.VerifiedWebdomainRank;
+				}
 			}
 		}
 	}

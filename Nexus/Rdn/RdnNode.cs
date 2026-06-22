@@ -32,7 +32,7 @@ public class RdnNode : McvNode
 
 		if(settings == null && !File.Exists(Settings.Path))
 		{
-			Settings.DataPath	= ExeDirectory;
+			Settings.DataPath	= System.IO.Path.Join(ExeDirectory, nameof(Rdn));;	
 			Settings.Peering	= new () {Endpoint = new (IPAddress.Any, Net.PpiPort)};
 			Settings.Api		= new () {LocalIP = nexussettings.Host};
 			Settings.Seed		= new ();

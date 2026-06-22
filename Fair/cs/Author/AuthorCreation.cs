@@ -43,9 +43,10 @@ public class AuthorCreation : FairOperation
 
 		User.Authors = [..User.Authors, e.Id];
 		
-		e.Owners	= [User.Id];
-		e.Title		= Title;
-		e.Space		= execution.Net.EntityLength;
+		e.Owners				= [User.Id];
+		e.Title					= Title;
+		e.Space					= execution.Net.EntityLength;
+		e.VerifiedWebdomainRank = -1;
 
 		execution.Prolong(User, e, Time.FromYears(Years));
 		execution.PayOperationEnergy(User);
