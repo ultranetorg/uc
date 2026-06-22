@@ -768,37 +768,17 @@ public abstract class McvPeering : HomoPeering
 			var res = new TransactionResult {Tag = t.Tag};
 			o[i++] = res;
 
-			if(CandidateTransactions.Any(j => j.User == t.User && j.Nonce == t.Nonce))
-			{	
-				res.Error = "Already accepted (by User/Nonce)";
-				continue;
-			}
+			lock(Mcv.Lock)
+				if(CandidateTransactions.Any(j => j.User == t.User && j.Nonce == t.Nonce))
+				{	
+					res.Error = "Already accepted (by User/Nonce)";
+					continue;
+				}
 
 			if(t.Operations.Any(o => !ValidateIncoming(o)))
 			{	
 				res.Error = "Invalid data";
 				continue;
-			}
-
-			Mcv.Examine(t);
-	
-			if(t.OverallError != null)
-			{	
-				res.Error = t.OverallError;
-				continue;
-			}
-
-			if(CandidateTransactions.Sum(i => i.Operations.Length) >= Node.Settings.PoolMaximum) /// limit reached
-			{
-				var min = CandidateTransactions.MinBy(i => t.Operations.First().User.EnergyRating); /// find the one with the lowest bandwidth balance
-
-				if(t.Operations.First().User.EnergyRating + t.Boost > min.Operations.First().User.EnergyRating) /// if the new one is better, replace with the old one
-					CandidateTransactions.Remove(min);
-				else
-				{	
-					res.Error = "Pool limit exceeded";
-					continue;
-				}
 			}
 
 			var s = new CountStream();
@@ -812,8 +792,32 @@ public abstract class McvPeering : HomoPeering
 				continue;
 			}
 
-			CandidateTransactions.Add(t);
-			t.Status = TransactionStatus.Accepted;
+			lock(Mcv.Lock)
+			{
+				Mcv.Examine(t);
+		
+				if(t.OverallError != null)
+				{	
+					res.Error = t.OverallError;
+					continue;
+				}
+	
+				if(CandidateTransactions.Sum(i => i.Operations.Length) >= Node.Settings.PoolMaximum) /// limit reached
+				{
+					var min = CandidateTransactions.MinBy(i => t.Operations.First().User.EnergyRating); /// find the one with the lowest bandwidth balance
+	
+					if(t.Operations.First().User.EnergyRating + t.Boost > min.Operations.First().User.EnergyRating) /// if the new one is better, replace with the old one
+						CandidateTransactions.Remove(min);
+					else
+					{	
+						res.Error = "Pool limit exceeded";
+						continue;
+					}
+				}
+	
+				CandidateTransactions.Add(t);
+				t.Status = TransactionStatus.Accepted;
+			}
 		}
 
 		MainWakeup.Set();

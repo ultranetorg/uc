@@ -19,6 +19,7 @@ public class Publication : IBinarySerializable, ITableEntry
 	public AutoId[]							Reviews { get; set; }
 	public PublicationFlags					Flags { get; set; }
 	public byte								Rating { get; set; }
+	public long								AuthorRank { get; set; }
 
 	public EntityId							Key => Id;
 	public bool								Deleted { get; set; }
@@ -49,7 +50,8 @@ public class Publication : IBinarySerializable, ITableEntry
 					ProductVersion	= ProductVersion,
 					Reviews			= Reviews,
 					Flags			= Flags,
-					Rating			= Rating
+					Rating			= Rating,
+					AuthorRank		= AuthorRank
 				};
 	}
 
@@ -77,6 +79,7 @@ public class Publication : IBinarySerializable, ITableEntry
 		Reviews			= reader.ReadArray<AutoId>();
 		Flags			= reader.Read<PublicationFlags>();
 		Rating			= reader.ReadByte();
+		AuthorRank		= reader.Read7BitEncodedInt64();
 	}
 
 	public void Write(Writer writer)
@@ -89,5 +92,6 @@ public class Publication : IBinarySerializable, ITableEntry
 		writer.Write(Reviews);
 		writer.Write(Flags);
 		writer.Write(Rating);
+		writer.Write7BitEncodedInt64(AuthorRank);
 	}
 }

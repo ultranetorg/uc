@@ -63,20 +63,20 @@ public class PublicationCreation : VotableOperation
 	{
 		var r = execution.Products.Affect(Product);
 		var p = execution.Publications.Create(Site);
+		var a = execution.Authors.Affect(r.Author);
 		
 		var v = r.Versions.Last();
 
 		p.Site				= Site.Id;
 		p.Product			= r.Id;
 		p.ProductVersion	= v.Id;
+		p.AuthorRank		= a.VerifiedWebdomainRank;
 
 		r.Versions		= [..r.Versions[..^1], new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs + 1}];
 		r.Publications	= [..r.Publications, p.Id];
 
 		Site.PublicationsCount++;
-
-		var a = execution.Authors.Affect(r.Author);
-		
+				
 		if(!Site.Publishers.Any(i => i.Author == r.Author))
 		{
 			Site.Publishers = [..Site.Publishers,	new Publisher

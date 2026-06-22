@@ -9,10 +9,7 @@ public class PlaceTransactionsPpc : McvPpc<PlaceTransactionsPpr>
 		lock(Mcv.Lock)
 			RequireMember();
 
-		lock(Mcv.Lock)
-		{	
-			return new PlaceTransactionsPpr {Results = Peering.ProcessIncoming(Transactions).ToArray()};
-		}
+		return new PlaceTransactionsPpr {Results = Peering.ProcessIncoming(Transactions).ToArray()};
 	}
 }
 

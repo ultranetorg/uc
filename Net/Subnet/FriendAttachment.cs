@@ -54,27 +54,6 @@ public class FriendAttachment : Operation, IOutwardOperation
 
 	
 		execution.PayOperationEnergy(User);
-
-//		if(RequireSignerDomain(execution, Name, out var e) == false)
-//			return;
-//
-// 		if(e.NnChildNet != null)
-// 		{
-// 			Error = AlreadyExists;
-// 			return;
-// 		}
-// 
-// 		if(!Uccs.Rdn.Domain.IsRoot(e.Address))
-// 		{
-// 			Error = NotRoot;
-// 			return;
-// 		}
-// 
-// 		e = execution.Domains.Affect(Domain);
-// 
-//  		e.NnChildNet = Net;
-// 	
-// 		execution.PayOperationEnergy(User);
 	}
 
 	public void SuccessExecute(Execution execution, OutwardTransaction task)
