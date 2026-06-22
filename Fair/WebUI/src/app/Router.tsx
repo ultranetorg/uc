@@ -6,7 +6,6 @@ import {
   AuthorPage,
   CategoryPage,
   ErrorPage,
-  ProfilePage,
   PublicationPage,
   SearchPage,
   SitePage,

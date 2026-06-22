@@ -95,7 +95,7 @@ export const SignInModal = (props: SignInModalProps) => {
   )
 
   const handleSubmit = useCallback(() => {
-    if (state === "sign-in") authenticateUser(userName, user!.data!.owner)
+    if (state === "sign-in") authenticateUser(user!.data!.name, user!.data!.owner)
     else registerUser(userName)
   }, [authenticateUser, registerUser, state, user, userName])
 
