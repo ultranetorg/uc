@@ -39,13 +39,13 @@ public interface IEnergyHolder : IHolder
 	long		Energy { get; set; }
 	byte		EnergyThisPeriod { get; set; }
 	long		EnergyNext { get; set; }
-	int			EnergyPeriod { get; set; }
+	int			EnergyPeriod { get; set; } ///  1 hour
 	int			EnergyRating { get; set; }
 	
 	int			Bandwidth { get; set; }
 	int			BandwidthExpiration { get; set; }
 
-	public void Clone(IEnergyHolder a)
+	public void Copy(IEnergyHolder a)
 	{ 
 		a.Energy				= Energy;
 		a.EnergyThisPeriod      = EnergyThisPeriod;
@@ -181,7 +181,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		a.LastOutward			= LastOutward;
 		a.AverageUptime			= AverageUptime;
 
-		((IEnergyHolder)this).Clone(a);
+		((IEnergyHolder)this).Copy(a);
 
 		return a;
 	}

@@ -18,6 +18,8 @@ public enum FairOperationClass : uint
 		AuthorNameChange			= 101_000_006,
 		AuthorAvatarChange			= 100_000_007,
 		AuthorInfoUpdation			= 100_000_008,
+		PublisherLimitsUpdation		= 100_000_009,
+		AuthorVerification			= 100_000_010,
 	
 	Product							= 102, 
 		ProductCreation				= 102_000_001, 
@@ -55,6 +57,8 @@ public enum FairOperationClass : uint
 			PublicationPublish			= 103_003_002,
 			PublicationUnpublish		= 103_003_003,
 			PublicationUpdation			= 103_003_004,
+			PublicationAuthorPermittance= 103_003_005,
+			PublicationPrioritization	= 103_003_006,
 			PublicationDeletion			= 103_003_999,
 
 		Review							= 103_004,
@@ -99,6 +103,7 @@ public abstract class FairOperation : Operation
 	public const string			TypeAlreadyDefined = "Type already defined";
 	public const string			NotPublished = "Not published";
 	public const string			NotSupported = "Not supported";
+	public const string			NotApproved = "Not approved";
 
 	public new FairUser			User { get => base.User as FairUser; set => base.User = value; }
 
@@ -202,6 +207,22 @@ public abstract class FairOperation : Operation
 	{
 		if(!ProductExists(execution, id, out  author, out product, out error))
 			return false; 
+
+		if(!CanAccessAuthor(execution, product.Author, out author, out error))
+			return false; 
+
+		return true; 
+	}
+
+	public bool CanAccessPublication(FairExecution execution, AutoId id, out Publication publication, out Author author, out Product product, out string error)
+	{
+		product = null;
+		author	= null;
+
+		if(!PublicationExists(execution, id, out publication, out error))
+			return false; 
+
+		product = execution.Products.Find(publication.Product);
 
 		if(!CanAccessAuthor(execution, product.Author, out author, out error))
 			return false; 
@@ -429,14 +450,6 @@ public abstract class FairOperation : Operation
 	//	EnergyFeePayer = a;
 	//	EnergySpenders = [a];
 	//}
-
-	protected void RewardForModeration(FairExecution execution, Author author, Site site)
-	{
-		author.Energy -= author.ModerationReward;
-		site.Energy += author.ModerationReward;
-			
-		execution.EnergySpenders.Add(author);
-	}
 
 	//protected void PayEnergyBySiteOrAuthor(FairExecution execution, Publication publication, Author author = null)
 	//{

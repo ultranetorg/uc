@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class FriendAttachment : OutwardOperation
+public class FriendAttachment : Operation, IOutwardOperation
 {
 	public string				Name  { get; set; }
 	public Snq					Client  { get; set; }
@@ -49,35 +49,14 @@ public class FriendAttachment : OutwardOperation
 												User		= User.Id, 
 												//Generator	= Transaction.Vote.Member,  
 												Operation	= this,
-												Expiration	= execution.Time + execution.Net.ForeignVerificationDurationLimit
+												Expiration	= execution.Time + execution.Net.OutwardVerificationDurationLimit
 											});
 
 	
 		execution.PayOperationEnergy(User);
-
-//		if(RequireSignerDomain(execution, Name, out var e) == false)
-//			return;
-//
-// 		if(e.NnChildNet != null)
-// 		{
-// 			Error = AlreadyExists;
-// 			return;
-// 		}
-// 
-// 		if(!Uccs.Rdn.Domain.IsRoot(e.Address))
-// 		{
-// 			Error = NotRoot;
-// 			return;
-// 		}
-// 
-// 		e = execution.Domains.Affect(Domain);
-// 
-//  		e.NnChildNet = Net;
-// 	
-// 		execution.PayOperationEnergy(User);
 	}
 
-	public override void ConfirmedExecute(Execution execution, OutwardTransaction task)
+	public void SuccessExecute(Execution execution, OutwardTransaction task)
 	{
 		var s = execution.Friends.Affect(Name);
 

@@ -173,13 +173,14 @@ public class ProposalVoting : FairOperation
  					{
 						var i = Array.FindIndex(s.Publishers, i => i.Author == p.By);
 						s.Publishers = [..s.Publishers];
-						s.Publishers[i] = new Publisher {Author = p.By, BannedTill = execution.Time + Time.FromDays(30)};
+						s.Publishers[i] = s.Publishers[i].Clone(); 
+						s.Publishers[i].BannedTill = execution.Time + Time.FromDays(30);
  					}
 					else if(p.As == Role.Moderator)
  					{
 						var i = Array.FindIndex(s.Moderators, i => i.User == p.By);
 						s.Moderators = [..s.Moderators];
-						s.Moderators[i] = new Moderator {User = p.By, BannedTill = execution.Time + Time.FromDays(30)};
+						s.Moderators[i] = new Moderator {User = s.Moderators[i].User, BannedTill = execution.Time + Time.FromDays(30)};
  					}
 					break;
  				

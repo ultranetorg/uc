@@ -35,33 +35,30 @@ public class ReviewEdit : VotableOperation
 	
 	 public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(!IsReviewOwner(execution, Review, User, out var _, out error))
+		if(!IsReviewOwner(execution, Review, User, out var r, out error))
 			return false;
+
+		var p = execution.Publications.Find(r.Publication);
+
+		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{
+			error = NotApproved;
+			return false;
+		}
 
 		return true;
 	}
 
 	public override void Execute(FairExecution execution)
 	{
-		var r = execution.Reviews.Affect(Review);
-		var p = execution.Publications.Find(r.Publication);
+		var v = execution.Reviews.Affect(Review);
+		var p = execution.Publications.Find(v.Publication);
+		var r = execution.Products.Find(p.Product);
+		var a = execution.Authors.Affect(r.Author);
 
-		r.Text = Text;
-
-		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
-		{ 
-			var x = execution.Products.Find(p.Product);
-			var a = execution.Authors.Affect(x.Author);
-			var pb = Site.Publishers.First(i => i.Author == a.Id);
-
-			RewardForModeration(execution, a, Site);
-			execution.Free(a, a, Encoding.UTF8.GetByteCount(r.Text));
-			execution.Allocate(a, pb, Encoding.UTF8.GetByteCount(Text), out Error);
-		}
-		else
-		{
-			execution.Free(Site, Site, Encoding.UTF8.GetByteCount(r.Text));
-			execution.Allocate(Site, Site, Encoding.UTF8.GetByteCount(Text));
-		}
+		execution.Free(a, a, Encoding.UTF8.GetByteCount(v.Text));
+		v.Text = Text;
+		execution.Allocate(Site, a, Encoding.UTF8.GetByteCount(Text), out Error);
+		execution.RewardForModeration(Site, a, out Error);
 	}
 }

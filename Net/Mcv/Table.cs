@@ -66,14 +66,20 @@ public abstract class TableBase
 		public byte[]								Hash;
 		public int									MainLength;
 		public abstract IEnumerable<BucketBase>		Buckets { get; }
+		protected TableBase							Table;
 
 		public abstract BucketBase					GetBucket(int id);
 		public abstract void						Commit(WriteBatch batch);
 
+		protected ClusterBase(TableBase mcv)
+		{
+			Table = mcv;
+		}
+
 		public byte[] Export()
 		{
 			var s = new MemoryStream();
-			var w = new Writer(s);
+			var w = new Writer(s, Table.Mcv.Net.Constructor);
 
 			w.Write7BitEncodedInt(Buckets.Count());
 
@@ -90,7 +96,7 @@ public abstract class TableBase
 		public void Import(WriteBatch batch, byte[] data)
 		{
 			var s = new MemoryStream(data);
-			var r = new Reader(s);
+			var r = new Reader(s, Table.Mcv.Net.Constructor);
 			
 			var n = r.Read7BitEncodedInt();
 
@@ -130,7 +136,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			if(meta != null)
 			{
-				var r = new Reader(meta);
+				var r = new Reader(meta, Table.Mcv.Net.Constructor);
 	
 				Hash			= r.ReadHash();
 				Size			= r.Read7BitEncodedInt();
@@ -154,7 +160,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			e.Main ??= Table.Rocks.Get(id.Raw, Table.EntityColumn);
 			e.Entity = Table.Create();
-			e.Entity.ReadMain(new Reader(e.Main));
+			e.Entity.ReadMain(new Reader(e.Main, Table.Mcv.Net.Constructor));
 
 			return e.Entity;
 		}
@@ -174,7 +180,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public override void Commit(WriteBatch batch)
 		{
 			var bs = new Blake2Stream();
-			var w = new Writer(bs);
+			var w = new Writer(bs, Table.Mcv.Net.Constructor);
 			
 			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
@@ -200,7 +206,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			}
 
 			var s = new MemoryStream();
-			w = new Writer(s);
+			w = new Writer(s, Table.Mcv.Net.Constructor);
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
@@ -213,7 +219,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public override byte[] Export()
 		{
 			var s = new MemoryStream();
-			var w = new Writer(s);
+			var w = new Writer(s, Table.Mcv.Net.Constructor);
 
 			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
@@ -239,7 +245,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public override void Import(WriteBatch batch, byte[] data)
 		{
 			var s = new MemoryStream(data);
-			var r = new Reader(s);
+			var r = new Reader(s, Table.Mcv.Net.Constructor);
 
 			NextI = r.Read7BitEncodedInt();
 			var n = r.Read7BitEncodedInt();
@@ -263,7 +269,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			}
 			
 			s = new MemoryStream();
-			var w = new Writer(s);
+			var w = new Writer(s, Table.Mcv.Net.Constructor);
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
@@ -292,7 +298,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 					if(m != null)
 					{
-						var r = new Reader(m);
+						var r = new Reader(m, Table.Mcv.Net.Constructor);
 	
 						r.ReadHash();
 						r.Read7BitEncodedInt();
@@ -306,7 +312,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			}
 		}
 
-		public Cluster(Table<ID, E> table, short id)
+		public Cluster(Table<ID, E> table, short id) : base(table)
 		{
 			Table = table;
 			Id = id;
@@ -315,7 +321,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			if(m != null)
 			{
-				var r = new Reader(m);
+				var r = new Reader(m, Table.Mcv.Net.Constructor);
 
 				Hash		= r.ReadHash();
 				MainLength	= r.Read7BitEncodedInt();
@@ -361,7 +367,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			}
 	
 			var s = new MemoryStream();
-			var w = new Writer(s);
+			var w = new Writer(s, Table.Mcv.Net.Constructor);
 				
 			w.Write(Hash);
 			w.Write7BitEncodedInt(MainLength);
@@ -581,7 +587,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		
 		if(s != null)
 		{
-			var r = new Reader(s);
+			var r = new Reader(s, Mcv.Net.Constructor);
 			Assosiated.Read(r);
 		}
 	}
@@ -626,7 +632,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			Assosiated = assosiated;
 	
 			var s = new MemoryStream();
-			var w = new Writer(s);
+			var w = new Writer(s, Mcv.Net.Constructor);
 			
 			Assosiated.Write(w);
 		

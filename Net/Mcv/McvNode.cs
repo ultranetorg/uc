@@ -1,4 +1,6 @@
 ﻿
+using DnsClient;
+
 namespace Uccs.Net;
 
 public abstract class McvPpc<R> : Ppc<R> where R : Result
@@ -23,18 +25,6 @@ public abstract class McvPpc<R> : Ppc<R> where R : Result
 		if(!Node.Mcv.NextVotingRound.Senders.Any(i => Node.Mcv.Settings.Generators.Any(j => j.Id == i.User))) 
 			throw new NodeException(NodeError.NotMember);
 	}
-
-//	protected Generator RequireMemberFor(AccountAddress signer)
-//	{
-//		RequireGraph();
-//
-//		var m = Node.Mcv.NextVotingRound.VotersRound.Members.NearestBy(m => m.Address, signer);
-//
-//		if(!Node.Mcv.Settings.Generators.Any(i => i.Signer == m.Address)) 
-//			throw new NodeException(NodeError.NotMember);
-//
-//		return m;
-//	}
 }
 
 public abstract class McvNode : Node
@@ -46,6 +36,7 @@ public abstract class McvNode : Node
 	public McvNodeSettings			Settings;
 	public Thread					GuiThread;
 	public Action					ShowGui;
+	LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
 
 	public abstract byte[]			Do(string query);
 
@@ -56,6 +47,24 @@ public abstract class McvNode : Node
 	public override string ToString()
 	{
 		return Peering.ToString();
+	}
+
+	public bool IsWebdomainOwner(string domain, AutoId user)
+	{
+		if(NodeGlobals.ForceApproveOutwards)
+			return true;
+
+		try
+		{
+			var result = Dns.QueryAsync(domain, QueryType.TXT, QueryClass.IN, Flow.Cancellation);
+
+			return result.Result.Answers.TxtRecords().Any(r => r.DomainName == domain + '.' && AutoId.TryParse(r.Text.First(), out var id) && id == user);
+		}
+		catch(Exception)
+		{
+		}
+
+		return false;
 	}
 
 }

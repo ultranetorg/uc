@@ -25,7 +25,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	public const char				National = '~';
 	public const char				Subdomain = '~';
 
-	public static readonly string[] ExclusiveTlds = ["com", "org", "net", "info", "biz"];
+	public static readonly string[] PriorityTlds = ["com", "org", "net", "info", "biz"];
 
 	public AutoId					Id { get; set; }
 	public string					Address { get; set; }

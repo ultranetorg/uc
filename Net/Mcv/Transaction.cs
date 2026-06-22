@@ -90,16 +90,20 @@ public class Transaction : IBinarySerializable
 		return s.Hash;
 	}
 
+#if DEBUG
+static readonly long checker = 0x0123456789ABCDEF;
+#endif
+
  	public void	WriteConfirmed(Writer writer)
  	{
 		writer.WriteASCII(User);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt64(Boost);
 		writer.WriteVirtual(Operations);
-		//writer.Write(Member); /// Need  for migrations
-		
-		///if(Operations.Any(i => i is UserFreeCreation))
-		//	writer.Write(Signer); /// and for DomainMigratation
+
+		#if DEBUG
+		writer.Write(checker);
+		#endif
  	}
  		
  	public void	ReadConfirmed(Reader reader)
@@ -113,11 +117,13 @@ public class Transaction : IBinarySerializable
  												var o = reader.ReadVirtual<Operation>();
  												o.Transaction = this;
  												return o; 
- 											});
-		//Member		= reader.Read<AutoId>(); /// Need  for migrations
 
-		///if(Operations.Any(i => i is UserFreeCreation)) 
-		//	Signer = reader.Read<AccountAddress>(); /// and for DomainMigratation
+ 											});
+
+		#if DEBUG
+		if(reader.ReadInt64() != checker)
+			throw new IntegrityException();
+		#endif
  	}
 
 	public void	WriteForVote(Writer writer)
@@ -132,6 +138,10 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt64(Boost);
 		writer.WriteBytes(Tag);
 		writer.WriteVirtual(Operations);
+
+		#if DEBUG
+		writer.Write(checker);
+		#endif
 	}
  		
 	public void	ReadForVote(Reader reader)
@@ -150,6 +160,11 @@ public class Transaction : IBinarySerializable
  													 	o.Transaction	= this;
  													 	return o; 
  													 });
+
+		#if DEBUG
+		if(reader.ReadInt64() != checker)
+			throw new IntegrityException();
+		#endif
 	}
 
 	public void Write(Writer writer)
@@ -164,6 +179,10 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt64(Boost);
 		writer.WriteBytes(Tag);
 		writer.WriteVirtual(Operations);
+
+		#if DEBUG
+		writer.Write(checker);
+		#endif
 	}
 
 	public void Read(Reader reader)
@@ -182,26 +201,32 @@ public class Transaction : IBinarySerializable
 														o.Transaction = this;
 														return o; 
 													});
+
+		#if DEBUG
+		if(reader.ReadInt64() != checker)
+			throw new IntegrityException();
+		#endif
 	}
 
-	public static byte[] Export(Net net, Operation[] operations, string user, Func<MemoryStream, Writer, byte[]> sign)
-	{
-		var s = new MemoryStream();
-		var w = new Writer(s);
-
-		w.WriteVirtual(operations);
-		w.WriteUtf8(user);
-		w.WriteBytes(sign(s, w));
-
-		return s.ToArray();
-	}
-
-	public static void Import(McvNet net, byte[] raw, Constructor constructor, out Operation[] operations, out string user)
-	{
-		var r = new Reader(raw);
-
-		operations = r.ReadArrayVirtual<Operation>();
-		user = r.ReadUtf8();
-		//account = net.Cryptography.AccountFrom(r.ReadSignature(), Cryptography.Hash(raw.AsSpan(0, raw.Length - Cryptography.SignatureLength)));
-	}
+	//public static byte[] Export(Net net, Operation[] operations, string user, Func<MemoryStream, Writer, byte[]> sign)
+	//{
+	//	var s = new MemoryStream();
+	//	var w = new Writer(s, net.Constructor);
+	//
+	//	w.WriteVirtual(operations);
+	//	w.WriteUtf8(user);
+	//	w.WriteBytes(sign(s, w));
+	//
+	//	return s.ToArray();
+	//}
+	//
+	//public static void Import(McvNet net, byte[] raw, Constructor constructor, out Operation[] operations, out string user)
+	//{
+	//	var r = new Reader(raw, net.Constructor);
+	//
+	//	operations = r.ReadArrayVirtual<Operation>();
+	//	user = r.ReadUtf8();
+	//	signiture = r.ReadBytes()
+	//	//account = net.Cryptography.AccountFrom(r.ReadSignature(), Cryptography.Hash(raw.AsSpan(0, raw.Length - Cryptography.SignatureLength)));
+	//}
 }

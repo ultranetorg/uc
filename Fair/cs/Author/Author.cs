@@ -1,4 +1,4 @@
-using NBitcoin.Secp256k1;
+using System.Text;
 
 namespace Uccs.Fair;
 
@@ -12,16 +12,16 @@ public enum AuthorLink : byte
 	Custom, Website, Youtube, Facebook, X, Github, Linkedin, Instagram, 
 }
 
-public class AuthorReference : IBinarySerializable
+public class UriReference : IBinarySerializable
 {
 	public string	Text { get; set; }
 	public string	Uri { get; set; }
 
-	public AuthorReference()
+	public UriReference()
 	{
 	}
 
-	public AuthorReference(string text, string value)
+	public UriReference(string text, string value)
 	{
 		Text = text;
 		Uri = value;
@@ -51,6 +51,8 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public string					Name { get; set; }
 	public string					Title { get; set; }
 	public string					Description { get; set; }
+	public string					VerifiedWebdomain { get; set; }
+	public int						VerifiedWebdomainRank { get; set; }
 	public AutoId[]					Owners { get; set; }
 	public AutoId					Avatar  { get; set; }
 
@@ -60,31 +62,33 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public long						ModerationReward  { get; set; }
 	public bool						Free { get; set; }
 	
+	public AutoId[]					Products { get; set; }
+	public AutoId[]					Sites { get; set; }
+	public UriReference[]			References { get; set; }
+	public AutoId[]					Files  { get; set; }
+	
 	public long						Energy { get; set; }
 	public byte						EnergyThisPeriod { get; set; }
 	public long						EnergyNext { get; set; }
+	public int						EnergyPeriod { get; set; }
+	public int						EnergyRating { get; set; }
 
 	public int						Bandwidth { get; set; }
 	public int						BandwidthExpiration { get; set; }
-	public int						EnergyPeriod { get; set; }
-	public int						EnergyRating { get; set; }
-	
-	public AutoId[]					Products { get; set; }
-	public AutoId[]					Sites { get; set; }
-	public AuthorReference[]		References { get; set; }
-	public AutoId[]					Files  { get; set; }
 
 	public EntityId					Key => Id;
-	Mcv								Mcv;
 	public bool						Deleted { get; set; }
+	Mcv								Mcv;
+
+	public static string			HashifyWebdomain(string webdomain) => Encoding.ASCII.GetBytes(webdomain).Aggregate((a, i) => (byte)(a ^ i)).ToString("X2");
 
 	public Author()
 	{
 	}
 
-	public Author(Mcv chain)
+	public Author(Mcv mcv)
 	{
-		Mcv = chain;
+		Mcv = mcv;
 	}
 
 	public override string ToString()
@@ -96,25 +100,27 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	{
 		var a = new Author(Mcv)
 				{				
-					Id					= Id,
-					Name				= Name,
-					Title				= Title,
-					Description			= Description,
-					Owners				= Owners,
-					Avatar				= Avatar,
+					Id						= Id,
+					Name					= Name,
+					Title					= Title,
+					Description				= Description,
+					VerifiedWebdomain		= VerifiedWebdomain,
+					VerifiedWebdomainRank	= VerifiedWebdomainRank,
+					Owners					= Owners,
+					Avatar					= Avatar,
 
-					Expiration			= Expiration,
-					Space				= Space,
-					Spacetime			= Spacetime,
-					ModerationReward	= ModerationReward,
+					Expiration				= Expiration,
+					Space					= Space,
+					Spacetime				= Spacetime,
+					ModerationReward		= ModerationReward,
 
-					Products			= Products,
-					Sites				= Sites,
+					Products				= Products,
+					Sites					= Sites,
 					References				= References,
-					Files				= Files,
+					Files					= Files,
 				};
 
-		((IEnergyHolder)this).Clone(a);
+		((IEnergyHolder)this).Copy(a);
 
 		return a;
 	}
@@ -157,7 +163,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		
 		Products	= reader.ReadArray<AutoId>();
 		Sites		= reader.ReadArray<AutoId>();
-		References	= reader.ReadArray<AuthorReference>();
+		References	= reader.ReadArray<UriReference>();
 	}
 
 	public void Cleanup(Round lastInCommit)
@@ -170,6 +176,8 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Title);
 		writer.WriteUtf8(Description);
+		writer.WriteUtf8(VerifiedWebdomain);
+		writer.Write7BitEncodedInt(VerifiedWebdomainRank);
 		writer.Write(Owners);
 		writer.Write7BitEncodedInt64(ModerationReward);
 		writer.WriteNullable(Avatar);
@@ -185,19 +193,21 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public void Read(Reader reader)
 	{
-		Id					= reader.Read<AutoId>();
-		Name				= reader.ReadUtf8();
-		Title				= reader.ReadUtf8();
-		Description			= reader.ReadUtf8();
-		Owners				= reader.ReadArray<AutoId>();
-		ModerationReward	= reader.Read7BitEncodedInt64();
-		Avatar				= reader.ReadNullable<AutoId>();
+		Id						= reader.Read<AutoId>();
+		Name					= reader.ReadUtf8();
+		Title					= reader.ReadUtf8();
+		Description				= reader.ReadUtf8();
+		VerifiedWebdomain		= reader.ReadUtf8();
+		VerifiedWebdomainRank	= reader.Read7BitEncodedInt();
+		Owners					= reader.ReadArray<AutoId>();
+		ModerationReward		= reader.Read7BitEncodedInt64();
+		Avatar					= reader.ReadNullable<AutoId>();
 
-		Expiration			= reader.ReadInt16();
-		Space				= reader.Read7BitEncodedInt64();
-		Spacetime		 	= reader.Read7BitEncodedInt64();
+		Expiration				= reader.ReadInt16();
+		Space					= reader.Read7BitEncodedInt64();
+		Spacetime		 		= reader.Read7BitEncodedInt64();
 
-		Files				= reader.ReadArray<AutoId>();
+		Files					= reader.ReadArray<AutoId>();
 		
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
 	}

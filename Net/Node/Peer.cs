@@ -173,7 +173,7 @@ public abstract class Peer : IBinarySerializable
 	}
 
 #if DEBUG
-static readonly byte[] checker = [12,34,56,78];
+static readonly long checker = 0xFEDCBA987654321;
 #endif
 
 	protected void Write(PacketType type, int id, object packet)
@@ -214,13 +214,12 @@ static readonly byte[] checker = [12,34,56,78];
 		while(s < n);
 
 		ReadStream.Position = 0;
-		//ReadStream.SetLength(n);
 		var o = BinarySerializator.Deserialize<T>(new Reader(ReadStream, Peering.Constructor));
 
-		//var o = BinarySerializator.Deserialize<T>(new Reader(Reader.ReadBytes(l), Peering.Constructor));
+		///var o = BinarySerializator.Deserialize<T>(new Reader(Reader.ReadBytes(l), Peering.Constructor));
 
 		#if DEBUG
-		if(!Reader.ReadBytes(4).SequenceEqual(checker))
+		if(Reader.ReadInt64() != checker)
 			throw new IntegrityException();
 		#endif
 

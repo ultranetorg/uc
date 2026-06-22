@@ -76,7 +76,7 @@ public abstract class Cryptography
 	public static byte[] Hash(Action<BinaryWriter> write)
 	{
 		var s = new Blake2Stream();
-		var w = new BinaryWriter(s);
+		var w = new Writer(s);
 		
 		write(w);
 

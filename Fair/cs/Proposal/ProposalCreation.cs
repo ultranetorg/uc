@@ -118,7 +118,7 @@ public class ProposalCreation : FairOperation
  		if(!Options.All(i => i.Operation.ValidateProposal(execution, out Error)))
  			return;
  
-        var c = (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
+        var c = (FairOperationClass)execution.Mcv.Net.Constructor.TypeToCode(Options[0].Operation.GetType());
 
 		var p = s.Policies.First(i => i.OperationClass == c);
  		///if(p == null)
@@ -141,7 +141,7 @@ public class ProposalCreation : FairOperation
  			Error = AlreadyExists;
  			return;
  		}
-
+		
 		s = execution.Sites.Affect(s.Id);
 
 		if(As == Role.Publisher && p.Creators.HasFlag(Role.Publisher))
@@ -239,8 +239,7 @@ public class ProposalCreation : FairOperation
 			else if(As == Role.Publisher)
  			{
 				var a = execution.Authors.Affect(By);
-				var pb = s.Publishers.First(i => i.Author == By);
- 				execution.Allocate(a, pb, l, out Error);
+ 				execution.Allocate(s, a, l, out Error);
  			}
 			else if(As == Role.Candidate)
  			{
@@ -250,7 +249,7 @@ public class ProposalCreation : FairOperation
 		}
 
 		foreach(var i in s.Proposals.Select(i => execution.Proposals.Find(i)).Where(i => {
-																							var oc = (FairOperationClass)Fair.OCodes[i.Options[0].Operation.GetType()];
+																							var oc = (FairOperationClass)execution.Mcv.Net.Constructor.TypeToCode(i.Options[0].Operation.GetType());
 																							
 																							return	s.Policies.First(i => i.OperationClass == oc).Approval == ApprovalRequirement.PublishersMajority && 
 																									!Uccs.Fair.Site.Restrictions.First(i => i.OperationClass == oc).Flags.HasFlag(PolicyFlag.Infinite) && 

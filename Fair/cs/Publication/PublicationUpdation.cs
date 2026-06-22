@@ -38,6 +38,12 @@ public class PublicationUpdation : VotableOperation
 		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
 
+		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
+		{
+			error = NotApproved;
+			return false;
+		}
+
 		var r = execution.Products.Find(p.Product);
 
 		if(!r.Versions.Any(i => i.Id == Version))
@@ -92,11 +98,6 @@ public class PublicationUpdation : VotableOperation
 		if(title != null)
 			execution.PublicationTitles.Index(p.Site, p.Id, title.AsUtf8);
 
-		if(p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
-		{ 
-			var s = execution.Sites.Find(p.Site);
-
-			RewardForModeration(execution, a, s);
-		}
+		execution.RewardForModeration(Site, a, out Error);
 	}
 }

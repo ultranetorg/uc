@@ -68,12 +68,10 @@ public abstract class McvPeering : HomoPeering
 		VaultApi = vaultapi;
 
 		Constructor.Merge(node.Net.Constructor);
+		Constructor.Register(() => new Vote(Mcv));
 		Constructor.Register<PeerRequest> (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppc".Length));
 		Constructor.Register<Result>	  (Assembly.GetExecutingAssembly(), typeof(McvPpcClass), i => i.Remove(i.Length - "Ppr".Length));
 		Constructor.Register<CodeException>(Assembly.GetExecutingAssembly(), typeof(ExceptionClass), i => i.Remove(i.IndexOf("Exception")));
-
-		//Constructor.Register(() => new Transaction {});
-		Constructor.Register(() => new Vote(Mcv));
 
 		if(Mcv != null)
 		{
@@ -295,7 +293,7 @@ public abstract class McvPeering : HomoPeering
 		
 					var r = Mcv.CreateRound();
 					r.Confirmed = true;
-					r.ReadGraphState(new Reader(stamp.GraphState));
+					r.ReadGraphState(new Reader(stamp.GraphState, Constructor));
 		
 					var s = Call(peer, new StampPpc(), Flow);
 	
@@ -604,7 +602,7 @@ public abstract class McvPeering : HomoPeering
 								
 					var cs = new CountStream();
 					v.Signature = Net.Cryptography.ZeroSignature;
-					v.Write(new Writer(cs));
+					v.Write(new Writer(cs, Constructor));
 					v.RawPayload = null;
 					var l = cs.Length;
 
@@ -770,37 +768,17 @@ public abstract class McvPeering : HomoPeering
 			var res = new TransactionResult {Tag = t.Tag};
 			o[i++] = res;
 
-			if(CandidateTransactions.Any(j => j.User == t.User && j.Nonce == t.Nonce))
-			{	
-				res.Error = "Already accepted (by User/Nonce)";
-				continue;
-			}
+			lock(Mcv.Lock)
+				if(CandidateTransactions.Any(j => j.User == t.User && j.Nonce == t.Nonce))
+				{	
+					res.Error = "Already accepted (by User/Nonce)";
+					continue;
+				}
 
 			if(t.Operations.Any(o => !ValidateIncoming(o)))
 			{	
 				res.Error = "Invalid data";
 				continue;
-			}
-
-			Mcv.Examine(t);
-	
-			if(t.OverallError != null)
-			{	
-				res.Error = t.OverallError;
-				continue;
-			}
-
-			if(CandidateTransactions.Sum(i => i.Operations.Length) >= Node.Settings.PoolMaximum) /// limit reached
-			{
-				var min = CandidateTransactions.MinBy(i => t.Operations.First().User.EnergyRating); /// find the one with the lowest bandwidth balance
-
-				if(t.Operations.First().User.EnergyRating + t.Boost > min.Operations.First().User.EnergyRating) /// if the new one is better, replace with the old one
-					CandidateTransactions.Remove(min);
-				else
-				{	
-					res.Error = "Pool limit exceeded";
-					continue;
-				}
 			}
 
 			var s = new CountStream();
@@ -814,8 +792,32 @@ public abstract class McvPeering : HomoPeering
 				continue;
 			}
 
-			CandidateTransactions.Add(t);
-			t.Status = TransactionStatus.Accepted;
+			lock(Mcv.Lock)
+			{
+				Mcv.Examine(t);
+		
+				if(t.OverallError != null)
+				{	
+					res.Error = t.OverallError;
+					continue;
+				}
+	
+				if(CandidateTransactions.Sum(i => i.Operations.Length) >= Node.Settings.PoolMaximum) /// limit reached
+				{
+					var min = CandidateTransactions.MinBy(i => t.Operations.First().User.EnergyRating); /// find the one with the lowest bandwidth balance
+	
+					if(t.Operations.First().User.EnergyRating + t.Boost > min.Operations.First().User.EnergyRating) /// if the new one is better, replace with the old one
+						CandidateTransactions.Remove(min);
+					else
+					{	
+						res.Error = "Pool limit exceeded";
+						continue;
+					}
+				}
+	
+				CandidateTransactions.Add(t);
+				t.Status = TransactionStatus.Accepted;
+			}
 		}
 
 		MainWakeup.Set();

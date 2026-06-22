@@ -52,9 +52,9 @@ public class AuthorRenewal : FairOperation
 public class AuthorModerationReward : FairOperation
 {
 	public AutoId				AuthorId { get; set; }
-	public long					Amount { get; set; }
+	public long					Energy { get; set; }
 
-	public override string		Explanation => $"{AuthorId}, {Amount}";
+	public override string		Explanation => $"{AuthorId}, {Energy}";
 	
 	public AuthorModerationReward()
 	{
@@ -68,13 +68,13 @@ public class AuthorModerationReward : FairOperation
 	public override void Read(Reader reader)
 	{
 		AuthorId	= reader.Read<AutoId>();
-		Amount		= reader.Read7BitEncodedInt64();
+		Energy		= reader.Read7BitEncodedInt64();
 	}
 
 	public override void Write(Writer writer)
 	{
 		writer.Write(AuthorId);
-		writer.Write7BitEncodedInt64(Amount);
+		writer.Write7BitEncodedInt64(Energy);
 	}
 
 	public override void Execute(FairExecution execution)
@@ -84,8 +84,71 @@ public class AuthorModerationReward : FairOperation
 		
 		a = execution.Authors.Affect(AuthorId);
 
-		a.ModerationReward = Amount;
+		a.ModerationReward = Energy;
 
+		execution.PayOperationEnergy(a);
+	}
+}
+
+public class PublisherLimitsUpdation : FairOperation
+{
+	public AutoId				Author { get; set; }
+	public AutoId				Site { get; set; }
+	public long					EnergyLimit { get; set; }
+	public long					SpacetimeLimit { get; set; }
+
+	public override string		Explanation => $"{nameof(Author)}={Author}, {nameof(Site)}={Site}, {nameof(EnergyLimit)}={EnergyLimit}, {nameof(SpacetimeLimit)}={SpacetimeLimit}";
+	
+	public PublisherLimitsUpdation()
+	{
+	}
+	
+	public override bool IsValid(McvNet net)
+	{ 
+		return true;
+	}
+
+	public override void Read(Reader reader)
+	{
+		Author			= reader.Read<AutoId>();
+		Site			= reader.Read<AutoId>();
+		EnergyLimit		= reader.Read7BitEncodedInt64();
+		SpacetimeLimit	= reader.Read7BitEncodedInt64();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Author);
+		writer.Write(Site);
+		writer.Write7BitEncodedInt64(EnergyLimit);
+		writer.Write7BitEncodedInt64(SpacetimeLimit);
+	}
+
+	public override void Execute(FairExecution execution)
+	{
+		if(!CanAccessAuthor(execution, Author, out var a, out Error))
+			return;
+
+		if(!SiteExists(execution, Site, out var s, out Error))
+			return;
+		
+		s = execution.Sites.Affect(s.Id);
+
+		var i = Array.FindIndex(s.Publishers, i => i.Author == a.Id);
+
+		if(i == -1)
+		{
+			Error = NotFound;
+			return;
+		}
+
+		s.Publishers = [..s.Publishers];
+		var b = s.Publishers[i] = s.Publishers[i].Clone(); 
+
+		b.EnergyLimit = EnergyLimit;
+		b.SpacetimeLimit = SpacetimeLimit;
+
+		a = execution.Authors.Affect(a.Id);
 		execution.PayOperationEnergy(a);
 	}
 }

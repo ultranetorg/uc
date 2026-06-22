@@ -63,34 +63,42 @@ public class PublicationCreation : VotableOperation
 	{
 		var r = execution.Products.Affect(Product);
 		var p = execution.Publications.Create(Site);
+		var a = execution.Authors.Affect(r.Author);
 		
 		var v = r.Versions.Last();
 
 		p.Site				= Site.Id;
 		p.Product			= r.Id;
 		p.ProductVersion	= v.Id;
+		p.AuthorRank		= a.VerifiedWebdomainRank;
 
 		r.Versions		= [..r.Versions[..^1], new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs + 1}];
 		r.Publications	= [..r.Publications, p.Id];
 
 		Site.PublicationsCount++;
-
-		var a = execution.Authors.Affect(r.Author);
-		
+				
 		if(!Site.Publishers.Any(i => i.Author == r.Author))
 		{
-			Site.Publishers = [..Site.Publishers, new Publisher {Author = a.Id, EnergyLimit = Publisher.Unlimit, SpacetimeLimit = Publisher.Unlimit}];
+			Site.Publishers = [..Site.Publishers,	new Publisher
+													{
+														Author = a.Id, 
+														EnergyLimit = Publisher.Unlimit, 
+														SpacetimeLimit = Publisher.Unlimit
+													}];
 			a.Sites = [..a.Sites, Site.Id];
 		}
 
 		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
 
-		if(As == Role.Candidate)
+		if(As == Role.Candidate || As == Role.Publisher)
 		{ 
-			p.Flags = PublicationFlags.ApprovedByAuthor;
+			p.Flags = PublicationFlags.RequestedByAuthor | PublicationFlags.ApprovedByAuthor;
 			execution.Allocate(a, a, execution.Net.EntityLength);
+			execution.PayOperationEnergy(a);
 		}
 		else
+		{	
 			execution.Allocate(Site, Site, execution.Net.EntityLength);
+		}
 	}
 }

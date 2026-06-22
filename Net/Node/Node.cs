@@ -10,20 +10,23 @@ public delegate void NodeDelegate(Node node);
 public class Node : IProgram
 {
 	//public abstract long						Roles { get; }
-	public delegate void		Delegate(Node d);
+	public delegate void			Delegate(Node d);
 
-	public string				Name;
-	public Net					Net;
-	public string				Profile;
-	public Flow					Flow;
-	public VaultApiClient		VaultApi;
-	public Delegate				Stopped;
-	public string				ExeDirectory;
-	public NexusSettings		NexusSettings;
-
-	public RocksDb				Database;
-	readonly DbOptions			DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
-																	.SetCreateMissingColumnFamilies(true);
+	public string					Name;
+	public Net						Net;
+	public string					Profile;
+	public Flow						Flow;
+	public VaultApiClient			VaultApi;
+	public Delegate					Stopped;
+	public static string			ExeDirectory;
+	public NexusSettings			NexusSettings;
+	public RocksDb					Database;
+	readonly DbOptions				DatabaseOptions	 = new DbOptions()	.SetCreateIfMissing(true)
+																		.SetCreateMissingColumnFamilies(true);
+	static Node()
+	{
+		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+	}
 
 	public Node(Net net, string profile, NexusSettings nexussettings, Flow flow)
 	{
@@ -31,7 +34,6 @@ public class Node : IProgram
 		Net = net;
 		Profile = profile;
 		Flow = flow;
-		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		NexusSettings = nexussettings;
 
 		var cf = new ColumnFamilies();

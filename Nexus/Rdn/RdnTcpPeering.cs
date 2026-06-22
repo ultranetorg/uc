@@ -32,8 +32,9 @@ public class RdnTcpPeering : McvPeering
 
 	public override bool ValidateIncoming(Operation o)
 	{
-		if(o is DomainMigration m && !(Node as RdnNode).IsDnsValid(m))
-			return false;
+		/// TODO: remake as async
+		/// if(o is DomainMigration m && !Node.IsWebdomainOwner($"{m.Name}.{m.Tld}", ))
+		/// 	return false;
 
 		return true;
 	}

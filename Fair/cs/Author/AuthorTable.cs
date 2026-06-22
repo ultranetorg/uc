@@ -35,6 +35,29 @@ public class AuthorTable : Table<AutoId, Author>
 
 public class AuthorExecution : TableExecution<AutoId, Author>
 {
+	public static Dictionary<string, Dictionary<string, int>>	Webdomains = [];
+
+	public static int GetRank(FairExecution execution, string webdomain)
+	{
+		var h = Author.HashifyWebdomain(webdomain);
+
+		lock(Webdomains)
+		{	
+			if(!Webdomains.TryGetValue(h, out var a))
+			{	
+				a = Webdomains[h] = [];
+
+				foreach(var i in System.IO.File.ReadLines(Path.Join(execution.Mcv.Datapath, h)))
+				{	
+					var j = i.IndexOf(' ');
+					a.Add(i.Substring(0, j), int.Parse(i.AsSpan(j + 1)));
+				}
+			}
+
+			return a.TryGetValue(webdomain, out var r) ? r : -1;
+		}
+	}
+
 	public AuthorExecution(FairExecution execution) : base(execution.Mcv.Authors, execution)
 	{
 	}

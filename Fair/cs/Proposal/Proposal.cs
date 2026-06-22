@@ -60,7 +60,8 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public bool					Deleted { get; set; }
 	FairMcv						Mcv;
 		
-    public FairOperationClass	OptionClass => (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
+    //public FairOperationClass	OptionClass => (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
+    public FairOperationClass	OptionClass => (FairOperationClass)Mcv.Net.Constructor.Codes[Options[0].Operation.GetType()];
 
 	public Proposal()
 	{

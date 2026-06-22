@@ -6,7 +6,7 @@ namespace Uccs.Net;
 
 public class RawId : EntityId
 {
-	public byte[]		Bytes;
+	public byte[]		Bytes { get ; set; }
 	
 	public override int B
 	{

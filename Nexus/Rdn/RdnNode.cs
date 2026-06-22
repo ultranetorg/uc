@@ -21,8 +21,6 @@ public class RdnNode : McvNode
 	public new Rdn					Net => base.Net as Rdn;
 	public new RdnNodeSettings		Settings => base.Settings as RdnNodeSettings;
 
-	LookupClient					Dns = new LookupClient(new LookupClientOptions {Timeout = TimeSpan.FromSeconds(5)});
-
 	public ResourceHub				ResourceHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
@@ -52,7 +50,7 @@ public class RdnNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath ?? ExeDirectory, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], [Settings.Peering.Endpoint], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], [Settings.Peering.Endpoint], clock ?? new RealClock());
 
 			if(Settings.Mcv.Generators.Any())
 			{
@@ -60,25 +58,25 @@ public class RdnNode : McvNode
 			}
 
 			Mcv.Confirmed += r =>	{
-										foreach(var i in (r as RdnRound).OutwardTransactions.Where(i => !CurrentOutwards.Any(a => a.User == i.User && a.Id == i.Id) &&
-																										!Mcv.OutwardResults.Any(a => a.User == i.User && a.Id == i.Id)))
+										foreach(var t in r.OutwardTransactions.Where(i => !CurrentOutwards.Any(a => a.User == i.User && a.Id == i.Id) &&
+																						  !Mcv.OutwardResults.Any(a => a.User == i.User && a.Id == i.Id)))
 										{
 											Task.Run(() =>	{
-																if(i.Operation is DomainMigration am)
+																if(t.Operation is DomainMigration m)
 																{
-																	var approved = IsDnsValid(am);
+																	var approved = IsWebdomainOwner(m.Name + '.' + m.Tld, t.User);
 	
 																	lock(Mcv.Lock)
 																	{	
-																		Mcv.OutwardResults.Add(new OutwardResult {User = i.User, Id = i.Id, Approved = approved});
+																		Mcv.OutwardResults.Add(new OutwardResult {User = t.User, Id = t.Id, Approved = approved});
 
-																		CurrentOutwards.Remove(i);
+																		CurrentOutwards.Remove(t);
 																	}
 																}
-																else if(i.Operation is FriendAttachment sa)
+																else if(t.Operation is FriendAttachment sa)
 																{
 																	lock(Mcv.Lock)
-																		Mcv.OutwardResults.Add(new OutwardResult {User = i.User, Id = i.Id, Approved = Settings.ProposedFriendAttachments.Contains(sa.Name)});
+																		Mcv.OutwardResults.Add(new OutwardResult {User = t.User, Id = t.Id, Approved = Settings.ProposedFriendAttachments.Contains(sa.Name)});
 																}
 															});
 										}
@@ -135,54 +133,6 @@ public class RdnNode : McvNode
 		Mcv?.Stop();
 
 		base.Stop();
-	}
-
-//		protected override void CreateTables(ColumnFamilies columns)
-//		{
-//			base.CreateTables(columns);
-//
-//			columns.Add(new (ResourceHub.ReleaseFamilyName,	new ()));
-//			columns.Add(new (ResourceHub.ResourceFamilyName,new ()));
-//		}
-//
-	public bool IsDnsValid(DomainMigration migration)
-	{
-		if(NodeGlobals.ForceApproveOutwards)
-			return true;
-
-		try
-		{
-			var result = Dns.QueryAsync(migration.Name + '.' + migration.Tld, QueryType.TXT, QueryClass.IN, Flow.Cancellation);
-
-			var txt = result.Result.Answers.TxtRecords().FirstOrDefault(r => r.DomainName == migration.Name + '.' + migration.Tld + '.');
-
-			if(txt != null && txt.Text.Any(i => Operation.IsNameValid(i) && i == migration.Transaction.User))
-			{
-				return true;
-			}
-
-			//if(am.RankCheck)
-			//{
-			//	using(var m = new HttpRequestMessage(HttpMethod.Get, $"https://www.googleapis.com/customsearch/v1?key={Settings.GoogleApiKey}&cx={Settings.GoogleSearchEngineID}&q={am.Name}&start=10"))
-			//	{
-			//		var cr = Http.Send(m, Flow.Cancellation);
-			//
-			//		if(cr.StatusCode == HttpStatusCode.OK)
-			//		{
-			//			JsonElement j = JsonSerializer.Deserialize<dynamic>(cr.Content.ReadAsStringAsync().Result);
-			//
-			//			var domains = j.GetProperty("items").EnumerateArray().Select(i => new Uri(i.GetProperty("link").GetString()).Host.Split('.').TakeLast(2));
-			//
-			//			return domains.FirstOrDefault(i => i.First() == am.Name)?.Last() == am.Tld;
-			//		}
-			//	}
-			//}
-		}
-		catch(Exception)
-		{
-		}
-
-		return false;
 	}
 
 	public LocalRelease Download(Resource resource, Flow flow)

@@ -331,14 +331,9 @@ public class Product : IBinarySerializable, ITableEntry
 
 	public int					Length => Versions.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
-	public override string ToString()
-	{
-		return $"{Id}, Author={Author}, Versions={Versions.Length}";
-	}
-
-	public EntityId			Key => Id;
-	public bool				Deleted { get; set; }
-	FairMcv					Mcv;
+	public EntityId				Key => Id;
+	public bool					Deleted { get; set; }
+	FairMcv						Mcv;
 
 	public Product()
 	{
@@ -349,10 +344,10 @@ public class Product : IBinarySerializable, ITableEntry
 		Mcv = mcv;
 	}
 
-	//public byte[] Get(int version, ProductFieldName name)
-	//{
-	//	return Fields.First(i => i.Name == name).Value;
-	//}
+	public override string ToString()
+	{
+		return $"{Id}, Author={Author}, Versions={Versions.Length}";
+	}
 
 	public object Clone()
 	{
