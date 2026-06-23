@@ -26,7 +26,9 @@ public class Flow : IDisposable
 
 	public Flow(int timeout)
 	{
-		CancellationSource = Debugger.IsAttached ? new CancellationTokenSource() :  new CancellationTokenSource(timeout);
+		CancellationSource = /// TODO restore
+							///Debugger.IsAttached ? new CancellationTokenSource() :  
+							new CancellationTokenSource(timeout);
 		Cancellation = CancellationSource.Token;
 	}
 

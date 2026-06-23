@@ -50,7 +50,7 @@ public class Nexus : IProgram
 											Settings.IccpPeering, 
 											IccpLcpServer, 
 											() => IccpLcpServer.Locals.Select(i => i.Net).ToList(), 
-											() => RdnNode.Peering.Call(new MembersPpc(), flow).Members.SelectMany(i => i.GraphPpiEndpoints.Select(i => i.IP)).ToArray(), 
+											f => RdnNode.Peering.Call(new MembersPpc(), f).Members.SelectMany(i => i.GraphPpiEndpoints.Select(i => i.IP)).ToArray(), 
 											Flow);
 			IccpPeering.Run();
 		}

@@ -22,7 +22,7 @@ public partial class WalletsPage : Page
 		base.OnHandleCreated(e);
 
 		Wallets.SmallImageList = imageList1;
-		AccountsPanel.Enabled = false;
+		//AccountsPanel.Enabled = false;
 
 
 		Task.Run(() =>
@@ -82,7 +82,8 @@ public partial class WalletsPage : Page
 			ExportWallet.Enabled = true;
 			DeleteWallet.Enabled = true;
 
-			AccountsPanel.Enabled = !w.Locked;
+			//AccountsPanel.Enabled = !w.Locked;
+			Locked.Visible = w.Locked;
 
 			LoadAccounts(w);
 		}
@@ -93,7 +94,7 @@ public partial class WalletsPage : Page
 			DeleteWallet.Enabled = false;
 
 			Accounts.Items.Clear();
-			AccountsPanel.Enabled = false;
+			//AccountsPanel.Enabled = false;
 		}
 
 	}
@@ -119,16 +120,21 @@ public partial class WalletsPage : Page
 		DeleteAccount.Enabled = e.IsSelected;
 	}
 
-	private void CreateWallet_Click(object sender, EventArgs e)
+	public void CreateWallet_Click(object sender = null, EventArgs e = null)
 	{
 		try
 		{
 			var f = new CreateWalletForm();
 
+			if(sender == null)
+			{
+				f.WalletName = "YourFirstWallet";
+			}
+
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{
 				var acc = AccountKey.Create();
-				var w = Nexus.Vault.AddWallet(f.WalletName, new OrderedDictionary<AccountKey, string> {{acc, null}}, f.Password);
+				var w = Nexus.Vault.AddWallet(f.WalletName, new OrderedDictionary<AccountKey, string> {{acc, sender == null ? "YourFirstAccount" : null}}, f.Password);
 
 				LoadWallets();
 			}
@@ -294,6 +300,6 @@ public partial class WalletsPage : Page
 			return;
 		}
 
-		(Wallets.SelectedItems[e.Item].Tag as Wallet).Rename(e.Label);
+		(Wallets.Items[e.Item].Tag as Wallet).Rename(e.Label);
 	}
 }

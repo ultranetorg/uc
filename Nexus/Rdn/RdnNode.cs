@@ -25,6 +25,7 @@ public class RdnNode : McvNode
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
 	List<OutwardTransaction>		CurrentOutwards = [];
+	public string					DataPath;
 
 	public RdnNode(Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), profile, nexussettings, flow)
 	{
@@ -32,13 +33,14 @@ public class RdnNode : McvNode
 
 		if(settings == null && !File.Exists(Settings.Path))
 		{
-			Settings.DataPath	= System.IO.Path.Join(ExeDirectory, nameof(Rdn));;	
 			Settings.Peering	= new () {Endpoint = new (IPAddress.Any, Net.PpiPort)};
 			Settings.Api		= new () {LocalIP = nexussettings.Host};
 			Settings.Seed		= new ();
 
 			Settings.Save();
 		}
+
+		DataPath = Settings.DataPath ?? System.IO.Path.Join(ExeDirectory, nameof(Rdn));;	
 
 		if(Flow.Log != null)
 			new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
@@ -50,7 +52,7 @@ public class RdnNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], [Settings.Peering.Endpoint], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, DataPath, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], [Settings.Peering.Endpoint], clock ?? new RealClock());
 
 			if(Settings.Mcv.Generators.Any())
 			{

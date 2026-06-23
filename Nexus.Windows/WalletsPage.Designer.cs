@@ -48,6 +48,7 @@ partial class WalletsPage
 		Wallets = new ListView();
 		columnHeader4 = new ColumnHeader();
 		AccountsPanel = new Panel();
+		Locked = new Label();
 		ExportWallet = new Button();
 		AccountsPanel.SuspendLayout();
 		SuspendLayout();
@@ -219,6 +220,7 @@ partial class WalletsPage
 		// 
 		// AccountsPanel
 		// 
+		AccountsPanel.Controls.Add(Locked);
 		AccountsPanel.Controls.Add(Accounts);
 		AccountsPanel.Controls.Add(DeleteAccount);
 		AccountsPanel.Controls.Add(ImportAccount);
@@ -230,6 +232,16 @@ partial class WalletsPage
 		AccountsPanel.Name = "AccountsPanel";
 		AccountsPanel.Size = new Size(800, 328);
 		AccountsPanel.TabIndex = 17;
+		// 
+		// Locked
+		// 
+		Locked.BorderStyle = BorderStyle.FixedSingle;
+		Locked.Location = new Point(3, 49);
+		Locked.Name = "Locked";
+		Locked.Size = new Size(794, 276);
+		Locked.TabIndex = 18;
+		Locked.Text = "The Wallet is Locked";
+		Locked.TextAlign = ContentAlignment.MiddleCenter;
 		// 
 		// ExportWallet
 		// 
@@ -280,4 +292,5 @@ partial class WalletsPage
 	private ColumnHeader columnHeader4;
 	private Panel AccountsPanel;
 	private Button ExportWallet;
+	private Label Locked;
 }

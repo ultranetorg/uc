@@ -4,9 +4,8 @@ namespace Uccs.Vault;
 
 public class VaultSettings : SavableSettings
 {
-	//public IPAddress		Host { get; set; } = Net.Net.DefaultHost;
-	//public bool				Encrypt { get; set; }
 	public IpApiSettings	Api { get; set; }
+	public bool				CreateFirstAccountIfEmpty { get; set; } = true;
 
 	public VaultSettings() : base(NetXonTextValueSerializator.Default)
 	{

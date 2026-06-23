@@ -6,7 +6,11 @@ namespace Uccs.Nexus.Windows;
 public partial class CreateWalletForm : Form
 {
 	public string Password => password.Text;
-	public string WalletName => string.IsNullOrWhiteSpace(walletname.Text) ? null : walletname.Text;
+	public string WalletName
+	{ 
+		get => string.IsNullOrWhiteSpace(walletname.Text) ? null : walletname.Text; 
+		set => walletname.Text = value;
+	}
 	
 	public CreateWalletForm()
 	{

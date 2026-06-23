@@ -26,6 +26,11 @@ public partial class IamForm : Form
 	{
 		base.OnClosed(e);
 	}
+
+	public void CreateFirstWallet()
+	{
+		(WalletsAndAccounts.Tag as WalletsPage).CreateWallet_Click();
+	}
 	
 	private void radioButton_CheckedChanged(object sender, EventArgs e)
 	{

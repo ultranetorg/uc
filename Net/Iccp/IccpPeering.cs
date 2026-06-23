@@ -30,12 +30,12 @@ public class IccpPeering : TcpPeering<IccpPeer>
 	Func<List<string>>							GetNets;
 	public LcpServer							Lcp;
 	const int									SubnetPeerBunch = 16;
-	Func<IPAddress[]>							GetRoots;
+	Func<Flow, IPAddress[]>						GetRoots;
 	Endpoint[]									Roots;
 
 	protected override IccpPeer					CreatePeer() => new ();
 
-	public IccpPeering(IProgram program, string name, PeeringSettings settings, LcpServer lcp, Func<List<string>> nets, Func<IPAddress[]> getroots, Flow flow) : base(program, name, settings, flow)
+	public IccpPeering(IProgram program, string name, PeeringSettings settings, LcpServer lcp, Func<List<string>> nets, Func<Flow, IPAddress[]> getroots, Flow flow) : base(program, name, settings, flow)
 	{
 		Lcp = lcp;
 		GetNets = nets;
@@ -239,9 +239,11 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 				if(p == null) /// get a new ones from Mcv
 				{
+					to = Snq.ToCanonical(to);
+
 					if(to == Iccn.Root)
 					{
-						Roots ??= GetRoots().Select(i => new Endpoint(i, Settings.Endpoint.Port)).ToArray();
+						Roots ??= GetRoots(flow).Select(i => new Endpoint(i, Settings.Endpoint.Port)).ToArray();
 
 						var x = Roots.Where(i => !tried.Contains(i)).RandomOrDefault();
 
@@ -255,9 +257,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 					} 
 					else
 					{
-						string x = Snq.ToCanonical(to);
-
-						var nets = x.Split('.');
+						var nets = to.Split('.');
 						int d = nets.Length;
 
 						string take(int depth) => string.Join('.', nets[^depth..]);

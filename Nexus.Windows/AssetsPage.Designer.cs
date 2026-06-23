@@ -104,12 +104,13 @@ partial class AssetsPage
 		Entity.Name = "Entity";
 		Entity.Size = new Size(309, 23);
 		Entity.TabIndex = 10;
+		Entity.KeyDown += Accounts_KeyDown;
 		// 
 		// Start
 		// 
-		Start.Location = new Point(648, 46);
+		Start.Location = new Point(648, 48);
 		Start.Name = "Start";
-		Start.Size = new Size(149, 32);
+		Start.Size = new Size(149, 28);
 		Start.TabIndex = 9;
 		Start.Text = "Search";
 		Start.UseVisualStyleBackColor = true;
@@ -123,6 +124,7 @@ partial class AssetsPage
 		Nets.Name = "Nets";
 		Nets.Size = new Size(163, 23);
 		Nets.TabIndex = 11;
+		Nets.KeyDown += Accounts_KeyDown;
 		// 
 		// label4
 		// 
@@ -137,9 +139,10 @@ partial class AssetsPage
 		// Message
 		// 
 		Message.BackColor = SystemColors.Window;
-		Message.Location = new Point(111, 314);
+		Message.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+		Message.Location = new Point(20, 314);
 		Message.Name = "Message";
-		Message.Size = new Size(578, 71);
+		Message.Size = new Size(749, 71);
 		Message.TabIndex = 15;
 		Message.Text = "label1";
 		Message.TextAlign = ContentAlignment.MiddleCenter;

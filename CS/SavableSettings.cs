@@ -157,7 +157,6 @@ public class SavableSettings : Settings
 																			if(value != null)
 																			{
 																				var x = parent.Add(name);
-																				///var v = fi.GetValue(owner);
 
 																				foreach(var f in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 																				{
@@ -173,26 +172,29 @@ public class SavableSettings : Settings
 																					parent.Add(name);
 																				}
 																			}
-																			else if(type == typeof(byte[]))	
-																			{ 
-																				parent.Add(name).Value = value;
-																			}
-																			else if(type.IsArray && value != null)
+																			else if(value != null)
 																			{
-																				foreach(var i in value as IEnumerable)
-																				{
-																					save(parent, name.Trim('s'), type.GetElementType(), i);
+																				if(type == typeof(byte[]))	
+																				{ 
+																					parent.Add(name).Value = value;
 																				}
-																			}
-																			else if(value is IList l)
-																			{
-																				foreach(var i in l)
+																				else if(type.IsArray && value != null)
 																				{
-																					save(parent, name.Trim('s'), type.GetGenericArguments()[0], i);
+																					foreach(var i in value as IEnumerable)
+																					{
+																						save(parent, name.Trim('s'), type.GetElementType(), i);
+																					}
 																				}
+																				else if(value is IList l)
+																				{
+																					foreach(var i in l)
+																					{
+																						save(parent, name.Trim('s'), type.GetGenericArguments()[0], i);
+																					}
+																				}
+																				else
+																					parent.Add(name).Value = value;
 																			}
-																			else
-																				parent.Add(name).Value = value;
 																	}
 
 		foreach(var i in GetType().GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))

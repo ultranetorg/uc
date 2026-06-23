@@ -105,6 +105,13 @@ public class Program: ApplicationContext
 				RegisterProtocol();
 
 			Nexus.RunRdn(null, new RealClock());
+
+			if(Nexus.Vault.Settings.CreateFirstAccountIfEmpty && !Nexus.Vault.Wallets.Any())
+			{
+				var f = new IamForm(Nexus);
+				f.CreateFirstWallet();
+				f.Show();
+			}
 		}
 
 		public static void InitializeAuthUI(Nexus nexus)
