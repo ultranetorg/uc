@@ -2,12 +2,12 @@ import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
 import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
-import { useParams, useSiteTitle } from "hooks"
+import { useResolveSiteId, useSiteTitle } from "hooks"
 import { BigCategoriesGrid } from "ui/components/site"
 import { CategoriesPublicationsList, ModeratorSiteMenu } from "ui/components/specific"
 
 export const SitePage = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("site")
   const { isPending, site } = useSiteContext()
 

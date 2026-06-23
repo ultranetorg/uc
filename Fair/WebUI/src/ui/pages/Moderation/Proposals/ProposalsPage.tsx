@@ -6,7 +6,7 @@ import { isNumber, startCase } from "lodash"
 import { useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorDiscussions } from "entities"
-import { useParams, useSiteTitle, useUrlParamsState } from "hooks"
+import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
 import { parseInteger, routes } from "utils"
@@ -14,7 +14,7 @@ import { parseInteger, routes } from "utils"
 export const ProposalsPage = () => {
   const { t } = useTranslation("proposalsPage")
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
 
   useSiteTitle(site?.title, "Proposals")

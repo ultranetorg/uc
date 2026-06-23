@@ -5,7 +5,7 @@ import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetSiteUsers } from "entities"
-import { useParams, useUrlParamsState } from "hooks"
+import { useResolveSiteId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger, routes } from "utils"
 
@@ -13,7 +13,7 @@ import { usersTabItemRenderer } from "./usersTabItemRenderer"
 
 export const UsersTab = () => {
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("usersTab")
 
   const [state, setState] = useUrlParamsState({

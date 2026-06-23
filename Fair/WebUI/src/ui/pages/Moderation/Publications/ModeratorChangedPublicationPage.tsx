@@ -6,7 +6,7 @@ import { useOperationPolicy, useSiteContext, useSiteRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useParams, useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
@@ -14,7 +14,8 @@ import { routes, showToast } from "utils"
 
 export const ModeratorChangedPublicationPage = () => {
   const navigate = useNavigate()
-  const { siteId, publicationId } = useParams()
+  const { publicationId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation()
 
   const { voterId } = useOperationPolicy("publication-updation")

@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useOperationPolicy, useSiteContext, useSitePoliciesContext, useSiteRolesContext } from "app"
-import { useParams, useSiteTitle } from "hooks"
+import { useResolveSiteId, useSiteTitle } from "hooks"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
@@ -16,7 +16,7 @@ import { isVotingRequired, routes, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("createPublication")
 
   const { voterId } = useOperationPolicy("publication-creation")

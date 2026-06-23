@@ -2,6 +2,8 @@
 
 public class PublicationDetailsModel : ProductDetailsModel
 {
+	public string SiteId { get; init; }
+
 	// NOTE: Fields can be null for unpublished publication. Unpublished publication have no category.
 	public string? CategoryId { get; init; }
 	public string? CategoryTitle { get; init; }

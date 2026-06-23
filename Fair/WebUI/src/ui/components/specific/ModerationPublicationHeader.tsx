@@ -1,7 +1,7 @@
 import { memo, ReactNode } from "react"
 
 import { SvgSoftwareLogo } from "assets/fallback"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { ImageFallback, LinkFullscreen } from "ui/components"
 import { buildFileUrl, routes } from "utils"
 
@@ -15,7 +15,7 @@ export type ModerationPublicationHeaderProps = {
 
 export const ModerationPublicationHeader = memo(
   ({ title, logoId, authorId, authorTitle, components }: ModerationPublicationHeaderProps) => {
-    const { siteId } = useParams()
+    const siteId = useResolveSiteId()
 
     return (
       <div className="flex min-w-0 items-center justify-between gap-4">

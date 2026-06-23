@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
 import { useGetAuthor } from "entities"
-import { useEscapeKey, useParams, useSiteTitle } from "hooks"
+import { useEscapeKey, useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { AuthorPublicationsView } from "ui/views"
 import { routes } from "utils"
@@ -13,7 +13,8 @@ export type PublisherPageProps = {
 }
 
 export const PublisherPage = memo(({ isFromModeration = true }: PublisherPageProps) => {
-  const { siteId, publisherId } = useParams()
+  const { publisherId } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { t } = useTranslation()
 

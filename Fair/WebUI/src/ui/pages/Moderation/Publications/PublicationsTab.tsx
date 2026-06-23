@@ -5,7 +5,7 @@ import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublicationProposals } from "entities"
-import { useParams, useUrlParamsState } from "hooks"
+import { useResolveSiteId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getPublicationsItemRenderer } from "ui/renderers"
 import { parseInteger, routes } from "utils"
@@ -13,7 +13,7 @@ import { parseInteger, routes } from "utils"
 export const PublicationsTab = () => {
   const { t } = useTranslation("tabPublications")
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
 
   const [state, setState] = useUrlParamsState({
     page: {

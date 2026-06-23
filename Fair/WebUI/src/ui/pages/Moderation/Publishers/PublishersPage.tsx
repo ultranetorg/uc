@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useSiteContext } from "app"
-import { useParams, useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
@@ -18,7 +18,8 @@ const routeToTabKey: Record<string, string> = {
 
 export const PublishersPage = () => {
   const navigate = useNavigate()
-  const { siteId, tabKey } = useParams()
+  const { tabKey } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { t } = useTranslation("publishersPage")
 

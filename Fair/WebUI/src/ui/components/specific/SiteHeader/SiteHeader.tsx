@@ -6,7 +6,7 @@ import { useDebounceValue } from "usehooks-ts"
 import { useSiteContext, useSearchQueryContext, useSiteRolesContext, useUserContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 import { routes } from "utils"
 
@@ -19,7 +19,7 @@ import { toSimpleMenuItems } from "./utils"
 import { PublisherMembersDropdownButton } from "./PublisherMembersDropdownButton"
 
 export const SiteHeader = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:siteId/s")
   const { site, rootCategories } = useSiteContext()

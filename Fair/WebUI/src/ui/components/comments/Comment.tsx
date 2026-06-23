@@ -3,7 +3,7 @@ import { ComponentType, memo } from "react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import avatarFallback from "assets/fallback/user-10.png"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { AccountBaseAvatar } from "types"
 import { ImageFallback, RatingBar } from "ui/components"
 import { buildUserAvatarUrl, formatDate, routes } from "utils"
@@ -34,7 +34,7 @@ export type CommentProps = {
 
 export const Comment = memo(
   ({ style = "default", account, id, created, rating, text, publication, contextMenu: ContextMenu }: CommentProps) => {
-    const { siteId } = useParams()
+    const siteId = useResolveSiteId()
     const { t } = useTranslation()
 
     const displayName = account.nickname ?? account.id

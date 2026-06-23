@@ -38,6 +38,7 @@ public class PublicationsService
 			return new PublicationDetailsModel
 			{
 				Id = publication.Id.ToString(),
+				SiteId = publication.Site.ToString(),
 				Type = product.Type,
 				Title = PublicationUtils.GetTitle(publication, product),
 				LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),

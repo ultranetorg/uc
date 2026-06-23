@@ -4,13 +4,14 @@ import { useLocation } from "react-router-dom"
 import { truncate } from "lodash"
 
 import { categoriesKeys } from "entities"
-import { useParams } from "hooks"
+import { useParams, useResolveSiteId } from "hooks"
 import { routes } from "utils"
 
 export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle: string) => {
   const location = useLocation()
   const { t } = useTranslation("moderatorCategoryMenu")
-  const { siteId, categoryId: paramCategoryId } = useParams()
+  const { categoryId: paramCategoryId } = useParams()
+  const siteId = useResolveSiteId()
 
   const menuItems = useMemo(
     () => [

@@ -3,7 +3,7 @@ import { memo, useCallback, useState } from "react"
 import { useOperationPolicy } from "app"
 import { SvgCheckCircleFill3XLColored, SvgX } from "assets"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useEscapeKey, useParams } from "hooks"
+import { useEscapeKey, useResolveSiteId } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption } from "types"
 import { ButtonOutline, ButtonPrimary, Modal, ModalProps, Textarea } from "ui/components"
 import { showToast } from "utils"
@@ -45,7 +45,7 @@ export const ReviewModal = memo(
   }: ReviewModalProps) => {
     const isEditMode = !!reviewId
     const { creator } = useOperationPolicy(isEditMode ? "review-edit" : "review-creation")
-    const { siteId } = useParams()
+    const siteId = useResolveSiteId()
     const { mutate } = useTransactMutationWithStatus()
 
     const [step, setStep] = useState(0)

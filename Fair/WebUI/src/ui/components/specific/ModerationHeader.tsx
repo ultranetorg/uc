@@ -2,7 +2,7 @@ import { memo, ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { routes } from "utils"
 
@@ -15,7 +15,7 @@ export type ModerationHeaderProps = {
 
 export const ModerationHeader = memo(
   ({ title, breadcrumbTitle, parentBreadcrumbs, components }: ModerationHeaderProps) => {
-    const { siteId } = useParams()
+    const siteId = useResolveSiteId()
     const { site } = useSiteContext()
     const { t } = useTranslation()
 

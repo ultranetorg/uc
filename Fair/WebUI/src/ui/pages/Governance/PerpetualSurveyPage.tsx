@@ -7,7 +7,7 @@ import { useSignInContext, useSiteContext, useSiteRolesContext } from "app"
 import { sitesKeys, useGetPerpetualSurveyDetails } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { OperationType, PerpetualVoting, SiteApprovalPolicyChange } from "types"
-import { useParams, useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 import { routes, showToast } from "utils"
@@ -16,8 +16,9 @@ export type PageState = "voting" | "results"
 
 export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurveyPage")
-  const { siteId, perpetualSurveyId } = useParams()
+  const { perpetualSurveyId } = useParams()
   const queryClient = useQueryClient()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
 
   const { startSignIn } = useSignInContext()

@@ -6,13 +6,13 @@ import { isNumber, startCase } from "lodash"
 import { useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthorReferendums } from "entities"
-import { useParams, useSiteTitle, useUrlParamsState } from "hooks"
+import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
 import { parseInteger, routes } from "utils"
 
 export const ReferendumsPage = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const navigate = useNavigate()
   const { t } = useTranslation("referendumsPage")
   const { site } = useSiteContext()

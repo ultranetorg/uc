@@ -7,7 +7,7 @@ import { useOperationPolicy, useSignInContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import { categoriesKeys, proposalsKeys, publicationsKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
@@ -43,7 +43,7 @@ export type ProposalViewProps = {
 }
 
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
   const navigate = useNavigate()
   const queryClient = useQueryClient()

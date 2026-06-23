@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react"
 import { Link, LinkProps, To, useLocation } from "react-router-dom"
 
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { PropsWithClassName } from "types"
 
 export type LinkFullscreenState = {
@@ -22,7 +22,7 @@ export type LinkFullscreenProps = PropsWithChildren &
 
 export const LinkFullscreen = ({ children, className, title, location, to, params }: LinkFullscreenProps) => {
   const currentLocation = useLocation()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
 
   return (
     <Link

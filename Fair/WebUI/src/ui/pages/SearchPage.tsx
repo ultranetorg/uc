@@ -6,13 +6,13 @@ import { isNumber } from "lodash"
 import { useSearchQueryContext, useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE } from "config"
 import { useSearchPublications } from "entities"
-import { useParams, useSiteTitle, useUrlParamsState } from "hooks"
+import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
 import { Pagination } from "ui/components"
 import { PublicationsList, SearchPageHeader } from "ui/components/specific"
 import { parseInteger, routes } from "utils"
 
 export const SearchPage = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("search")
 
   const [state, setState] = useUrlParamsState({

@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { BaseVotableOperation, OperationCreator, ProposalCreation, ProposalOption } from "types"
 
 export const useCreateProposal = (
@@ -11,7 +11,7 @@ export const useCreateProposal = (
   onError: (err: Error) => void,
   onSettled?: () => void,
 ) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const execute = useCallback(() => {

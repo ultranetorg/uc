@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { memo } from "react"
 
 import { SvgSoftwareLogo } from "assets/fallback"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { ButtonOutline, ImageFallback } from "ui/components"
 import { buildFileUrl, routes } from "utils"
 
@@ -29,7 +29,7 @@ export const PublicationTableRow = memo(
     categoryTitle,
     onPublicationStoresClick,
   }: PublicationTableRowProps) => {
-    const { siteId } = useParams()
+    const siteId = useResolveSiteId()
     const { t } = useTranslation("profile")
 
     return (

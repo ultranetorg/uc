@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 
 import { useAuthenticationContext, useSignInContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
-import { useParams, useScrollOrResize, useSubmenu } from "hooks"
+import { useResolveSiteId, useScrollOrResize, useSubmenu } from "hooks"
 import { routes } from "utils"
 
 import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
@@ -16,7 +16,7 @@ const STICKY_CLASSNAME = "sticky bottom-2 z-20"
 
 export const CurrentAccount = () => {
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("currentAccount")
 
   const profileMenu = useSubmenu({ placement: "top-start" })

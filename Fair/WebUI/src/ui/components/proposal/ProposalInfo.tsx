@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { PropsWithClassName, User } from "types"
 import { renderUser } from "ui/renderers2"
 import { formatDate, formatLastsFor, routes } from "utils"
@@ -15,7 +15,7 @@ type ProposalInfoBaseProps = {
 export type ProposalInfoProps = ProposalInfoBaseProps & PropsWithClassName
 
 export const ProposalInfo = ({ className, createdBy, createdAt }: ProposalInfoProps) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation()
 
   return (

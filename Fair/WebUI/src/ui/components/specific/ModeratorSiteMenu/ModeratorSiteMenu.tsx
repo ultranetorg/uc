@@ -7,7 +7,7 @@ import { twMerge } from "tailwind-merge"
 import { useSiteRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { categoriesKeys } from "entities"
-import { useParams, useScrollOrResize, useSubmenu } from "hooks"
+import { useResolveSiteId, useScrollOrResize, useSubmenu } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
 import { routes } from "utils"
@@ -15,7 +15,7 @@ import { routes } from "utils"
 export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
   const location = useLocation()
   const { isModerator } = useSiteRolesContext()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation()
 
   const menu = useSubmenu({ placement: "bottom-end" })

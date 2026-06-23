@@ -7,14 +7,14 @@ import { useOperationPolicy } from "app"
 import { SvgSearchMd, SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
 import { useGetSitePublishers } from "entities"
-import { useParams, useUrlParamsState } from "hooks"
+import { useResolveSiteId, useUrlParamsState } from "hooks"
 import { Input, Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger } from "utils"
 
 import { getPublishersTabItemRenderer } from "./publishersTabItemRenderer"
 
 export const PublishersTab = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { voterId } = useOperationPolicy("site-authors-removal")
   const { t } = useTranslation("publishersPage")
 

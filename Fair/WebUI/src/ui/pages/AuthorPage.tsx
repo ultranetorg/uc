@@ -3,14 +3,15 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 
 import { SvgProfilePageClose } from "assets"
 import { useGetAuthor } from "entities"
-import { useEscapeKey, useParams, useSiteTitle } from "hooks"
+import { useEscapeKey, useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { AuthorPublicationsView } from "ui/views"
 import { routes } from "utils"
 
 export const AuthorPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { siteId, authorId } = useParams()
+  const { authorId } = useParams()
+  const siteId = useResolveSiteId()
 
   const [isModalOpen, setModalOpen] = useState(false)
 

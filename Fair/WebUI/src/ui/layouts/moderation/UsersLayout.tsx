@@ -6,14 +6,15 @@ import { capitalize } from "lodash"
 
 import { SEARCH_DELAY } from "config"
 import { useSearchSiteUsers } from "entities"
-import { useParams } from "hooks"
+import { useParams, useResolveSiteId } from "hooks"
 import { DropdownSearchAccountsItem, DropdownSearchAccount } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
 
 export const UsersLayout = memo(({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
-  const { siteId, tabKey, userId } = useParams()
+  const { tabKey, userId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("usersPage")
 
   const [query, setQuery] = useState("")

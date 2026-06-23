@@ -8,7 +8,7 @@ import { twMerge } from "tailwind-merge"
 import { useSiteContext, useSitePoliciesContext, useSiteRolesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { CreateProposalData, ProposalCreation, ProposalType, Role } from "types"
 import {
   BreadcrumbsItemProps,
@@ -36,7 +36,7 @@ export type CreateProposalViewProps = {
 export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProps) => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const queryClient = useQueryClient()
   const { t } = useTranslation("createProposal")
 

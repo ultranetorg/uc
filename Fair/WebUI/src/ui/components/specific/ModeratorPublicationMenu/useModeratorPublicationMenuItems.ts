@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
 import { unpublishedPublicationsKeys } from "entities"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { routes } from "utils"
 
 export const useModeratorPublicationMenuItems = (
@@ -11,7 +11,7 @@ export const useModeratorPublicationMenuItems = (
   publicationTitle?: string,
   isFromContextMenu: boolean = false,
 ) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("moderatorPublicationMenu")
 
   const menuItems = useMemo(

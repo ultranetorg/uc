@@ -6,14 +6,15 @@ import { truncate } from "lodash"
 import { useOperationPolicy, useSiteContext } from "app"
 import { SvgEyeSm } from "assets"
 import { unpublishedPublicationsKeys, useGetUnpublishedPublication } from "entities"
-import { useParams, useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { OperationClass } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { routes } from "utils"
 
 export const UnpublishedPublicationPage = () => {
-  const { siteId, publicationId } = useParams()
+  const { publicationId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("unpublishedPublicationPage")
 
   const { voterId } = useOperationPolicy("publication-updation")

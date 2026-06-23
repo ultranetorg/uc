@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 import { TFunction } from "i18next"
 
 import { useOperationPolicy, useSiteRolesContext, useUserContext } from "app"
-import { useCreateProposal, useParams } from "hooks"
+import { useCreateProposal, useResolveSiteId } from "hooks"
 import { routes, showToast } from "utils"
 
 import { MENU_ITEM_STYLE } from "./styles"
@@ -16,7 +16,7 @@ export type UserProfileButtonProps = {
 export const UserProfileButton = memo(({ t }: UserProfileButtonProps) => {
   const { creator } = useOperationPolicy("user-registration")
   const { isJoined } = useSiteRolesContext()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { user } = useUserContext()
 
   const { execute, isExecuting } = useCreateProposal(

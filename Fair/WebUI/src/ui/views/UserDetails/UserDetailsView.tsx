@@ -2,7 +2,7 @@ import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import avatarFallback from "assets/fallback/user-30.png"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback } from "ui/components"
 import { ModeratorUserMenu } from "ui/components/specific"
@@ -21,7 +21,7 @@ export type UserDetailsViewProps = {
 }
 
 export const UserDetailsView = memo(({ user, reviews, isPublisher, isModerator }: UserDetailsViewProps) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("userDetailsView")
 
   if (!user || !reviews) return <>LOADING</>

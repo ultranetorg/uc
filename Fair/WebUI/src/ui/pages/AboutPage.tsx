@@ -1,13 +1,13 @@
 import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
-import { useParams, useSiteTitle } from "hooks"
+import { useResolveSiteId, useSiteTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { AboutInfo } from "ui/components/specific"
 import { routes } from "utils"
 
 export const AboutPage = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("about")
   const { site } = useSiteContext()
 

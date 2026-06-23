@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
 import { sitesKeys } from "entities"
-import { useParams } from "hooks"
+import { useResolveSiteId } from "hooks"
 import { routes } from "utils"
 
 export const useModeratorUserMenuItems = (userId: string, userName?: string) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("moderatorUserMenu")
 
   const menuItems = useMemo(
