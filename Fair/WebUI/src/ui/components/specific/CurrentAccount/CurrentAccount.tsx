@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import { useAuthenticationContext, useSignInContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
-import { useScrollOrResize, useSubmenu } from "hooks"
+import { useParams, useScrollOrResize, useSubmenu } from "hooks"
 import { routes } from "utils"
 
 import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"

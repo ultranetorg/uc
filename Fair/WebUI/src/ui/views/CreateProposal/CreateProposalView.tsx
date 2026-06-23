@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react"
-import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
+import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 import { useQueryClient } from "@tanstack/react-query"
@@ -8,6 +8,7 @@ import { twMerge } from "tailwind-merge"
 import { useSiteContext, useSitePoliciesContext, useSiteRolesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
+import { useParams } from "hooks"
 import { CreateProposalData, ProposalCreation, ProposalType, Role } from "types"
 import {
   BreadcrumbsItemProps,

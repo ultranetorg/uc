@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 import { useOperationPolicy, useSiteContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useParams, useSiteTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 

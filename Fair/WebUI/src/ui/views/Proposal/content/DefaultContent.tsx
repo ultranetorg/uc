@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react"
-import { useParams } from "react-router-dom"
 
 import { useOperationPolicy } from "app"
+import { useParams } from "hooks"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 
 import { ProposalViewContentProps } from "./types"

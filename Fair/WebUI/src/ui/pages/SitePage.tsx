@@ -1,9 +1,8 @@
-import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
 import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
-import { useSiteTitle } from "hooks"
+import { useParams, useSiteTitle } from "hooks"
 import { BigCategoriesGrid } from "ui/components/site"
 import { CategoriesPublicationsList, ModeratorSiteMenu } from "ui/components/specific"
 

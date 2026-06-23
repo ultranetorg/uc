@@ -1,12 +1,12 @@
 import { useCallback, useMemo, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { useSiteContext, useSitePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublisherProposals } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useParams, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
 

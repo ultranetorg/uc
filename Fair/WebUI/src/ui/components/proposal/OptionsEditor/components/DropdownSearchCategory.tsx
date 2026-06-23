@@ -1,8 +1,7 @@
 import { useEffect, useMemo } from "react"
 
-import { useParams } from "react-router-dom"
-
 import { useGetCategoriesTree } from "entities"
+import { useParams } from "hooks"
 import { Dropdown, DropdownProps } from "ui/components"
 import { buildCategoryTree } from "utils"
 

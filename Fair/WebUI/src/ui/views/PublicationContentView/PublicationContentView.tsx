@@ -1,6 +1,6 @@
-import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
+import { useParams } from "hooks"
 import { ProductDetails, PublicationDetails } from "types"
 
 import { ContentProps } from "./types"

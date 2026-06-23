@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next"
-import { Link, useParams } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
+import { useParams } from "hooks"
 import { PropsWithClassName, User } from "types"
 import { renderUser } from "ui/renderers2"
 import { formatDate, formatLastsFor, routes } from "utils"

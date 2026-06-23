@@ -1,9 +1,10 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useLocation, useParams } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { truncate } from "lodash"
 
 import { categoriesKeys } from "entities"
+import { useParams } from "hooks"
 import { routes } from "utils"
 
 export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle: string) => {

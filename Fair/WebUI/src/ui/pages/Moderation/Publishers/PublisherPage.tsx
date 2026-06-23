@@ -1,12 +1,11 @@
 import { memo, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
 import { useGetAuthor } from "entities"
+import { useEscapeKey, useParams, useSiteTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { AuthorPublicationsView } from "ui/views"
-import { useEscapeKey, useSiteTitle } from "hooks"
 import { routes } from "utils"
 
 export type PublisherPageProps = {

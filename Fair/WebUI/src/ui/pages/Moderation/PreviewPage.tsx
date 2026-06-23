@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next"
-import { Link, Navigate, useLocation, useParams } from "react-router-dom"
+import { Link, Navigate, useLocation } from "react-router-dom"
 
 import { useSiteContext } from "app"
 import { SvgXSm } from "assets"
 import { useGetProductDetails, useGetPublicationDetails } from "entities"
-import { useSiteTitle } from "hooks"
+import { useParams, useSiteTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonPrimary } from "ui/components"
 import { PublicationHeader } from "ui/components/publication"
 import { PublicationContentView } from "ui/views"

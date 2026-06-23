@@ -1,11 +1,12 @@
 import { KeyboardEvent, useCallback, useMemo, useState } from "react"
-import { useMatch, useNavigate, useParams } from "react-router-dom"
+import { useMatch, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useSiteContext, useSearchQueryContext, useSiteRolesContext, useUserContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
+import { useParams } from "hooks"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 import { routes } from "utils"
 

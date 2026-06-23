@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 import { isNumber } from "lodash"
 
@@ -8,7 +7,7 @@ import { useOperationPolicy } from "app"
 import { SvgSearchMd, SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
 import { useGetSitePublishers } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useParams, useUrlParamsState } from "hooks"
 import { Input, Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger } from "utils"
 

@@ -1,9 +1,9 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 import { truncate } from "lodash"
 
 import { unpublishedPublicationsKeys } from "entities"
+import { useParams } from "hooks"
 import { routes } from "utils"
 
 export const useModeratorPublicationMenuItems = (

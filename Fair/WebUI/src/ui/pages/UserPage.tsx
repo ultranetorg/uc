@@ -1,11 +1,10 @@
 import { memo } from "react"
-import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { useSiteRolesContext } from "app"
 import { useGetUserAuthors, useGetUserReviews } from "entities"
-import { useSiteTitle, useUrlParamsState } from "hooks"
+import { useParams, useSiteTitle, useUrlParamsState } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { UserDetailsView } from "ui/views"
 import { parseInteger, routes } from "utils"

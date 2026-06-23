@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react"
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 
 import { SvgProfilePageClose } from "assets"
 import { useGetAuthor } from "entities"
-import { useEscapeKey, useSiteTitle } from "hooks"
+import { useEscapeKey, useParams, useSiteTitle } from "hooks"
 import { AuthorPublicationsView } from "ui/views"
 import { routes } from "utils"
 

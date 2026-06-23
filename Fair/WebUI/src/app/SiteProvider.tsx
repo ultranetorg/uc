@@ -1,7 +1,8 @@
 import { createContext, memo, PropsWithChildren, useContext, useMemo } from "react"
-import { useLocation, useParams } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 
 import { useGetCategoriesRoot, useGetCategoriesTree, useGetSite } from "entities"
+import { useParams } from "hooks"
 import { CategoryBase, CategoryParentBaseWithChildren, Site } from "types"
 import { buildCategoryTree } from "utils"
 

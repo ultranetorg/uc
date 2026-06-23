@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useOperationPolicy, useSiteContext, useSitePoliciesContext, useSiteRolesContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useParams, useSiteTitle } from "hooks"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"

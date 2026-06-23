@@ -1,10 +1,10 @@
 import { memo, useCallback } from "react"
 import { twMerge } from "tailwind-merge"
-import { Link, useParams } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { TFunction } from "i18next"
 
 import { useOperationPolicy, useSiteRolesContext, useUserContext } from "app"
-import { useCreateProposal } from "hooks/useCreateProposal"
+import { useCreateProposal, useParams } from "hooks"
 import { routes, showToast } from "utils"
 
 import { MENU_ITEM_STYLE } from "./styles"

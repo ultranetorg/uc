@@ -1,10 +1,9 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 
 import { useSiteContext } from "app"
 import { useGetModeratorDiscussion } from "entities"
-import { useSiteTitle } from "hooks"
+import { useParams, useSiteTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
 

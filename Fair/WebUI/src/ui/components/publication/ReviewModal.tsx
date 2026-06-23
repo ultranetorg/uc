@@ -1,10 +1,9 @@
 import { memo, useCallback, useState } from "react"
-import { useParams } from "react-router-dom"
 
 import { useOperationPolicy } from "app"
 import { SvgCheckCircleFill3XLColored, SvgX } from "assets"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useEscapeKey } from "hooks"
+import { useEscapeKey, useParams } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption } from "types"
 import { ButtonOutline, ButtonPrimary, Modal, ModalProps, Textarea } from "ui/components"
 import { showToast } from "utils"

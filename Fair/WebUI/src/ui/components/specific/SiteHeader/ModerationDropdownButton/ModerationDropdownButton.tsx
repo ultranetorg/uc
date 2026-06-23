@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { useParams } from "react-router-dom"
+import { useParams } from "hooks"
 import { PropsWithClassName } from "types"
 
 import { HeaderDropdownButton } from "../HeaderDropdownButton"

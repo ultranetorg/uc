@@ -1,6 +1,7 @@
 import { PropsWithChildren } from "react"
-import { Link, LinkProps, To, useLocation, useParams } from "react-router-dom"
+import { Link, LinkProps, To, useLocation } from "react-router-dom"
 
+import { useParams } from "hooks"
 import { PropsWithClassName } from "types"
 
 export type LinkFullscreenState = {

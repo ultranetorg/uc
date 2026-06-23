@@ -1,7 +1,7 @@
 import { memo, ReactNode } from "react"
-import { useParams } from "react-router-dom"
 
 import { SvgSoftwareLogo } from "assets/fallback"
+import { useParams } from "hooks"
 import { ImageFallback, LinkFullscreen } from "ui/components"
 import { buildFileUrl, routes } from "utils"
 

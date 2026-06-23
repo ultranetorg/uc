@@ -1,7 +1,7 @@
 import { useCallback } from "react"
-import { useParams } from "react-router-dom"
 
 import { useTransactMutationWithStatus } from "entities/iccpNode"
+import { useParams } from "hooks"
 import { BaseVotableOperation, OperationCreator, ProposalCreation, ProposalOption } from "types"
 
 export const useCreateProposal = (

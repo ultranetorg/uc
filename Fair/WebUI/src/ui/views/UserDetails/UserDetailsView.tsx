@@ -1,8 +1,8 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 
 import avatarFallback from "assets/fallback/user-30.png"
+import { useParams } from "hooks"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback } from "ui/components"
 import { ModeratorUserMenu } from "ui/components/specific"

@@ -1,11 +1,12 @@
 import { memo, PropsWithChildren, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Outlet, useNavigate, useParams } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 import { capitalize } from "lodash"
 
 import { SEARCH_DELAY } from "config"
 import { useSearchSiteUsers } from "entities"
+import { useParams } from "hooks"
 import { DropdownSearchAccountsItem, DropdownSearchAccount } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"

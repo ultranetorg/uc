@@ -1,11 +1,10 @@
 import { useCallback, useMemo, useState } from "react"
-import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useOperationPolicy, useSignInContext, useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublicationDetails, useGetReviews } from "entities"
-import { useSiteTitle } from "hooks"
+import { useParams, useSiteTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, PublicationHeader } from "ui/components/publication"
 import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
