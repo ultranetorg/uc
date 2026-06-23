@@ -16,7 +16,7 @@ class Program
 		//Serialization.Main();
 		//PlatformExpressionTest.Main();
 
-		AddressTests.Snq();
+		AddressTests.SchemeNetQuery();
 		//AddressTests.Resource();
 		//UraTests.Package();
 		//UraTests.Release();

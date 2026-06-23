@@ -15,23 +15,23 @@ public static class AddressTests
 	}
 
  	[Fact]
- 	public static void Snq()
+ 	public static void SchemeNetQuery()
  	{
 		string[] a = [null, "", Iccn.Root];
 
 		foreach(var i in a )
 			foreach(var j in a)
-				Assert.True(Net.Snq.NetsEqual(i, j));
+				Assert.True(Snq.NetsEqual(i, j));
 
 		string[] b = [".rdnx", "x.rdn.y"];
 
 		foreach(var i in a )
 			foreach(var j in b)
-				Assert.False(Net.Snq.NetsEqual(i, j));
+				Assert.False(Snq.NetsEqual(i, j));
 
-		Assert.True(Net.Snq.NetsEqual("a.rdn", "a"));
+		Assert.True(Snq.NetsEqual("n.rdn", "n"));
 
-		void check(string a) => Assert.True(Net.Snq.Parse(a).ToString() == a);
+		void check(string a) => Assert.True(Snq.Parse(a).ToString() == a);
 
 		check($"n");
 		check($"n/e");
@@ -70,9 +70,9 @@ public static class AddressTests
 	[Fact]
 	public static void Release()
 	{
-		var a = new Rrrh { Hash = RandomBytes(32) };
-		var ac = new Rrrh{ Hash = a.Hash.ToArray() };
-		var b = new Rrrh { Hash = RandomBytes(32) };
+		var a = new Rrrh {Hash = RandomBytes(32) };
+		var ac = new Rrrh{Hash = a.Hash.ToArray() };
+		var b = new Rrrh {Hash = RandomBytes(32) };
 		 
 		//var x = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = RandomBytes(65) };
 		//var xc = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = x.Signature.ToArray() };
