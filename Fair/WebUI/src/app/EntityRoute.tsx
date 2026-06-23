@@ -25,6 +25,7 @@ import {
   PublishersPage,
   ReviewsPage,
   UnpublishedPublicationPage,
+  UsersPage,
 } from "ui/pages/moderation"
 import { CreateProposalProvider } from "ui/views"
 import { ENTITY_PREFIXES } from "utils"
@@ -78,7 +79,7 @@ export const EntityRoute = () => {
             <Route path="a/p/:publisherId" element={<PublisherPage />} />
             <Route path="r" element={<ReviewsPage />} />
             <Route path="u" element={<UsersLayout />}>
-              <Route path=":tabKey?" element={<ModeratorsPage />} />
+              <Route path=":tabKey?" element={<UsersPage />} />
               <Route path="u/:userId" element={<UserPage />} />
             </Route>
             <Route path="v" element={<PreviewPage />} />
