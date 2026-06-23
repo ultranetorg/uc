@@ -14,10 +14,10 @@ class Program
 		//XonTest.Basic();
 		//ECTests.Move();
 		//Serialization.Main();
-		PlatformExpressionTest.Main();
+		//PlatformExpressionTest.Main();
 
-		//UraTests.UAddresses();
-		//UraTests.Resource();
+		AddressTests.Snq();
+		//AddressTests.Resource();
 		//UraTests.Package();
 		//UraTests.Release();
 

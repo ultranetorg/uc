@@ -239,8 +239,6 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 				if(p == null) /// get a new ones from Mcv
 				{
-					to = Snq.ToCanonical(to);
-
 					if(to == Iccn.Root)
 					{
 						Roots ??= GetRoots(flow).Select(i => new Endpoint(i, Settings.Endpoint.Port)).ToArray();
@@ -266,25 +264,22 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 						while(flow.Active)
 						{
-							l = Lcp.Connections.Cast<IccpLcpConnection>().FirstOrDefault(c => Snq.ToCanonical(c.Net) == take(d));
+							l = Lcp.Connections.Cast<IccpLcpConnection>().FirstOrDefault(c => c.Net == take(d));
 
 							if(l != null)
 								break;
-					
-							if(d == 1)
-								break;
 
 							d--;
+
+							if(d == 0)
+								throw new IccpException(IccpError.NotFound);
 						}
 
-						if(l == null)
-							throw new IccpException(IccpError.NotFound);
-
-						p = Connect(l.Call<SubnetPeersIccr>(null, take(d), new SubnetPeersIcca {Name = nets[^(d+1)]}, flow).Peers.Take(SubnetPeerBunch).Select(i => GetPeer(i, [nets[^(d+1)]])), flow);
-
+						p = Connect(l.Call<SubnetPeersIccr>(null, take(d), new SubnetPeersIcca {Name = nets[^(d + 1)]}, flow).Peers.Take(SubnetPeerBunch).Select(i => GetPeer(i, [nets[^(d + 1)]])), flow);
+	
 						for(int i = d+1; i < nets.Length; i++)
 						{
-							p = Connect((p.Call(null, take(i), new SubnetPeersIcca {Name = nets[^(i+1)]}, flow) as SubnetPeersIccr).Peers.Take(SubnetPeerBunch).Select(e => GetPeer(e, [nets[^(i+1)]])), flow);
+							p = Connect(p.Call<SubnetPeersIccr>(null, take(i), new SubnetPeersIcca {Name = nets[^(i+1)]}, flow).Peers.Take(SubnetPeerBunch).Select(e => GetPeer(e, [nets[^(i+1)]])), flow);
 						}
 					}
 				}

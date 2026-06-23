@@ -124,28 +124,67 @@ public partial class TransferPage : Page
 			return;
 
 		Asset.Items.Clear();
+		Asset.Items.Add("Loading ...");
+		Asset.SelectedIndex = 0;
+		Asset.Update();
 
-		var e = Nexus.IccpLcpServer.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
+		var f = new Flow(5000);
 
-		foreach(var a in (Nexus.IccpLcpServer.Call(null, FromNet.Text, new HolderAssetsIcca {Entity = e.Universal}, new Flow(5000)) as HolderAssetsIccr).Assets)
-		{
-			Asset.Items.Add(a);
-		}
+		var fn = FromNet.Text;
+		var fe = FromEntity.Text;
+
+		Task.Run(() =>	{
+							try
+							{
+								var e = Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, fn, new AddressTextToUniversalIcca {Text = fe}, f);
+
+								var a = Nexus.IccpLcpServer.Call<HolderAssetsIccr>(null, fn, new HolderAssetsIcca {Entity = e.Universal}, f).Assets;
+								
+								Invoke(() => {	
+												Asset.Items.Clear(); 
+												Asset.Items.AddRange(a); 
+											 });
+							}
+							catch(Exception ex)
+							{
+								Invoke(() => {
+												Asset.Items[0] = ex.Message;
+											 });
+							}
+						});
+
 	}
 
 	void RefreshBalance()
 	{
-		var e = Nexus.IccpLcpServer.Call(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, new Flow(5000)) as AddressTextToUniversalIccr;
+		var f = new Flow(5000);
 
-		BalanceLabel.Text = "Balance: ";
-		BalanceLabel.Text += (Nexus.IccpLcpServer.Call(	null,
-														FromNet.Text,	
-														new AssetBalanceIcca
-														{
-															Entity = e.Universal,
-															Asset = (Asset.SelectedItem as Asset).Id
-														},
-														new Flow(5000)) as AssetBalanceIccr).Balance.ToString();
+		BalanceLabel.Text = "...";
+
+		Task.Run(() =>	{
+							try
+							{
+								var e = Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, f);
+
+								var fn = FromNet.Text;
+
+								Invoke(() => {
+												BalanceLabel.Text = Nexus.IccpLcpServer.Call<AssetBalanceIccr>(	null,
+																												fn,	
+																												new AssetBalanceIcca
+																												{
+																													Entity = e.Universal,
+																													Asset = (Asset.SelectedItem as Asset).Id
+																												},
+																												f)
+																												.Balance.ToString();
+											 });
+							}
+							catch(Exception ex)
+							{
+								Invoke(() => BalanceLabel.Text = ex.Message );
+							}
+						});
 	}
 
 	private void FromNet_TextUpdate(object sender, EventArgs e)
@@ -171,33 +210,39 @@ public partial class TransferPage : Page
 
 	private void Transfer_Click(object sender, EventArgs e)
 	{
-		try
-		{
-			var f = new Flow();
+		Transfer.Enabled = false;
 
-			var t = new AssetTransfer
-					{
-						FromNet		= FromNet.Text,
-						FromEntity	= Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, f).Universal,
-						Asset		= (Asset.SelectedItem as Asset).Id,
-						Amount		= BigInteger.Parse(Amount.Text),
-						ToNet		= ToNet.Text,
-						ToEntity	= Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, ToNet.Text, new AddressTextToUniversalIcca {Text = ToEntity.Text}, f).Universal,
-					};
+		Task.Run(() =>	{
+							try
+							{
+								var f = new Flow(5000);
 
-			t.Signature = Nexus.Vault.Authorize(CryptographyType.Iccp,
-												FromNet.Text,
-												JsonSerializer.Serialize(t),
-												FromEntity.Text,
-												Nexus.GetApplicationSession(FromNet.Text, f),
-												t.Hashify(),
-												f);
+								var t = new AssetTransfer
+										{
+											FromNet		= FromNet.Text,
+											FromEntity	= Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, FromNet.Text, new AddressTextToUniversalIcca {Text = FromEntity.Text}, f).Universal,
+											Asset		= (Asset.SelectedItem as Asset).Id,
+											Amount		= BigInteger.Parse(Amount.Text),
+											ToNet		= ToNet.Text,
+											ToEntity	= Nexus.IccpLcpServer.Call<AddressTextToUniversalIccr>(null, ToNet.Text, new AddressTextToUniversalIcca {Text = ToEntity.Text}, f).Universal,
+										};
 
-			Nexus.IccpLcpServer.Call(null, FromNet.Text, new TransactIcca {Transactions = [t]}, f);
-		}
-		catch(Exception ex) when(!Debugger.IsAttached)
-		{
-			ShowError(ex.Message);
-		}
+								t.Signature = Nexus.Vault.Authorize(CryptographyType.Iccp,
+																	FromNet.Text,
+																	JsonSerializer.Serialize(t),
+																	FromEntity.Text,
+																	Nexus.GetApplicationSession(FromNet.Text, f),
+																	t.Hashify(),
+																	f);
+
+								Nexus.IccpLcpServer.Call(null, FromNet.Text, new TransactIcca {Transactions = [t]}, f);
+							}
+							catch(Exception ex) when(!Debugger.IsAttached)
+							{
+								Invoke(() => ShowError(ex.Message));
+							}
+
+							Transfer.Enabled = true;
+						});
 	}
 }

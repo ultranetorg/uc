@@ -27,7 +27,7 @@ public class Asset : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{Name} as ({Units})";
+		return $"{Name} as {Units}";
 	}
 
 	public void Read(Reader reader)

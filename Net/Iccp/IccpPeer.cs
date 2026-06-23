@@ -167,6 +167,11 @@ public class IccpPeer : Peer, IBinarySerializable
 		Request(from, to, IdCounter++, args);
 	}
 
+	public R Call<R>(string from, string to, IccpArgumentation argumentation, Flow flow) where R : IccpResult
+	{
+		return Call(from, to, argumentation, flow) as R;
+	}
+
 	public IccpResult Call(string from, string to, IccpArgumentation args, Flow flow)
 	{
 		if(Status != ConnectionStatus.OK)

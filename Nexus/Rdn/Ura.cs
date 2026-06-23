@@ -73,13 +73,13 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public bool Equals(Ura o)
 	{
-		return o is not null && Net == o.Net && Domain == o.Domain && Resource == o.Resource;
+		return o is not null && Snq.NetsEqual(Net, o.Net) && Domain == o.Domain && Resource == o.Resource;
 	}
 
- 		public override int GetHashCode()
- 		{
- 			return Domain.GetHashCode();
- 		}
+ 	public override int GetHashCode()
+ 	{
+ 		return Domain.GetHashCode();
+ 	}
 
 	public int CompareTo(object obj)
 	{
