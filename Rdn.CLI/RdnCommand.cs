@@ -62,47 +62,47 @@ public abstract class RdnCommand : McvCommand
 				var t = DataType.Parse(d.Get<string>());
 
 				if(t.Meaning == DataType.Self)
-				{	
+				{
 					if(t.Content == ContentType.Unknown)
 						return new ResourceData(t, d.Get<string>("hex").FromHex());
-			
+
 					if(t.Content == ContentType.Ampp_Council)
-						return new ResourceData(t,	new Consil
+						return new ResourceData(t, new Consil
 													{
-														Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
+														Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),
 														SizeEnergyFeeMinimum = d.Get<long>("sefm"),
 														ResultEnergyFeeMinimum = d.Get<long>("refm"),
 														ResultSpacetimeFeeMinimum = d.Get<long>("rstfm")
 													});
-					
+
 					if(t.Content == ContentType.Ampp_Analysis)
-						return new ResourceData(t,	new Analysis
+						return new ResourceData(t, new Analysis
 													{
-														Release			= Urr.Parse(d.Get<string>("release")), 
-														EnergyReward	= d.Get<long>("ereward"),
-														SpacetimeReward	= d.Get<long>("streward"),
-														Consil			= GetResourceId(d.Get<string>("consil"))
+														Release = Urr.Parse(d.Get<string>("release")),
+														EnergyReward = d.Get<long>("ereward"),
+														SpacetimeReward = d.Get<long>("streward"),
+														Consil = GetResourceId(d.Get<string>("consil"))
 													});
-					
+
 					if(t.Content == ContentType.DnsRecord)
-						return new ResourceData(t,	new DnsRecord
+						return new ResourceData(t, new DnsRecord
 													{
-														Type	= d.GetEnum<DnsRecordType>("type"), 
-														Value	= d.Get<string>("value"),
-														TTL		= d.Get("ttl", 3600)
+														Type = d.GetEnum<DnsRecordType>("type"),
+														Value = d.Get<string>("value"),
+														TTL = d.Get("ttl", 3600)
 													});
 				}
 				else
 				{
-					if(	t.Meaning == DataType.File ||
+					if(t.Meaning == DataType.File ||
 						t.Meaning == DataType.Directory)
 						return new ResourceData(t, Urr.Parse(d.Get<string>("address")));
 				}
-
-				throw new SyntaxException("Unknown type");
 			}
-			else if(d.Value != null)
-				return new ResourceData(new Reader(GetBytes("data")));
+			else if(d.Value == null)
+				return null;
+
+			throw new SyntaxException("Unknown or missing meaning/type");
 		}
 
 		return null;
