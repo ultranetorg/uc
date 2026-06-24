@@ -26,9 +26,9 @@ export const routes = {
   search: (siteId: string) => `${sitePath(siteId)}/s`,
   about: (siteId: string) => `${sitePath(siteId)}/i`,
 
-  user: (siteId: string, userId: string) => `/${siteId}/u/${userId}`,
-  publisher: (siteId: string, publisherId: string) => `/${siteId}/e/${publisherId}`,
-  author: (siteId: string, authorId: string) => `/${siteId}/a/${authorId}`,
+  user: (userId: string) => `/${addPrefix("userId", userId)}`,
+  publisher: (publisherId: string) => `/${addPrefix("publisherId", publisherId)}`,
+  // author: (siteId: string, authorId: string) => `/${siteId}/a/${authorId}`,
   profile: (address: string) => `/p/${address}`,
 
   governance: {

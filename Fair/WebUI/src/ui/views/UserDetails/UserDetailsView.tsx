@@ -2,7 +2,6 @@ import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import avatarFallback from "assets/fallback/user-30.png"
-import { useResolveSiteId } from "hooks"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback } from "ui/components"
 import { ModeratorUserMenu } from "ui/components/specific"
@@ -21,7 +20,6 @@ export type UserDetailsViewProps = {
 }
 
 export const UserDetailsView = memo(({ user, reviews, isPublisher, isModerator }: UserDetailsViewProps) => {
-  const siteId = useResolveSiteId()
   const { t } = useTranslation("userDetailsView")
 
   if (!user || !reviews) return <>LOADING</>
@@ -56,11 +54,7 @@ export const UserDetailsView = memo(({ user, reviews, isPublisher, isModerator }
       </div>
       <div className="flex flex-col gap-5 p-6">
         <span className={LABEL_CLASSNAME}>{t("common:publishers")}</span>
-        {user.authors.length > 0 ? (
-          <PublishersList siteId={siteId!} authors={user.authors} />
-        ) : (
-          <>{t("noPublishers")}</>
-        )}
+        {user.authors.length > 0 ? <PublishersList authors={user.authors} /> : <>{t("noPublishers")}</>}
       </div>
       <div className="flex flex-col gap-5 p-6">
         <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>

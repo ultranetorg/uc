@@ -111,7 +111,7 @@ export const SiteHeader = () => {
       <div className="flex items-center gap-8">
         <GovernanceDropdownButton className="w-28" />
         {isModerator && <ModerationDropdownButton className="w-28" />}
-        {isPublisher && <PublisherMembersDropdownButton className="w-25" t={t} siteId={siteId!} user={user!} />}
+        {isPublisher && <PublisherMembersDropdownButton className="w-25" t={t} user={user!} />}
         <UserProfileButton t={t} />
       </div>
     </div>

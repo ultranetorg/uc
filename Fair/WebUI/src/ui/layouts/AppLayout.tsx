@@ -6,18 +6,16 @@ import { ProfilePage } from "ui/pages"
 export const AppLayout = memo(({ children }: PropsWithChildren) => {
   const location = useLocation()
 
-  const state = location.state as { backgroundLocation?: Location }
-  const backgroundLocation = state?.backgroundLocation
-  const modalLocation = backgroundLocation || location
-  const isFullscreenModal = !!backgroundLocation
+  const { backgroundLocation } = location.state as { backgroundLocation?: Location }
+  const hasFullscreenModal = !!backgroundLocation
 
   return (
     <>
-      <Routes location={modalLocation}>
+      <Routes location={backgroundLocation || location}>
         <Route path="/" element={children ?? <Outlet />} />
       </Routes>
 
-      {isFullscreenModal && (
+      {hasFullscreenModal && (
         <Routes>
           <Route path="/profile/:id" element={<ProfilePage />} />
         </Routes>

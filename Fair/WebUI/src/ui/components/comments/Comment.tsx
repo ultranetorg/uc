@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import avatarFallback from "assets/fallback/user-10.png"
 import { useResolveSiteId } from "hooks"
 import { AccountBaseAvatar } from "types"
-import { ImageFallback, RatingBar } from "ui/components"
+import { ImageFallback, LinkFullscreen, RatingBar } from "ui/components"
 import { buildUserAvatarUrl, formatDate, routes } from "utils"
 
 const NAME_CLASSNAME = "text-2sm font-semibold leading-4.5"
@@ -52,9 +52,9 @@ export const Comment = memo(
             </div>
             <div className="flex flex-1 flex-col justify-center gap-2">
               <div className="flex items-center justify-between">
-                <Link to={routes.user(siteId!, account.id)} className={NAME_CLASSNAME} title={displayName}>
+                <LinkFullscreen to={routes.user(account.id)} className={NAME_CLASSNAME} title={displayName}>
                   {displayName}
-                </Link>
+                </LinkFullscreen>
                 {ContextMenu && (
                   <ContextMenu id={id} reviewerId={account.id} reviewerName={account.nickname} text={text} />
                 )}

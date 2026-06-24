@@ -25,16 +25,7 @@ import {
 const platformOrder = ["windows", "macos", "linux"]
 
 export const GameSoftwarePublicationContent = memo(
-  ({
-    t,
-    siteId,
-    productOrPublication,
-    isPendingReviews,
-    reviews,
-    error,
-    onLeaveReview,
-    onEditReview,
-  }: ContentProps) => {
+  ({ t, productOrPublication, isPendingReviews, reviews, error, onLeaveReview, onEditReview }: ContentProps) => {
     const [isEulaOpen, setIsEulaOpen] = useState(false)
     const [platform, setPlatform] = useState<string | undefined>()
     const [version, setVersion] = useState<string | undefined>()
@@ -151,7 +142,6 @@ export const GameSoftwarePublicationContent = memo(
         </div>
         <div className="flex w-87.5 flex-col gap-8">
           <SoftwareInfo
-            siteId={siteId!}
             productOrPublication={productOrPublication}
             supportedPlatforms={supportedPlatforms}
             price={price}
