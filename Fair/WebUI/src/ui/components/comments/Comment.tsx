@@ -52,7 +52,11 @@ export const Comment = memo(
             </div>
             <div className="flex flex-1 flex-col justify-center gap-2">
               <div className="flex items-center justify-between">
-                <LinkFullscreen to={routes.user(account.id)} className={NAME_CLASSNAME} title={displayName}>
+                <LinkFullscreen
+                  to={routes.reviewer(siteId!, account.id)}
+                  className={NAME_CLASSNAME}
+                  title={displayName}
+                >
                   {displayName}
                 </LinkFullscreen>
                 {ContextMenu && (

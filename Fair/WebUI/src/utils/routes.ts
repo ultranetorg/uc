@@ -1,9 +1,10 @@
 export const ENTITY_PREFIXES = {
-  siteId: "s-",
-  categoryId: "c-",
-  publicationId: "p-",
-  userId: "u-",
-  publisherId: "pb-",
+  siteId: "site-",
+  categoryId: "category-",
+  publicationId: "publication-",
+  publisherId: "publisher-",
+  userId: "user-",
+  profileId: "profile-",
 } as const
 
 export type EntityParam = keyof typeof ENTITY_PREFIXES
@@ -25,11 +26,12 @@ export const routes = {
   publication: (_siteId: string, publicationId: string) => `/${addPrefix("publicationId", publicationId)}`,
   search: (siteId: string) => `${sitePath(siteId)}/s`,
   about: (siteId: string) => `${sitePath(siteId)}/i`,
+  reviewer: (siteId: string, reviewerId: string) => `${sitePath(siteId)}/${addPrefix("userId", reviewerId)}`,
+  publisher: (siteId: string, publisherId: string) => `${sitePath(siteId)}/${addPrefix("publisherId", publisherId)}`,
 
   user: (userId: string) => `/${addPrefix("userId", userId)}`,
-  publisher: (publisherId: string) => `/${addPrefix("publisherId", publisherId)}`,
-  // author: (siteId: string, authorId: string) => `/${siteId}/a/${authorId}`,
-  profile: (address: string) => `/p/${address}`,
+  profile: (userId: string) => `/${addPrefix("profileId", userId)}`,
+  author: (authorId: string) => `/${addPrefix("publisherId", authorId)}`,
 
   governance: {
     create: (siteId: string) => `${sitePath(siteId)}/g/new`,

@@ -78,9 +78,9 @@ public class PublicationsService
 		}
 	}
 
-	public TotalItemsResult<PublicationAuthorModel> GetAuthorPublicationsNotOptimized([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<PublicationAuthorModel> GetPublisherPublicationsNotOptimized([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {AuthorId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetAuthorPublicationsNotOptimized), siteId, authorId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {AuthorId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetPublisherPublicationsNotOptimized), siteId, authorId, page, pageSize);
 
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(authorId);

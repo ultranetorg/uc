@@ -82,21 +82,6 @@ public class PublicationsController
 		return searchService.SearchLitePublications(siteId, query, 0, SiteConstants.SearchLitePageSize, cancellationToken);
 	}
 
-	[HttpGet("~/api/sites/{siteId}/authors/{authorId}/publications")]
-	public IEnumerable<PublicationAuthorModel> GetAuthorPublications(string siteId, string authorId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
-	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetDetails)} method called with {{SiteId}}, {{AuthorId}}, {{Pagination}}", siteId, authorId, pagination);
-
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-		autoIdValidator.Validate(authorId, nameof(Author).ToLower());
-		paginationValidator.Validate(pagination);
-
-		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<PublicationAuthorModel> products = publicationsService.GetAuthorPublicationsNotOptimized(siteId, authorId, page, pageSize, cancellationToken);
-
-		return this.OkPaged(products.Items, page, pageSize, products.TotalItems);
-	}
-
 	[HttpGet("~/api/categories/{categoryId}/publications")]
 	public IEnumerable<PublicationModel> GetCategoryPublications(string categoryId, [FromQuery] int? page, CancellationToken cancellationToken)
 	{

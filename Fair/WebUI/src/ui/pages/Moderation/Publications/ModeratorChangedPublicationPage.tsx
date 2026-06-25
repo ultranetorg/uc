@@ -107,6 +107,7 @@ export const ModeratorChangedPublicationPage = () => {
 
       <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
         <ModerationPublicationHeader
+          siteId={siteId}
           title={publication.title}
           logoId={publication.logoId}
           authorId={publication.authorId}

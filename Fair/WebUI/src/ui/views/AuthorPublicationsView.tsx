@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { useSiteRolesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetAuthorPublications } from "entities"
+import { useGetPublisherPublications } from "entities"
 import { AuthorDetails } from "types"
 import { Pagination } from "ui/components"
 import { AuthorProfile, AuthorProfileProps } from "ui/components/author"
@@ -26,7 +26,7 @@ export const AuthorPublicationsView = memo(
     const [page, setPage] = useState(0)
     const [selectedPublicationId, setPublicationId] = useState<string | undefined>()
 
-    const { data: publications } = useGetAuthorPublications(siteId, author?.id, page, DEFAULT_PAGE_SIZE_20)
+    const { data: publications } = useGetPublisherPublications(siteId, author?.id, page, DEFAULT_PAGE_SIZE_20)
 
     const pagesCount =
       publications?.totalItems && publications.totalItems > 0

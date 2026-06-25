@@ -79,7 +79,7 @@ export const SiteHeader = () => {
     }
   }, [query, setSiteQuery])
 
-  if (!site) {
+  if (!site || !siteId) {
     return null
   }
 
@@ -87,7 +87,7 @@ export const SiteHeader = () => {
     <div className="flex items-center justify-between gap-8 pb-8">
       <LogoDropdownButton
         t={t}
-        siteId={siteId!}
+        siteId={siteId}
         title={site.title}
         imageFileId={site.imageFileId}
         publishersCount={site.authorsIds.length}
@@ -111,8 +111,8 @@ export const SiteHeader = () => {
       <div className="flex items-center gap-8">
         <GovernanceDropdownButton className="w-28" />
         {isModerator && <ModerationDropdownButton className="w-28" />}
-        {isPublisher && <PublisherMembersDropdownButton className="w-25" t={t} user={user!} />}
-        <UserProfileButton t={t} />
+        {isPublisher && <PublisherMembersDropdownButton className="w-25" siteId={siteId} t={t} user={user!} />}
+        <UserProfileButton siteId={siteId} t={t} />
       </div>
     </div>
   )

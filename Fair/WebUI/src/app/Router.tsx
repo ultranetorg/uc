@@ -1,6 +1,6 @@
 import { createBrowserRouter, createHashRouter, RouteObject, RouterProvider } from "react-router-dom"
 
-import { AppLayout, BaseLayout, SiteLayout } from "ui/layouts"
+import { BaseLayout, SiteLayout } from "ui/layouts"
 import { ErrorPage, SitesPage } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
@@ -28,11 +28,11 @@ const routes: RouteObject[] = [
       </AuthenticationProvider>
     ),
     errorElement: (
-      <AppLayout>
-        <BaseLayout>
-          <ErrorPage />
-        </BaseLayout>
-      </AppLayout>
+      // <AppLayout>
+      <BaseLayout>
+        <ErrorPage />
+      </BaseLayout>
+      //</AppLayout>
     ),
     children: [
       {

@@ -99,6 +99,7 @@ export const ModeratorCreatePublicationPage = () => {
         {!!debouncedQuery && isProductValid ? (
           <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
             <ModerationPublicationHeader
+              siteId={siteId!}
               title={product.title}
               logoId={product.logoId}
               authorId={product.authorId}

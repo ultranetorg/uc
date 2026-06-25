@@ -18,6 +18,7 @@ export interface SoftwareDownload {
 }
 
 export type SoftwareInfoProps = {
+  siteId: string
   productOrPublication: ProductDetails | PublicationDetails
   languages?: string[]
   supportedPlatforms?: string[]
@@ -41,6 +42,7 @@ export type SoftwareInfoProps = {
 
 export const SoftwareInfo = memo(
   ({
+    siteId,
     productOrPublication,
     supportedPlatforms,
     price,
@@ -104,7 +106,7 @@ export const SoftwareInfo = memo(
       <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
         <div className="flex flex-col gap-2">
           <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
-          <LinkFullscreen to={routes.publisher(productOrPublication.authorId)}>
+          <LinkFullscreen to={routes.publisher(siteId, productOrPublication.authorId)}>
             <AuthorImageTitle
               title={productOrPublication.authorTitle}
               authorFileId={productOrPublication.authorLogoId}

@@ -15,6 +15,7 @@ import {
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
+  ProductAuthor,
   ProductDetails,
   ProductStore,
   Proposal,
@@ -163,6 +164,16 @@ const getUserReviews = async (userId: string, page?: number): Promise<TotalItems
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>
   fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
 
+const getAuthorProducts = async (
+  authorId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<ProductAuthor>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/authors/${authorId}/products` + params)
+  return await toTotalItemsResult(res)
+}
+
 // Categories
 const getCategoriesRoot = (siteId: string): Promise<CategoryBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/categories/root`).then(res => res.json())
@@ -219,14 +230,14 @@ const getUnpublishedPublications = async (
   return await toTotalItemsResult(res)
 }
 
-const getAuthorPublications = async (
+const getPublisherPublications = async (
   siteId: string,
-  authorId: string,
+  publisherId: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<PublicationAuthor>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}/publications` + params)
+  const res = await fetch(`${BASE_URL}/sites/${siteId}/publishers/${publisherId}/publications` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -444,8 +455,7 @@ const api: FairApi = {
   getUserSiteExists,
   getUserReviews,
 
-  getAuthor,
-  getAuthorPublications,
+  getPublisherPublications,
   getCategoriesTree,
   getCategoriesPublications,
   getCategoryDetails,
@@ -479,6 +489,9 @@ const api: FairApi = {
   searchAuthors,
   searchSites,
   searchLiteAccounts,
+
+  getAuthor,
+  getAuthorProducts,
 
   getAuthorFiles,
 

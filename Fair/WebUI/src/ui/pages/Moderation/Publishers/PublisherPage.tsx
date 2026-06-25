@@ -22,7 +22,7 @@ export const PublisherPage = memo(({ isFromModeration = true }: PublisherPagePro
 
   const { data: author } = useGetAuthor(publisherId)
 
-  useSiteTitle(site?.title, author?.title ? `Publisher -${author?.title}` : "Publisher")
+  useSiteTitle(site?.title, author?.title ? `Publisher - ${author?.title}` : "Publisher")
 
   const breadcrumbs = useMemo(
     () =>
@@ -35,7 +35,7 @@ export const PublisherPage = memo(({ isFromModeration = true }: PublisherPagePro
   useEscapeKey(() => setModalOpen(false))
 
   if (!author) {
-    return <>LOADING ⏱️</>
+    return <>LOADING PublisherPage</>
   }
 
   return (

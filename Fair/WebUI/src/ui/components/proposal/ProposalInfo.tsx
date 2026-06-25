@@ -8,13 +8,14 @@ import { renderUser } from "ui/renderers2"
 import { formatDate, formatLastsFor, routes } from "utils"
 
 type ProposalInfoBaseProps = {
+  siteId: string
   createdBy: User
   createdAt: number
 }
 
 export type ProposalInfoProps = ProposalInfoBaseProps & PropsWithClassName
 
-export const ProposalInfo = memo(({ className, createdBy, createdAt }: ProposalInfoProps) => {
+export const ProposalInfo = memo(({ className, siteId, createdBy, createdAt }: ProposalInfoProps) => {
   const { t } = useTranslation()
 
   return (
@@ -26,7 +27,7 @@ export const ProposalInfo = memo(({ className, createdBy, createdAt }: ProposalI
     >
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">Created By:</span>
-        <Link to={routes.publisher(createdBy.id)}>{renderUser(createdBy)}</Link>
+        <Link to={routes.publisher(siteId, createdBy.id)}>{renderUser(createdBy)}</Link>
       </div>
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">Created At:</span>

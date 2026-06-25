@@ -10,10 +10,11 @@ import { routes, showToast } from "utils"
 import { MENU_ITEM_STYLE } from "./styles"
 
 export type UserProfileButtonProps = {
+  siteId: string
   t: TFunction
 }
 
-export const UserProfileButton = memo(({ t }: UserProfileButtonProps) => {
+export const UserProfileButton = memo(({ siteId, t }: UserProfileButtonProps) => {
   const { creator } = useOperationPolicy("user-registration")
   const { isJoined } = useSiteRolesContext()
   const { user } = useUserContext()
@@ -39,7 +40,7 @@ export const UserProfileButton = memo(({ t }: UserProfileButtonProps) => {
       {t("common:join")}
     </button>
   ) : (
-    <Link to={routes.user(user.id)} className={twMerge(MENU_ITEM_STYLE, "w-12")}>
+    <Link to={routes.reviewer(siteId, user.id)} className={twMerge(MENU_ITEM_STYLE, "w-12")}>
       {t("common:profile")}
     </Link>
   )

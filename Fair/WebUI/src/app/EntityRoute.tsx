@@ -1,7 +1,19 @@
-import { Route, Routes, useParams } from "react-router-dom"
+import { Route, Routes, useLocation } from "react-router-dom"
+
+import { useParams } from "hooks"
 import { ModerationLayout, UsersLayout } from "ui/layouts"
 
-import { AboutPage, CategoryPage, ErrorPage, PublicationPage, SearchPage, SitePage, UserPage } from "ui/pages"
+import {
+  AboutPage,
+  AuthorPage,
+  CategoryPage,
+  ErrorPage,
+  PublicationPage,
+  ReviewerPage,
+  SearchPage,
+  SitePage,
+  UserPage,
+} from "ui/pages"
 import {
   CreateReferendumPage,
   PerpetualSurveyPage,
@@ -28,7 +40,36 @@ import {
   UsersPage,
 } from "ui/pages/moderation"
 import { CreateProposalProvider } from "ui/views"
+import { FullscreenPageView } from "ui/views/FullscreenPageView"
 import { ENTITY_PREFIXES } from "utils"
+
+const SiteEntityRoute = () => {
+  const location = useLocation()
+  const { appEntity = "" } = useParams()
+
+  const state = location.state as { backgroundLocation?: Location; defaultTabKey?: string } | undefined
+
+  if (appEntity.startsWith(ENTITY_PREFIXES.userId)) {
+    return state?.backgroundLocation ? (
+      <FullscreenPageView>
+        <ReviewerPage />
+      </FullscreenPageView>
+    ) : (
+      <ReviewerPage />
+    )
+  }
+
+  if (appEntity.startsWith(ENTITY_PREFIXES.publisherId))
+    return state?.backgroundLocation ? (
+      <FullscreenPageView>
+        <PublisherPage />
+      </FullscreenPageView>
+    ) : (
+      <PublisherPage />
+    )
+
+  return <ErrorPage />
+}
 
 export const EntityRoute = () => {
   const { appEntity = "", "*": rest } = useParams()
@@ -40,6 +81,7 @@ export const EntityRoute = () => {
           <Route index element={<SitePage />} />
           <Route path="s" element={<SearchPage />} />
           <Route path="i" element={<AboutPage />} />
+          <Route path=":appEntity" element={<SiteEntityRoute />} />
 
           {/* Governance */}
           <Route
@@ -99,8 +141,23 @@ export const EntityRoute = () => {
   if (appEntity.startsWith(ENTITY_PREFIXES.categoryId)) return <CategoryPage />
   if (appEntity.startsWith(ENTITY_PREFIXES.publicationId)) return <PublicationPage />
 
-  if (appEntity.startsWith(ENTITY_PREFIXES.userId)) return <UserPage isFromModeration={false} />
-  if (appEntity.startsWith(ENTITY_PREFIXES.publisherId)) return <PublisherPage isFromModeration={false} />
+  if (appEntity.startsWith(ENTITY_PREFIXES.userId)) {
+    return (
+      <FullscreenPageView>
+        <UserPage />
+      </FullscreenPageView>
+    )
+  }
+
+  if (appEntity.startsWith(ENTITY_PREFIXES.publisherId)) {
+    return (
+      <FullscreenPageView>
+        <AuthorPage />
+      </FullscreenPageView>
+    )
+  }
+
+  // Profile
 
   return <ErrorPage />
 }

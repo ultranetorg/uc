@@ -7,18 +7,17 @@ import { useEscapeKey, useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { AuthorPublicationsView } from "ui/views"
 import { routes } from "utils"
 
-export const AuthorPage = () => {
+export const PublisherPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { publisherId } = useParams()
-  console.log(publisherId)
+  const { authorId } = useParams()
   const siteId = useResolveSiteId()
 
   const [isModalOpen, setModalOpen] = useState(false)
 
-  const { isPending, data: author } = useGetAuthor(publisherId)
+  const { isPending, data: author } = useGetAuthor(authorId)
 
-  useSiteTitle(author?.title ? `Author - ${author?.title}` : undefined)
+  useSiteTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 
   const state = location.state as { backgroundLocation?: Location } | undefined
   const backgroundLocation = state?.backgroundLocation
@@ -35,7 +34,7 @@ export const AuthorPage = () => {
   )
 
   if (isPending || !author) {
-    return <div>Loading AuthorPage</div>
+    return <div>Loading</div>
   }
 
   return (

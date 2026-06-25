@@ -257,12 +257,13 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           ) : undefined
         }
       />
-      {NestedContent && <NestedContent t={t} proposal={proposal} voteStatus={voteStatus} />}
+      {NestedContent && <NestedContent t={t} siteId={siteId!} proposal={proposal} voteStatus={voteStatus} />}
       <div className="flex gap-8">
         <div className="flex w-full flex-col gap-8">
           {!isPublicationMode && (
             <DefaultContent
               t={t}
+              siteId={siteId!}
               proposal={proposal}
               isReferendum={isReferendum}
               pageState={pageState}
@@ -289,7 +290,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           />
         </div>
         <div className="flex flex-col gap-6">
-          <ProposalInfo className="w-87.5" createdBy={proposal.by} createdAt={proposal.creationTime} />
+          <ProposalInfo className="w-87.5" siteId={siteId!} createdBy={proposal.by} createdAt={proposal.creationTime} />
           {!isPublicationMode &&
             (pageState === "voting" ? (
               <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
