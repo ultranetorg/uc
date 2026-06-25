@@ -99,18 +99,6 @@ public class FairRound : Round
 		SiteTitles.Absorb(e.SiteTitles);
 	}
 
-	public override void FinishExecution()
-	{
-	}
-
-	public override void Elect(Vote[] votes, int gq)
-	{
-	}
-
-	public override void CopyConfirmed()
-	{
-	}
-
 	public override void WriteGraphState(Writer writer)
 	{
 		base.WriteGraphState(writer);
@@ -123,9 +111,7 @@ public class FairRound : Round
 	{
 		base.ReadGraphState(reader);
 
-		Candidates	= reader.Read<Generator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
-		Members		= reader.Read<Generator>(m => m.ReadMember(reader)).Cast<Generator>().ToList();
+		Candidates	= reader.ReadList<Generator>(() => { var g = new Generator(); g.ReadCandidate(reader); return g;});
+		Members		= reader.ReadList<Generator>(() => { var g = new Generator(); g.ReadMember(reader); return g; });
 	}
-
 }
-

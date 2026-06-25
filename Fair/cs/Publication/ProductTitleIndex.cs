@@ -128,8 +128,10 @@ public class ProductTitleIndex : HnswTable<string, ProductTitleHnswEntity>
 	
 					r.Add(	new ProductSearchResult
 							{
-								Product			= prod.Versions.First(i => i.Id == pub.ProductVersion).Fields.First(i => i.Name == Token.Title).AsUtf8,
-								Author			= auth.Title,
+								Product			= prod.Id,
+								ProductTitle	= prod.Versions.First(i => i.Id == pub.ProductVersion).Fields.First(i => i.Name == Token.Title).AsUtf8,
+								Author			= auth.Id,
+								AuthorTitle		= auth.Title,
 								Avatar			= prod.Versions.First(i => i.Id == pub.ProductVersion).Fields.FirstOrDefault(i => i.Name == Token.Logo)?.AsAutoId,
 								Publications	= prod.Publications,
 								Rank			= auth.VerifiedWebdomainRank
@@ -163,8 +165,10 @@ public class ProductTitleIndex : HnswTable<string, ProductTitleHnswEntity>
 	
 				r.Add(	new ProductSearchResult
 						{
-							Product			= prod.Versions.First(i => i.Id == pub.ProductVersion).Fields.First(i => i.Name == Token.Title).AsUtf8,
-							Author			= auth.Title,
+							Product			= prod.Id,
+							ProductTitle	= prod.Versions.First(i => i.Id == pub.ProductVersion).Fields.First(i => i.Name == Token.Title).AsUtf8,
+							Author			= auth.Id,
+							AuthorTitle		= auth.Title,
 							Avatar			= prod.Versions.First(i => i.Id == pub.ProductVersion).Fields.FirstOrDefault(i => i.Name == Token.Logo)?.AsAutoId,
 							Publications	= prod.Publications,
 							Rank			= auth.VerifiedWebdomainRank

@@ -599,7 +599,7 @@ public abstract class Mcv /// Mutual chain voting
 		r.ConsensusTime				= Time.Now(Clock);
 		r.ConsensusOperationCost	= LastConfirmedRound.ConsensusOperationCost;
 
-		r.Execute([transaction]);
+		r.Execute([transaction], true);
 
 		transaction.Nonce = oldnonce;
 	}

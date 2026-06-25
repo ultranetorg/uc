@@ -270,7 +270,7 @@ public abstract class Round : IBinarySerializable
 
 		Execute(txs);
 
-		ConsensusTransactions = txs.Where(i => i.OverallError == null).ToArray();
+		ConsensusTransactions = [..txs.Where(i => i.OverallError == null)];
 
 		if(Id < Net.P)
 		{
@@ -347,7 +347,7 @@ public abstract class Round : IBinarySerializable
 	{
 	}
 
-	public virtual void Execute(IEnumerable<Transaction> transactions)
+	public virtual void Execute(IEnumerable<Transaction> transactions, bool examine = false)
 	{
 		if(Confirmed)
 			throw new IntegrityException();
@@ -363,16 +363,15 @@ public abstract class Round : IBinarySerializable
 				o.Error = null;
 		}
 
-		Candidates			= Id == 0 ? []										 : Previous.Candidates; /// cloned in Execution.AffectCandidate
-		Members				= Id == 0 ? []										 : Previous.Members;
-		Funds				= Id == 0 ? []										 : Previous.Funds;
-		Bandwidths			= Id == 0 ? []										 : Previous.Bandwidths;
-		Spacetimes			= Id == 0 ? []								 : Previous.Spacetimes;
-		OutwardTransactions	= Id == 0 ? []										 : Previous.OutwardTransactions;
-		IccTransactions		= Id == 0 ? []										 : Previous.IccTransactions;
-
-		AffectedMetas	= Id == 0 ? [] : new (Previous.AffectedMetas);
-		AffectedUsers	= Id == 0 ? [] : new (Previous.AffectedUsers);
+		AffectedMetas		= Id == 0 ? [] : new (Previous.AffectedMetas);
+		AffectedUsers		= Id == 0 ? [] : new (Previous.AffectedUsers);
+		Candidates			= Id == 0 ? [] : Previous.Candidates; /// cloned in Execution.AffectCandidate
+		Members				= Id == 0 ? [] : Previous.Members;
+		Funds				= Id == 0 ? [] : Previous.Funds;
+		Bandwidths			= Id == 0 ? [] : Previous.Bandwidths;
+		Spacetimes			= Id == 0 ? [] : Previous.Spacetimes;
+		OutwardTransactions	= Id == 0 ? [] : Previous.OutwardTransactions;
+		IccTransactions		= Id == 0 ? [] : Previous.IccTransactions;
 		
 		NextEids = [..Mcv.Tables.Select(i => (Dictionary<int, int>)null)];
 		for(int i = 0; i < NextEids.Length; i++)
@@ -433,7 +432,7 @@ public abstract class Round : IBinarySerializable
 				}
 			}
 			
-			if(t.OverallError == null)
+			if(t.OverallError == null && !examine)
 			{
 				u.LastNonce++;
 	

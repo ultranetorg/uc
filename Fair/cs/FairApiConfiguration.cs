@@ -143,30 +143,20 @@ public class CostApc : FairApc
 
 public class ProductSearchResult
 {
-	public string		Product { get; set; }
-	public string		Author { get; set; }
+	public AutoId		Product { get; set; }
+	public string		ProductTitle { get; set; }
+	public AutoId		Author { get; set; }
+	public string		AuthorTitle { get; set; }
 	public AutoId		Avatar { get; set; }
 	public AutoId[]		Publications { get; set; }
 	public int			Rank;
 
 	public override string ToString()
 	{
-		return $"{Product}, Author={Author}, Avatar={Avatar}, Publications={{{Publications.Length}}}";
+		return $"{GetType().Name} {Product}, ProductTitle={ProductTitle}, Author={Author}, AuthorTitle={AuthorTitle}, Avatar={Avatar}, Publications={{{Publications.Length}}}";
 	}
 }
-//
-//public class ProductGlobalSearchResult
-//{
-//	public string		Product { get; set; }
-//	public string		Author { get; set; }
-//	public AutoId		Avatar { get; set; }
-//	public AutoId[]		Publications { get; set; }
-//
-//	public override string ToString()
-//	{
-//		return $"{Product}, Author={Author}, Avatar={Avatar}, Publications={{{Publications.Length}}}";
-//	}
-//}
+
 
 public class ProductSearchApc : FairApc
 {
