@@ -18,21 +18,21 @@ public class SearchService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock (mcv.Lock)
+		lock(mcv.Lock)
 		{
 			Site site = mcv.Sites.Latest(id);
-			if (site == null)
+			if(site == null)
 			{
 				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 			}
 
-			SearchResult[] searchResult = mcv.PublicationTitles.Search(id, query, page * pageSize, pageSize);
-			if (searchResult.Length == 0)
+			var searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+			if(searchResult.Count == 0)
 			{
 				return TotalItemsResult<PublicationExtendedModel>.Empty;
 			}
 
-			List<PublicationExtendedModel> result = new List<PublicationExtendedModel>(searchResult.Length);
+			List<PublicationExtendedModel> result = new List<PublicationExtendedModel>(searchResult.Count);
 			LoadPublications(searchResult, result, cancellationToken);
 
 			return new TotalItemsResult<PublicationExtendedModel>
@@ -43,22 +43,38 @@ public class SearchService
 		}
 	}
 
-	void LoadPublications(SearchResult[] searchResult, IList<PublicationExtendedModel> result, CancellationToken cancellationToken)
+	void LoadPublications(List<ProductSearchResult> searchResult, IList<PublicationExtendedModel> result, CancellationToken cancellationToken)
 	{
-		foreach (SearchResult search in searchResult)
+		foreach(var search in searchResult)
 		{
-			if (cancellationToken.IsCancellationRequested)
+			if(cancellationToken.IsCancellationRequested)
 				break;
 
-			Publication publication = mcv.Publications.Latest(search.Entity);
-			Product product = mcv.Products.Latest(publication.Product);
-			Author author = mcv.Authors.Latest(product.Author);
-			Category category = mcv.Categories.Latest(publication.Category);
-			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+			/// TODO: Update
+			/// 
+			/// 
+			/// 
+			/// 
+			/// 
+			///	 1. USE PROVIDED FIELDS
+			///	 2. REMOVE UNNESSASSARY Mcv.Latest
+			///	 3. load logo bytes via http api requerst
+			/// 
+			/// 
+			/// 
+			/// 
+			/// 
+			/// Publication publication = mcv.Publications.Latest(search.Publication);
+			/// Product product = mcv.Products.Latest(publication.Product);
+			/// Author author = mcv.Authors.Latest(product.Author);
+			/// Category category = mcv.Categories.Latest(publication.Category);
+			/// AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+			/// byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
+			/// 
+			/// PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category, logo);
+			/// result.Add(model);
 
-			PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category, logo);
-			result.Add(model);
+			throw new NotImplementedException();
 		}
 	}
 
@@ -66,7 +82,7 @@ public class SearchService
 	{
 		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLitePublications)} method called with {{SiteId}}, {{Query}}, {{Page}}, {{PageSize}}", siteId, query, page, pageSize);
 
-		if (cancellationToken.IsCancellationRequested)
+		if(cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<PublicationBaseModel>();
 
 		Guard.Against.NullOrEmpty(siteId);
@@ -76,10 +92,16 @@ public class SearchService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock (mcv.Lock)
+		lock(mcv.Lock)
 		{
-			SearchResult[] result = mcv.PublicationTitles.Search(id, query, page * pageSize, pageSize);
-			return result.Select(x => new PublicationBaseModel(x.Entity.ToString(), x.Text));
+			var result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+
+			/// 
+			/// TODO : Update
+			/// 
+			///return result.Select(x => new PublicationBaseModel(x.Publication.ToString(), x.Product));
+			
+			throw new NotImplementedException();
 		}
 	}
 
@@ -93,10 +115,10 @@ public class SearchService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		lock (mcv.Lock)
+		lock(mcv.Lock)
 		{
-			SearchResult[] searchResult = mcv.SiteTitles.Search(query ?? "", page * pageSize, pageSize);
-			if (searchResult.Length == 0)
+			var searchResult = mcv.SiteTitles.Search(query ?? "", page * pageSize, pageSize);
+			if(searchResult.Length == 0)
 			{
 				return TotalItemsResult<SiteBaseModel>.Empty;
 			}
@@ -107,16 +129,16 @@ public class SearchService
 			return new TotalItemsResult<SiteBaseModel>
 			{
 				Items = result,
-				TotalItems = BitConverter.ToInt32(mcv.Metas.Latest(new MetaId((int) FairMetaEntityType.SitesCount)).Value)
+				TotalItems = BitConverter.ToInt32(mcv.Metas.Latest(new MetaId((int)FairMetaEntityType.SitesCount)).Value)
 			};
 		}
 	}
 
-	void LoadSites(SearchResult[] searchResult, IList<SiteBaseModel> result, CancellationToken cancellationToken)
+	void LoadSites(SiteSearchResult[] searchResult, IList<SiteBaseModel> result, CancellationToken cancellationToken)
 	{
-		foreach (SearchResult search in searchResult)
+		foreach(var search in searchResult)
 		{
-			if (cancellationToken.IsCancellationRequested)
+			if(cancellationToken.IsCancellationRequested)
 				break;
 
 			Site site = mcv.Sites.Latest(search.Entity);
@@ -136,9 +158,9 @@ public class SearchService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		lock (mcv.Lock)
+		lock(mcv.Lock)
 		{
-			SearchResult[] result = mcv.SiteTitles.Search(query, page * pageSize, pageSize);
+			var result = mcv.SiteTitles.Search(query, page * pageSize, pageSize);
 			return result.Select(x => new SiteSearchLiteModel(x.Entity.ToString(), x.Text));
 		}
 	}
@@ -157,7 +179,7 @@ public class SearchService
 		{
 			if(AutoId.TryParse(query, out AutoId entityId))
 			{
-				FairUser user = (FairUser) mcv.Users.Latest(entityId);
+				FairUser user = (FairUser)mcv.Users.Latest(entityId);
 				return user != null && user.Sites.Contains(siteEntityId) ? [new UserModel(user)] : [];
 			}
 
@@ -178,9 +200,9 @@ public class SearchService
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			FairUser user = (FairUser) mcv.Users.Latest(id);
+			FairUser user = (FairUser)mcv.Users.Latest(id);
 
-			if (user.Sites.Contains(siteId))
+			if(user.Sites.Contains(siteId))
 			{
 				var model = new UserModel(user);
 				result.Add(model);
@@ -201,9 +223,9 @@ public class SearchService
 
 		lock(mcv.Lock)
 		{
-			if (AutoId.TryParse(query, out AutoId entityId))
+			if(AutoId.TryParse(query, out AutoId entityId))
 			{
-				FairUser account = (FairUser) mcv.Users.Latest(entityId);
+				FairUser account = (FairUser)mcv.Users.Latest(entityId);
 				return [new AccountBaseAvatarModel(account)];
 			}
 
@@ -228,7 +250,7 @@ public class SearchService
 			if(cancellationToken.IsCancellationRequested)
 				return result;
 
-			FairUser account = (FairUser) mcv.Users.Latest(id);
+			FairUser account = (FairUser)mcv.Users.Latest(id);
 			AccountBaseAvatarModel model = new(account);
 			result.Add(model);
 		}
@@ -250,8 +272,8 @@ public class SearchService
 		{
 			if(AutoId.TryParse(query, out AutoId entityId))
 			{
-				Author author = (Author) mcv.Authors.Latest(entityId);
-				if (author != null)
+				Author author = (Author)mcv.Authors.Latest(entityId);
+				if(author != null)
 				{
 					return [new AuthorBaseAvatarModel(author)];
 				}
@@ -293,7 +315,7 @@ public class SearchService
 			if(cancellationToken.IsCancellationRequested)
 				break;
 
-			FairUser account = (FairUser) mcv.Users.Latest(accountId);
+			FairUser account = (FairUser)mcv.Users.Latest(accountId);
 			AccountSearchLiteModel model = new AccountSearchLiteModel
 			{
 				Id = account.Id.ToString(),

@@ -28,7 +28,6 @@ public class ProductDeletion : FairOperation
 
 		a = execution.Authors.Affect(p.Author);
 		p = execution.Products.Affect(p.Id);
-		p.Deleted = true;
 
 		foreach(var i in p.Publications)
 			execution.Publications.Delete(i);
@@ -50,5 +49,7 @@ public class ProductDeletion : FairOperation
 
 		execution.Free(a, a, execution.Net.EntityLength + p.Length);
 		execution.PayOperationEnergy(a);
+
+		p.Deleted = true;
 	}
 }

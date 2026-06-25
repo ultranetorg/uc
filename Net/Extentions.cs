@@ -122,16 +122,16 @@ public static class Extentions
 		return RemoveAt(arr, i);
 	}
 
-	public static T[] Replace<T>(this T[] arr, T a, T b)
+	public static T[] Replace<T>(this T[] arr, T old, T with)
 	{
-		var i = Array.IndexOf(arr, a);
+		var i = Array.IndexOf(arr, old);
 
 		if(i == -1)
 			throw new ArgumentException();
 		
 
 		T[] x = [..arr];
-		x[i] = b;
+		x[i] = with;
 
 		return x;
 	}

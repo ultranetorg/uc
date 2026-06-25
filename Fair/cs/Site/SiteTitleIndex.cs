@@ -5,6 +5,17 @@ using RocksDbSharp;
 
 namespace Uccs.Fair;
 
+public class SiteSearchResult
+{
+	public string		Text { get; set; }
+	public AutoId		Entity { get; set; }
+
+	public override string ToString()
+	{
+		return $"{Text}, {Entity}";
+	}
+}
+
 public class SiteTitleIndex : HnswTable<string, StringToOneHnswEntity>
 {
 	public override string			Name => FairTable._SiteTitle.ToString();
@@ -52,7 +63,7 @@ public class SiteTitleIndex : HnswTable<string, StringToOneHnswEntity>
 		//										 };
 	}
 
-	public SearchResult[] Search(string query, int skip, int take)
+	public SiteSearchResult[] Search(string query, int skip, int take)
 	{
 		var result = Mcv.SiteTitles.Search(	query.ToLowerInvariant(), 
 											skip, 
@@ -61,7 +72,7 @@ public class SiteTitleIndex : HnswTable<string, StringToOneHnswEntity>
 											Mcv.SiteTitles.Latest);
 
 		return result.SelectMany(i =>	{
-											return i.References.Select(j => new SearchResult {Entity = j, Text = i.Text});
+											return i.References.Select(j => new SiteSearchResult {Entity = j, Text = i.Text});
 										}).ToArray();
 	}
 
@@ -73,9 +84,9 @@ public class SiteTitleExecution : StringHnswTableExecution<StringToOneHnswEntity
 	{
 	}
 
-  	public override StringToOneHnswEntity Index(AutoId site, string text)
+  	public StringToOneHnswEntity Index(AutoId site, string text)
   	{
-		var e = base.Index(site, text);
+		var e = Index(text);
  
   		if(!e.References.Contains(site))
   		{	

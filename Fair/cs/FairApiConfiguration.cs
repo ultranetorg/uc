@@ -141,29 +141,34 @@ public class CostApc : FairApc
 	}
 }
 
-public class SearchResult
+public class ProductSearchResult
 {
-	public string		Text { get; set; }
-	public AutoId		Entity { get; set; }
-
-	public override string ToString()
-	{
-		return $"{Text}, {Entity}";
-	}
-}
-
-public class PublicationGlobalSearchResult
-{
-	public string		Title { get; set; }
+	public string		Product { get; set; }
+	public string		Author { get; set; }
+	public AutoId		Avatar { get; set; }
 	public AutoId[]		Publications { get; set; }
+	public int			Rank;
 
 	public override string ToString()
 	{
-		return $"{Title}, Publications={{{Publications.Length}}}";
+		return $"{Product}, Author={Author}, Avatar={Avatar}, Publications={{{Publications.Length}}}";
 	}
 }
+//
+//public class ProductGlobalSearchResult
+//{
+//	public string		Product { get; set; }
+//	public string		Author { get; set; }
+//	public AutoId		Avatar { get; set; }
+//	public AutoId[]		Publications { get; set; }
+//
+//	public override string ToString()
+//	{
+//		return $"{Product}, Author={Author}, Avatar={Avatar}, Publications={{{Publications.Length}}}";
+//	}
+//}
 
-public class PublicationsSearchApc : FairApc
+public class ProductSearchApc : FairApc
 {
 	public AutoId		Site { get; set; }
 	public string		Query { get; set; }
@@ -173,6 +178,6 @@ public class PublicationsSearchApc : FairApc
 	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.Mcv.Lock)
-			return node.Mcv.PublicationTitles.Search(Site, Query, Skip, Take);
+			return node.Mcv.ProductTitles.Search(Site, Query, Skip, Take);
 	}
 }

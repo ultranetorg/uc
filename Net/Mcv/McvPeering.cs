@@ -310,7 +310,7 @@ public abstract class McvPeering : HomoPeering
 
 							using(var w = new WriteBatch())
 							{
-								foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
+								foreach(var i in Mcv.Tables.Where(i => i.IsIndex))
 									i.Index(w, r);
 						
 								Mcv.Rocks.Write(w);
@@ -565,6 +565,9 @@ public abstract class McvPeering : HomoPeering
 				if(r.Target.Hash == null)
 				{
 					r.Target.Summarize();
+
+					if(r.Target.Hash == null) /// Summarize failed
+						continue;
 				}
 
 				Vote createvote(Round r)
@@ -604,6 +607,7 @@ public abstract class McvPeering : HomoPeering
 					v.Signature = Net.Cryptography.ZeroSignature;
 					v.Write(new Writer(cs, Constructor));
 					v.RawPayload = null;
+
 					var l = cs.Length;
 
 					/// Compose txs list prioritizing higher fees but ensure continuous tx Nid sequence 

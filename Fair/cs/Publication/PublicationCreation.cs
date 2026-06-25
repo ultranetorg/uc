@@ -56,6 +56,14 @@ public class PublicationCreation : VotableOperation
 			return false;
 		}
 
+		var t = r.Versions.LastOrDefault()?.Fields.FirstOrDefault(f => f.Name == Token.Title);
+
+		if(t == null)
+		{	
+			error = NotReady;
+			return false;
+		}
+
 		return true;
 	}
 	

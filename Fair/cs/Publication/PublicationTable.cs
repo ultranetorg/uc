@@ -42,40 +42,32 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 	public void Delete(AutoId id)
 	{
 		var p = Execution.Publications.Affect(id);
-		p.Deleted = true;
-
- 		var c = Execution.Categories.Find(p.Category);
-		var s = Execution.Sites.Affect(c.Site);
-		var r = Execution.Products.Affect(p.Product);
-		//var a = execution.Authors.Find(.Author);
-
-		r.Publications = r.Publications.Remove(id);
-
-		if(c.Publications.Contains(p.Id))
-		{
-			c = Execution.Categories.Affect(c.Id);
-			c.Publications = c.Publications.Remove(id);
-
-			s.PublicationsCount--;
-		}
-		
-		s.UnpublishedPublications = s.UnpublishedPublications.Remove(id);
+		var s = Execution.Sites.Affect(p.Site);
 
 		foreach(var i in p.Reviews)
 		{
 			Execution.Reviews.Delete(s, i);
 		}
+
+		if(p.Category != null)
+		{
+			var c = Execution.Categories.Affect(p.Category);
+			c.Publications = c.Publications.Remove(id);
+
+			s.PublicationsCount--;
+		}
+
+		var r = Execution.Products.Affect(p.Product);
+		
+		r.Publications = r.Publications.Remove(id);
+		s.UnpublishedPublications = s.UnpublishedPublications.Remove(id);
 		
 		var v = r.Versions.First(i => i.Id == p.ProductVersion);
 
 		r.Versions = r.Versions.Replace(v, new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs - 1});
 		
-		var f = v.Fields.FirstOrDefault(f => f.Name == Token.Title);
-
-		if(f != null)
-		{
-			Execution.PublicationTitles.Deindex(c.Site, f.AsUtf8);
-		}
+		if(p.IsPublished)
+			Execution.ProductTitles.Deindex(p);
 
 		if(p.Flags.HasFlag(PublicationFlags.RequestedByAuthor))
 		{ 
@@ -84,5 +76,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 		}
 		else
 			Execution.Free(s, s, Execution.Net.EntityLength);
+
+		p.Deleted = true;
 	}
 }

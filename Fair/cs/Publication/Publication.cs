@@ -25,6 +25,8 @@ public class Publication : IBinarySerializable, ITableEntry
 	public bool								Deleted { get; set; }
 	FairMcv									Mcv;
 
+	public bool								IsPublished => Category != null;
+
 	public Publication()
 	{
 	}

@@ -55,6 +55,17 @@ public class PublicationPublish : VotableOperation
 			return false;
 		}
 
+		//var r = execution.Products.Find(p.Product);
+		//
+		//var t = r.Versions.FirstOrDefault(i => i.Id == p.ProductVersion).Fields.FirstOrDefault(i => i.Name == Token.Title);
+		//var l = r.Versions.FirstOrDefault(i => i.Id == p.ProductVersion).Fields.FirstOrDefault(i => i.Name == Token.Logo);
+		//
+		//if(t == null || l == null)
+		//{	
+		//	error = NotReady;
+		//	return false;
+		//}
+
 		return p.Category != Category;
 	}
 
@@ -81,10 +92,7 @@ public class PublicationPublish : VotableOperation
 
 		Site.UnpublishedPublications = Site.UnpublishedPublications.Remove(p.Id);
 
-		var tr = r.Versions.Last().Fields.FirstOrDefault(f => f.Name == Token.Title);
-			
-		if(tr != null)
-			execution.PublicationTitles.Index(Site.Id, p.Id, tr.AsUtf8);
+		execution.ProductTitles.Index(p);
 
 		var a = execution.Authors.Affect(r.Author);
 		execution.RewardForModeration(Site, a, out Error);

@@ -98,11 +98,11 @@ public abstract class RdnCommand : McvCommand
 						t.Meaning == DataType.Directory)
 						return new ResourceData(t, Urr.Parse(d.Get<string>("address")));
 				}
-
-				throw new SyntaxException("Unknown type");
 			}
-			else if(d.Value != null)
-				return new ResourceData(new Reader(GetBytes("data")));
+			else if(d.Value == null)
+				return null;
+
+			throw new SyntaxException("Unknown or missing meaning/type");
 		}
 
 		return null;

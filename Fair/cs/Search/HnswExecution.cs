@@ -263,7 +263,7 @@ public class StringHnswTableExecution<E> : HnswExecution<string, E>  where E : S
  		return HnswId.ToBucket(RandomLevel(Cryptography.Hash(2, x)), x);
 	} 
 
-  	public virtual E Index(AutoId entity, string text)
+  	public E Index(string text)
   	{
  		text = text.ToLowerInvariant();
  

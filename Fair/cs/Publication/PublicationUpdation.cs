@@ -73,10 +73,8 @@ public class PublicationUpdation : VotableOperation
 														Fields	= prev.Fields
 													});
 
-			var xtitle = prev.Fields.FirstOrDefault(i => i.Name == Token.Title);
-			
-			if(xtitle != null)
-				execution.PublicationTitles.Deindex(p.Site, xtitle.AsUtf8);
+			if(p.IsPublished)
+				execution.ProductTitles.Deindex(p);
 		}
 	
 		p.ProductVersion = Version;
@@ -93,10 +91,8 @@ public class PublicationUpdation : VotableOperation
 		if(Version == r.Versions.Last().Id)
 			Site.ChangedPublications = Site.ChangedPublications.Remove(p.Id);
 
-		var title = v.Fields.FirstOrDefault(i => i.Name == Token.Title);
-
-		if(title != null)
-			execution.PublicationTitles.Index(p.Site, p.Id, title.AsUtf8);
+		if(p.IsPublished)
+			execution.ProductTitles.Index(p);
 
 		execution.RewardForModeration(Site, a, out Error);
 	}

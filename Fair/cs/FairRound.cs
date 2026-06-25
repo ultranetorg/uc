@@ -14,7 +14,7 @@ public class FairRound : Round
 	public TableState<AutoId, ProposalComment>					ProposalComments;
 	public TableState<AutoId, File>								Files;
 	public TableState<RawId, Word>								Words;
-	public HnswTableState<string, StringToDictionaryHnswEntity>	PublicationTitles;
+	public HnswTableState<string, ProductTitleHnswEntity>		ProductTitles;
 	public HnswTableState<string, StringToOneHnswEntity>		SiteTitles;
 
 	public FairRound(FairMcv mcv) : base(mcv)
@@ -29,7 +29,7 @@ public class FairRound : Round
 		ProposalComments	= new (mcv.ProposalComments);
 		Files				= new (mcv.Files);
 		Words				= new (mcv.Words);
-		PublicationTitles	= new (mcv.PublicationTitles);
+		ProductTitles		= new (mcv.ProductTitles);
 		SiteTitles			= new (mcv.SiteTitles);
 	}
 
@@ -55,7 +55,7 @@ public class FairRound : Round
 		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
 		if(table == Mcv.Files)				return Files.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
-		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
+		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
 		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
 
 		return base.AffectedByTable(table);
@@ -73,7 +73,7 @@ public class FairRound : Round
 		if(table == Mcv.ProposalComments)	return ProposalComments as S;
 		if(table == Mcv.Files)				return Files as S;
 		if(table == Mcv.Words)				return Words as S;
-		if(table == Mcv.PublicationTitles)	return PublicationTitles as S;
+		if(table == Mcv.ProductTitles)		return ProductTitles as S;
 		if(table == Mcv.SiteTitles)			return SiteTitles as S;
 
 		return base.FindState<S>(table);
@@ -95,7 +95,7 @@ public class FairRound : Round
 		ProposalComments.Absorb(e.ProposalComments);
 		Files.Absorb(e.Files);
 		Words.Absorb(e.Words);
-		PublicationTitles.Absorb(e.PublicationTitles);
+		ProductTitles.Absorb(e.ProductTitles);
 		SiteTitles.Absorb(e.SiteTitles);
 	}
 
