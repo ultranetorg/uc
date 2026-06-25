@@ -9,6 +9,7 @@ import {
   CategoryPage,
   ErrorPage,
   PublicationPage,
+  PublisherPage,
   ReviewerPage,
   SearchPage,
   SitePage,
@@ -32,7 +33,7 @@ import {
   ProposalPage,
   ProposalsPage,
   PublicationsPage,
-  PublisherPage,
+  PublisherPage as ModerationPublisherPage,
   PublisherProposalPage,
   PublishersPage,
   ReviewsPage,
@@ -118,7 +119,7 @@ export const EntityRoute = () => {
             <Route path="c/:tabKey?" element={<PublicationsPage />} />
             <Route path="a/r/:proposalId" element={<PublisherProposalPage />} />
             <Route path="a/:tabKey?" element={<PublishersPage />} />
-            <Route path="a/p/:publisherId" element={<PublisherPage />} />
+            <Route path="a/p/:publisherId" element={<ModerationPublisherPage />} />
             <Route path="r" element={<ReviewsPage />} />
             <Route path="u" element={<UsersLayout />}>
               <Route path=":tabKey?" element={<UsersPage />} />

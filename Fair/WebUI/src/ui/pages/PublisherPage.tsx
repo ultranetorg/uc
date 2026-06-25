@@ -10,12 +10,12 @@ import { routes } from "utils"
 export const PublisherPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { authorId } = useParams()
+  const { publisherId } = useParams()
   const siteId = useResolveSiteId()
 
   const [isModalOpen, setModalOpen] = useState(false)
 
-  const { isPending, data: author } = useGetAuthor(authorId)
+  const { isPending, data: author } = useGetAuthor(publisherId)
 
   useSiteTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 
