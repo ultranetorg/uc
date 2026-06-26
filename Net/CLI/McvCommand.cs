@@ -8,6 +8,7 @@ public abstract class McvCommand : NetCommand
 {
 	public const string					AORArg = "aor";
 	public const string					ByArg = "by";
+	public const string					BoostArg = "boost";
 	//public const string					SignerArg = "signer";
 	public Action						Transacted;
 	protected McvCli					Cli;

@@ -17,7 +17,7 @@ public class BatchCommand : McvCommand
 						ByArgument()];
 
 		a.Execute = () =>	{
-								return Args	.Where(i =>	i.Name != AORArg  && i.Name != ByArg)
+								return Args	.Where(i =>	i.Name != AORArg  && i.Name != ByArg  && i.Name != BoostArg)
 											.Select(x => {
 															var op = (x.Value as Xon).Nodes;
 

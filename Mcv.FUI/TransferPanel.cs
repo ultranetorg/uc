@@ -179,7 +179,8 @@ public partial class TransferPanel : McvPanel
 														a.Id[0] == 0 && a.Id[1] == 1 ? long.Parse(Amount.Text) : 0,
 														a.Id[0] == 1 ? long.Parse(Amount.Text) : 0)], 
 									FromUser.Name, 
-									null, 
+									0,
+									null,
 									s.Session, 
 									ActionOnResult.RetryUntilConfirmed,
 									new Flow());

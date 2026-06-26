@@ -74,7 +74,7 @@ public class PackageCommand : NexusCommand
 								}
 								
 								if(ops.Any())
-									Transact(rdn, ops, GetString(McvCommand.ByArg), McvCommand.GetActionOnResult(Args));
+									Transact(rdn, ops, GetString(McvCommand.ByArg), GetLong(McvCommand.BoostArg, 0), McvCommand.GetActionOnResult(Args));
 
 								return ops;
 							};

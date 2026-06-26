@@ -529,7 +529,7 @@ public abstract class McvPeering : HomoPeering
 						
 						CandidacyDeclarations.Add(gs.Id);
 					
-						Transact([Mcv.CreateCandidacyDeclaration()], gs.User, null, s.Session, ActionOnResult.RetryUntilConfirmed, Flow);
+						Transact([Mcv.CreateCandidacyDeclaration()], gs.User, 0, null, s.Session, ActionOnResult.RetryUntilConfirmed, Flow);
 					} 
 					else
 					{
@@ -1128,7 +1128,7 @@ public abstract class McvPeering : HomoPeering
 		}
 	}
 
- 	public Transaction Transact(IEnumerable<Operation> operations, string user, byte[] tag, byte[] session, ActionOnResult aor, Flow flow)
+ 	public Transaction Transact(IEnumerable<Operation> operations, string user, long boost, byte[] tag, byte[] session, ActionOnResult aor, Flow flow)
  	{
 		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
 			throw new NodeException(NodeError.LimitExceeded);
@@ -1139,6 +1139,7 @@ public abstract class McvPeering : HomoPeering
 		var t = new Transaction()
 				{
 					User			= user,
+					Boost			= boost,
 					Tag				= tag ?? Guid.NewGuid().ToByteArray(),
 					Session			= session ?? FindSession(user)?.Session,
 					Flow			= flow,
