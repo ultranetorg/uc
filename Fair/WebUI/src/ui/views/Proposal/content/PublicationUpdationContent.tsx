@@ -14,7 +14,7 @@ export const PublicationUpdationContent = memo(({ siteId, proposal }: ProposalVi
 
   const { isFetching, data: publication } = useGetPublicationDetailsDiff(data.publicationId, data.version)
 
-  if (isFetching || !publication) <div>Loading</div>
+  if (isFetching || !publication) return <div>Loading</div>
 
   return (
     <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">

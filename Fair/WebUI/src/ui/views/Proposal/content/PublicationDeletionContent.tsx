@@ -14,7 +14,7 @@ export const PublicationDeletionContent = memo(({ siteId, proposal }: ProposalVi
 
   const { isPending, data: publication } = useGetPublicationDetails(publicationId)
 
-  if (isPending || !publication) <div>Loading</div>
+  if (isPending || !publication) return <div>Loading</div>
 
   return (
     <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
