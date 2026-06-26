@@ -22,7 +22,7 @@ export const ModeratorProposalPage = memo(() => {
       parentBreadcrumbs={[{ title: t("common:moderators"), path: routes.moderation.moderators(siteId!) }]}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={routes.moderation.moderators(siteId!, "p")}
+      previousPath={routes.moderation.moderators(siteId!, "proposals")}
     />
   )
 })

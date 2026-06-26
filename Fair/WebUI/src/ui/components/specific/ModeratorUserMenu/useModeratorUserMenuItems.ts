@@ -20,10 +20,10 @@ export const useModeratorUserMenuItems = (userId: string, userName?: string) => 
           type: "user-unregistration",
           userId,
           parentBreadcrumbs: [
-            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
-            { path: routes.moderation.users(siteId!, "r"), title: t("common:users") },
+            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.users(siteId!, "remove"), title: t("common:users") },
           ],
-          redirectAfterProposalCreation: routes.moderation.users(siteId!, "r"),
+          redirectAfterProposalCreation: routes.moderation.users(siteId!, "remove"),
           redirectAfterProposalExecution: routes.site(siteId!),
           invalidateQueryKeys: sitesKeys.users(siteId!),
         },

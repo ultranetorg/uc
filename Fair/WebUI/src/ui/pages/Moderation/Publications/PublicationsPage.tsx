@@ -13,9 +13,9 @@ import { PublicationsTab } from "./PublicationsTab"
 import { UnpublishedPublicationsTab } from "./UnpublishedPublicationsTab"
 
 const routeToTabKey: Record<string, string> = {
-  p: "proposals",
-  c: "changed",
-  u: "unpublished",
+  proposals: "proposals",
+  changed: "changed",
+  unpublished: "unpublished",
 }
 
 export const PublicationsPage = () => {
@@ -42,9 +42,9 @@ export const PublicationsPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "proposals", label: t("common:proposals"), route: "p" },
-      { key: "changed", label: t("changed"), route: "c" },
-      { key: "unpublished", label: t("unpublished"), route: "u" },
+      { key: "proposals", label: t("common:proposals") },
+      { key: "changed", label: t("changed"), route: "changed" },
+      { key: "unpublished", label: t("unpublished"), route: "unpublished" },
     ],
     [t],
   )

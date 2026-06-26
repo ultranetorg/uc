@@ -26,7 +26,7 @@ export const useModeratorPublicationMenuItems = (
           type: "publication-unpublish",
           publicationId,
           parentBreadcrumbs: [
-            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
             { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
           redirectAfterProposalCreation: routes.moderation.publications(siteId!),
@@ -45,7 +45,7 @@ export const useModeratorPublicationMenuItems = (
           type: "publication-deletion",
           publicationId,
           parentBreadcrumbs: [
-            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
             { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
           redirectAfterProposalCreation: routes.moderation.publications(siteId!),

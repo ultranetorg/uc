@@ -33,7 +33,7 @@ export const ModeratorChangedPublicationPage = () => {
   const parentBreadcrumbs = useMemo(
     () => [
       { title: t("common:publications"), path: routes.moderation.publications(siteId!) },
-      { title: t("common:changed"), path: routes.moderation.publications(siteId!, "c") },
+      { title: t("common:changed"), path: routes.moderation.publications(siteId!, "changed") },
     ],
     [siteId, t],
   )

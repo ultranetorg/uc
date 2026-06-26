@@ -30,11 +30,11 @@ export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
           title: "Create category",
           type: "category-creation",
           parentBreadcrumbs: [
-            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
             { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
           categoryId: null,
-          redirectAfterProposalCreation: routes.moderation.root(siteId!),
+          redirectAfterProposalCreation: routes.moderation.proposals(siteId!),
           redirectAfterProposalExecution: location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },

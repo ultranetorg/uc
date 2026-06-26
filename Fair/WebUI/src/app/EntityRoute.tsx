@@ -117,46 +117,51 @@ export const EntityRoute = () => {
           }
         >
           <Route index element={<SitePage />} />
-          <Route path="s" element={<SearchPage />} />
-          <Route path="i" element={<AboutPage />} />
+          <Route path="search" element={<SearchPage />} />
+          <Route path="about" element={<AboutPage />} />
 
           {/* Governance */}
           <Route
-            path="g/new"
+            path="governance/new-referendum"
             element={
               <CreateProposalProvider>
                 <CreateReferendumPage />
               </CreateProposalProvider>
             }
           />
-          <Route path="g/p/:perpetualSurveyId" element={<PerpetualSurveyPage />} />
-          <Route path="g/r/:referendumId" element={<ReferendumPage />} />
-          <Route path="g/p" element={<PerpetualSurveysPage />} />
-          <Route path="g/r" element={<ReferendumsPage />} />
+          <Route path="governance/surveys/:perpetualSurveyId" element={<PerpetualSurveyPage />} />
+          <Route path="governance/referendums/:referendumId" element={<ReferendumPage />} />
+          <Route path="governance/surveys" element={<PerpetualSurveysPage />} />
+          <Route path="governance/referendums" element={<ReferendumsPage />} />
 
           {/* Moderation */}
           <Route
-            path="m/new"
+            path="moderation/new-proposal"
             element={
               <CreateProposalProvider>
                 <CreateDiscussionPage />
               </CreateProposalProvider>
             }
           />
-          <Route path="m/new-publication" element={<ModeratorCreatePublicationPage />} />
-          <Route path="m" element={<ModerationLayout />}>
-            <Route index element={<ProposalsPage />} />
-            <Route path="p/:discussionId" element={<ProposalPage />} />
-            <Route path="m/p/:proposalId" element={<ModeratorProposalPage />} />
-            <Route path="m/:tabKey?" element={<ModeratorsPage />} />
-            <Route path="c/p/:proposalId" element={<ModeratorPublicationPage />} />
-            <Route path="c/c/:publicationId" element={<ModeratorChangedPublicationPage />} />
-            <Route path="c/u/:publicationId" element={<UnpublishedPublicationPage />} />
-            <Route path="c/:tabKey?" element={<PublicationsPage />} />
-            <Route path="a/r/:proposalId" element={<PublisherProposalPage />} />
-            <Route path="a/:tabKey?" element={<PublishersPage />} />
+          <Route path="moderation/publications/new" element={<ModeratorCreatePublicationPage />} />
+          <Route path="moderation/publications/preview" element={<PreviewPage />} />
+          <Route path="moderation" element={<ModerationLayout />}>
+            // Proposals
+            <Route path="proposals" element={<ProposalsPage />} />
+            <Route path="proposals/:proposalId" element={<ProposalPage />} />
+            // Moderators
+            <Route path="moderators/proposals/:proposalId" element={<ModeratorProposalPage />} />
+            <Route path="moderators/:tabKey?" element={<ModeratorsPage />} />
+            // Publications
+            <Route path="publications/proposals/:proposalId" element={<ModeratorPublicationPage />} />
+            <Route path="publications/changed/:publicationId" element={<ModeratorChangedPublicationPage />} />
+            <Route path="publications/unpublished/:publicationId" element={<UnpublishedPublicationPage />} />
+            <Route path="publications/:tabKey?" element={<PublicationsPage />} />
+            // Publishers
+            <Route path="publishers/proposals/:proposalId" element={<PublisherProposalPage />} />
+            <Route path="publishers/:tabKey?" element={<PublishersPage />} />
             <Route
-              path="a/p/:publisherId"
+              path="publishers/details/:publisherId"
               element={
                 <PublishersLayout>
                   <ConstrainedWidthLayout>
@@ -165,11 +170,13 @@ export const EntityRoute = () => {
                 </PublishersLayout>
               }
             />
-            <Route path="r" element={<ReviewsPage />} />
-            <Route path="u" element={<UsersSectionLayout />}>
+            // Reviews
+            <Route path="reviews" element={<ReviewsPage />} />
+            // Users
+            <Route path="users" element={<UsersSectionLayout />}>
               <Route path=":tabKey?" element={<UsersPage />} />
               <Route
-                path="u/:userId"
+                path="details/:userId"
                 element={
                   <ConstrainedWidthLayout>
                     <ReviewerPage />
@@ -177,7 +184,6 @@ export const EntityRoute = () => {
                 }
               />
             </Route>
-            <Route path="v" element={<PreviewPage />} />
           </Route>
 
           {/* любой другой путь под сайтом */}

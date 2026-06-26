@@ -31,13 +31,13 @@ export const getPublishersTabItemRenderer =
               state={{
                 parentBreadcrumbs: [
                   { path: routes.moderation.publishers(siteId), title: t("common:proposals") },
-                  { path: routes.moderation.publishers(siteId, "p"), title: t("title") },
+                  { path: routes.moderation.publishers(siteId, "publishers"), title: t("title") },
                 ],
                 previousPath: pathname,
                 title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
                 type: "site-authors-removal",
                 authors: [publisher.author],
-                redirectAfterProposalCreation: routes.moderation.publishers(siteId, "r"),
+                redirectAfterProposalCreation: routes.moderation.publishers(siteId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.publishers(siteId),
               }}

@@ -23,7 +23,7 @@ export const UnpublishedPublicationPage = () => {
   const parentBreadcrumbs = useMemo(
     () => [
       { title: t("common:publications"), path: routes.moderation.publications(siteId!) },
-      { title: t("common:unpublished"), path: routes.moderation.publications(siteId!, "u") },
+      { title: t("common:unpublished"), path: routes.moderation.publications(siteId!, "unpublished") },
     ],
     [siteId, t],
   )
@@ -53,8 +53,8 @@ export const UnpublishedPublicationPage = () => {
                       : t("publishNoTitle"),
                     type: "publication-publish" as OperationClass,
                     publicationId: publication.id,
-                    redirectAfterProposalCreation: routes.moderation.publications(siteId!, "p"),
-                    redirectAfterProposalExecution: routes.moderation.publications(siteId!, "u"),
+                    redirectAfterProposalCreation: routes.moderation.publications(siteId!, "proposals"),
+                    redirectAfterProposalExecution: routes.moderation.publications(siteId!, "unpublished"),
                     invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
                   }}
                 >

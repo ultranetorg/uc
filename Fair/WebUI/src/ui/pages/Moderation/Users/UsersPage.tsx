@@ -12,9 +12,9 @@ import { UsersRemovalsTab } from "./RemoveUsersTab"
 import { UsersTab } from "./UsersTab"
 
 const routeToTabKey: Record<string, string> = {
-  n: "new-users",
-  r: "users-removals",
-  u: "users",
+  new: "new-users",
+  remove: "users-removals",
+  users: "users",
 }
 
 export const UsersPage = () => {
@@ -35,9 +35,9 @@ export const UsersPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "new-users", label: t("common:new"), route: "n" },
-      { key: "users-removals", label: t("common:removals"), route: "r" },
-      { key: "users", label: t("common:users") },
+      { key: "new-users", label: t("common:new") },
+      { key: "users-removals", label: t("common:removals"), route: "remove" },
+      { key: "users", label: t("common:users"), route: "users" },
     ],
     [t],
   )

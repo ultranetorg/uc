@@ -21,7 +21,7 @@ export const ModeratorPublicationPage = () => {
       parentBreadcrumbs={{ title: t("common:publications"), path: routes.moderation.publications(siteId!) }}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={routes.moderation.publications(siteId!, "p")}
+      previousPath={routes.moderation.publications(siteId!, "proposals")}
     />
   )
 }

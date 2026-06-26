@@ -54,7 +54,9 @@ export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
         title={headerTitle}
         breadcrumbTitle={!userId ? t("title") : userId}
         parentBreadcrumbs={
-          userId !== undefined ? { path: routes.moderation.users(siteId!, "u"), title: t("common:users") } : undefined
+          userId !== undefined
+            ? { path: routes.moderation.users(siteId!, "users"), title: t("common:users") }
+            : undefined
         }
         components={
           <DropdownSearchAccount

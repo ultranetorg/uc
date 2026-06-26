@@ -100,7 +100,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         ? Array.isArray(parentBreadcrumbs)
           ? [...parentBreadcrumbs]
           : [parentBreadcrumbs]
-        : { title: t("common:proposals"), path: routes.moderation.root(siteId!) },
+        : { title: t("common:proposals"), path: routes.moderation.proposals(siteId!) },
     [parentBreadcrumbs, siteId, t],
   )
 
@@ -126,7 +126,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
             invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
           }
 
-          navigate(previousPath ?? routes.moderation.root(siteId!))
+          navigate(previousPath ?? routes.moderation.proposals(siteId!))
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -158,7 +158,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:publicationVoted"), "success")
-          navigate(routes.moderation.publications(siteId!, "p"))
+          navigate(routes.moderation.publications(siteId!, "proposals"))
         },
         onError: err => {
           showToast(err.toString(), "error")

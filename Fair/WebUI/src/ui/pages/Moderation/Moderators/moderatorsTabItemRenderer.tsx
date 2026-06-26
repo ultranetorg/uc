@@ -31,7 +31,7 @@ export const moderatorsTabItemRenderer =
                 title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
                 type: "site-moderator-removal",
                 moderators: [moderator.user],
-                redirectAfterProposalCreation: routes.moderation.moderators(siteId, "p"),
+                redirectAfterProposalCreation: routes.moderation.moderators(siteId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.moderators(siteId),
               }}

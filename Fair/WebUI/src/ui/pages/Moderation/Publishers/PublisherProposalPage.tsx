@@ -19,10 +19,10 @@ export const PublisherProposalPage = memo(() => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={[{ title: t("common:publishers"), path: routes.moderation.publishers(siteId!, "r") }]}
+      parentBreadcrumbs={[{ title: t("common:publishers"), path: routes.moderation.publishers(siteId!, "proposals") }]}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={routes.moderation.publishers(siteId!, "r")}
+      previousPath={routes.moderation.publishers(siteId!, "proposals")}
     />
   )
 })

@@ -23,28 +23,32 @@ public class FairTypeResolver : ApiTypeResolver
 {
     public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
     {
-        var ti = base.GetTypeInfo(type, options);
+		var ti = base.GetTypeInfo(type, options);
 
-        if(ti.Type == typeof(PeerRequest))
+		if(ti.Type == typeof(PeerRequest))
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-        else if(ti.Type == typeof(Result))
+		else if(ti.Type == typeof(Result))
 			foreach(var i in typeof(FairPpcClass).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-        else if(ti.Type == typeof(CodeException))
+		else if(ti.Type == typeof(CodeException))
 			foreach(var i in typeof(ProductException).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-        else if(ti.Type == typeof(SiteOperation))
+		else if(ti.Type == typeof(SiteOperation))
 		{
 			ti.PolymorphismOptions ??= new();
 
 			foreach(var i in typeof(SiteOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(SiteOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 		}
-        else if(ti.Type == typeof(VotableOperation))
+		else if(ti.Type == typeof(VotableOperation))
+		{
+			ti.PolymorphismOptions ??= new();
+
 			foreach(var i in typeof(VotableOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(VotableOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
- 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-        else if(ti.Type == typeof(Operation))
+				ti.PolymorphismOptions.DerivedTypes.Add(i);
+		}
+		else if(ti.Type == typeof(Operation))
  		{	
 			foreach(var i in Enum.GetNames<FairOperationClass>())
 			{ 

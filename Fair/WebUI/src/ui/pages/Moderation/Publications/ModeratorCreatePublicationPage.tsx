@@ -64,7 +64,7 @@ export const ModeratorCreatePublicationPage = () => {
         if (isRequiredVoting) {
           navigate(routes.moderation.publications(siteId!))
         } else {
-          navigate(routes.moderation.publications(siteId!, "u"))
+          navigate(routes.moderation.publications(siteId!, "unpublished"))
         }
       },
       onError: err => showToast(err.toString(), "error"),

@@ -24,46 +24,52 @@ export const routes = {
   site: (siteId: string) => sitePath(siteId),
   category: (_siteId: string, categoryId: string) => `/${addPrefix("categoryId", categoryId)}`,
   publication: (_siteId: string, publicationId: string) => `/${addPrefix("publicationId", publicationId)}`,
-  search: (siteId: string) => `${sitePath(siteId)}/s`,
-  about: (siteId: string) => `${sitePath(siteId)}/i`,
+  search: (siteId: string) => `${sitePath(siteId)}/search`,
+  about: (siteId: string) => `${sitePath(siteId)}/about`,
   reviewer: (siteId: string, reviewerId: string) => `${sitePath(siteId)}/${addPrefix("userId", reviewerId)}`,
   publisher: (siteId: string, publisherId: string) => `${sitePath(siteId)}/${addPrefix("publisherId", publisherId)}`,
 
   user: (userId: string) => `/${addPrefix("userId", userId)}`,
-  profile: (userId: string) => `/${addPrefix("profileId", userId)}`,
+  profile: (userId: string) => `/${addPrefix("profileId", userId)}`, // TODO: fix later.
   author: (authorId: string) => `/${addPrefix("publisherId", authorId)}`,
 
   governance: {
-    create: (siteId: string) => `${sitePath(siteId)}/g/new`,
-    surveys: (siteId: string) => `${sitePath(siteId)}/g/p`,
-    survey: (siteId: string, surveyId: string) => `${sitePath(siteId)}/g/p/${surveyId}`,
-    referendums: (siteId: string) => `${sitePath(siteId)}/g/r`,
-    referendum: (siteId: string, referendumId: string) => `${sitePath(siteId)}/g/r/${referendumId}`,
+    create: (siteId: string) => `${sitePath(siteId)}/governance/new-referendum`,
+    surveys: (siteId: string) => `${sitePath(siteId)}/governance/surveys`,
+    survey: (siteId: string, surveyId: string) => `${sitePath(siteId)}/governance/surveys/${surveyId}`,
+    referendums: (siteId: string) => `${sitePath(siteId)}/governance/referendums`,
+    referendum: (siteId: string, referendumId: string) => `${sitePath(siteId)}/governance/referendums/${referendumId}`,
   },
 
   moderation: {
-    root: (siteId: string) => `${sitePath(siteId)}/m`,
-    create: (siteId: string) => `${sitePath(siteId)}/m/new`,
-    createPublication: (siteId: string) => `${sitePath(siteId)}/m/new-publication`,
-    proposal: (siteId: string, discussionId: string) => `${sitePath(siteId)}/m/p/${discussionId}`,
+    proposals: (siteId: string) => `${sitePath(siteId)}/moderation/proposals`,
+    create: (siteId: string) => `${sitePath(siteId)}/moderation/new-proposal`,
 
-    moderators: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/m/m`, tabKey),
-    moderatorProposal: (siteId: string, proposalId: string) => `${sitePath(siteId)}/m/m/p/${proposalId}`,
+    proposal: (siteId: string, discussionId: string) => `${sitePath(siteId)}/moderation/proposals/${discussionId}`,
 
-    publications: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/m/c`, tabKey),
-    moderatorPublication: (siteId: string, proposalId: string) => `${sitePath(siteId)}/m/c/p/${proposalId}`,
-    changedPublication: (siteId: string, publicationId: string) => `${sitePath(siteId)}/m/c/c/${publicationId}`,
-    unpublishedPublication: (siteId: string, publicationId: string) => `${sitePath(siteId)}/m/c/u/${publicationId}`,
+    moderators: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderation/moderators`, tabKey),
+    moderatorProposal: (siteId: string, proposalId: string) =>
+      `${sitePath(siteId)}/moderation/moderators/proposals/${proposalId}`,
 
-    publishers: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/m/a`, tabKey),
-    publisherProposal: (siteId: string, proposalId: string) => `${sitePath(siteId)}/m/a/r/${proposalId}`,
-    publisher: (siteId: string, publisherId: string) => `${sitePath(siteId)}/m/a/p/${publisherId}`,
+    createPublication: (siteId: string) => `${sitePath(siteId)}/moderation/publications/new`,
+    preview: (siteId: string) => `${sitePath(siteId)}/moderation/publications/preview`,
+    publications: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderation/publications`, tabKey),
+    moderatorPublication: (siteId: string, proposalId: string) =>
+      `${sitePath(siteId)}/moderation/publications/proposals/${proposalId}`,
+    changedPublication: (siteId: string, publicationId: string) =>
+      `${sitePath(siteId)}/moderation/publications/changed/${publicationId}`,
+    unpublishedPublication: (siteId: string, publicationId: string) =>
+      `${sitePath(siteId)}/moderation/publications/unpublished/${publicationId}`,
 
-    reviews: (siteId: string) => `${sitePath(siteId)}/m/r`,
+    publishers: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderation/publishers`, tabKey),
+    publisherProposal: (siteId: string, proposalId: string) =>
+      `${sitePath(siteId)}/moderation/publishers/proposals/${proposalId}`,
+    publisher: (siteId: string, publisherId: string) =>
+      `${sitePath(siteId)}/moderation/publishers/details/${publisherId}`,
 
-    users: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/m/u`, tabKey),
-    user: (siteId: string, userId: string) => `${sitePath(siteId)}/m/u/u/${userId}`,
+    reviews: (siteId: string) => `${sitePath(siteId)}/moderation/reviews`,
 
-    preview: (siteId: string) => `${sitePath(siteId)}/m/v`,
+    users: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderation/users`, tabKey),
+    user: (siteId: string, userId: string) => `${sitePath(siteId)}/moderation/users/details/${userId}`,
   },
 } as const
