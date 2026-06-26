@@ -1,17 +1,20 @@
-import { useCallback, useEffect, useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { memo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
-import { SvgProfilePageClose } from "assets"
 import { useGetAuthor } from "entities"
-import { useEscapeKey, useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { Breadcrumbs } from "ui/components"
 import { AuthorPublicationsView } from "ui/views"
 import { routes } from "utils"
 
-export const PublisherPage = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
+export type PublisherPageProps = {
+  showDefaultBreadcrumbs?: boolean
+}
+
+export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: PublisherPageProps) => {
   const { publisherId } = useParams()
   const siteId = useResolveSiteId()
+  const { t } = useTranslation()
 
   const [isModalOpen, setModalOpen] = useState(false)
 
@@ -19,52 +22,29 @@ export const PublisherPage = () => {
 
   useSiteTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 
-  const state = location.state as { backgroundLocation?: Location } | undefined
-  const backgroundLocation = state?.backgroundLocation
-
-  const close = useCallback(() => navigate(-1), [navigate])
-
-  useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [])
-
-  useEscapeKey(
-    useCallback(() => {
-      if (isModalOpen) setModalOpen(false)
-      else close()
-    }, [close, isModalOpen]),
-  )
-
   if (isPending || !author) {
-    return <div>Loading</div>
+    return <div>Loading PublisherPage</div>
   }
 
   return (
     <>
-      <div className="absolute inset-0 z-50 min-h-screen w-full bg-white">
-        <div className="mx-auto max-w-[1240px]">
-          <div className="flex pl-17">
-            <div className="flex w-full gap-6">
-              <div className="flex w-full flex-col gap-6 py-8">
-                <AuthorPublicationsView
-                  size="compact"
-                  siteId={siteId!}
-                  author={author}
-                  isModalOpen={isModalOpen}
-                  onModalOpenChange={setModalOpen}
-                />
-              </div>
-              <div className="pt-7.5">
-                {backgroundLocation ? (
-                  <SvgProfilePageClose className="cursor-pointer" onClick={close} />
-                ) : (
-                  <Link to={routes.home()}>
-                    <SvgProfilePageClose className="cursor-pointer" />
-                  </Link>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {showDefaultBreadcrumbs && (
+        <Breadcrumbs
+          fullPath={true}
+          items={[
+            { path: routes.site(siteId!), title: t("common:home") },
+            { title: t("common:publishers") },
+            { title: author?.title },
+          ]}
+        />
+      )}
+      <AuthorPublicationsView
+        size="compact"
+        siteId={siteId!}
+        author={author}
+        isModalOpen={isModalOpen}
+        onModalOpenChange={setModalOpen}
+      />
     </>
   )
-}
+})

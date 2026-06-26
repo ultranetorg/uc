@@ -1,6 +1,6 @@
-import { createBrowserRouter, createHashRouter, RouteObject, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, createHashRouter, Outlet, RouteObject, RouterProvider } from "react-router-dom"
 
-import { BaseLayout, SiteLayout } from "ui/layouts"
+import { BaseLayout } from "ui/layouts"
 import { ErrorPage, SitesPage } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
@@ -21,7 +21,7 @@ const routes: RouteObject[] = [
         <SignInProvider>
           <UserProvider>
             <SiteProvider>
-              <BaseLayout />
+              <Outlet />
             </SiteProvider>
           </UserProvider>
         </SignInProvider>
@@ -37,16 +37,18 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <SitesPage />,
+        element: (
+          <BaseLayout>
+            <SitesPage />
+          </BaseLayout>
+        ),
       },
       {
         path: ":appEntity/*",
         element: (
           <SiteRolesProvider>
             <SitePoliciesProvider>
-              <SiteLayout>
-                <EntityRoute />
-              </SiteLayout>
+              <EntityRoute />
             </SitePoliciesProvider>
           </SiteRolesProvider>
         ),

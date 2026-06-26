@@ -1,7 +1,8 @@
-import { Route, Routes, useLocation } from "react-router-dom"
+import { ReactNode } from "react"
+import { Route, Routes } from "react-router-dom"
 
-import { useParams } from "hooks"
-import { ModerationLayout, UsersLayout } from "ui/layouts"
+import { useBackgroundLocation, useParams } from "hooks"
+import { BaseLayout, ConstrainedWidthLayout, ModerationLayout, SiteLayout, UsersLayout } from "ui/layouts"
 
 import {
   AboutPage,
@@ -40,36 +41,64 @@ import {
   UnpublishedPublicationPage,
   UsersPage,
 } from "ui/pages/moderation"
-import { CreateProposalProvider } from "ui/views"
-import { FullscreenPageView } from "ui/views/FullscreenPageView"
-import { ENTITY_PREFIXES } from "utils"
+import { FullscreenPageView, CreateProposalProvider } from "ui/views"
+import { ENTITY_PREFIXES, EntityParam } from "utils"
+
+import { MaybeFullscreen } from "./route"
+
+const ERROR_PAGE = (
+  <BaseLayout>
+    <ErrorPage />
+  </BaseLayout>
+)
 
 const SiteEntityRoute = () => {
-  const location = useLocation()
-  const { appEntity = "" } = useParams()
+  const { userId, publisherId } = useParams()
+  const backgroundLocation = useBackgroundLocation()
 
-  const state = location.state as { backgroundLocation?: Location; defaultTabKey?: string } | undefined
-
-  if (appEntity.startsWith(ENTITY_PREFIXES.userId)) {
-    return state?.backgroundLocation ? (
-      <FullscreenPageView>
-        <ReviewerPage />
-      </FullscreenPageView>
-    ) : (
-      <ReviewerPage />
-    )
-  }
-
-  if (appEntity.startsWith(ENTITY_PREFIXES.publisherId))
-    return state?.backgroundLocation ? (
-      <FullscreenPageView>
-        <PublisherPage />
-      </FullscreenPageView>
-    ) : (
-      <PublisherPage />
+  if (userId !== undefined)
+    return (
+      <MaybeFullscreen showFullscreen={!!backgroundLocation}>
+        <ReviewerPage showDefaultBreadcrumbs={!backgroundLocation} />
+      </MaybeFullscreen>
     )
 
-  return <ErrorPage />
+  if (publisherId !== undefined)
+    return (
+      <MaybeFullscreen showFullscreen={!!backgroundLocation}>
+        <PublisherPage showDefaultBreadcrumbs={!backgroundLocation} />
+      </MaybeFullscreen>
+    )
+
+  return ERROR_PAGE
+}
+
+const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
+  categoryId: (
+    <BaseLayout>
+      <SiteLayout>
+        <CategoryPage />
+      </SiteLayout>
+    </BaseLayout>
+  ),
+  publicationId: (
+    <BaseLayout>
+      <SiteLayout>
+        <PublicationPage />
+      </SiteLayout>
+    </BaseLayout>
+  ),
+  userId: (
+    <FullscreenPageView>
+      <UserPage />
+    </FullscreenPageView>
+  ),
+  publisherId: (
+    <FullscreenPageView>
+      <AuthorPage />
+    </FullscreenPageView>
+  ),
+  // TODO: Add current user Profile here
 }
 
 export const EntityRoute = () => {
@@ -78,11 +107,18 @@ export const EntityRoute = () => {
   if (appEntity.startsWith(ENTITY_PREFIXES.siteId)) {
     return (
       <Routes>
-        <Route>
+        <Route path=":subEntity" element={<SiteEntityRoute />} />
+
+        <Route
+          element={
+            <BaseLayout>
+              <SiteLayout />
+            </BaseLayout>
+          }
+        >
           <Route index element={<SitePage />} />
           <Route path="s" element={<SearchPage />} />
           <Route path="i" element={<AboutPage />} />
-          <Route path=":appEntity" element={<SiteEntityRoute />} />
 
           {/* Governance */}
           <Route
@@ -119,11 +155,25 @@ export const EntityRoute = () => {
             <Route path="c/:tabKey?" element={<PublicationsPage />} />
             <Route path="a/r/:proposalId" element={<PublisherProposalPage />} />
             <Route path="a/:tabKey?" element={<PublishersPage />} />
-            <Route path="a/p/:publisherId" element={<ModerationPublisherPage />} />
+            <Route
+              path="a/p/:publisherId"
+              element={
+                <ConstrainedWidthLayout>
+                  <ModerationPublisherPage />
+                </ConstrainedWidthLayout>
+              }
+            />
             <Route path="r" element={<ReviewsPage />} />
             <Route path="u" element={<UsersLayout />}>
               <Route path=":tabKey?" element={<UsersPage />} />
-              <Route path="u/:userId" element={<UserPage />} />
+              <Route
+                path="u/:userId"
+                element={
+                  <ConstrainedWidthLayout>
+                    <ReviewerPage />
+                  </ConstrainedWidthLayout>
+                }
+              />
             </Route>
             <Route path="v" element={<PreviewPage />} />
           </Route>
@@ -136,29 +186,12 @@ export const EntityRoute = () => {
   }
 
   if (rest) {
-    return <ErrorPage />
+    return ERROR_PAGE
   }
 
-  if (appEntity.startsWith(ENTITY_PREFIXES.categoryId)) return <CategoryPage />
-  if (appEntity.startsWith(ENTITY_PREFIXES.publicationId)) return <PublicationPage />
+  const matchedEntity = (Object.keys(ENTITY_ELEMENTS) as EntityParam[]).find(key =>
+    appEntity.startsWith(ENTITY_PREFIXES[key]),
+  )
 
-  if (appEntity.startsWith(ENTITY_PREFIXES.userId)) {
-    return (
-      <FullscreenPageView>
-        <UserPage />
-      </FullscreenPageView>
-    )
-  }
-
-  if (appEntity.startsWith(ENTITY_PREFIXES.publisherId)) {
-    return (
-      <FullscreenPageView>
-        <AuthorPage />
-      </FullscreenPageView>
-    )
-  }
-
-  // Profile
-
-  return <ErrorPage />
+  return matchedEntity ? <>{ENTITY_ELEMENTS[matchedEntity]}</> : ERROR_PAGE
 }

@@ -39,7 +39,7 @@ export const PublisherPage = memo(({ isFromModeration = true }: PublisherPagePro
   }
 
   return (
-    <div className="flex max-w-[730px] flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <Breadcrumbs
         fullPath={true}
         items={[{ path: routes.site(siteId!), title: t("common:home") }, ...breadcrumbs, { title: author.title }]}

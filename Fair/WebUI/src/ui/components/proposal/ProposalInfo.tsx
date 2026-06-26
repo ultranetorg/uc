@@ -1,9 +1,9 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName, User } from "types"
+import { LinkFullscreen } from "ui/components"
 import { renderUser } from "ui/renderers2"
 import { formatDate, formatLastsFor, routes } from "utils"
 
@@ -27,7 +27,7 @@ export const ProposalInfo = memo(({ className, siteId, createdBy, createdAt }: P
     >
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">Created By:</span>
-        <Link to={routes.publisher(siteId, createdBy.id)}>{renderUser(createdBy)}</Link>
+        <LinkFullscreen to={routes.reviewer(siteId, createdBy.id)}>{renderUser(createdBy)}</LinkFullscreen>
       </div>
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">Created At:</span>

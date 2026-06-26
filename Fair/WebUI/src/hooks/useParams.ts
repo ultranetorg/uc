@@ -14,11 +14,15 @@ export function useParams<ParamsOrKey extends string | Record<string, string | u
     }
   }
 
-  const entity = result.appEntity
-  if (entity !== undefined) {
-    const matched = (Object.keys(ENTITY_PREFIXES) as EntityParam[]).find(key => entity.startsWith(ENTITY_PREFIXES[key]))
-    if (matched) {
-      result[matched] = stripPrefix(matched, entity)
+  for (const key of ["appEntity", "subEntity"]) {
+    const entity = result[key]
+    if (entity !== undefined) {
+      const matched = (Object.keys(ENTITY_PREFIXES) as EntityParam[]).find(key =>
+        entity.startsWith(ENTITY_PREFIXES[key]),
+      )
+      if (matched) {
+        result[matched] = stripPrefix(matched, entity)
+      }
     }
   }
 

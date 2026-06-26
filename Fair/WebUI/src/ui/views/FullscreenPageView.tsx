@@ -1,25 +1,16 @@
-import { memo, PropsWithChildren, useCallback } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { memo, PropsWithChildren } from "react"
 
 import { SvgProfilePageClose } from "assets"
-import { useEscapeKey } from "hooks"
+import { useCloseFullscreen, useEscapeKey } from "hooks"
 import { routes } from "utils"
 
 export const FullscreenPageView = memo(({ children }: PropsWithChildren) => {
-  const location = useLocation()
-  const navigate = useNavigate()
-
-  const state = location.state as { backgroundLocation?: Location; defaultTabKey?: string } | undefined
-
-  const handleClick = useCallback(() => {
-    if (state?.backgroundLocation) navigate(-1)
-    else navigate(routes.home())
-  }, [navigate, state?.backgroundLocation])
+  const handleClick = useCloseFullscreen(routes.home())
 
   useEscapeKey(handleClick)
 
   return (
-    <div className="fixed inset-0 z-50 bg-white">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-white [scrollbar-gutter:stable]">
       <div className="mx-auto max-w-[1240px]">
         <div className="flex pl-17">
           <div className="flex w-full gap-6">

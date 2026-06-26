@@ -10,12 +10,12 @@ import { UserDetailsView } from "ui/views"
 import { parseInteger, routes } from "utils"
 
 export type ReviewerPageProps = {
-  isFromModeration?: boolean
+  showDefaultBreadcrumbs?: boolean
 }
 
-export const ReviewerPage = memo(({ isFromModeration = true }: ReviewerPageProps) => {
+export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPageProps) => {
   const { isModerator, isPublisher } = useSiteRolesContext()
-  const { reviewerId } = useParams()
+  const { userId } = useParams()
   const siteId = useResolveSiteId()
   const { t } = useTranslation()
 
@@ -27,16 +27,16 @@ export const ReviewerPage = memo(({ isFromModeration = true }: ReviewerPageProps
     },
   })
 
-  const { data: user } = useGetUserAuthors(reviewerId)
+  const { data: user } = useGetUserAuthors(userId)
   const { data: reviews } = useGetUserReviews(user?.id, state.page)
 
   useSiteTitle(user?.name ? `User - ${user?.name}` : undefined)
 
-  if (!user) return <>LOADING ReviewerPage</>
+  if (!user) return <>Loading ReviewerPage</>
 
   return (
-    <div className="flex max-w-182.5 flex-col gap-6">
-      {!isFromModeration && (
+    <div className="flex flex-col gap-6">
+      {showDefaultBreadcrumbs && (
         <Breadcrumbs
           fullPath={true}
           items={[

@@ -1,12 +1,13 @@
 import { memo, PropsWithChildren } from "react"
 import { Outlet, Route, Routes, useLocation } from "react-router-dom"
 
+import { useBackgroundLocation } from "hooks"
 import { ProfilePage } from "ui/pages"
 
 export const AppLayout = memo(({ children }: PropsWithChildren) => {
   const location = useLocation()
 
-  const { backgroundLocation } = location.state as { backgroundLocation?: Location }
+  const backgroundLocation = useBackgroundLocation()
   const hasFullscreenModal = !!backgroundLocation
 
   return (
