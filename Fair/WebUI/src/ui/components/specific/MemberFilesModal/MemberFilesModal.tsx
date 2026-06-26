@@ -1,11 +1,10 @@
 import { memo, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 
 import { SvgSpinnerXl } from "assets"
 import { useGetSiteFilesInfinite } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useEscapeKey, useInfiniteScrollWithPosition } from "hooks"
+import { useEscapeKey, useInfiniteScrollWithPosition, useResolveSiteId } from "hooks"
 import { File as FileType, FileDeletion, FileCreation, MimeType, FileOwner } from "types"
 import { Modal, ModalProps, TabContent, TabsList, TabsListItem, TabsProvider, TextModal } from "ui/components"
 import { FilesGrid } from "ui/components/specific"
@@ -21,7 +20,7 @@ type MemberFilesModalBaseProps = {
 export type MemberFilesModalProps = MemberFilesModalBaseProps & ModalProps
 
 export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalProps) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("memberFilesModal")
   const { mutate } = useTransactMutationWithStatus()
 

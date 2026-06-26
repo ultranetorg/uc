@@ -52,7 +52,7 @@ export const MoviePublicationContent = memo(
             {/* Publisher (account with avatar) */}
             <div className="flex items-center gap-6 py-1">
               <span className={LABEL_CLASSNAME}>{t("publisher")}:</span>
-              <LinkFullscreen to={routes.author(siteId, productOrPublication.authorId)}>
+              <LinkFullscreen to={routes.publisher(siteId, productOrPublication.authorId)}>
                 <AuthorImageTitle title={publisherAccountName} authorFileId={productOrPublication.authorId} />
               </LinkFullscreen>
             </div>

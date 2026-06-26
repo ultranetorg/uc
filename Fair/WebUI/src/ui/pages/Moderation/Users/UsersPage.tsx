@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import { useSiteContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
 
@@ -12,14 +12,15 @@ import { UsersRemovalsTab } from "./RemoveUsersTab"
 import { UsersTab } from "./UsersTab"
 
 const routeToTabKey: Record<string, string> = {
-  n: "new-users",
-  r: "users-removals",
-  u: "users",
+  new: "new-users",
+  remove: "users-removals",
+  users: "users",
 }
 
 export const UsersPage = () => {
   const navigate = useNavigate()
-  const { siteId, tabKey } = useParams()
+  const { tabKey } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { t } = useTranslation("moderationUsersPage")
 
@@ -34,9 +35,9 @@ export const UsersPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "new-users", label: t("common:new"), route: "n" },
-      { key: "users-removals", label: t("common:removals"), route: "r" },
-      { key: "users", label: t("common:users") },
+      { key: "new-users", label: t("common:new") },
+      { key: "users-removals", label: t("common:removals"), route: "remove" },
+      { key: "users", label: t("common:users"), route: "users" },
     ],
     [t],
   )

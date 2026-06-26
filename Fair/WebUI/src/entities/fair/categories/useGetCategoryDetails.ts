@@ -6,13 +6,13 @@ import { categoriesKeys } from "./categoriesKeys"
 
 const api = getFairApi()
 
-export const useGetCategoryDetails = (siteId?: string, categoryId?: string) => {
+export const useGetCategoryDetails = (categoryId?: string) => {
   const queryFn = () => api.getCategoryDetails(categoryId!)
 
   const { isPending, error, data } = useQuery({
-    queryKey: categoriesKeys.detail(siteId!, categoryId!),
+    queryKey: categoriesKeys.detail(categoryId!),
     queryFn: queryFn,
-    enabled: !!siteId && !!categoryId,
+    enabled: !!categoryId,
   })
 
   return { isPending, error: error ?? undefined, data }

@@ -52,6 +52,7 @@ export const enUS = {
     operation: "operation",
     options: "Options",
     parentCategory: "Parent category",
+    perpetualSurveys: "perpetual surveys",
     preview: "preview",
     product: "Product",
     proposals: "proposals",

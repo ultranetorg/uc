@@ -1,9 +1,9 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 import { truncate } from "lodash"
 
 import { unpublishedPublicationsKeys } from "entities"
+import { useResolveSiteId } from "hooks"
 import { routes } from "utils"
 
 export const useModeratorPublicationMenuItems = (
@@ -11,14 +11,14 @@ export const useModeratorPublicationMenuItems = (
   publicationTitle?: string,
   isFromContextMenu: boolean = false,
 ) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("moderatorPublicationMenu")
 
   const menuItems = useMemo(
     () => [
       {
         label: t("unpublishPublication"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: publicationTitle
             ? `Unpublish publication "${truncate(publicationTitle, { length: 40 })}"`
@@ -26,7 +26,7 @@ export const useModeratorPublicationMenuItems = (
           type: "publication-unpublish",
           publicationId,
           parentBreadcrumbs: [
-            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
             { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
           redirectAfterProposalCreation: routes.moderation.publications(siteId!),
@@ -37,7 +37,7 @@ export const useModeratorPublicationMenuItems = (
       { separator: true },
       {
         label: t("removePublication"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: publicationTitle
             ? `Remove publication "${truncate(publicationTitle, { length: 43 })}"`
@@ -45,7 +45,7 @@ export const useModeratorPublicationMenuItems = (
           type: "publication-deletion",
           publicationId,
           parentBreadcrumbs: [
-            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
             { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
           redirectAfterProposalCreation: routes.moderation.publications(siteId!),

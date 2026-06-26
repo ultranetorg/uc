@@ -106,7 +106,7 @@ export const SoftwareInfo = memo(
       <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
         <div className="flex flex-col gap-2">
           <span className={LABEL_CLASSNAME}>{publisherLabel}</span>
-          <LinkFullscreen to={routes.author(siteId, productOrPublication.authorId)}>
+          <LinkFullscreen to={routes.publisher(siteId, productOrPublication.authorId)}>
             <AuthorImageTitle
               title={productOrPublication.authorTitle}
               authorFileId={productOrPublication.authorLogoId}

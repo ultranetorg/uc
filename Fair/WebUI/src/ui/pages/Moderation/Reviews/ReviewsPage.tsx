@@ -1,13 +1,12 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 import { isNumber, isString } from "lodash"
 
 import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useSiteTitle, useUrlParamsState } from "hooks"
+import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, SpecialChoice } from "types"
 import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
@@ -17,7 +16,7 @@ import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
 export const ReviewsPage = () => {
   const { voterId } = useOperationPolicy("review-creation")
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { policies } = useSitePoliciesContext()
   const { t } = useTranslation("reviewsPage")

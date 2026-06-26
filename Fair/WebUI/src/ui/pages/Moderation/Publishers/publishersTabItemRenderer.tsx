@@ -27,17 +27,14 @@ export const getPublishersTabItemRenderer =
         return (
           <div className="flex justify-end">
             <Link
-              to={routes.moderation.create(siteId)}
+              to={routes.moderation.createProposal(siteId)}
               state={{
-                parentBreadcrumbs: [
-                  { path: routes.moderation.publishers(siteId), title: t("common:proposals") },
-                  { path: routes.moderation.publishers(siteId, "p"), title: t("title") },
-                ],
+                parentBreadcrumbs: [{ path: routes.moderation.publishers(siteId), title: t("common:proposals") }],
                 previousPath: pathname,
                 title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
                 type: "site-authors-removal",
                 authors: [publisher.author],
-                redirectAfterProposalCreation: routes.moderation.publishers(siteId, "r"),
+                redirectAfterProposalCreation: routes.moderation.publishers(siteId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.publishers(siteId),
               }}

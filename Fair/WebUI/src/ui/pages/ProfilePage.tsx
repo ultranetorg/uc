@@ -1,31 +1,25 @@
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 
 import { useAuthenticationContext } from "app"
 import { SvgProfilePageClose } from "assets"
 import { ProfileTabs } from "ui/components/profile"
-import { useEscapeKey, useSiteTitle } from "hooks"
+import { useCloseFullscreen, useEscapeKey, useLocationState, useSiteTitle } from "hooks"
 import { routes } from "utils"
 
 export const ProfilePage = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
   const { t } = useTranslation("profile")
 
   const [titleKey, setTitleKey] = useState("profile")
 
-  const state = location.state as { backgroundLocation?: Location; defaultTabKey?: string } | undefined
-  const backgroundLocation = state?.backgroundLocation
-  const defaultTabKey = state?.defaultTabKey as string | undefined
+  const { backgroundLocation, defaultTabKey } = useLocationState()
 
   const { selectedUserName } = useAuthenticationContext()
 
   useSiteTitle(`Profile - ${selectedUserName}`)
 
-  const close = useCallback(() => {
-    navigate(-1)
-  }, [navigate])
+  const close = useCloseFullscreen()
 
   useEscapeKey(close)
 

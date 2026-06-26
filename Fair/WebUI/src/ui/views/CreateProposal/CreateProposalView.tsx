@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react"
-import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom"
+import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 import { useQueryClient } from "@tanstack/react-query"
@@ -8,6 +8,7 @@ import { twMerge } from "tailwind-merge"
 import { useSiteContext, useSitePoliciesContext, useSiteRolesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
+import { useResolveSiteId } from "hooks"
 import { CreateProposalData, ProposalCreation, ProposalType, Role } from "types"
 import {
   BreadcrumbsItemProps,
@@ -35,7 +36,7 @@ export type CreateProposalViewProps = {
 export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProps) => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const queryClient = useQueryClient()
   const { t } = useTranslation("createProposal")
 
@@ -56,7 +57,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
   const parentPath =
-    proposalType === "discussion" ? routes.moderation.root(siteId!) : routes.governance.referendums(siteId!)
+    proposalType === "discussion" ? routes.moderation.proposals(siteId!) : routes.governance.referendums(siteId!)
   const isRequiredVoting = isVotingRequired(formData.type, site, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])

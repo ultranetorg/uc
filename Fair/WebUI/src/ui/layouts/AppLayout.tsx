@@ -1,23 +1,22 @@
 import { memo, PropsWithChildren } from "react"
 import { Outlet, Route, Routes, useLocation } from "react-router-dom"
 
+import { useBackgroundLocation } from "hooks"
 import { ProfilePage } from "ui/pages"
 
 export const AppLayout = memo(({ children }: PropsWithChildren) => {
   const location = useLocation()
 
-  const state = location.state as { backgroundLocation?: Location }
-  const backgroundLocation = state?.backgroundLocation
-  const modalLocation = backgroundLocation || location
-  const isFullscreenModal = !!backgroundLocation
+  const backgroundLocation = useBackgroundLocation()
+  const hasFullscreenModal = !!backgroundLocation
 
   return (
     <>
-      <Routes location={modalLocation}>
+      <Routes location={backgroundLocation || location}>
         <Route path="/" element={children ?? <Outlet />} />
       </Routes>
 
-      {isFullscreenModal && (
+      {hasFullscreenModal && (
         <Routes>
           <Route path="/profile/:id" element={<ProfilePage />} />
         </Routes>

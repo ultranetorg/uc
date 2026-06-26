@@ -1,14 +1,13 @@
-import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useSiteContext } from "app"
 import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
-import { useSiteTitle } from "hooks"
+import { useResolveSiteId, useSiteTitle } from "hooks"
 import { BigCategoriesGrid } from "ui/components/site"
 import { CategoriesPublicationsList, ModeratorSiteMenu } from "ui/components/specific"
 
 export const SitePage = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("site")
   const { isPending, site } = useSiteContext()
 
@@ -20,7 +19,7 @@ export const SitePage = () => {
   )
 
   if (isPending || !site || !siteId || !categories || !categoriesPublications || isCategoriesPending) {
-    return <>LOADING</>
+    return <div>Loading</div>
   }
 
   return (

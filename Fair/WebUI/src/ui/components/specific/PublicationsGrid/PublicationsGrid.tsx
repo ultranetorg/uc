@@ -17,7 +17,7 @@ export const PublicationsGrid = ({ siteId, isPending, publications, productType 
   return (
     <div className="flex flex-wrap gap-4">
       {isPending ? (
-        <div>⌛ LOADING</div>
+        <div>Loading</div>
       ) : (
         <>
           {publications!.map(x => (

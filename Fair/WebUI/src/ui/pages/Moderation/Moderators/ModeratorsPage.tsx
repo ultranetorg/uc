@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 import { useOperationPolicy, useSiteContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
@@ -13,13 +13,14 @@ import { ModeratorsTab } from "./ModeratorsTab"
 import { ModeratorsProposalsTab } from "./ModeratorsProposalsTab"
 
 const routeToTabKey: Record<string, string> = {
-  p: "proposals",
+  proposals: "proposals",
 }
 
 export const ModeratorsPage = () => {
   const navigate = useNavigate()
   const { voterId } = useOperationPolicy("site-moderator-addition")
-  const { siteId, tabKey } = useParams()
+  const { tabKey } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { t } = useTranslation("moderatorsPage")
 
@@ -35,7 +36,7 @@ export const ModeratorsPage = () => {
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
       { key: "moderators", label: t("common:moderators") },
-      { key: "proposals", label: t("common:proposals"), route: "p" },
+      { key: "proposals", label: t("common:proposals"), route: "proposals" },
     ],
     [t],
   )
@@ -48,7 +49,7 @@ export const ModeratorsPage = () => {
           <>
             {voterId && (
               <Link
-                to={routes.governance.create(siteId!)}
+                to={routes.governance.createReferendum(siteId!)}
                 state={{
                   parentBreadcrumbs: [{ path: routes.moderation.moderators(siteId!), title: t("title") }],
                   title: t("addModerator"),

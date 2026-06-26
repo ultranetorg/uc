@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
@@ -9,7 +10,8 @@ public class AuthorsController
 	SearchService searchService,
 	IAutoIdValidator autoIdValidator,
 	ISearchQueryValidator searchQueryValidator,
-	LimitValidator limitValidator
+	LimitValidator limitValidator,
+	IPaginationValidator paginationValidator
 ) : BaseController
 {
 	[HttpGet("{authorId}")]
@@ -31,5 +33,19 @@ public class AuthorsController
 		limitValidator.Validate(limit);
 
 		return searchService.SearchAuthors(query, limit ?? SearchConstants.SearchAccountsLimit, cancellationToken);
+	}
+
+	[HttpGet("{authorId}/products")]
+	public IEnumerable<ProductAuthorModel> GetProducts(string authorId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {AuthorId}, {Pagination}", nameof(AuthorsController), nameof(AuthorsController.GetProducts), authorId, pagination);
+
+		autoIdValidator.Validate(authorId, nameof(Site).ToLower());
+		paginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<ProductAuthorModel> products = authorsService.GetProducts(authorId, page, pageSize, cancellationToken);
+
+		return this.OkPaged(products.Items, page, pageSize, products.TotalItems);
 	}
 }

@@ -1,6 +1,6 @@
-import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
+import { useResolveSiteId } from "hooks"
 import { ProductDetails, PublicationDetails } from "types"
 
 import { ContentProps } from "./types"
@@ -22,7 +22,7 @@ export const PublicationContentView = ({
   onLeaveReview,
   onEditReview,
 }: PublicationContentViewProps) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("publication")
 
   const ContentComponent = getPublicationContentByType(productOrPublication.type)

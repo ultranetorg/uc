@@ -9,16 +9,17 @@ import { ProposalViewContentProps } from "./types"
 const getPublicationId = (proposal: Proposal): string =>
   (proposal.options[0].operation as PublicationDeletion).publicationId
 
-export const PublicationDeletionContent = memo(({ proposal }: ProposalViewContentProps) => {
+export const PublicationDeletionContent = memo(({ siteId, proposal }: ProposalViewContentProps) => {
   const publicationId = useMemo(() => getPublicationId(proposal), [proposal])
 
   const { isPending, data: publication } = useGetPublicationDetails(publicationId)
 
-  if (isPending || !publication) return <div>LOADING</div>
+  if (isPending || !publication) return <div>Loading</div>
 
   return (
     <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
       <ModerationPublicationHeader
+        siteId={siteId}
         title={publication.title}
         logoId={publication.logoId}
         authorId={publication.authorId}

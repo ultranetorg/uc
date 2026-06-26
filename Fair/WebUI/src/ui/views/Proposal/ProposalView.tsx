@@ -1,12 +1,13 @@
 import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 
 import { useOperationPolicy, useSignInContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import { categoriesKeys, proposalsKeys, publicationsKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
+import { useResolveSiteId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
@@ -42,7 +43,7 @@ export type ProposalViewProps = {
 }
 
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -99,7 +100,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         ? Array.isArray(parentBreadcrumbs)
           ? [...parentBreadcrumbs]
           : [parentBreadcrumbs]
-        : { title: t("common:proposals"), path: routes.moderation.root(siteId!) },
+        : { title: t("common:proposals"), path: routes.moderation.proposals(siteId!) },
     [parentBreadcrumbs, siteId, t],
   )
 
@@ -125,7 +126,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
             invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
           }
 
-          navigate(previousPath ?? routes.moderation.root(siteId!))
+          navigate(previousPath ?? routes.moderation.proposals(siteId!))
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -157,7 +158,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:publicationVoted"), "success")
-          navigate(routes.moderation.publications(siteId!, "p"))
+          navigate(routes.moderation.publications(siteId!, "proposals"))
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -209,7 +210,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   }, [isPublicationMode, proposal, approval])
 
   if (!proposal || !comments) {
-    return <>LOADING</>
+    return <div>Loading</div>
   }
 
   return (
@@ -256,12 +257,13 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           ) : undefined
         }
       />
-      {NestedContent && <NestedContent t={t} proposal={proposal} voteStatus={voteStatus} />}
+      {NestedContent && <NestedContent t={t} siteId={siteId!} proposal={proposal} voteStatus={voteStatus} />}
       <div className="flex gap-8">
         <div className="flex w-full flex-col gap-8">
           {!isPublicationMode && (
             <DefaultContent
               t={t}
+              siteId={siteId!}
               proposal={proposal}
               isReferendum={isReferendum}
               pageState={pageState}
@@ -288,7 +290,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           />
         </div>
         <div className="flex flex-col gap-6">
-          <ProposalInfo className="w-87.5" createdBy={proposal.by} createdAt={proposal.creationTime} />
+          <ProposalInfo className="w-87.5" siteId={siteId!} createdBy={proposal.by} createdAt={proposal.creationTime} />
           {!isPublicationMode &&
             (pageState === "voting" ? (
               <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />

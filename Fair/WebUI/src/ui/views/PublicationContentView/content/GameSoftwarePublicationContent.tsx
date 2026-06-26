@@ -151,7 +151,7 @@ export const GameSoftwarePublicationContent = memo(
         </div>
         <div className="flex w-87.5 flex-col gap-8">
           <SoftwareInfo
-            siteId={siteId!}
+            siteId={siteId}
             productOrPublication={productOrPublication}
             supportedPlatforms={supportedPlatforms}
             price={price}

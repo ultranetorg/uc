@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { useParams } from "react-router-dom"
+import { useResolveSiteId } from "hooks"
 import { PropsWithClassName } from "types"
 
 import { HeaderDropdownButton } from "../HeaderDropdownButton"
@@ -9,7 +9,7 @@ import { HeaderDropdownButton } from "../HeaderDropdownButton"
 import { useModerationDropdownButtonMenuItems } from "./useModerationDropdownButtonMenuItems"
 
 export const ModerationDropdownButton = ({ className }: PropsWithClassName) => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation()
 
   const menuItems = useModerationDropdownButtonMenuItems(siteId!)

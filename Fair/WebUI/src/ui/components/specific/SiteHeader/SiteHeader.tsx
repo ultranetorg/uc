@@ -1,11 +1,12 @@
 import { KeyboardEvent, useCallback, useMemo, useState } from "react"
-import { useMatch, useNavigate, useParams } from "react-router-dom"
+import { useMatch, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useSiteContext, useSearchQueryContext, useSiteRolesContext, useUserContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
+import { useResolveSiteId } from "hooks"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 import { routes } from "utils"
 
@@ -18,7 +19,7 @@ import { toSimpleMenuItems } from "./utils"
 import { PublisherMembersDropdownButton } from "./PublisherMembersDropdownButton"
 
 export const SiteHeader = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:siteId/s")
   const { site, rootCategories } = useSiteContext()
@@ -78,7 +79,7 @@ export const SiteHeader = () => {
     }
   }, [query, setSiteQuery])
 
-  if (!site) {
+  if (!site || !siteId) {
     return null
   }
 
@@ -86,7 +87,7 @@ export const SiteHeader = () => {
     <div className="flex items-center justify-between gap-8 pb-8">
       <LogoDropdownButton
         t={t}
-        siteId={siteId!}
+        siteId={siteId}
         title={site.title}
         imageFileId={site.imageFileId}
         publishersCount={site.authorsIds.length}
@@ -110,8 +111,8 @@ export const SiteHeader = () => {
       <div className="flex items-center gap-8">
         <GovernanceDropdownButton className="w-28" />
         {isModerator && <ModerationDropdownButton className="w-28" />}
-        {isPublisher && <PublisherMembersDropdownButton className="w-25" t={t} siteId={siteId!} user={user!} />}
-        <UserProfileButton t={t} />
+        {isPublisher && <PublisherMembersDropdownButton className="w-25" siteId={siteId} t={t} user={user!} />}
+        <UserProfileButton siteId={siteId} t={t} />
       </div>
     </div>
   )

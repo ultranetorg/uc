@@ -13,7 +13,7 @@ export type PublicationsListProps = {
 
 export const PublicationsList = ({ isLoading, siteId, publications }: PublicationsListProps) => {
   if (isLoading || !publications) {
-    return <div className="text-gray-500">⌛ LOADING</div>
+    return <div>Loading</div>
   }
 
   return (

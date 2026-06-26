@@ -56,10 +56,12 @@ public class CategoriesService
 				parentCategory = mcv.Categories.Latest(category.Parent);
 			}
 
+			Site site = mcv.Sites.Latest(category.Site);
 			IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
 
 			return new CategoryModel(category, parentCategory?.Title.ToString())
 			{
+				SiteId = category.Site.ToString(),
 				Categories = categories,
 			};
 		}

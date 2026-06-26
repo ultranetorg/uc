@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next"
-import { Link, Navigate, useLocation, useParams } from "react-router-dom"
+import { Link, Navigate, useLocation } from "react-router-dom"
 
 import { useSiteContext } from "app"
 import { SvgXSm } from "assets"
 import { useGetProductDetails, useGetPublicationDetails } from "entities"
-import { useSiteTitle } from "hooks"
+import { useResolveSiteId, useSiteTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonPrimary } from "ui/components"
 import { PublicationHeader } from "ui/components/publication"
 import { PublicationContentView } from "ui/views"
@@ -12,7 +12,7 @@ import { routes } from "utils"
 
 export const PreviewPage = () => {
   const location = useLocation()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { t } = useTranslation()
 
@@ -38,7 +38,7 @@ export const PreviewPage = () => {
   if (!previousPath || (!productId && !publicationId)) return <Navigate to={routes.site(siteId!)} />
 
   if (isProductPending && isPublicationPending && !product && !publication) {
-    return <>🕑 LOADING</>
+    return <div>Loading</div>
   }
 
   return (

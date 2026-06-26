@@ -1,6 +1,5 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 
 import avatarFallback from "assets/fallback/user-30.png"
 import { Review, TotalItemsResult, UserAuthors } from "types"
@@ -14,17 +13,17 @@ import { PublishersList } from "./PublishersList"
 const LABEL_CLASSNAME = "text-2base font-medium leading-5 first-letter:uppercase"
 
 export type UserDetailsViewProps = {
+  siteId: string
   user?: UserAuthors
   reviews?: TotalItemsResult<Review>
   isPublisher: boolean
   isModerator: boolean
 }
 
-export const UserDetailsView = memo(({ user, reviews, isPublisher, isModerator }: UserDetailsViewProps) => {
-  const { siteId } = useParams()
+export const UserDetailsView = memo(({ siteId, user, reviews, isPublisher, isModerator }: UserDetailsViewProps) => {
   const { t } = useTranslation("userDetailsView")
 
-  if (!user || !reviews) return <>LOADING</>
+  if (!user || !reviews) return <div>Loading</div>
 
   return (
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
@@ -56,11 +55,7 @@ export const UserDetailsView = memo(({ user, reviews, isPublisher, isModerator }
       </div>
       <div className="flex flex-col gap-5 p-6">
         <span className={LABEL_CLASSNAME}>{t("common:publishers")}</span>
-        {user.authors.length > 0 ? (
-          <PublishersList siteId={siteId!} authors={user.authors} />
-        ) : (
-          <>{t("noPublishers")}</>
-        )}
+        {user.authors.length > 0 ? <PublishersList siteId={siteId} authors={user.authors} /> : <>{t("noPublishers")}</>}
       </div>
       <div className="flex flex-col gap-5 p-6">
         <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>

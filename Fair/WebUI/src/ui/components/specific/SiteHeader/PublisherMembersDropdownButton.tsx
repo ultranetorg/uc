@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { memo, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 import { TFunction } from "i18next"
@@ -12,34 +12,36 @@ import { HeaderDropdownButton } from "./HeaderDropdownButton"
 import { MENU_ITEM_STYLE } from "./styles"
 
 type PublisherMembersDropdownButtonBaseProps = {
-  t: TFunction
   siteId: string
+  t: TFunction
   user: UserDetails
 }
 
 export type PublisherMembersDropdownButtonProps = PropsWithClassName & PublisherMembersDropdownButtonBaseProps
 
-export const PublisherMembersDropdownButton = ({ className, t, siteId, user }: PublisherMembersDropdownButtonProps) => {
-  const { data: userAuthors } = useGetUserAuthors(user.authorsIds.length > 1 ? user.id : undefined)
+export const PublisherMembersDropdownButton = memo(
+  ({ className, siteId, t, user }: PublisherMembersDropdownButtonProps) => {
+    const { data: userAuthors } = useGetUserAuthors(user.authorsIds.length > 1 ? user.id : undefined)
 
-  const menuItems = useMemo<SimpleMenuItem[]>(
-    () =>
-      userAuthors?.authors.map(x => ({
-        label: x.title,
-        to: routes.publisher(siteId, x.id),
-      })) ?? [],
-    [siteId, userAuthors?.authors],
-  )
+    const menuItems = useMemo<SimpleMenuItem[]>(
+      () =>
+        userAuthors?.authors.map(x => ({
+          label: x.title,
+          to: routes.author(x.id),
+        })) ?? [],
+      [userAuthors?.authors],
+    )
 
-  return user.authorsIds.length <= 1 ? (
-    <Link to={routes.publisher(siteId, user!.authorsIds[0])} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
-      {t("common:member")}
-    </Link>
-  ) : (
-    <HeaderDropdownButton
-      className={twMerge(className, "first-letter:uppercase")}
-      label={t("common:members")}
-      menuItems={menuItems}
-    />
-  )
-}
+    return user.authorsIds.length <= 1 ? (
+      <Link to={routes.publisher(siteId, user!.authorsIds[0])} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
+        {t("common:member")}
+      </Link>
+    ) : (
+      <HeaderDropdownButton
+        className={twMerge(className, "first-letter:uppercase")}
+        label={t("common:members")}
+        menuItems={menuItems}
+      />
+    )
+  },
+)

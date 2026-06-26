@@ -10,6 +10,7 @@ export type VoteAction = "approve" | "reject"
 
 export type ProposalViewContentProps = {
   t: TFunction
+  siteId: string
   pageState?: PageState
   proposal: ProposalDetails
   isReferendum?: boolean

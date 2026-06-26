@@ -1,27 +1,32 @@
 import { useCallback, useEffect, useState } from "react"
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 import { SvgProfilePageClose } from "assets"
 import { useGetAuthor } from "entities"
-import { useEscapeKey, useSiteTitle } from "hooks"
+import {
+  useBackgroundLocation,
+  useCloseFullscreen,
+  useEscapeKey,
+  useParams,
+  useResolveSiteId,
+  useSiteTitle,
+} from "hooks"
 import { AuthorPublicationsView } from "ui/views"
 import { routes } from "utils"
 
 export const AuthorPage = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { siteId, authorId } = useParams()
+  const { publisherId } = useParams()
+  const siteId = useResolveSiteId()
 
   const [isModalOpen, setModalOpen] = useState(false)
 
-  const { isPending, data: author } = useGetAuthor(authorId)
+  const { isPending, data: author } = useGetAuthor(publisherId)
 
-  useSiteTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
+  useSiteTitle(author?.title ? `Author - ${author?.title}` : undefined)
 
-  const state = location.state as { backgroundLocation?: Location } | undefined
-  const backgroundLocation = state?.backgroundLocation
+  const backgroundLocation = useBackgroundLocation()
 
-  const close = useCallback(() => navigate(-1), [navigate])
+  const close = useCloseFullscreen()
 
   useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [])
 

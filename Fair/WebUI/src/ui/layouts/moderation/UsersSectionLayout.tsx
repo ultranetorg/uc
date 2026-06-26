@@ -1,18 +1,20 @@
 import { memo, PropsWithChildren, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Outlet, useNavigate, useParams } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 import { capitalize } from "lodash"
 
 import { SEARCH_DELAY } from "config"
 import { useSearchSiteUsers } from "entities"
+import { useParams, useResolveSiteId } from "hooks"
 import { DropdownSearchAccountsItem, DropdownSearchAccount } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
 
-export const UsersLayout = memo(({ children }: PropsWithChildren) => {
+export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
-  const { siteId, tabKey, userId } = useParams()
+  const { tabKey, userId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("usersPage")
 
   const [query, setQuery] = useState("")
@@ -52,7 +54,9 @@ export const UsersLayout = memo(({ children }: PropsWithChildren) => {
         title={headerTitle}
         breadcrumbTitle={!userId ? t("title") : userId}
         parentBreadcrumbs={
-          userId !== undefined ? { path: routes.moderation.users(siteId!, "u"), title: t("common:users") } : undefined
+          userId !== undefined
+            ? { path: routes.moderation.users(siteId!, "users"), title: t("common:users") }
+            : undefined
         }
         components={
           <DropdownSearchAccount

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useOperationPolicy, useSiteContext, useSitePoliciesContext, useSiteRolesContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useResolveSiteId, useSiteTitle } from "hooks"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedSiteProduct } from "entities"
@@ -16,7 +16,7 @@ import { isVotingRequired, routes, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("createPublication")
 
   const { voterId } = useOperationPolicy("publication-creation")
@@ -64,7 +64,7 @@ export const ModeratorCreatePublicationPage = () => {
         if (isRequiredVoting) {
           navigate(routes.moderation.publications(siteId!))
         } else {
-          navigate(routes.moderation.publications(siteId!, "u"))
+          navigate(routes.moderation.publications(siteId!, "unpublished"))
         }
       },
       onError: err => showToast(err.toString(), "error"),
@@ -99,6 +99,7 @@ export const ModeratorCreatePublicationPage = () => {
         {!!debouncedQuery && isProductValid ? (
           <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
             <ModerationPublicationHeader
+              siteId={siteId!}
               title={product.title}
               logoId={product.logoId}
               authorId={product.authorId}

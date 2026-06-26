@@ -1,29 +1,27 @@
 import { useMemo } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
 import { useOperationPolicy, useSiteContext } from "app"
 import { SvgEyeSm } from "assets"
 import { unpublishedPublicationsKeys, useGetUnpublishedPublication } from "entities"
-import { useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { OperationClass } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { routes } from "utils"
 
 export const UnpublishedPublicationPage = () => {
-  const { siteId, publicationId } = useParams()
+  const { publicationId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("unpublishedPublicationPage")
 
   const { voterId } = useOperationPolicy("publication-updation")
   const { site } = useSiteContext()
 
   const parentBreadcrumbs = useMemo(
-    () => [
-      { title: t("common:publications"), path: routes.moderation.publications(siteId!) },
-      { title: t("common:unpublished"), path: routes.moderation.publications(siteId!, "u") },
-    ],
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(siteId!, "unpublished") }],
     [siteId, t],
   )
 
@@ -32,7 +30,7 @@ export const UnpublishedPublicationPage = () => {
   const pageTitle = publication?.title ?? publication?.id
   useSiteTitle(site?.title, pageTitle ? `Unpublished Publication - ${pageTitle}` : "Unpublished Publication")
 
-  if (isLoading || !publication) return <div>LOADING</div>
+  if (isLoading || !publication) return <div>Loading</div>
 
   return (
     <div className="flex flex-col gap-6">
@@ -44,7 +42,7 @@ export const UnpublishedPublicationPage = () => {
             {!!voterId && (
               <ButtonBar className="items-center">
                 <Link
-                  to={routes.moderation.create(siteId!)}
+                  to={routes.moderation.createProposal(siteId!)}
                   state={{
                     parentBreadcrumbs,
                     title: publication.title
@@ -52,8 +50,8 @@ export const UnpublishedPublicationPage = () => {
                       : t("publishNoTitle"),
                     type: "publication-publish" as OperationClass,
                     publicationId: publication.id,
-                    redirectAfterProposalCreation: routes.moderation.publications(siteId!, "p"),
-                    redirectAfterProposalExecution: routes.moderation.publications(siteId!, "u"),
+                    redirectAfterProposalCreation: routes.moderation.publications(siteId!, "proposals"),
+                    redirectAfterProposalExecution: routes.moderation.publications(siteId!, "unpublished"),
                     invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
                   }}
                 >
@@ -81,6 +79,7 @@ export const UnpublishedPublicationPage = () => {
 
       <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
         <ModerationPublicationHeader
+          siteId={siteId!}
           title={publication.title}
           logoId={publication.logoId}
           authorId={publication.authorId}

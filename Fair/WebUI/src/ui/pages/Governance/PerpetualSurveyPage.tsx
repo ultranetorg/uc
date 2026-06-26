@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 import { startCase } from "lodash"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -8,7 +7,7 @@ import { useSignInContext, useSiteContext, useSiteRolesContext } from "app"
 import { sitesKeys, useGetPerpetualSurveyDetails } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { OperationType, PerpetualVoting, SiteApprovalPolicyChange } from "types"
-import { useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 import { routes, showToast } from "utils"
@@ -17,8 +16,9 @@ export type PageState = "voting" | "results"
 
 export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurveyPage")
-  const { siteId, perpetualSurveyId } = useParams()
+  const { perpetualSurveyId } = useParams()
   const queryClient = useQueryClient()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
 
   const { startSignIn } = useSignInContext()
@@ -109,7 +109,7 @@ export const PerpetualSurveyPage = () => {
   }, [publisherIds, survey, t])
 
   if (!survey || isFetching) {
-    return <>LOADING</>
+    return <div>Loading</div>
   }
 
   return (
@@ -119,7 +119,7 @@ export const PerpetualSurveyPage = () => {
           fullPath={true}
           items={[
             { path: routes.site(siteId!), title: t("home") },
-            { title: t("common:publisherSurveys"), path: routes.governance.surveys(siteId!) },
+            { title: t("common:perpetualSurveys"), path: routes.governance.surveys(siteId!) },
             { title: title! },
           ]}
         />

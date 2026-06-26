@@ -1,14 +1,15 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 
 import { useGetSiteModerators } from "entities"
+import { useResolveSiteId } from "hooks"
 import { Table, TableEmptyState } from "ui/components"
 import { useOperationPolicy } from "app"
+
 import { moderatorsTabItemRenderer } from "./moderatorsTabItemRenderer"
 
 export const ModeratorsTab = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { voterId } = useOperationPolicy("site-moderator-removal")
   const { t } = useTranslation("moderatorsPage")
 
