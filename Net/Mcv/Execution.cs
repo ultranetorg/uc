@@ -162,7 +162,7 @@ public class Execution : ITableExecution
 	{
 		if(spender.EnergyPeriod < Time.Hours) /// switch to this hour
 		{	
-			if(spender.BandwidthExpiration < Time.Hours) /// bandwidth expired
+			if(spender.BandwidthExpiration < Time.Hours) /// bandwidth allocation expired
 				spender.Bandwidth = 0;
 
 			spender.EnergyPeriod	= Time.Hours;

@@ -386,7 +386,7 @@ public abstract class Round : IBinarySerializable
 		{
 			var e = CreateExecution(t);
 			
-			t.EnergyConsumed	= 0;
+			t.EnergyConsumed	= (int)t.Boost;
 			e.EnergySpenders	= [];
 			e.SpacetimeSpenders	= [];
 			e.OperationCost		= ConsensusOperationCost;
@@ -395,6 +395,8 @@ public abstract class Round : IBinarySerializable
 
 			if(u == null)
 				continue;
+			
+			u.Energy -= t.Boost;
 
 			foreach(var o in t.Operations)
 			{
@@ -405,8 +407,7 @@ public abstract class Round : IBinarySerializable
 				if(o.Error != null)
 					break;
 
-				u.Energy -= t.Boost;
-				
+
 				foreach(var i in e.EnergySpenders)
 				{
 					if(i.Energy < 0)
@@ -549,6 +550,7 @@ public abstract class Round : IBinarySerializable
 			
 			if(d > 0) /// day switched
 			{
+				
 				foreach(var i in Members.Select(i => e.AffectUser(i.User)))
 				{
 					i.EnergyNext += d * Net.EnergyDailyEmission / Members.Count;

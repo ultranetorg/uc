@@ -8,8 +8,6 @@ public class Generator
 	public Endpoint[]		GraphPpiEndpoints { get; set; } = [];
 	public int				Since { get; set; }
 	public int				Till { get; set; }
-	
-	public Peer         	Proxy;
 
 	public override string ToString()
 	{

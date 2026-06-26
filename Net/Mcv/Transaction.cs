@@ -29,7 +29,7 @@ public class Transaction : IBinarySerializable
 	public byte[]					Tag;
 	public long						Boost;
 	
-	public long						EnergyConsumed;
+	public int						EnergyConsumed;
 
 	//AccountAddress					_Signer;
 	//public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
