@@ -19,7 +19,7 @@ export const ModeratorProposalPage = memo(() => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={[{ title: t("common:moderators"), path: routes.moderation.moderators(siteId!) }]}
+      parentBreadcrumbs={[{ title: t("common:moderators"), path: routes.moderation.moderators(siteId!, "proposals") }]}
       isFetching={isFetching}
       proposal={proposal}
       previousPath={routes.moderation.moderators(siteId!, "proposals")}

@@ -34,42 +34,39 @@ export const routes = {
   author: (authorId: string) => `/${addPrefix("publisherId", authorId)}`,
 
   governance: {
-    createReferendum: (siteId: string) => `${sitePath(siteId)}/governance/new-referendum`,
-    surveys: (siteId: string) => `${sitePath(siteId)}/governance/surveys`,
-    survey: (siteId: string, surveyId: string) => `${sitePath(siteId)}/governance/surveys/${surveyId}`,
-    referendums: (siteId: string) => `${sitePath(siteId)}/governance/referendums`,
-    referendum: (siteId: string, referendumId: string) => `${sitePath(siteId)}/governance/referendums/${referendumId}`,
+    surveys: (siteId: string) => `${sitePath(siteId)}/surveys`,
+    survey: (siteId: string, surveyId: string) => `${sitePath(siteId)}/surveys/${surveyId}`,
+
+    createReferendum: (siteId: string) => `${sitePath(siteId)}/referendums/new`,
+    referendums: (siteId: string) => `${sitePath(siteId)}/referendums`,
+    referendum: (siteId: string, referendumId: string) => `${sitePath(siteId)}/referendums/${referendumId}`,
   },
 
   moderation: {
-    proposals: (siteId: string) => `${sitePath(siteId)}/moderation/proposals`,
-    createProposal: (siteId: string) => `${sitePath(siteId)}/moderation/new-proposal`,
+    createProposal: (siteId: string) => `${sitePath(siteId)}/proposals/new`,
+    proposals: (siteId: string) => `${sitePath(siteId)}/proposals`,
+    proposal: (siteId: string, discussionId: string) => `${sitePath(siteId)}/proposals/${discussionId}`,
 
-    proposal: (siteId: string, discussionId: string) => `${sitePath(siteId)}/moderation/proposals/${discussionId}`,
+    moderators: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderators`, tabKey),
+    moderatorProposal: (siteId: string, proposalId: string) => `${sitePath(siteId)}/moderators/proposals/${proposalId}`,
 
-    moderators: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderation/moderators`, tabKey),
-    moderatorProposal: (siteId: string, proposalId: string) =>
-      `${sitePath(siteId)}/moderation/moderators/proposals/${proposalId}`,
-
-    createPublication: (siteId: string) => `${sitePath(siteId)}/moderation/publications/new`,
-    preview: (siteId: string) => `${sitePath(siteId)}/moderation/publications/preview`,
-    publications: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderation/publications`, tabKey),
+    createPublication: (siteId: string) => `${sitePath(siteId)}/publications/new`,
+    preview: (siteId: string) => `${sitePath(siteId)}/publications/preview`,
+    publications: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/publications`, tabKey),
     moderatorPublication: (siteId: string, proposalId: string) =>
-      `${sitePath(siteId)}/moderation/publications/proposals/${proposalId}`,
+      `${sitePath(siteId)}/publications/proposals/${proposalId}`,
     changedPublication: (siteId: string, publicationId: string) =>
-      `${sitePath(siteId)}/moderation/publications/changed/${publicationId}`,
+      `${sitePath(siteId)}/publications/changed/${publicationId}`,
     unpublishedPublication: (siteId: string, publicationId: string) =>
-      `${sitePath(siteId)}/moderation/publications/unpublished/${publicationId}`,
+      `${sitePath(siteId)}/publications/unpublished/${publicationId}`,
 
-    publishers: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderation/publishers`, tabKey),
-    publisherProposal: (siteId: string, proposalId: string) =>
-      `${sitePath(siteId)}/moderation/publishers/proposals/${proposalId}`,
-    publisher: (siteId: string, publisherId: string) =>
-      `${sitePath(siteId)}/moderation/publishers/details/${publisherId}`,
+    publishers: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/publishers`, tabKey),
+    publisherProposal: (siteId: string, proposalId: string) => `${sitePath(siteId)}/publishers/proposals/${proposalId}`,
+    publisher: (siteId: string, publisherId: string) => `${sitePath(siteId)}/publishers/details/${publisherId}`,
 
-    reviews: (siteId: string) => `${sitePath(siteId)}/moderation/reviews`,
+    reviews: (siteId: string) => `${sitePath(siteId)}/reviews`,
 
-    users: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderation/users`, tabKey),
-    user: (siteId: string, userId: string) => `${sitePath(siteId)}/moderation/users/details/${userId}`,
+    users: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/users`, tabKey),
+    user: (siteId: string, userId: string) => `${sitePath(siteId)}/users/details/${userId}`,
   },
 } as const

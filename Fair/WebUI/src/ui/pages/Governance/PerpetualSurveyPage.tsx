@@ -119,7 +119,7 @@ export const PerpetualSurveyPage = () => {
           fullPath={true}
           items={[
             { path: routes.site(siteId!), title: t("home") },
-            { title: t("common:publisherSurveys"), path: routes.governance.surveys(siteId!) },
+            { title: t("common:perpetualSurveys"), path: routes.governance.surveys(siteId!) },
             { title: title! },
           ]}
         />

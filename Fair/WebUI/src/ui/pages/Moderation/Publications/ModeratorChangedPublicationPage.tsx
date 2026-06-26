@@ -31,10 +31,7 @@ export const ModeratorChangedPublicationPage = () => {
   useSiteTitle(site?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
 
   const parentBreadcrumbs = useMemo(
-    () => [
-      { title: t("common:publications"), path: routes.moderation.publications(siteId!) },
-      { title: t("common:changed"), path: routes.moderation.publications(siteId!, "changed") },
-    ],
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(siteId!, "changed") }],
     [siteId, t],
   )
 

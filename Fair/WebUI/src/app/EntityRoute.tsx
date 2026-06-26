@@ -122,30 +122,30 @@ export const EntityRoute = () => {
 
           {/* Governance */}
           <Route
-            path="governance/new-referendum"
+            path="referendums/new"
             element={
               <CreateProposalProvider>
                 <CreateReferendumPage />
               </CreateProposalProvider>
             }
           />
-          <Route path="governance/surveys/:perpetualSurveyId" element={<PerpetualSurveyPage />} />
-          <Route path="governance/referendums/:referendumId" element={<ReferendumPage />} />
-          <Route path="governance/surveys" element={<PerpetualSurveysPage />} />
-          <Route path="governance/referendums" element={<ReferendumsPage />} />
+          <Route path="surveys/:perpetualSurveyId" element={<PerpetualSurveyPage />} />
+          <Route path="referendums/:referendumId" element={<ReferendumPage />} />
+          <Route path="surveys" element={<PerpetualSurveysPage />} />
+          <Route path="referendums" element={<ReferendumsPage />} />
 
           {/* Moderation */}
           <Route
-            path="moderation/new-proposal"
+            path="proposals/new"
             element={
               <CreateProposalProvider>
                 <CreateDiscussionPage />
               </CreateProposalProvider>
             }
           />
-          <Route path="moderation/publications/new" element={<ModeratorCreatePublicationPage />} />
-          <Route path="moderation/publications/preview" element={<PreviewPage />} />
-          <Route path="moderation" element={<ModerationLayout />}>
+          <Route path="publications/new" element={<ModeratorCreatePublicationPage />} />
+          <Route path="publications/preview" element={<PreviewPage />} />
+          <Route element={<ModerationLayout />}>
             // Proposals
             <Route path="proposals" element={<ProposalsPage />} />
             <Route path="proposals/:proposalId" element={<ProposalPage />} />

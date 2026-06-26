@@ -21,10 +21,7 @@ export const UnpublishedPublicationPage = () => {
   const { site } = useSiteContext()
 
   const parentBreadcrumbs = useMemo(
-    () => [
-      { title: t("common:publications"), path: routes.moderation.publications(siteId!) },
-      { title: t("common:unpublished"), path: routes.moderation.publications(siteId!, "unpublished") },
-    ],
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(siteId!, "unpublished") }],
     [siteId, t],
   )
 

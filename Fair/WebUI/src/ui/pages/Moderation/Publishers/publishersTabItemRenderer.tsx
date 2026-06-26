@@ -29,10 +29,7 @@ export const getPublishersTabItemRenderer =
             <Link
               to={routes.moderation.createProposal(siteId)}
               state={{
-                parentBreadcrumbs: [
-                  { path: routes.moderation.publishers(siteId), title: t("common:proposals") },
-                  { path: routes.moderation.publishers(siteId, "publishers"), title: t("title") },
-                ],
+                parentBreadcrumbs: [{ path: routes.moderation.publishers(siteId), title: t("common:proposals") }],
                 previousPath: pathname,
                 title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
                 type: "site-authors-removal",
