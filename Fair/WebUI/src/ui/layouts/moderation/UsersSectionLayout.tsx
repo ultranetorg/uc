@@ -11,7 +11,7 @@ import { DropdownSearchAccountsItem, DropdownSearchAccount } from "ui/components
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
 
-export const UsersLayout = memo(({ children }: PropsWithChildren) => {
+export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
   const { tabKey, userId } = useParams()
   const siteId = useResolveSiteId()

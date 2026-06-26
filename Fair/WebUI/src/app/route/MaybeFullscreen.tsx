@@ -1,7 +1,8 @@
 import { memo, PropsWithChildren } from "react"
 
 import { FullscreenPageView } from "ui/views"
-import { BaseLayout, ConstrainedWidthLayout, SiteLayout } from "ui/layouts"
+import { BaseLayout, SiteLayout } from "ui/layouts"
+import { ConstrainedWidthLayout } from "ui/layouts/moderation"
 
 type MaybeFullscreenBaseProps = {
   showFullscreen?: boolean

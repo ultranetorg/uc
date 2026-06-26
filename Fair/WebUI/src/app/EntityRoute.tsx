@@ -2,7 +2,8 @@ import { ReactNode } from "react"
 import { Route, Routes } from "react-router-dom"
 
 import { useBackgroundLocation, useParams } from "hooks"
-import { BaseLayout, ConstrainedWidthLayout, ModerationLayout, SiteLayout, UsersLayout } from "ui/layouts"
+import { BaseLayout, SiteLayout } from "ui/layouts"
+import { ConstrainedWidthLayout, ModerationLayout, PublishersLayout, UsersSectionLayout } from "ui/layouts/moderation"
 
 import {
   AboutPage,
@@ -34,7 +35,6 @@ import {
   ProposalPage,
   ProposalsPage,
   PublicationsPage,
-  PublisherPage as ModerationPublisherPage,
   PublisherProposalPage,
   PublishersPage,
   ReviewsPage,
@@ -158,13 +158,15 @@ export const EntityRoute = () => {
             <Route
               path="a/p/:publisherId"
               element={
-                <ConstrainedWidthLayout>
-                  <ModerationPublisherPage />
-                </ConstrainedWidthLayout>
+                <PublishersLayout>
+                  <ConstrainedWidthLayout>
+                    <PublisherPage />
+                  </ConstrainedWidthLayout>
+                </PublishersLayout>
               }
             />
             <Route path="r" element={<ReviewsPage />} />
-            <Route path="u" element={<UsersLayout />}>
+            <Route path="u" element={<UsersSectionLayout />}>
               <Route path=":tabKey?" element={<UsersPage />} />
               <Route
                 path="u/:userId"
