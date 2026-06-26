@@ -109,7 +109,7 @@ export const PerpetualSurveyPage = () => {
   }, [publisherIds, survey, t])
 
   if (!survey || isFetching) {
-    return <>LOADING</>
+    return <div>Loading</div>
   }
 
   return (

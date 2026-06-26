@@ -62,10 +62,10 @@ export const ModeratorChangedPublicationPage = () => {
     })
   }, [isModerator, mutate, navigate, publication, siteId, t, voterId])
 
-  if (!siteId || isLoading) return <div>LOADING</div>
+  if (!siteId || isLoading) return <div>Loading</div>
 
   if (!publication) {
-    return <div>NOT FOUND</div>
+    return <div>Not found</div>
   }
 
   return (

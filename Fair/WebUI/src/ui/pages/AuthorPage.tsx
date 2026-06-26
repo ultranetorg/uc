@@ -38,7 +38,7 @@ export const AuthorPage = () => {
   )
 
   if (isPending || !author) {
-    return <div>Loading AuthorPage</div>
+    return <div>Loading</div>
   }
 
   return (

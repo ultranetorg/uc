@@ -38,7 +38,7 @@ export const PreviewPage = () => {
   if (!previousPath || (!productId && !publicationId)) return <Navigate to={routes.site(siteId!)} />
 
   if (isProductPending && isPublicationPending && !product && !publication) {
-    return <>🕑 LOADING</>
+    return <div>Loading</div>
   }
 
   return (

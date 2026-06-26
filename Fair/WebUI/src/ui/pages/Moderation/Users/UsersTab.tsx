@@ -40,7 +40,7 @@ export const UsersTab = () => {
     [setState],
   )
 
-  if (!users || isPending) return <>LOADING</>
+  if (!users || isPending) return <div>Loading</div>
 
   return (
     <>

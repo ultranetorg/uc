@@ -33,7 +33,7 @@ export const UnpublishedPublicationPage = () => {
   const pageTitle = publication?.title ?? publication?.id
   useSiteTitle(site?.title, pageTitle ? `Unpublished Publication - ${pageTitle}` : "Unpublished Publication")
 
-  if (isLoading || !publication) return <div>LOADING</div>
+  if (isLoading || !publication) return <div>Loading</div>
 
   return (
     <div className="flex flex-col gap-6">

@@ -56,7 +56,7 @@ export const CategoryPage = () => {
   )
 
   if (isPending || !category || isPendingPublications || !publications) {
-    return <div>LOADING</div>
+    return <div>Loading</div>
   }
 
   return (

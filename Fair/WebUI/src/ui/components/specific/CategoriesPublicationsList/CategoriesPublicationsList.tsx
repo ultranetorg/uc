@@ -19,7 +19,7 @@ export const CategoriesPublicationsList = ({
   ...rest
 }: CategoriesPublicationsListProps) => {
   return isPending || !categoriesPublications ? (
-    <>⌛ LOADING</>
+    <div>Loading</div>
   ) : (
     <>
       {categoriesPublications.map(x => (

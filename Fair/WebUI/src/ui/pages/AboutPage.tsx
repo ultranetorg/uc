@@ -14,7 +14,7 @@ export const AboutPage = () => {
   useSiteTitle(site?.title, "About")
 
   if (!site) {
-    return <>LOADING 🕐</>
+    return <div>Loading</div>
   }
 
   return (

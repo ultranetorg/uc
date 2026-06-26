@@ -210,7 +210,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   }, [isPublicationMode, proposal, approval])
 
   if (!proposal || !comments) {
-    return <>LOADING</>
+    return <div>Loading</div>
   }
 
   return (

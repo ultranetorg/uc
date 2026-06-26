@@ -23,7 +23,7 @@ export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: Publisher
   useSiteTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 
   if (isPending || !author) {
-    return <div>Loading PublisherPage</div>
+    return <div>Loading</div>
   }
 
   return (

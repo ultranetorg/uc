@@ -32,7 +32,7 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
 
   useSiteTitle(user?.name ? `User - ${user?.name}` : undefined)
 
-  if (!user) return <>Loading ReviewerPage</>
+  if (!user) return <div>Loading</div>
 
   return (
     <div className="flex flex-col gap-6">

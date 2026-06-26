@@ -25,7 +25,7 @@ export const PublicationStoresModal = memo(({ onClose, publicationId }: Publicat
   const { data: sites } = useGetProductSites(publicationId, 0, DEFAULT_PAGE_SIZE_20)
 
   if (!sites) {
-    return <>LOADING</>
+    return <div>Loading</div>
   }
 
   return (

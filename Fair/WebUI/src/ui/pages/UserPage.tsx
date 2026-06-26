@@ -32,7 +32,7 @@ export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
 
   useSiteTitle(user?.name ? `User - ${user?.name}` : undefined)
 
-  if (!user) return <>LOADING</>
+  if (!user) return <div>Loading</div>
 
   return (
     <div className="flex max-w-182.5 flex-col gap-6">

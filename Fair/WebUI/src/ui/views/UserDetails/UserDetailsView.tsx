@@ -23,7 +23,7 @@ export type UserDetailsViewProps = {
 export const UserDetailsView = memo(({ siteId, user, reviews, isPublisher, isModerator }: UserDetailsViewProps) => {
   const { t } = useTranslation("userDetailsView")
 
-  if (!user || !reviews) return <>LOADING</>
+  if (!user || !reviews) return <div>Loading</div>
 
   return (
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300 bg-gray-100">

@@ -44,7 +44,7 @@ export const AuthorPublicationsView = memo(
     )
 
     if (!author || !publications) {
-      return <>LOADING ⏱️</>
+      return <>Loading </>
     }
 
     return (

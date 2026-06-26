@@ -19,7 +19,7 @@ export const SitePage = () => {
   )
 
   if (isPending || !site || !siteId || !categories || !categoriesPublications || isCategoriesPending) {
-    return <>LOADING</>
+    return <div>Loading</div>
   }
 
   return (
