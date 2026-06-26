@@ -14,7 +14,7 @@ export const useModeratorUserMenuItems = (userId: string, userName?: string) => 
     () => [
       {
         label: t("unregisterUser"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: `Unregister user "${truncate(`${userName} (${userId})`, { length: 46 })}"`,
           type: "user-unregistration",

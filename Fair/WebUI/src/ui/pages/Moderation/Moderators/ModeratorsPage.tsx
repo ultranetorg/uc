@@ -49,7 +49,7 @@ export const ModeratorsPage = () => {
           <>
             {voterId && (
               <Link
-                to={routes.governance.create(siteId!)}
+                to={routes.governance.createReferendum(siteId!)}
                 state={{
                   parentBreadcrumbs: [{ path: routes.moderation.moderators(siteId!), title: t("title") }],
                   title: t("addModerator"),

@@ -45,7 +45,7 @@ export const UnpublishedPublicationPage = () => {
             {!!voterId && (
               <ButtonBar className="items-center">
                 <Link
-                  to={routes.moderation.create(siteId!)}
+                  to={routes.moderation.createProposal(siteId!)}
                   state={{
                     parentBreadcrumbs,
                     title: publication.title

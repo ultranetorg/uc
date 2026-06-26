@@ -18,7 +18,7 @@ export const useModeratorPublicationMenuItems = (
     () => [
       {
         label: t("unpublishPublication"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: publicationTitle
             ? `Unpublish publication "${truncate(publicationTitle, { length: 40 })}"`
@@ -37,7 +37,7 @@ export const useModeratorPublicationMenuItems = (
       { separator: true },
       {
         label: t("removePublication"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: publicationTitle
             ? `Remove publication "${truncate(publicationTitle, { length: 43 })}"`

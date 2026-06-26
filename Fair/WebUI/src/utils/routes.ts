@@ -34,7 +34,7 @@ export const routes = {
   author: (authorId: string) => `/${addPrefix("publisherId", authorId)}`,
 
   governance: {
-    create: (siteId: string) => `${sitePath(siteId)}/governance/new-referendum`,
+    createReferendum: (siteId: string) => `${sitePath(siteId)}/governance/new-referendum`,
     surveys: (siteId: string) => `${sitePath(siteId)}/governance/surveys`,
     survey: (siteId: string, surveyId: string) => `${sitePath(siteId)}/governance/surveys/${surveyId}`,
     referendums: (siteId: string) => `${sitePath(siteId)}/governance/referendums`,
@@ -43,7 +43,7 @@ export const routes = {
 
   moderation: {
     proposals: (siteId: string) => `${sitePath(siteId)}/moderation/proposals`,
-    create: (siteId: string) => `${sitePath(siteId)}/moderation/new-proposal`,
+    createProposal: (siteId: string) => `${sitePath(siteId)}/moderation/new-proposal`,
 
     proposal: (siteId: string, discussionId: string) => `${sitePath(siteId)}/moderation/proposals/${discussionId}`,
 

@@ -17,7 +17,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
     () => [
       {
         label: t("moderatorCategoryMenu:avatarChange"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: `Change category "${truncate(categoryTitle, { length: 39 })}" avatar`,
           type: "category-avatar-change",
@@ -30,7 +30,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
       },
       {
         label: t("moderatorCategoryMenu:typeChange"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: `Change category "${truncate(categoryTitle, { length: 41 })}" type`,
           type: "category-type-change",
@@ -43,7 +43,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
       },
       {
         label: t("moderatorCategoryMenu:move"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: `Move "${truncate(categoryTitle, { length: 48 })}" category`,
           type: "category-movement",
@@ -59,7 +59,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
       },
       {
         label: t("moderatorCategoryMenu:categoryCreate"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: "Create new category",
           type: "category-creation",
@@ -78,7 +78,7 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
       },
       {
         label: t("moderatorCategoryMenu:remove"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: `Remove category "${truncate(categoryTitle, { length: 46 })}"`,
           type: "category-deletion",

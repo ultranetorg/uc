@@ -25,7 +25,7 @@ export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
     () => [
       {
         label: t("moderatorCategoryMenu:categoryCreate"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: "Create category",
           type: "category-creation",

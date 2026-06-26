@@ -27,7 +27,7 @@ export const getPublishersTabItemRenderer =
         return (
           <div className="flex justify-end">
             <Link
-              to={routes.moderation.create(siteId)}
+              to={routes.moderation.createProposal(siteId)}
               state={{
                 parentBreadcrumbs: [
                   { path: routes.moderation.publishers(siteId), title: t("common:proposals") },

@@ -18,7 +18,7 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("avatarChange"),
-              to: routes.moderation.create(siteId),
+              to: routes.moderation.createProposal(siteId),
               state: {
                 title: `Change site avatar`,
                 type: "site-avatar-change",
@@ -35,7 +35,7 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("nameChange"),
-              to: routes.governance.create(siteId),
+              to: routes.governance.createReferendum(siteId),
               state: {
                 title: `Change site name`,
                 type: "site-name-change",
@@ -52,7 +52,7 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("textChange"),
-              to: routes.governance.create(siteId),
+              to: routes.governance.createReferendum(siteId),
               state: {
                 title: `Change site text`,
                 type: "site-text-change",
