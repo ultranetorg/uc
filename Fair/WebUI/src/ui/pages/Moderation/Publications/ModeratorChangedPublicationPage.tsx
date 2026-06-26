@@ -1,12 +1,12 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 import { useOperationPolicy, useSiteContext, useSiteRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
@@ -14,7 +14,8 @@ import { routes, showToast } from "utils"
 
 export const ModeratorChangedPublicationPage = () => {
   const navigate = useNavigate()
-  const { siteId, publicationId } = useParams()
+  const { publicationId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation()
 
   const { voterId } = useOperationPolicy("publication-updation")
@@ -30,10 +31,7 @@ export const ModeratorChangedPublicationPage = () => {
   useSiteTitle(site?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
 
   const parentBreadcrumbs = useMemo(
-    () => [
-      { title: t("common:publications"), path: routes.moderation.publications(siteId!) },
-      { title: t("common:changed"), path: routes.moderation.publications(siteId!, "c") },
-    ],
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(siteId!, "changed") }],
     [siteId, t],
   )
 
@@ -61,10 +59,10 @@ export const ModeratorChangedPublicationPage = () => {
     })
   }, [isModerator, mutate, navigate, publication, siteId, t, voterId])
 
-  if (!siteId || isLoading) return <div>LOADING</div>
+  if (!siteId || isLoading) return <div>Loading</div>
 
   if (!publication) {
-    return <div>NOT FOUND</div>
+    return <div>Not found</div>
   }
 
   return (
@@ -106,6 +104,7 @@ export const ModeratorChangedPublicationPage = () => {
 
       <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
         <ModerationPublicationHeader
+          siteId={siteId}
           title={publication.title}
           logoId={publication.logoId}
           authorId={publication.authorId}

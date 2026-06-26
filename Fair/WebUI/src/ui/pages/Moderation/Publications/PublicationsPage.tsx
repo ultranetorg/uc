@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import { useOperationPolicy, useSiteContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
@@ -13,15 +13,16 @@ import { PublicationsTab } from "./PublicationsTab"
 import { UnpublishedPublicationsTab } from "./UnpublishedPublicationsTab"
 
 const routeToTabKey: Record<string, string> = {
-  p: "proposals",
-  c: "changed",
-  u: "unpublished",
+  proposals: "proposals",
+  changed: "changed",
+  unpublished: "unpublished",
 }
 
 export const PublicationsPage = () => {
   const navigate = useNavigate()
   const { voterId } = useOperationPolicy("publication-creation")
-  const { siteId, tabKey } = useParams()
+  const { tabKey } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { t } = useTranslation("publicationsPage")
 
@@ -41,9 +42,9 @@ export const PublicationsPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "proposals", label: t("common:proposals"), route: "p" },
-      { key: "changed", label: t("changed"), route: "c" },
-      { key: "unpublished", label: t("unpublished"), route: "u" },
+      { key: "proposals", label: t("common:proposals") },
+      { key: "changed", label: t("changed"), route: "changed" },
+      { key: "unpublished", label: t("unpublished"), route: "unpublished" },
     ],
     [t],
   )

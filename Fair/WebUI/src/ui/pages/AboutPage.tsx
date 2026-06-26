@@ -1,21 +1,20 @@
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 
 import { useSiteContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useResolveSiteId, useSiteTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { AboutInfo } from "ui/components/specific"
 import { routes } from "utils"
 
 export const AboutPage = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("about")
   const { site } = useSiteContext()
 
   useSiteTitle(site?.title, "About")
 
   if (!site) {
-    return <>LOADING 🕐</>
+    return <div>Loading</div>
   }
 
   return (

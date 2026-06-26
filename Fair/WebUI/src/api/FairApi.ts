@@ -13,6 +13,7 @@ import {
   PerpetualSurvey,
   PerpetualSurveyDetails,
   Policy,
+  ProductAuthor,
   ProductDetails,
   ProductStore,
   Proposal,
@@ -74,7 +75,6 @@ export type FairApi = {
   getUserSiteExists(userId: string, siteId: string): Promise<boolean>
   getUserReviews(userId: string, page?: number): Promise<TotalItemsResult<Review>>
 
-  getAuthor(authorId: string): Promise<AuthorDetails>
   getCategoriesTree(siteId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategoryDetails(categoryId: string): Promise<Category>
   getCategoriesRoot(siteId: string): Promise<CategoryBase[]>
@@ -98,9 +98,9 @@ export type FairApi = {
     pageSize?: number,
   ): Promise<TotalItemsResult<PublicationUnpublished>>
 
-  getAuthorPublications(
+  getPublisherPublications(
     siteId: string,
-    authorId: string,
+    publisherId: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<PublicationAuthor>>
@@ -108,6 +108,9 @@ export type FairApi = {
   getReviews(publicationId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>>
 
   // Author
+  getAuthor(authorId: string): Promise<AuthorDetails>
+  getAuthorProducts(authorId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<ProductAuthor>>
+
   getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
   getAuthorPerpetualSurveys(siteId: string): Promise<PerpetualSurvey[]>

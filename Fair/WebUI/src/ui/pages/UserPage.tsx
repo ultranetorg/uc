@@ -1,11 +1,10 @@
 import { memo } from "react"
-import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { useSiteRolesContext } from "app"
 import { useGetUserAuthors, useGetUserReviews } from "entities"
-import { useSiteTitle, useUrlParamsState } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { UserDetailsView } from "ui/views"
 import { parseInteger, routes } from "utils"
@@ -16,7 +15,8 @@ export type UserPageProps = {
 
 export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
   const { isModerator, isPublisher } = useSiteRolesContext()
-  const { siteId, userId } = useParams()
+  const { userId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation()
 
   const [state] = useUrlParamsState({
@@ -32,7 +32,7 @@ export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
 
   useSiteTitle(user?.name ? `User - ${user?.name}` : undefined)
 
-  if (!user) return <>LOADING</>
+  if (!user) return <div>Loading</div>
 
   return (
     <div className="flex max-w-182.5 flex-col gap-6">

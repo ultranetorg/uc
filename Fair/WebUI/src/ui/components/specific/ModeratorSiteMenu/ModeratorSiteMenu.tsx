@@ -1,13 +1,13 @@
 import { memo, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useLocation, useParams } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { FloatingPortal } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
 import { useSiteRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { categoriesKeys } from "entities"
-import { useScrollOrResize, useSubmenu } from "hooks"
+import { useResolveSiteId, useScrollOrResize, useSubmenu } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
 import { routes } from "utils"
@@ -15,7 +15,7 @@ import { routes } from "utils"
 export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
   const location = useLocation()
   const { isModerator } = useSiteRolesContext()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation()
 
   const menu = useSubmenu({ placement: "bottom-end" })
@@ -25,16 +25,16 @@ export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
     () => [
       {
         label: t("moderatorCategoryMenu:categoryCreate"),
-        to: routes.moderation.create(siteId!),
+        to: routes.moderation.createProposal(siteId!),
         state: {
           title: "Create category",
           type: "category-creation",
           parentBreadcrumbs: [
-            { path: routes.moderation.root(siteId!), title: t("common:proposals") },
+            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
             { path: routes.moderation.publications(siteId!), title: t("common:publications") },
           ],
           categoryId: null,
-          redirectAfterProposalCreation: routes.moderation.root(siteId!),
+          redirectAfterProposalCreation: routes.moderation.proposals(siteId!),
           redirectAfterProposalExecution: location.pathname,
           invalidateQueryKeys: categoriesKeys.all(siteId!),
         },

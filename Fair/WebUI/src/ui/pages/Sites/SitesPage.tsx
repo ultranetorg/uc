@@ -91,7 +91,7 @@ export const SitesPage = () => {
   )
 
   if (isDefaultFetching || isSitesFetching) {
-    return <>🕑 LOADING</>
+    return <div>Loading</div>
   }
 
   return (

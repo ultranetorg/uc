@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetSiteUsers } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useResolveSiteId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger, routes } from "utils"
 
@@ -13,7 +13,7 @@ import { usersTabItemRenderer } from "./usersTabItemRenderer"
 
 export const UsersTab = () => {
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { t } = useTranslation("usersTab")
 
   const [state, setState] = useUrlParamsState({
@@ -40,7 +40,7 @@ export const UsersTab = () => {
     [setState],
   )
 
-  if (!users || isPending) return <>LOADING</>
+  if (!users || isPending) return <div>Loading</div>
 
   return (
     <>

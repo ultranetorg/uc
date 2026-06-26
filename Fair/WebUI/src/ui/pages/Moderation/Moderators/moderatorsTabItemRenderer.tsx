@@ -25,13 +25,13 @@ export const moderatorsTabItemRenderer =
         return (
           <div className="flex justify-end">
             <Link
-              to={routes.governance.create(siteId)}
+              to={routes.governance.createReferendum(siteId)}
               state={{
                 parentBreadcrumbs: [{ path: routes.moderation.moderators(siteId), title: t("title") }],
                 title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
                 type: "site-moderator-removal",
                 moderators: [moderator.user],
-                redirectAfterProposalCreation: routes.moderation.moderators(siteId, "p"),
+                redirectAfterProposalCreation: routes.moderation.moderators(siteId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.moderators(siteId),
               }}

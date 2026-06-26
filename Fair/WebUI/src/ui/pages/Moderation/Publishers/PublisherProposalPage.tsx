@@ -1,15 +1,15 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 
 import { useSiteContext } from "app"
 import { useGetModeratorDiscussion } from "entities"
-import { useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
 
 export const PublisherProposalPage = memo(() => {
-  const { siteId, proposalId } = useParams()
+  const { proposalId } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { t } = useTranslation()
 
@@ -19,10 +19,10 @@ export const PublisherProposalPage = memo(() => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={[{ title: t("common:publishers"), path: routes.moderation.publishers(siteId!, "r") }]}
+      parentBreadcrumbs={[{ title: t("common:publishers"), path: routes.moderation.publishers(siteId!, "proposals") }]}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={routes.moderation.publishers(siteId!, "r")}
+      previousPath={routes.moderation.publishers(siteId!, "proposals")}
     />
   )
 })

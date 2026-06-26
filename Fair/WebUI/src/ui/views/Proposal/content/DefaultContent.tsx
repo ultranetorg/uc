@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react"
-import { useParams } from "react-router-dom"
 
 import { useOperationPolicy } from "app"
+import { useResolveSiteId } from "hooks"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 
 import { ProposalViewContentProps } from "./types"
@@ -10,7 +10,7 @@ import { renderDescription } from "./utils"
 export const DefaultContent = memo(
   ({ t, pageState, proposal, isReferendum, voteStatus, votedValue, onVoteClick }: ProposalViewContentProps) => {
     const { voterId } = useOperationPolicy(proposal.operation)
-    const { siteId } = useParams()
+    const siteId = useResolveSiteId()
 
     const items = useMemo<OptionsCollapsesListItem[]>(
       () =>

@@ -1,11 +1,9 @@
 import { createContext, memo, PropsWithChildren, useContext, useMemo } from "react"
-import { useLocation, useParams } from "react-router-dom"
 
 import { useGetCategoriesRoot, useGetCategoriesTree, useGetSite } from "entities"
+import { useResolveSiteId } from "hooks"
 import { CategoryBase, CategoryParentBaseWithChildren, Site } from "types"
 import { buildCategoryTree } from "utils"
-
-import { LinkFullscreenState } from "ui/components"
 
 type SiteContextType = {
   isPending: boolean
@@ -22,13 +20,7 @@ const SiteContext = createContext<SiteContextType>({
 })
 
 export const SiteProvider = memo(({ children }: PropsWithChildren) => {
-  const { siteId } = useParams()
-  const location = useLocation()
-
-  // On a full-screen page like ProfilePage, the siteId value can be undefined. This is because the page URL does not contain the siteId parameter.
-  // For ProfilePage, the URL is /p/{accountAddress}, so we need to get siteId from location.state.
-  const state = location.state as LinkFullscreenState
-  const effectiveSiteId = siteId || state?.siteId
+  const effectiveSiteId = useResolveSiteId()
 
   const { data: site, isPending, error } = useGetSite(effectiveSiteId)
   const { data: rootCategories } = useGetCategoriesRoot(effectiveSiteId)

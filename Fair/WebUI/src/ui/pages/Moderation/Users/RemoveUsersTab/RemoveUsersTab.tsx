@@ -1,13 +1,12 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
 import { isNumber } from "lodash"
 
 import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserUnregistrationProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useUrlParamsState } from "hooks"
+import { useResolveSiteId, useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
@@ -15,7 +14,7 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 import { getRemoveUsersTabItemRenderer } from "./removeUsersTabItemRenderer"
 
 export const UsersRemovalsTab = () => {
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
   const { voterId } = useOperationPolicy("user-registration")
   const { site } = useSiteContext()
   const { policies } = useSitePoliciesContext()

@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUnpublishedPublications } from "entities"
-import { useUrlParamsState } from "hooks"
+import { useResolveSiteId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { unpublishedPublicationsItemRenderer } from "ui/renderers"
 import { parseInteger, routes } from "utils"
@@ -13,7 +13,7 @@ import { parseInteger, routes } from "utils"
 export const UnpublishedPublicationsTab = () => {
   const { t } = useTranslation("tabUnpublishedPublications")
   const navigate = useNavigate()
-  const { siteId } = useParams()
+  const siteId = useResolveSiteId()
 
   const [state, setState] = useUrlParamsState({
     page: {

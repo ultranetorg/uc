@@ -18,13 +18,13 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("avatarChange"),
-              to: routes.moderation.create(siteId),
+              to: routes.moderation.createProposal(siteId),
               state: {
                 title: `Change site avatar`,
                 type: "site-avatar-change",
                 siteId,
-                parentBreadcrumbs: [{ path: routes.moderation.root(siteId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.root(siteId),
+                parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.moderation.proposals(siteId),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.detail(siteId),
               },
@@ -35,13 +35,13 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("nameChange"),
-              to: routes.moderation.create(siteId),
+              to: routes.moderation.createProposal(siteId),
               state: {
                 title: `Change site name`,
                 type: "site-name-change",
                 siteId,
-                parentBreadcrumbs: [{ path: routes.moderation.root(siteId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.root(siteId),
+                parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.moderation.proposals(siteId),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.detail(siteId),
               },
@@ -52,13 +52,13 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("textChange"),
-              to: routes.moderation.create(siteId),
+              to: routes.moderation.createProposal(siteId),
               state: {
                 title: `Change site text`,
                 type: "site-text-change",
                 siteId,
-                parentBreadcrumbs: [{ path: routes.moderation.root(siteId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.root(siteId),
+                parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.moderation.proposals(siteId),
                 redirectAfterProposalExecution: location.pathname,
                 invalidateQueryKeys: sitesKeys.detail(siteId),
               },
@@ -71,7 +71,7 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
 
   const menuItems = useMemo(
     () => [
-      { label: t("common:proposals"), to: routes.moderation.root(siteId) },
+      { label: t("common:proposals"), to: routes.moderation.proposals(siteId) },
       { label: t("common:moderators"), to: routes.moderation.moderators(siteId) },
       { label: t("common:publications"), to: routes.moderation.publications(siteId) },
       { label: t("common:publishers"), to: routes.moderation.publishers(siteId) },

@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import { useSiteContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
@@ -12,13 +12,14 @@ import { PublishersTab } from "./PublishersTab"
 import { PublishersProposalsTab } from "./PublishersProposalsTab"
 
 const routeToTabKey: Record<string, string> = {
-  p: "publishers",
-  r: "proposals",
+  publishers: "publishers",
+  proposals: "proposals",
 }
 
 export const PublishersPage = () => {
   const navigate = useNavigate()
-  const { siteId, tabKey } = useParams()
+  const { tabKey } = useParams()
+  const siteId = useResolveSiteId()
   const { site } = useSiteContext()
   const { t } = useTranslation("publishersPage")
 
@@ -33,8 +34,8 @@ export const PublishersPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "publishers", label: t("common:publishers"), route: "p" },
-      { key: "proposals", label: t("common:proposals"), route: "r" },
+      { key: "publishers", label: t("common:publishers") },
+      { key: "proposals", label: t("common:proposals"), route: "proposals" },
     ],
     [t],
   )
