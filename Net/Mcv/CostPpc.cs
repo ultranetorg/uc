@@ -6,11 +6,8 @@ public class CostPpc : McvPpc<CostPpr>
 	{
 		RequireGraph();
 		
-		lock(Mcv.Lock)
-		{
-			return new CostPpr{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
-									ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusOperationCost};
-		}
+		return new CostPpr{//RentPerBytePerDay = Mcv.LastConfirmedRound.RentPerBytePerDay,
+								ConsensusExecutionFee = Mcv.LastConfirmedRound.ConsensusOperationCost};
 	}
 }
 

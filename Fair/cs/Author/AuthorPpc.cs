@@ -18,17 +18,14 @@ public class AuthorPpc : FairPpc<AuthorPpr>
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
 
- 		lock(Mcv.Lock)
-		{	
-			RequireGraph();
+		RequireGraph();
 
-			var	e = Mcv.Authors.Latest(Id);
+		var	e = Mcv.Authors.Latest(Id);
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new AuthorPpr {Author = e};
-		}
+		return new AuthorPpr {Author = e};
 	}
 }
 

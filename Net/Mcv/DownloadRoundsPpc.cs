@@ -9,14 +9,15 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 	
 	public override Result Execute()
 	{
+		RequireGraph();
+
 		lock(Mcv.Lock)
 		{
-			RequireGraph();
 			
 			if(Mcv.LastNonEmptyRound == null)	
 				throw new NodeException(NodeError.TooEearly);
 
-			if(From > Mcv.LastNonEmptyRound.Id || To - From > Mcv.Net.P)
+			if(From > Mcv.LastConfirmedRound.Id || To - From > Mcv.Net.P)
 				throw new RequestException(RequestError.OutOfRange);
 
 			var s = new MemoryStream();
@@ -24,34 +25,35 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 		
 			var rs = Enumerable.Range(From, To - From + 1).Select(Mcv.FindRound).Where(i => i != null && i.Confirmed);
 
-			w.Write(rs, i => i.Save(w));
-		
-			return new DownloadRoundsPpr {	LastNonEmptyRound	= Mcv.LastNonEmptyRound.Id,
-											LastConfirmedRound	= Mcv.LastConfirmedRound.Id,
-											BaseHash			= Mcv.GraphHash,
-											Rounds				= s.ToArray()};
+			w.Write(rs, i => w.WriteBytes(i.Raw));
+
+			return	new DownloadRoundsPpr 
+					{	
+						LastNonEmptyRound	= Mcv.LastNonEmptyRound.Id,
+						LastConfirmedRound	= Mcv.LastConfirmedRound.Id,
+						BaseHash			= Mcv.GraphHash,
+						Rounds				= [..rs.Select(i => i.Raw)]
+					};
 		}
 	}
 }
 
 public class DownloadRoundsPpr : Result
 {
-	public int		LastNonEmptyRound { get; set; }
-	public int		LastConfirmedRound { get; set; }
-	public byte[]	BaseHash{ get; set; }
-	public byte[]	Rounds { get; set; }
+	public int			LastNonEmptyRound { get; set; }
+	public int			LastConfirmedRound { get; set; }
+	public byte[]		BaseHash{ get; set; }
+	public byte[][]		Rounds { get; set; }
 
 	public Round[] Read(Mcv mcv, Constructor constructor)
 	{
 		if(Rounds == null)
 			return [];
 
-		var rd = new Reader(Rounds, constructor);
-
-		return rd.ReadArray(() =>{
-									var r = mcv.CreateRound();
-									r.Load(rd);
-									return r;
-								});
+		return [..Rounds.Select(i =>	{
+											var r = mcv.CreateRound();
+											r.Restore(i);
+											return r;
+										})];
 	}
 }

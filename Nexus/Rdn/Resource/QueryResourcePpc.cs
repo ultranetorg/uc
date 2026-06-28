@@ -7,10 +7,7 @@ public class QueryResourcePpc : RdnPpc<QueryResourcePpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{	
-			return new QueryResourcePpr {Resources = Mcv.SearchResources(Domain, Query).ToArray()};
-		}
+		return new QueryResourcePpr {Resources = Mcv.SearchResources(Domain, Query).ToArray()};
 	}
 }
 	

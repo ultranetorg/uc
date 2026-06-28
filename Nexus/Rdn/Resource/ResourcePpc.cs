@@ -15,14 +15,11 @@ public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{	
-			var	r = Mcv.Resources.Latest(Id)
-					??
-					throw new EntityException(EntityError.NotFound);
+		var	r = Mcv.Resources.Latest(Id)
+				??
+				throw new EntityException(EntityError.NotFound);
 			
-			return new ResourceByIdPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
-		}
+		return new ResourceByIdPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
 	}
 }
 	
@@ -48,14 +45,11 @@ public class ResourceByAddressPpc : RdnPpc<ResourceByAddressPpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{	
-			var	r = Mcv.Resources.Latest(Addres)
-					??
-					throw new EntityException(EntityError.NotFound);
+		var	r = Mcv.Resources.Latest(Addres)
+				??
+				throw new EntityException(EntityError.NotFound);
 			
-			return new ResourceByAddressPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
-		}
+		return new ResourceByAddressPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
 	}
 }
 	

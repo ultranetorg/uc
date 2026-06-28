@@ -4,12 +4,9 @@ public class FundsPpc : McvPpc<FundsPpr>
 {
 	public override Result Execute()
 	{
-		lock(Mcv.Lock)
-		{
-			RequireGraph();
+		RequireGraph();
 		
-			return new FundsPpr {Funds = Mcv.LastConfirmedRound.Funds.ToArray()};
-		}
+		return new FundsPpr {Funds = Mcv.LastConfirmedRound.Funds.ToArray()};
 	}
 }
 

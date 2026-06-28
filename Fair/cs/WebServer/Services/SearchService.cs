@@ -18,29 +18,26 @@ public class SearchService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
+		Site site = mcv.Sites.Latest(id);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(id);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			var searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
-			if(searchResult.Count == 0)
-			{
-				return TotalItemsResult<PublicationExtendedModel>.Empty;
-			}
-
-			List<PublicationExtendedModel> result = new List<PublicationExtendedModel>(searchResult.Count);
-			LoadPublications(searchResult, result, cancellationToken);
-
-			return new TotalItemsResult<PublicationExtendedModel>
-			{
-				Items = result,
-				TotalItems = Math.Min(site.PublicationsCount, Pagination.PageSize30 * Pagination.PagesCountMax)
-			};
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		var searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+		if(searchResult.Count == 0)
+		{
+			return TotalItemsResult<PublicationExtendedModel>.Empty;
+		}
+
+		List<PublicationExtendedModel> result = new List<PublicationExtendedModel>(searchResult.Count);
+		LoadPublications(searchResult, result, cancellationToken);
+
+		return new TotalItemsResult<PublicationExtendedModel>
+		{
+			Items = result,
+			TotalItems = Math.Min(site.PublicationsCount, Pagination.PageSize30 * Pagination.PagesCountMax)
+		};
 	}
 
 	void LoadPublications(List<ProductSearchResult> searchResult, IList<PublicationExtendedModel> result, CancellationToken cancellationToken)
@@ -92,17 +89,14 @@ public class SearchService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
-		{
-			var result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+		var result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
 
-			/// 
-			/// TODO : Update
-			/// 
-			///return result.Select(x => new PublicationBaseModel(x.Publication.ToString(), x.Product));
+		/// 
+		/// TODO : Update
+		/// 
+		///return result.Select(x => new PublicationBaseModel(x.Publication.ToString(), x.Product));
 			
-			throw new NotImplementedException();
-		}
+		throw new NotImplementedException();
 	}
 
 	public TotalItemsResult<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
@@ -115,23 +109,20 @@ public class SearchService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		lock(mcv.Lock)
+		var searchResult = mcv.SiteTitles.Search(query ?? "", page * pageSize, pageSize);
+		if(searchResult.Length == 0)
 		{
-			var searchResult = mcv.SiteTitles.Search(query ?? "", page * pageSize, pageSize);
-			if(searchResult.Length == 0)
-			{
-				return TotalItemsResult<SiteBaseModel>.Empty;
-			}
-
-			List<SiteBaseModel> result = new List<SiteBaseModel>(searchResult.Length);
-			LoadSites(searchResult, result, cancellationToken);
-
-			return new TotalItemsResult<SiteBaseModel>
-			{
-				Items = result,
-				TotalItems = BitConverter.ToInt32(mcv.Metas.Latest(new MetaId((int)FairMetaEntityType.SitesCount)).Value)
-			};
+			return TotalItemsResult<SiteBaseModel>.Empty;
 		}
+
+		List<SiteBaseModel> result = new List<SiteBaseModel>(searchResult.Length);
+		LoadSites(searchResult, result, cancellationToken);
+
+		return new TotalItemsResult<SiteBaseModel>
+		{
+			Items = result,
+			TotalItems = BitConverter.ToInt32(mcv.Metas.Latest(new MetaId((int)FairMetaEntityType.SitesCount)).Value)
+		};
 	}
 
 	void LoadSites(SiteSearchResult[] searchResult, IList<SiteBaseModel> result, CancellationToken cancellationToken)
@@ -158,11 +149,9 @@ public class SearchService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		lock(mcv.Lock)
-		{
-			var result = mcv.SiteTitles.Search(query, page * pageSize, pageSize);
-			return result.Select(x => new SiteSearchLiteModel(x.Entity.ToString(), x.Text));
-		}
+		var result = mcv.SiteTitles.Search(query, page * pageSize, pageSize);
+
+		return result.Select(x => new SiteSearchLiteModel(x.Entity.ToString(), x.Text));
 	}
 
 	public IEnumerable<UserModel> SearchSiteUsers([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
@@ -175,19 +164,16 @@ public class SearchService
 
 		AutoId siteEntityId = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
+		if(AutoId.TryParse(query, out AutoId entityId))
 		{
-			if(AutoId.TryParse(query, out AutoId entityId))
-			{
-				FairUser user = (FairUser)mcv.Users.Latest(entityId);
-				return user != null && user.Sites.Contains(siteEntityId) ? [new UserModel(user)] : [];
-			}
-
-			string lowercase = query.ToLower();
-			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
-
-			return LoadUsers(siteEntityId, searchResult, cancellationToken);
+			FairUser user = (FairUser)mcv.Users.Latest(entityId);
+			return user != null && user.Sites.Contains(siteEntityId) ? [new UserModel(user)] : [];
 		}
+
+		string lowercase = query.ToLower();
+		IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
+
+		return LoadUsers(siteEntityId, searchResult, cancellationToken);
 	}
 
 	IEnumerable<UserModel> LoadUsers(AutoId siteId, IEnumerable<AutoId> usersIds, CancellationToken cancellationToken)
@@ -221,21 +207,18 @@ public class SearchService
 
 		Guard.Against.NullOrEmpty(query);
 
-		lock(mcv.Lock)
+		if(AutoId.TryParse(query, out AutoId entityId))
 		{
-			if(AutoId.TryParse(query, out AutoId entityId))
-			{
-				FairUser account = (FairUser)mcv.Users.Latest(entityId);
-				return [new AccountBaseAvatarModel(account)];
-			}
-
-			string lowercase = query.ToLower();
-
-			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
-			AutoId[] accountsIds = searchResult.ToArray();
-
-			return LoadAccounts(mcv, accountsIds, cancellationToken);
+			FairUser account = (FairUser)mcv.Users.Latest(entityId);
+			return [new AccountBaseAvatarModel(account)];
 		}
+
+		string lowercase = query.ToLower();
+
+		IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
+		AutoId[] accountsIds = searchResult.ToArray();
+
+		return LoadAccounts(mcv, accountsIds, cancellationToken);
 	}
 
 	static IEnumerable<AccountBaseAvatarModel> LoadAccounts(Mcv mcv, AutoId[] accountsIds, CancellationToken cancellationToken)
@@ -268,24 +251,21 @@ public class SearchService
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.NegativeOrZero(limit);
 
-		lock(mcv.Lock)
+		if(AutoId.TryParse(query, out AutoId entityId))
 		{
-			if(AutoId.TryParse(query, out AutoId entityId))
+			Author author = (Author)mcv.Authors.Latest(entityId);
+			if(author != null)
 			{
-				Author author = (Author)mcv.Authors.Latest(entityId);
-				if(author != null)
-				{
-					return [new AuthorBaseAvatarModel(author)];
-				}
+				return [new AuthorBaseAvatarModel(author)];
 			}
-
-			string lowercase = query.ToLower();
-
-			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AuthorName, lowercase, limit);
-			AutoId[] authorsIds = searchResult.ToArray();
-
-			return McvUtils.LoadAuthors(mcv, authorsIds, cancellationToken);
 		}
+
+		string lowercase = query.ToLower();
+
+		IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.AuthorName, lowercase, limit);
+		AutoId[] authorsIds = searchResult.ToArray();
+
+		return McvUtils.LoadAuthors(mcv, authorsIds, cancellationToken);
 	}
 
 	public IEnumerable<AccountSearchLiteModel> SearchLiteAccounts(string query, int limit, CancellationToken cancellationToken)
@@ -297,15 +277,12 @@ public class SearchService
 
 		Guard.Against.NullOrEmpty(query);
 
-		lock(mcv.Lock)
-		{
-			string lowercase = query.ToLower();
+		string lowercase = query.ToLower();
 
-			IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
+		IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
 
-			var result = new List<AccountSearchLiteModel>(limit);
-			return LoadAccounts(searchResult, result, cancellationToken);
-		}
+		var result = new List<AccountSearchLiteModel>(limit);
+		return LoadAccounts(searchResult, result, cancellationToken);
 	}
 
 	IList<AccountSearchLiteModel> LoadAccounts(IEnumerable<AutoId> accounts, IList<AccountSearchLiteModel> result, CancellationToken cancellationToken)

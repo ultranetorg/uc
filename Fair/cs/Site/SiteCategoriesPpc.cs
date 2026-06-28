@@ -15,17 +15,14 @@ public class SiteCategoriesPpc : FairPpc<SiteCategoriesPpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{
-			RequireGraph();
+		RequireGraph();
 
-			var e = Mcv.Sites.Latest(Site);
+		var e = Mcv.Sites.Latest(Site);
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new SiteCategoriesPpr {Categories = e.Categories};
-		}
+		return new SiteCategoriesPpr {Categories = e.Categories};
 	}
 }
 

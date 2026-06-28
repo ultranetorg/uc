@@ -15,17 +15,14 @@ public class CategoryPublicationsPpc : FairPpc<CategoryPublicationsPpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{
-			RequireGraph();
+		RequireGraph();
 
-			var e = Mcv.Categories.Latest(Category);
+		var e = Mcv.Categories.Latest(Category);
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new CategoryPublicationsPpr {Publications = e.Publications};
-		}
+		return new CategoryPublicationsPpr {Publications = e.Publications};
 	}
 }
 

@@ -17,11 +17,8 @@ public class SitesService
 		if (cancellationToken.IsCancellationRequested)
 			return [];
 
-		lock (mcv.Lock)
-		{
-			var result = new List<SiteBaseModel>(SiteConstants.DefaultSitesIds.Length);
-			return LoadSites(SiteConstants.DefaultSitesIds, result, cancellationToken);
-		}
+		var result = new List<SiteBaseModel>(SiteConstants.DefaultSitesIds.Length);
+		return LoadSites(SiteConstants.DefaultSitesIds, result, cancellationToken);
 	}
 
 	IList<SiteBaseModel> LoadSites(AutoId[] sitesIds, IList<SiteBaseModel> result, CancellationToken cancellationToken)
@@ -55,23 +52,20 @@ public class SitesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
+		Site site = mcv.Sites.Latest(id);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(id);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			IEnumerable<string> moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.User.ToString());
-			IEnumerable<string> authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(x => x.Author.ToString());
-
-			return new SiteModel(site)
-			{
-				ModeratorsIds = moderatorsIds,
-				AuthorsIds = authorsIds,
-			};
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		IEnumerable<string> moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.User.ToString());
+		IEnumerable<string> authorsIds = site.Publishers.Where(x => x.BannedTill.Days == 0).Select(x => x.Author.ToString());
+
+		return new SiteModel(site)
+		{
+			ModeratorsIds = moderatorsIds,
+			AuthorsIds = authorsIds,
+		};
 	}
 
 	public TotalItemsResult<PublisherModel> GetPublishers([NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
@@ -80,30 +74,28 @@ public class SitesService
 
 		Guard.Against.NullOrEmpty(siteId);
 
-		lock(mcv.Lock)
+		AutoId id = AutoId.Parse(siteId);
+		Site site = mcv.Sites.Latest(id);
+
+		if(site == null)
 		{
-			AutoId id = AutoId.Parse(siteId);
-			Site site = mcv.Sites.Latest(id);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			if(!string.IsNullOrEmpty(search) && AutoId.TryParse(search, out AutoId parsedId))
-			{
-				Publisher publisher = site.Publishers.FirstOrDefault(x => x.Author == parsedId);
-				if(publisher == null)
-				{
-					return TotalItemsResult<PublisherModel>.Empty;
-				}
-
-				Author author = mcv.Authors.Latest(publisher.Author);
-				var model = new PublisherModel(author, publisher);
-				return new TotalItemsResult<PublisherModel> {Items = [model], TotalItems = site.Publishers.Length};
-			}
-
-			return LoadPublishers(site.Publishers, page, pageSize, search, cancellationToken);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		if(!string.IsNullOrEmpty(search) && AutoId.TryParse(search, out AutoId parsedId))
+		{
+			Publisher publisher = site.Publishers.FirstOrDefault(x => x.Author == parsedId);
+			if(publisher == null)
+			{
+				return TotalItemsResult<PublisherModel>.Empty;
+			}
+
+			Author author = mcv.Authors.Latest(publisher.Author);
+			var model = new PublisherModel(author, publisher);
+			return new TotalItemsResult<PublisherModel> {Items = [model], TotalItems = site.Publishers.Length};
+		}
+
+		return LoadPublishers(site.Publishers, page, pageSize, search, cancellationToken);
 	}
 
 	TotalItemsResult<PublisherModel> LoadPublishers(IEnumerable<Publisher> publishers, int page, int pageSize, string search, CancellationToken cancellationToken)
@@ -143,16 +135,14 @@ public class SitesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
-		{
-			Site site = mcv.Sites.Latest(id);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
+		Site site = mcv.Sites.Latest(id);
 
-			return LoadModerators(site.Moderators, cancellationToken);
+		if(site == null)
+		{
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		return LoadModerators(site.Moderators, cancellationToken);
 	}
 
 	public IEnumerable<ModeratorModel> LoadModerators(Moderator[] moderators, CancellationToken cancellationToken)
@@ -183,15 +173,12 @@ public class SitesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
+		Site site = mcv.Sites.Latest(id);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(id);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			return site.Policies.Select(x => new PolicyModel(x));
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		return site.Policies.Select(x => new PolicyModel(x));
 	}
 }

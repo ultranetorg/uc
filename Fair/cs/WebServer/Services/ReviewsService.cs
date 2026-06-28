@@ -20,16 +20,13 @@ public class ReviewsService
 
 		AutoId entityId = AutoId.Parse(publicationId);
 
-		lock (mcv.Lock)
+		Publication publication = mcv.Publications.Latest(entityId);
+		if (publication == null)
 		{
-			Publication publication = mcv.Publications.Latest(entityId);
-			if (publication == null)
-			{
-				throw new EntityNotFoundException(nameof(Publication), publicationId);
-			}
-
-			return LoadReviews(publication.Reviews, page, pageSize, cancellationToken);
+			throw new EntityNotFoundException(nameof(Publication), publicationId);
 		}
+
+		return LoadReviews(publication.Reviews, page, pageSize, cancellationToken);
 	}
 
 	public TotalItemsResult<ReviewModel> GetUserReviewsNotOptimized([NotNull][NotEmpty] string userId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
@@ -42,16 +39,13 @@ public class ReviewsService
 
 		AutoId entityId = AutoId.Parse(userId);
 
-		lock(mcv.Lock)
+		FairUser user = (FairUser) mcv.Users.Latest(entityId);
+		if(user == null)
 		{
-			FairUser user = (FairUser) mcv.Users.Latest(entityId);
-			if(user == null)
-			{
-				throw new EntityNotFoundException(nameof(User), userId);
-			}
-
-			return LoadReviews(user.Reviews, page, pageSize, cancellationToken);
+			throw new EntityNotFoundException(nameof(User), userId);
 		}
+
+		return LoadReviews(user.Reviews, page, pageSize, cancellationToken);
 	}
 
 	TotalItemsResult<ReviewModel> LoadReviews(IEnumerable<AutoId> reviewsIds, int page, int pageSize, CancellationToken cancellationToken)
@@ -62,6 +56,7 @@ public class ReviewsService
 		var result = new List<ReviewModel>(pageSize);
 
 		int loadedItems = 0;
+
 		foreach(var id in reviewsIds)
 		{
 			if(cancellationToken.IsCancellationRequested)

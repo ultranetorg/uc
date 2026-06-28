@@ -15,15 +15,12 @@ public class ProductPpc : FairPpc<ProductPpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{	
-			var	r = Mcv.Products.Latest(Id);
+		var	r = Mcv.Products.Latest(Id);
 							
-			if(r == null)
-				throw new EntityException(EntityError.NotFound);
+		if(r == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new ProductPpr {Product = r};
-		}
+		return new ProductPpr {Product = r};
 	}
 }
 	

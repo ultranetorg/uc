@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using RocksDbSharp;
 
@@ -123,9 +124,9 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			}
 		}
 
-		Table<ID, E>					Table;
-		public override IEnumerable<E>	Entries => _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
-		SortedDictionary<ID, Item>		_Entries = [];
+		Table<ID, E>						Table;
+		public override IEnumerable<E>		Entries => _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
+		ImmutableSortedDictionary<ID, Item>	_Entries = ImmutableSortedDictionary<ID, Item>.Empty;
 
 		public Bucket(Table<ID, E> table, int id)
 		{
@@ -141,7 +142,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 				Hash			= r.ReadHash();
 				Size			= r.Read7BitEncodedInt();
 				NextI			= r.Read7BitEncodedInt();
-				_Entries		= r.ReadSortedDictionary(() => r.Read<ID>(), () => new Item());
+				_Entries		= r.ReadImmutableSortedDictionary(r.Read<ID>, () => new Item());
 			}
 		}
 
@@ -167,13 +168,13 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 		public void Add(WriteBatch batch, E entity)
 		{
-			_Entries[entity.Key as ID] = new Item {Entity = entity};
+			_Entries = _Entries.SetItem(entity.Key as ID, new Item {Entity = entity});
 			batch.Put(entity.Key.Raw, entity.ToMain(Table.Mcv.Net.Constructor), Table.EntityColumn);
 		}
 
 		public void Remove(WriteBatch batch, ID id)
 		{
-			_Entries.Remove(id);
+			_Entries = _Entries.Remove(id);
 			batch.Delete(id.Raw, Table.EntityColumn);
 		}
 
@@ -253,20 +254,22 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			Hash = Cryptography.Hash(data.AsSpan(0, (int)s.Position));
 			Size = 0;
 
-			_Entries.Clear();
+			var items = ImmutableSortedDictionary<ID, Item>.Empty.ToBuilder();
 
 			for(int i=0; i<n; i++)
 			{
 				var id = r.Read<ID>();
 				var main = r.ReadBytes();
 
-				_Entries[id] = new Item {Main = main};
+				items.Add(id, new Item {Main = main});
 
 				batch.Put(id.Raw, main, Table.EntityColumn);
 
 				Hash = Cryptography.Hash(Hash, main);
 				Size += main.Length;
 			}
+
+			_Entries = items.ToImmutable();
 			
 			s = new MemoryStream();
 			var w = new Writer(s, Table.Mcv.Net.Constructor);

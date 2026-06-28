@@ -63,17 +63,14 @@ public class SeedHub
 				{
 					if(rzd is Rrrh urrh)
 					{
-						lock(Mcv.Lock)
-						{
-							var r = Mcv.Resources.Latest(rsd.Resource);
+						var r = Mcv.Resources.Latest(rsd.Resource);
 	
-							if((r?.Data?.Type.Meaning == DataType.File || r?.Data?.Type.Meaning == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
-							{
-								return true;
-							}
-							else
-								return false;
+						if((r?.Data?.Type.Meaning == DataType.File || r?.Data?.Type.Meaning == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
+						{
+							return true;
 						}
+						else
+							return false;
 					}
 					///else if(rzd is Urrsd sdp)
 					///{

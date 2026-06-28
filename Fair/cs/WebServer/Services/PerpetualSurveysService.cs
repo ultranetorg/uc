@@ -19,16 +19,13 @@ public class PerpetualSurveysService
 
 		AutoId entityId = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
+		Site site = mcv.Sites.Latest(entityId);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(entityId);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			return ToPerpetualSurveys(site.PerpetualSurveys, site.Publishers.Length);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		return ToPerpetualSurveys(site.PerpetualSurveys, site.Publishers.Length);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -47,24 +44,21 @@ public class PerpetualSurveysService
 
 		AutoId entityId = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
+		Site site = mcv.Sites.Latest(entityId);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(entityId);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-			if (surveyIndex >= site.PerpetualSurveys.Length)
-			{
-				throw new EntityNotFoundException(nameof(EntityNames.PerpetualSurveyName).ToLower(), surveyIndex);
-			}
-
-			PerpetualSurvey survey = site.PerpetualSurveys[surveyIndex];
-			return ToPerpetualSurvey<PerpetualSurveyDetailsModel, SurveyOptionDetailsModel>(site.Publishers.Length, surveyIndex, survey, (model, option) =>
-			{
-				model.YesVotes = option.Yes.Select(x => x.ToString());
-			});
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+		if (surveyIndex >= site.PerpetualSurveys.Length)
+		{
+			throw new EntityNotFoundException(nameof(EntityNames.PerpetualSurveyName).ToLower(), surveyIndex);
+		}
+
+		PerpetualSurvey survey = site.PerpetualSurveys[surveyIndex];
+		return ToPerpetualSurvey<PerpetualSurveyDetailsModel, SurveyOptionDetailsModel>(site.Publishers.Length, surveyIndex, survey, (model, option) =>
+		{
+			model.YesVotes = option.Yes.Select(x => x.ToString());
+		});
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -109,25 +103,22 @@ public class PerpetualSurveysService
 
 		AutoId entityId = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
+		Site site = mcv.Sites.Latest(entityId);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(entityId);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-			if(surveyIndex >= site.PerpetualSurveys.Length)
-			{
-				throw new EntityNotFoundException(nameof(EntityNames.PerpetualSurveyName).ToLower(), surveyIndex);
-			}
-
-			PerpetualSurvey survey = site.PerpetualSurveys[surveyIndex];
-			if(survey.Comments == null)
-				return TotalItemsResult<ProposalCommentModel>.Empty;
-
-			var comments = survey.Comments.Skip(page * pageSize).Take(pageSize);
-			return LoadProposalComments(comments, survey.Comments.Length, pageSize, cancellationToken);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+		if(surveyIndex >= site.PerpetualSurveys.Length)
+		{
+			throw new EntityNotFoundException(nameof(EntityNames.PerpetualSurveyName).ToLower(), surveyIndex);
+		}
+
+		PerpetualSurvey survey = site.PerpetualSurveys[surveyIndex];
+		if(survey.Comments == null)
+			return TotalItemsResult<ProposalCommentModel>.Empty;
+
+		var comments = survey.Comments.Skip(page * pageSize).Take(pageSize);
+		return LoadProposalComments(comments, survey.Comments.Length, pageSize, cancellationToken);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

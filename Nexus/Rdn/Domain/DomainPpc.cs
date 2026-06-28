@@ -28,24 +28,21 @@ public class DomainPpc : RdnPpc<DomainPpr>
 		if(Identifier.Addres != null && !Domain.Valid(Identifier.Addres))	
 			throw new RequestException(RequestError.IncorrectRequest);
 
- 		lock(Mcv.Lock)
-		{	
-			RequireGraph();
+		RequireGraph();
 
-			Domain e;
+		Domain e;
 
-			if(Identifier.Addres != null)
-				e = Mcv.Domains.Latest(Identifier.Addres);
-			else if(Identifier.Id != null)
-				e = Mcv.Domains.Latest(Identifier.Id);
-			else
-				throw new RequestException(RequestError.IncorrectRequest);
+		if(Identifier.Addres != null)
+			e = Mcv.Domains.Latest(Identifier.Addres);
+		else if(Identifier.Id != null)
+			e = Mcv.Domains.Latest(Identifier.Id);
+		else
+			throw new RequestException(RequestError.IncorrectRequest);
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new DomainPpr {Domain = e};
-		}
+		return new DomainPpr {Domain = e};
 	}
 }
 

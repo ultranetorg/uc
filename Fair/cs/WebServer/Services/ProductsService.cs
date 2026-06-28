@@ -18,16 +18,13 @@ public class ProductsService
 
 		AutoId id = AutoId.Parse(productId);
 
-		lock(mcv.Lock)
+		Product product = mcv.Products.Latest(id);
+		if(product == null)
 		{
-			Product product = mcv.Products.Latest(id);
-			if(product == null)
-			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
-			}
-
-			return ProductFieldsUtils.GetLatestMappedFields(product);
+			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 		}
+
+		return ProductFieldsUtils.GetLatestMappedFields(product);
 	}
 
 	public ProductDetailsModel GetDetails([NotNull][NotEmpty] string productId)
@@ -38,31 +35,28 @@ public class ProductsService
 
 		AutoId id = AutoId.Parse(productId);
 
-		lock(mcv.Lock)
+		Product product = mcv.Products.Latest(id);
+		if(product == null)
 		{
-			Product product = mcv.Products.Latest(id);
-			if(product == null)
-			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
-			}
-
-			Author author = mcv.Authors.Latest(product.Author);
-
-			IEnumerable<FieldValueModel>? productFields = ProductFieldsUtils.GetLatestMappedFields(product);
-
-			return new ProductDetailsModel
-			{
-				Id = product.Id.ToString(),
-				Type = product.Type,
-				Title = PublicationUtils.GetLatestTitle(product),
-				LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
-				Updated = product.Updated.Hours,
-				Fields = productFields,
-				AuthorId = author.Id.ToString(),
-				AuthorTitle = author.Title,
-				AuthorLogoId = author.Avatar?.ToString()
-			};
+			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 		}
+
+		Author author = mcv.Authors.Latest(product.Author);
+
+		IEnumerable<FieldValueModel>? productFields = ProductFieldsUtils.GetLatestMappedFields(product);
+
+		return new ProductDetailsModel
+		{
+			Id = product.Id.ToString(),
+			Type = product.Type,
+			Title = PublicationUtils.GetLatestTitle(product),
+			LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
+			Updated = product.Updated.Hours,
+			Fields = productFields,
+			AuthorId = author.Id.ToString(),
+			AuthorTitle = author.Title,
+			AuthorLogoId = author.Avatar?.ToString()
+		};
 	}
 
 	public PublicationDetailsDiffModel GetDiff([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int version)
@@ -74,43 +68,40 @@ public class ProductsService
 
 		AutoId id = AutoId.Parse(publicationId);
 
-		lock(mcv.Lock)
+		Publication publication = mcv.Publications.Latest(id);
+		if(publication == null)
 		{
-			Publication publication = mcv.Publications.Latest(id);
-			if(publication == null)
-			{
-				throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
-			}
-
-			Product product = mcv.Products.Latest(publication.Product);
-			if(product.Versions.Length < 1 || product.Versions.All(x => x.Id != version))
-			{
-				throw new InvalidPublicationVersionException(publicationId, version);
-			}
-
-			Author author = mcv.Authors.Latest(product.Author);
-			Category category = mcv.Categories.Latest(publication.Category);
-
-			var fields = ProductFieldsUtils.GetMappedFieldsVersion(product, publication.ProductVersion);
-			var fieldsTo = ProductFieldsUtils.GetMappedFieldsVersion(product, version);
-
-			return new PublicationDetailsDiffModel
-			{
-				Id = publication.Id.ToString(),
-				Type = product.Type,
-				Title = PublicationUtils.GetTitle(publication, product),
-				LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
-				Updated = product.Updated.Hours,
-				Fields = fields,
-				AuthorId = author.Id.ToString(),
-				AuthorTitle = author.Title,
-				AuthorLogoId = author.Avatar?.ToString(),
-				CategoryId = category?.Id.ToString(),
-				CategoryTitle = category?.Title,
-				Rating = publication.Rating,
-				FieldsTo = fieldsTo
-			};
+			throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 		}
+
+		Product product = mcv.Products.Latest(publication.Product);
+		if(product.Versions.Length < 1 || product.Versions.All(x => x.Id != version))
+		{
+			throw new InvalidPublicationVersionException(publicationId, version);
+		}
+
+		Author author = mcv.Authors.Latest(product.Author);
+		Category category = mcv.Categories.Latest(publication.Category);
+
+		var fields = ProductFieldsUtils.GetMappedFieldsVersion(product, publication.ProductVersion);
+		var fieldsTo = ProductFieldsUtils.GetMappedFieldsVersion(product, version);
+
+		return new PublicationDetailsDiffModel
+		{
+			Id = publication.Id.ToString(),
+			Type = product.Type,
+			Title = PublicationUtils.GetTitle(publication, product),
+			LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
+			Updated = product.Updated.Hours,
+			Fields = fields,
+			AuthorId = author.Id.ToString(),
+			AuthorTitle = author.Title,
+			AuthorLogoId = author.Avatar?.ToString(),
+			CategoryId = category?.Id.ToString(),
+			CategoryTitle = category?.Title,
+			Rating = publication.Rating,
+			FieldsTo = fieldsTo
+		};
 	}
 
 	public TotalItemsResult<ProductStoreModel> GetProductStores([NotNull][NotEmpty] string productId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
@@ -123,17 +114,14 @@ public class ProductsService
 
 		AutoId id = AutoId.Parse(productId);
 
-		lock(mcv.Lock)
+		Product product = mcv.Products.Latest(id);
+		if(product == null)
 		{
-			Product product = mcv.Products.Latest(id);
-			if(product == null)
-			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
-			}
-
-			IEnumerable<AutoId> publicationsIds = product.Publications.Skip(page * pageSize).Take(pageSize);
-			return LoadProductStores(publicationsIds, product.Publications.Length, cancellationToken);
+			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 		}
+
+		IEnumerable<AutoId> publicationsIds = product.Publications.Skip(page * pageSize).Take(pageSize);
+		return LoadProductStores(publicationsIds, product.Publications.Length, cancellationToken);
 	}
 
 	TotalItemsResult<ProductStoreModel> LoadProductStores(IEnumerable<AutoId> publicationsIds, int totalItems, CancellationToken cancellationToken)

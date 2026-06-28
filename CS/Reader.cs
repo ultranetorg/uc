@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Immutable;
+using System.Net;
 using System.Numerics;
 using System.Text;
 
@@ -296,6 +297,20 @@ public class Reader : BinaryReader
 		for(int i = 0; i < n; i++)
 		{
 			o.Add(getk(), getv());
+		}
+
+		return o;
+	}
+
+	public ImmutableSortedDictionary<K, V> ReadImmutableSortedDictionary<K, V>(Func<K> getk, Func<V> getv)
+	{
+		var n = Read7BitEncodedInt();
+
+		var o = ImmutableSortedDictionary<K, V>.Empty;
+
+		for(int i = 0; i < n; i++)
+		{
+			o = o.Add(getk(), getv());
 		}
 
 		return o;

@@ -21,24 +21,21 @@ public class FairUserPpc : McvPpc<FairUserPpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{
-			RequireGraph();
+		RequireGraph();
 
-			FairUser u;
+		FairUser u;
 
-			if(Id != null)
-				u = Mcv.Users.Latest(Id) as FairUser;
-			else if(Name != null)
-				u = Mcv.Users.Latest(Name) as FairUser;
-			else
-				throw new RequestException(RequestError.IncorrectRequest);
+		if(Id != null)
+			u = Mcv.Users.Latest(Id) as FairUser;
+		else if(Name != null)
+			u = Mcv.Users.Latest(Name) as FairUser;
+		else
+			throw new RequestException(RequestError.IncorrectRequest);
 			
-			if(u == null)
-				throw new EntityException(EntityError.NotFound);
+		if(u == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new FairUserPpr {User = u};
-		}
+		return new FairUserPpr {User = u};
 	}
 }
 

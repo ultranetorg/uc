@@ -9,11 +9,11 @@ public class TableStampPpc : McvPpc<TableStampPpr>
 	{
 		if(Clusters.Length > TableBase.ClustersCountMax)
 			throw new RequestException(RequestError.IncorrectRequest);
-
+				
+		RequireGraph();
+		
 		lock(Mcv.Lock)
 		{
-			RequireGraph();
-			
 			if(Mcv.GraphState == null)
 				throw new NodeException(NodeError.TooEearly);
 

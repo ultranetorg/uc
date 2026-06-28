@@ -167,7 +167,6 @@ public class ProductSearchApc : FairApc
 
 	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		lock(node.Mcv.Lock)
-			return node.Mcv.ProductTitles.Search(Site, Query, Skip, Take);
+		return node.Mcv.ProductTitles.Search(Site, Query, Skip, Take);
 	}
 }

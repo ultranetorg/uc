@@ -83,6 +83,7 @@ public abstract class Mcv /// Mutual chain voting
 															return _Tail;
 														}
 													}
+	Dictionary<int, Round>							RawRounds = [];
 
 	public Round									LastConfirmedRound;
 	public Round									LastCommitedRound;
@@ -562,10 +563,9 @@ public abstract class Mcv /// Mutual chain voting
 			var r = CreateRound();
 			r.Id			= rid; 
 			r.Confirmed		= true;
+			r.Raw			= d;
 
-			r.Load(new Reader(d, Net.Constructor));
-
-			InsertRound(r);
+			RawRounds[rid] = r;
 			
 			return r;
 		}
@@ -695,13 +695,11 @@ public abstract class Mcv /// Mutual chain voting
 			w.Write7BitEncodedInt(round.Id);
 
 			b.Put(ChainStateKey, s.ToArray());
-
-			s = new MemoryStream();
-			w = new Writer(s, Net.Constructor);
 	
-			round.Save(w);
+			if(round.Raw == null)
+				round.Archive();
 	
-			b.Put(BitConverter.GetBytes(round.Id), s.ToArray(), ChainFamily);
+			b.Put(BitConverter.GetBytes(round.Id), round.Raw, ChainFamily);
 		}
 
 		Rocks.Write(b);

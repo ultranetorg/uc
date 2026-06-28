@@ -65,6 +65,8 @@ public abstract class Round : IBinarySerializable
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
 
+	public byte[]										Raw { get; set; }
+
 	public abstract long								UserAllocationFee();
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation operation, Time time){}
@@ -728,15 +730,24 @@ public abstract class Round : IBinarySerializable
 		ConsensusOutwards			= reader.ReadArray<OutwardResult>();
 	}
 
-	public void Save(Writer writer)
+	public void Archive()
 	{
-		Write(writer);
-		writer.Write(Hash);
+		var s = new MemoryStream();
+		var w = new Writer(s, Net.Constructor);
+
+		Write(w);
+		w.Write(Hash);
+
+		Raw = s.ToArray();
 	}
 
-	public void Load(Reader reader)
+	public void Restore(byte[] raw)
 	{
-		Read(reader);
-		Hash = reader.ReadHash();
+		Raw = raw;
+
+		var r = new Reader(raw, Net.Constructor);
+
+		Read(r);
+		Hash = r.ReadHash();
 	}
 }

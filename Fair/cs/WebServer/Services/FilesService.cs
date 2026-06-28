@@ -24,22 +24,19 @@ public class FilesService
 		AutoId siteAutoId = AutoId.Parse(siteId);
 		AutoId authorAutoId = AutoId.Parse(authorId);
 
-		lock(mcv.Lock)
+		Site site = mcv.Sites.Latest(siteAutoId);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(siteAutoId);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			Author author = mcv.Authors.Latest(authorAutoId);
-			if(author == null)
-			{
-				throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
-			}
-
-			return LoadFilesNotOptimized(author.Files, page, pageSize, cancellationToken);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		Author author = mcv.Authors.Latest(authorAutoId);
+		if(author == null)
+		{
+			throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
+		}
+
+		return LoadFilesNotOptimized(author.Files, page, pageSize, cancellationToken);
 	}
 
 	public TotalItemsResult<FileModel> GetSiteFiles([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
@@ -52,16 +49,13 @@ public class FilesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock(mcv.Lock)
+		Site site = mcv.Sites.Latest(id);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(id);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			return LoadFilesNotOptimized(site.Files, page, pageSize, cancellationToken);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		return LoadFilesNotOptimized(site.Files, page, pageSize, cancellationToken);
 	}
 
 	TotalItemsResult<FileModel> LoadFilesNotOptimized(IEnumerable<AutoId> filesIds, int page, int pageSize, CancellationToken cancellationToken)
@@ -110,17 +104,14 @@ public class FilesService
 
 		AutoId id = AutoId.Parse(fileId);
 
-		lock(mcv.Lock)
+		File file = mcv.Files.Latest(id);
+		if(file == null)
 		{
-			File file = mcv.Files.Latest(id);
-			if(file == null)
-			{
-				throw new EntityNotFoundException(nameof(Field).ToLower(), fileId);
-			}
-
-			string mimeType = GetMimeType(file.Mime);
-			return new FileContentResult(file.Data, mimeType);
+			throw new EntityNotFoundException(nameof(Field).ToLower(), fileId);
 		}
+
+		string mimeType = GetMimeType(file.Mime);
+		return new FileContentResult(file.Data, mimeType);
 	}
 
 	string GetMimeType(FairMime mimeType)

@@ -50,7 +50,7 @@ public abstract class McvPeering : HomoPeering
 	public List<Transaction>				ConfirmedTransactions = [];
 	List<AutoId>							CandidacyDeclarations = [];
 
-	public Synchronization					Synchronization { get; protected set; } = Synchronization.None;
+	public volatile Synchronization			Synchronization = Synchronization.None;
 	Thread									SynchronizingThread;
 	public string							SynchronizationInfo;
 

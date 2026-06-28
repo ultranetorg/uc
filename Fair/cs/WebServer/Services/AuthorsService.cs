@@ -18,21 +18,18 @@ public class AuthorsService
 
 		AutoId authorEntityId = AutoId.Parse(authorId);
 
-		lock (mcv.Lock)
+		Author author = mcv.Authors.Latest(authorEntityId);
+		if (author == null)
 		{
-			Author author = mcv.Authors.Latest(authorEntityId);
-			if (author == null)
-			{
-				throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
-			}
-
-			return new AuthorDetailsModel(author)
-			{
-				Description = author.Description,
-				AvatarId = author.Avatar?.ToString(),
-				OwnersIds = LoadOwners(author.Owners)
-			};
+			throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
 		}
+
+		return new AuthorDetailsModel(author)
+		{
+			Description = author.Description,
+			AvatarId = author.Avatar?.ToString(),
+			OwnersIds = LoadOwners(author.Owners)
+		};
 	}
 
 	IEnumerable<UserModel> LoadOwners(IEnumerable<AutoId> ownersIds)
@@ -52,25 +49,22 @@ public class AuthorsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		lock(mcv.Lock)
+		AutoId authorEntityId = AutoId.Parse(authorId);
+		Author author = mcv.Authors.Latest(authorEntityId);
+		if(author == null)
 		{
-			AutoId authorEntityId = AutoId.Parse(authorId);
-			Author author = mcv.Authors.Latest(authorEntityId);
-			if(author == null)
-			{
-				throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
-			}
-
-			var items = new List<ProductAuthorModel>(pageSize);
-			var pagedProducts = author.Products.Skip(page * pageSize).Take(pageSize);
-			LoadProducts(items, pagedProducts, cancellationToken);
-
-			return new TotalItemsResult<ProductAuthorModel>
-			{
-				TotalItems = author.Products.Length,
-				Items = items,
-			};
+			throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
 		}
+
+		var items = new List<ProductAuthorModel>(pageSize);
+		var pagedProducts = author.Products.Skip(page * pageSize).Take(pageSize);
+		LoadProducts(items, pagedProducts, cancellationToken);
+
+		return new TotalItemsResult<ProductAuthorModel>
+		{
+			TotalItems = author.Products.Length,
+			Items = items,
+		};
 	}
 
 	void LoadProducts(List<ProductAuthorModel> items, IEnumerable<AutoId> productsIds, CancellationToken cancellationToken)

@@ -18,17 +18,14 @@ public class ReviewPpc : FairPpc<ReviewPpr>
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
 
- 		lock(Mcv.Lock)
-		{	
-			RequireGraph();
+		RequireGraph();
 
-			var	e = Mcv.Reviews.Latest(Id);
+		var	e = Mcv.Reviews.Latest(Id);
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new ReviewPpr {Review = e};
-		}
+		return new ReviewPpr {Review = e};
 	}
 }
 

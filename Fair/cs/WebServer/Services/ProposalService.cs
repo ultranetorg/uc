@@ -33,40 +33,37 @@ public class ProposalService
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		lock (mcv.Lock)
-		{
-			Site site = mcv.Sites.Latest(siteEntityId);
+		Site site = mcv.Sites.Latest(siteEntityId);
 			
-			if (site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			string entityName = discussionOrReferendums ? EntityNames.DiscussionEntityName : EntityNames.ReferendumEntityName;
-			if (!site.Proposals.Any(x => x == proposalEntityId))
-			{
-				throw new EntityNotFoundException(entityName, siteId);
-			}
-
-			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-			if (discussionOrReferendums != ProposalUtils.IsDiscussion(site, proposal)
-				/* || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal) */)
-			{
-				throw new EntityNotFoundException(entityName, proposalId);
-			}
-
-			FairUser account = (FairUser) mcv.Users.Latest(proposal.By);
-
-			IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
-
-			Policy proposalPolicy = site.Policies.FirstOrDefault(p => p.OperationClass == proposal.OptionClass);
-			int votesRequiredToWin = VotingUtils.CalculateVotesRequiredToWinProposal(proposalPolicy.Approval, site);
-
-			return new ProposalDetailsModel(proposal, account, votesRequiredToWin)
-			{
-				Options = options
-			};
+		if (site == null)
+		{
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		string entityName = discussionOrReferendums ? EntityNames.DiscussionEntityName : EntityNames.ReferendumEntityName;
+		if (!site.Proposals.Any(x => x == proposalEntityId))
+		{
+			throw new EntityNotFoundException(entityName, siteId);
+		}
+
+		Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
+		if (discussionOrReferendums != ProposalUtils.IsDiscussion(site, proposal)
+			/* || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal) */)
+		{
+			throw new EntityNotFoundException(entityName, proposalId);
+		}
+
+		FairUser account = (FairUser) mcv.Users.Latest(proposal.By);
+
+		IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
+
+		Policy proposalPolicy = site.Policies.FirstOrDefault(p => p.OperationClass == proposal.OptionClass);
+		int votesRequiredToWin = VotingUtils.CalculateVotesRequiredToWinProposal(proposalPolicy.Approval, site);
+
+		return new ProposalDetailsModel(proposal, account, votesRequiredToWin)
+		{
+			Options = options
+		};
 	}
 
 	//bool won(AutoId[] votes)
@@ -121,16 +118,13 @@ public class ProposalService
 
 		AutoId siteEntityId = AutoId.Parse(siteId);
 
-		lock (mcv.Lock)
+		Site site = mcv.Sites.Latest(siteEntityId);
+		if (site == null)
 		{
-			Site site = mcv.Sites.Latest(siteEntityId);
-			if (site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			return LoadProposalsOrReferendumsPaged(site, discussionOrReferendums, page, pageSize, search, cancellationToken);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		return LoadProposalsOrReferendumsPaged(site, discussionOrReferendums, page, pageSize, search, cancellationToken);
 	}
 
 	/// <param name="discussionsOrReferendums">`true` for Proposal, `false` for Referendum</param>
@@ -200,16 +194,13 @@ public class ProposalService
 
 		AutoId siteEntityId = AutoId.Parse(siteId);
 
-		lock (mcv.Lock)
+		Site site = mcv.Sites.Latest(siteEntityId);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(siteEntityId);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			return LoadProposalsPagedNotOptimized(site.Proposals, operationClass, page, pageSize, cancellationToken);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		return LoadProposalsPagedNotOptimized(site.Proposals, operationClass, page, pageSize, cancellationToken);
 	}
 
 	TotalItemsResult<ProposalModel> LoadProposalsPagedNotOptimized(IEnumerable<AutoId> proposalIds, FairOperationClass? operation, int page, int pageSize, CancellationToken cancellationToken)

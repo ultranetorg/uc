@@ -93,167 +93,153 @@ public partial class ChainMonitor : UserControl
 			return 20;
 		}
 	}
+	
+	List<Round> rounds = [];
+	List<AutoId> generators = new();
 
 	protected override void OnPaint(PaintEventArgs e)
 	{
-		if(!Mode)
-		{
-			e.Graphics.Clear(Color.White);
+		e.Graphics.Clear(Color.White);
 
-			if(Mcv != null)
+		if(Mcv != null)
+		{
+			var s = 8;
+			var b = 2;
+			var showt = true;
+
+			int nid = 0;
+			int ntry= 0;
+			int ns = 0;
+			int nc = 0;
+			int nm = 0;
+			int nl = 0;
+			int ndate = 0;
+
+			var f = "";
+
+			lock(Mcv.Lock)
 			{
-				lock(Mcv.Lock)
+				do 
 				{
-					if(!Mcv.Tail.Any())
+					rounds.Clear();
+
+					var last = Mcv.Tail.FirstOrDefault();
+
+					if(last == null)
 						return;
 
-					var s = 8;
-					var b = 2;
-					var showt = true;
-
-					var rounds = new List<Round>();
-
-					int nid = 0;
-					int ntry= 0;
-					int nv = 0;
-					int nm = 0;
-					//int njrs = 0;
-					int nl = 0;
-					int ndate = 0;
-
-					var f = "";
-
-					IEnumerable<AutoId> generators = null;
-
-					do 
-					{
-						rounds.Clear();
-
-						var last = Mcv.Tail.FirstOrDefault();
-
-						if(last == null)
-						{
-							return;
-						}
-
-						var n = Math.Min(Height/s - 1, last.Id + 1);
+					var n = Math.Min(Height/s - 1, last.Id + 1);
 						
-						for(int i = last.Id - n + 1; i <= last.Id; i++)
+					for(int i = last.Id - n + 1; i <= last.Id; i++)
+					{
+						var r = Mcv.FindRound(i);
+						rounds.Add(r);
+
+						if(showt && r != null)
 						{
-							var r = Mcv.FindRound(i);
-							rounds.Add(r);
+							nid = Math.Max(nid, i);
+							ntry = Math.Max(ntry, r.Try);
+							nm = Math.Max(nm, r.Members?.Count ?? 0);
+							nc = Math.Max(nc, r.MinimumForConsensus);
+							ns = Math.Max(ns, r.Selected.Count());
+							nl = Math.Max(nl, r.ConsensusMemberLeavers?.Length ?? 0);
 
-							if(showt && r != null)
-							{
-								nid = Math.Max(nid, i);
-								ntry = Math.Max(ntry, r.Try);
-								nv = r.Id >= Mcv.Net.P ? Math.Max(nv, IntLength(r.Selected.Count()) + 1 + IntLength(r.MinimumForConsensus)) : 0;
-								//njrs = Math.Max(njrs, r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count());
-								nl = Math.Max(nl, r.ConsensusMemberLeavers?.Length ?? 0);
-	
-								if(r?.Members != null)
-									nm = Math.Max(nm, r.Members.Count);
-
-								if(r != null)
-									ndate = Math.Max(ndate, r.ConsensusTime.ToString().Length);
-							}
+							ndate = Math.Max(ndate, r.ConsensusTime.ToString().Length);
 						}
-
-						nid		= IntLength(nid);
-						ntry	= IntLength(ntry);
-						//nv		= IntLength(nv);
-						//njrs	= IntLength(njrs);
-						nl		= IntLength(nl);
-						nm		= IntLength(nm);
-						ndate	= IntLength(ndate);
-	
-						var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.Member));
-						var joins = rounds.Where(i => i != null).SelectMany(i => i.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => Mcv.Users.Latest(b.Transaction.User).Id));
-						generators = mems.Union(joins).Order();
-
-						f  = $"{{0,{nid}}} {{1,{ntry}}} {{2}} {{3,{nv}}} {{4,{nm}}} {{5,{nl}}} {{6,{ndate}}} {{7,8}}";
-
-						if(rounds.Count() > 0)
-						{
-							var t = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 0, 0, 0, 0, 0, 0), Font).Width : 0;
-		
-							if(t + generators.Count() * s < ClientSize.Width)
-							{
-								break;
-							}
-							else
-							{
-								s /= 2;
-								b /= 2;
-
-								if(s < 8)
-									showt = false;
-							}
-						}
-						else
-							break;
 					}
-					while(s > 1);
+
+					nid		= IntLength(nid);
+					ntry	= IntLength(ntry);
+					nm		= IntLength(nm);
+					nc		= IntLength(nc);
+					ns		= IntLength(ns);
+					nl		= IntLength(nl);
+					ndate	= IntLength(ndate);
+	
+					var mems = rounds.Where(i => i != null).SelectMany(i => i.Votes.Select(b => b.Member));
+					var joins = rounds.Where(i => i != null).SelectMany(i => (i.Transactions ?? []).SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Select(b => Mcv.Users.Latest(b.Transaction.User).Id));
+
+					generators.Clear();
+					generators.AddRange(mems.Union(joins).Order());
+
+					f  = $"{{0,{nid}}} {{1,{ntry}}} {{2}} {{3,{nm}}} {{4,{nc}}} {{5,{ns}}} {{6,{nl}}} {{7,{ndate}}} {{8,8}}";
 
 					if(rounds.Count() > 0)
 					{
-						int y = 0;
-
-						foreach(var r in rounds)
-						{
-							if(r != null)
-							{
-								var x = 0;
-								
-								if(showt)
-								{
-									var t = string.Format(	f, 
-															r.Id, 
-															r.Try,
-															r.Confirmed ? "c" : " ",
-															r.Id >= Mcv.Net.P ? $"{r.Selected.Count()}/{r.MinimumForConsensus}" : null,
-															r.Members?.Count,
-															//r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().Count(),
-															r.ConsensusMemberLeavers?.Length,
-															r.ConsensusTime,
-															r.Hash != null ?r.Hash.ToHexPrefix() : "--------");
-									
-									x += (int)e.Graphics.MeasureString(t, Font, int.MaxValue).Width;
-									e.Graphics.DrawString(t, Font, System.Drawing.Brushes.Black, 0, y-1);
-								}
+						var t = showt ? (int)e.Graphics.MeasureString(string.Format(f, 0, 0, 'c', 0, 0, 0, 0, Time.Now(Mcv.Clock), "00000000"), Font).Width : 0;
 		
-								foreach(var m in generators)
-								{
-									var v = r.Votes.FirstOrDefault(i => i.Member == m);
-	
-									if(v != null)
-									{
-										if(v.Transactions.Any())
-											e.Graphics.FillRectangle(Brushes[Math.Max(0, m.I) % Brushes.Length], x, y, s, s); 
-										else
-											e.Graphics.DrawRectangle(Pens[Math.Max(0, m.I) % Pens.Length], x+1, y+1, s-3, s-3);
-									}
-
-									var jr = r.Transactions.SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().FirstOrDefault(i => Mcv.Users.Latest(i.Transaction.User).Id == m);
-
-									if(jr != null)
-									{
-										e.Graphics.FillPolygon(Brushes[Math.Max(0, m.I) % Brushes.Length], new PointF[]{new (x + s/2, y), new (x, y+s), new (x+s, y+s)});
-									}
-									
-									x += s;
-								}
-							}
-							
-							y += s;
+						if(t + generators.Count * s < ClientSize.Width)
+						{
+							break;
 						}
+						else
+						{
+							s /= 2;
+							b /= 2;
+
+							if(s < 8)
+								showt = false;
+						}
+					}
+					else
+						break;
+				}
+				while(s > 1);
+
+				if(rounds.Count > 0)
+				{
+					int y = 0;
+
+					foreach(var r in rounds)
+					{
+						if(r != null)
+						{
+							var x = 0;
+								
+							if(showt)
+							{
+								var t = string.Format(	f, 
+														r.Id, 
+														r.Try,
+														r.Confirmed ? "c" : " ",
+														r.Members?.Count,
+														r.MinimumForConsensus,
+														r.Selected.Count(),
+														r.ConsensusMemberLeavers?.Length,
+														r.ConsensusTime,
+														r.Hash != null ? r.Hash.ToHexPrefix() : "--------");
+									
+								x += (int)e.Graphics.MeasureString(t, Font, int.MaxValue).Width;
+								e.Graphics.DrawString(t, Font, System.Drawing.Brushes.Black, 0, y-1);
+							}
+		
+							foreach(var m in generators)
+							{
+								var v = r.Votes.FirstOrDefault(i => i.Member == m);
+	
+								if(v != null)
+								{
+									if(v.Transactions.Any())
+										e.Graphics.FillRectangle(Brushes[Math.Max(0, m.I) % Brushes.Length], x, y, s, s); 
+									else
+										e.Graphics.DrawRectangle(Pens[Math.Max(0, m.I) % Pens.Length], x+1, y+1, s-3, s-3);
+								}
+
+								var jr = (r.Transactions ?? []).SelectMany(i => i.Operations).OfType<CandidacyDeclaration>().FirstOrDefault(i => Mcv.Users.Latest(i.Transaction.User).Id == m);
+
+								if(jr != null)
+								{
+									e.Graphics.FillPolygon(Brushes[Math.Max(0, m.I) % Brushes.Length], new PointF[]{new (x + s/2, y), new (x, y+s), new (x+s, y+s)});
+								}
+									
+								x += s;
+							}
+						}
+							
+						y += s;
 					}
 				}
 			}
-		} 
-		else
-		{
-			PaintEmission(e.Graphics);
 		}
 	}
 

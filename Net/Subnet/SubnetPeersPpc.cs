@@ -6,20 +6,17 @@ public class SubnetPeersPpc : McvPpc<SubnetPeersPpr>
 
 	public override Result Execute()
 	{
-		lock(Mcv.Lock)
-		{
-			RequireGraph();
+		RequireGraph();
 		
+		lock(Mcv.Lock)
 			if(Mcv.NextVotingRound.Senders.Count() == 0)
 				throw new EntityException(EntityError.NoMembers);
 
-			var f = Mcv.Friends.Latest(Name);
-
-			if(f == null)
+		var f = Mcv.Friends.Latest(Name)
+				??
 				throw new EntityException(EntityError.NotFound);
 
-			return new SubnetPeersPpr {Endpoints = f.Peers};
-		}
+		return new SubnetPeersPpr {Endpoints = f.Peers};
 	}
 }
 

@@ -18,17 +18,14 @@ public class FilePpc : FairPpc<FilePpr>
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
 
- 		lock(Mcv.Lock)
-		{	
-			RequireGraph();
+		RequireGraph();
 
-			var	e = Mcv.Files.Latest(Id);
+		var	e = Mcv.Files.Latest(Id);
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new FilePpr {File = e};
-		}
+		return new FilePpr {File = e};
 	}
 }
 

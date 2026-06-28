@@ -18,17 +18,14 @@ public class CategoryPpc : FairPpc<CategoryPpr>
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
 
- 		lock(Mcv.Lock)
-		{	
-			RequireGraph();
+		RequireGraph();
 
-			var	e = Mcv.Categories.Latest(Id);
+		var	e = Mcv.Categories.Latest(Id);
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new CategoryPpr {Category = e};
-		}
+		return new CategoryPpr {Category = e};
 	}
 }
 

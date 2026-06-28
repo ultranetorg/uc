@@ -23,28 +23,25 @@ public class ProposalCommentsService
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		lock(mcv.Lock)
+		Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
+		if(proposal == null || proposal.Site != siteEntityId)
 		{
-			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-			if(proposal == null || proposal.Site != siteEntityId)
-			{
-				throw new EntityNotFoundException(nameof(Proposal).ToLower(), proposalId);
-			}
-
-			var context = new SearchContext<ProposalCommentModel>
-			{
-				Page = page,
-				PageSize = pageSize,
-				Items = new List<ProposalCommentModel>(pageSize)
-			};
-			LoadProposalComments(context, proposal.Comments, cancellationToken);
-
-			return new TotalItemsResult<ProposalCommentModel>
-			{
-				Items = context.Items,
-				TotalItems = context.TotalItems,
-			};
+			throw new EntityNotFoundException(nameof(Proposal).ToLower(), proposalId);
 		}
+
+		var context = new SearchContext<ProposalCommentModel>
+		{
+			Page = page,
+			PageSize = pageSize,
+			Items = new List<ProposalCommentModel>(pageSize)
+		};
+		LoadProposalComments(context, proposal.Comments, cancellationToken);
+
+		return new TotalItemsResult<ProposalCommentModel>
+		{
+			Items = context.Items,
+			TotalItems = context.TotalItems,
+		};
 	}
 
 	private void LoadProposalComments(SearchContext<ProposalCommentModel> context, AutoId[] commentsIds, CancellationToken cancellationToken)

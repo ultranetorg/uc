@@ -173,15 +173,12 @@ public class McvSummaryApc : McvApc
 			f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
 			f.Add("Size",					$"{node.Mcv.Size}");
 
-			lock(node.Mcv.Lock)
-			{ 
-				f.Add("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}");
-				f.Add("Hash",					node.Mcv.GraphHash.ToHex());
-				f.Add("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}");
-				//f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
-				//f.Add("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}");
-				//f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
-			}
+			f.Add("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}");
+			f.Add("Hash",					node.Mcv.GraphHash.ToHex());
+			f.Add("Last Confirmed Round",	$"{node.Mcv.LastConfirmedRound?.Id}");
+			//f.Add("Last Non-Empty Round",	$"{node.Mcv.LastNonEmptyRound?.Id}");
+			//f.Add("Last Payload Round",	$"{node.Mcv.LastPayloadRound?.Id}");
+			//f.Add("ConsensusEnergyCost",	$"{node.Mcv.LastConfirmedRound?.ConsensusEnergyCost.ToString()}");
 		}
 
 		node.Peering.Statistics.Reset();

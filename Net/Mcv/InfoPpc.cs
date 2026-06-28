@@ -4,21 +4,18 @@ public class InfoPpc : McvPpc<InfoPpr>
 {
 	public override Result Execute()
 	{
-		lock(Mcv.Lock)
-		{
-			RequireGraph();		
+		RequireGraph();		
 
-			return	new InfoPpr
-					{
-						Tables = Mcv.Tables.ToDictionary(i => i.Id, i => i.Name),
-						Assets = [	
-									Asset.Spacetime,
-									Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
-									Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
-								 ]
+		return	new InfoPpr
+				{
+					Tables = Mcv.Tables.ToDictionary(i => i.Id, i => i.Name),
+					Assets = [	
+								Asset.Spacetime,
+								Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
+								Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
+							]
 
-					};
-		}
+				};
 	}
 }
 

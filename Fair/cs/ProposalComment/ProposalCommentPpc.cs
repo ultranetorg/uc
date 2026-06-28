@@ -18,17 +18,14 @@ public class ProposalCommentPpc : FairPpc<ProposalCommentPpr>
 		if(Id == null)
 			throw new RequestException(RequestError.IncorrectRequest);
 
- 		lock(Mcv.Lock)
-		{	
-			RequireGraph();
+		RequireGraph();
 
-			var	e = Mcv.ProposalComments.Latest(Id);
+		var	e = Mcv.ProposalComments.Latest(Id);
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new ProposalCommentPpr {Comment = e};
-		}
+		return new ProposalCommentPpr {Comment = e};
 	}
 }
 

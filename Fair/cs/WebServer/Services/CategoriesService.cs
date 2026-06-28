@@ -18,20 +18,17 @@ public class CategoriesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock (mcv.Lock)
+		Site site = mcv.Sites.Latest(id);
+		if (site == null)
 		{
-			Site site = mcv.Sites.Latest(id);
-			if (site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-			if (site.Categories.Length == 0)
-			{
-				return [];
-			}
-
-			return LoadCategories(site.Categories);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+		if (site.Categories.Length == 0)
+		{
+			return [];
+		}
+
+		return LoadCategories(site.Categories);
 	}
 
 	public CategoryModel GetDetails([NotNull][NotEmpty] string categoryId, CancellationToken cancellationToken)
@@ -42,29 +39,26 @@ public class CategoriesService
 
 		AutoId id = AutoId.Parse(categoryId);
 
-		lock (mcv.Lock)
+		Category category = mcv.Categories.Latest(id);
+		if (category == null)
 		{
-			Category category = mcv.Categories.Latest(id);
-			if (category == null)
-			{
-				throw new EntityNotFoundException(nameof(Category).ToLower(), categoryId);
-			}
-
-			Category parentCategory = null;
-			if (category.Parent != null)
-			{
-				parentCategory = mcv.Categories.Latest(category.Parent);
-			}
-
-			Site site = mcv.Sites.Latest(category.Site);
-			IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
-
-			return new CategoryModel(category, parentCategory?.Title.ToString())
-			{
-				SiteId = category.Site.ToString(),
-				Categories = categories,
-			};
+			throw new EntityNotFoundException(nameof(Category).ToLower(), categoryId);
 		}
+
+		Category parentCategory = null;
+		if (category.Parent != null)
+		{
+			parentCategory = mcv.Categories.Latest(category.Parent);
+		}
+
+		Site site = mcv.Sites.Latest(category.Site);
+		IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
+
+		return new CategoryModel(category, parentCategory?.Title.ToString())
+		{
+			SiteId = category.Site.ToString(),
+			Categories = categories,
+		};
 	}
 
 	IEnumerable<CategoryBaseModel> LoadCategories(AutoId[] categoriesIds)
@@ -85,24 +79,21 @@ public class CategoriesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		lock (mcv.Lock)
+		Site site = mcv.Sites.Latest(id);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(id);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			if (site.Categories.Length == 0)
-			{
-				return [];
-			}
-
-			List<CategoryParentBaseModel> result = new List<CategoryParentBaseModel>(site.Categories.Length);
-			LoadCategoriesRecursively(site.Categories, depth, ref result, cancellationToken);
-
-			return result;
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		if (site.Categories.Length == 0)
+		{
+			return [];
+		}
+
+		List<CategoryParentBaseModel> result = new List<CategoryParentBaseModel>(site.Categories.Length);
+		LoadCategoriesRecursively(site.Categories, depth, ref result, cancellationToken);
+
+		return result;
 	}
 
 	void LoadCategoriesRecursively(AutoId[] categories, int? currentDepth, ref List<CategoryParentBaseModel> result, CancellationToken cancellationToken)

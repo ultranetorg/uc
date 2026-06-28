@@ -16,47 +16,44 @@ public class UnpublishedSiteProductsService
 		Guard.Against.NullOrEmpty(siteId);
 		Guard.Against.NullOrEmpty(productId);
 
-		lock(mcv.Lock)
+		AutoId entitySiteId = AutoId.Parse(siteId);
+		Site site = mcv.Sites.Latest(entitySiteId);
+		if(site == null)
 		{
-			AutoId entitySiteId = AutoId.Parse(siteId);
-			Site site = mcv.Sites.Latest(entitySiteId);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			AutoId entityProductId = AutoId.Parse(productId);
-			Product product = mcv.Products.Latest(entityProductId);
-			if(product == null)
-			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
-			}
-
-			if(product.Publications.Any(i => mcv.Publications.Latest(i).Site == site.Id))
-			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
-			}
-			if (HasProductCreationProposalForProduct(site, product.Id))
-			{
-				throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
-			}
-
-			Author author = mcv.Authors.Latest(product.Author);
-			IEnumerable<FieldValueModel> mappedFields = ProductFieldsUtils.GetLatestMappedFields(product);
-
-			return new ProductDetailsModel
-			{
-				Id = product.Id.ToString(),
-				Type = product.Type,
-				Title = PublicationUtils.GetLatestTitle(product),
-				LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
-				Updated = product.Updated.Hours,
-				Fields = mappedFields,
-				AuthorId = author.Id.ToString(),
-				AuthorTitle = author.Title,
-				AuthorLogoId = author.Avatar?.ToString()
-			};
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		AutoId entityProductId = AutoId.Parse(productId);
+		Product product = mcv.Products.Latest(entityProductId);
+		if(product == null)
+		{
+			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+		}
+
+		if(product.Publications.Any(i => mcv.Publications.Latest(i).Site == site.Id))
+		{
+			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+		}
+		if (HasProductCreationProposalForProduct(site, product.Id))
+		{
+			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+		}
+
+		Author author = mcv.Authors.Latest(product.Author);
+		IEnumerable<FieldValueModel> mappedFields = ProductFieldsUtils.GetLatestMappedFields(product);
+
+		return new ProductDetailsModel
+		{
+			Id = product.Id.ToString(),
+			Type = product.Type,
+			Title = PublicationUtils.GetLatestTitle(product),
+			LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
+			Updated = product.Updated.Hours,
+			Fields = mappedFields,
+			AuthorId = author.Id.ToString(),
+			AuthorTitle = author.Title,
+			AuthorLogoId = author.Avatar?.ToString()
+		};
 
 		bool HasProductCreationProposalForProduct(Site site, AutoId productId)
 		{

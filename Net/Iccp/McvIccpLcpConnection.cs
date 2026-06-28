@@ -97,14 +97,11 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	{
  		if(Peering.Synchronization == Synchronization.Synchronized)
  		{
-	 		lock(Mcv.Lock)
-			{
-				var f = Mcv.Friends.Latest(args.Name)
-						??
-						throw new IccpException(IccpError.NotFound);
+			var f = Mcv.Friends.Latest(args.Name)
+					??
+					throw new IccpException(IccpError.NotFound);
 	
-				return new SubnetPeersIccr {Peers = f.Peers};
-			}
+			return new SubnetPeersIccr {Peers = f.Peers};
  		} 
  		else
 	 		return new SubnetPeersIccr {Peers = Peering.Call(new SubnetPeersPpc {Name = args.Name}, Flow).Endpoints};
@@ -113,11 +110,10 @@ public class McvIccpLcpConnection: IccpLcpConnection
  	public Result TransferRequest(string from, TransferRequestIcca args) /// A message from a subnet to vote for
  	{
 		RequireSynchronized();
+		RequireMembership();
 
  		lock(Mcv.Lock)
  		{	
-			RequireMembership();
-
  			var t = Mcv.FriendTransferRequests.Find(i => Bytes.Equal(i.Hash, args.Hash));
  
  			if(t != null)
@@ -150,33 +146,25 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	public Result LastOutgoingTransfer(string from, LastOutgoingTransferIcca args)
 	{
 		RequireSynchronized();
+		RequireMembership();
 
-		lock(Mcv.Lock)
-		{	
-			RequireMembership();
+		var s = Node.Mcv.Friends.Latest(from)
+				??
+				throw new IccpException(IccpError.NotFound);
 
-			var s = Node.Mcv.Friends.Latest(from)
-					??
-					throw new IccpException(IccpError.NotFound);
-
-			return new LastOutgoingTransferIccr {Transfer = s.LastOutgoingTransfer};
-		}
+		return new LastOutgoingTransferIccr {Transfer = s.LastOutgoingTransfer};
 	}
 
 	public Result LastIncomingTransfer(string from, LastIncomingTransferIcca args) /// Confirmation on our message to a subnet
 	{
 		RequireSynchronized();
+		RequireMembership();
 
-		lock(Mcv.Lock)
-		{
-			RequireMembership();
+		var s = Node.Mcv.Friends.Latest(from)
+				??
+				throw new IccpException(IccpError.NotFound);
 
-			var s = Node.Mcv.Friends.Latest(from)
-					??
-					throw new IccpException(IccpError.NotFound);
-
-			return new LastIncomingTransferIccr {Result = s.LastIncomingTransfer};
-		}
+		return new LastIncomingTransferIccr {Result = s.LastIncomingTransfer};
 	}
 
 //	public virtual Result Transact(TransactIcca args)
@@ -283,24 +271,22 @@ public class McvIccpLcpConnection: IccpLcpConnection
 
 		Asset e, en;
 
-		lock(Node.Mcv.Lock)
-		{	
-			GetHolder(c, n, out sh, out eh);
+		GetHolder(c, n, out sh, out eh);
 
-			e = Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years);
-			en = Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1));
+		e = Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years);
+		en = Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1));
 
-			if(args.Asset.SequenceEqual(Asset.Spacetime.Id) && sh == null)
-				throw new EntityException(EntityError.NotHolder);
+		if(args.Asset.SequenceEqual(Asset.Spacetime.Id) && sh == null)
+			throw new EntityException(EntityError.NotHolder);
 
-			if(args.Asset.SequenceEqual(e.Id) && eh == null)
-				throw new EntityException(EntityError.NotHolder);
+		if(args.Asset.SequenceEqual(e.Id) && eh == null)
+			throw new EntityException(EntityError.NotHolder);
 
-			if(args.Asset.SequenceEqual(en.Id) && eh == null)
-				throw new EntityException(EntityError.NotHolder);
-		}
+		if(args.Asset.SequenceEqual(en.Id) && eh == null)
+			throw new EntityException(EntityError.NotHolder);
 
 		BigInteger b = 0;
+
 		if(args.Asset.SequenceEqual(Asset.Spacetime.Id))	b = sh.Spacetime; else
 		if(args.Asset.SequenceEqual(e.Id))					b = eh.Energy; else
 		if(args.Asset.SequenceEqual(en.Id))					b = eh.EnergyNext;
@@ -315,17 +301,14 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	{
 		RequireSynchronized();
 
-		lock(Node.Mcv.Lock)
-		{	
-			return	new HolderAssetsIccr 
-					{
-						Assets = [	
-									Asset.Spacetime,
-									Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
-									Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
-								 ]
-					};
-		}
+		return	new HolderAssetsIccr 
+				{
+					Assets = [	
+								Asset.Spacetime,
+								Asset.Energy(0, Node.Mcv.LastConfirmedRound.ConsensusTime.Years),
+								Asset.Energy(1, (byte)(Node.Mcv.LastConfirmedRound.ConsensusTime.Years + 1))
+								]
+				};
 	}
 
 //	public virtual Result HoldersByAccount(HoldersByAccountIcca args)
@@ -350,14 +333,11 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		if(!Enum.TryParse<McvTable>(args.Text.AsSpan(0, i), true, out var t) && !Classes.Any(i => string.Compare(i, t.ToString(), true) == 0))
 			throw new EntityException(EntityError.UnknownEntity);
 
-		lock(Node.Mcv.Lock)
-		{ 
-			var u = Node.Mcv.Users.Latest(args.Text.Substring(i + 1))
-					??
-					throw new EntityException(EntityError.NotFound);
+		var u = Node.Mcv.Users.Latest(args.Text.Substring(i + 1))
+				??
+				throw new EntityException(EntityError.NotFound);
 
-			return new AddressTextToUniversalIccr {Universal = [(byte)t, ..u.Id.Raw]};
-		}
+		return new AddressTextToUniversalIccr {Universal = [(byte)t, ..u.Id.Raw]};
 	}
 
 	public void Read(byte[] holder, out byte table, out AutoId name)

@@ -15,31 +15,31 @@ public class VotePpc : PeerRequest
 		if(p.Node.Mcv == null)
 			throw new NodeException(NodeError.NotGraph);
 
-			var vp = VoteStatus.OK;
+		var vp = VoteStatus.OK;
 		
-			Peering.Statistics.Consensing.Begin();
+		Peering.Statistics.Consensing.Begin();
 
-			try
-			{
-				lock(p.Mcv.Lock)
-					vp = p.Mcv.ProcessIncoming(Vote, p.Synchronization);
-			}
-			catch(ConfirmationException ex)
-			{
-				lock(p.Mcv.Lock)
-					p.ProcessConfirmationException(ex);
-			}
+		try
+		{
+			lock(p.Mcv.Lock)
+				vp = p.Mcv.ProcessIncoming(Vote, p.Synchronization);
+		}
+		catch(ConfirmationException ex)
+		{
+			lock(p.Mcv.Lock)
+				p.ProcessConfirmationException(ex);
+		}
 				
-			Peering.Statistics.Consensing.End();
+		Peering.Statistics.Consensing.End();
 
-			lock(p.Lock)
-				if(vp == VoteStatus.OK)
-				{
-					p.Broadcast(Vote, Peer);
-					p.Statistics.AcceptedVotes++;
-				}
-				else
-					p.Statistics.RejectedVotes++;
+		lock(p.Lock)
+			if(vp == VoteStatus.OK)
+			{
+				p.Broadcast(Vote, Peer);
+				p.Statistics.AcceptedVotes++;
+			}
+			else
+				p.Statistics.RejectedVotes++;
 
 		return null;
 	}

@@ -21,24 +21,21 @@ public class UserPpc : McvPpc<UserPpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{
-			RequireGraph();
+		RequireGraph();
 
-			User u;
+		User u;
 
-			if(Id != null)
-				u = Mcv.Users.Latest(Id);
-			else if(Name != null)
-				u = Mcv.Users.Latest(Name);
-			else
-				throw new RequestException(RequestError.IncorrectRequest);
+		if(Id != null)
+			u = Mcv.Users.Latest(Id);
+		else if(Name != null)
+			u = Mcv.Users.Latest(Name);
+		else
+			throw new RequestException(RequestError.IncorrectRequest);
 			
-			if(u == null)
-				throw new EntityException(EntityError.NotFound);
+		if(u == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new UserPpr {User = u};
-		}
+		return new UserPpr {User = u};
 	}
 }
 

@@ -7,9 +7,7 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 	public override Result Execute()
 	{
 		lock(Mcv.Lock)
-		{
 			RequireMember();
-		}
 
 		var r = new TransactionStatusPpr
 				{								

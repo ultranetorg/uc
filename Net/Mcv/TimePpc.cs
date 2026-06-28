@@ -6,10 +6,7 @@ public class TimePpc : McvPpc<TimePpr>
 	{
 		RequireGraph();
 		
-		lock(Mcv.Lock)
-		{
-			return new TimePpr {Time = Mcv.LastConfirmedRound.ConsensusTime};
-		}
+		return new TimePpr {Time = Mcv.LastConfirmedRound.ConsensusTime};
 	}
 }
 

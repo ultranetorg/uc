@@ -20,16 +20,13 @@ public class AccountsService
 
 		AutoId id = AutoId.Parse(accountId);
 
-		lock(mcv.Lock)
+		FairUser account = (FairUser) mcv.Users.Latest(id);
+		if(account == null || account.Avatar == null)
 		{
-			FairUser account = (FairUser) mcv.Users.Latest(id);
-			if(account == null || account.Avatar == null)
-			{
-				throw new EntityNotFoundException(nameof(User).ToLower(), accountId);
-			}
-
-			return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);
+			throw new EntityNotFoundException(nameof(User).ToLower(), accountId);
 		}
+
+		return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);
 	}
 
 	private class LoadProductsResult

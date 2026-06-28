@@ -15,17 +15,14 @@ public class UserAuthorsPpc : McvPpc<UserAuthorsPpr>
 
 	public override Result Execute()
 	{
- 		lock(Mcv.Lock)
-		{
-			RequireGraph();
+		RequireGraph();
 
-			var	e = Mcv.Users.Latest(Name) as FairUser;
+		var	e = Mcv.Users.Latest(Name) as FairUser;
 			
-			if(e == null)
-				throw new EntityException(EntityError.NotFound);
+		if(e == null)
+			throw new EntityException(EntityError.NotFound);
 			
-			return new UserAuthorsPpr {Authors = e.Authors};
-		}
+		return new UserAuthorsPpr {Authors = e.Authors};
 	}
 }
 

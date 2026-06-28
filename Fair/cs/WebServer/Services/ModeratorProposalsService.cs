@@ -142,26 +142,23 @@ public class ModeratorProposalsService
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		lock (mcv.Lock)
+		Site site = mcv.Sites.Latest(siteEntityId);
+		if (site == null)
 		{
-			Site site = mcv.Sites.Latest(siteEntityId);
-			if (site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-			if (site.Proposals.All(x => x != proposalEntityId))
-			{
-				throw new EntityNotFoundException(entityName, proposalId);
-			}
-
-			Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-			if (!ProposalUtils.IsDiscussion(site, proposal) || !checkFunc(proposal))
-			{
-				throw new EntityNotFoundException(entityName, proposalId);
-			}
-
-			return createFunc(proposal, site);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+		if (site.Proposals.All(x => x != proposalEntityId))
+		{
+			throw new EntityNotFoundException(entityName, proposalId);
+		}
+
+		Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
+		if (!ProposalUtils.IsDiscussion(site, proposal) || !checkFunc(proposal))
+		{
+			throw new EntityNotFoundException(entityName, proposalId);
+		}
+
+		return createFunc(proposal, site);
 	}
 
 	TotalItemsResult<T> GetProposalsByTypeNotOptimized<T>
@@ -170,16 +167,13 @@ public class ModeratorProposalsService
 	{
 		AutoId siteEntityId = AutoId.Parse(siteId);
 
-		lock (mcv.Lock)
+		Site site = mcv.Sites.Latest(siteEntityId);
+		if(site == null)
 		{
-			Site site = mcv.Sites.Latest(siteEntityId);
-			if(site == null)
-			{
-				throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
-			}
-
-			return LoadProposalsByType<T>(site, page, pageSize, search, checkFunc, createFunc, cancellationToken);
+			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
+
+		return LoadProposalsByType<T>(site, page, pageSize, search, checkFunc, createFunc, cancellationToken);
 	}
 
 	TotalItemsResult<T> LoadProposalsByType<T>
