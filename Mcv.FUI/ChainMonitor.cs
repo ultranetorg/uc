@@ -141,7 +141,7 @@ public partial class ChainMonitor : UserControl
 							ntry = Math.Max(ntry, r.Try);
 							nm = Math.Max(nm, r.Members?.Count ?? 0);
 							nc = Math.Max(nc, r.MinimumForConsensus);
-							ns = Math.Max(ns, r.Selected.Count());
+							ns = Math.Max(ns, r.Selected.Count);
 							nl = Math.Max(nl, r.ConsensusMemberLeavers?.Length ?? 0);
 
 							ndate = Math.Max(ndate, r.ConsensusTime.ToString().Length);
@@ -162,7 +162,7 @@ public partial class ChainMonitor : UserControl
 					generators.Clear();
 					generators.AddRange(mems.Union(joins).Order());
 
-					f  = $"{{0,{nid}}} {{1,{ntry}}} {{2}} {{3,{nm}}} {{4,{nc}}} {{5,{ns}}} {{6,{nl}}} {{7,{ndate}}} {{8,8}}";
+					f = $"{{0,{nid}}} {{1,{ntry}}} {{2}} {{3,{nm}}} {{4,{nc}}} {{5,{ns}}} {{6,{nl}}} {{7,{ndate}}} {{8,8}}";
 
 					if(rounds.Count() > 0)
 					{
