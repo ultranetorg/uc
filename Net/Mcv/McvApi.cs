@@ -383,8 +383,10 @@ public class IncomingTransactionsApc : McvApc
 		if(node.Peering == null)
 			throw new NodeException(NodeError.NoPeering);
 
-		lock(node.Mcv.Lock)
+		lock(node.Peering.CandidateTransactions)
+		{
 			return node.Peering.CandidateTransactions.Select(i => new TransactionApe(i)).ToArray();
+		}	
 	}
 }
 

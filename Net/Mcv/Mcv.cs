@@ -77,7 +77,7 @@ public abstract class Mcv /// Mutual chain voting
 														set => _Tail = value;
 														get 
 														{
-															if(!Monitor.IsEntered(Lock))
+															if(Constructed && !Monitor.IsEntered(Lock))
 																Debugger.Break();
 	
 															return _Tail;
@@ -105,8 +105,8 @@ public abstract class Mcv /// Mutual chain voting
 	public abstract CandidacyDeclaration			CreateCandidacyDeclaration();
 	public virtual void								FillVote(Vote vote){}
 
-
-	Genesis Genesis;
+	Genesis											Genesis;
+	public readonly bool							Constructed = false;
 
 	public Mcv()
 	{
@@ -117,39 +117,38 @@ public abstract class Mcv /// Mutual chain voting
 		Genesis = genesis;
 		Clock = clock;
 
-		lock(Lock)
-		{
-			Net = net;
-			Settings = settings;
-			Datapath = datapath;
-			Databasepath = databasepath;
+		Net = net;
+		Settings = settings;
+		Datapath = datapath;
+		Databasepath = databasepath;
 	
-			CreateTables(databasepath);
+		CreateTables(databasepath);
 	
-			if(net.TablesCount != Tables.Count(i => !i.IsIndex))
-				throw new IntegrityException();
+		if(net.TablesCount != Tables.Count(i => !i.IsIndex))
+			throw new IntegrityException();
 
-			GraphHash = Net.Cryptography.ZeroHash;
+		GraphHash = Net.Cryptography.ZeroHash;
 	
-			var g = Rocks.Get(GenesisKey);
+		var g = Rocks.Get(GenesisKey);
 	
-			if(g == null)
+		if(g == null)
+		{
+			Initialize();
+		}
+		else
+		{
+			if(g.SequenceEqual((new Genesis() as IBinarySerializable).ToRaw()))
 			{
-				Initialize();
+				Load();
 			}
 			else
-			{
-				if(g.SequenceEqual((new Genesis() as IBinarySerializable).ToRaw()))
-				{
-					Load();
-				}
-				else
-				{ 
-					Clear();
-					Initialize();
-				}
+			{ 
+				Clear();
+				Initialize();
 			}
 		}
+
+		Constructed = true;
 	}
 
 	public void Initialize()
@@ -161,7 +160,7 @@ public abstract class Mcv /// Mutual chain voting
 				var v = CreateVote(); 
 
 				v.RoundId	 = i;
-				v.Member		 = AutoId.God;
+				v.Member	 = AutoId.God;
 				v.Time		 = Time.Zero;
 				v.TargetHash = i < Net.P ? Net.Cryptography.ZeroHash : GetRound(i - Net.P).Summarize();
 
@@ -251,6 +250,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void Clear()
 	{
+		if(Constructed && !Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		Tail.Clear();
 
 		GraphState = null;
@@ -278,7 +280,7 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void Add(Vote vote, bool process, bool check = true)
 	{
-		if(!Monitor.IsEntered(Lock))
+		if(Constructed && !Monitor.IsEntered(Lock))
 			Debugger.Break();
 
 		var r = GetRound(vote.RoundId);
@@ -319,6 +321,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public VoteStatus ProcessIncoming(Vote vote, Synchronization synchroniztion)
 	{
+		if(Constructed && !Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		if(!vote.Valid)
 			return VoteStatus.Invalid;
 
@@ -343,7 +348,7 @@ public abstract class Mcv /// Mutual chain voting
 		{
 			var r = GetRound(vote.RoundId);
 
-			if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
+			if(r.Votes.Any(i => Bytes.Equal(i.Signature, vote.Signature)))
 				return VoteStatus.AlreadyExists;
 	
 			Add(vote, false);
@@ -354,7 +359,7 @@ public abstract class Mcv /// Mutual chain voting
 		{
 			var r = GetRound(vote.RoundId);
 
-			if(r.Votes.Any(i => Bytes.EqualityComparer.Equals(i.Signature, vote.Signature)))
+			if(r.Votes.Any(i => Bytes.Equal(i.Signature, vote.Signature)))
 				return VoteStatus.AlreadyExists;
 
 			Add(vote, true);
@@ -366,7 +371,7 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void Check(Vote vote)
 	{
-		if(!Monitor.IsEntered(Lock))
+		if(Constructed && !Monitor.IsEntered(Lock))
 			Debugger.Break();
 
 		if(LastConfirmedRound != null && (vote.RoundId <= LastConfirmedRound.Id || vote.RoundId > NextVotingRound.Id))
@@ -436,6 +441,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public bool TryConfirm(Round round)
 	{
+		if(Constructed && !Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		if(LastConfirmedRound == null)
 			return false;
 
@@ -522,6 +530,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public Round GetRound(int rid)
 	{
+		if(Constructed && !Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		var r = FindRound(rid);
 
 		if(r == null)
@@ -537,6 +548,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public Round FindRound(int rid)
 	{
+		if(Constructed && !Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		foreach(var i in Tail)
 			if(i.Id == rid)
 				return i;
@@ -561,6 +575,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void InsertRound(Round round)
 	{
+		if(Constructed && !Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		var i = Tail.FindIndex(i => i.Id <= round.Id);
 			
 		if(i != -1)
@@ -629,6 +646,9 @@ public abstract class Mcv /// Mutual chain voting
 
 	public void Hashify()
 	{
+		if(Constructed && !Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		GraphHash = Cryptography.Hash(GraphState);
 
 		foreach(var t in Tables.Where(i => !i.IsIndex))
@@ -638,6 +658,9 @@ public abstract class Mcv /// Mutual chain voting
 	
 	public void Save(Round round)
 	{
+		if(Constructed && !Monitor.IsEntered(Lock))
+			Debugger.Break();
+
 		using var b = new WriteBatch();
 
 		if(round.IsLastInCommit)
@@ -683,42 +706,4 @@ public abstract class Mcv /// Mutual chain voting
 
 		Rocks.Write(b);
 	}
-//
-//	public Transaction FindTailTransaction(Func<Transaction, bool> transaction_predicate)
-//	{
-//		foreach(var r in Tail)
-//			foreach(var t in r.Transactions)
-//				if(transaction_predicate(t))
-//					return t;
-//
-//		//if(LastDissolvedRound != null)
-//		//	for(int i = LastDissolvedRound.Id; i > LastDissolvedRound.Id - Net.CommitLength; i--)
-//		//	{
-//		//		var t = FindRound(i).ConsensusTransactions.FirstOrDefault(transaction_predicate);
-//		//
-//		//		if(t != null)
-//		//			return t;
-//		//	}
-//
-//		return null;
-//	}
-//
-//	public IEnumerable<Transaction> FindLastTailTransactions(Func<Transaction, bool> transaction_predicate, Func<Round, bool> round_predicate = null)
-//	{
-//		foreach(var r in round_predicate == null ? Tail : Tail.Where(round_predicate))
-//			foreach(var t in transaction_predicate == null ? r.Transactions : r.Transactions.Where(transaction_predicate))
-//				yield return t;
-//	}
-//
-//	//public O FindLastTailOperation<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
-//	//{
-//	//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
-//	//	return op == null ? ops.FirstOrDefault() : ops.FirstOrDefault(op);
-//	//}
-//	//
-//	//IEnumerable<O> FindLastTailOperations<O>(Func<O, bool> op = null, Func<Transaction, bool> tp = null, Func<Round, bool> rp = null)
-//	//{
-//	//	var ops = FindLastTailTransactions(tp, rp).SelectMany(i => i.Operations.OfType<O>());
-//	//	return op == null ? ops : ops.Where(op);
-//	//}
 }

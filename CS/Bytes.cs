@@ -44,7 +44,7 @@ public static class Bytes
 {
 	public static BytesEqualityComparer EqualityComparer = new BytesEqualityComparer();
 	public static BytesComparer			Comparer = new BytesComparer();
-	public static bool					Equal(byte[] a, byte[] b) => Comparer.Compare(a, b) == 0;
+	public static bool					Equal(byte[] a, byte[] b) => EqualityComparer.Equals(a, b);
 
 	public static byte[] Xor(byte[] a, byte[] b)
 	{

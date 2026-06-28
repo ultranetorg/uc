@@ -467,7 +467,7 @@ public abstract class Round : IBinarySerializable
 
 	public void Confirm()
 	{
- 		if(!Monitor.IsEntered(Mcv.Lock))
+ 		if(Mcv.Constructed && !Monitor.IsEntered(Mcv.Lock))
  			Debugger.Break();
  
 		if(Confirmed)
