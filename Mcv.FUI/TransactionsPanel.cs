@@ -76,7 +76,7 @@ public partial class TransactionsPanel : McvPanel
 					li.SubItems.Add(i.Operations.Length.ToString());
 					li.SubItems.Add(i.Operations[0].ToString());
 					li.SubItems.Add(i.Error);
-					li.SubItems.Add((i.Ppi as Peer)?.EP.ToString());
+					li.SubItems.Add((i.Peer as Peer)?.EP.ToString());
 				
 					Transactions.Items.Add(li);
 				}

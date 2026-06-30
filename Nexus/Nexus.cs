@@ -135,7 +135,9 @@ public class Nexus : IProgram
 
 	public DeployedNode RunNode(string net)
 	{
-		var node = Settings.Nodes.FirstOrDefault(i => i.Net == net);
+		net = Snq.ToCanonicalNet(net);
+
+		var node = Settings.Nodes.FirstOrDefault(i => Snq.NetsEqual(i.Net, net));
 
 		if(node?.Process != null && !node.Process.HasExited)
 		{
@@ -179,7 +181,7 @@ public class Nexus : IProgram
 		}
 		else
 		{
-			var c = IccpLcpServer.Locals.FirstOrDefault(i => i.Net == snq.Net);
+			var c = IccpLcpServer.Locals.FirstOrDefault(i => Snq.NetsEqual(i.Net, snq.Net));
 
 			if(c == null)
 				RunNode(snq.Net);
@@ -189,7 +191,7 @@ public class Nexus : IProgram
 				if(!flow.Active)
 					return null;
 
-				c = IccpLcpServer.Locals.FirstOrDefault(i => i.Net == snq.Net);
+				c = IccpLcpServer.Locals.FirstOrDefault(i => Snq.NetsEqual(i.Net, snq.Net));
 
 				if(c == null)
 					Thread.Sleep(10);

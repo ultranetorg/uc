@@ -363,70 +363,69 @@ public abstract class McvPeering : HomoPeering
 				}
 				else
 				{
-					int from = -1;
-					int to = -1;
-
-					lock(Mcv.Lock)
-						from = Mcv.LastConfirmedRound.Id + 1;
-		
-					to = from + Net.P;
-		
-					var rp = Call(peer, new DownloadRoundsPpc {From = from, To = to}, Flow);
-	
-					lock(Mcv.Lock)
+					while(Flow.Active)
 					{
-						var rounds = rp.Read(Mcv, Constructor);
-														
-						foreach(var r in rounds)
-						{
-							if(r.Id <= Mcv.LastConfirmedRound.Id)
-								continue;
-
-							Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.EP}");
-		
-							Mcv.InsertRound(r);
-
-							var h = r.Hash;
+						int from;
 	
-							r.Hashify();
-	
-							if(!r.Hash.SequenceEqual(h))
-							{
-								#if DEBUG
-									//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
-									if(All.Any(i => i.Node.Name == peer.Name))
-									{
-										lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
-											All.First(i => i.Node.Name == peer.Name).Mcv.FindRound(r.Id).Hashify();
-										
-										Debugger.Break();
-									}
-									
-								#endif
-																	
-								break;
-							}
-								
-							r.Confirmed = false;
-							r.Confirm();
-							Mcv.Save(r);
-						}
-
-						Mcv.NextVotingRound.ReUpdate();
-
-						if(Mcv.TryConfirm(Mcv.NextVotingRound))
-						{
-							SynchronizingThread = null;
-							SynchronizationInfo = null;
+						lock(Mcv.Lock)
+							from = Mcv.LastConfirmedRound.Id + 1;
 			
-							Flow.Log?.Report(this, $"Synchronization Finished");
+						var rp = Call(peer, new DownloadRoundsPpc {From = from}, Flow);
 		
-							Synchronization = Synchronization.Synchronized;
-
-							MainWakeup.Set();
-							return;
+						lock(Mcv.Lock)
+						{
+							var rounds = rp.Read(Mcv, Constructor);
+															
+							foreach(var r in rounds.SkipLast(1)) /// skip the last one to give a chance for TryConfirm
+							{
+								if(r.Id <= Mcv.LastConfirmedRound.Id)
+									continue;
+	
+								Flow.Log?.Report(this, $"Round received {r.Id} - {r.Hash.ToHex()} from {peer.EP}");
+			
+								Mcv.InsertRound(r);
+	
+								var h = r.Hash;
+		
+								r.Hashify();
+		
+								if(!r.Hash.SequenceEqual(h))
+								{
+									#if DEBUG
+										//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
+										if(All.Any(i => i.Node.Name == peer.Name))
+										{
+											lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
+												All.First(i => i.Node.Name == peer.Name).Mcv.FindRound(r.Id).Hashify();
+											
+											Debugger.Break();
+										}
+										
+									#endif
+																		
+									break;
+								}
+									
+								r.Confirmed = false;
+								r.Confirm();
+								Mcv.Save(r);
+							}
+	
+							Mcv.NextVotingRound.ReUpdate();
+	
+							if(Mcv.TryConfirm(Mcv.NextVotingRound))
+							{
+								SynchronizingThread = null;
+								SynchronizationInfo = null;
+				
+								Flow.Log?.Report(this, $"Synchronization Finished");
+			
+								Synchronization = Synchronization.Synchronized;
+	
+								MainWakeup.Set();
+								return;
+							}
 						}
-
 					}
 				}
 			}
@@ -906,8 +905,6 @@ public abstract class McvPeering : HomoPeering
 
 						var at = Call(new PretransactingPpc {User = t.User}, t.Flow);
 							
-						IHomoPeer ppi; 
-						
 						t.Nonce		 = at.NextNonce;
 						t.Expiration = at.LastConfirmedRid + Net.P * 2;
 						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc
@@ -925,7 +922,7 @@ public abstract class McvPeering : HomoPeering
 
 						try
 						{
-							ppi = getppi(m);
+							t.Peer = getppi(m);
 						}
 						catch(NodeException)
 						{
@@ -933,10 +930,9 @@ public abstract class McvPeering : HomoPeering
 							continue;
 						}
 
-						t.Ppi		 = ppi;
 						//t.Member	 = m.User;
 
-						(txs.TryGetValue(ppi, out var p) ? p : (txs[ppi] = [])).Add(t);
+						(txs.TryGetValue(t.Peer, out var p) ? p : (txs[t.Peer] = [])).Add(t);
 
 						t.Flow.Log?.Report(this, $"Signed {t}, Member {m}");
 					}
@@ -1036,7 +1032,7 @@ public abstract class McvPeering : HomoPeering
 
 			if(accepted.Any())
 			{
-				foreach(var g in accepted.GroupBy(i => i.Ppi))
+				foreach(var g in accepted.GroupBy(i => i.Peer))
 				{
 					TransactionStatusPpr ts;
 

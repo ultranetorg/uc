@@ -4,28 +4,26 @@ namespace Uccs.Net;
 
 public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 {
-	public int From { get; set; }
-	public int To { get; set; }
+	public int			From { get; set; }
+	public int			SizeLimit { get; set; } = SizeMaximum;
+	public const int	SizeMaximum = 512 * 1024;
 	
 	public override Result Execute()
 	{
 		RequireGraph();
 
+		if(SizeLimit > SizeMaximum)
+			throw new RequestException(RequestError.IncorrectRequest);
+
 		lock(Mcv.Lock)
 		{
-			
 			if(Mcv.LastNonEmptyRound == null)	
 				throw new NodeException(NodeError.TooEearly);
 
-			if(From > Mcv.LastConfirmedRound.Id || To - From > Mcv.Net.P)
+			if(From > Mcv.LastConfirmedRound.Id)
 				throw new RequestException(RequestError.OutOfRange);
-
-			var s = new MemoryStream();
-			var w = new Writer(s, Peering.Constructor);
 		
-			var rs = Enumerable.Range(From, To - From + 1).Select(Mcv.FindRound).Where(i => i != null && i.Confirmed);
-
-			w.Write(rs, i => w.WriteBytes(i.Raw));
+			var rs = Enumerable.Range(From, Mcv.LastConfirmedRound.Id - From + 1).Select(Mcv.FindRound).WhereAggregateWhile(0, (a, i) => a + i.Raw.Length, a => a < SizeLimit);
 
 			return	new DownloadRoundsPpr 
 					{	
@@ -55,5 +53,23 @@ public class DownloadRoundsPpr : Result
 											r.Restore(i);
 											return r;
 										})];
+	}
+}
+
+public static class LinqExtensions
+{
+	public static IEnumerable<T> WhereAggregateWhile<T, A>(this IEnumerable<T> source, A seed,Func<A, T, A> func, Func<A, bool> predicate)
+	{
+		A accumulator = seed;
+
+		foreach(var item in source)
+		{
+			accumulator = func(accumulator, item);
+
+			if(!predicate(accumulator))
+				yield break;
+
+			yield return item;
+		}
 	}
 }

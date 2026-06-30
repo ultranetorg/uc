@@ -38,7 +38,7 @@ public class Transaction : IBinarySerializable
 	public int						Length;
 	public string					Error;
 	public string					OverallError => Error ?? Operations.FirstOrDefault(i => i.Error != null)?.Error;
-	public IHomoPeer				Ppi;
+	public IHomoPeer				Peer;
 	public Flow						Flow;
 	public DateTime					Inquired;
 	public byte[]					Session;
@@ -79,8 +79,8 @@ public class Transaction : IBinarySerializable
 
 		w.Write(net.Zone);
 		w.WriteUtf8(net.Address);
-		w.WriteASCII(User);
 		//w.Write(Member);
+		w.WriteASCII(User);
 		w.Write7BitEncodedInt(Nonce);
 		w.Write7BitEncodedInt(Expiration);
 		w.Write(Boost);
@@ -90,19 +90,22 @@ public class Transaction : IBinarySerializable
 		return s.Hash;
 	}
 
-#if DEBUG
-static readonly long checker = 0x0123456789ABCDEF;
-#endif
+	#if DEBUG
+	static readonly long __Checker = 0x0123456789ABCDEF;
+	#endif
 
  	public void	WriteConfirmed(Writer writer)
  	{
 		writer.WriteASCII(User);
 		writer.Write7BitEncodedInt(Nonce);
+		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Boost);
+		writer.WriteBytes(Tag);
 		writer.WriteVirtual(Operations);
+		writer.WriteBytes(Signature);
 
 		#if DEBUG
-		writer.Write(checker);
+		writer.Write(__Checker);
 		#endif
  	}
  		
@@ -112,16 +115,19 @@ static readonly long checker = 0x0123456789ABCDEF;
 
 		User		= reader.ReadASCII();
 		Nonce		= reader.Read7BitEncodedInt();
+		Expiration	= reader.Read7BitEncodedInt();
 		Boost		= reader.Read7BitEncodedInt64();
+		Tag			= reader.ReadBytes();
  		Operations	= reader.ReadArray(() => {
  												var o = reader.ReadVirtual<Operation>();
  												o.Transaction = this;
  												return o; 
 
  											});
+		Signature	= reader.ReadBytes();
 
 		#if DEBUG
-		if(reader.ReadInt64() != checker)
+		if(reader.ReadInt64() != __Checker)
 			throw new IntegrityException();
 		#endif
  	}
@@ -129,7 +135,6 @@ static readonly long checker = 0x0123456789ABCDEF;
 	public void	WriteForVote(Writer writer)
 	{
 		writer.Write(ActionOnResult);
-		writer.Write(Signature);
 
 		writer.WriteUtf8(User);
 		//writer.Write(Member);
@@ -138,16 +143,16 @@ static readonly long checker = 0x0123456789ABCDEF;
 		writer.Write7BitEncodedInt64(Boost);
 		writer.WriteBytes(Tag);
 		writer.WriteVirtual(Operations);
+		writer.Write(Signature);
 
 		#if DEBUG
-		writer.Write(checker);
+		writer.Write(__Checker);
 		#endif
 	}
  		
 	public void	ReadForVote(Reader reader)
 	{
 		ActionOnResult		= reader.Read<ActionOnResult>();
-		Signature			= reader.ReadSignature();
 
 		User				= reader.ReadUtf8();
 		//Member				= reader.Read<AutoId>();
@@ -160,9 +165,10 @@ static readonly long checker = 0x0123456789ABCDEF;
  													 	o.Transaction	= this;
  													 	return o; 
  													 });
+		Signature			= reader.ReadSignature();
 
 		#if DEBUG
-		if(reader.ReadInt64() != checker)
+		if(reader.ReadInt64() != __Checker)
 			throw new IntegrityException();
 		#endif
 	}
@@ -181,7 +187,7 @@ static readonly long checker = 0x0123456789ABCDEF;
 		writer.WriteVirtual(Operations);
 
 		#if DEBUG
-		writer.Write(checker);
+		writer.Write(__Checker);
 		#endif
 	}
 
@@ -203,7 +209,7 @@ static readonly long checker = 0x0123456789ABCDEF;
 													});
 
 		#if DEBUG
-		if(reader.ReadInt64() != checker)
+		if(reader.ReadInt64() != __Checker)
 			throw new IntegrityException();
 		#endif
 	}

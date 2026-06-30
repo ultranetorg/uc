@@ -364,7 +364,7 @@ public class TransactionApe
 		Tag					= transaction.Tag;
 		Signature			= transaction.Signature;
 		   
-		MemberEndpoint		= (transaction.Ppi as Peer)?.EP;
+		MemberEndpoint		= (transaction.Peer as Peer)?.EP;
 		Status				= transaction.Status;
 		Error				= transaction.Error;
 		__ExpectedStatus	= transaction.ActionOnResult;
