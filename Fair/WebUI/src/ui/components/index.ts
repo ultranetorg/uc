@@ -4,6 +4,7 @@ export * from "./Dropdown"
 export * from "./DropdownSearchAccounts"
 export * from "./DropdownSecondary"
 export * from "./DropdownTertiary"
+export * from "./Pagination"
 
 export * from "./Accordion"
 export * from "./Breadcrumbs"

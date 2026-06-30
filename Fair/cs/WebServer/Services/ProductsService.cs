@@ -154,4 +154,70 @@ public class ProductsService
 			TotalItems = totalItems
 		};
 	}
+
+	public IEnumerable<ProductSearchResultBaseModel> SearchLite([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(ProductsService), nameof(ProductsService.SearchLite), query, limit);
+
+		Guard.Against.NullOrEmpty(query);
+		Guard.Against.NegativeOrZero(limit);
+
+		var result = mcv.ProductTitles.Search(query, 0, limit);
+		return MapTo<ProductSearchResultBaseModel>(result, cancellationToken);
+	}
+
+	public IEnumerable<ProductSearchResultModel> Search([NotNull][NotEmpty] string query, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.Search), query, page, pageSize);
+
+		Guard.Against.NullOrEmpty(query);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		var result = mcv.ProductTitles.Search(query, page * pageSize, pageSize);
+		return MapTo<ProductSearchResultModel>(result, cancellationToken);
+	}
+
+	IEnumerable<T> MapTo<T>(IList<ProductSearchResult> results, CancellationToken cancellationToken) where T : ProductSearchResultBaseModel, new()
+	{
+		foreach (var item in results)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				yield break;
+
+			var model = new T
+			{
+				ProductId = item.Product.ToString(),
+				ProductTitle = item.ProductTitle,
+				AuthorId = item.Author.ToString(),
+				AuthorTitle = item.AuthorTitle,
+				PublicationId = item.Publications[0].ToString(),
+				AvatarId = item.Avatar?.ToString(),
+			};
+
+			if (model is ProductSearchResultModel full)
+				full.SitesPublications = LoadSitePublications(item.Publications, cancellationToken).ToArray();
+
+			yield return model;
+		}
+	}
+
+	IEnumerable<SitePublicationModel> LoadSitePublications(IEnumerable<AutoId> publicationsIds, CancellationToken cancellationToken)
+	{
+		foreach(var publicationId in publicationsIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				yield break;
+
+
+			Publication publication = mcv.Publications.Latest(publicationId);
+			Site site = mcv.Sites.Latest(publication.Site);
+			yield return new SitePublicationModel
+			{
+				SiteId = site.Id.ToString(),
+				SiteTitle = site.Title,
+				PublicationId = publication.Id.ToString()
+			};
+		}
+	}
 }

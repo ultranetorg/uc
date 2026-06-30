@@ -93,9 +93,9 @@ public class SitesController
 		siteSearchQueryValidator.Validate(query);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
-		TotalItemsResult<SiteBaseModel> sites = searchService.SearchSites(query, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<SiteBaseModel> result = searchService.SearchSites(query, pageValue, pageSizeValue, cancellationToken);
 
-		return this.OkPaged(sites.Items, pageValue, pageSizeValue, sites.TotalItems);
+		return this.OkPaged(result.Items, pageValue, pageSizeValue, result.TotalItems);
 	}
 
 	[HttpGet("search")]
