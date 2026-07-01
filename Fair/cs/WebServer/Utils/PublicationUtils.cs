@@ -25,4 +25,18 @@ public static class PublicationUtils
 		// TODO: implement method.
 		return "https://google.com/publications/" + publication.Id.ToString();
 	}
+
+	public static IEnumerable<CategoryPathItem> BuildPath(FairMcv mcv, Category category)
+	{
+		do
+		{
+			yield return new CategoryPathItem
+			{
+				Id = category.Id.ToString(),
+				Title = category.Title
+			};
+
+			category = category.Parent != null ? mcv.Categories.Latest(category.Parent) : null;
+		} while(category != null);
+	}
 }

@@ -10,7 +10,6 @@ import { PublicationsList, SearchPageHeader } from "ui/components/specific"
 import { routes } from "utils"
 
 export const SearchPage = () => {
-  console.log("SearchPage>")
   const siteId = useResolveSiteId()
   const { t } = useTranslation("search")
 

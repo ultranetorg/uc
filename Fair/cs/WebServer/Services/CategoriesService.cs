@@ -50,13 +50,15 @@ public class CategoriesService
 		{
 			parentCategory = mcv.Categories.Latest(category.Parent);
 		}
+		IEnumerable<CategoryPathItem>? path = parentCategory != null ? PublicationUtils.BuildPath(mcv, parentCategory).Reverse() : null;
 
 		Site site = mcv.Sites.Latest(category.Site);
 		IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
 
-		return new CategoryModel(category, parentCategory?.Title.ToString())
+		return new CategoryModel(category)
 		{
 			SiteId = category.Site.ToString(),
+			Path = path,
 			Categories = categories,
 		};
 	}

@@ -1,12 +1,12 @@
 ﻿namespace Uccs.Fair;
 
-public class CategoryModel(Category category, string parentTitle) : CategoryParentBaseModel(category)
+public class CategoryModel(Category category) : CategoryParentBaseModel(category)
 {
 	public string SiteId { get; init; }
 
 	public ProductType Type { get; set; } = category.Type;
 
-	public string ParentTitle { get; set; } = parentTitle;
+	public IEnumerable<CategoryPathItem>? Path { get; init; }
 
 	public int PublicationsCount { get; set; } = category.Publications.Length;
 

@@ -86,6 +86,8 @@ public class ProductsService
 		var fields = ProductFieldsUtils.GetMappedFieldsVersion(product, publication.ProductVersion);
 		var fieldsTo = ProductFieldsUtils.GetMappedFieldsVersion(product, version);
 
+		IEnumerable<CategoryPathItem>? path = category != null ? PublicationUtils.BuildPath(mcv, category).Reverse() : null;
+
 		return new PublicationDetailsDiffModel
 		{
 			Id = publication.Id.ToString(),
@@ -97,8 +99,7 @@ public class ProductsService
 			AuthorId = author.Id.ToString(),
 			AuthorTitle = author.Title,
 			AuthorLogoId = author.Avatar?.ToString(),
-			CategoryId = category?.Id.ToString(),
-			CategoryTitle = category?.Title,
+			Path = path,
 			Rating = publication.Rating,
 			FieldsTo = fieldsTo
 		};

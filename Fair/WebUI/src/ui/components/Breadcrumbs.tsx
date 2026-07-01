@@ -28,7 +28,7 @@ export type BreadcrumbsProps = {
   items: BreadcrumbsItemProps[]
 }
 
-export const Breadcrumbs = memo(({ fullPath = false, items }: BreadcrumbsProps) => {
+export const Breadcrumbs = memo(({ fullPath = true, items }: BreadcrumbsProps) => {
   if (!items.length) {
     return null
   }

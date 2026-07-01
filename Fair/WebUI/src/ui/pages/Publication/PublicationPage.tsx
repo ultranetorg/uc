@@ -33,15 +33,7 @@ export const PublicationPage = () => {
 
   const breadcrumbsItems = useMemo<BreadcrumbsItemProps[] | undefined>(
     () =>
-      publication
-        ? createBreadcrumbs(
-            siteId!,
-            publication.categoryId!,
-            publication.categoryTitle!,
-            publication.title ?? publication.id,
-            t,
-          )
-        : undefined,
+      publication ? createBreadcrumbs(siteId!, publication.path, publication.title ?? publication.id, t) : undefined,
     [publication, siteId, t],
   )
 
