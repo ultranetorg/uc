@@ -1,4 +1,3 @@
-import { VAULT } from "constants/"
 import { BaseFairOperation } from "types"
 import { Pong, TransactionApe } from "types/iccpNode"
 
@@ -36,18 +35,15 @@ const transact = async (
   operations: BaseFairOperation[],
   userName: string,
   session: string,
-  signerAddress: string,
 ): Promise<TransactionApe> => {
   const mapped = operations.map(x => keysToPascalCase(x))
 
   const response = await fetch(`${iccpNodeUrl}/Transact`, {
     method: "POST",
     body: JSON.stringify({
-      Application: VAULT.APPLICATION,
       Operations: mapped,
       User: userName,
       Session: session,
-      Signer: signerAddress,
     }),
   })
   const data = await response.json()

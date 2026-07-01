@@ -113,7 +113,6 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
               },
               userName,
               data.session,
-              data.signer,
             )
           },
           onError: error => callbacks?.onError?.(error),

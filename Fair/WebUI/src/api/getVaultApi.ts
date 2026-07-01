@@ -30,7 +30,6 @@ const isAuthenticated = (baseUrl: string, user: string, session: string): Promis
   fetch(`${baseUrl}/IsAuthenticated`, {
     method: "POST",
     body: JSON.stringify({
-      Application: VAULT.APPLICATION,
       Net: VAULT.NETWORK,
       User: user,
       Session: session,
