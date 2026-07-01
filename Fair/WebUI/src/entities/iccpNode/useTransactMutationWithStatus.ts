@@ -14,7 +14,6 @@ type TransactMutationArgs = {
   operations: BaseFairOperation[]
   userName?: string
   session?: string
-  signer?: string
 }
 
 type TransactMutationCallbacks = {
@@ -42,14 +41,8 @@ export const useTransactMutationWithStatus = () => {
   }, [])
 
   const mutation = useMutation({
-    mutationFn: ({ operations, userName = undefined, session = undefined, signer = undefined }: TransactMutationArgs) =>
-      api.transact(
-        node.data!,
-        operations,
-        userName || selectedUserName!,
-        currentUser?.session ?? session ?? "",
-        currentUser?.user.owner ?? signer ?? "",
-      ),
+    mutationFn: ({ operations, userName = undefined, session = undefined }: TransactMutationArgs) =>
+      api.transact(node.data!, operations, userName || selectedUserName!, currentUser?.session ?? session ?? ""),
 
     onSuccess: tx => {
       setTag(tx.tag)
@@ -102,7 +95,6 @@ export const useTransactMutationWithStatus = () => {
       callbacks?: TransactMutationCallbacks,
       userName: string | undefined = undefined,
       session: string | undefined = undefined,
-      signer: string | undefined = undefined,
     ) => {
       isPendingRef.current = true
       setIsPending(true)
@@ -111,7 +103,6 @@ export const useTransactMutationWithStatus = () => {
         operations: Array.isArray(operations) ? operations : [operations],
         userName,
         session,
-        signer,
       })
     },
     [mutation],

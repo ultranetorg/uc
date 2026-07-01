@@ -10,6 +10,5 @@ export type IccpNodeApi = {
     operations: BaseFairOperation[],
     userName: string,
     session: string,
-    signerAddress: string,
   ): Promise<TransactionApe>
 }
