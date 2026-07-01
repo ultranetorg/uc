@@ -33,3 +33,4 @@ export * from "./SoftwarePublicationLogo"
 export * from "./ToggleViewButton"
 
 export * from "./ProductFields"
+export * from "./ProductsGrid"

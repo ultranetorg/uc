@@ -9,7 +9,7 @@ const TEST_ITEMS: DropdownItem[] = [
 ]
 
 export type SearchPageHeaderProps = {
-  searchResultsCount: number
+  searchResultsCount?: number
   searchResultsLabel: string
   allAuthorsLabel: string
   allCategoriesLabel: string
@@ -24,7 +24,7 @@ export const SearchPageHeader = ({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2 text-3.5xl font-semibold leading-9.75">
-        <span className="text-gray-800">{searchResultsLabel}</span>
+        {searchResultsLabel && <span className="text-gray-800">{searchResultsLabel}</span>}
         <span className="text-gray-400">{searchResultsCount}</span>
       </div>
       <div className="flex items-center gap-4">

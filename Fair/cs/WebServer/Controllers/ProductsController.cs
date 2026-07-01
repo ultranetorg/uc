@@ -8,9 +8,32 @@ public class ProductsController
 	ILogger<ProductsController> logger,
 	IAutoIdValidator autoIdValidator,
 	IPaginationValidator paginationValidator,
+	ISearchQueryValidator searchQueryValidator,
 	ProductsService productsService
 ) : BaseController
 {
+	[HttpGet]
+	public IEnumerable<ProductSearchResultModel> Search([FromQuery] string? query, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Query}, {Pagination}", nameof(ProductsController), nameof(ProductsController.Search), query, pagination);
+
+		searchQueryValidator.Validate(query);
+		paginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		return productsService.Search(query, page, pageSize, cancellationToken);
+	}
+
+	[HttpGet("search")]
+	public IEnumerable<ProductSearchResultBaseModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Query}", nameof(ProductsController), nameof(ProductsController.SearchLite), query);
+
+		searchQueryValidator.Validate(query);
+
+		return productsService.SearchLite(query, SiteConstants.SearchLitePageSize, cancellationToken);
+	}
+
 	[HttpGet("{productId}")]
 	public ProductDetailsModel GetDetails(string productId)
 	{
@@ -33,6 +56,5 @@ public class ProductsController
 		TotalItemsResult<ProductStoreModel> productStores = productsService.GetProductStores(productId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(productStores.Items, page, pageSize, productStores.TotalItems);
-
 	}
 }

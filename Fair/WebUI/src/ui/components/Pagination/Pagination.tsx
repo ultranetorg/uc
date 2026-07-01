@@ -1,30 +1,11 @@
-import { memo, PropsWithChildren } from "react"
+import { memo } from "react"
 import { times } from "lodash"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
 import { ChevronLeftSvg, SvgChevronRight } from "assets"
 
-type PaginationItemBaseProps = {
-  active?: boolean
-  disabled?: boolean
-  onClick?: () => void
-}
-
-type PaginationItemProps = PropsWithChildren & PaginationItemBaseProps
-
-const PaginationItem = ({ children, active, disabled, onClick }: PaginationItemProps) => (
-  <div
-    className={twMerge(
-      "flex h-9 w-9 cursor-pointer select-none items-center justify-center rounded stroke-gray-950 text-sm font-medium leading-4.25 text-gray-900 hover:bg-dark-100/10",
-      active === true && "bg-gray-950 font-bold text-zinc-100 hover:bg-gray-950 hover:text-zinc-100",
-      disabled === true && "opacity-40 hover:bg-transparent",
-    )}
-    onClick={disabled ? undefined : onClick}
-  >
-    {children}
-  </div>
-)
+import { PaginationItem } from "./PaginationItem"
 
 type PaginationBaseProps = {
   page: number

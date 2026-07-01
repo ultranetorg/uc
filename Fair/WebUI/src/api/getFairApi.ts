@@ -17,6 +17,8 @@ import {
   Policy,
   ProductAuthor,
   ProductDetails,
+  ProductSearchResult,
+  ProductSearchResultBase,
   ProductStore,
   Proposal,
   ProposalComment,
@@ -112,14 +114,10 @@ const searchSites = async (query?: string, page?: number): Promise<TotalItemsRes
 const searchLiteSites = (query?: string): Promise<SiteLiteSearch[]> =>
   fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
 
-const searchPublications = async (
-  siteId: string,
-  query?: string,
-  page?: number,
-): Promise<TotalItemsResult<PublicationExtended>> => {
+const searchPublications = async (siteId: string, query?: string, page?: number): Promise<PublicationExtended[]> => {
   const params = buildUrlParams({ query, page })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + params)
-  return await toTotalItemsResult(res)
+  return res.json()
 }
 
 const searchLitePublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
@@ -127,6 +125,15 @@ const searchLitePublication = (siteId: string, query?: string): Promise<Publicat
 
 const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
   fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
+
+const searchLiteProducts = (query: string): Promise<ProductSearchResultBase[]> =>
+  fetch(`${BASE_URL}/products/search?query=${query}`).then(res => res.json())
+
+const searchProducts = async (query?: string, page?: number, pageSize?: number): Promise<ProductSearchResult[]> => {
+  const params = buildUrlParams({ query, page, pageSize })
+  const res = await fetch(`${BASE_URL}/products` + params)
+  return res.json()
+}
 
 const getUser = async (name: string): Promise<StatusResult<User>> => {
   try {
@@ -489,6 +496,8 @@ const api: FairApi = {
   searchAuthors,
   searchSites,
   searchLiteAccounts,
+  searchLiteProducts,
+  searchProducts,
 
   getAuthor,
   getAuthorProducts,

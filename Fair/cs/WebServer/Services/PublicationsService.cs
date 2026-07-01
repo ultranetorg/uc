@@ -215,9 +215,8 @@ public class PublicationsService
 				Publication publication = mcv.Publications.Latest(publicationId);
 				Product product = mcv.Products.Latest(publication.Product);
 				AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-				byte[] logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 
-				var model = new PublicationModel(publication, product, category, logo);
+				var model = new PublicationModel(publication, product, category);
 				context.Items.Add(model);
 			}
 
@@ -299,9 +298,8 @@ public class PublicationsService
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-			byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 
-			var model = new PublicationExtendedModel(publication, product, author, category, logo);
+			var model = new PublicationExtendedModel(publication, product, author, category);
 			result.Publications.Add(model);
 
 			if (result.Publications.Count >= CategoriesPublications.DefaultPublicationsCount)

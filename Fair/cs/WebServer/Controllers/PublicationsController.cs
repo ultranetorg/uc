@@ -59,16 +59,14 @@ public class PublicationsController
 	[HttpGet("~/api/sites/{siteId}/publications")]
 	public IEnumerable<PublicationExtendedModel> Search(string siteId, [FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.Search)} method called with {{SiteId}}, {{Query}}, {{Page}}", siteId, query, page);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Query}, {Page}", nameof(PublicationsController), nameof(PublicationsController.Search), siteId, query, page);
 
 		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
 		searchQueryValidator.Validate(query);
 		paginationValidator.Validate(page);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
-		TotalItemsResult<PublicationExtendedModel> products = searchService.SearchPublications(siteId, query, pageValue, pageSizeValue, cancellationToken);
-
-		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
+		return searchService.SearchPublications(siteId, query, pageValue, pageSizeValue, cancellationToken);
 	}
 
 	[HttpGet("~/api/sites/{siteId}/publications/search")]
