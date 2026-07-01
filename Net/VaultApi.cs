@@ -53,7 +53,7 @@ public class IsAuthenticatedApc : Apc
 public class AuthenticateApc : Apc
 {
 	public string			Application { get; set; }
-	public string			Net { get; set; } /// rdn/fair /fair
+	public string			Net { get; set; } /// fair.rdn
 	public string			User { get; set; } /// optional
 	public byte[]			Logo { get; set; }
 	public AccountAddress	Account { get; set; }/// suggested

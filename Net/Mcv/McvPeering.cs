@@ -684,7 +684,7 @@ public abstract class McvPeering : HomoPeering
 							v.Signature	= VaultApi.Call<byte[]>(new AuthorizeApc
 																{
 																	Cryptography= Net.Cryptography.Type,
-																	Net			= Net.Name,
+																	Net			= Net.Address,
 																	User		= gs.User,
 																	Session		= s.Session,
 																	Hash		= v.Hashify()
@@ -826,7 +826,7 @@ public abstract class McvPeering : HomoPeering
 
 	public AccountSessionSettings CreateSession(string application, string user)
 	{
-		var a = VaultApi.Call<AuthenticationResult>(new AuthenticateApc {Application = application, Net = Net.Name, User = user}, Flow); 
+		var a = VaultApi.Call<AuthenticationResult>(new AuthenticateApc {Application = application, Net = Net.Address, User = user}, Flow); 
 
 		if(a == null)
 			return null;
@@ -910,7 +910,7 @@ public abstract class McvPeering : HomoPeering
 						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc
 															 {
 																Cryptography	= Net.Cryptography.Type,
-																Net				= Net.Name,
+																Net				= Net.Address,
 																User			= t.User,
 																Session			= t.Session,
 																Hash			= t.Hashify(Net),
