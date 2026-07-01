@@ -10,11 +10,14 @@ public class SearchService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<PublicationExtendedModel> SearchPublications(string siteId, string query, int page, int pageSize, CancellationToken cancellationToken)
+	public IEnumerable<PublicationExtendedModel> SearchPublications([NotNull, NotEmpty] string siteId, [NotNull, NotEmpty] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchPublications)} method called with {{SiteId}}, {{Query}}, {{PageSize}}", siteId, query, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchPublications), siteId, query, page, pageSize);
 
 		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(query);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
 
 		AutoId id = AutoId.Parse(siteId);
 
@@ -24,54 +27,23 @@ public class SearchService
 			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
 		}
 
-		var searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
-		if(searchResult.Count == 0)
-		{
-			return TotalItemsResult<PublicationExtendedModel>.Empty;
-		}
-
-		List<PublicationExtendedModel> result = new List<PublicationExtendedModel>(searchResult.Count);
-		LoadPublications(searchResult, result, cancellationToken);
-
-		return new TotalItemsResult<PublicationExtendedModel>
-		{
-			Items = result,
-			TotalItems = Math.Min(site.PublicationsCount, Pagination.PageSize30 * Pagination.PagesCountMax)
-		};
+		List<ProductSearchResult> searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+		return searchResult.Count != 0 ? LoadPublications(searchResult, cancellationToken) : [];
 	}
 
-	void LoadPublications(List<ProductSearchResult> searchResult, IList<PublicationExtendedModel> result, CancellationToken cancellationToken)
+	IEnumerable<PublicationExtendedModel> LoadPublications(List<ProductSearchResult> searchResult, CancellationToken cancellationToken)
 	{
 		foreach(var search in searchResult)
 		{
 			if(cancellationToken.IsCancellationRequested)
-				break;
+				yield break;
 
-			/// TODO: Update
-			/// 
-			/// 
-			/// 
-			/// 
-			/// 
-			///	 1. USE PROVIDED FIELDS
-			///	 2. REMOVE UNNESSASSARY Mcv.Latest
-			///	 3. load logo bytes via http api requerst
-			/// 
-			/// 
-			/// 
-			/// 
-			/// 
-			/// Publication publication = mcv.Publications.Latest(search.Publication);
-			/// Product product = mcv.Products.Latest(publication.Product);
-			/// Author author = mcv.Authors.Latest(product.Author);
-			/// Category category = mcv.Categories.Latest(publication.Category);
-			/// AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-			/// byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
-			/// 
-			/// PublicationExtendedModel model = new PublicationExtendedModel(publication, product, author, category, logo);
-			/// result.Add(model);
+			Publication publication = mcv.Publications.Latest(search.Publications[0]);
+			Product product = mcv.Products.Latest(publication.Product);
+			Author author = mcv.Authors.Latest(product.Author);
+			Category category = mcv.Categories.Latest(publication.Category);
 
-			throw new NotImplementedException();
+			yield return new PublicationExtendedModel(publication, product, author, category);
 		}
 	}
 
@@ -90,10 +62,10 @@ public class SearchService
 		AutoId id = AutoId.Parse(siteId);
 
 		List<ProductSearchResult> result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
-		return LoadPublications(result, cancellationToken);
+		return LoadPublicationsBase(result, cancellationToken);
 	}
 
-	IEnumerable<PublicationBaseModel> LoadPublications(List<ProductSearchResult> result, CancellationToken cancellationToken)
+	IEnumerable<PublicationBaseModel> LoadPublicationsBase(List<ProductSearchResult> result, CancellationToken cancellationToken)
 	{
 		foreach(var item in result)
 		{

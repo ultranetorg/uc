@@ -114,14 +114,10 @@ const searchSites = async (query?: string, page?: number): Promise<TotalItemsRes
 const searchLiteSites = (query?: string): Promise<SiteLiteSearch[]> =>
   fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
 
-const searchPublications = async (
-  siteId: string,
-  query?: string,
-  page?: number,
-): Promise<TotalItemsResult<PublicationExtended>> => {
+const searchPublications = async (siteId: string, query?: string, page?: number): Promise<PublicationExtended[]> => {
   const params = buildUrlParams({ query, page })
   const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + params)
-  return await toTotalItemsResult(res)
+  return res.json()
 }
 
 const searchLitePublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>

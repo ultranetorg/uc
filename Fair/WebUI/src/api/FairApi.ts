@@ -66,7 +66,7 @@ export type FairApi = {
   searchAuthors(query?: string, limit?: number): Promise<AuthorBaseAvatar[]>
   searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
   searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
-  searchPublications(siteId: string, query?: string, page?: number): Promise<TotalItemsResult<PublicationExtended>>
+  searchPublications(siteId: string, query?: string, page?: number): Promise<PublicationExtended[]>
   searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
   searchLiteAccounts(query?: string): Promise<AccountSearchLite[]>
   searchLiteProducts(query?: string): Promise<ProductSearchResultBase[]>

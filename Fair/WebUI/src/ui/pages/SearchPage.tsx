@@ -1,26 +1,20 @@
 import { useCallback, useEffect } from "react"
 import { Navigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { isNumber } from "lodash"
 
 import { useSearchQueryContext, useSiteContext } from "app"
-import { DEFAULT_PAGE_SIZE } from "config"
-import { useSearchPublications } from "entities"
+import { useSearchPaginatedPublications } from "entities"
 import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
-import { Pagination } from "ui/components"
+import { NextPagination } from "ui/components"
 import { PublicationsList, SearchPageHeader } from "ui/components/specific"
-import { parseInteger, routes } from "utils"
+import { routes } from "utils"
 
 export const SearchPage = () => {
+  console.log("SearchPage>")
   const siteId = useResolveSiteId()
   const { t } = useTranslation("search")
 
   const [state, setState] = useUrlParamsState({
-    page: {
-      defaultValue: 0,
-      parse: v => parseInteger(v),
-      validate: v => isNumber(v) && v >= 0,
-    },
     query: {
       defaultValue: "",
       validate: v => v !== "",
@@ -33,41 +27,48 @@ export const SearchPage = () => {
   const pageTitle = state.query || searchQuery
   useSiteTitle(site?.title, pageTitle ? `Search - ${pageTitle}` : undefined)
 
-  const { isPending, data: publications } = useSearchPublications(siteId, state.page, state.query || searchQuery)
-  const pagesCount =
-    publications?.totalItems && publications.totalItems > 0 ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE) : 0
+  const {
+    isPending,
+    data: publications,
+    page,
+    loadedPagesCount,
+    hasNext,
+    isFetchingNext,
+    onPageChange,
+  } = useSearchPaginatedPublications(siteId, state.query || searchQuery)
 
   const handlePageChange = useCallback(
     (page: number) => {
-      setState({ query: searchQuery, page })
+      setState({ query: searchQuery })
+      onPageChange(page)
     },
-    [searchQuery, setState],
+    [onPageChange, searchQuery, setState],
   )
 
   useEffect(() => {
     if (searchQuery !== state.query) {
-      setState({ query: searchQuery, page: 0 })
+      setState({ query: searchQuery })
     }
   }, [searchQuery, setState, state])
 
-  if (!searchQuery) {
+  if (!searchQuery && !state.query) {
     return <Navigate to={routes.site(siteId!)} />
   }
 
   return (
     <div className="flex flex-col gap-6">
       <SearchPageHeader
-        searchResultsCount={5}
         searchResultsLabel={t("searchResults")}
         allAuthorsLabel={t("allAuthors")}
         allCategoriesLabel={t("allCategories")}
       />
-      <PublicationsList
-        publications={publications?.items}
-        isLoading={isPending || !publications?.items}
-        siteId={siteId!}
+      <PublicationsList publications={publications} isLoading={isPending || !publications} siteId={siteId!} />
+      <NextPagination
+        hasNext={hasNext && !isFetchingNext}
+        page={page}
+        loadedPages={loadedPagesCount}
+        onPageChange={handlePageChange}
       />
-      <Pagination onPageChange={handlePageChange} page={state.page} pagesCount={pagesCount} />
     </div>
   )
 }
