@@ -33,6 +33,8 @@ public class PublicationsService
 
 		var mappedFields = ProductFieldsUtils.GetMappedFields(product, publication);
 
+		IEnumerable<CategoryPathItem>? path = category != null ? PublicationUtils.BuildPath(mcv, category).Reverse() : null;
+
 		return new PublicationDetailsModel
 		{
 			Id = publication.Id.ToString(),
@@ -45,8 +47,7 @@ public class PublicationsService
 			AuthorId = author.Id.ToString(),
 			AuthorTitle = author.Title,
 			AuthorLogoId = author.Avatar?.ToString(),
-			CategoryId = category?.Id.ToString(),
-			CategoryTitle = category?.Title,
+			Path = path,
 			Rating = isPublicationPublished ? publication.Rating : null
 		};
 	}

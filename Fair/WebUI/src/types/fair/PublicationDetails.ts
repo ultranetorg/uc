@@ -1,8 +1,8 @@
+import { CategoryPathItem } from "./CategoryPathItem"
 import { ProductDetails } from "./ProductDetails"
 
 export type PublicationDetails = {
   siteId: string
-  categoryId?: string
-  categoryTitle?: string
+  path?: CategoryPathItem[]
   rating?: number
 } & ProductDetails

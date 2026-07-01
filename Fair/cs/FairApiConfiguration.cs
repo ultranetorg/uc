@@ -42,8 +42,12 @@ public class FairTypeResolver : ApiTypeResolver
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 		}
         else if(ti.Type == typeof(VotableOperation))
+		{
+			ti.PolymorphismOptions ??= new();
+
 			foreach(var i in typeof(VotableOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(VotableOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
- 				ti.PolymorphismOptions.DerivedTypes.Add(i);
+				ti.PolymorphismOptions.DerivedTypes.Add(i);
+		}
         else if(ti.Type == typeof(Operation))
  		{	
 			foreach(var i in Enum.GetNames<FairOperationClass>())

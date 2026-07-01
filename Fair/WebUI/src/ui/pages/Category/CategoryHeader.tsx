@@ -17,8 +17,8 @@ export const CategoryHeader = memo(({ category, siteId, view, onViewChange }: Ca
   const { t } = useTranslation("category")
 
   const breadcrumbsItems = useMemo<BreadcrumbsItemProps[]>(
-    () => createBreadcrumbs(siteId, category.parentId, category.parentTitle, category.title, t),
-    [category.parentId, category.parentTitle, category.title, siteId, t],
+    () => createBreadcrumbs(siteId, category.path, category.title, t),
+    [category.path, category.title, siteId, t],
   )
 
   return (
