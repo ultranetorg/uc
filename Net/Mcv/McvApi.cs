@@ -276,8 +276,8 @@ public class TransactApc : McvApc
 	public string					User { get; set; }
 	public byte[]					Tag { get; set; } /// optional
 	public byte[]					Session { get; set; }
-	public long						Boost { get; set; }
-	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed;
+	public long						Boost { get; set; } /// optional
+	public ActionOnResult			ActionOnResult { get; set; } = ActionOnResult.RetryUntilConfirmed; /// optional
 
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{

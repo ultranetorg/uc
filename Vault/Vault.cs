@@ -287,7 +287,7 @@ public class Vault : Cli
 		var w = Wallets.Find(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
 	
 		if(w == null)
-			throw new VaultException(VaultError.NotFound);
+			throw new VaultException(VaultError.NotAuthorized);
 	
 		if(w.Locked)
 			UnlockRequested?.Invoke(null,w.Name);

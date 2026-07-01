@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Uccs.Nexus.Windows": {
+      "commandName": "Project"
+    },
+    "c:\\Program Files\\Uos\\nexuswin.exe": {
+      "commandName": "Executable",
+      "executablePath": "c:\\Program Files\\Uos\\nexuswin.exe",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -31,7 +31,9 @@ public class Program: ApplicationContext
 			var ns = new NexusSettings(b.Zone, b.Profile);
 			var vs = new VaultSettings(b.Profile);
 		
-			Nexus = new Nexus(b, ns, vs, new Flow(nameof(Program), new Log()));
+			var f = new Flow(nameof(Program), new Log());
+
+			Nexus = new Nexus(b, ns, vs, f);
 
 			Nexus.Stopped += n =>	{
 										TrayIcon.Visible = false;
@@ -106,11 +108,13 @@ public class Program: ApplicationContext
 
 			Nexus.RunRdn(null, new RealClock());
 
+			 f.Log.Report($"CreateFirstAccountIfEmpty={Nexus.Vault.Settings.CreateFirstAccountIfEmpty} && Nexus.Vault.Wallets={Nexus.Vault.Wallets.Count}");
+
 			if(Nexus.Vault.Settings.CreateFirstAccountIfEmpty && !Nexus.Vault.Wallets.Any())
 			{
-				var f = new IamForm(Nexus);
-				f.CreateFirstWallet();
-				f.Show();
+				var iam = new IamForm(Nexus);
+				iam.CreateFirstWallet();
+				iam.Show();
 			}
 		}
 

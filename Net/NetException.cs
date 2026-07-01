@@ -71,6 +71,7 @@ public enum VaultError : uint
 	IncorrectArgumets,
 	Locked,
     NetNotFound,
+	NotAuthorized,
     NotFound,
 	Rejected,
 	UnknownCtyptography,

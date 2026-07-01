@@ -9,9 +9,9 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>1.0.554.0</AssemblyVersion>
-    <FileVersion>1.0.554.0</FileVersion>
-    <Version>1.0.554.0</Version>
+    <AssemblyVersion>1.0.560.0</AssemblyVersion>
+    <FileVersion>1.0.560.0</FileVersion>
+    <Version>1.0.560.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>nexus</AssemblyName>
   </PropertyGroup>
