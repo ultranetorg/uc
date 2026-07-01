@@ -89,14 +89,21 @@ public class SearchService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		var result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+		List<ProductSearchResult> result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+		return LoadPublications(result, cancellationToken);
+	}
 
-		/// 
-		/// TODO : Update
-		/// 
-		///return result.Select(x => new PublicationBaseModel(x.Publication.ToString(), x.Product));
-			
-		throw new NotImplementedException();
+	IEnumerable<PublicationBaseModel> LoadPublications(List<ProductSearchResult> result, CancellationToken cancellationToken)
+	{
+		foreach(var item in result)
+		{
+			if (cancellationToken.IsCancellationRequested)
+				yield break;
+
+			Publication publication = mcv.Publications.Latest(item.Publications[0]);
+			Product product = mcv.Products.Latest(item.Product);
+			yield return new PublicationBaseModel(publication, product);
+		}
 	}
 
 	public TotalItemsResult<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
