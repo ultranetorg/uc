@@ -85,7 +85,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		{
 			var h = new HomoHello();
 
-			h.Net			= Net.Name;
+			h.Net			= Net.Address;
 			h.Name			= Name;
 			h.Roles			= Roles;
 			h.Versions		= Versions;
@@ -103,7 +103,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		{
 			var h = new HomoHello();
 
-			h.Net			= Net.Name;
+			h.Net			= Net.Address;
 			h.Name			= Name;
 			h.Roles			= Roles;
 			h.Versions		= Versions;
@@ -122,7 +122,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(!hello.Versions.Any(i => Versions.Contains(i)))
 			return false;
 
-		if((hello as HomoHello).Net != Net.Name)
+		if((hello as HomoHello).Net != Net.Address)
 			return false;
 
 		if(hello.Name == Name)

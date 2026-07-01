@@ -21,11 +21,11 @@ public partial class TransferPage : Page
 	{
 		if(first)
 		{
-			FromNet.Items.Insert(0, Rdn.Rdn.Test.Name);
+			FromNet.Items.Insert(0, Rdn.Rdn.Test.Address);
 			FromNet.SelectedIndex = 0;
 			RefreshClasses(FromNet.Text, FromEntity);
 
-			ToNet.Items.Insert(0, Rdn.Rdn.Test.Name);
+			ToNet.Items.Insert(0, Rdn.Rdn.Test.Address);
 			ToNet.SelectedIndex = 0;
 			RefreshClasses(ToNet.Text, ToEntity);
 //
