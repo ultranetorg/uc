@@ -1,12 +1,14 @@
-import { SvgStarXs } from "assets/star-xs"
+import { memo } from "react"
 import { times } from "lodash"
+
+import { SvgStarXs } from "assets/star-xs"
 
 export type RatingBarProps = {
   value: number
   fractionDigits?: number
 }
 
-export const RatingBar = ({ value }: RatingBarProps) => (
+export const RatingBar = memo(({ value }: RatingBarProps) => (
   <div className="flex gap-2">
     <div className="flex select-none items-center gap-1">
       {times(5).map(i =>
@@ -19,4 +21,4 @@ export const RatingBar = ({ value }: RatingBarProps) => (
     </div>
     <span className="text-2sm font-medium leading-4.5 text-gray-800">{value.toFixed(0)}</span>
   </div>
-)
+))

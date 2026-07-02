@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback } from "react"
+import { ChangeEvent, memo, useCallback } from "react"
 
 import { PropsWithClassName } from "types"
 
@@ -15,7 +15,7 @@ type SelectBaseProps = {
 
 export type SelectProps = PropsWithClassName & SelectBaseProps
 
-export const Select = ({ className, items, value, onChange }: SelectProps) => {
+export const Select = memo(({ className, items, value, onChange }: SelectProps) => {
   const handleChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => onChange?.(e.target.value), [onChange])
 
   return (
@@ -27,4 +27,4 @@ export const Select = ({ className, items, value, onChange }: SelectProps) => {
       ))}
     </select>
   )
-}
+})
