@@ -85,7 +85,7 @@ export const formatRoles = (categories: string[]) => categories.map(capitalize).
 
 export const formatSoftwareCategories = (categories: string[]) => categories.join(SOFTWARE_DELIMITER)
 
-export const formatTitle = (title: string, maxLength: number = 48, endLength: number = 16): string => {
+export const formatTitle = (title: string, maxLength: number = 40, endLength: number = 16): string => {
   if (title.length <= maxLength) {
     return title
   }
