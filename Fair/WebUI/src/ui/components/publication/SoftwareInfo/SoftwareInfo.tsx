@@ -7,7 +7,7 @@ import { DownloadSource, ProductDetails, PublicationDetails } from "types"
 import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
 import { formatDate, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq, routes } from "utils"
 
-import { AuthorImageTitle } from "./components"
+import { AuthorImageTitle, DownloadLinks } from "./components"
 
 const LABEL_CLASSNAME = "leading-4 text-gray-500 text-2xs"
 const VALUE_CLASSNAME = "overflow-hidden text-ellipsis whitespace-nowrap text-2sm font-medium leading-5 text-gray-800"
@@ -37,6 +37,7 @@ export type SoftwareInfoProps = {
   downloadFromRdnLabel: string
   downloadFromTorrentLabel: string
   downloadFromIpfsLabel: string
+  downloadFromWebLabel: string
   onVersionChange: (version?: string) => void
 }
 
@@ -61,6 +62,7 @@ export const SoftwareInfo = memo(
     downloadFromRdnLabel,
     downloadFromTorrentLabel,
     downloadFromIpfsLabel,
+    downloadFromWebLabel,
     onVersionChange,
   }: SoftwareInfoProps) => {
     const [selectedVersion, setSelectedVersion] = useState<string | undefined>()
@@ -81,15 +83,18 @@ export const SoftwareInfo = memo(
     const versionItems = useMemo(() => versions.map(v => ({ value: v, label: v })), [versions])
 
     const links = useMemo(() => {
-      const ipfs = softwareDownloads?.find(x => x.source === "ipfs")?.link?.trim()
-      const rdn = softwareDownloads?.find(x => x.source === "rdn")?.link?.trim()
-      const torrent = softwareDownloads?.find(x => x.source === "torrent")?.link?.trim()
-      if (!ipfs && !rdn && !torrent) return undefined
+      const ipfs = softwareDownloads?.filter(x => x.source === "ipfs").map(x => x.link.trim()) ?? []
+      const rdn = softwareDownloads?.filter(x => x.source === "rdn").map(x => x.link.trim()) ?? []
+      const torrent = softwareDownloads?.filter(x => x.source === "torrent").map(x => x.link.trim()) ?? []
+      const web = softwareDownloads?.filter(x => x.source === "web").map(x => x.link.trim()) ?? []
+
+      if (!ipfs.length && !rdn.length && !rdn.length && !web.length) return undefined
 
       return {
         ipfs,
         rdn,
         torrent,
+        web,
       }
     }, [softwareDownloads])
 
@@ -183,21 +188,10 @@ export const SoftwareInfo = memo(
 
         {links && (
           <div className="flex flex-col gap-4">
-            {links.rdn && (
-              <Link to={links.rdn}>
-                <ButtonPrimary className="w-full" label={downloadFromRdnLabel} />
-              </Link>
-            )}
-            {links.torrent && (
-              <Link to={links.torrent}>
-                <ButtonPrimary className="w-full" label={downloadFromTorrentLabel} />
-              </Link>
-            )}
-            {links.ipfs && (
-              <Link to={links.ipfs}>
-                <ButtonPrimary className="w-full" label={downloadFromIpfsLabel} />
-              </Link>
-            )}
+            <DownloadLinks links={links.rdn} label={downloadFromRdnLabel} />
+            <DownloadLinks links={links.torrent} label={downloadFromTorrentLabel} />
+            <DownloadLinks links={links.ipfs} label={downloadFromIpfsLabel} />
+            <DownloadLinks links={links.web} label={downloadFromWebLabel} />
           </div>
         )}
       </div>

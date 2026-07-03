@@ -68,6 +68,7 @@ export const ModeratorPublicationContextMenu = memo(
         {isExpanded && (
           <FloatingPortal>
             <SimpleMenu
+              menuItemClassName="w-44"
               ref={refs.setFloating}
               items={menuItems}
               style={floatingStyles}

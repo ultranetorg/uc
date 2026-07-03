@@ -5,6 +5,7 @@ import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
 import { useResolveSiteId, useSiteTitle } from "hooks"
 import { BigCategoriesGrid } from "ui/components/site"
 import { CategoriesPublicationsList, ModeratorSiteMenu } from "ui/components/specific"
+import { NoContent } from "ui/components"
 
 export const SitePage = () => {
   const siteId = useResolveSiteId()
@@ -37,7 +38,7 @@ export const SitePage = () => {
             />
           </>
         ) : (
-          <div className="flex h-80 items-center justify-center">{t("noPublications")}</div>
+          <NoContent>{t("noPublications")}</NoContent>
         )}
       </div>
     </div>
