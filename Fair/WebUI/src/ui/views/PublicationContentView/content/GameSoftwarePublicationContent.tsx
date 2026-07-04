@@ -79,6 +79,7 @@ export const GameSoftwarePublicationContent = memo(
           : undefined,
       [platform, releasesByVersion],
     )
+    console.log(releasesByVersion, platform)
 
     const supportedPlatforms = useMemo(() => {
       if (releases === undefined) return undefined
@@ -170,6 +171,7 @@ export const GameSoftwarePublicationContent = memo(
             downloadFromRdnLabel={t("downloadFromRdn")}
             downloadFromTorrentLabel={t("downloadFromTorrent")}
             downloadFromIpfsLabel={t("downloadFromIpfs")}
+            downloadFromWebLabel={t("downloadFromWeb")}
             onVersionChange={handleVersionChange}
           />
           {officialSite && <SiteLink to={officialSite} label={t("officialSite")} />}

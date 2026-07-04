@@ -59,7 +59,7 @@ export const Tooltip = memo(({ children, title, text, placement = "top", classNa
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className={twMerge("z-62 max-w-62 flex flex-col gap-2 rounded-lg bg-gray-800 p-2 shadow-md", className)}
+            className={twMerge("max-w-62 z-62 flex flex-col gap-2 rounded-lg bg-gray-800 p-2 shadow-md", className)}
             {...getFloatingProps()}
           >
             <FloatingArrow ref={arrowRef} context={context} fill={ARROW_FILL} />

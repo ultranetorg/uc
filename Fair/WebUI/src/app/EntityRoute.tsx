@@ -129,10 +129,11 @@ export const EntityRoute = () => {
               </CreateProposalProvider>
             }
           />
-          <Route path="surveys/:perpetualSurveyId" element={<PerpetualSurveyPage />} />
-          <Route path="referendums/:referendumId" element={<ReferendumPage />} />
+
           <Route path="surveys" element={<PerpetualSurveysPage />} />
+          <Route path="surveys/:perpetualSurveyId" element={<PerpetualSurveyPage />} />
           <Route path="referendums" element={<ReferendumsPage />} />
+          <Route path="referendums/:referendumId" element={<ReferendumPage />} />
 
           {/* Moderation */}
           <Route

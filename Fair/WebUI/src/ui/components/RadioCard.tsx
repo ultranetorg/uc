@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
@@ -13,7 +14,7 @@ type RadioCardBaseProps = {
 
 export type RadioCardProps = PropsWithClassName & RadioCardBaseProps
 
-export const RadioCard = ({ className, title, description, checked, onClick }: RadioCardProps) => (
+export const RadioCard = memo(({ className, title, description, checked, onClick }: RadioCardProps) => (
   <div
     className={twMerge(
       "box-border flex h-18 cursor-pointer items-center gap-2.5 rounded-lg border-2 bg-[#F9F8F3] p-4 hover:border-gray-400 hover:bg-[#EDEBE2]",
@@ -28,4 +29,4 @@ export const RadioCard = ({ className, title, description, checked, onClick }: R
       <span className="select-none text-2xs leading-4 text-gray-500">{description}</span>
     </div>
   </div>
-)
+))

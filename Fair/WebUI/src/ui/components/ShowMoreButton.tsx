@@ -20,7 +20,10 @@ export const ShowMoreButton = ({
   showMoreLabel,
 }: ShowMoreButtonProps) => {
   return (
-    <div className={twMerge("flex cursor-pointer items-center", className)} onClick={() => onExpand(!isExpanded)}>
+    <div
+      className={twMerge("flex cursor-pointer items-center hover:font-medium", className)}
+      onClick={() => onExpand(!isExpanded)}
+    >
       <span>{isExpanded ? showLessLabel : showMoreLabel}</span>
       <SvgChevronDownSm className={twMerge("fill-gray-800", isExpanded && "rotate-180")} />
     </div>

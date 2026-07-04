@@ -7,7 +7,7 @@ import { useSiteContext } from "app"
 import { DEFAULT_PAGE_SIZE_24 } from "config"
 import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
 import { useParams, useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
-import { Pagination } from "ui/components"
+import { NoContent, Pagination } from "ui/components"
 import { CategoriesList, PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
 import { parseInteger } from "utils"
 
@@ -75,7 +75,7 @@ export const CategoryPage = () => {
           <PublicationsList siteId={siteId!} publications={publications.items} />
         )
       ) : (
-        <span className="text-center">{t("empty")}</span>
+        <NoContent>{t("empty")}</NoContent>
       )}
 
       <div className="flex justify-end">

@@ -1,1 +1,1 @@
-export type DownloadSource = "ipfs" | "rdn" | "torrent"
+export type DownloadSource = "ipfs" | "rdn" | "torrent" | "web"

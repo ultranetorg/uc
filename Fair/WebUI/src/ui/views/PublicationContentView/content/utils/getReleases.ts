@@ -9,7 +9,7 @@ import {
   Software,
   Source,
 } from "types"
-import { getValue, isIpfsUri, isMagnetUri, isRdnLink, nameEq } from "utils"
+import { getValue, isIpfsUri, isMagnetUri, isRdnLink, isWebUri, nameEq } from "utils"
 
 const normalizePlatformName = (raw: string): string | undefined => {
   const value = raw.trim().toLocaleLowerCase()
@@ -41,6 +41,7 @@ const getDownloadSourceByLink = (link: string): DownloadSource | undefined => {
   if (isMagnetUri(link)) return "torrent"
   if (isIpfsUri(link)) return "ipfs"
   if (isRdnLink(link)) return "rdn"
+  if (isWebUri(link)) return "web"
 
   return undefined
 }

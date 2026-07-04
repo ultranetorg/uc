@@ -42,7 +42,7 @@ export const PublicationStoresModal = memo(({ onClose, publicationId }: Publicat
           </div>
           <div className="max-h-[448px] overflow-y-scroll">
             {sites.items.map(x => (
-              <Link to={routes.site(x.id)} title={x.title}>
+              <Link to={routes.site(x.id)} title={x.title} key={x.id}>
                 <PublicationStoreRow key={x.id} title={x.title} avatarId={x.avatarId} />
               </Link>
             ))}
