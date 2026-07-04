@@ -521,7 +521,10 @@ public class Product : IBinarySerializable, ITableEntry
 														new (Token.Distributive, flags: FieldFlag.Multi, fields:		/// a form of distribution
 														[
 															new (Token.Type,	FieldType.DistributionType),			/// archive, exe/msi installer, torrent, rdn package etc.
-															new (Token.Source,	FieldType.URI, flags: FieldFlag.Multi), /// links
+															new (Token.Source,	flags: FieldFlag.Multi, fields:			/// links
+															[
+																new (Token.URI,	FieldType.URI)
+															]), 
 														]),
 														
 														new (Token.Requirements,
