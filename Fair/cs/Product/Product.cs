@@ -30,12 +30,14 @@ public enum Token : uint
 	Logo,
 	Metadata,
 	Minimal,
+	Name,
 	NPU,
 	OS,
 	Platform,
 	Price,
 	RAM,
 	Recommended,
+	Realization,
 	Release,
 	Requirements,
 	Screenshot,
@@ -86,7 +88,8 @@ public enum FieldFlag
 {
 	None, 
 	Optional = 0b000_0001, 
-	ThisOrAnother = 0b000_0010 /// Single selection
+	Multi = 0b000_0010,
+	ThisOrAnother = 0b000_0100 /// Single selection
 }
 
 public class Field
@@ -97,19 +100,11 @@ public class Field
 	public Field[]			Fields { get; protected set; }
 	public long?			Length { get; protected set; }
 
-	public Field(Token name, Field[] fields = null, FieldFlag flags = FieldFlag.None, long? length = null) : this(name, FieldType.None, fields, flags, length)
+	public Field(Token name, Field[] fields = null) : this(name, FieldType.None, FieldFlag.None, null, fields)
 	{
 	}
 
-	public Field(Token name, FieldType type, FieldFlag flags = FieldFlag.None, long? length = null, Field[] fields = null) : this(name, type, fields, flags, length)
-	{
-	}
-
-	//public Field(Token name, FieldFlag flags = FieldFlag.None, Field[] fields) : this(name, FieldType.None, fields, flags)
-	//{
-	//}
-
-	public Field(Token name, FieldType type, Field[] fields, FieldFlag flags, long? length = null)
+	public Field(Token name, FieldType type = FieldType.None, FieldFlag flags = FieldFlag.None, long? length = null, Field[] fields = null)
 	{
 		Name = name;
 		Type = type;
@@ -154,10 +149,17 @@ public class FieldValue : IBinarySerializable
 		Name = name;
 	}
 
-	public FieldValue(Token name, byte[] value) : this(name)
+	public FieldValue(Token name, string value) : this(name)
 	{
 		Name	= name;
-		Value	= value;
+		Value	= Encoding.UTF8.GetBytes(value);;
+		Fields	= [];
+	}
+
+	public FieldValue(Token name, byte[] value, byte _ = default) : this(name)
+	{
+		Name	= name;
+		Value	= value;;
 		Fields	= [];
 	}
 
@@ -171,6 +173,13 @@ public class FieldValue : IBinarySerializable
 	{
 		Name = name;
 		Value = value;
+		Fields = fields;
+	}
+
+	public FieldValue(Token name, string value, FieldValue[] fields) : this(name)
+	{
+		Name = name;
+		Value	= Encoding.UTF8.GetBytes(value);
 		Fields = fields;
 	}
 
@@ -409,10 +418,7 @@ public class Product : IBinarySerializable, ITableEntry
 				var t = Enum.Parse<Token>(i.Name);
 				var d = definition.First(j => j.Name.ToString() == i.Name);
 
-				a.Add(	new FieldValue(t, FieldValue.Parse(d.Type, i.Get<string>()))
-						{
-							Fields = parse(d.Fields, i.Nodes) 
-						});
+				a.Add(new FieldValue(t, FieldValue.Parse(d.Type, i.Get<string>()), parse(d.Fields, i.Nodes)));
 			}
 
 			return a.ToArray();
@@ -498,37 +504,29 @@ public class Product : IBinarySerializable, ITableEntry
 													new (Token.Price,				FieldType.Money, FieldFlag.Optional), /// if  a price is fixed
 													new (Token.Art, 
 													[
-														new (Token.Screenshot,	
+														new (Token.Screenshot, flags: FieldFlag.Multi, fields:	
 														[
 															new (Token.Id, FieldType.FileId),
 														]),
-														new (Token.Video, flags: FieldFlag.Optional, fields:
+														new (Token.Video, flags: FieldFlag.Optional|FieldFlag.Multi, fields:
 														[
 															new (Token.URI,	FieldType.URI),
 														]),
 													]),
-													new (Token.Release,
+													new (Token.Release, FieldType.StringUtf8, length: 16, flags: FieldFlag.Multi, fields: /// Any name that describes platform and functionality specifics
 													[
-														new (Token.Version, FieldType.StringUtf8, length: 16),
-														new (Token.Distributive, // Can be zip archive, msi installer, 7zip archive etc.
+														new (Token.Version,	FieldType.StringUtf8, length: 16),
+														new (Token.Date,	FieldType.Date),
+														
+														new (Token.Distributive, flags: FieldFlag.Multi, fields:		/// a form of distribution
 														[
-															new (Token.Platform,	FieldType.StringUtf8, length: 16),
-															//new (Token.Version,	FieldType.StringUtf8, length: 16),
-															new (Token.Date,		FieldType.Date),
-															new (Token.Distribution,FieldType.DistributionType), 
-															new (Token.Source,
-															[
-																new (Token.URI,	FieldType.URI),
-																new (Token.Hash,
-																[
-																	new (Token.Type,	FieldType.Hash),
-																	new (Token.Value,	FieldType.StringAnsi)
-																], FieldFlag.Optional),
-															])
+															new (Token.Type,	FieldType.DistributionType),			/// archive, exe/msi installer, torrent, rdn package etc.
+															new (Token.Source,	FieldType.URI, flags: FieldFlag.Multi), /// links
 														]),
+														
 														new (Token.Requirements,
 														[
-															new (Token.Platform, FieldType.StringUtf8, fields:
+															new (Token.Platform,
 															[
 																new (Token.Minimal,	
 																[
@@ -542,8 +540,8 @@ public class Product : IBinarySerializable, ITableEntry
 																	]),
 																	new (Token.Software, flags: FieldFlag.Optional, fields:
 																	[
-																		new (Token.OS,				FieldType.OS),
-																		new (Token.Architecture,	FieldType.CPUArchitecture,	FieldFlag.Optional),
+																		new (Token.OS,				FieldType.StringAnsi),
+																		new (Token.Architecture,	FieldType.StringAnsi,		FieldFlag.Optional),
 																		new (Token.Version,			FieldType.StringAnsi,		FieldFlag.Optional),
 																	])
 																]),
@@ -559,8 +557,8 @@ public class Product : IBinarySerializable, ITableEntry
 																	]),
 																	new (Token.Software, flags: FieldFlag.Optional, fields:
 																	[
-																		new (Token.OS,				FieldType.OS),
-																		new (Token.Architecture,	FieldType.CPUArchitecture,	FieldFlag.Optional),
+																		new (Token.OS,				FieldType.StringAnsi),
+																		new (Token.Architecture,	FieldType.StringAnsi,		FieldFlag.Optional),
 																		new (Token.Version,			FieldType.StringAnsi,		FieldFlag.Optional),
 																	])
 																])
