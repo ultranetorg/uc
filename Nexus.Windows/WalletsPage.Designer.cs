@@ -55,9 +55,9 @@ partial class WalletsPage
 		// 
 		// DeleteWallet
 		// 
-		DeleteWallet.Location = new Point(381, 200);
+		DeleteWallet.Location = new Point(586, 210);
 		DeleteWallet.Name = "DeleteWallet";
-		DeleteWallet.Size = new Size(124, 32);
+		DeleteWallet.Size = new Size(211, 32);
 		DeleteWallet.TabIndex = 8;
 		DeleteWallet.Text = "Delete";
 		DeleteWallet.UseVisualStyleBackColor = true;
@@ -65,9 +65,9 @@ partial class WalletsPage
 		// 
 		// LockUnlock
 		// 
-		LockUnlock.Location = new Point(251, 162);
+		LockUnlock.Location = new Point(586, 48);
 		LockUnlock.Name = "LockUnlock";
-		LockUnlock.Size = new Size(254, 32);
+		LockUnlock.Size = new Size(211, 32);
 		LockUnlock.TabIndex = 8;
 		LockUnlock.Text = "Unlock";
 		LockUnlock.UseVisualStyleBackColor = true;
@@ -76,9 +76,9 @@ partial class WalletsPage
 		// 
 		// CreateWallet
 		// 
-		CreateWallet.Location = new Point(251, 48);
+		CreateWallet.Location = new Point(3, 48);
 		CreateWallet.Name = "CreateWallet";
-		CreateWallet.Size = new Size(254, 32);
+		CreateWallet.Size = new Size(260, 32);
 		CreateWallet.TabIndex = 13;
 		CreateWallet.Text = "Create";
 		CreateWallet.UseVisualStyleBackColor = true;
@@ -86,7 +86,7 @@ partial class WalletsPage
 		// 
 		// CreateAccount
 		// 
-		CreateAccount.Location = new Point(520, 49);
+		CreateAccount.Location = new Point(586, 49);
 		CreateAccount.Name = "CreateAccount";
 		CreateAccount.Size = new Size(211, 32);
 		CreateAccount.TabIndex = 12;
@@ -96,7 +96,7 @@ partial class WalletsPage
 		// 
 		// ShowSecret
 		// 
-		ShowSecret.Location = new Point(520, 255);
+		ShowSecret.Location = new Point(586, 255);
 		ShowSecret.Name = "ShowSecret";
 		ShowSecret.Size = new Size(211, 32);
 		ShowSecret.TabIndex = 10;
@@ -106,7 +106,7 @@ partial class WalletsPage
 		// 
 		// DeleteAccount
 		// 
-		DeleteAccount.Location = new Point(520, 293);
+		DeleteAccount.Location = new Point(586, 293);
 		DeleteAccount.Name = "DeleteAccount";
 		DeleteAccount.Size = new Size(211, 32);
 		DeleteAccount.TabIndex = 11;
@@ -116,7 +116,7 @@ partial class WalletsPage
 		// 
 		// CopyAddress
 		// 
-		CopyAddress.Location = new Point(520, 217);
+		CopyAddress.Location = new Point(586, 217);
 		CopyAddress.Name = "CopyAddress";
 		CopyAddress.Size = new Size(211, 32);
 		CopyAddress.TabIndex = 9;
@@ -126,9 +126,9 @@ partial class WalletsPage
 		// 
 		// ImportWallet
 		// 
-		ImportWallet.Location = new Point(251, 86);
+		ImportWallet.Location = new Point(3, 86);
 		ImportWallet.Name = "ImportWallet";
-		ImportWallet.Size = new Size(254, 32);
+		ImportWallet.Size = new Size(260, 32);
 		ImportWallet.TabIndex = 13;
 		ImportWallet.Text = "Import";
 		ImportWallet.UseVisualStyleBackColor = true;
@@ -162,7 +162,7 @@ partial class WalletsPage
 		// 
 		// ImportAccount
 		// 
-		ImportAccount.Location = new Point(520, 87);
+		ImportAccount.Location = new Point(586, 87);
 		ImportAccount.Name = "ImportAccount";
 		ImportAccount.Size = new Size(211, 32);
 		ImportAccount.TabIndex = 11;
@@ -176,7 +176,7 @@ partial class WalletsPage
 		Accounts.FullRowSelect = true;
 		Accounts.Location = new Point(3, 49);
 		Accounts.Name = "Accounts";
-		Accounts.Size = new Size(505, 276);
+		Accounts.Size = new Size(568, 276);
 		Accounts.TabIndex = 15;
 		Accounts.UseCompatibleStateImageBehavior = false;
 		Accounts.View = View.Details;
@@ -204,9 +204,10 @@ partial class WalletsPage
 		Wallets.Columns.AddRange(new ColumnHeader[] { columnHeader4 });
 		Wallets.FullRowSelect = true;
 		Wallets.LabelEdit = true;
-		Wallets.Location = new Point(3, 48);
+		Wallets.Location = new Point(278, 48);
+		Wallets.Margin = new Padding(12, 3, 12, 3);
 		Wallets.Name = "Wallets";
-		Wallets.Size = new Size(234, 184);
+		Wallets.Size = new Size(293, 194);
 		Wallets.TabIndex = 16;
 		Wallets.UseCompatibleStateImageBehavior = false;
 		Wallets.View = View.Details;
@@ -245,9 +246,9 @@ partial class WalletsPage
 		// 
 		// ExportWallet
 		// 
-		ExportWallet.Location = new Point(251, 200);
+		ExportWallet.Location = new Point(586, 172);
 		ExportWallet.Name = "ExportWallet";
-		ExportWallet.Size = new Size(124, 32);
+		ExportWallet.Size = new Size(211, 32);
 		ExportWallet.TabIndex = 8;
 		ExportWallet.Text = "Export";
 		ExportWallet.UseVisualStyleBackColor = true;
