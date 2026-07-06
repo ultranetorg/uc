@@ -80,8 +80,8 @@ const getRequirements = (fields: FieldValue[], platform: string): Requirements =
   }
 }
 
-export const getReleases = (fields: FieldValue[]): Release[] | undefined => {
-  const releases = fields
+export const getReleases = (fields: FieldValue[]): Release[] | undefined =>
+  fields
     .filter(x => nameEq(x.name, "release"))
     .flatMap(x => {
       const name = x.value as string
@@ -104,7 +104,3 @@ export const getReleases = (fields: FieldValue[]): Release[] | undefined => {
 
       return [{ name, version, date, distributives, requirements }] satisfies Release[]
     })
-
-  const uniqReleases = [...new Map(releases.map(x => [x.requirements.platform.platform, x])).values()]
-  return uniqReleases.length > 0 ? uniqReleases : undefined
-}
