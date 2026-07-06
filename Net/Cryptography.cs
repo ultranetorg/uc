@@ -1,6 +1,9 @@
-﻿using System.Security.Cryptography;
+﻿using System.Buffers;
+using System.Security.Cryptography;
+using System.Text;
 using Blake2Fast;
 using Blake2Fast.Implementation;
+using Konscious.Security.Cryptography;
 using Org.BouncyCastle.Security;
 
 namespace Uccs.Net;
@@ -21,6 +24,8 @@ public abstract class Cryptography
 
 	public abstract byte[]							Sign(AccountKey pk, byte[] hash);
 	public abstract bool							Verify(AccountAddress address, byte[] hash, byte[] signature);
+    public abstract byte[]							HashifyPassword(string password, byte[] salt);
+													
 
 	public static readonly SecureRandom				Random = new ();
 
@@ -30,6 +35,18 @@ public abstract class Cryptography
 
 	protected Cryptography()
 	{
+	}
+
+	public static Cryptography ByZone(Zone zone)
+	{
+		switch(zone)
+		{
+			case Zone.Simulation:
+				return No;
+
+			default:
+				return Mcv;
+		}
 	}
 
 	public static byte[] RandomBytes(int n)
@@ -129,6 +146,11 @@ public class NoCryptography : Cryptography
 	{
 		return Bytes.EqualityComparer.Equals(hash, signature[0..32]) && Bytes.EqualityComparer.Equals(address.Bytes, signature[32..64]);
 	}
+
+	public override byte[] HashifyPassword(string password, byte[] salt)
+	{
+		return Hash(Encoding.UTF8.GetBytes(password), salt);
+	}
 }
 
 public class McvCryptography : Cryptography
@@ -137,34 +159,28 @@ public class McvCryptography : Cryptography
 
 	public override byte[] Sign(AccountKey k, byte[] h)
 	{
-//		var sig = k.SignAndCalculateV(h);
-//
-//		var o = new byte[SignatureLength];
-//
-//		var r = sig.R.ToByteArrayUnsigned();
-//		var s = sig.S.ToByteArrayUnsigned();
-//
-//		Array.Copy(r,	  0, o, 32 - r.Length,		r.Length);
-//		Array.Copy(s,	  0, o, 32 + 32 - s.Length,	s.Length);
-//		Array.Copy(sig.V, 0, o, 32 + 32,			1);
-
 		return k.Sign(h);
 	}
 
 	public override bool Verify(AccountAddress address, byte[] hash, byte[] signature)
 	{
-// 		var r = new byte[32];
-// 		var s = new byte[32];
-// 		Array.Copy(signature, 0,	r, 0, r.Length);
-// 		Array.Copy(signature, 32,	s, 0, s.Length);
-// 	
-//		var sig = new ECDSASignature(new Org.BouncyCastle.Math.BigInteger(1, r), 
-//									 new Org.BouncyCastle.Math.BigInteger(1, s))
-//									 {V = [signature[64]]};
-//		
-//		return AccountKey.RecoverFromSignature(sig, hash).Address;
-
 		return AccountKey.Verify(address.Bytes, signature, hash);
+	}
+
+	public override byte[] HashifyPassword(string password, byte[] salt)
+	{
+		const int MemorySizeInKb = 1024 * 1024;
+		const int Iterations = 4;
+
+		using var argon2 =	new Argon2id(Encoding.UTF8.GetBytes(password))
+							{
+								Salt = salt,
+								DegreeOfParallelism = Environment.ProcessorCount,
+								MemorySize = MemorySizeInKb,
+								Iterations = Iterations
+							};
+
+		return argon2.GetBytes(HashLength);
 	}
 }
 

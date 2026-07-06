@@ -73,6 +73,7 @@ public enum VaultError : uint
     NetNotFound,
 	NotAuthorized,
     NotFound,
+    NotSupported,
 	Rejected,
 	UnknownCtyptography,
 }
