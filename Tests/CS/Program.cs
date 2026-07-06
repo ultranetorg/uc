@@ -7,16 +7,16 @@ class Program
 	{
 		//AccountAddressTests.Main();
 		//AccountAddressTests.ReadWrite();
+		AccountKeyTests.Main();
 		//Array.Main();
 		//IdTests.Main();
 		//MoneyTests.Main();
-		//AccountKeyTests.Main();
 		//XonTest.Basic();
 		//ECTests.Move();
 		//Serialization.Main();
 		//PlatformExpressionTest.Main();
 
-		AddressTests.SchemeNetQuery();
+		//AddressTests.SchemeNetQuery();
 		//AddressTests.Resource();
 		//UraTests.Package();
 		//UraTests.Release();

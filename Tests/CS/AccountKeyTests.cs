@@ -24,9 +24,12 @@ public class AccountKeyTests
 		Assert.True(Cryptography.Mcv.Verify(k.Address, h, s));
 		Assert.False(Cryptography.Mcv.Verify(kk.Address, h, s));
 					
+		var v = new Vault.Vault(Zone.Test, new Vault.VaultSettings{}, new Flow());
+		
 		string p = "password";
-		Assert.True(Vault.Vault.Decrypt(Vault.Vault.Encrypt(h, p), p).SequenceEqual(h));
-		Assert.Equal(Vault.Vault.Decrypt(Vault.Vault.Encrypt(h, p), p), h);
+		
+		Assert.True(v.Decrypt(v.Encrypt(h, p), p).SequenceEqual(h));
+		Assert.Equal(v.Decrypt(v.Encrypt(h, p), p), h);
 		//Assert.True(k == AccountKey.Load(Cryptography.Normal, k.Save(Cryptography.Normal, "123"), "123"));
  	}
 }

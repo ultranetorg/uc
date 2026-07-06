@@ -16,6 +16,7 @@ public class Vault : Cli
 	public IEnumerable<WalletAccount>	UnlockedAccounts => Wallets.SelectMany(i => i.Accounts);
 	public VaultSettings				Settings;
 	public Zone							Zone;
+	public Cryptography					Cryptography;
 	internal VaultApiServer				ApiServer;
 	public IPasswordAsker				PasswordAsker = new ConsolePasswordAsker();
 
@@ -45,9 +46,10 @@ public class Vault : Cli
 
 	public Vault(string profile, Zone zone, VaultSettings settings, Flow flow)
 	{
-		Zone = zone;
-		Settings = settings ?? new VaultSettings(profile);
-		Flow = flow;
+		Zone			= zone;
+		Cryptography	= Cryptography.ByZone(zone);
+		Settings		= settings ?? new VaultSettings(profile);
+		Flow			= flow;
 		
 		Directory.CreateDirectory(Settings.Profile);
 
@@ -63,6 +65,14 @@ public class Vault : Cli
 		{
 			RunApi();
 		}
+	}
+
+	public Vault(Zone zone, VaultSettings settings, Flow flow)
+	{
+		Zone			= zone;
+		Cryptography	= Cryptography.ByZone(zone);
+		Settings		= settings;
+		Flow			= flow;
 	}
 	
 	public void Stop()
@@ -192,23 +202,25 @@ public class Vault : Cli
 		return Wallets.Any(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
 	}
 
-	public static byte[] Encrypt(byte[] data, string password)
+	public byte[] Encrypt(byte[] data, string password)
 	{
+        byte[] ps = RandomNumberGenerator.GetBytes(32);
         byte[] iv = RandomNumberGenerator.GetBytes(16);
 
 		using(Aes aesAlg = Aes.Create())
 		{
-			aesAlg.Key = Cryptography.Hash(Encoding.UTF8.GetBytes(password));
+			aesAlg.Key = Cryptography.HashifyPassword(password, ps);
 			aesAlg.IV = iv;
-			ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+			var e = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 			
 			byte[] en;
 			
 			using(var msEncrypt = new MemoryStream())
 			{
-				using(var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+				using(var es = new CryptoStream(msEncrypt, e, CryptoStreamMode.Write))
 				{
-					csEncrypt.Write(data, 0, data.Length);
+					es.Write(data, 0, data.Length);
 				}
 				en = msEncrypt.ToArray();
 			}
@@ -216,7 +228,8 @@ public class Vault : Cli
 			var s = new MemoryStream();
 			var w = new Writer(s);
 			
-			//w.WriteBytes(key.GetPublicAddressAsBytes());
+			w.Write(1);
+			w.WriteBytes(ps);
 			w.WriteBytes(iv);
 			w.WriteBytes(en);
 
@@ -224,17 +237,22 @@ public class Vault : Cli
 		}
 	}
 
-	public static byte[] Decrypt(byte[] data, string password)
+	public byte[] Decrypt(byte[] data, string password)
 	{
 		var r = new Reader(data);
 			
-		//var pub = r.ReadBytes();
+		var v  = r.ReadInt32();
+
+		if(v != 1)
+			throw new VaultException(VaultError.NotSupported);
+
+		var ps = r.ReadBytes();
 		var iv = r.ReadBytes();
 		var en = r.ReadBytes();
 
 		using(Aes aesAlg = Aes.Create())
 		{
-			aesAlg.Key = Cryptography.Hash(Encoding.UTF8.GetBytes(password));
+			aesAlg.Key = Cryptography.HashifyPassword(password, ps);
 			aesAlg.IV = iv;
 
 			ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);

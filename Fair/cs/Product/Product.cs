@@ -498,6 +498,7 @@ public class Product : IBinarySerializable, ITableEntry
 														new (Token.Value,		FieldType.TextUtf8, length: int.MaxValue),
 													]),
 													new (Token.Logo,				FieldType.FileId),
+													///new (Token.Logo16x16,			FieldType.FileId),
 													new (Token.LicenseType,			FieldType.StringUtf8, length: 256),
 													new (Token.LicensingDetailsUrl, FieldType.URL, FieldFlag.Optional, length: 256), /// a link to publisher website where various licensing details are described
 													new (Token.EULA,				FieldType.TextUtf8, length: 65536), /// full text of EULA
