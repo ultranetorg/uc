@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 import { Link } from "react-router-dom"
 import { SvgBoxArrowUpRight, SvgStarXxs } from "assets"
 import { DownloadSource, ProductDetails, PublicationDetails } from "types"
-import { ButtonPrimary, DropdownSecondary, LinkFullscreen } from "ui/components"
+import { DropdownSecondary, LinkFullscreen } from "ui/components"
 import { formatDate, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq, routes } from "utils"
 
 import { AuthorImageTitle, DownloadLinks } from "./components"
@@ -182,7 +182,7 @@ export const SoftwareInfo = memo(
         {languages && languages.length > 0 && (
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{languagesLabel}</span>
-            <span className={VALUE_CLASSNAME}>{formatUiLanguages(languages)}</span>
+            <span className="text-2sm font-medium leading-5 text-gray-800">{formatUiLanguages(languages)}</span>
           </div>
         )}
 

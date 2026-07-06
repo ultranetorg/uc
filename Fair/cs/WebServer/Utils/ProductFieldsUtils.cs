@@ -93,13 +93,11 @@ internal static class ProductFieldsUtils
 			case FieldType.OS:
 			case FieldType.CPUArchitecture:
 			case FieldType.Hash:
+			case FieldType.Money:
 				return field.AsUtf8;
 
 			case FieldType.StringAnsi:
 				return Encoding.Default.GetString(field.Value);
-
-			case FieldType.Money:
-				return BinaryPrimitives.ReadInt64LittleEndian(field.Value);
 
 			case FieldType.FileId:
 				return field.AsAutoId.ToString();

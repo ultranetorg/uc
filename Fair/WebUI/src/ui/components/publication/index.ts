@@ -1,4 +1,3 @@
-export * from "./Slider"
 export * from "./SoftwareInfo"
 export * from "./SystemRequirementsTabs"
 

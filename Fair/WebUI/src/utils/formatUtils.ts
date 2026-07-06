@@ -28,7 +28,13 @@ export const formatDate = (hours: number): string =>
 
 export const formatSupportedPlatforms = (platforms: string[]): string => platforms.join(" / ")
 
-export const formatUiLanguages = (languages: string[]): string => languages.join(", ")
+const languageNames = new Intl.DisplayNames(["en"], {
+  type: "language",
+})
+
+export const formatUiLanguages = (languages: string[]): string => languages.map(x => languageNames.of(x)).join(", ")
+
+export const formatLanguage = (language: string): string | undefined => languageNames.of(language)
 
 export function formatSecDate(seconds: number) {
   return dayjs(START_DATE).add(seconds, "seconds").startOf("day").format("DD.MM.YYYY")

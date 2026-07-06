@@ -485,14 +485,14 @@ public class Product : IBinarySerializable, ITableEntry
 													new (Token.Tags,		FieldType.StringUtf8, FieldFlag.Optional, length: 128),
 													new (Token.UILanguages, flags : FieldFlag.Optional, fields: 
 													[
-														new (Token.Language, FieldType.LanguageCode),
+														new (Token.Language, flags: FieldFlag.Multi, type: FieldType.LanguageCode),
 													]),
-													new (Token.DescriptionMinimal,
+													new (Token.DescriptionMinimal, flags: FieldFlag.Multi, fields:
 													[
 														new (Token.Language,FieldType.LanguageCode, length: 8),
 														new (Token.Value,   FieldType.TextUtf8, length: 1024),
 													]),
-													new (Token.DescriptionMaximal,
+													new (Token.DescriptionMaximal, flags: FieldFlag.Multi, fields:
 													[
 														new (Token.Language,	FieldType.LanguageCode, length: 8),
 														new (Token.Value,		FieldType.TextUtf8, length: int.MaxValue),

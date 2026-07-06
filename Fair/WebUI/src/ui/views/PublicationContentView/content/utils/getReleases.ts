@@ -1,25 +1,7 @@
-import {
-  Distributive,
-  DownloadSource,
-  FieldValue,
-  Hardware,
-  Hash,
-  Release,
-  Requirements,
-  Software,
-  Source,
-} from "types"
+import { Distributive, DownloadSource, FieldValue, Hardware, Release, Requirements, Software, Source } from "types"
 import { getValue, isIpfsUri, isMagnetUri, isRdnLink, isWebUri, nameEq } from "utils"
 
-const normalizePlatformName = (raw: string): string | undefined => {
-  const value = raw.trim().toLocaleLowerCase()
-
-  if (value.includes("windows")) return "windows"
-  if (value.includes("mac")) return "macos"
-  if (value.includes("linux")) return "linux"
-
-  return undefined
-}
+import { normalizePlatformName } from "./utils"
 
 const buildHardware = (fields: FieldValue[]): Hardware | undefined => {
   const cpu = getValue(fields, "cpu")
@@ -46,46 +28,30 @@ const getDownloadSourceByLink = (link: string): DownloadSource | undefined => {
   return undefined
 }
 
-const getDistributive = (fields: FieldValue[]): Distributive | undefined => {
-  const platform = getValue(fields, "platform")
-  const date = getValue<number>(fields, "date")
-  const distribution = getValue(fields, "distribution")
-  if (!platform || date === undefined || !distribution) return undefined
+const getDistributives = (nodes: FieldValue[]): Distributive[] => {
+  const sourcesByType = new Map<string, Source[]>()
 
-  const sources = fields
-    .filter(x => nameEq(x.name, "source"))
-    .flatMap(x => x.children ?? [])
-    .filter(x => nameEq(x.name, "uri") && !!x.value)
-    .flatMap<Source>(x => {
-      const hashNode = (x.children ?? []).find(y => nameEq(y.name, "hash"))
-      const source = getDownloadSourceByLink(x.value as string)
-      if (!source) return []
+  for (const node of nodes) {
+    const type = getValue(node.children, "type")
+    if (!type) continue
 
-      const hash: Hash | undefined = hashNode
-        ? { type: getValue(hashNode.children, "type") ?? "", value: getValue(hashNode.children, "value") ?? "" }
-        : undefined
+    const sources = (node.children ?? [])
+      .filter(x => nameEq(x.name, "source") && !!x.value)
+      .flatMap<Source>(x => {
+        const source = getDownloadSourceByLink(x.value as string)
+        return source ? [{ uri: x.value as string, source }] : []
+      })
+    if (!sources.length) continue
 
-      return {
-        uri: x.value as string,
-        source,
-        hash,
-      }
-    })
-  if (!sources.length) return undefined
+    sourcesByType.set(type, [...(sourcesByType.get(type) ?? []), ...sources])
+  }
 
-  return { platform, date, distribution, sources }
+  return [...sourcesByType.entries()].map(([type, sources]) => ({ type, sources }))
 }
 
-const getRequirements = (fields: FieldValue[]): Requirements | undefined => {
-  const firstPlatform = fields.find(x => nameEq(x.name, "platform"))
-  if (!firstPlatform) return undefined
-
-  const platform = firstPlatform.value as string
-  if (!platform) return undefined
-  const normalized = normalizePlatformName(platform)
-  if (!normalized) return undefined
-
-  const platformChildren = firstPlatform.children ?? []
+const getRequirements = (fields: FieldValue[], platform: string): Requirements => {
+  const platformNode = fields.find(x => nameEq(x.name, "platform"))
+  const platformChildren = platformNode?.children ?? []
 
   const minimalChildren = platformChildren.find(x => nameEq(x.name, "minimal"))?.children ?? []
   const minHardware = minimalChildren.find(x => nameEq(x.name, "hardware"))?.children ?? []
@@ -98,17 +64,16 @@ const getRequirements = (fields: FieldValue[]): Requirements | undefined => {
 
   const hardware = buildHardware(minHardware)
   const software = buildSoftware(minSoftware)
-  if (!hardware && !software) return undefined
 
   const recommendedHardware = buildHardware(recHardware)
   const recommendedSoftware = buildSoftware(recSoftware)
 
   return {
     platform: {
-      platform: normalized,
-      minimal: { hardware: hardware, software: software },
+      platform,
+      minimal: { hardware, software },
       recommended:
-        recommendedNode && (recommendedHardware || recommendedSoftware)
+        recommendedHardware || recommendedSoftware
           ? { hardware: recommendedHardware, software: recommendedSoftware }
           : undefined,
     },
@@ -119,24 +84,27 @@ export const getReleases = (fields: FieldValue[]): Release[] | undefined => {
   const releases = fields
     .filter(x => nameEq(x.name, "release"))
     .flatMap(x => {
+      const name = x.value as string
+      if (!name) return []
+
       const children = x.children ?? []
 
       const version = getValue(children, "version")
       if (!version) return []
 
-      let node = children.find(x => nameEq(x.name, "distributive"))
-      if (!node) return []
-      const distributive = getDistributive(node.children ?? [])
-      if (!distributive) return []
+      const date = getValue<number>(children, "date")
+      if (date === undefined) return []
 
-      node = children.find(x => nameEq(x.name, "requirements"))
-      if (!node) return []
-      const requirements = getRequirements(node.children ?? [])
-      if (!requirements) return []
+      const distributiveNodes = children.filter(x => nameEq(x.name, "distributive"))
+      const distributives = getDistributives(distributiveNodes)
+      if (!distributives.length) return []
 
-      return [{ version, distributive, requirements }] satisfies Release[]
+      const requirementsNode = children.find(x => nameEq(x.name, "requirements"))
+      const requirements = getRequirements(requirementsNode?.children ?? [], normalizePlatformName(name))
+
+      return [{ name, version, date, distributives, requirements }] satisfies Release[]
     })
 
   const uniqReleases = [...new Map(releases.map(x => [x.requirements.platform.platform, x])).values()]
-  return uniqReleases.length > 0 ? (uniqReleases as Release[]) : undefined
+  return uniqReleases.length > 0 ? uniqReleases : undefined
 }

@@ -27,24 +27,32 @@ const buildSection = (
 }
 
 const buildSections = (t: TFunction, requirements: Requirements): SystemRequirementsTabSection[] => {
-  const minimal = buildSection(
-    `${requirements.platform.platform}-minimal`,
-    t("common:minimal"),
-    requirements.platform.minimal.hardware,
-    requirements.platform.minimal.software,
-  )
+  const { minimal, recommended } = requirements.platform
+  const sections: SystemRequirementsTabSection[] = []
 
-  return requirements.platform.recommended
-    ? [
-        minimal,
-        buildSection(
-          `${requirements.platform.platform}-recommended`,
-          t("common:recommended"),
-          requirements.platform.recommended.hardware,
-          requirements.platform.recommended.software,
-        ),
-      ]
-    : [minimal]
+  if (minimal.hardware || minimal.software) {
+    sections.push(
+      buildSection(
+        `${requirements.platform.platform}-minimal`,
+        t("common:minimal"),
+        minimal.hardware,
+        minimal.software,
+      ),
+    )
+  }
+
+  if (recommended && (recommended.hardware || recommended.software)) {
+    sections.push(
+      buildSection(
+        `${requirements.platform.platform}-recommended`,
+        t("common:recommended"),
+        recommended.hardware,
+        recommended.software,
+      ),
+    )
+  }
+
+  return sections
 }
 
 export const buildSystemRequirements = (t: TFunction, releases: Release[]): SystemRequirementsTab[] => {
