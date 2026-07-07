@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Mcv.FUI\Uccs.Mcv.FUI.csproj" />
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
-    <ProjectReference Include="..\Vault\Uccs.Vault.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="AuthorizationForm.cs">

@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using Microsoft.Win32;
 using Uccs.Net;
 using Uccs.Nexus.Windows.Properties;
-using Uccs.Vault;
 
 namespace Uccs.Nexus.Windows;
 
@@ -174,7 +173,7 @@ public class Program: ApplicationContext
 											};
 		}
 
-		static void BindWallets(Vault.Vault vault,ComboBox control)
+		static void BindWallets(Vault vault,ComboBox control)
 		{
 			//control.Items.Clear();
 
@@ -187,7 +186,7 @@ public class Program: ApplicationContext
 			control.SelectedItem = control.Items.OfType<Wallet>().FirstOrDefault(i => !i.Locked);
 		}
 
-		public static void BindAccounts(Vault.Vault vault, ComboBox control, IEnumerable<WalletAccount> accounts, AccountAddress preselected)
+		public static void BindAccounts(Vault vault, ComboBox control, IEnumerable<WalletAccount> accounts, AccountAddress preselected)
 		{
 			control.Items.Clear();
 
@@ -206,7 +205,7 @@ public class Program: ApplicationContext
 					control.SelectedIndex = 0;
 		}
 
-		public static void BindWallets(IWin32Window parent, Vault.Vault vault, ComboBox wallets, ComboBox accounts, AccountAddress preselected)
+		public static void BindWallets(IWin32Window parent, Vault vault, ComboBox wallets, ComboBox accounts, AccountAddress preselected)
 		{
 			void f(object s, EventArgs e)
 			{

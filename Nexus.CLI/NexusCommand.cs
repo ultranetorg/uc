@@ -28,34 +28,19 @@ public class NexusCommand : NetCommand
 			return;
 		}
 
-		throw new Exception();
+		Cli.NexusApi.Send(call, Flow);
 	}
 
-	public Rp Api<Rp>(Apc call)
+	public R Api<R>(Apc call)
 	{
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 
-		if(call is INexusApc u)	return (Rp)u.Execute(Cli.Nexus, null, null, Flow);
+		if(call is INexusApc u)	
+			return (R)u.Execute(Cli.Nexus, null, null, Flow);
 
-		throw new Exception();
+		return Cli.NexusApi.Call<R>(call, Flow);
 	}
-
-//	public Rp RdnRequest<Rp>(Apc call)
-//	{
-//		if(Has("apitimeout"))
-//			call.Timeout = GetInt("apitimeout") * 1000;
-//
-//		return Nexus.RdnApi.Request<Rp>(call, Flow);
-//	}
-//
-//	public void RdnSend(Apc call)
-//	{
-//		if(Has("apitimeout"))
-//			call.Timeout = GetInt("apitimeout") * 1000;
-//
-//		Nexus.RdnApi.Send(call, Flow);
-//	}
 
 	protected Ura GetResourceAddress(string paramenter, bool mandatory = true)
 	{

@@ -2,17 +2,6 @@
 
 namespace Uccs.Nexus.CLI;
 
-public class NodeInstance
-{
-	public string		ApiLocalAddress { get; set; }
-	public string		Net;
-
-	public override string ToString()
-	{
-		return Net;
-	}
-}
-
 public class NexusCli : Cli
 {
 	public Nexus				Nexus;
@@ -41,6 +30,9 @@ public class NexusCli : Cli
 
 	public static void Main(string[] args)
 	{
+		Thread.CurrentThread.CurrentCulture = 
+		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+
 		new NexusCli();
 	}
 }	

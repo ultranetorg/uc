@@ -3,6 +3,10 @@
     "Uccs.Nexus.CLI": {
       "commandName": "Project",
       "commandLineArgs": "open \\\"iccp:asdasd/asdasd 111111 22222\\\""
+    },
+    "wallet c": {
+      "commandName": "Project",
+      "commandLineArgs": "wallet c"
     }
   }
 }

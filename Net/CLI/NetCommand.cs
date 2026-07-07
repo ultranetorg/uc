@@ -94,7 +94,8 @@ public abstract class NetCommand : Command
 				n += t.Log.Length;
 			}
 
-			Thread.Sleep(1);
+			if(!NodeGlobals.NoWait)
+				Thread.Sleep(1);
 		}
 		while(!(aor == ActionOnResult.RetryUntilConfirmed && t.Status == TransactionStatus.Confirmed || 
 				aor == ActionOnResult.ExpectFailure && t.Status == TransactionStatus.FailedOrNotFound ||

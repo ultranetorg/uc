@@ -4,21 +4,22 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Uccs.Vault;
+namespace Uccs.Nexus;
 
-public class Vault : Cli
+public class Vault
 {
-	public const string					WalletExtention = "uwa";
-	public const string					PrivateKeyExtention = "pk";
-	//public static string				WalletExt(Cryptography c) => c is McvCryptography ? WalletExtention : PrivateKeyExtention;
+	public const string																	WalletExtention = "uwa";
+	public const string																	PrivateKeyExtention = "pk";
+	//public static string																WalletExt(Cryptography c) => c is McvCryptography ? WalletExtention : PrivateKeyExtention;
 
-	public List<Wallet>					Wallets = new();
-	public IEnumerable<WalletAccount>	UnlockedAccounts => Wallets.SelectMany(i => i.Accounts);
-	public VaultSettings				Settings;
-	public Zone							Zone;
-	public Cryptography					Cryptography;
-	internal VaultApiServer				ApiServer;
-	public IPasswordAsker				PasswordAsker = new ConsolePasswordAsker();
+	Flow																				Flow;
+	public List<Wallet>																	Wallets = new();
+	public IEnumerable<WalletAccount>													UnlockedAccounts => Wallets.SelectMany(i => i.Accounts);
+	public VaultSettings																Settings;
+	public Zone																			Zone;
+	public Cryptography																	Cryptography;
+	internal VaultApiServer																ApiServer;
+	public IPasswordAsker																PasswordAsker = new ConsolePasswordAsker();
 
 	public Func<string, byte[], string, string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
 	public Func<AccountAddress, Authentication, string, bool>							AuthorizationRequested;
@@ -30,25 +31,12 @@ public class Vault : Cli
 															"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
 															"Don't use memorable keyboard paths. Much like the advice above not to use sequential letters and numbers, do not use sequential keyboard paths either (like qwerty)."};
 
-	static Vault()
-	{
-	}
-
-	static void Main(string[] args)
-	{
-		var Boot = new NetBoot(ExeDirectory);
-		var u = new Vault(Boot.Profile, Boot.Zone, null, new Flow(nameof(Vault), new Log()));
-
-		u.Execute(Boot);
-
-		u.Stop();
-	}
 
 	public Vault(string profile, Zone zone, VaultSettings settings, Flow flow)
 	{
 		Zone			= zone;
 		Cryptography	= Cryptography.ByZone(zone);
-		Settings		= settings ?? new VaultSettings(profile);
+		Settings		= settings;
 		Flow			= flow;
 		
 		Directory.CreateDirectory(Settings.Profile);
@@ -84,25 +72,10 @@ public class Vault : Cli
 	
 	public void RunApi()
 	{
-		if(!HttpListener.IsSupported)
-		{
-			Environment.ExitCode = -1;
-			throw new RequirementException("Windows XP SP2, Windows Server 2003 or higher is required to use the application.");
-		}
-
 		if(ApiServer != null)
 			throw new NodeException(NodeError.AlreadyRunning);
 
 		ApiServer = new VaultApiServer(this, Settings.Api, Flow);
-	}
-
-	public override VaultCommand Create(IEnumerable<Xon> commnad, Flow flow)
-	{
-		var t = commnad.First().Name;
-		var args = commnad.Skip(1).ToList();
-		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
-
-		return ct.GetConstructor([typeof(Vault), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as VaultCommand;
 	}
 
 	public WalletAccount Find(AccountAddress address)

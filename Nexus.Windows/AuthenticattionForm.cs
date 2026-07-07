@@ -1,17 +1,16 @@
 ﻿using System.Security.Cryptography;
 using System.Windows.Forms;
 using Uccs.Net;
-using Uccs.Vault;
 
 namespace Uccs.Nexus.Windows;
 
 public partial class AuthenticattionForm : Form
 {
-	Vault.Vault Vault;
+	Vault Vault;
 	public AccountAddress Account { get => AccountAddress.Parse(Accounts.Text); }
 	public Trust Trust { get; protected set; }
 
-	public AuthenticattionForm(Vault.Vault vault, string applicaiton, string net, string user, AccountAddress account)
+	public AuthenticattionForm(Vault vault, string applicaiton, string net, string user, AccountAddress account)
 	{
 		Vault = vault;
 

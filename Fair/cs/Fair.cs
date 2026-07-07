@@ -30,7 +30,6 @@ public abstract class Fair : McvNet
 	public static readonly Fair			Main = null;
 
 	public static Fair					ByZone(Zone name) => new Fair[]{Simulated, Virtual, Developer0, Test, TA}.First(i => i.Zone == name);
-
 	
 	public Fair()
 	{

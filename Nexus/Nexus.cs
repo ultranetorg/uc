@@ -2,7 +2,6 @@
 using System.Net;
 using System.Text;
 using Uccs.Rdn;
-using Uccs.Vault;
 
 namespace Uccs.Nexus;
 
@@ -14,7 +13,7 @@ public class Nexus : IProgram
 	public static HttpClient		ApiHttpClient;
 	public RdnNode					RdnNode;
 	public PackageHub				PackageHub;
-	public Vault.Vault				Vault;
+	public Vault					Vault;
 	public byte[]					VaultAdminKey;
 	public Delegate					Stopped;
 
@@ -39,7 +38,7 @@ public class Nexus : IProgram
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{Cli.FailureExt}"))
 				File.Delete(i);
 
-		Vault = new Vault.Vault(boot.Profile, boot.Zone, vaultsettings, flow);		
+		Vault = new Vault(boot.Profile, boot.Zone, vaultsettings, flow);		
 
 		if(Settings.IccpPeering != null)
 		{

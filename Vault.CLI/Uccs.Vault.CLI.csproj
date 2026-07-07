@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Company>uo</Company>
-    <Product>Nexus</Product>
+    <Product>Vault</Product>
     <Authors>uo</Authors>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
@@ -13,14 +13,14 @@
     <FileVersion>1.0.926.0</FileVersion>
     <Version>1.0.926.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+    <AssemblyName>vault</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
   <ItemGroup>
-    <ProjectReference Include="..\Net\Uccs.Net.csproj" />
+    <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Uccs.Net" />

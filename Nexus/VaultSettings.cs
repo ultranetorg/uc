@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Uccs.Vault;
+namespace Uccs.Nexus;
 
 public class VaultSettings : SavableSettings
 {

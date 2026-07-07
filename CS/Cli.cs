@@ -40,7 +40,7 @@ public abstract class Cli
 		var args = commnad.Skip(1).ToList();
 		var ct = GetType().Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
 
-		return ct.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
+		return ct?.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
 	}
 
 	protected void Execute(Boot boot)
@@ -67,7 +67,7 @@ public abstract class Cli
 		{
 			if(Command.ConsoleAvailable)
 			{
-				Console.WriteLine(ex.ToString());
+				Console.WriteLine(ex.Message);
 
 				if(ex is ApiCallException ace)
 				{
@@ -172,7 +172,9 @@ public abstract class Cli
 		}
 		else
 		{
-			var c = Create(args, flow);
+			var c = Create(args, flow)
+					??
+					throw new SyntaxException("Unknown command");
 
 			var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(args.Skip(1).FirstOrDefault()?.Name));
 

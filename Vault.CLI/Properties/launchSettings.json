@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "wallet c": {
+      "commandName": "Project",
+      "commandLineArgs": "wallet c"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 ﻿using Org.BouncyCastle.Security;
 using Uccs.Net;
+using Uccs.Nexus;
 using Xunit;
 
 namespace Uccs.Tests;
@@ -24,7 +25,7 @@ public class AccountKeyTests
 		Assert.True(Cryptography.Mcv.Verify(k.Address, h, s));
 		Assert.False(Cryptography.Mcv.Verify(kk.Address, h, s));
 					
-		var v = new Vault.Vault(Zone.Test, new Vault.VaultSettings{}, new Flow());
+		var v = new Vault(Zone.Test, new VaultSettings{}, new Flow());
 		
 		string p = "password";
 		

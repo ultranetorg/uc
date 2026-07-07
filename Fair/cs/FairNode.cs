@@ -13,6 +13,15 @@ public class FairNode : McvNode
 	public WebServer				WebServer;
 	List<OutwardTransaction>		CurrentOutwards = [];
 
+	public static readonly string[]	ClientRequiredMessage = ["This is decentralized autonomous owner-free platform and requires Client Software installed to participate in its communities.",
+															"Windows OS is currently supported only.",
+															"Please, follow the link below to install."];
+	
+	public static readonly string[]	WelcomeMessage = ["Welcome to the ULTRANET",
+													 "and to the Fair Network",
+													 "Now, find UOS icon in the tray, open its menu and select \"Identity and Activity\" option",
+													 "There you can manage your crypto wallets and accounts that are used to identify yourself when participating in Fair network and other decentralized platforms"];
+
 	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
 	{
 		base.Settings = settings;
