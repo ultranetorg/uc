@@ -5,6 +5,7 @@ export * from "./DropdownSearchAccounts"
 export * from "./DropdownSecondary"
 export * from "./DropdownTertiary"
 export * from "./Pagination"
+export * from "./Slider"
 
 export * from "./Accordion"
 export * from "./Breadcrumbs"

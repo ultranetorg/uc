@@ -2,21 +2,13 @@ import { DownloadSource } from "./DownloadSource"
 
 export type CPUArchitecture = "x64" | "x86" | "arm64" | "arm" | string
 
-export interface Hash {
-  type: string
-  value: string
-}
-
 export interface Source {
   uri: string
   source: DownloadSource
-  hash?: Hash
 }
 
 export interface Distributive {
-  platform: string
-  date: number
-  distribution: string
+  type: string
   sources: Source[]
 }
 
@@ -51,7 +43,9 @@ export interface Requirements {
 }
 
 export interface Release {
+  name: string
   version: string
-  distributive: Distributive
+  date: number
+  distributives: Distributive[]
   requirements: Requirements
 }

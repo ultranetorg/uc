@@ -165,6 +165,8 @@ export const getAllSupportedPlatforms = (releases: Release[]): string[] => {
 export const getSoftwareDownloads = (releases: Release[], platform: string): SoftwareDownload[] | undefined => {
   const release = releases.find(x => x.requirements.platform.platform === platform)
   if (!release) return undefined
-  const sources = release.distributive.sources.map<SoftwareDownload>(x => ({ link: x.uri, source: x.source }))
+  const sources = release.distributives
+    .flatMap(x => x.sources)
+    .map<SoftwareDownload>(x => ({ link: x.uri, source: x.source }))
   return sources.length > 0 ? sources : undefined
 }

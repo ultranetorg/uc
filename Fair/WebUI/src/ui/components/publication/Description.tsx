@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 
 import { DropdownTertiary, ShowMoreButton } from "ui/components"
 import { Description as DescriptionType } from "types"
+import { formatLanguage } from "utils"
 
 export type DescriptionProps = {
   descriptions: DescriptionType[]
@@ -26,7 +27,7 @@ export const Description = ({ descriptions, descriptionLabel, showMoreLabel, sho
     [currentText, isLong, expanded],
   )
 
-  const languageItems = descriptions?.map(d => ({ value: d.language, label: d.language.toUpperCase() })) ?? []
+  const languageItems = descriptions?.map(d => ({ value: d.language, label: formatLanguage(d.language)! })) ?? []
 
   return (
     <div className="divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-100">
@@ -36,7 +37,7 @@ export const Description = ({ descriptions, descriptionLabel, showMoreLabel, sho
           {hasMultipleLanguages && (
             <DropdownTertiary
               isMulti={false}
-              className="w-14"
+              className="w-fit"
               controlled={true}
               size="medium"
               items={languageItems}
