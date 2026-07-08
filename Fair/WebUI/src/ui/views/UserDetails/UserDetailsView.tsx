@@ -5,7 +5,7 @@ import avatarFallback from "assets/fallback/user-30.png"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback } from "ui/components"
 import { ModeratorUserMenu } from "ui/components/specific"
-import { buildUserAvatarUrl, formatRole } from "utils"
+import { buildUserAvatarByIdUrl, formatRole } from "utils"
 
 import { ReviewsList } from "./ReviewsList"
 import { PublishersList } from "./PublishersList"
@@ -37,7 +37,7 @@ export const UserDetailsView = memo(({ siteId, user, reviews, isPublisher, isMod
           <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">
             <div className="absolute left-1 top-1 size-30 overflow-hidden rounded-full">
               <ImageFallback
-                src={buildUserAvatarUrl(user.id)}
+                src={buildUserAvatarByIdUrl(user.id)}
                 fallbackSrc={avatarFallback}
                 className="size-full object-cover"
               />

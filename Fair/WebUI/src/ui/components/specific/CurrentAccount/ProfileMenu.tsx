@@ -6,7 +6,7 @@ import avatarFallback from "assets/fallback/user-22.5.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
 import { ButtonGhost, CopyAddressButton, ImageFallback, LinkFullscreen } from "ui/components"
-import { buildUserAvatarUrl, routes } from "utils"
+import { buildUserAvatarByNameUrl, routes } from "utils"
 
 import pngBackground from "./background.png"
 import { AccountSwitcher, AccountSwitcherBaseProps } from "./AccountSwitcher"
@@ -43,7 +43,7 @@ export const ProfileMenu = memo(
                 className="absolute bottom-[4px] left-[24px] size-[90px] overflow-hidden rounded-full"
                 title={selectedUserName}
               >
-                <ImageFallback src={buildUserAvatarUrl(selectedUserName!)} fallbackSrc={avatarFallback} />
+                <ImageFallback src={buildUserAvatarByNameUrl(selectedUserName!)} fallbackSrc={avatarFallback} />
               </div>
             </div>
             <div className="flex flex-col gap-2 px-6 py-2">

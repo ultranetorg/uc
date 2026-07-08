@@ -68,23 +68,23 @@ public class UsersController
 		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
 	}
 
-	[HttpGet("{userId}/avatar")]
-	public FileContentResult GetAvatar(string userId)
+	[HttpGet("by-id/{userId}/avatar")]
+	public FileContentResult GetAvatarById(string userId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {UserId}", nameof(UsersController), nameof(GetAvatar), userId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {UserId}", nameof(UsersController), nameof(GetAvatarById), userId);
 
 		autoIdValidator.Validate(userId, nameof(User));
 
-		return usersService.GetAvatar(userId);
+		return usersService.GetAvatarById(userId);
 	}
 
-	//[HttpGet("by-id/{userId}")]
-	//public UserModel GetUserById(string userId)
-	//{
-	//	logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}", nameof(UsersController), nameof(GetUserById), userId);
+	[HttpGet("by-name/{name}/avatar")]
+	public FileContentResult GetAvatarByName(string name)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Name}", nameof(UsersController), nameof(GetAvatarByName), name);
 
-	//	autoIdValidator.Validate(userId, nameof(User));
+		userNameValidator.Validate(name);
 
-	//	return usersService.GetUserById(userId);
-	//}
+		return usersService.GetAvatarByName(name);
+	}
 }

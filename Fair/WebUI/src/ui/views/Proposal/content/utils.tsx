@@ -22,7 +22,7 @@ import {
 } from "types"
 import { AccountsList } from "ui/components"
 import { MembersList } from "ui/components/MembersList"
-import { buildFileUrl, buildUserAvatarUrl, routes } from "utils"
+import { buildFileUrl, buildUserAvatarByIdUrl, routes } from "utils"
 
 const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
   <>
@@ -251,7 +251,7 @@ const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element =
           {
             id: operation.moderator.id,
             title: operation.moderator.name,
-            avatarSrc: buildUserAvatarUrl(operation.moderator.id),
+            avatarSrc: buildUserAvatarByIdUrl(operation.moderator.id),
           },
         ]}
         fallbackSrc={userFallback}
