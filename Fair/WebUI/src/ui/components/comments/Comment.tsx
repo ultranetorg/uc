@@ -6,7 +6,7 @@ import avatarFallback from "assets/fallback/user-10.png"
 import { useResolveSiteId } from "hooks"
 import { AccountBaseAvatar } from "types"
 import { ImageFallback, LinkFullscreen, RatingBar } from "ui/components"
-import { buildUserAvatarUrl, formatDate, routes } from "utils"
+import { buildUserAvatarByIdUrl, formatDate, routes } from "utils"
 
 const NAME_CLASSNAME = "text-2sm font-semibold leading-4.5"
 const TEXT_CLASSNAME = "text-2sm leading-5"
@@ -45,7 +45,7 @@ export const Comment = memo(
           <div className="flex gap-4.5">
             <div className="size-13 overflow-hidden rounded-full">
               <ImageFallback
-                src={buildUserAvatarUrl(account.id)}
+                src={buildUserAvatarByIdUrl(account.id)}
                 fallbackSrc={avatarFallback}
                 className="size-full object-cover"
               />
@@ -75,7 +75,7 @@ export const Comment = memo(
         <div className="flex items-center gap-2">
           <div className="size-10 overflow-hidden rounded-full">
             <ImageFallback
-              src={buildUserAvatarUrl(account.id)}
+              src={buildUserAvatarByIdUrl(account.id)}
               fallbackSrc={avatarFallback}
               className="size-full object-cover"
             />

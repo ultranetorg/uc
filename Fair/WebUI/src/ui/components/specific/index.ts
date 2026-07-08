@@ -1,5 +1,3 @@
-export * from "./installModals"
-
 export * from "./MemberFilesModal"
 export * from "./CategoriesList"
 export * from "./CategoriesPublicationsList"
@@ -22,6 +20,7 @@ export * from "./SitesGrid"
 export * from "./AboutInfo"
 export * from "./ActiveUser"
 export * from "./CommentContextMenu"
+export * from "./InstallModal"
 export * from "./ModerationHeader"
 export * from "./ModerationPublicationHeader"
 export * from "./ModeratorOptionsMenu"

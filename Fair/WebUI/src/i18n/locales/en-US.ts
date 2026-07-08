@@ -529,6 +529,16 @@ export const enUS = {
     successfullyRegistered: "User {{userName}} successfully registered",
     uniqueNickname: "Choose a unique username. It will be visible to other users.",
   },
+  installModal: {
+    title: "Client Software is Required",
+    authorText:
+      "<span>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library in London, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets.</span><span>It has survived not only many decades, but also the leap into electronic typesetting, remaining essentially unchanged.</span><span>It was popularised thanks to these sheets and more recently with desktop publishing software like Aldus PageMaker and Microsoft Word including versions of Lorem Ipsum.</span><span>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</span>",
+    userText:
+      "<span>This is decentralized autonomous owner-free platform and requires Client Software installed to participate in its communities.</span><span>Windows OS is currently supported only.</span><span>Please, follow the link below to download.</span>",
+    doneTitle: "Welcome to the ULTRANET and to the Fair Network",
+    doneText:
+      '<span>Now, find <icon/> icon in the tray, open its menu and select "Identity and Activity" option</span><span>There you can manage your crypto wallets and accounts that are used to identify yourself when participating in Fair network and other decentralized platforms</span><span>Use the button below to log in to your account</span>',
+  },
 
   /* Tabs */
   moderatorsProposalsTab: {

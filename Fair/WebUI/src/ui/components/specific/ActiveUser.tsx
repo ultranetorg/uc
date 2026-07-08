@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge"
 
 import avatarFallback3xl from "assets/fallback/user-10.png"
 import { ImageFallback } from "ui/components"
-import { buildUserAvatarUrl } from "utils"
+import { buildUserAvatarByIdUrl } from "utils"
 
 export type ActiveUserProps = {
   id: string
@@ -17,7 +17,11 @@ export const ActiveUser = ({ id, name, disabled = false, onClick }: ActiveUserPr
     onClick={!disabled ? onClick : undefined}
   >
     <div className="size-10 overflow-hidden rounded-full">
-      <ImageFallback src={buildUserAvatarUrl(id)} fallbackSrc={avatarFallback3xl} className="size-full object-cover" />
+      <ImageFallback
+        src={buildUserAvatarByIdUrl(id)}
+        fallbackSrc={avatarFallback3xl}
+        className="size-full object-cover"
+      />
     </div>
     <div className="flex flex-col gap-1">
       <span className="text-2sm font-medium leading-4.5">{name}</span>

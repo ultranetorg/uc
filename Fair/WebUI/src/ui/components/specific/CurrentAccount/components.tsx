@@ -5,7 +5,7 @@ import { CheckCircleFillSvg, SvgXSm } from "assets"
 import avatarFallbackXl from "assets/fallback/user-8.png"
 import avatarFallback3xl from "assets/fallback/user-10.png"
 import { AccountBase, PropsWithClassName } from "types"
-import { buildUserAvatarUrl, MakeOptional, shortenAddress } from "utils"
+import { buildUserAvatarByIdUrl, buildUserAvatarByNameUrl, MakeOptional, shortenAddress } from "utils"
 
 type AccountBaseProps = {
   addressShort: string
@@ -16,7 +16,7 @@ type AccountBaseProps = {
 
 export type AccountProps = MakeOptional<AccountBase, "id"> & AccountBaseProps
 
-export const Account = memo(({ id, nickname, address, addressShort, selected, onSelect, onRemove }: AccountProps) => {
+export const Account = memo(({ nickname, address, addressShort, selected, onSelect, onRemove }: AccountProps) => {
   const handleRemove = (e: MouseEvent<SVGSVGElement>) => {
     e.stopPropagation()
     onRemove?.()
@@ -26,7 +26,7 @@ export const Account = memo(({ id, nickname, address, addressShort, selected, on
     <div className="flex select-none items-center gap-2 overflow-hidden px-4 py-2 hover:bg-gray-100" onClick={onSelect}>
       <div className="size-8 overflow-hidden rounded-full" title={nickname ?? address}>
         <img
-          src={id ? buildUserAvatarUrl(id) : avatarFallbackXl}
+          src={nickname ? buildUserAvatarByNameUrl(nickname) : avatarFallbackXl}
           className="size-full object-cover object-center"
           loading="lazy"
           onError={e => {
@@ -64,7 +64,7 @@ export const CurrentAccountButton = memo(
       <div className="size-10 overflow-hidden rounded-full" title={nickname ?? id}>
         <img
           className="size-full object-cover object-center"
-          src={id ? buildUserAvatarUrl(id) : avatarFallback3xl}
+          src={id ? buildUserAvatarByNameUrl(nickname) : avatarFallback3xl}
           onError={e => {
             e.currentTarget.onerror = null
             e.currentTarget.src = avatarFallback3xl

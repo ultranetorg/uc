@@ -7,7 +7,7 @@ import userFallback from "assets/fallback/user-16.png"
 import { MembersChangeType } from "types"
 import { AccountsList, AccountsListItemProps } from "ui/components/AccountsList"
 import { DropdownItem, DropdownSearchMember } from "ui/components/proposal"
-import { buildUserAvatarUrl, buildFileUrl } from "utils"
+import { buildUserAvatarByIdUrl, buildFileUrl } from "utils"
 
 type PanelListModeType = "add" | "remove"
 
@@ -43,7 +43,7 @@ export const MembersPanelList = memo(
         <DropdownSearchMember
           placeholder={memberType === "author" ? t("enterAuthorName") : t("enterModeratorName")}
           items={searchItems}
-          getAvatarUrl={memberType === "moderator" ? buildUserAvatarUrl : buildFileUrl}
+          getAvatarUrl={memberType === "moderator" ? buildUserAvatarByIdUrl : buildFileUrl}
           avatarFallbackSrc={memberType === "moderator" ? userFallback : authorFallback}
           inputValue={search}
           onInputChange={onSearchChange}

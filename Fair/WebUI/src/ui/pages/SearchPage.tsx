@@ -21,7 +21,7 @@ export const SearchPage = () => {
   })
 
   const { site } = useSiteContext()
-  const { query: searchQuery } = useSearchQueryContext()
+  const { query: searchQuery, setQuery: setSearchQuery } = useSearchQueryContext()
 
   const pageTitle = state.query || searchQuery
   useSiteTitle(site?.title, pageTitle ? `Search - ${pageTitle}` : undefined)
@@ -45,10 +45,12 @@ export const SearchPage = () => {
   )
 
   useEffect(() => {
-    if (searchQuery !== state.query) {
+    if (searchQuery && searchQuery !== state.query) {
       setState({ query: searchQuery })
+    } else if (!searchQuery && state.query) {
+      setSearchQuery(state.query)
     }
-  }, [searchQuery, setState, state])
+  }, [searchQuery, setSearchQuery, setState, state])
 
   if (!searchQuery && !state.query) {
     return <Navigate to={routes.site(siteId!)} />

@@ -159,9 +159,9 @@ public class UsersService
 		return user.Sites.Contains(siteEntityId);
 	}
 
-	public FileContentResult GetAvatar([NotNull][NotEmpty] string userId)
+	public FileContentResult GetAvatarById([NotNull][NotEmpty] string userId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(GetAvatar), userId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(GetAvatarById), userId);
 
 		Guard.Against.NullOrEmpty(userId);
 
@@ -176,23 +176,18 @@ public class UsersService
 		return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);
 	}
 
-	//public UserModel GetUserById([NotNull][NotEmpty] string id)
-	//{
-	//	logger.LogDebug("{ClassName}.{MethodName} method called with {Id}", nameof(UsersService), nameof(GetUserById), id);
+	public FileContentResult GetAvatarByName([NotNull][NotEmpty] string name)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(GetAvatarById), name);
 
-	//	Guard.Against.NullOrEmpty(id);
+		Guard.Against.NullOrEmpty(name);
 
-	//	AutoId entityId = AutoId.Parse(id);
+		FairUser account = (FairUser)mcv.Users.Latest(name);
+		if(account == null || account.Avatar == null)
+		{
+			throw new EntityNotFoundException(nameof(User).ToLower(), name);
+		}
 
-	//	lock(mcv.Lock)
-	//	{
-	//		FairUser user = (FairUser) mcv.Users.Latest(entityId);
-	//		if(user == null)
-	//		{
-	//			throw new EntityNotFoundException(nameof(User), id);
-	//		}
-
-	//		return GetUser(user);
-	//	}
-	//}
+		return new FileContentResult(account.Avatar, MediaTypeNames.Image.Png);
+	}
 }
