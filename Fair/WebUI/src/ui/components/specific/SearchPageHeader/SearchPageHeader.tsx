@@ -1,12 +1,12 @@
-import { DropdownSecondary, DropdownItem } from "ui/components"
+// import { DropdownSecondary, DropdownItem } from "ui/components"
 
-const TEST_ITEMS: DropdownItem[] = [
-  { value: "0", label: "Business" },
-  { value: "1", label: "Development Tools" },
-  { value: "2", label: "Data Science" },
-  { value: "3", label: "Graphics and Design" },
-  { value: "4", label: "Video" },
-]
+// const TEST_ITEMS: DropdownItem[] = [
+//   { value: "0", label: "Business" },
+//   { value: "1", label: "Development Tools" },
+//   { value: "2", label: "Data Science" },
+//   { value: "3", label: "Graphics and Design" },
+//   { value: "4", label: "Video" },
+// ]
 
 export type SearchPageHeaderProps = {
   searchResultsCount?: number
@@ -18,8 +18,8 @@ export type SearchPageHeaderProps = {
 export const SearchPageHeader = ({
   searchResultsCount,
   searchResultsLabel,
-  allAuthorsLabel,
-  allCategoriesLabel,
+  // allAuthorsLabel,
+  // allCategoriesLabel,
 }: SearchPageHeaderProps) => {
   return (
     <div className="flex items-center justify-between">
@@ -27,10 +27,10 @@ export const SearchPageHeader = ({
         {searchResultsLabel && <span className="text-gray-800">{searchResultsLabel}</span>}
         <span className="text-gray-400">{searchResultsCount}</span>
       </div>
-      <div className="flex items-center gap-4">
+      {/* <div className="flex items-center gap-4">
         <DropdownSecondary items={TEST_ITEMS} className="w-37.5" placeholder={allAuthorsLabel} />
         <DropdownSecondary items={TEST_ITEMS} className="w-37.5" placeholder={allCategoriesLabel} />
-      </div>
+      </div> */}
     </div>
   )
 }
