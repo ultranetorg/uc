@@ -470,13 +470,14 @@ public abstract class Mcv /// Mutual chain voting
 				
 				if(!m.Key.SequenceEqual(t.Hash))
 				{
-					#if DEBUG
+					if(NodeGlobals.DumpOnError)
+					{
 						Dump();
-					
+						
 						foreach(var i in McvPeering.All.Where(i => i.Mcv != null && i.Mcv != this))
 							lock(i.Mcv.Lock)
 								i.Mcv.Dump();
-					#endif
+					}
 
 					throw new ConfirmationException(t, m.Key);
 				}
