@@ -50,12 +50,7 @@ export const PublicationPage = () => {
     <>
       <div className="flex flex-col gap-6">
         <Breadcrumbs items={breadcrumbsItems!} />
-        <PublicationHeader
-          id={publicationId!}
-          title={publication.title}
-          logoFileId={publication.logoId}
-          categories={TEST_SOFTWARE_CATEGORIES}
-        />
+        <PublicationHeader id={publicationId!} title={publication.title} logoFileId={publication.logoId} />
         <div className="flex gap-8">
           <PublicationContentView
             isPending={isPending}

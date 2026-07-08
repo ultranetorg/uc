@@ -3,7 +3,7 @@ import { createContext, useContext, PropsWithChildren, useMemo, useState, useEff
 import { useGetPing } from "entities/iccpNode"
 import { useGetNexusUrl } from "entities/localFair"
 import { useGetIccpNodeUrl } from "entities/nexus"
-import { AuthorInstallModal, SignInModal, UserInstallModal } from "ui/components/specific"
+import { SignInModal, InstallModal } from "ui/components/specific"
 
 export type SignInRole = "user" | "author"
 
@@ -69,14 +69,16 @@ export const SignInProvider = ({ children }: PropsWithChildren) => {
       {children}
       {isSignInModalOpen && <SignInModal onClose={() => setSignInModalOpen(false)} />}
       {isAuthorModalOpen && (
-        <AuthorInstallModal
+        <InstallModal
+          installFor="author"
           isIccpAvailable={isIccpAvailable}
           onClose={() => setAuthorModalOpen(false)}
           onSignIn={handleAuthorSignIn}
         />
       )}
       {isUserModalOpen && (
-        <UserInstallModal
+        <InstallModal
+          installFor="user"
           isIccpAvailable={isIccpAvailable}
           onClose={() => setUserModalOpen(false)}
           onSignIn={handleUserSignIn}
