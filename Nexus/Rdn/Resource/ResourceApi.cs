@@ -41,7 +41,7 @@ public class ResourceDownloadApc : RdnApc
 			throw new ResourceException(ResourceError.NoData);
 
 		if(r.Resource.Data.Type.Meaning != DataType.File && r.Resource.Data.Type.Meaning != DataType.Directory)
-			throw new ResourceException(ResourceError.NotSupportedDataControl);
+			throw new ResourceException(ResourceError.InvalidMeaning);
 
 		IIntegrity itg;
 

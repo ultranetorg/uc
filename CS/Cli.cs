@@ -50,6 +50,12 @@ public abstract class Cli
 
 	public void Execute(string profile, Xon command)
 	{
+		if(command.Nodes.Any(i => i.Name == Command.ConfirmationArg))
+		{
+			Console.Write("Press ENTER to proceed ... ");
+			Console.ReadLine();
+		}
+
 		var l = new Log();
 		var f = new Flow(GetType().Name, l){WorkDirectory = profile}; 
 			

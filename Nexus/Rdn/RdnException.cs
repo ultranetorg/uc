@@ -3,18 +3,19 @@
 public enum ResourceError : byte
 {
 	None,
+
+	AlreadyExists,
+	BothResourceAndReleaseNotFound,
+	Busy,
+	HashMismatch,
+	InvalidMeaning,
+	NoData,
+	NotFound,
+	NotHub,
+	NotSupportedDataType,
+	ParentPackagesNotFound,
 	UnknownDataType,
 	UnknownAddressType,
-	BothResourceAndReleaseNotFound,
-	RequiredPackagesNotFound,
-	AlreadyExists,
-	NotSupportedDataControl,
-	NotSupportedDataType,
-	Busy,
-	NotFound,
-	NoData,
-	HashMismatch,
-	//DownloadFailed
 }
 
 public class ResourceException : CodeException

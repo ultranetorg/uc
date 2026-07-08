@@ -21,6 +21,16 @@ public class NexusCli : Cli
 		Boot = new NetBoot(ExeDirectory);
 		Settings = new NexusSettings(Boot.Zone, Boot.Profile);
 
+		//var c = Console.ForegroundColor;
+		//Console.Write($"Zone    = ");
+		//Console.ForegroundColor = ConsoleColor.Green;
+		//Console.WriteLine($"{Boot.Zone}");
+		//Console.ForegroundColor = c;
+		//Console.Write($"Profile = ");
+		//Console.ForegroundColor = ConsoleColor.Green;
+		//Console.WriteLine(Boot.Profile);
+		//Console.ForegroundColor = c;
+
 		Execute(Boot.Profile, Boot.Commnand);
 	}
 

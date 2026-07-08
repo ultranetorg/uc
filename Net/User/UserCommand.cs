@@ -4,8 +4,6 @@ namespace Uccs.Net;
 
 public class UserCommand : McvCommand
 {
-	protected string		First => Args[0].Name;
-
 	public UserCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}

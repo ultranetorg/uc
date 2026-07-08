@@ -20,6 +20,8 @@ public class FairCli : McvCli
 		NexusSettings	= new NexusSettings(Boot.Zone, Boot.Profile);
 		Settings		= new FairNodeSettings(Path.Join(Boot.Profile, typeof(FairNode).FullName), Boot.Zone, NexusSettings);
 
+		ApiClient		= new FairApiClient(Settings.Api.LocalNodeAddress(Net));
+
 		Execute(Boot.Profile, Boot.Commnand);
 	}
 

@@ -6,7 +6,7 @@ namespace Uccs.Nexus.CLI;
 
 public class PackageCommand : NexusCommand
 {
-	Ura	Package => Ura.Parse(Args[0].Name);
+	Ura	Address => Ura.Parse(First);
 
 	public readonly ArgumentType PA 	= new ("PA", "Package resource address", [@"company/application/windows/1.2.3"]);
 	public readonly ArgumentType APR 	= new ("APR", "Realization address", [@"company/application/windows"]);
@@ -92,12 +92,12 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-							var r = Api<PackageInfo>(new LocalPackageApc {Address = Package});
+								var r = Api<PackageInfo>(new LocalPackageApc {Address = Address});
 				
-							Flow.Log.Dump(r);
+								Flow.Log.Dump(r);
 
-							return null;
-						};
+								return null;
+							};
 		return a;
 	}
 
@@ -112,17 +112,17 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								Api(new StartPackageDownloadApc {Package = Package});
+								Api(new StartPackageDownloadApc {Package = Address});
 
 								try
 								{
 									do
 									{
-										var d = Api<PackageActivityProgress>(new PackageActivityProgressApc {Package = Package});
+										var d = Api<PackageActivityProgress>(new PackageActivityProgressApc {Package = Address});
 						
 										if(d is null)
 										{	
-											if(!Api<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+											if(!Api<PackageInfo>(new LocalPackageApc {Address = Address}).Available)
 											{
 												Flow.Log?.ReportError(this, "Failed");
 											}
@@ -164,11 +164,11 @@ public class PackageCommand : NexusCommand
 								{
 									do
 									{
-										var d = Api<PackageActivityProgress>(new PackageActivityProgressApc {Package = Package});
+										var d = Api<PackageActivityProgress>(new PackageActivityProgressApc {Package = Address});
 						
 										if(d is null)
 										{	
-											if(!Api<PackageInfo>(new LocalPackageApc {Address = Package}).Available)
+											if(!Api<PackageInfo>(new LocalPackageApc {Address = Address}).Available)
 											{
 												Flow.Log?.ReportError(this, "Failed");
 											}

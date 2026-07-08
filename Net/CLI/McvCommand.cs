@@ -28,16 +28,10 @@ public abstract class McvCommand : NetCommand
 
 	protected void ReportPreambule()
 	{
-		var assembly = Assembly.GetExecutingAssembly();
-		var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-
-		Flow.Log.Report(fvi.ProductName);
-		Flow.Log.Report(fvi.FileVersion);
 	}
 
 	protected void ReportNetwork()
 	{
-		Flow.Log.Report($"Current Net    : {Cli.Net}");
 	}
 
 	public void Api(Apc call)

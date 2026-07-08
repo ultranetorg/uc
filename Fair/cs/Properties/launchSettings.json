@@ -24,6 +24,10 @@
     "author c title=TheStore years=1 by=user": {
       "commandName": "Project",
       "commandLineArgs": "author c title=TheStore years=1 by=user"
+    },
+    "author e 406118-0 profile=a:\\UOTMP\\Simulation-Fair.Fast\\N0 zone=Simulation": {
+      "commandName": "Project",
+      "commandLineArgs": "author e 406118-0 profile=a:\\UOTMP\\Simulation-Fair.Fast\\N0 zone=Simulation"
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json"

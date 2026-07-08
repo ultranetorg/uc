@@ -20,6 +20,8 @@ public class RdnCli : McvCli
 		NexusSettings	= new NexusSettings(Boot.Zone, Boot.Profile);
 		Settings		= new RdnNodeSettings(Path.Join(Boot.Profile, typeof(RdnNode).FullName), Boot.Zone, NexusSettings);
 
+		ApiClient		= new RdnApiClient(Settings.Api.LocalNodeAddress(Net));
+
 		Execute(Boot.Profile, Boot.Commnand);
 	}
 

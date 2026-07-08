@@ -7,31 +7,10 @@ public abstract class NodeCommand : McvCommand
 	CommandAction attach;
 	CommandAction send;
 
-	protected abstract McvApiClient CreateClient(string url);
+	protected abstract McvApiClient		CreateClient(string url);
 
 	public NodeCommand(McvCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
-		//var run		= new CommandAction {Names = ["r", "run"]};
-
-// 			run.Execute = () =>	{
-// 								};
-// 
-// 			run.Help = new Help(){	Title = "RUN",
-// 									Description = "Runs a new node instance with command-line interface",
-// 									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [net=ZONE]",
-// 
-// 									Arguments =
-// 									[
-// 										new ("flags", "One or more flags: 'api' to start JSON API Server, 'peer' to connect to Ultranet network and activate specified node roles, 'base' to enable Base support for the node database, 'chain' to enable Chain support for the node database, 'seed' to enable seed role for the node."),
-// 										new ("profile", "File path to local profile directory"),
-// 										new ("net", "Network net to connect")
-// 									],
-// 
-// 									Examples =
-// 									[
-// 										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun net=Testzone")
-// 									]};
-			
 	}
 
 	public CommandAction Attach()
@@ -225,7 +204,7 @@ public abstract class NodeCommand : McvCommand
 
 								var rp = Ppc(new MembersPpc());
 	
-								var m = rp.Members.FirstOrDefault(i => i.User == AutoId.Parse(Args[0].Name));
+								var m = rp.Members.FirstOrDefault(i => i.User == AutoId.Parse(First));
 
 								if(m == null)
 									throw new EntityException(EntityError.NotFound);

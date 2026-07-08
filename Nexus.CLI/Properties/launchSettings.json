@@ -7,6 +7,22 @@
     "open": {
       "commandName": "Project",
       "commandLineArgs": "open \\\"iccp:asdasd/asdasd 111111 22222\\\""
+    },
+    "package l aaaaaaaa/app/0.0.2 profile=a:\\UOTMP\\Simulation-Rdn.Fast\\S0": {
+      "commandName": "Project",
+      "commandLineArgs": "package l aaaaaaaa/app/0.0.2 profile=a:\\UOTMP\\Simulation-Rdn.Fast\\S0"
+    },
+    "package l aaaaaaaa/app/0.0.2": {
+      "commandName": "Project",
+      "commandLineArgs": "package l aaaaaaaa/app/0.0.2"
+    },
+    "package l": {
+      "commandName": "Project",
+      "commandLineArgs": "package l"
+    },
+    "package": {
+      "commandName": "Project",
+      "commandLineArgs": "package"
     }
   }
 }

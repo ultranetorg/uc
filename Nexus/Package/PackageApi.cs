@@ -82,6 +82,9 @@ public class PackageBuildApc : Apc, INexusApc
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
+		if(nexus.PackageHub == null)
+			throw new ResourceException(ResourceError.NotHub);
+
 		lock(nexus.PackageHub.Lock)
 		{	
 			return new LocalReleaseApe(nexus.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow));
@@ -95,6 +98,9 @@ public class StartPackageDownloadApc : Apc, INexusApc
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
+		if(nexus.PackageHub == null)
+			throw new ResourceException(ResourceError.NotHub);
+
 		lock(nexus.PackageHub.Lock)
 		{	
 			nexus.PackageHub.StartDownload(Package, workflow);
@@ -109,9 +115,15 @@ public class PackageActivityProgressApc : Apc, INexusApc
 	
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
+		if(nexus.PackageHub == null)
+			throw new ResourceException(ResourceError.NotHub);
+
 		lock(nexus.PackageHub.Lock)
 		{
 			var p = nexus.PackageHub.Find(Package);
+
+			if(p == null)
+				throw new ResourceException(ResourceError.NotFound);
 
 			lock(nexus.PackageHub.Lock)
 				if(p?.Activity is PackageDownload dl)
@@ -130,12 +142,15 @@ public class LocalPackageApc : Apc, INexusApc
 	
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
+		if(nexus.PackageHub == null)
+			throw new ResourceException(ResourceError.NotHub);
+
 		lock(nexus.PackageHub.Lock)
 		{
 			var p = nexus.PackageHub.Find(Address);
 
 			if(p == null)
-				return null;
+				throw new ResourceException(ResourceError.NotFound);
 
 			return new PackageInfo(p);
 		}
@@ -149,6 +164,9 @@ public class PackageDeployApc : Apc, INexusApc
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
+		if(nexus.PackageHub == null)
+			throw new ResourceException(ResourceError.NotHub);
+
 		nexus.PackageHub.StartDeploy(Address, DeploymentPath ?? nexus.PackageHub.DeploymentPath, flow);
 		return null;
 	}

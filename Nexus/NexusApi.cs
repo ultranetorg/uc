@@ -29,16 +29,21 @@ public class NexusTypeResolver : ApiTypeResolver
     {
         var ti = base.GetTypeInfo(type, options);
 
+		IEnumerable<JsonDerivedType> all(string postfix) => typeof(Nexus).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType)
+																							   .Select(i => new JsonDerivedType(i, postfix == null ? i.Name : i.Name.Substring(0, i.Name.Length - postfix.Length)));
+
         if(ti.Type == typeof(PackageActivityProgress))
 		{
-            ti.PolymorphismOptions = new JsonPolymorphismOptions
-									 {
-										TypeDiscriminatorPropertyName = "$type",
-										IgnoreUnrecognizedTypeDiscriminators = true,
-										UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FailSerialization,
-									 };
+            ti.PolymorphismOptions ??= new JsonPolymorphismOptions();
 
-			foreach(var i in typeof(PackageActivityProgress).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+			foreach(var i in all(null))
+				ti.PolymorphismOptions.DerivedTypes.Add(i);
+		}
+        else if(ti.Type == typeof(CodeException))
+		{
+            ti.PolymorphismOptions ??= new JsonPolymorphismOptions();
+
+			foreach(var i in all("Exception"))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
 		}
 
