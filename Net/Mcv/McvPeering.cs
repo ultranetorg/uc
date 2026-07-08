@@ -393,17 +393,16 @@ public abstract class McvPeering : HomoPeering
 								{
 									#if DEBUG
 										//CompareBase([this, All.First(i => i.Node.Name == peer.Name)], "a:\\1111111111111");
-										if(All.Any(i => i.Node.Name == peer.Name))
-										{
-											lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
-												All.First(i => i.Node.Name == peer.Name).Mcv.FindRound(r.Id).Hashify();
-											
-											Debugger.Break();
-										}
-										
+										//if(All.Any(i => i.Node.Name == peer.Name))
+										//{
+										//	lock(All.First(i => i.Node.Name == peer.Name).Mcv.Lock)
+										//		All.First(i => i.Node.Name == peer.Name).Mcv.FindRound(r.Id).Hashify();
+										//	
+										//	Debugger.Break();
+										//}
 									#endif
 																		
-									break;
+									throw new SynchronizationException("!r.Hash.SequenceEqual(h)");
 								}
 									
 								r.Confirmed = false;
