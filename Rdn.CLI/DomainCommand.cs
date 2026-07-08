@@ -4,42 +4,8 @@ namespace Uccs.Rdn.CLI;
 
 public class DomainCommand : RdnCommand
 {
-	string First => Args[0].Name;
-
 	public DomainCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		
-// 						new ()
-// 						{
-// 							Names = ["b", "bid"],
-// 
-// 							Help = new Help
-// 							{ 
-// 								Title = "BID",
-// 								Description = "Domain names that starts from alphanumeric symbol are distributed via auction. Once the first bid is confirmed, an auction is considered to have started and every next bid extends it by 1 month and lasts for 1 year at least.",
-// 								Syntax = $"domain b|bid {RDA} amount=UNT signer={UAA}",
-// 
-// 								Arguments = 
-// 								[
-// 									new (FirstArg, "Address of a root domain to bid on"), // "<first>" placeholder replaced by actual usage context
-// 									new ("amount", "Amount of bid in UNT"),
-// 									new (SignerArg, "Address of account that makes a bid and will own the domain if wins")
-// 								],
-// 
-// 								Examples =
-// 								[
-// 									new (null, "domain b companyinc amount=1.000 signer=0x0000fffb3f90771533b1739480987cee9f08d754")
-// 								]
-// 							},
-// 
-// 							Execute = () =>	{
-// 												Flow.CancelAfter(program.Settings.RdcTransactingTimeout);
-// 
-// 												return new DomainBid(First, long.Parse(GetString("amount")));
-// 											}
-// 						},
-
-
 	}
 
 	public CommandAction Migrate()

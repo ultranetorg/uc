@@ -14,13 +14,13 @@ public class FairCli : McvCli
 
 	public FairCli()
 	{
-		var b = new NetBoot(ExeDirectory);
+		Boot = new NetBoot(ExeDirectory);
 
-		Net				= Fair.ByZone(b.Zone);
-		NexusSettings	= new NexusSettings(b.Zone, b.Profile);
-		Settings		= new FairNodeSettings(Path.Join(b.Profile, typeof(FairNode).FullName), b.Zone, NexusSettings);
+		Net				= Fair.ByZone(Boot.Zone);
+		NexusSettings	= new NexusSettings(Boot.Zone, Boot.Profile);
+		Settings		= new FairNodeSettings(Path.Join(Boot.Profile, typeof(FairNode).FullName), Boot.Zone, NexusSettings);
 
-		Execute(b);
+		Execute(Boot.Profile, Boot.Commnand);
 	}
 
 	public FairCli(NexusSettings nexussettings, FairNodeSettings settings, FairApiClient api) : base(nexussettings, settings, api)
@@ -29,22 +29,8 @@ public class FairCli : McvCli
 
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
 	{
-		var t = commnad.First().Name;
-
-		var args = commnad.Skip(1).ToList();
-
-		var ct = Assembly.GetExecutingAssembly().DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
-
-		var c = ct?.GetConstructor([typeof(FairCli), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
-				
-		if(c != null)
-		{
-			var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(args.FirstOrDefault()?.Name));
-			
-			if(a != null)
-				return c;
-		}
-		
-		return base.Create(commnad, flow);
+		return	CreateFromAssembly(Assembly.GetExecutingAssembly(), commnad, flow)
+				??
+				base.Create(commnad, flow);
 	}
 }

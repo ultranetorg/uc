@@ -2,10 +2,12 @@
 
 namespace Uccs.Net;
 
-public class NodeCommand : McvCommand
+public abstract class NodeCommand : McvCommand
 {
 	CommandAction attach;
 	CommandAction send;
+
+	protected abstract McvApiClient CreateClient(string url);
 
 	public NodeCommand(McvCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
@@ -41,9 +43,9 @@ public class NodeCommand : McvCommand
 									ReportPreambule();
 									ReportNetwork();
 										
-									var a = new Uri(Args[0].Name);
+									var a = new Uri(First);
 
-									Cli.ApiClient = new McvApiClient(Args[0].Name, GetString(Apc.AccessKey, null));
+									Cli.ApiClient = CreateClient(First);
 
 									while(true)
 									{
@@ -53,24 +55,17 @@ public class NodeCommand : McvCommand
 										if(c == "exit")
 											break;
 
-										try
-										{
-											var x = new Xon(c);
+										var x = new Xon(c);
 
-											if((x.Nodes[0].Name == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
-																				//run.Names.Contains(x.Nodes[1].Name)  || 
-																				send.Names.Contains(x.Nodes[1].Name)))
-												||  x.Nodes[0].Name == new LogCommand(null, null, null).Keyword)
-											{ 
-												throw new Exception("Not available");
-											}
+										if((First == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
+																 //run.Names.Contains(x.Nodes[1].Name)  || 
+																 send.Names.Contains(x.Nodes[1].Name)))
+											|| First == new LogCommand(null, null, null).Keyword)
+										{ 
+											Console.WriteLine("Not available");
+										}
 	
-											Cli.Execute(x.Nodes, Flow);
-										}
-										catch(Exception ex)
-										{
-											Flow.Log?.ReportError(this, "Error", ex);
-										}
+										Cli.Execute(Cli.Boot.Profile, x);
 									}
 
 									return null;
@@ -95,9 +90,9 @@ public class NodeCommand : McvCommand
 								ReportPreambule();
 								ReportNetwork();
 
-								var a = new Uri(Args[0].Name);
+								var a = new Uri(First);
 
-								Cli.ApiClient = new McvApiClient(Args[0].Name, GetString(Apc.AccessKey, null));
+								Cli.ApiClient = CreateClient(First);
 
 								if(Has("_confirmation"))
 								{

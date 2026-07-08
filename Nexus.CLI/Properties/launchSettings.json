@@ -1,12 +1,12 @@
 {
   "profiles": {
-    "Uccs.Nexus.CLI": {
+    "run": {
+      "commandName": "Project",
+      "commandLineArgs": "run"
+    },
+    "open": {
       "commandName": "Project",
       "commandLineArgs": "open \\\"iccp:asdasd/asdasd 111111 22222\\\""
-    },
-    "wallet c": {
-      "commandName": "Project",
-      "commandLineArgs": "wallet c"
     }
   }
 }

@@ -28,7 +28,7 @@ public class Program: ApplicationContext
 		
 			var b = new NetBoot(ExeDirectory);
 			var ns = new NexusSettings(b.Zone, b.Profile);
-			var vs = new VaultSettings(b.Profile);
+			var vs = new VaultSettings(ns);
 		
 			var f = new Flow(nameof(Program), new Log());
 

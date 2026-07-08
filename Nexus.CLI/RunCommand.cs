@@ -23,18 +23,16 @@ internal class RunCommand : NexusCommand
 								var b = Cli.Boot;
 
 								var ns = new NexusSettings(b.Zone, b.Profile);
-								var vs = new VaultSettings(b.Profile);
+								var vs = new VaultSettings(ns);
 
 								Cli.Nexus = new Nexus(b, ns, vs, new Flow(nameof(Nexus), new Log()){WorkDirectory = b.Profile});
 								Cli.Nexus.RunRdn(null, new RealClock());
 
-								Cli.Run(this, a);
+								Cli.InteractOrWait(b.Profile, this, a, Cli.Nexus.Flow);
 
 								Cli.Nexus.Stop();
 								return null;
 							};
-		
-		
 
 		return a;
 	}

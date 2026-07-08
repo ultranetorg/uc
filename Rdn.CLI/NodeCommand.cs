@@ -8,27 +8,40 @@ public class NodeCommand : Net.NodeCommand
 	{
 	}
 
-	public CommandAction Run()
+	protected override McvApiClient CreateClient(string url)
 	{
- 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "r";
-		a.Description = "Runs a new instance with command-line interface";
-		a.Arguments =	[
-							new ("profile", DIRPATH, "Path to local profile directory"),
-						];
-
-		a.Execute = () =>	{
-								Cli.Node = new RdnNode(Cli.Net.Zone, GetString("profile", Cli.Settings.Profile), Cli.NexusSettings, Cli.Settings as RdnNodeSettings, new RealClock(), Flow);
-
-								Cli.Run(this, a);
-
-								Cli.Node.Stop();
-
-								return null;
-							};
-		
-		return a;
+		return new RdnApiClient(url, GetString(Apc.AccessKey, null));
 	}
+
+//	public CommandAction Run()
+//	{
+// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+//
+//		a.Name = "r";
+//		a.Description = "Runs a new instance with command-line interface";
+//		a.Arguments =	[
+//							new ("profile", DIRPATH, "Path to local profile directory"),
+//						];
+//
+//		a.Execute = () =>	{
+//								Cli.Node = new RdnNode(	Cli.Net.Zone, 
+//														GetString("profile", Cli.Boot.Profile), 
+//														Cli.NexusSettings, 
+//														Cli.Settings as RdnNodeSettings, 
+//														new RealClock(), 
+//														Flow);
+//
+//								Cli.InteractOrWait(Cli.Boot.Profile, this, a, Flow);
+//
+//								if(Cli.Node.Flow.Active)
+//									Cli.Node.Stop();
+//
+//								Cli.Node = null;
+//
+//								return null;
+//							};
+//		
+//		return a;
+//	}
 }
 

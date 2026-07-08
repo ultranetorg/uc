@@ -26,7 +26,6 @@ public abstract class McvCommand : NetCommand
 		Cli = cli;
 	}
 
-
 	protected void ReportPreambule()
 	{
 		var assembly = Assembly.GetExecutingAssembly();
@@ -66,18 +65,6 @@ public abstract class McvCommand : NetCommand
  
 		return rp;
 	}
-
-	//protected AccountKey GetPrivate(string walletarg)
-	//{
-	//	string p = null;
-	//	
-	//	var a = new ConsolePasswordAsker();
-	//	a.Ask(GetString(walletarg));
-	//	p = a.Password; 
-	//
-	//	return Sun.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
-	//}
-
 
 	public static ActionOnResult GetActionOnResult(IEnumerable<Xon> args)
 	{

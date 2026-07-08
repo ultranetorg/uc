@@ -34,11 +34,16 @@
       "commandLineArgs": "node attach http://127.1.0.1:3900 zone=Localzone profile=a:\\UOTMP\\CLI-101"
     },
     "test": {
-        "commandName": "Project",
-        "commandLineArgs": "node run peer",
-        "remoteDebugEnabled": false,
-        "remoteDebugMachine": "ultranet.org",
-        "authenticationMode": "Windows"
+      "commandName": "Project",
+      "commandLineArgs": "node run peer",
+      "remoteDebugEnabled": false,
+      "remoteDebugMachine": "ultranet.org",
+      "authenticationMode": "Windows"
+    },
+    "domain m": {
+      "commandName": "Project",
+      "commandLineArgs": "domain m",
+      "remoteDebugEnabled": false
     }
   }
 }

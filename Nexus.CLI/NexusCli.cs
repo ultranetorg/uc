@@ -1,4 +1,5 @@
-﻿using Uccs.Net;
+﻿using System.Reflection;
+using Uccs.Net;
 
 namespace Uccs.Nexus.CLI;
 
@@ -20,7 +21,7 @@ public class NexusCli : Cli
 		Boot = new NetBoot(ExeDirectory);
 		Settings = new NexusSettings(Boot.Zone, Boot.Profile);
 
-		Execute(Boot);
+		Execute(Boot.Profile, Boot.Commnand);
 	}
 
 	public NexusCli(Nexus nexus)
@@ -34,5 +35,10 @@ public class NexusCli : Cli
 		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 
 		new NexusCli();
+	}
+
+	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
+	{
+		return CreateFromAssembly(Assembly.GetExecutingAssembly(), commnad, flow);
 	}
 }	

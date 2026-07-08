@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 
 namespace Uccs.Rdn;
 
@@ -54,4 +55,24 @@ public class RdnNodeSettings : McvNodeSettings
 			TransactingTimeout = int.MaxValue;
 		}
 	}
+
+	public RdnNodeSettings(string profile, Zone zone, NexusSettings nexusSettings) : base(profile)
+	{
+		if(!nexusSettings.Exists)
+			throw new Exception("NexusSettings not found");
+
+		if(!Exists)
+		{
+			SetDefaults(zone, nexusSettings);
+			Save();
+		}
+	}
+
+	public void SetDefaults(Zone zone, NexusSettings settings)
+	{
+		Peering		= new () {Endpoint = new (IPAddress.Any, Rdn.ByZone(zone).PpiPort)};
+		Api			= new () {LocalIP = settings.Host};
+		DataPath	= System.IO.Path.Join(RdnNode.ExeDirectory, "Data");
+	}
+
 }

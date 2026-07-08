@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Numerics;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
@@ -27,20 +28,20 @@ public class RdnTypeResolver : ApiTypeResolver
     {
         var ti = base.GetTypeInfo(type, options);
 
+		IEnumerable<JsonDerivedType> all(string postfix) => typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType)
+																							   .Select(i => new JsonDerivedType(i, postfix == null ? i.Name : i.Name.Substring(0, i.Name.Length - postfix.Length)));
+
         if(ti.Type == typeof(PeerRequest))
-			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppc".Length))))
+			foreach(var i in all("Ppc"))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-
-        if(ti.Type == typeof(Result))
-			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Ppr".Length))))
+		else if(ti.Type == typeof(Result))
+			foreach(var i in all("Ppr"))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-
-        if(ti.Type == typeof(CodeException))
-			foreach(var i in typeof(Rdn).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
+		else if(ti.Type == typeof(CodeException))
+			foreach(var i in all("Exception"))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-
-         if(ti.Type == typeof(Operation))
- 			foreach(var i in typeof(RdnOperation).Assembly.DefinedTypes.Where(i => i.IsSubclassOf(ti.Type) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+		else if(ti.Type == typeof(Operation))
+ 			foreach(var i in all(null))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 
         return ti;

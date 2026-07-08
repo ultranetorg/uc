@@ -9,31 +9,6 @@ public class WalletCommand : VaultCommand
 	{
 	}
 
-	public void Api(Apc call)
-	{
-		if(Has("apitimeout"))
-			call.Timeout = GetInt("apitimeout") * 1000;
-			
-		if(call is IVaultApc u)
-		{
-			u.Execute(Cli.Vault, null, null, Flow);
-			return;
-		}
-
-		throw new Exception();
-	}
-
-	public Rp Api<Rp>(Apc call)
-	{
-		if(Has("apitimeout"))
-			call.Timeout = GetInt("apitimeout") * 1000;
-
-		if(call is IVaultApc u)	
-			return (Rp)u.Execute(Cli.Vault, null, null, Flow);
-
-		throw new Exception();
-	}
-
 	public CommandAction Create()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
@@ -47,16 +22,18 @@ public class WalletCommand : VaultCommand
 						];
 
 		a.Execute = () =>	{
-								string p = GetString("password", null);
-
-								if(p == null)
-								{
-									Cli.PasswordAsker.Create(Nexus.Vault.PasswordWarning);
-									p = Cli.PasswordAsker.Password;
-								}
+								//string p = GetString("password", null);
+								//
+								//if(p == null)
+								//{
+								//	Cli.PasswordAsker.Create(Nexus.Vault.PasswordWarning);
+								//	p = Cli.PasswordAsker.Password;
+								//}
 
 								var v = Cli.Vault ?? new Nexus.Vault(Cli.Boot.Zone, Cli.Settings, Flow);
-								var w = v.CreateWallet(GetString("name"), p, GetInt("accounts", 1));
+								var w = v.CreateWallet(GetString("name"), GetString("password"), GetInt("accounts", 1));
+
+								Api(new AddWalletApc {Name = GetString("name"), Raw = w.ToRaw()});
 
 								foreach(var i in w.Accounts.Index())
 								{
@@ -64,8 +41,6 @@ public class WalletCommand : VaultCommand
 									Report($"   Public Address - {i.Item.Address}");
 									Report($"   Private Key    - {i.Item.Key.Secret.ToHex()}");
 								}
-
-								Api(new AddWalletApc {Name = GetString("name"), Raw = w.ToRaw()});
 
 								return w;
 							};
