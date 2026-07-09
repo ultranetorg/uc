@@ -24,11 +24,15 @@ public class NexusCommand : NetCommand
 			
 		if(call is INexusApc u)
 		{
-			u.Execute(Cli.Nexus, null, null, Flow);
+			if(Cli.Nexus != null)
+				u.Execute(Cli.Nexus, null, null, Flow);
+			else
+				Cli.NexusApi.Send(call, Flow);
+
 			return;
 		}
 
-		Cli.NexusApi.Send(call, Flow);
+		throw new Exception();
 	}
 
 	public R Api<R>(Apc call)
@@ -37,9 +41,12 @@ public class NexusCommand : NetCommand
 			call.Timeout = GetInt("apitimeout") * 1000;
 
 		if(call is INexusApc u)	
-			return (R)u.Execute(Cli.Nexus, null, null, Flow);
+			if(Cli.Nexus != null)
+				return (R)u.Execute(Cli.Nexus, null, null, Flow);
+			else
+				return Cli.NexusApi.Call<R>(call, Flow);
 
-		return Cli.NexusApi.Call<R>(call, Flow);
+		throw new Exception();
 	}
 
 	protected Ura GetResourceAddress(string paramenter, bool mandatory = true)

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net.Sockets;
 using System.Reflection;
 
 namespace Uccs;
@@ -10,7 +11,6 @@ public abstract class Cli
 	public string				Application;
 	public static string		ExeDirectory;
 	public ConsoleLogView		LogView = new ConsoleLogView(false, true);
-	public Flow					Flow; 
 
 	public static bool			ConsoleAvailable { get; protected set; }
 
@@ -36,82 +36,98 @@ public abstract class Cli
 
 	public virtual Command Create(IEnumerable<Xon> commnad, Flow flow)
 	{
+		return null;
+	}
+
+	public Command CreateFromAssembly(Assembly assembly, IEnumerable<Xon> commnad, Flow flow)
+	{
 		var t = commnad.First().Name;
 		var args = commnad.Skip(1).ToList();
-		var ct = GetType().Assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
+		var ct = assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
 
 		return ct?.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
 	}
 
-	protected void Execute(Boot boot)
+	public void Execute(string profile, Xon command)
 	{
-		if(!boot.Commnand.Nodes.Any())
+		if(command.Nodes.Any(i => i.Name == Command.ConfirmationArg))
 		{
-			throw new SyntaxException("No command provided");
+			Console.Write("Press ENTER to proceed ... ");
+			Console.ReadLine();
 		}
 
-		Flow = new Flow(GetType().Name, new Log()){WorkDirectory = boot.Profile}; 
+		var l = new Log();
+		var f = new Flow(GetType().Name, l){WorkDirectory = profile}; 
 			
+		LogView.StartListening(l);
+
 		try
 		{
-			var l = new Log();
-			LogView.StartListening(l);
+			if(!command.Nodes.Any())
+				throw new SyntaxException("Nothing to do");
 
-			Execute(boot.Commnand.Nodes, Flow);
+			Execute(command.Nodes, f);
 		}
 		catch(OperationCanceledException)
 		{
-			Flow.Log.ReportError(null, "Execution aborted");
+			f.Log.ReportError(null, "Execution aborted");
+		}
+		catch(SyntaxException ex)
+		{
+			f.Log.ReportError(ex.Message);
+		}
+		catch(ApiCallException ex) when(ex.InnerException is HttpRequestException hre && hre.InnerException is SocketException)
+		{
+			f.Log.ReportError(null, "Unable to connect to Uos Nexus", ex);
 		}
 		catch(Exception ex) when(!Debugger.IsAttached)
 		{
 			if(Command.ConsoleAvailable)
 			{
-				Console.WriteLine(ex.Message);
+				f.Log.ReportError(ex.Message);
 
-				if(ex is ApiCallException ace)
+				#if DEBUG
+				if(ex is ApiCallException ace && ace.Response?.Content != null)
 				{
+					Console.WriteLine("API call response:");
 					Console.WriteLine(ace.Response.Content.ReadAsStringAsync().Result);
 				}
+				#endif
 			}
 
-			Directory.CreateDirectory(boot.Profile);
-			File.WriteAllText(Path.Join(boot.Profile, $"{Flow.Name}.{FailureExt}"), ex.ToString());
+			Directory.CreateDirectory(profile);
+			File.WriteAllText(Path.Join(profile, $"{f.Name}.{FailureExt}"), ex.ToString());
 		}
 
 		LogView.StopListening();
 	}
 
-	public virtual void Run(Command command, Command.CommandAction action)
+	public virtual void InteractOrWait(string profile, Command command, Command.CommandAction action, Flow flow)
 	{
 		if(ConsoleAvailable)
 		{
-			while(Flow.Active)
+			while(flow.Active)
 			{
 				Console.Write($"> ");
 
-				try
-				{
-					var x = new Xon(Console.ReadLine());
+				var x = new Xon(Console.ReadLine());
 
-					if(x.Nodes[0].Name == command.Keyword && (
-																action.Names.Contains(x.Nodes[1].Name) 
-															 ))
-						throw new Exception("Not available");
+				var first = x.Nodes.FirstOrDefault()?.Name;
 
-					LogView.StartListening(Flow.Log);
-					Execute(x.Nodes, Flow);
-					LogView.StopListening();
+				if(first == "exit")
+					return;
+
+				if(first == command.Keyword)
+				{	
+					Console.WriteLine("Already here");
+					continue;
 				}
-				catch(Exception ex)
-				{
-					Flow.Log.ReportError(this, "Error", ex);
-				}
+
+				Execute(profile, x);
 			}
-
 		}
 		else
-			Flow.Cancellation.WaitHandle.WaitOne();
+			flow.Cancellation.WaitHandle.WaitOne();
 
 	}
 
@@ -174,9 +190,11 @@ public abstract class Cli
 		{
 			var c = Create(args, flow)
 					??
-					throw new SyntaxException("Unknown command");
+					throw new SyntaxException("Unknown command name");
 
-			var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(args.Skip(1).FirstOrDefault()?.Name));
+			var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(args.Skip(1).FirstOrDefault()?.Name))
+					??
+					throw new SyntaxException("Unknown or missing command action");
 
 			if(a.Name != null)
 			{

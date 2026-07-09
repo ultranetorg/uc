@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Uccs.Nexus;
 
 namespace Uccs.Vault.CLI;
 
@@ -9,6 +10,38 @@ public class VaultCommand : NetCommand
 	public VaultCommand(VaultCli vault, List<Xon> args, Flow flow) : base(args, flow)
 	{
 		Cli = vault;
+	}
+
+	public void Api(Apc call)
+	{
+		if(Has("apitimeout"))
+			call.Timeout = GetInt("apitimeout") * 1000;
+			
+		if(call is IVaultApc u)
+		{
+			if(Cli.Vault != null)
+				u.Execute(Cli.Vault, null, null, Flow);
+			else
+				Cli.Api.Send(call, Flow);
+
+			return;
+		}
+
+		throw new Exception();
+	}
+
+	public R Api<R>(Apc call)
+	{
+		if(Has("apitimeout"))
+			call.Timeout = GetInt("apitimeout") * 1000;
+
+		if(call is IVaultApc u)	
+			if(Cli.Vault != null)
+				return (R)u.Execute(Cli.Vault, null, null, Flow);
+			else
+				return Cli.Api.Call<R>(call, Flow);
+
+		throw new Exception();
 	}
 
 	public CommandAction Run()
@@ -29,4 +62,5 @@ public class VaultCommand : NetCommand
 		
 		return a;
 	}
+
 }

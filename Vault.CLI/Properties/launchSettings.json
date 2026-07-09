@@ -4,9 +4,12 @@
       "commandName": "WSL2",
       "distributionName": ""
     },
-    "wallet c": {
+    "wallet c name=wallet123 password=123": {
       "commandName": "Project",
-      "commandLineArgs": "wallet c"
+      "commandLineArgs": "wallet c name=wallet123 password=123"
+    },
+    "empty": {
+      "commandName": "Project"
     }
   }
 }

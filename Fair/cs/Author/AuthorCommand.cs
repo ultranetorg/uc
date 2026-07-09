@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class AuthorCommand : FairCommand
 {
-	AutoId FirstAuthorId => AutoId.Parse(Args[0].Name);
+	AutoId FirstAuthorId => AutoId.Parse(First);
 
 	public AuthorCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
@@ -44,8 +44,11 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new AuthorNameChange{Author = FirstAuthorId,
-																Name = GetString(name)}; 
+								return	new AuthorNameChange
+										{
+											Author = FirstAuthorId,
+											Name = GetString(name)
+										}; 
 							};
 		return a;
 	}

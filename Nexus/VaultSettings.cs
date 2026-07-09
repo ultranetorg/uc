@@ -11,7 +11,13 @@ public class VaultSettings : SavableSettings
 	{
 	}
 
-	public VaultSettings(string profile) : base(profile, NetXonTextValueSerializator.Default)
+	public VaultSettings(NexusSettings settings) : base(settings.Profile, NetXonTextValueSerializator.Default)
 	{
+		if(!File.Exists(Path))
+		{
+			Api	= new () {LocalIP = settings.Host};
+			
+			Save();
+		}
 	}
 }

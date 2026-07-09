@@ -152,6 +152,7 @@ public abstract class Command
 	}
 
 	public const string		FirstArg = "<first>";
+	public const string		ConfirmationArg = "_confirmation";
 
 	public string			Keyword => GetType().Name.Replace(nameof(Command), null).ToLower();
 	public CommandAction[]	Actions => GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(CommandAction)).Select(i => i.Invoke(this, null)).Cast<CommandAction>().ToArray();

@@ -65,7 +65,7 @@ public class Settings
 	{
 		foreach(var p in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 		{
-			var x = xon.One(p.Name) ?? xon.One(p.Name.TrimEnd('s'));
+			var x = p.PropertyType.Name.EndsWith("Settings") ? xon.One(p.Name.TrimEnd('s')) : xon.One(p.Name);
 	
 			if(p.PropertyType == typeof(bool))	
 			{

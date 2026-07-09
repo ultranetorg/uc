@@ -8,6 +8,11 @@ public class NodeCommand : Uccs.Net.NodeCommand
 	{
 	}
 
+	protected override McvApiClient CreateClient(string url)
+	{
+		return new FairApiClient(url, GetString(Apc.AccessKey, null));
+	}
+
 	public CommandAction Run()
 	{
  		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
@@ -20,18 +25,18 @@ public class NodeCommand : Uccs.Net.NodeCommand
 
 		a.Execute = () =>	{
 								Cli.Node = new FairNode(Cli.Net.Zone, 
-														Cli.Settings.Profile, 
+														GetString("profile", Cli.Boot.Profile), 
 														Cli.NexusSettings, 
 														Cli.Settings as FairNodeSettings, 
 														new RealClock(), 
-														Flow);
+														new Flow(Flow, new Log())); /// Use the same Cancellation to allow to exit by API call or other
 								
-								Cli.Run(this, a);
+								Cli.InteractOrWait(Cli.Boot.Profile, this, a, Cli.Node.Flow);
 
 								if(Cli.Node.Flow.Active)
 									Cli.Node.Stop();
 
-								Cli.Node  = null;
+								Cli.Node = null;
 
 								return null;
 							};

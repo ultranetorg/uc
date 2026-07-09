@@ -434,7 +434,7 @@ public class PackageHub
 																		var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Release));
 
 																		if(pp == null)
-																			throw new ResourceException(ResourceError.RequiredPackagesNotFound);
+																			throw new ResourceException(ResourceError.ParentPackagesNotFound);
 
 																		m.Incrementals.Insert(0, new (p, pp));
 

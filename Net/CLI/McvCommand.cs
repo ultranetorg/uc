@@ -26,19 +26,12 @@ public abstract class McvCommand : NetCommand
 		Cli = cli;
 	}
 
-
 	protected void ReportPreambule()
 	{
-		var assembly = Assembly.GetExecutingAssembly();
-		var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-
-		Flow.Log.Report(fvi.ProductName);
-		Flow.Log.Report(fvi.FileVersion);
 	}
 
 	protected void ReportNetwork()
 	{
-		Flow.Log.Report($"Current Net    : {Cli.Net}");
 	}
 
 	public void Api(Apc call)
@@ -66,18 +59,6 @@ public abstract class McvCommand : NetCommand
  
 		return rp;
 	}
-
-	//protected AccountKey GetPrivate(string walletarg)
-	//{
-	//	string p = null;
-	//	
-	//	var a = new ConsolePasswordAsker();
-	//	a.Ask(GetString(walletarg));
-	//	p = a.Password; 
-	//
-	//	return Sun.Vault.Unlock(AccountAddress.Parse(GetString(walletarg)), p);
-	//}
-
 
 	public static ActionOnResult GetActionOnResult(IEnumerable<Xon> args)
 	{

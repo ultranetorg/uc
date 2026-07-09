@@ -36,6 +36,14 @@ public class Flow : IDisposable
 		Cancellation = cancellationToken;
 	}
 
+	public Flow(Flow flow, Log log)
+	{
+		Name				= flow.Name;
+		CancellationSource	= flow.CancellationSource;
+		Cancellation		= flow.Cancellation;
+		Log = log;
+	}
+
 	public Flow(string name, Log log)
 	{
 		Name = name;

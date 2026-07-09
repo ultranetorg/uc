@@ -38,6 +38,7 @@ public class NodeGlobals
 {
 	public static bool				InfiniteTimeouts;
 	public static bool				NoWait;
+	public static bool				DumpOnError;
 	public static int				TimeoutOnError = 1000;
 	public static bool				ThrowOnCorrupted;
 	public static bool				ForceApproveOutwards;

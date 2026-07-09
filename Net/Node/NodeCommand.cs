@@ -2,34 +2,15 @@
 
 namespace Uccs.Net;
 
-public class NodeCommand : McvCommand
+public abstract class NodeCommand : McvCommand
 {
 	CommandAction attach;
 	CommandAction send;
 
+	protected abstract McvApiClient		CreateClient(string url);
+
 	public NodeCommand(McvCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
-		//var run		= new CommandAction {Names = ["r", "run"]};
-
-// 			run.Execute = () =>	{
-// 								};
-// 
-// 			run.Help = new Help(){	Title = "RUN",
-// 									Description = "Runs a new node instance with command-line interface",
-// 									Syntax = $"{Keyword} {run.NamesSyntax} flags [profile=PATH] [net=ZONE]",
-// 
-// 									Arguments =
-// 									[
-// 										new ("flags", "One or more flags: 'api' to start JSON API Server, 'peer' to connect to Ultranet network and activate specified node roles, 'base' to enable Base support for the node database, 'chain' to enable Chain support for the node database, 'seed' to enable seed role for the node."),
-// 										new ("profile", "File path to local profile directory"),
-// 										new ("net", "Network net to connect")
-// 									],
-// 
-// 									Examples =
-// 									[
-// 										new (null, $"{Keyword} {run.Names[1]} api peer chain seed profile=C:\\User\\sun net=Testzone")
-// 									]};
-			
 	}
 
 	public CommandAction Attach()
@@ -41,9 +22,9 @@ public class NodeCommand : McvCommand
 									ReportPreambule();
 									ReportNetwork();
 										
-									var a = new Uri(Args[0].Name);
+									var a = new Uri(First);
 
-									Cli.ApiClient = new McvApiClient(Args[0].Name, GetString(Apc.AccessKey, null));
+									Cli.ApiClient = CreateClient(First);
 
 									while(true)
 									{
@@ -53,24 +34,17 @@ public class NodeCommand : McvCommand
 										if(c == "exit")
 											break;
 
-										try
-										{
-											var x = new Xon(c);
+										var x = new Xon(c);
 
-											if((x.Nodes[0].Name == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
-																				//run.Names.Contains(x.Nodes[1].Name)  || 
-																				send.Names.Contains(x.Nodes[1].Name)))
-												||  x.Nodes[0].Name == new LogCommand(null, null, null).Keyword)
-											{ 
-												throw new Exception("Not available");
-											}
+										if((First == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
+																 //run.Names.Contains(x.Nodes[1].Name)  || 
+																 send.Names.Contains(x.Nodes[1].Name)))
+											|| First == new LogCommand(null, null, null).Keyword)
+										{ 
+											Console.WriteLine("Not available");
+										}
 	
-											Cli.Execute(x.Nodes, Flow);
-										}
-										catch(Exception ex)
-										{
-											Flow.Log?.ReportError(this, "Error", ex);
-										}
+										Cli.Execute(Cli.Boot.Profile, x);
 									}
 
 									return null;
@@ -95,9 +69,9 @@ public class NodeCommand : McvCommand
 								ReportPreambule();
 								ReportNetwork();
 
-								var a = new Uri(Args[0].Name);
+								var a = new Uri(First);
 
-								Cli.ApiClient = new McvApiClient(Args[0].Name, GetString(Apc.AccessKey, null));
+								Cli.ApiClient = CreateClient(First);
 
 								if(Has("_confirmation"))
 								{
@@ -230,7 +204,7 @@ public class NodeCommand : McvCommand
 
 								var rp = Ppc(new MembersPpc());
 	
-								var m = rp.Members.FirstOrDefault(i => i.User == AutoId.Parse(Args[0].Name));
+								var m = rp.Members.FirstOrDefault(i => i.User == AutoId.Parse(First));
 
 								if(m == null)
 									throw new EntityException(EntityError.NotFound);

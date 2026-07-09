@@ -85,8 +85,12 @@ public class Nexus : IProgram
 		var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
 		Directory.CreateDirectory(d);
 		
-		RdnNode		= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
-		PackageHub	= new PackageHub(RdnNode, Settings.Packages);
+		RdnNode	= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
+		
+		if(RdnNode.ResourceHub != null)
+		{
+			PackageHub = new PackageHub(RdnNode, Settings.Packages);
+		}
 
 		if(IccpPeering != null)
 		{
