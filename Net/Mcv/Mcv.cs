@@ -473,10 +473,10 @@ public abstract class Mcv /// Mutual chain voting
 					if(NodeGlobals.DumpOnError)
 					{
 						Dump();
-						
-						foreach(var i in McvPeering.All.Where(i => i.Mcv != null && i.Mcv != this))
-							lock(i.Mcv.Lock)
-								i.Mcv.Dump();
+
+						foreach(var i in McvPeering.All.Where(i => i.Mcv != null && i.Mcv != this))	Monitor.Enter(i.Mcv.Lock);
+						foreach(var i in McvPeering.All.Where(i => i.Mcv != null && i.Mcv != this))	i.Mcv.Dump();
+						foreach(var i in McvPeering.All.Where(i => i.Mcv != null && i.Mcv != this))	Monitor.Exit(i.Mcv.Lock);
 					}
 
 					throw new ConfirmationException(t, m.Key);

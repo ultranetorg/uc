@@ -142,7 +142,7 @@ public abstract class McvPeering : HomoPeering
 
 			var needed = Settings.PermanentMin - Graphs.Count();
 		
-			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5))
+			foreach(var p in Peers	.Where(p =>	p.Status == ConnectionStatus.Disconnected && (NodeGlobals.NoWait || DateTime.UtcNow - p.LastTry > TimeSpan.FromSeconds(5)))
 									.OrderBy(i => i.Retries)
 									.ThenByDescending(i => i.Roles.IsSet(Role.Graph))
 									.ThenBy(i => Settings.InitialRandomization ? Guid.NewGuid() : Guid.Empty)
