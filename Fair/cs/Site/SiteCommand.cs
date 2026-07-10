@@ -4,6 +4,8 @@ namespace Uccs.Fair;
 
 public class SiteCommand : FairCommand
 {
+	Argument Eligible => ByArgument("A name of user eligible to propose changes to the site");
+
 	public SiteCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 
@@ -17,7 +19,7 @@ public class SiteCommand : FairCommand
 		a.Description = "Creates a new site";
 		a.Arguments =  [new ("years", INT, "Integer number of years in [1..10] range"),
 						new ("title", NAME, "A title of a site being created"),
-						ByArgument("Address of account that owns or is going to register the site")];
+						ByArgument("A name of suer that is going to register the site")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -57,7 +59,7 @@ public class SiteCommand : FairCommand
 		a.Description = "Prolongs current expiration date of a site for a specified number of years";
 		a.Arguments =  [new (null, EID, "Id of a site to update", Flag.First),
 							 new (years, INT, "A number of years to renew site for. Allowed during the last year of current period only."),
-							 ByArgument("Address of account that owns the site")];
+							 Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -79,7 +81,7 @@ public class SiteCommand : FairCommand
 						new (null, EID, "Id of a creator", Flag.Second),
 						new (nickname, EID, "A new nickname"),
 						new (As, ROLE, "On behalf of"),
-						ByArgument("Address of account that owns the site")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -109,7 +111,7 @@ public class SiteCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Property()
+	public CommandAction Info()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
@@ -117,15 +119,15 @@ public class SiteCommand : FairCommand
 		var s = "slogan";
 		var d = "description";
 
-		a.Name = "p";
-		a.Description = "Changes various site's descriptive properties";
-		a.Arguments =	[new (null, EID, "Id of a site to update", Flag.First),
-						new (null, EID, "Id of a actor", Flag.Second),
+		a.Name = "i";
+		a.Description = "Changes information abourt a site";
+		a.Arguments =  [new (null, EID, "Id of a site to update", Flag.First),
 						new (@As, ROLE, $"A role of actor, {Uccs.Fair.Role.Moderator} by default"),
+						new (null, EID, "Id of a actor", Flag.Second),
 						new (t, TEXT, "A new title", Flag.Optional),
 						new (s, TEXT, "A new slogan", Flag.Optional),
 						new (d, TEXT, "A new description", Flag.Optional),
-						ByArgument("Address of account that owns the site")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);

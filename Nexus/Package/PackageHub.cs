@@ -144,7 +144,7 @@ public class PackageHub
 		return true;
 	}
 
-	public void Build(Stream stream, IDictionary<string, string> files, IEnumerable<string> removals, Flow flow)
+	public void Build(Stream stream, Dictionary<string, string> files, IEnumerable<string> removals, Dictionary<string, byte[]> patches, Flow flow)
 	{
 		using(var arch = new ZipArchive(stream, ZipArchiveMode.Create, true))
 		{
@@ -159,45 +159,58 @@ public class PackageHub
 				var e = arch.CreateEntry(LocalPackage.Removals);
 				var f = string.Join('\n', removals);
 					
-				using(var s = e.Open())
+				using var s = e.Open();
+				s.Write(Encoding.UTF8.GetBytes(f));
+			}
+
+			if(patches.Any())
+			{
+				var e = arch.CreateEntry(LocalPackage.Patches);
+					
+				using var s = e.Open();
+				var w = new Writer(s);
+
+				foreach(var i in patches)
 				{
-					s.Write(Encoding.UTF8.GetBytes(f));
+					w.WriteUtf8(i.Key);
+					w.WriteBytes(i.Value);
 				}
 			}
 		}
 	}
 	
-	public void BuildIncremental(Stream stream, Ura package, Ura previous, IDictionary<string, string> files, Flow workflow)
+	public void BuildIncremental(Stream stream, Ura package, Ura previous, IDictionary<string, string> all, Flow flow)
 	{
 		var rems = new List<string>();
-		var incs = new Dictionary<string, string>();
-		var olds = new List<string>();
+		var upds = new Dictionary<string, string>();
+		var pchs = new Dictionary<string, byte[]>();
+		var olds = new HashSet<string>();
 
 		//var prev = package.ReplaceHash(previous);
 
-		string path;
+		string ppath;
 			
 		lock(Node.ResourceHub)
-			path = Find(previous).Release.Find(LocalPackage.CompleteFile).LocalPath;
+			ppath = Find(previous).Release.Find(LocalPackage.CompleteFile).LocalPath;
 
-		using(var s = new FileStream(path, FileMode.Open))
+		using(var ps = new FileStream(ppath, FileMode.Open))
 		{
-			using(var arch = new ZipArchive(s, ZipArchiveMode.Read))
+			using(var pzip = new ZipArchive(ps, ZipArchiveMode.Read))
 			{
-				foreach(var e in arch.Entries)
+				foreach(var e in pzip.Entries)
 				{
 					olds.Add(e.FullName);
 
-					var f = files.FirstOrDefault(i => i.Value == e.FullName);
+					var f = all.FirstOrDefault(i => i.Value == e.FullName);
 				
 					if(f.Key != null) /// new package contains a file from the old one
 					{
-						bool changed = e.Length != new FileInfo(f.Key).Length;
+						bool updated = e.Length != new FileInfo(f.Key).Length;
 
-						if(!changed)
+						if(!updated)
 						{
-							var a = e.Open();
-							var b =	File.OpenRead(f.Key);
+							using var a = e.Open();
+							using var b = File.OpenRead(f.Key);
 
 							var abuffer = new byte[e.Length];
 							var bbuffer = new byte[e.Length];
@@ -212,37 +225,34 @@ public class PackageHub
 							while(m < e.Length)
 								m += b.Read(bbuffer, m, (int)e.Length - m);
 															
-							changed = !abuffer.SequenceEqual(bbuffer);
-
-							a.Close();
-							b.Close();
+							updated = !Bytes.Equal(abuffer, bbuffer);
 						}
 
-						if(changed)
+						if(updated)
 						{
-							incs.Add(f.Key, f.Value);
-							workflow?.Log?.Report(this, "Updated", f.Value);
+							upds.Add(f.Key, f.Value);
+							flow.Log?.Report(this, "Updated", f.Value);
 						}
 					}
 					else /// a file is removed in the new package
 					{
 						rems.Add(e.FullName);
-						workflow?.Log?.Report(this, "Removed", e.FullName);
+						flow.Log?.Report(this, "Removed", e.FullName);
 					}
 				}
 			}
 		}
 
-		foreach(var f in files)
+		foreach(var f in all)
 		{
 			if(!olds.Contains(f.Value)) /// a completely new file
 			{
-				incs.Add(f.Key, f.Value);
-				workflow?.Log?.Report(this, "New", f.Value);
+				upds.Add(f.Key, f.Value);
+				flow.Log?.Report(this, "New", f.Value);
 			}
 		}
 		
-		Build(stream, incs, rems, workflow);
+		Build(stream, upds, rems, pchs, flow);
 	}
 
 	public void DetermineDelta(Ura package, PackageManifest manifest, out bool canincrement, out List<Dependency> dependencies)
@@ -305,7 +315,7 @@ public class PackageHub
 		}
 
 		var ms = new MemoryStream();
-		Build(ms, files, [], flow);
+		Build(ms, files, [], [], flow);
 		cstream = ms.ToArray();
 
 		if(previous != null)

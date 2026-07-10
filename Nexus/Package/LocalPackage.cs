@@ -8,6 +8,7 @@ public class LocalPackage
 	public const string		CompleteFile = "c";
 	public const string		ManifestFile = "m";
 	public const string		Removals = ".removals";
+	public const string		Patches = ".patches";
 	public const string		Renamings = ".renamings"; /// TODO
 
 	public LocalResource	Resource;
