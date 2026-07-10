@@ -2,15 +2,15 @@
 
 public abstract class RdnCommand : McvCommand
 {
-	public static readonly ArgumentType DA		= new ("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",				[@"application.company"]);
-	public static readonly ArgumentType RDA		= new ("RDA",	@"Root domain address",														[@"ultranet123"]);
-	public static readonly ArgumentType SDA		= new ("SDA",	@"Subdoman address",														[@"application.company"]);
-	public static readonly ArgumentType DCP		= new ("DCP",	@"Domain child address",													Enum.GetNames<DomainChildPolicy>());
-	public static readonly ArgumentType RA		= new ("RA",	@"Full resource address in form of ""scheme:net/domain/resource"" form",	[@"rdn/company/application", "/author/product"]);
-	public static readonly ArgumentType TLD		= new ("TLD",	@"Web top-level domain",													Domain.PriorityTlds);
-	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",															[$"{UrrScheme.Rrrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
-	public static readonly ArgumentType LT		= new ("RLT",	@"Resource link type",														Enum.GetNames<ResourceLinkType>());
-	public static readonly ArgumentType SNN		= new ("SNN",	@"Subnet name",																["fair"]);
+	public static readonly ArgumentType DA		= new ("DA",	@"Domain address, a text of [a...z],[0...9] and ""_"" symbols",		[@"application.company"]);
+	public static readonly ArgumentType RDA		= new ("RDA",	@"Root domain address",												[@"ultranet123"]);
+	public static readonly ArgumentType SDA		= new ("SDA",	@"Subdoman address",												[@"application.company"]);
+	public static readonly ArgumentType DCP		= new ("DCP",	@"Domain child address",											Enum.GetNames<DomainChildPolicy>());
+	public static readonly ArgumentType RA		= new ("RA",	@"Full resource address in form of ""scheme:net/domain/resource""",	[@"rdn/company/application", "/author/product"]);
+	public static readonly ArgumentType TLD		= new ("TLD",	@"Web top-level domain",											Domain.PriorityTlds);
+	public static readonly ArgumentType RZA		= new ("RZA",	@"Release address",													[$"{UrrScheme.Rrrh}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType LT		= new ("RLT",	@"Resource link type",												Enum.GetNames<ResourceLinkType>());
+	public static readonly ArgumentType SNN		= new ("SNN",	@"Subnet name",														["fair"]);
 
 	protected RdnCli			Program;
 

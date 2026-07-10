@@ -13,6 +13,8 @@ public class FairNode : McvNode
 	public WebServer				WebServer;
 	List<OutwardTransaction>		CurrentOutwards = [];
 
+	public static readonly string	Description = "The Fair is the decentralized autonomous owner-free platform (DAO) of product publishing communities fully governed by the will of its members";
+
 	public static readonly string[]	ClientRequiredMessage = ["This is decentralized autonomous owner-free platform and requires Client Software installed to participate in its communities.",
 															"Windows OS is currently supported only.",
 															"Please, follow the link below to install."];
