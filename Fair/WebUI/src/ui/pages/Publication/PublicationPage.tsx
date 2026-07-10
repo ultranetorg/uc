@@ -7,7 +7,6 @@ import { useGetPublicationDetails, useGetReviews } from "entities"
 import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, PublicationHeader } from "ui/components/publication"
-import { TEST_SOFTWARE_CATEGORIES } from "testConfig"
 import { createBreadcrumbs } from "utils"
 import { PublicationContentView } from "ui/views"
 

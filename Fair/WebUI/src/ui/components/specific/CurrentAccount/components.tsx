@@ -5,7 +5,7 @@ import { CheckCircleFillSvg, SvgXSm } from "assets"
 import avatarFallbackXl from "assets/fallback/user-8.png"
 import avatarFallback3xl from "assets/fallback/user-10.png"
 import { AccountBase, PropsWithClassName } from "types"
-import { buildUserAvatarByIdUrl, buildUserAvatarByNameUrl, MakeOptional, shortenAddress } from "utils"
+import { buildUserAvatarByNameUrl, MakeOptional, shortenAddress } from "utils"
 
 type AccountBaseProps = {
   addressShort: string

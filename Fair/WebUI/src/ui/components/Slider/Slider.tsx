@@ -19,13 +19,13 @@ import { SliderProps } from "./types"
 import { inferPoster, inferType } from "./utils"
 import { VideoPlayOverlay } from "./VideoPlayOverlay"
 
-export const Slider = memo(({ items = [] }: SliderProps) => {
-  const [swiper, setSwiper] = useState<SwiperClass | null>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
+export const Slider = memo(({ items }: SliderProps) => {
+  const [swiper, setSwiper] = useState<SwiperClass | undefined>()
+  const [slideIndex, setSlideIndex] = useState(0)
 
   const thumbs = useMemo(
     () =>
-      items.map(item => {
+      items?.map(item => {
         const type = inferType(item.src)
         const isVideo = type !== "image"
         const thumbSrc =
@@ -37,7 +37,7 @@ export const Slider = memo(({ items = [] }: SliderProps) => {
     [items],
   )
 
-  if (!items.length) {
+  if (!items || !items.length) {
     return <div className="h-[416px] max-w-[750px] rounded-lg bg-gray-100" />
   }
 
@@ -58,24 +58,25 @@ export const Slider = memo(({ items = [] }: SliderProps) => {
             renderBullet: (_: number, className: string) => `<div class="${className}"></div>`,
           }}
           onSwiper={setSwiper}
-          onSlideChange={s => setActiveIndex(s.activeIndex)}
+          onSlideChange={s => setSlideIndex(s.activeIndex)}
         >
-          {items.map((item, index) => (
-            <SwiperSlide key={String(item.id ?? item.src ?? index)}>
-              <SlideContent item={item} isActive={index === activeIndex} />
-            </SwiperSlide>
-          ))}
+          {items &&
+            items.map((item, index) => (
+              <SwiperSlide key={String(item.id ?? item.src ?? index)}>
+                <SlideContent item={item} isActive={index === slideIndex} />
+              </SwiperSlide>
+            ))}
         </Swiper>
 
-        <div className="swiper-button-prev absolute left-2 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 hover:bg-black/10">
+        <div className="swiper-button-prev absolute left-2 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 text-transparent hover:bg-black/10">
           <SvgChevronLeftMd className="stroke-white" />
         </div>
-        <div className="swiper-button-next absolute right-2 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 hover:bg-black/10">
+        <div className="swiper-button-next absolute right-2 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 text-transparent hover:bg-black/10">
           <SvgChevronRightMd className="stroke-white" />
         </div>
       </div>
 
-      {thumbs.length > 1 ? (
+      {thumbs && thumbs.length > 1 ? (
         <div className="flex gap-2 overflow-auto">
           {thumbs.map((t, idx) => (
             <button
@@ -84,7 +85,7 @@ export const Slider = memo(({ items = [] }: SliderProps) => {
               onClick={() => swiper?.slideTo?.(idx)}
               className={twMerge(
                 "h-15 w-24 shrink-0 overflow-hidden rounded-md outline-none focus:outline-none focus-visible:outline-none",
-                idx !== activeIndex && "opacity-60 hover:opacity-100",
+                idx !== slideIndex && "opacity-60 hover:opacity-100",
               )}
             >
               <div className="relative size-full">
