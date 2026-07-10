@@ -318,7 +318,7 @@ export const enUS = {
     searchProposal: "Search proposal",
     noProposals: "No open proposals",
   },
-  publication: {
+  publicationPage: {
     title: "Publication - {{publicationId}} | Ultranet Fair",
     about: "About",
     author: "Author",
@@ -336,6 +336,7 @@ export const enUS = {
     lastUpdated: "Last Updated",
     editReview: "Edit Review",
     licenseType: "License Type",
+    noRatings: "Not yet rated",
     noReviews: "No reviews yet. Be the first to share your experience",
     noScreenshots: "No screenshots available<br/><br/>This product doesn’t include screenshots yet",
     os: "OS",

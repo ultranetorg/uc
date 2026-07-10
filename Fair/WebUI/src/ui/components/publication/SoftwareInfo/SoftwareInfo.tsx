@@ -30,6 +30,7 @@ export type SoftwareInfoProps = {
   versionLabel: string
   osLabel: string
   ratingLabel: string
+  noRatingsLabel: string
   lastUpdatedLabel: string
   licenseTypeLabel: string
   priceLabel: string
@@ -55,6 +56,7 @@ export const SoftwareInfo = memo(
     versionLabel,
     osLabel,
     ratingLabel,
+    noRatingsLabel,
     lastUpdatedLabel,
     licenseTypeLabel,
     priceLabel,
@@ -134,7 +136,7 @@ export const SoftwareInfo = memo(
           </div>
         )}
 
-        {supportedPlatforms && (
+        {supportedPlatforms && supportedPlatforms.length > 0 && (
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{osLabel}</span>
             <span className={VALUE_CLASSNAME}>{formatSupportedPlatforms(supportedPlatforms)}</span>
@@ -162,7 +164,13 @@ export const SoftwareInfo = memo(
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{ratingLabel}</span>
             <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>
-              {productOrPublication.rating} <SvgStarXxs className="fill-favorite" />
+              {productOrPublication.rating !== 0 ? (
+                <>
+                  {productOrPublication.rating} <SvgStarXxs className="fill-favorite" />
+                </>
+              ) : (
+                noRatingsLabel
+              )}
             </div>
           </div>
         )}

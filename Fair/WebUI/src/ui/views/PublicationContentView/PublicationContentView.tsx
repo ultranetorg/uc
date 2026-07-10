@@ -23,7 +23,7 @@ export const PublicationContentView = ({
   onEditReview,
 }: PublicationContentViewProps) => {
   const siteId = useResolveSiteId()
-  const { t } = useTranslation("publication")
+  const { t } = useTranslation("publicationPage")
 
   const ContentComponent = getPublicationContentByType(productOrPublication.type)
 
