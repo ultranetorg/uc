@@ -15,7 +15,6 @@ import {
   ReviewerPage,
   SearchPage,
   SitePage,
-  UserPage,
 } from "ui/pages"
 import {
   CreateReferendumPage,
@@ -87,11 +86,6 @@ const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
         <PublicationPage />
       </SiteLayout>
     </BaseLayout>
-  ),
-  userId: (
-    <FullscreenPageView>
-      <UserPage />
-    </FullscreenPageView>
   ),
   authorId: (
     <FullscreenPageView>

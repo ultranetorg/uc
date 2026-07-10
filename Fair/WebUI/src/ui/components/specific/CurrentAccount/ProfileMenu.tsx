@@ -5,8 +5,8 @@ import { SvgChevronRight, SvgPencilSm, SvgPerson2 } from "assets"
 import avatarFallback from "assets/fallback/user-22.5.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
-import { ButtonGhost, CopyAddressButton, ImageFallback, LinkFullscreen } from "ui/components"
-import { buildUserAvatarByNameUrl, routes } from "utils"
+import { ButtonGhost, CopyAddressButton, ImageFallback } from "ui/components"
+import { buildUserAvatarByNameUrl } from "utils"
 
 import pngBackground from "./background.png"
 import { AccountSwitcher, AccountSwitcherBaseProps } from "./AccountSwitcher"
@@ -55,14 +55,14 @@ export const ProfileMenu = memo(
                   {selectedUserName}
                 </span>
               ) : (
-                <LinkFullscreen to={routes.profile(address)} params={{ defaultTabKey: "profileSettings" }}>
-                  <ButtonGhost
-                    className="text-2sm leading-5"
-                    label={t("createNickname")}
-                    iconAfter={<SvgPencilSm className="fill-gray-800" />}
-                    onClick={() => console.log("Create nickname")}
-                  />
-                </LinkFullscreen>
+                /*<LinkFullscreen to={routes.profile(address)} params={{ defaultTabKey: "profileSettings" }}>*/
+                <ButtonGhost
+                  className="text-2sm leading-5"
+                  label={t("createNickname")}
+                  iconAfter={<SvgPencilSm className="fill-gray-800" />}
+                  onClick={() => console.log("Create nickname")}
+                />
+                /*</LinkFullscreen>*/
               )}
               <CopyAddressButton address={address} />
             </div>

@@ -30,8 +30,6 @@ export const routes = {
   reviewer: (siteId: string, reviewerId: string) => `${sitePath(siteId)}/${addPrefix("userId", reviewerId)}`,
   publisher: (siteId: string, publisherId: string) => `${sitePath(siteId)}/${addPrefix("publisherId", publisherId)}`,
 
-  user: (userId: string) => `/${addPrefix("userId", userId)}`,
-  profile: (userId: string) => `/${addPrefix("profileId", userId)}`, // TODO: fix later.
   author: (authorId: string) => `/${addPrefix("authorId", authorId)}`,
 
   governance: {
