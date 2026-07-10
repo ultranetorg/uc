@@ -57,8 +57,8 @@ public abstract class Round : IBinarySerializable
 	public long[]										Spacetimes;
 	public long[]										Bandwidths;
 
-	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
-	public Dictionary<AutoId, User>						AffectedUsers = new();
+	public Dictionary<MetaId, MetaEntity>				AffectedMetas = [];
+	public Dictionary<AutoId, User>						AffectedUsers = [];
 	public TableState<AutoId, Friend>					Friends;
 	public Dictionary<int, int>[]						NextEids;
 
@@ -348,7 +348,7 @@ public abstract class Round : IBinarySerializable
 	public virtual void FinishExecution()
 	{
 	}
-
+	
 	public virtual void Execute(IEnumerable<Transaction> transactions, bool examine = false)
 	{
 		if(Confirmed)
@@ -408,7 +408,6 @@ public abstract class Round : IBinarySerializable
 
 				if(o.Error != null)
 					break;
-
 
 				foreach(var i in e.EnergySpenders)
 				{
