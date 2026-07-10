@@ -17,7 +17,7 @@ public class UnpublishedPublicationsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PublicationId}", nameof(UnpublishedPublicationsController), nameof(GetDetails), siteId, publicationId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
 		return unpublishedPublicationsService.GetDetails(siteId, publicationId);
@@ -28,7 +28,7 @@ public class UnpublishedPublicationsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(GetAll), siteId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);

@@ -4,7 +4,7 @@ public static class VotingUtils
 {
 	public static int CalculateVotesRequiredToWinPerpetualSurvey(int sitePublishersCount) => sitePublishersCount / 2 + (sitePublishersCount & 1);
 
-	public static int CalculateVotesRequiredToWinProposal(ApprovalRequirement approval, Site site)
+	public static int CalculateVotesRequiredToWinProposal(ApprovalRequirement approval, Store site)
 	{
 		return approval switch
 		{

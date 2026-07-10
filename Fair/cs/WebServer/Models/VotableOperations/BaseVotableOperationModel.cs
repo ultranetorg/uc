@@ -2,8 +2,8 @@
 
 namespace Uccs.Fair;
 
-public abstract class BaseVotableOperationModel(SiteOperation operation)
+public abstract class BaseVotableOperationModel(StoreOperation operation)
 {
 	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-	public string? SiteId { get; set; } = operation.Site?.Id.ToString();
+	public string? SiteId { get; set; } = operation.Store?.Id.ToString();
 }

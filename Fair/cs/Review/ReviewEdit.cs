@@ -58,7 +58,7 @@ public class ReviewEdit : VotableOperation
 
 		execution.Free(a, a, Encoding.UTF8.GetByteCount(v.Text));
 		v.Text = Text;
-		execution.Allocate(Site, a, Encoding.UTF8.GetByteCount(Text), out Error);
-		execution.RewardForModeration(Site, a, out Error);
+		execution.Allocate(Store, a, Encoding.UTF8.GetByteCount(Text), out Error);
+		execution.RewardForModeration(Store, a, out Error);
 	}
 }

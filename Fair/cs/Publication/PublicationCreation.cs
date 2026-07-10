@@ -30,7 +30,7 @@ public class PublicationCreation : VotableOperation
 	{
 		var o = other as PublicationCreation;
 
-		return o.Site == Site && o.Product == Product;
+		return o.Store == Store && o.Product == Product;
 	}
 	
 	 public override bool ValidateProposal(FairExecution execution, out string error)
@@ -44,13 +44,13 @@ public class PublicationCreation : VotableOperation
 			return false;
 		}
 
-		if(r.Publications.Any(i => execution.Publications.Find(i).Site == Site.Id))
+		if(r.Publications.Any(i => execution.Publications.Find(i).Store == Store.Id))
 		{	
 			error = AlreadyExists;
 			return false;
 		}
 
-		if(Site.UnpublishedPublications.Any(i => execution.Publications.Find(i).Product == Product))
+		if(Store.UnpublishedPublications.Any(i => execution.Publications.Find(i).Product == Product))
 		{	
 			error = AlreadyExists;
 			return false;
@@ -70,12 +70,12 @@ public class PublicationCreation : VotableOperation
 	public override void Execute(FairExecution execution)
 	{
 		var r = execution.Products.Affect(Product);
-		var p = execution.Publications.Create(Site);
+		var p = execution.Publications.Create(Store);
 		var a = execution.Authors.Affect(r.Author);
 		
 		var v = r.Versions.Last();
 
-		p.Site				= Site.Id;
+		p.Store				= Store.Id;
 		p.Product			= r.Id;
 		p.ProductVersion	= v.Id;
 		p.AuthorRank		= a.VerifiedWebdomainRank;
@@ -83,20 +83,20 @@ public class PublicationCreation : VotableOperation
 		r.Versions		= [..r.Versions[..^1], new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs + 1}];
 		r.Publications	= [..r.Publications, p.Id];
 
-		Site.PublicationsCount++;
+		Store.PublicationsCount++;
 				
-		if(!Site.Publishers.Any(i => i.Author == r.Author))
+		if(!Store.Publishers.Any(i => i.Author == r.Author))
 		{
-			Site.Publishers = [..Site.Publishers,	new Publisher
+			Store.Publishers = [..Store.Publishers,	new Publisher
 													{
 														Author = a.Id, 
 														EnergyLimit = Publisher.Unlimit, 
 														SpacetimeLimit = Publisher.Unlimit
 													}];
-			a.Sites = [..a.Sites, Site.Id];
+			a.Stores = [..a.Stores, Store.Id];
 		}
 
-		Site.UnpublishedPublications = [..Site.UnpublishedPublications, p.Id];
+		Store.UnpublishedPublications = [..Store.UnpublishedPublications, p.Id];
 
 		if(As == Role.Candidate || As == Role.Publisher)
 		{ 
@@ -106,7 +106,7 @@ public class PublicationCreation : VotableOperation
 		}
 		else
 		{	
-			execution.Allocate(Site, Site, execution.Net.EntityLength);
+			execution.Allocate(Store, Store, execution.Net.EntityLength);
 		}
 	}
 }

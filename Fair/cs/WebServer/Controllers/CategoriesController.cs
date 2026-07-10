@@ -15,7 +15,7 @@ public class CategoriesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(CategoriesController), nameof(GetRoot), siteId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 
 		return categoriesService.GetRoot(siteId, cancellationToken);
 	}
@@ -35,7 +35,7 @@ public class CategoriesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Depth}", nameof(CategoriesController), nameof(GetTree), siteId, depth);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		depthValidator.Validate(depth);
 
 		int? categoriesDepth = DepthUtils.GetDepth(depth);

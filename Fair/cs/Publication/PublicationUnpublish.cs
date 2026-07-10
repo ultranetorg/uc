@@ -36,6 +36,6 @@ public class PublicationUnpublish : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		execution.Unpublish(Site, Publication, out Error);	
+		execution.Unpublish(Store, Publication, out Error);	
 	}
 }

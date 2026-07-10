@@ -6,6 +6,8 @@ public class AuthorCommand : FairCommand
 {
 	AutoId FirstAuthorId => AutoId.Parse(First);
 
+	Argument Eligible => ByArgument("A name of user eligible to change Author entity");
+
 	public AuthorCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 
@@ -19,7 +21,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Creates a new author for a specified period";
 		a.Arguments =  [new ("years", YEARS, "Number of years in [1..10] range"),
 						new ("title", NAME, "A title of a author being created"),
-						ByArgument("Address of account that owns or is going to register the author")];
+						ByArgument("A name of user that is going to register the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -39,7 +41,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Sets an nickname for a specified author";
 		a.Arguments =	[new (null, EID, "Id of a author to update", Flag.First),
 						new (name, NAME, "A new nickname"),
-						ByArgument("Address of account that is author's owner")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -86,7 +88,7 @@ public class AuthorCommand : FairCommand
 							new (null, EID, "Id of an author to be renewed", Flag.First),
 							new (ao, AA, "Account Id of a new owner to add"),
 							new (ro, AA, "Account Id of a existing owner to remove"),
-							ByArgument("Address of account that owns the author")
+							Eligible
 						];
 
 		a.Execute = () =>	{
@@ -118,7 +120,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Prolongs current expiration date of an author for a specified number of years";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (years, YEARS, "A number of years to renew author for. "),
-						ByArgument("Address of account that owns the author")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -132,22 +134,22 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		const string site = "site";
+		const string store = "store";
 		const string energy = "energy";
 		const string spacetime = "spacetime";
 
 		a.Name = "pl";
-		a.Description = "Sets a utility limits for the specified author of the specfied site";
+		a.Description = "Sets a utility limits for the specified author of the specfied store";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
-						new (site, EID, "Id of a site where author is the member"),
+						new (store, EID, "Id of a store where author is the member"),
 						new (energy, INT, "A new limit for the energy"),
 						new (spacetime, INT, "A new limit for the spacetime"),
-						ByArgument("Address of account that owns the author")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new PublisherLimitsUpdation {Author = FirstAutoId, Site = GetAutoId(site), EnergyLimit = GetLong(energy), SpacetimeLimit = GetLong(spacetime)};
+								return new PublisherLimitsUpdation {Author = FirstAutoId, Store = GetAutoId(store), EnergyLimit = GetLong(energy), SpacetimeLimit = GetLong(spacetime)};
 							};
 		return a;
 	}
@@ -162,7 +164,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Sets the moderation reward for the specified author";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (energy, INT, "Amount of energy for reward"),
-						ByArgument("Address of account that owns the author")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -182,7 +184,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Requests the net to check ownership of web domain for the specified author";
 		a.Arguments =  [new (null, EID, "Id of an author to verify", Flag.First),
 						new (domain, NAME, "Web domain name"),
-						ByArgument("Address of account that owns the author")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -202,7 +204,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Sets an avatar for a specified author. Only files with correct media type(MIME) are accepted.";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (file, EID, "Id of a file entity"),
-						ByArgument("Address of account that is author's owner")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -229,8 +231,8 @@ public class AuthorCommand : FairCommand
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (t, TEXT, "A new title"),
 						new (d, TEXT,  "A new description"),
-						new (r, null,  "{text=TEXT uri=URI}"),
-						ByArgument("A name of user eligible to change the author")];
+						new (r, new ArgumentType("{text=TEXT uri=URI}", null, ["{text=Website uri=http://www.company.com}", "{text=Github uri=http://github.com/company}"]), "Zero or more Uri references with a description"),
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);

@@ -10,7 +10,7 @@ public class PublishersController(ILogger<PublishersController> logger, IAutoIdV
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PublisherId}, {Pagination}", nameof(PublishersController), nameof(PublishersController.GetPublications), siteId, publisherId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		autoIdValidator.Validate(publisherId, nameof(Publisher).ToLower());
 		paginationValidator.Validate(pagination);
 

@@ -38,7 +38,7 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 		return Affected[a.Id] = a;
 	}
 		
-	public void Delete(Site site, AutoId id)
+	public void Delete(Store store, AutoId id)
 	{
 		var v = Execution.Reviews.Affect(id);
 		
@@ -47,7 +47,7 @@ public class ReviewExecution : TableExecution<AutoId, Review>
 		var u = Execution.AffectUser(v.Creator);
 		u.Reviews = u.Reviews.Remove(v.Id);
 		
-		Execution.Free(site, site, Encoding.UTF8.GetByteCount(v.Text));
-		Execution.Free(site, site, Execution.Net.EntityLength);
+		Execution.Free(store, store, Encoding.UTF8.GetByteCount(v.Text));
+		Execution.Free(store, store, Execution.Net.EntityLength);
 	}
 }

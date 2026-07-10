@@ -33,11 +33,11 @@ public class ProposalService
 		AutoId siteEntityId = AutoId.Parse(siteId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		Site site = mcv.Sites.Latest(siteEntityId);
+		Store site = mcv.Stores.Latest(siteEntityId);
 			
 		if (site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		string entityName = discussionOrReferendums ? EntityNames.DiscussionEntityName : EntityNames.ReferendumEntityName;
@@ -118,17 +118,17 @@ public class ProposalService
 
 		AutoId siteEntityId = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(siteEntityId);
+		Store site = mcv.Stores.Latest(siteEntityId);
 		if (site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		return LoadProposalsOrReferendumsPaged(site, discussionOrReferendums, page, pageSize, search, cancellationToken);
 	}
 
 	/// <param name="discussionsOrReferendums">`true` for Proposal, `false` for Referendum</param>
-	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Site site, bool discussionsOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
+	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Store site, bool discussionsOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<ProposalModel>.Empty;
@@ -194,10 +194,10 @@ public class ProposalService
 
 		AutoId siteEntityId = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(siteEntityId);
+		Store site = mcv.Stores.Latest(siteEntityId);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		return LoadProposalsPagedNotOptimized(site.Proposals, operationClass, page, pageSize, cancellationToken);

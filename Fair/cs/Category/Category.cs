@@ -10,7 +10,7 @@ public enum ProductType : byte
 public class Category : IBinarySerializable, ITableEntry
 {
 	public AutoId			Id { get; set; }
-	public AutoId			Site { get; set; }
+	public AutoId			Store { get; set; }
 	public AutoId			Parent { get; set; }
 	public ProductType		Type { get; set; }
 	public string			Title { get; set; }
@@ -36,7 +36,7 @@ public class Category : IBinarySerializable, ITableEntry
 		return	new Category(Mcv)   
 				{
 					Id				= Id,
-					Site			= Site,
+					Store			= Store,
 					Parent			= Parent,
 					Type			= Type,
 					Title			= Title,
@@ -63,7 +63,7 @@ public class Category : IBinarySerializable, ITableEntry
 	public void Read(Reader reader)
 	{
 		Id				= reader.Read<AutoId>();
-		Site			= reader.Read<AutoId>();
+		Store			= reader.Read<AutoId>();
 		Parent			= reader.ReadNullable<AutoId>();
 		Type			= reader.Read<ProductType>();
 		Title			= reader.ReadUtf8();
@@ -75,7 +75,7 @@ public class Category : IBinarySerializable, ITableEntry
 	public void Write(Writer writer)
 	{
 		writer.Write(Id);
-		writer.Write(Site);
+		writer.Write(Store);
 		writer.WriteNullable(Parent);
 		writer.Write(Type);
 		writer.WriteUtf8(Title);

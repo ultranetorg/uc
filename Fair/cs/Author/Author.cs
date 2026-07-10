@@ -63,7 +63,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public bool						Free { get; set; }
 	
 	public AutoId[]					Products { get; set; }
-	public AutoId[]					Sites { get; set; }
+	public AutoId[]					Stores { get; set; }
 	public UriReference[]			References { get; set; }
 	public AutoId[]					Files  { get; set; }
 	
@@ -115,7 +115,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 					ModerationReward		= ModerationReward,
 
 					Products				= Products,
-					Sites					= Sites,
+					Stores					= Stores,
 					References				= References,
 					Files					= Files,
 				};
@@ -153,7 +153,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		Write(writer);
 		
 		writer.Write(Products);
-		writer.Write(Sites);
+		writer.Write(Stores);
 		writer.Write(References);
 	}
 
@@ -162,7 +162,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		Read(reader);
 		
 		Products	= reader.ReadArray<AutoId>();
-		Sites		= reader.ReadArray<AutoId>();
+		Stores		= reader.ReadArray<AutoId>();
 		References	= reader.ReadArray<UriReference>();
 	}
 

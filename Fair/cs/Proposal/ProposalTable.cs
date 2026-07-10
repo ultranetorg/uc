@@ -23,14 +23,14 @@ public class ProposalExecution : TableExecution<AutoId, Proposal>
 	{
 	}
 
-	public Proposal Create(Site site)
+	public Proposal Create(Store store)
 	{
 		Execution.IncrementCount((int)FairMetaEntityType.ProposalCount);
 
-		int e = Execution.GetNextEid(Table, site.Id.B);
+		int e = Execution.GetNextEid(Table, store.Id.B);
 
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(store.Id.B, e);
 		a.Neither = [];
 		a.Any = [];
 		a.Ban = [];
@@ -43,10 +43,10 @@ public class ProposalExecution : TableExecution<AutoId, Proposal>
 		return Affected[a.Id] = a;
 	}
 
-	public void Delete(Site site, Proposal proposal)
+	public void Delete(Store store, Proposal proposal)
 	{
  		proposal.Deleted = true;
- 		site.Proposals = site.Proposals.Remove(proposal.Id);
+ 		store.Proposals = store.Proposals.Remove(proposal.Id);
 
 		foreach(var i in proposal.Comments)
 			Execution.ProposalComments.Affect(i).Deleted = true;

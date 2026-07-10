@@ -29,7 +29,7 @@ public class SitesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {SiteId}, {Pagination}", nameof(SitesController), nameof(GetUsers), siteId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site));
+		autoIdValidator.Validate(siteId, nameof(Store));
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
@@ -43,7 +43,7 @@ public class SitesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {SiteId}, {Query}, {Limit}", nameof(SitesController), nameof(SearchSiteUsers), siteId, query, limit);
 
-		autoIdValidator.Validate(siteId, nameof(Site));
+		autoIdValidator.Validate(siteId, nameof(Store));
 		siteSearchQueryValidator.Validate(query);
 		limitValidator.Validate(limit);
 
@@ -55,7 +55,7 @@ public class SitesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Search}, {Pagination}", nameof(SitesController), nameof(GetPublishers), siteId, search, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
@@ -69,7 +69,7 @@ public class SitesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetModerators), siteId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 
 		return sitesService.GetModerators(siteId, cancellationToken);
 	}
@@ -79,7 +79,7 @@ public class SitesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetPolicies), siteId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 
 		return sitesService.GetPolicies(siteId);
 	}
@@ -113,7 +113,7 @@ public class SitesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SitesController), nameof(GetDetails), siteId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 
 		return sitesService.GetDetails(siteId);
 	}

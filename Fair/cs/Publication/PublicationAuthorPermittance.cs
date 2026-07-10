@@ -37,7 +37,7 @@ public class PublicationAuthorPermittance : FairOperation
 		{	
 			p.Flags &= ~PublicationFlags.ApprovedByAuthor;
 			
-			var s = execution.Sites.Affect(p.Site);
+			var s = execution.Stores.Affect(p.Store);
 			execution.Unpublish(s, Publication, out Error);
 		}
 

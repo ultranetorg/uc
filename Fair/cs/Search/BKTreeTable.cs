@@ -115,12 +115,12 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 //	}
 //}
 //
-//public class SiteTermTable : BKTreeTable<SiteTerm>
+//public class StoreTermTable : BKTreeTable<StoreTerm>
 //{
 //	public class FoundEntity
 //	{
 //		public AutoId		Entity;
-//		public SiteTerm		Term;
+//		public StoreTerm		Term;
 //		public byte			Distance;
 //
 //		public override string ToString()
@@ -129,27 +129,27 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 //		}
 //	}
 //
-//	public SiteTermTable(FairMcv mcv) : base(mcv)
+//	public StoreTermTable(FairMcv mcv) : base(mcv)
 //	{
 //	}
 //
-//	public override SiteTerm Create()
+//	public override StoreTerm Create()
 //	{
-//		return new SiteTerm(Mcv);
+//		return new StoreTerm(Mcv);
 //	}
 //
-//	public List<FoundEntity> Search(AutoId site, string term, int tolerance, int skip, int take, IEnumerable<SiteTermTable.FoundEntity> tointersect)
+//	public List<FoundEntity> Search(AutoId store, string term, int tolerance, int skip, int take, IEnumerable<StoreTermTable.FoundEntity> tointersect)
 //	{
 //		var result = new List<FoundEntity>();
 //
-//		bool search(SiteTerm node)
+//		bool search(StoreTerm node)
 //		{
 //			if(node == null)
 //				return false;
 //
 //			var dist = ComputeLevenshteinDistance(term, node.Word);
 //
-//			if(dist <= tolerance && node.References.TryGetValue(site, out var e))
+//			if(dist <= tolerance && node.References.TryGetValue(store, out var e))
 //			{
 //				foreach(var i in e)
 //				{
@@ -183,17 +183,17 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 //			return true;
 //		}
 //
-//		search(Latest(Latest(new RawId([0])).Children[0]) as SiteTerm);
+//		search(Latest(Latest(new RawId([0])).Children[0]) as StoreTerm);
 //
 //		return result;
 //	}
 //
-//	//public IEnumerable<TextSearchResult> Search(EntityId site, string query, int page, byte lines)
+//	//public IEnumerable<TextSearchResult> Search(EntityId store, string query, int page, byte lines)
 //	//{
 //	//	using var r = Mcv.LuceneWriter.GetReader(applyAllDeletes: true);
 //	//	var s = new IndexSearcher(r);
 //	//	
-//	//	var sid = "s" + site;
+//	//	var sid = "s" + store;
 //	//	
 //  	//	var q = new BooleanQuery();
 //	//	
@@ -217,7 +217,7 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 
 ///		Searchs using any part of word no matter the order of letters
 ///		
-/// 	public TextSearchResult[] SearchPublications(EntityId site, string query, int page, int lines)
+/// 	public TextSearchResult[] SearchPublications(EntityId store, string query, int page, int lines)
 /// 	{
 /// 		IEnumerable<Publication> results = null;
 /// 
@@ -225,7 +225,7 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 ///  		{
 ///  			var a = g.References.Where(i => i.Field == EntityTextField.PublicationTitle)
 ///  								.Select(i => Mcv.Publications.Latest(i.Entity))
-///  								.Where(p => Mcv.Categories.Latest(p.Category).Site == site);
+///  								.Where(p => Mcv.Categories.Latest(p.Category).Store == store);
 ///  			
 ///  			foreach(var i in a)
 ///  				yield return i;
@@ -251,7 +251,7 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 /// 					{
 /// 						var a = t.References.Where(i => i.Field == EntityTextField.PublicationTitle)
 /// 											.Select(i => Mcv.Publications.Latest(i.Entity))
-/// 											.Where(p => Mcv.Categories.Latest(p.Category).Site == site);
+/// 											.Where(p => Mcv.Categories.Latest(p.Category).Store == store);
 /// 	
 /// 						if(a.Any())
 /// 						{

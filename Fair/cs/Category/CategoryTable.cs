@@ -22,14 +22,14 @@ public class CategoryExecution : TableExecution<AutoId, Category>
 	{
 	}
 
-	public Category Create(Site site)
+	public Category Create(Store store)
 	{
 		Execution.IncrementCount((int)FairMetaEntityType.CategoriesCount);
 
-		int e = Execution.GetNextEid(Table, site.Id.B);
+		int e = Execution.GetNextEid(Table, store.Id.B);
 
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(store.Id.B, e);
 		a.Categories = [];
 		a.Publications = [];
 

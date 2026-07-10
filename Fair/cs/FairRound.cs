@@ -6,7 +6,7 @@ public class FairRound : Round
 
 	public TableState<AutoId, Author>							Authors;
 	public TableState<AutoId, Product>							Products;
-	public TableState<AutoId, Site>								Sites;
+	public TableState<AutoId, Store>							Stores;
 	public TableState<AutoId, Category>							Categories;
 	public TableState<AutoId, Publication>						Publications;
 	public TableState<AutoId, Review>							Reviews;
@@ -15,13 +15,13 @@ public class FairRound : Round
 	public TableState<AutoId, File>								Files;
 	public TableState<RawId, Word>								Words;
 	public HnswTableState<string, ProductTitleHnswEntity>		ProductTitles;
-	public HnswTableState<string, StringToOneHnswEntity>		SiteTitles;
+	public HnswTableState<string, StringToOneHnswEntity>		StoreTitles;
 
 	public FairRound(FairMcv mcv) : base(mcv)
 	{
 		Authors				= new (mcv.Authors);
 		Products			= new (mcv.Products);
-		Sites				= new (mcv.Sites);
+		Stores				= new (mcv.Stores);
 		Categories			= new (mcv.Categories);
 		Publications		= new (mcv.Publications);
 		Reviews				= new (mcv.Reviews);
@@ -30,7 +30,7 @@ public class FairRound : Round
 		Files				= new (mcv.Files);
 		Words				= new (mcv.Words);
 		ProductTitles		= new (mcv.ProductTitles);
-		SiteTitles			= new (mcv.SiteTitles);
+		StoreTitles			= new (mcv.StoreTitles);
 	}
 
 	public override Execution CreateExecution(Transaction transaction)
@@ -47,7 +47,7 @@ public class FairRound : Round
 	{
 		if(table == Mcv.Authors)			return Authors.Affected;
 		if(table == Mcv.Products)			return Products.Affected;
-		if(table == Mcv.Sites)				return Sites.Affected;
+		if(table == Mcv.Stores)				return Stores.Affected;
 		if(table == Mcv.Categories)			return Categories.Affected;
 		if(table == Mcv.Publications)		return Publications.Affected;
 		if(table == Mcv.Reviews)			return Reviews.Affected;
@@ -56,7 +56,7 @@ public class FairRound : Round
 		if(table == Mcv.Files)				return Files.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
-		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
+		if(table == Mcv.StoreTitles)		return StoreTitles.Affected;
 
 		return base.AffectedByTable(table);
 	}
@@ -65,7 +65,7 @@ public class FairRound : Round
 	{
 		if(table == Mcv.Authors)			return Authors as S;
 		if(table == Mcv.Products)			return Products as S;
-		if(table == Mcv.Sites)				return Sites as S;
+		if(table == Mcv.Stores)				return Stores as S;
 		if(table == Mcv.Categories)			return Categories as S;
 		if(table == Mcv.Publications)		return Publications as S;
 		if(table == Mcv.Reviews)			return Reviews as S;
@@ -74,7 +74,7 @@ public class FairRound : Round
 		if(table == Mcv.Files)				return Files as S;
 		if(table == Mcv.Words)				return Words as S;
 		if(table == Mcv.ProductTitles)		return ProductTitles as S;
-		if(table == Mcv.SiteTitles)			return SiteTitles as S;
+		if(table == Mcv.StoreTitles)			return StoreTitles as S;
 
 		return base.FindState<S>(table);
 	}
@@ -87,7 +87,7 @@ public class FairRound : Round
 
 		Authors.Absorb(e.Authors);
 		Products.Absorb(e.Products);
-		Sites.Absorb(e.Sites);
+		Stores.Absorb(e.Stores);
 		Categories.Absorb(e.Categories);
 		Publications.Absorb(e.Publications);
 		Reviews.Absorb(e.Reviews);
@@ -96,7 +96,7 @@ public class FairRound : Round
 		Files.Absorb(e.Files);
 		Words.Absorb(e.Words);
 		ProductTitles.Absorb(e.ProductTitles);
-		SiteTitles.Absorb(e.SiteTitles);
+		StoreTitles.Absorb(e.StoreTitles);
 	}
 
 	public override void WriteGraphState(Writer writer)

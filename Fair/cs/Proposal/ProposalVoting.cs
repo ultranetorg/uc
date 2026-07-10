@@ -51,10 +51,10 @@ public class ProposalVoting : FairOperation
  			return;
  		}
  
-		var s = execution.Sites.Affect(p.Site);
+		var s = execution.Stores.Affect(p.Store);
         var c = p.OptionClass;
 
-		if(s.IsReferendum(c) && c != FairOperationClass.SiteApprovalPolicyChange)
+		if(s.IsReferendum(c) && c != FairOperationClass.StoreApprovalPolicyChange)
  		{
 			if(!IsPublisher(execution, s, Voter, out var x, out Error))
 				return;
@@ -196,7 +196,7 @@ public class ProposalVoting : FairOperation
 				{
 					var o = p.Options[result];
 
-					o.Operation.Site	= s;
+					o.Operation.Store	= s;
 					o.Operation.As		= p.As;
 					o.Operation.By		= p.By;
 					o.Operation.User	= p.As == Role.User ? execution.AffectUser(p.By) : null;

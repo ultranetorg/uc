@@ -6,7 +6,7 @@ public sealed class SiteSearchLiteModel
 
 	public string Title { get; set; }
 
-	public SiteSearchLiteModel(Site site)
+	public SiteSearchLiteModel(Store site)
 	{
 		Id = site.Id.ToString();
 		Title = site.Title;

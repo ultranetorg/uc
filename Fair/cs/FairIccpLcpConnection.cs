@@ -10,7 +10,7 @@ public class FairIccpLcpConnection : McvIccpLcpConnection
 
 	public FairIccpLcpConnection(FairNode node, Flow flow) : base(node, node.Name, flow)
 	{
-		Classes = [nameof(User), nameof(Author), nameof(Site)];
+		Classes = [nameof(User), nameof(Author), nameof(Store)];
 	}
 
 	public virtual Result Info(string from, InfoIcca args)
@@ -31,7 +31,7 @@ public class FairIccpLcpConnection : McvIccpLcpConnection
 		}
 		else if(@class == (byte)FairTable.Author)
 		{
-			var a = Node.Mcv.Sites.Latest(entity)
+			var a = Node.Mcv.Stores.Latest(entity)
 					??
 					throw new EntityException(EntityError.NotFound);
 	

@@ -42,7 +42,7 @@ public class ProposalOption : Option
 public class Proposal : IBinarySerializable, ITableEntry
 {
 	public AutoId				Id { get; set; }
-	public AutoId				Site { get; set; }
+	public AutoId				Store { get; set; }
 	public AutoId				By { get; set; }
 	public Role					As { get; set; }
 	public PolicyFlag			Flags { get; set; }
@@ -77,7 +77,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 		var a = new Proposal(Mcv)
 				{	
 					Id				= Id,	
-					Site			= Site,	
+					Store			= Store,	
 					By				= By,	
 					As				= As,
 					Flags			= Flags,
@@ -112,7 +112,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public void Read(Reader reader)
 	{
 		Id				= reader.Read<AutoId>();
-		Site			= reader.Read<AutoId>();
+		Store			= reader.Read<AutoId>();
 		By				= reader.Read<AutoId>();
 		As				= reader.Read<Role>();
 		Flags			= reader.Read<PolicyFlag>();
@@ -130,7 +130,7 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public void Write(Writer writer)
 	{
 		writer.Write(Id);
-		writer.Write(Site);
+		writer.Write(Store);
 		writer.Write(By);
 		writer.Write(As);
 		writer.Write(Flags);

@@ -4,11 +4,10 @@ namespace Uccs.Net;
 
 public abstract class NetCommand : Command
 {
-
-	public readonly ArgumentType	AA			= new ("AA",		@"Account address, in hexadecimal form prepended with '0x'",			["0x0000A5A0591B2BF5085C0DDA2C39C5E478300C68", "0x0001D9867473B229B5F13BF594E0DF9D4F61F8ED", "0x0002C6C15D653236A811A1115A6F08F0BC54D2B7", "0x0003924B07CE25C18667899EFFF15CBF5C75C1EE"]);
+	public readonly ArgumentType	AA			= new ("AA",		@"Account address, in Bech32 form",										["plsar7tfrq83mvfaw0m6u0l9jmsxhkjvk5zzanaqrhavfygl5w2sq3cyyk9btes", "gya27t2jsxdfa3gdywck9cdtwe6lhc59qwwrq2jdq6plz3k9hhjsqx0yuc6btes", "uh39t57ujhn4skcdhkg24mavdp4jsghtvv0uxeg2596et7h6vmnsqrntezqbtes", "vlrvxjhwz96gckyk9etxft3980agmy8s38u45gscp93ajk8rje5qqkgeww3btes"]);
 	public readonly ArgumentType	COMMAND		= new ("COMMAND",	@"Arbitrary command",													["{...}"]);
 	public readonly ArgumentType	IP			= new ("IP",		@"IP Address",															["12.34.56.78"]);
-	public readonly ArgumentType	INT			= new ("INT",		@"Positive integer number",												["324552"]);
+	public readonly ArgumentType	INT			= new ("INT",		@"Positive integer number",												["324552", "1000"]);
 	public readonly ArgumentType	HEX			= new ("HEX",		@"Array od bytes in form of hexadecimal string",						["0105BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37"]);
 	public readonly ArgumentType	HOST		= new ("HOST",		@"Host name",															["1.2.3.4"]);
 	public readonly ArgumentType	PASSWORD	= new ("PASSWORD",	@"Text string of any no. chars and longer than 1 char",					["MyStrongSecret!@#$%^&*()"]);
@@ -20,8 +19,8 @@ public abstract class NetCommand : Command
 	public readonly ArgumentType	NAME		= new ("NAME",		@"An arbitrary single-line string without spaces",						["one", "second"]);
 	public readonly ArgumentType	NET			= new ("NET",		@"A name of a network",													["rdn"]);
 	public readonly ArgumentType	ST			= new ("ST",		@"Space-time in form of byte-years(BY), byte-days(BY), eth.",			["300bd", "500by"]);
-	public readonly ArgumentType	EC			= new ("EC",		@"Execution Cycles in form of integer number",							["1000"]);
-	public readonly ArgumentType	TEXT		= new ("TEXT",		@"Arbitrary text, can be multi-line",									["Hello world!"]);
+	public readonly ArgumentType	EC			= new ("EC",		@"Execution Cycles in form of integer number",							["1000", "10"]);
+	public readonly ArgumentType	TEXT		= new ("TEXT",		@"Arbitrary text, can be multi-line",									["\"Hello world!\"", "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua\"", "\"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur\""]);
 	public readonly ArgumentType	UID			= new ("UID",		@"User Id",																["123456-789"]);
 	public readonly ArgumentType	SNP			= new ("SNP",		@"Universal scheme-network-path address",								["iccp:fair/author/123-234"]);
 	public readonly ArgumentType	URI			= new ("URL",		@"Fully-qualified URI address",											["http://fair.net", "iccp:fair/author"]);

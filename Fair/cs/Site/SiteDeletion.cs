@@ -1,32 +1,32 @@
 namespace Uccs.Fair;
 
-//public class SiteDeletion : FairOperation
+//public class StoreDeletion : FairOperation
 //{
-//	public AutoId				Site { get; set; }
+//	public AutoId				Store { get; set; }
 //
 //	public override bool		IsValid(McvNet net) => true;
 //	public override string		Explanation => $"{Id}";
 //
-//	public SiteDeletion()
+//	public StoreDeletion()
 //	{
 //	}
 //
 //	public override void Read(Reader reader)
 //	{
-//		Site = reader.Read<AutoId>();
+//		Store = reader.Read<AutoId>();
 //	}
 //
 //	public override void Write(Writer writer)
 //	{
-//		writer.Write(Site);
+//		writer.Write(Store);
 //	}
 //
 //	public override void Execute(FairExecution execution)
 //	{
-//		if(RequireSiteModeratorAccess(execution, Site, out var s) == false)
+//		if(RequireStoreModeratorAccess(execution, Store, out var s) == false)
 //			return;
 //
-//		s = execution.Sites.Affect(Site);
+//		s = execution.Stores.Affect(Store);
 //		s.Deleted = true;
 //		
 //		foreach(var i in s.Categories)
@@ -44,7 +44,7 @@ namespace Uccs.Fair;
 //		foreach(var i in s.Moderators)
 //		{
 //			var a = execution.AffectAccount(i);
-//			a.Sites = a.Sites.Remove(Site);
+//			a.Stores = a.Stores.Remove(Store);
 //		}
 //		
 //		///Free(execution, Signer, s,  Mcv.n)

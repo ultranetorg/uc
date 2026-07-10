@@ -18,10 +18,10 @@ public class CategoriesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if (site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 		if (site.Categories.Length == 0)
 		{
@@ -52,12 +52,12 @@ public class CategoriesService
 		}
 		IEnumerable<CategoryPathItem>? path = parentCategory != null ? PublicationUtils.BuildPath(mcv, parentCategory).Reverse() : null;
 
-		Site site = mcv.Sites.Latest(category.Site);
+		Store site = mcv.Stores.Latest(category.Store);
 		IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
 
 		return new CategoryModel(category)
 		{
-			SiteId = category.Site.ToString(),
+			SiteId = category.Store.ToString(),
 			Path = path,
 			Categories = categories,
 		};
@@ -81,10 +81,10 @@ public class CategoriesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		if (site.Categories.Length == 0)

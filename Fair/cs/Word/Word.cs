@@ -6,11 +6,7 @@ public enum EntityTextField : byte
 {
 	UserName, 
 	AuthorName, 
-	SiteName, 
-//
-//	AuthorTitle,
-//	SiteTitle,
-//	PublicationTitle,
+	StoreName, 
 }
 
 public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAddress>

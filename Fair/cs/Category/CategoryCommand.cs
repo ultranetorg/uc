@@ -15,15 +15,15 @@ public class CategoryCommand : FairCommand
 //
 //		a.Name = "c";
 //		a.Description = "Creates a new category",
-//						Syntax = $"{Keyword} {a.NamesSyntax} [site={EID}] [parent={EID}] title={NAME} {SignerArg}={AA}",
+//						Syntax = $"{Keyword} {a.NamesSyntax} [store={EID}] [parent={EID}] title={NAME} {SignerArg}={AA}",
 //
 //						Arguments =	[new (FirstArg, "Page type"),
-//									 new ("site", "An id of site to add a category to"),
+//									 new ("store", "An id of store to add a category to"),
 //									 new ("parent", "An id of parent category to add a new category to"),
 //									 new ("title", "A title of a category being created"),
-//									 new (SignerArg, "Address of account that owns the site")],
+//									 new (SignerArg, "Address of account that owns the store")],
 //
-//						Examples =	[new (null, $"{Keyword} {a.Name} site={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}"),
+//						Examples =	[new (null, $"{Keyword} {a.Name} store={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}"),
 //									 new (null, $"{Keyword} {a.Name} parent={EID.Example} title={NAME.Example} {SignerArg}={AA.Example}")];
 //
 //		a.Execute = () =>	{
@@ -31,7 +31,7 @@ public class CategoryCommand : FairCommand
 //
 //								var o = new ProposalCreation 
 //										{
-//											Site = GetEntityId("site", null), 
+//											Store = GetEntityId("store", null), 
 //											Options = [new Option  (new CategoryCreation()
 //																	{ 
 //																		Parent = GetEntityId("parent", null), 
@@ -64,7 +64,7 @@ public class CategoryCommand : FairCommand
 	//
 	//							var o = new ProposalCreation();
 	//
-	//							o.Site = Ppc(new CategoryRequest()).Category.Site;
+	//							o.Store = Ppc(new CategoryRequest()).Category.Store;
 	//
 	//							if(One("parent")?.Value is string id)
 	//							{	
@@ -103,7 +103,7 @@ public class CategoryCommand : FairCommand
 
 		a.Name = "lc";
 		a.Description = "Get subcategories of a specified category";
-		a.Arguments = [new (null, EID, "Id of a site to get subcategories from", Flag.First)];
+		a.Arguments = [new (null, EID, "Id of a store to get subcategories from", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);

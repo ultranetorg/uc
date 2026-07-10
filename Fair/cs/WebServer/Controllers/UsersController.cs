@@ -49,7 +49,7 @@ public class UsersController
 		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {SiteId}", nameof(UsersController), nameof(SiteExists), userId, siteId);
 
 		autoIdValidator.Validate(userId, nameof(User));
-		autoIdValidator.Validate(siteId, nameof(Site));
+		autoIdValidator.Validate(siteId, nameof(Store));
 
 		return usersService.SiteExists(userId, siteId) ? Ok() : NotFound();
 	}

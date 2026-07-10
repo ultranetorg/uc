@@ -11,7 +11,7 @@ public enum PublicationFlags : byte
 public class Publication : IBinarySerializable, ITableEntry
 {
 	public AutoId							Id { get; set; }
-	public AutoId							Site { get; set; }
+	public AutoId							Store { get; set; }
 	public AutoId							Category { get; set; }
 	//public AutoId							Creator { get; set; }
 	public AutoId							Product { get; set; }
@@ -46,7 +46,7 @@ public class Publication : IBinarySerializable, ITableEntry
 		return	new Publication(Mcv)
 				{
 					Id				= Id,
-					Site			= Site,
+					Store			= Store,
 					Category		= Category,
 					Product			= Product,
 					ProductVersion	= ProductVersion,
@@ -74,7 +74,7 @@ public class Publication : IBinarySerializable, ITableEntry
 	public void Read(Reader reader)
 	{
 		Id				= reader.Read<AutoId>();
-		Site			= reader.Read<AutoId>();
+		Store			= reader.Read<AutoId>();
 		Category		= reader.ReadNullable<AutoId>();
 		Product			= reader.Read<AutoId>();
 		ProductVersion	= reader.Read7BitEncodedInt();
@@ -87,7 +87,7 @@ public class Publication : IBinarySerializable, ITableEntry
 	public void Write(Writer writer)
 	{
 		writer.Write(Id);
-		writer.Write(Site);
+		writer.Write(Store);
 		writer.WriteNullable(Category);
 		writer.Write(Product);
 		writer.Write7BitEncodedInt(ProductVersion);

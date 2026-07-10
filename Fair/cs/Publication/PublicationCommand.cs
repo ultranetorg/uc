@@ -14,12 +14,12 @@ public class PublicationCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		const string product = "product";
-		const string site = "site";
+		const string store = "store";
 
 		a.Name = "c";
 		a.Description = "Creates a new product publication";
 		a.Arguments =  [new (product, EID, "Id of a product to create publication for", Flag.First),
-						new (site, EID, "Id of a site to create publication at"),
+						new (store, EID, "Id of a store to create publication at"),
 						ByArgument()];
 
 		a.Execute = () =>	{
@@ -30,8 +30,8 @@ public class PublicationCommand : FairCommand
 
 								var o = new ProposalCreation
 										{
-											As = a.Sites.Contains(GetAutoId(site)) ? Role.Publisher : Role.Candidate, 
-											Site = GetAutoId(site), 
+											As = a.Stores.Contains(GetAutoId(store)) ? Role.Publisher : Role.Candidate, 
+											Store = GetAutoId(store), 
 											Options = [new Option(new PublicationCreation(GetAutoId(product)))]
 										};
 								
@@ -47,7 +47,7 @@ public class PublicationCommand : FairCommand
 		const string publish = "publish";
 
 		a.Name = "p";
-		a.Description = "Approve or revoke permission for a site to publish a publication";
+		a.Description = "Approve or revoke permission for a store to publish a publication";
 		a.Arguments =  [new (null,		EID, "Id of a publication to manage", Flag.First),
 						new (publish,	NAME, "Approve or revoke a permission to publish (approve/revoke)"),
 						ByArgument()];

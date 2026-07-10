@@ -24,7 +24,7 @@ public class ProposalCommentsService
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
 		Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-		if(proposal == null || proposal.Site != siteEntityId)
+		if(proposal == null || proposal.Store != siteEntityId)
 		{
 			throw new EntityNotFoundException(nameof(Proposal).ToLower(), proposalId);
 		}

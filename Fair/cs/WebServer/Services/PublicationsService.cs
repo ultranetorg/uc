@@ -38,7 +38,7 @@ public class PublicationsService
 		return new PublicationDetailsModel
 		{
 			Id = publication.Id.ToString(),
-			SiteId = publication.Site.ToString(),
+			SiteId = publication.Store.ToString(),
 			Type = product.Type,
 			Title = PublicationUtils.GetTitle(publication, product),
 			LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
@@ -83,10 +83,10 @@ public class PublicationsService
 		Guard.Against.NegativeOrZero(pageSize);
 
 		AutoId siteAutoId = AutoId.Parse(siteId);
-		Site site = mcv.Sites.Latest(siteAutoId);
+		Store site = mcv.Stores.Latest(siteAutoId);
 		if (site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		AutoId authorAutoId = AutoId.Parse(authorId);
@@ -235,10 +235,10 @@ public class PublicationsService
 			return Enumerable.Empty<CategoryPublicationsModel>();
 
 		AutoId id = AutoId.Parse(siteId);
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if (site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site), siteId);
+			throw new EntityNotFoundException(nameof(Store), siteId);
 		}
 		if (site.Categories.Length == 0)
 		{
@@ -327,10 +327,10 @@ public class PublicationsService
 		Guard.Against.NullOrEmpty(changedPublicationId);
 
 		AutoId entitySiteId = AutoId.Parse(siteId);
-		Site site = mcv.Sites.Latest(entitySiteId);
+		Store site = mcv.Stores.Latest(entitySiteId);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		AutoId entityChangedPublicationId = AutoId.Parse(changedPublicationId);
@@ -377,10 +377,10 @@ public class PublicationsService
 		Guard.Against.NegativeOrZero(pageSize);
 
 		AutoId id = AutoId.Parse(siteId);
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 		if(site.ChangedPublications.Length == 0)
 		{
@@ -398,7 +398,7 @@ public class PublicationsService
 		};
 	}
 
-	bool HasProductUpdationProposalForProduct(Site site, AutoId publicationId)
+	bool HasProductUpdationProposalForProduct(Store site, AutoId publicationId)
 	{
 		return site.Proposals.Any(x =>
 		{
@@ -412,7 +412,7 @@ public class PublicationsService
 		});
 	}
 
-	List<ChangedPublicationModel> LoadChangedPublications<T>(Site site, IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+	List<ChangedPublicationModel> LoadChangedPublications<T>(Store site, IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
@@ -453,7 +453,7 @@ public class PublicationsService
 		return result;
 	}
 
-	TotalItemsResult<T> GetSitePublications<T>(string siteId, Func<Site, AutoId[]> GetPublications, Func<Product, Publication, T> CreatePublication, int page, int pageSize, CancellationToken cancellationToken)
+	TotalItemsResult<T> GetSitePublications<T>(string siteId, Func<Store, AutoId[]> GetPublications, Func<Product, Publication, T> CreatePublication, int page, int pageSize, CancellationToken cancellationToken)
 		where T: PublicationBaseModel
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetSitePublications), siteId, page, pageSize);
@@ -463,10 +463,10 @@ public class PublicationsService
 		Guard.Against.NegativeOrZero(pageSize);
 
 		AutoId id = AutoId.Parse(siteId);
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		AutoId[] publications = GetPublications(site);

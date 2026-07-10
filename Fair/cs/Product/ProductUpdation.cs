@@ -94,7 +94,7 @@ public class ProductUpdation : FairOperation
 
 		foreach(var p in r.Publications)
 		{
-			var s = execution.Sites.Affect(execution.Publications.Find(p).Site);
+			var s = execution.Stores.Affect(execution.Publications.Find(p).Store);
 				
 			if(!s.ChangedPublications.Contains(p))
 				s.ChangedPublications = [..s.ChangedPublications, p];

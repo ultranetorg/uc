@@ -19,10 +19,10 @@ public class PerpetualSurveysService
 
 		AutoId entityId = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(entityId);
+		Store site = mcv.Stores.Latest(entityId);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		return ToPerpetualSurveys(site.PerpetualSurveys, site.Publishers.Length);
@@ -44,10 +44,10 @@ public class PerpetualSurveysService
 
 		AutoId entityId = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(entityId);
+		Store site = mcv.Stores.Latest(entityId);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 		if (surveyIndex >= site.PerpetualSurveys.Length)
 		{
@@ -103,10 +103,10 @@ public class PerpetualSurveysService
 
 		AutoId entityId = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(entityId);
+		Store site = mcv.Stores.Latest(entityId);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 		if(surveyIndex >= site.PerpetualSurveys.Length)
 		{

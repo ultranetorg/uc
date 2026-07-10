@@ -24,10 +24,10 @@ public class FilesService
 		AutoId siteAutoId = AutoId.Parse(siteId);
 		AutoId authorAutoId = AutoId.Parse(authorId);
 
-		Site site = mcv.Sites.Latest(siteAutoId);
+		Store site = mcv.Stores.Latest(siteAutoId);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		Author author = mcv.Authors.Latest(authorAutoId);
@@ -49,10 +49,10 @@ public class FilesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		return LoadFilesNotOptimized(site.Files, page, pageSize, cancellationToken);

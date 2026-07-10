@@ -26,14 +26,14 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 	{
 	}
  
-	public Publication Create(Site site)
+	public Publication Create(Store store)
 	{
 		Execution.IncrementCount((int)FairMetaEntityType.PublicationsCount);
 
-		int e = Execution.GetNextEid(Table, site.Id.B);
+		int e = Execution.GetNextEid(Table, store.Id.B);
 
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(site.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(store.Id.B, e);
 		a.Reviews = [];
 			
 		return Affected[a.Id] = a;
@@ -42,7 +42,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 	public void Delete(AutoId id)
 	{
 		var p = Execution.Publications.Affect(id);
-		var s = Execution.Sites.Affect(p.Site);
+		var s = Execution.Stores.Affect(p.Store);
 
 		foreach(var i in p.Reviews)
 		{

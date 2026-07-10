@@ -6,7 +6,7 @@ namespace Uccs.Fair;
 public static class ProposalUtils
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsDiscussion(Site site, Proposal proposal) => site.IsDiscussion(proposal.OptionClass); /// TODO: remove this method
+	public static bool IsDiscussion(Store site, Proposal proposal) => site.IsDiscussion(proposal.OptionClass); /// TODO: remove this method
 
 	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
 		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationUpdation or PublicationUnpublish;
@@ -17,11 +17,11 @@ public static class ProposalUtils
 
 	public static bool IsUserUnregistrationOperation(Proposal proposal) => proposal.Options[0].Operation is UserUnregistration;
 
-	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is SiteModeratorAddition or SiteModeratorRemoval;
+	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is StoreModeratorAddition or StoreModeratorRemoval;
 
-	public static bool IsPublisherOperation(Proposal proposal) => proposal.Options[0].Operation is SiteAuthorsRemoval;
+	public static bool IsPublisherOperation(Proposal proposal) => proposal.Options[0].Operation is StoreAuthorsRemoval;
 
-	public static BaseVotableOperationModel ToBaseVotableOperationModel(FairMcv mcv, SiteOperation proposal)
+	public static BaseVotableOperationModel ToBaseVotableOperationModel(FairMcv mcv, StoreOperation proposal)
 	{
 		return proposal switch
 		{
@@ -38,13 +38,13 @@ public static class ProposalUtils
 			ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
-			SiteApprovalPolicyChange operation => new SiteApprovalPolicyChangeModel(operation),
-			SiteAuthorsRemoval operation => CreateSiteAuthorsRemovalModel(mcv, operation),
-			SiteAvatarChange operation => new SiteAvatarChangeModel(operation),
-			SiteModeratorAddition operation => CreateSiteModeratorAdditionModel(mcv, operation),
-			SiteModeratorRemoval operation => CreateSiteModeratorRemovalModel(mcv, operation),
-			SiteNameChange operation => CreateSiteNameChangeModel(operation),
-			SiteTextChange operation => new SiteTextChangeModel(operation),
+			StoreApprovalPolicyChange operation => new SiteApprovalPolicyChangeModel(operation),
+			StoreAuthorsRemoval operation => CreateSiteAuthorsRemovalModel(mcv, operation),
+			StoreAvatarChange operation => new SiteAvatarChangeModel(operation),
+			StoreModeratorAddition operation => CreateSiteModeratorAdditionModel(mcv, operation),
+			StoreModeratorRemoval operation => CreateSiteModeratorRemovalModel(mcv, operation),
+			StoreNameChange operation => CreateSiteNameChangeModel(operation),
+			StoreInfoUpdation operation => new SiteTextChangeModel(operation),
 			UserUnregistration operation => new UserUnregistrationModel(operation),
 			UserRegistration operation => new UserRegistrationModel(operation),
 			_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
@@ -82,7 +82,7 @@ public static class ProposalUtils
 		return new CategoryTypeChangeModel(operation, category);
 	}
 
-	static SiteAuthorsRemovalModel CreateSiteAuthorsRemovalModel(FairMcv mcv, SiteAuthorsRemoval operation)
+	static SiteAuthorsRemovalModel CreateSiteAuthorsRemovalModel(FairMcv mcv, StoreAuthorsRemoval operation)
 	{
 		IEnumerable<AuthorBaseAvatarModel> removals = operation.Authors.Select(authorId =>
 		{
@@ -97,7 +97,7 @@ public static class ProposalUtils
 	}
 
 	// TODO: split models on regular and details models. Need to avoid expensive operations with data loading.
-	static SiteModeratorAdditionModel CreateSiteModeratorAdditionModel(FairMcv mcv, SiteModeratorAddition operation)
+	static SiteModeratorAdditionModel CreateSiteModeratorAdditionModel(FairMcv mcv, StoreModeratorAddition operation)
 	{
 		IEnumerable<UserModel> candidates = operation.Candidates.Select(candidateId =>
 		{
@@ -112,7 +112,7 @@ public static class ProposalUtils
 	}
 
 	// TODO: split models on regular and details models. Need to avoid expensive operations with data loading.
-	static SiteModeratorRemovalModel CreateSiteModeratorRemovalModel(FairMcv mcv, SiteModeratorRemoval operation)
+	static SiteModeratorRemovalModel CreateSiteModeratorRemovalModel(FairMcv mcv, StoreModeratorRemoval operation)
 	{
 		User user = (FairUser) mcv.Users.Latest(operation.Moderator);
 		return new SiteModeratorRemovalModel(operation)
@@ -121,9 +121,9 @@ public static class ProposalUtils
 		};
 	}
 
-	static SiteNameChangeModel CreateSiteNameChangeModel(SiteNameChange operation)
+	static SiteNameChangeModel CreateSiteNameChangeModel(StoreNameChange operation)
 	{
-		return new SiteNameChangeModel(operation, operation.Site.Name);
+		return new SiteNameChangeModel(operation, operation.Store.Name);
 	}
 
 	static PublicationPublishModel CreatePublicationPublishModel(FairMcv mcv, PublicationPublish operation)

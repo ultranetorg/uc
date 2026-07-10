@@ -40,9 +40,9 @@ public class CategoryTypeChange : VotableOperation
 		if(!CategoryExists(execution, Category, out var c, out error))
 			return false;
 
-		if(c.Site != Site.Id)
+		if(c.Store != Store.Id)
 		{
-			error = DoesNotBelogToSite;
+			error = DoesNotBelogToStore;
 			return false;
 		}
 

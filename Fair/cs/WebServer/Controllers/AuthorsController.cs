@@ -40,7 +40,7 @@ public class AuthorsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {AuthorId}, {Pagination}", nameof(AuthorsController), nameof(AuthorsController.GetProducts), authorId, pagination);
 
-		autoIdValidator.Validate(authorId, nameof(Site).ToLower());
+		autoIdValidator.Validate(authorId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);

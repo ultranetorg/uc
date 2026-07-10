@@ -87,12 +87,12 @@ public class FileCreation : FairOperation
 				break;
 			}
 
-			case FairTable.Site:
+			case FairTable.Store:
 			{
 				if(!IsModerator(execution, Owner.Id, out var a, out Error))
 					return;
 
-				a = execution.Sites.Affect(a.Id);
+				a = execution.Stores.Affect(a.Id);
 				a.Files = [..a.Files, f.Id];
 				execution.Allocate(a, a, execution.Net.EntityLength + Data.Length);
 				break;

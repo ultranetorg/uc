@@ -7,7 +7,7 @@ public enum FairOperationClass : uint
 	User							= 001,
 		FairUser					= 001_001,
 			UserAvatarChange		= 001_001_001,
-			FavoriteSiteChange		= 001_001_002,
+			FavoriteStoreChange		= 001_001_002,
 
 	Author							= 101, 
 		AuthorCreation				= 101_000_001, 
@@ -26,19 +26,19 @@ public enum FairOperationClass : uint
 		ProductUpdation				= 102_000_002, 
 		ProductDeletion				= 102_000_999,
 	
-	Site							= 103,
-		SiteCreation				= 103_000_001, 
-		SiteRenewal					= 103_000_002,
-		SiteApprovalPolicyChange	= 103_000_003,
-		SiteModeratorAddition		= 103_000_004,
-		SiteModeratorRemoval		= 103_000_005,
-		SiteAuthorsRemoval			= 103_000_006,
-		SiteTextChange				= 103_000_007,
-		SiteAvatarChange			= 103_000_008,
-		SiteNameChange				= 103_000_009,
+	Store							= 103,
+		StoreCreation				= 103_000_001, 
+		StoreRenewal				= 103_000_002,
+		StoreApprovalPolicyChange	= 103_000_003,
+		StoreModeratorAddition		= 103_000_004,
+		StoreModeratorRemoval		= 103_000_005,
+		StoreAuthorsRemoval			= 103_000_006,
+		StoreInfoUpdation			= 103_000_007,
+		StoreAvatarChange			= 103_000_008,
+		StoreNameChange				= 103_000_009,
 		UserRegistration			= 103_000_010,
 		UserUnregistration			= 103_000_011,
-		SiteDeletion				= 103_000_999,
+		StoreDeletion				= 103_000_999,
 
 		Proposal						= 103_001,
 			ProposalCreation			= 103_001_001,
@@ -76,12 +76,12 @@ public enum FairOperationClass : uint
 		FileDeletion					= 104_000_999,
 } 
 
-public abstract class SiteOperation : FairOperation
+public abstract class StoreOperation : FairOperation
 {
-	public Site	Site;
+	public Store	Store;
 }
 
-public abstract class VotableOperation : SiteOperation
+public abstract class VotableOperation : StoreOperation
 {
 	public Role					As;
 	public AutoId				By;
@@ -98,7 +98,7 @@ public abstract class FairOperation : Operation
 	public const string			NotNewUser = "Not a new user";
 	public const string			Ended = "Ended";
 	public const string			InvalidOwnerAddress = "Invalid Owner Type";
-	public const string			DoesNotBelogToSite = "Does not belong to site";
+	public const string			DoesNotBelogToStore = "Does not belong to a store";
 	public const string			NotEmptyReferencies = "Not Empty References";
 	public const string			TypeAlreadyDefined = "Type already defined";
 	public const string			NotPublished = "Not published";
@@ -184,7 +184,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool IsPublisher(FairExecution execution, Site site, AutoId authorid, out Publisher publisher, out string error)
+	public bool IsPublisher(FairExecution execution, Store store, AutoId authorid, out Publisher publisher, out string error)
 	{
 		if(!CanAccessAuthor(execution, authorid, out _, out error))
 		{	
@@ -192,7 +192,7 @@ public abstract class FairOperation : Operation
 			return false;
 		}
 
-		publisher = site.Publishers.FirstOrDefault(i => i.Author == authorid);
+		publisher = store.Publishers.FirstOrDefault(i => i.Author == authorid);
 
  		if(publisher == null)
  		{
@@ -230,11 +230,11 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool SiteExists(FairExecution execution, AutoId id, out Site site, out string error)
+	public bool StoreExists(FairExecution execution, AutoId id, out Store store, out string error)
 	{
-		site = execution.Sites.Find(id);
+		store = execution.Stores.Find(id);
 		
-		if(site == null)
+		if(store == null)
 		{
 			error = NotFound;
 			return false; 
@@ -244,12 +244,12 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool IsModerator(FairExecution execution, AutoId siteid, out Site site, out string error)
+	public bool IsModerator(FairExecution execution, AutoId storeid, out Store store, out string error)
 	{
- 		if(!SiteExists(execution, siteid, out site, out error))
+ 		if(!StoreExists(execution, storeid, out store, out error))
  			return false; 
 
-		var m = site.Moderators.FirstOrDefault(i => i.User == User.Id);
+		var m = store.Moderators.FirstOrDefault(i => i.User == User.Id);
 
 		if(m == null || m.BannedTill > execution.Time)
 		{
@@ -260,9 +260,9 @@ public abstract class FairOperation : Operation
 		return true; 
 	}
 
-	public bool IsModerator(FairExecution execution, Site site, AutoId accountid, out Moderator moderator, out string error)
+	public bool IsModerator(FairExecution execution, Store store, AutoId accountid, out Moderator moderator, out string error)
 	{
-		moderator = site.Moderators.FirstOrDefault(i => i.User == accountid);
+		moderator = store.Moderators.FirstOrDefault(i => i.User == accountid);
 
 		if(moderator == null)
 		{
@@ -288,14 +288,14 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool CanModerateCategory(FairExecution execution, AutoId id, out Category category, out Site site, out string error)
+ 	public bool CanModerateCategory(FairExecution execution, AutoId id, out Category category, out Store store, out string error)
  	{
-		site = null;
+		store = null;
 
  		if(!CategoryExists(execution, id, out category, out error))
  			return false; 
  
- 		if(!IsModerator(execution, category.Site, out site, out error))
+ 		if(!IsModerator(execution, category.Store, out store, out error))
  			return false;
  
 		error = null;
@@ -316,14 +316,14 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool CamModeratePublication(FairExecution execution, AutoId id, User signer, out Publication publication, out Site site, out string error)
+ 	public bool CamModeratePublication(FairExecution execution, AutoId id, User signer, out Publication publication, out Store store, out string error)
  	{
-		site = null;
+		store = null;
 
  		if(!PublicationExists(execution, id, out publication, out error))
  			return false; 
  
- 		if(!IsModerator(execution, publication.Site, out site, out error))
+ 		if(!IsModerator(execution, publication.Store, out store, out error))
  			return false;
  
 		error = null;
@@ -359,14 +359,14 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
-	public bool CanModerateReview(FairExecution execution, AutoId id, User signer, out Review review, out Site site, out string error)
+	public bool CanModerateReview(FairExecution execution, AutoId id, User signer, out Review review, out Store store, out string error)
  	{
-		site = null;
+		store = null;
 
  		if(!ReviewExists(execution, id, out review, out error))
  			return false; 
 
- 		if(!CamModeratePublication(execution, review.Publication, User, out var p, out site, out error))
+ 		if(!CamModeratePublication(execution, review.Publication, User, out var p, out store, out error))
  			return false; 
  
 		error = null;
@@ -387,7 +387,7 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool IsReferendumCommentOwner(FairExecution execution, Site site, AutoId commentid, out Publisher citizen, out Proposal proposal, out ProposalComment comment, out string error)
+ 	public bool IsReferendumCommentOwner(FairExecution execution, Store store, AutoId commentid, out Publisher citizen, out Proposal proposal, out ProposalComment comment, out string error)
  	{
 		citizen = null;
 		proposal = null;
@@ -401,7 +401,7 @@ public abstract class FairOperation : Operation
  
 		proposal = execution.Proposals.Find(comment.Proposal);
 
-		if(!IsPublisher(execution, site, comment.Creator, out citizen, out error))
+		if(!IsPublisher(execution, store, comment.Creator, out citizen, out error))
 			return false;
 
 		if(comment.Creator != citizen.Author)
@@ -414,9 +414,9 @@ public abstract class FairOperation : Operation
  		return true;
  	}
 
- 	public bool CanModerateDisputeComment(FairExecution execution, AutoId commentid, out Site site, out Proposal proposal, out ProposalComment comment, out string error)
+ 	public bool CanModerateDisputeComment(FairExecution execution, AutoId commentid, out Store store, out Proposal proposal, out ProposalComment comment, out string error)
  	{
-		site = null;
+		store = null;
 		proposal = null;
 		comment = execution.ProposalComments.Find(commentid);
 		
@@ -428,40 +428,12 @@ public abstract class FairOperation : Operation
  
 		proposal = execution.Proposals.Find(comment.Proposal);
 
-		if(!IsModerator(execution, proposal.Site, out site, out error))
+		if(!IsModerator(execution, proposal.Store, out store, out error))
 			return false;
 
 		error = null;
  		return true;
  	}
-
-	//protected void PayEnergyBySite(FairExecution execution, AutoId site)
-	//{
-	//	var s = execution.Sites.Affect(site);
-	//		
-	//	EnergyFeePayer = s;
-	//	EnergySpenders = [s];
-	//}
-	//
-	//protected void PayEnergyByAuthor(FairExecution execution, AutoId author)
-	//{
-	//	var a = execution.Authors.Affect(author);
-	//		
-	//	EnergyFeePayer = a;
-	//	EnergySpenders = [a];
-	//}
-
-	//protected void PayEnergyBySiteOrAuthor(FairExecution execution, Publication publication, Author author = null)
-	//{
-	//	if(publication.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
-	//	{ 
-	//		PayEnergyByAuthor(execution, author?.Id ?? execution.Products.Find(publication.Product).Author);
-	//	}
-	//	else
-	//	{	
-	//		PayEnergyBySite(execution, publication.Site);
-	//	}
-	//}
 
 	public bool CanAccessFile(FairExecution execution, AutoId id, EntityAddress owner, out File file, out string error)
 	{
@@ -470,7 +442,7 @@ public abstract class FairOperation : Operation
 
 		if((FairTable)file.Owner.Table == FairTable.Author && !CanAccessAuthor(execution, file.Owner.Id, out _, out error))
 			return false;
-		else if((FairTable)file.Owner.Table == FairTable.Site && !IsModerator(execution, file.Owner.Id, out _, out error))
+		else if((FairTable)file.Owner.Table == FairTable.Store && !IsModerator(execution, file.Owner.Id, out _, out error))
 			return false;
 
 		return true;

@@ -43,15 +43,15 @@ public class PublicationPublish : VotableOperation
 		if(!CategoryExists(execution, Category, out var c, out error))
 			return false;
 
-		if(c.Site != Site.Id)
+		if(c.Store != Store.Id)
 		{	
-			error = DoesNotBelogToSite;
+			error = DoesNotBelogToStore;
 			return false;
 		}
 
-		if(p.Site != Site.Id)
+		if(p.Store != Store.Id)
 		{	
-			error = DoesNotBelogToSite;
+			error = DoesNotBelogToStore;
 			return false;
 		}
 
@@ -90,11 +90,11 @@ public class PublicationPublish : VotableOperation
 		var c = execution.Categories.Affect(Category);
 		c.Publications = [..c.Publications, p.Id];
 
-		Site.UnpublishedPublications = Site.UnpublishedPublications.Remove(p.Id);
+		Store.UnpublishedPublications = Store.UnpublishedPublications.Remove(p.Id);
 
 		execution.ProductTitles.Index(p);
 
 		var a = execution.Authors.Affect(r.Author);
-		execution.RewardForModeration(Site, a, out Error);
+		execution.RewardForModeration(Store, a, out Error);
 	}
 }

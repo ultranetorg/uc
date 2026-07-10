@@ -36,11 +36,11 @@ public class FairTypeResolver : ApiTypeResolver
         else if(ti.Type == typeof(CodeException))
 			foreach(var i in all.Where(i => i.IsSubclassOf(typeof(CodeException)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name.Substring(0, i.Name.Length - "Exception".Length))))
 				ti.PolymorphismOptions.DerivedTypes.Add(i);
-        else if(ti.Type == typeof(SiteOperation))
+        else if(ti.Type == typeof(StoreOperation))
 		{
 			ti.PolymorphismOptions ??= new();
 
-			foreach(var i in all.Where(i => i.IsSubclassOf(typeof(SiteOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
+			foreach(var i in all.Where(i => i.IsSubclassOf(typeof(StoreOperation)) && !i.IsAbstract && !i.IsGenericType).Select(i => new JsonDerivedType(i, i.Name)))
  				ti.PolymorphismOptions.DerivedTypes.Add(i);
 		}
         else if(ti.Type == typeof(VotableOperation))
@@ -166,13 +166,13 @@ public class ProductSearchResult
 
 public class ProductSearchApc : FairApc
 {
-	public AutoId		Site { get; set; }
+	public AutoId		Store { get; set; }
 	public string		Query { get; set; }
 	public int			Skip { get; set; }
 	public int			Take { get; set; } = 10;
 
 	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		return node.Mcv.ProductTitles.Search(Site, Query, Skip, Take);
+		return node.Mcv.ProductTitles.Search(Store, Query, Skip, Take);
 	}
 }

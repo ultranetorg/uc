@@ -1,14 +1,14 @@
 ﻿namespace Uccs.Fair;
 
-public class UserSitesPpc : McvPpc<UserSitesPpr>
+public class UserStoresPpc : McvPpc<UserStoresPpr>
 {
 	public string		Name {get; set;}
 
-	public UserSitesPpc()
+	public UserStoresPpc()
 	{
 	}
 
-	public UserSitesPpc(string name)
+	public UserStoresPpc(string name)
 	{
 		Name = name;
 	}
@@ -22,11 +22,11 @@ public class UserSitesPpc : McvPpc<UserSitesPpr>
 		if(e == null)
 			throw new EntityException(EntityError.NotFound);
 			
-		return new UserSitesPpr {Sites = e.ModeratedSites};
+		return new UserStoresPpr {Stores = e.ModeratedStores};
 	}
 }
 
-public class UserSitesPpr : Result
+public class UserStoresPpr : Result
 {
-	public AutoId[] Sites {get; set;}
+	public AutoId[] Stores {get; set;}
 }

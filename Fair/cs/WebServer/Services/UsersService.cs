@@ -24,10 +24,10 @@ public class UsersService
 
 		AutoId entityId = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(entityId);
+		Store site = mcv.Stores.Latest(entityId);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site), siteId);
+			throw new EntityNotFoundException(nameof(Store), siteId);
 		}
 
 		IEnumerable<AutoId> paged = site.Users.Skip(page * pageSize).Take(pageSize);
@@ -95,7 +95,7 @@ public class UsersService
 			Name = account.Name,
 			Owner = account.Owner.ToString(),
 			AuthorsIds = account.Authors.Select(id => id.ToString()),
-			FavoriteSites = account.FavoriteSites.Length > 0 ? LoadAccountSites(account.FavoriteSites) : []
+			FavoriteSites = account.FavoriteStores.Length > 0 ? LoadAccountSites(account.FavoriteStores) : []
 		};
 	}
 
@@ -103,7 +103,7 @@ public class UsersService
 	{
 		return sitesIds.Select(id =>
 		{
-			Site site = mcv.Sites.Latest(id);
+			Store site = mcv.Stores.Latest(id);
 			return new SiteBaseModel(site);
 		}).ToArray();
 	}
@@ -156,7 +156,7 @@ public class UsersService
 		}
 
 		AutoId siteEntityId = AutoId.Parse(siteId);
-		return user.Sites.Contains(siteEntityId);
+		return user.Stores.Contains(siteEntityId);
 	}
 
 	public FileContentResult GetAvatarById([NotNull][NotEmpty] string userId)
