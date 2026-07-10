@@ -467,6 +467,9 @@ public abstract class Mcv /// Mutual chain voting
 			{
 				t.ReUpdate();
 				t.Summarize();
+
+				if(t.Hash == null)
+					return false;
 				
 				if(!m.Key.SequenceEqual(t.Hash))
 				{
