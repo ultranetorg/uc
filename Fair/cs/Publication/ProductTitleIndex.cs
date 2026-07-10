@@ -7,18 +7,18 @@ namespace Uccs.Fair;
 
 public class PublicationHnswEntity : IBinarySerializable
 {
-	public AutoId		Site { get; set; }
+	public AutoId		Store { get; set; }
 	public AutoId		Id { get; set; }
 
 	public void Read(Reader reader)
 	{
-		Site = reader.Read<AutoId>();
+		Store = reader.Read<AutoId>();
 		Id   = reader.Read<AutoId>();
 	}
 
 	public void Write(Writer writer)
 	{
-		writer.Write(Site);
+		writer.Write(Store);
 		writer.Write(Id);
 	}
 }
@@ -104,12 +104,12 @@ public class ProductTitleIndex : HnswTable<string, ProductTitleHnswEntity>
 		Commit(batch, e.ProductTitles.Affected.Values, null, null);
 	}
 
-	public List<ProductSearchResult> Search(AutoId site, string query, int skip, int take)
+	public List<ProductSearchResult> Search(AutoId store, string query, int skip, int take)
 	{
 		var result = Search(query.ToLowerInvariant(), 
 							skip, 
 							take, 
-							i => i.Products.Any(p => p.Publications.Any(u => u.Site == site)),
+							i => i.Products.Any(p => p.Publications.Any(u => u.Store == store)),
 							Mcv.ProductTitles.Latest);
 
 		var r = new List<ProductSearchResult>();
@@ -118,7 +118,7 @@ public class ProductTitleIndex : HnswTable<string, ProductTitleHnswEntity>
 		{
 			foreach(var p in i.Products)
 			{
-				var b = p.Publications.FirstOrDefault(i => i.Site == site);
+				var b = p.Publications.FirstOrDefault(i => i.Store == store);
 				
 				if(b != null)
 				{
@@ -205,7 +205,7 @@ public class ProductTitleExecution : StringHnswTableExecution<ProductTitleHnswEn
 		
 		if(b == null) 
 		{
-			b = new PublicationHnswEntity {Id = publication.Id, Site = publication.Site};
+			b = new PublicationHnswEntity {Id = publication.Id, Store = publication.Store};
 			p.Publications = [..p.Publications, b];
 		}
   	}

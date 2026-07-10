@@ -17,7 +17,7 @@ public class ModeratorDiscussionsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDiscussionsController)}.{nameof(ModeratorDiscussionsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
@@ -31,7 +31,7 @@ public class ModeratorDiscussionsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDiscussionsController)}.{nameof(ModeratorDiscussionsController.Get)} method called with {{SiteId}}, {{DiscussionId}}", siteId, discussionId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		autoIdValidator.Validate(discussionId, nameof(Proposal).ToLower());
 
 		return proposalsService.GetDiscussion(siteId, discussionId);

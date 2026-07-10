@@ -72,7 +72,7 @@ public class ReviewCreation : VotableOperation
 		var r = execution.Products.Find(p.Product);
 		var a = execution.Authors.Affect(r.Author);
 		
-		execution.Allocate(Site, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text), out Error);
-		execution.RewardForModeration(Site, a, out Error);
+		execution.Allocate(Store, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text), out Error);
+		execution.RewardForModeration(Store, a, out Error);
 	}
 }

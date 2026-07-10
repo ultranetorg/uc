@@ -89,11 +89,11 @@ public class PublicationUpdation : VotableOperation
 											});
 
 		if(Version == r.Versions.Last().Id)
-			Site.ChangedPublications = Site.ChangedPublications.Remove(p.Id);
+			Store.ChangedPublications = Store.ChangedPublications.Remove(p.Id);
 
 		if(p.IsPublished)
 			execution.ProductTitles.Index(p);
 
-		execution.RewardForModeration(Site, a, out Error);
+		execution.RewardForModeration(Store, a, out Error);
 	}
 }

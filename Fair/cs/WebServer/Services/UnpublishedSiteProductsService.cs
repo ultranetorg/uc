@@ -17,10 +17,10 @@ public class UnpublishedSiteProductsService
 		Guard.Against.NullOrEmpty(productId);
 
 		AutoId entitySiteId = AutoId.Parse(siteId);
-		Site site = mcv.Sites.Latest(entitySiteId);
+		Store site = mcv.Stores.Latest(entitySiteId);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		AutoId entityProductId = AutoId.Parse(productId);
@@ -30,7 +30,7 @@ public class UnpublishedSiteProductsService
 			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 		}
 
-		if(product.Publications.Any(i => mcv.Publications.Latest(i).Site == site.Id))
+		if(product.Publications.Any(i => mcv.Publications.Latest(i).Store == site.Id))
 		{
 			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 		}
@@ -55,7 +55,7 @@ public class UnpublishedSiteProductsService
 			AuthorLogoId = author.Avatar?.ToString()
 		};
 
-		bool HasProductCreationProposalForProduct(Site site, AutoId productId)
+		bool HasProductCreationProposalForProduct(Store site, AutoId productId)
 		{
 			return site.Proposals.Any(x =>
 			{

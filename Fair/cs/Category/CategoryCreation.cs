@@ -41,19 +41,19 @@ public class CategoryCreation : VotableOperation
 	{
 		if(Parent == null)
 		{
-			var c = execution.Categories.Create(Site);
+			var c = execution.Categories.Create(Store);
 			
-			c.Site = Site.Id;
+			c.Store = Store.Id;
 			c.Title = Title;
 			
-			Site.Categories = [..Site.Categories, c.Id];
+			Store.Categories = [..Store.Categories, c.Id];
 		}
 		else
 		{
 			var p = execution.Categories.Affect(Parent);
-			var c = execution.Categories.Create(Site);
+			var c = execution.Categories.Create(Store);
 			
-			c.Site = p.Site;
+			c.Store = p.Store;
 			c.Parent = Parent;
 			c.Title = Title;
 
@@ -62,6 +62,6 @@ public class CategoryCreation : VotableOperation
 		
 		}
 
-		execution.Allocate(Site, Site, execution.Net.EntityLength);
+		execution.Allocate(Store, Store, execution.Net.EntityLength);
 	}
 }

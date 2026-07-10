@@ -17,7 +17,7 @@ public class AuthorReferendumCommentsController
 	{
 		logger.LogInformation($"GET {nameof(AuthorReferendumCommentsController)}.{nameof(AuthorReferendumCommentsController.GetDiscussionComments)} method called with {{ReferendumId}}, {{Pagination}}", referendumId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		autoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
 		paginationValidator.Validate(pagination);
 

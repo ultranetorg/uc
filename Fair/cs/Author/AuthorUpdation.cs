@@ -93,11 +93,11 @@ public class AuthorModerationReward : FairOperation
 public class PublisherLimitsUpdation : FairOperation
 {
 	public AutoId				Author { get; set; }
-	public AutoId				Site { get; set; }
+	public AutoId				Store { get; set; }
 	public long					EnergyLimit { get; set; }
 	public long					SpacetimeLimit { get; set; }
 
-	public override string		Explanation => $"{nameof(Author)}={Author}, {nameof(Site)}={Site}, {nameof(EnergyLimit)}={EnergyLimit}, {nameof(SpacetimeLimit)}={SpacetimeLimit}";
+	public override string		Explanation => $"{nameof(Author)}={Author}, {nameof(Store)}={Store}, {nameof(EnergyLimit)}={EnergyLimit}, {nameof(SpacetimeLimit)}={SpacetimeLimit}";
 	
 	public PublisherLimitsUpdation()
 	{
@@ -111,7 +111,7 @@ public class PublisherLimitsUpdation : FairOperation
 	public override void Read(Reader reader)
 	{
 		Author			= reader.Read<AutoId>();
-		Site			= reader.Read<AutoId>();
+		Store			= reader.Read<AutoId>();
 		EnergyLimit		= reader.Read7BitEncodedInt64();
 		SpacetimeLimit	= reader.Read7BitEncodedInt64();
 	}
@@ -119,7 +119,7 @@ public class PublisherLimitsUpdation : FairOperation
 	public override void Write(Writer writer)
 	{
 		writer.Write(Author);
-		writer.Write(Site);
+		writer.Write(Store);
 		writer.Write7BitEncodedInt64(EnergyLimit);
 		writer.Write7BitEncodedInt64(SpacetimeLimit);
 	}
@@ -129,10 +129,10 @@ public class PublisherLimitsUpdation : FairOperation
 		if(!CanAccessAuthor(execution, Author, out var a, out Error))
 			return;
 
-		if(!SiteExists(execution, Site, out var s, out Error))
+		if(!StoreExists(execution, Store, out var s, out Error))
 			return;
 		
-		s = execution.Sites.Affect(s.Id);
+		s = execution.Stores.Affect(s.Id);
 
 		var i = Array.FindIndex(s.Publishers, i => i.Author == a.Id);
 

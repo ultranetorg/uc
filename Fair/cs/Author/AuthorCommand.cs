@@ -134,14 +134,14 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		const string site = "site";
+		const string store = "store";
 		const string energy = "energy";
 		const string spacetime = "spacetime";
 
 		a.Name = "pl";
-		a.Description = "Sets a utility limits for the specified author of the specfied site";
+		a.Description = "Sets a utility limits for the specified author of the specfied store";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
-						new (site, EID, "Id of a site where author is the member"),
+						new (store, EID, "Id of a store where author is the member"),
 						new (energy, INT, "A new limit for the energy"),
 						new (spacetime, INT, "A new limit for the spacetime"),
 						Eligible];
@@ -149,7 +149,7 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new PublisherLimitsUpdation {Author = FirstAutoId, Site = GetAutoId(site), EnergyLimit = GetLong(energy), SpacetimeLimit = GetLong(spacetime)};
+								return new PublisherLimitsUpdation {Author = FirstAutoId, Store = GetAutoId(store), EnergyLimit = GetLong(energy), SpacetimeLimit = GetLong(spacetime)};
 							};
 		return a;
 	}

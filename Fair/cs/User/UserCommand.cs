@@ -68,7 +68,7 @@ public class UserCommand : Net.UserCommand
 		return a;
 	}
 
-	public CommandAction ListSites()
+	public CommandAction ListStores()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
@@ -79,11 +79,11 @@ public class UserCommand : Net.UserCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new UserSitesPpc(GetString(a.Arguments[0].Name)));
+								var rp = Ppc(new UserStoresPpc(GetString(a.Arguments[0].Name)));
 
-								Flow.Log.Dump(rp.Sites.Select(i => Ppc(new SitePpc(i)).Site), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
+								Flow.Log.Dump(rp.Stores.Select(i => Ppc(new StorePpc(i)).Store), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
 					
-								return rp.Sites;
+								return rp.Stores;
 							};
 		return a;
 	}

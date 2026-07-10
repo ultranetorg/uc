@@ -17,7 +17,7 @@ public class AuthorFilesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {AuthorId}, {Pagination}", nameof(AuthorFilesController), nameof(GetAll), siteId, authorId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		autoIdValidator.Validate(authorId, nameof(Author).ToLower());
 		paginationValidator.Validate(pagination);
 

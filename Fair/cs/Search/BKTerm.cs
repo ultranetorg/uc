@@ -96,21 +96,21 @@ public class EntityTerm : BKTerm
 	}
 }
 
-public class SiteTerm : BKTerm
+public class StoreTerm : BKTerm
 {
 	public SortedDictionary<AutoId, AutoId[]>	References { get; set; }
 
-	public SiteTerm()
+	public StoreTerm()
 	{
 	}
 
-	public SiteTerm(FairMcv mcv) : base(mcv)
+	public StoreTerm(FairMcv mcv) : base(mcv)
 	{
 	}
 
-	public override SiteTerm Clone()
+	public override StoreTerm Clone()
 	{
-		var a = new SiteTerm(Mcv)  {Id			= Id,
+		var a = new StoreTerm(Mcv)  {Id			= Id,
 									Children	= Children,
 									References	= References};
 

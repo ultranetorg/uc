@@ -9,12 +9,12 @@ public enum FairPpcClass : uint
 	FairMembers,
 
 	UserAuthors,
-	UserSites,
+	UserStores,
 
 	Author,
 	Product,
-	Site,
-	SiteCategories,
+	Store,
+	StoreCategories,
 	Category,
 	CategoryPublications,
 	CategoryCategories,

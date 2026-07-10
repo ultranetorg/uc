@@ -48,7 +48,7 @@ public class CategoryMovement : VotableOperation
 
 		if(c.Parent == null)
 		{
-			Site.Categories = Site.Categories.Remove(c.Id);
+			Store.Categories = Store.Categories.Remove(c.Id);
 		}
 		else
 		{
@@ -59,14 +59,14 @@ public class CategoryMovement : VotableOperation
 
 		if(Parent == null)
 		{
-			Site.Categories = [..Site.Categories, c.Id];
+			Store.Categories = [..Store.Categories, c.Id];
 		} 
 		else
 		{
 			if(!CategoryExists(execution, Parent, out var p, out Error))
 				return;
 
-			if(p.Site != c.Site)
+			if(p.Store != c.Store)
 			{
 				Error = NotFound;
 				return;

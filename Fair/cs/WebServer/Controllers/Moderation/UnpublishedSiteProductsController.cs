@@ -18,7 +18,7 @@ public class UnpublishedSiteProductsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {ProductId}", nameof(UnpublishedSiteProductsController), nameof(GetDetails), siteId, productId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		autoIdValidator.Validate(productId, nameof(Product).ToLower());
 
 		return unpublishedSiteProductsService.GetDetails(siteId, productId);

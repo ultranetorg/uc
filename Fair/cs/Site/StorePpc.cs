@@ -1,14 +1,14 @@
 ﻿namespace Uccs.Fair;
 
-public class SitePpc : FairPpc<SitePpr>
+public class StorePpc : FairPpc<StorePpr>
 {
 	public AutoId	Id { get; set; }
 
-	public SitePpc()
+	public StorePpc()
 	{
 	}
 
-	public SitePpc(AutoId id)
+	public StorePpc(AutoId id)
 	{
 		Id = id;
 	}
@@ -20,16 +20,16 @@ public class SitePpc : FairPpc<SitePpr>
 
 		RequireGraph();
 
-		var	e = Mcv.Sites.Latest(Id);
+		var	e = Mcv.Stores.Latest(Id);
 			
 		if(e == null)
 			throw new EntityException(EntityError.NotFound);
 			
-		return new SitePpr {Site = e};
+		return new StorePpr {Store = e};
 	}
 }
 
-public class SitePpr : Result
+public class StorePpr : Result
 {
-	public Site	Site {get; set;}
+	public Store	Store {get; set;}
 }

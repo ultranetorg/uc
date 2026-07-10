@@ -21,10 +21,10 @@ public class SearchService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		List<ProductSearchResult> searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
@@ -88,7 +88,7 @@ public class SearchService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		var searchResult = mcv.SiteTitles.Search(query ?? "", page * pageSize, pageSize);
+		var searchResult = mcv.StoreTitles.Search(query ?? "", page * pageSize, pageSize);
 		if(searchResult.Length == 0)
 		{
 			return TotalItemsResult<SiteBaseModel>.Empty;
@@ -100,18 +100,18 @@ public class SearchService
 		return new TotalItemsResult<SiteBaseModel>
 		{
 			Items = result,
-			TotalItems = BitConverter.ToInt32(mcv.Metas.Latest(new MetaId((int)FairMetaEntityType.SitesCount)).Value)
+			TotalItems = BitConverter.ToInt32(mcv.Metas.Latest(new MetaId((int)FairMetaEntityType.StoreCount)).Value)
 		};
 	}
 
-	void LoadSites(SiteSearchResult[] searchResult, IList<SiteBaseModel> result, CancellationToken cancellationToken)
+	void LoadSites(StoreSearchResult[] searchResult, IList<SiteBaseModel> result, CancellationToken cancellationToken)
 	{
 		foreach(var search in searchResult)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				break;
 
-			Site site = mcv.Sites.Latest(search.Entity);
+			Store site = mcv.Stores.Latest(search.Entity);
 			var model = new SiteBaseModel(site);
 			result.Add(model);
 		}
@@ -128,7 +128,7 @@ public class SearchService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		var result = mcv.SiteTitles.Search(query, page * pageSize, pageSize);
+		var result = mcv.StoreTitles.Search(query, page * pageSize, pageSize);
 
 		return result.Select(x => new SiteSearchLiteModel(x.Entity.ToString(), x.Text));
 	}
@@ -146,7 +146,7 @@ public class SearchService
 		if(AutoId.TryParse(query, out AutoId entityId))
 		{
 			FairUser user = (FairUser)mcv.Users.Latest(entityId);
-			return user != null && user.Sites.Contains(siteEntityId) ? [new UserModel(user)] : [];
+			return user != null && user.Stores.Contains(siteEntityId) ? [new UserModel(user)] : [];
 		}
 
 		string lowercase = query.ToLower();
@@ -167,7 +167,7 @@ public class SearchService
 
 			FairUser user = (FairUser)mcv.Users.Latest(id);
 
-			if(user.Sites.Contains(siteId))
+			if(user.Stores.Contains(siteId))
 			{
 				var model = new UserModel(user);
 				result.Add(model);

@@ -32,22 +32,22 @@ public class Option : IBinarySerializable
 
 public class ProposalCreation : FairOperation
 {
-	public AutoId				Site { get; set; }
+	public AutoId				Store { get; set; }
 	public AutoId				By { get; set; } /// Account Id for Moderators, Author Id for Author
 	public Role					As { get; set; }
 	public string				Title { get; set; }
 	public string				Text { get; set; }
 	public Option[]				Options { get; set; }
 
-	public override string		Explanation => $"Site={Site}, By={By}, As={As}, Options={{{Options.First().Operation.ToString()}{(Options.Length > 1 ? $", ..." : null)}}}, Text={Text}";
+	public override string		Explanation => $"Store={Store}, By={By}, As={As}, Options={{{Options.First().Operation.ToString()}{(Options.Length > 1 ? $", ..." : null)}}}, Text={Text}";
 
 	public ProposalCreation()
 	{
 	}
 
-	public ProposalCreation(AutoId site, AutoId creator, Role creatorrole, VotableOperation operation, string title = "", string text = "")
+	public ProposalCreation(AutoId store, AutoId creator, Role creatorrole, VotableOperation operation, string title = "", string text = "")
 	{
-		Site = site;
+		Store = store;
 		By = creator;
 		As = creatorrole;
 		Options = [new Option(operation)];
@@ -55,9 +55,9 @@ public class ProposalCreation : FairOperation
 		Text = text;
 	}
 
-	public ProposalCreation(AutoId site, AutoId creator, Role creatorrole, Option[] options, string title = "", string text = "")
+	public ProposalCreation(AutoId store, AutoId creator, Role creatorrole, Option[] options, string title = "", string text = "")
 	{
-		Site = site;
+		Store = store;
 		By = creator;
 		As = creatorrole;
 		Options = options;
@@ -86,7 +86,7 @@ public class ProposalCreation : FairOperation
 
 	public override void Read(Reader reader)
 	{
-		Site		= reader.Read<AutoId>();
+		Store		= reader.Read<AutoId>();
 		By			= reader.Read<AutoId>();
 		As			= reader.Read<Role>();
 		Title		= reader.ReadUtf8();
@@ -96,7 +96,7 @@ public class ProposalCreation : FairOperation
 
 	public override void Write(Writer writer)
 	{
-		writer.Write(Site);
+		writer.Write(Store);
 		writer.Write(By);
 		writer.Write(As);
 		writer.WriteUtf8(Title);
@@ -106,12 +106,12 @@ public class ProposalCreation : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-        if(!SiteExists(execution, Site, out var s, out Error))
+        if(!StoreExists(execution, Store, out var s, out Error))
             return;
 
 		foreach(var i in Options)
 		{
-			i.Operation.Site = s;
+			i.Operation.Store = s;
 			i.Operation.User = User;
 		}
 
@@ -142,7 +142,7 @@ public class ProposalCreation : FairOperation
  			return;
  		}
 		
-		s = execution.Sites.Affect(s.Id);
+		s = execution.Stores.Affect(s.Id);
 
 		if(As == Role.Publisher && p.Creators.HasFlag(Role.Publisher))
  		{
@@ -202,11 +202,11 @@ public class ProposalCreation : FairOperation
 			return;
 		}
 
-		if(Options.Length == 1 &&  (p.Approval == ApprovalRequirement.AnyModerator	&& IsModerator(execution, Site, out _, out _) ||
-									s.IsDiscussion(c)								&& IsModerator(execution, Site, out _, out _) && s.Moderators.Length == 1 ||
+		if(Options.Length == 1 &&  (p.Approval == ApprovalRequirement.AnyModerator	&& IsModerator(execution, Store, out _, out _) ||
+									s.IsDiscussion(c)								&& IsModerator(execution, Store, out _, out _) && s.Moderators.Length == 1 ||
 									s.IsReferendum(c)								&& IsPublisher(execution, s, By, out _, out _) && s.Publishers.Length == 1))
 		{
-			Options[0].Operation.Site	= s;
+			Options[0].Operation.Store	= s;
 			Options[0].Operation.As		= As;
 			Options[0].Operation.By		= As == Role.User ? User.Id : By;
 
@@ -216,7 +216,7 @@ public class ProposalCreation : FairOperation
 		{
  			var z = execution.Proposals.Create(s);
  
- 			z.Site			= Site;
+ 			z.Store			= Store;
 			z.By			= As == Role.User ? User.Id : By;
 			z.As			= As;
 			z.Title			= Title;
@@ -252,7 +252,7 @@ public class ProposalCreation : FairOperation
 																							var oc = (FairOperationClass)execution.Mcv.Net.Constructor.TypeToCode(i.Options[0].Operation.GetType());
 																							
 																							return	s.Policies.First(i => i.OperationClass == oc).Approval == ApprovalRequirement.PublishersMajority && 
-																									!Uccs.Fair.Site.Restrictions.First(i => i.OperationClass == oc).Flags.HasFlag(PolicyFlag.Infinite) && 
+																									!Uccs.Fair.Store.Restrictions.First(i => i.OperationClass == oc).Flags.HasFlag(PolicyFlag.Infinite) && 
 																									execution.Time - i.CreationTime > Time.FromDays(30);
 																						}))
 		{

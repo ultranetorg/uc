@@ -17,7 +17,7 @@ public class ModeratorReviewsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}, {Search}", nameof(ModeratorReviewsController), nameof(Get), siteId, pagination, search);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);

@@ -4,7 +4,7 @@ namespace Uccs.Fair;
 
 public class UserRegistration : VotableOperation
 {
-	public override string		Explanation => $"Site={Site}";
+	public override string		Explanation => $"Store={Store}";
 	
 	public UserRegistration()
 	{
@@ -36,7 +36,7 @@ public class UserRegistration : VotableOperation
 			return false;
 		}
 
-		if(Site.Users.Contains(User.Id))
+		if(Store.Users.Contains(User.Id))
 		{
 			error = AlreadyExists;
 			return false;
@@ -48,15 +48,15 @@ public class UserRegistration : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var s = Site;
+		var s = Store;
 
 		s.Users = [..s.Users, User.Id];
 
-		User.Sites = [..User.Sites, Site.Id];
+		User.Stores = [..User.Stores, Store.Id];
 //
 //		if(Pow != null)
 //		{	
-//			User.AllocationSponsor = new EntityAddress((byte)FairTable.Site, s.Id);
+//			User.AllocationSponsor = new EntityAddress((byte)FairTable.Store, s.Id);
 //			execution.AllocateForever(s, execution.Net.EntityLength);
 //		}
 //		else

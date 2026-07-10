@@ -31,7 +31,7 @@ public class SitesService
 			if (cancellationToken.IsCancellationRequested)
 				return result;
 
-			Site site = mcv.Sites.Latest(siteId);
+			Store site = mcv.Stores.Latest(siteId);
 			if (site == null)
 			{
 				continue;
@@ -52,10 +52,10 @@ public class SitesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		IEnumerable<string> moderatorsIds = site.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.User.ToString());
@@ -75,11 +75,11 @@ public class SitesService
 		Guard.Against.NullOrEmpty(siteId);
 
 		AutoId id = AutoId.Parse(siteId);
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		if(!string.IsNullOrEmpty(search) && AutoId.TryParse(search, out AutoId parsedId))
@@ -135,11 +135,11 @@ public class SitesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		return LoadModerators(site.Moderators, cancellationToken);
@@ -173,10 +173,10 @@ public class SitesService
 
 		AutoId id = AutoId.Parse(siteId);
 
-		Site site = mcv.Sites.Latest(id);
+		Store site = mcv.Stores.Latest(id);
 		if(site == null)
 		{
-			throw new EntityNotFoundException(nameof(Site).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
 		}
 
 		return site.Policies.Select(x => new PolicyModel(x));

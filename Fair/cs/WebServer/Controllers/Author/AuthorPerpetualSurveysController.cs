@@ -17,7 +17,7 @@ public class AuthorPerpetualSurveysController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.Get), siteId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 
 		return proposalsService.GetPerpetualReferendums(siteId, cancellationToken);
 	}
@@ -27,7 +27,7 @@ public class AuthorPerpetualSurveysController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PerpetualSurveyId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetDetails), siteId, perpetualSurveyId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		ValidatePerpetualSurveyId(perpetualSurveyId);
 
 		return proposalsService.GetPerpetualReferendumDetails(siteId, perpetualSurveyId);

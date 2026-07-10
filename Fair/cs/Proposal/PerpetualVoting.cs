@@ -2,7 +2,7 @@ namespace Uccs.Fair;
 
 public class PerpetualVoting : FairOperation
 {
-	public AutoId				Site { get; set; }
+	public AutoId				Store { get; set; }
 	public sbyte				Referendum { get; set; }
 	public AutoId				Publisher { get; set; }
 	public sbyte				Choice { get; set; }
@@ -23,7 +23,7 @@ public class PerpetualVoting : FairOperation
 
 	public override void Read(Reader reader)
 	{
-		Site		= reader.Read<AutoId>();
+		Store		= reader.Read<AutoId>();
 		Referendum	= reader.ReadSByte();
 		Publisher	= reader.Read<AutoId>();
 		Choice		= reader.ReadSByte();
@@ -31,7 +31,7 @@ public class PerpetualVoting : FairOperation
 
 	public override void Write(Writer writer)
 	{
-		writer.Write(Site);
+		writer.Write(Store);
 		writer.Write(Referendum);
 		writer.Write(Publisher);
 		writer.Write(Choice);
@@ -39,7 +39,7 @@ public class PerpetualVoting : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		if(!SiteExists(execution, Site, out var s, out Error))
+		if(!StoreExists(execution, Store, out var s, out Error))
 			return;
  
 		if(!IsPublisher(execution, s, Publisher, out var x, out Error))
@@ -63,7 +63,7 @@ public class PerpetualVoting : FairOperation
  
  		var old = Array.FindIndex(r.Options, i => i.Yes.Contains(Publisher));
 
-		s = execution.Sites.Affect(s.Id);
+		s = execution.Stores.Affect(s.Id);
 		 
 		bool won(AutoId[] votes)
 		{
@@ -85,7 +85,7 @@ public class PerpetualVoting : FairOperation
 
  		if(won(r.Options[Choice].Yes))
  		{
-			o.Operation.Site = s;
+			o.Operation.Store = s;
 
 			o.Operation.Execute(execution);
 			r.LastWin = Choice;

@@ -51,7 +51,7 @@ public class PublicationsController
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetCategoriesPublications)} method called with {{SiteId}}", siteId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 
 		return publicationsService.GetCategoriesPublicationsNotOptimized(siteId, cancellationToken);
 	}
@@ -61,7 +61,7 @@ public class PublicationsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Query}, {Page}", nameof(PublicationsController), nameof(PublicationsController.Search), siteId, query, page);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		searchQueryValidator.Validate(query);
 		paginationValidator.Validate(page);
 
@@ -74,7 +74,7 @@ public class PublicationsController
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.SearchLite)} method called with {{SiteId}}, {{Query}}", siteId, query);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		searchQueryValidator.Validate(query);
 
 		return searchService.SearchLitePublications(siteId, query, 0, SiteConstants.SearchLitePageSize, cancellationToken);

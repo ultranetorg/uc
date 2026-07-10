@@ -3,14 +3,14 @@ using Uccs.Fair;
 
 public class SurveyOption : IBinarySerializable
 {
-	public SiteOperation		Operation { get; set; }
+	public StoreOperation		Operation { get; set; }
 	public AutoId[]				Yes { get; set; }
 
 	public SurveyOption()
 	{
 	}
 
-	public SurveyOption(SiteOperation option)
+	public SurveyOption(StoreOperation option)
 	{
 		Operation	= option;
 		Yes			= [];
@@ -18,7 +18,7 @@ public class SurveyOption : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Operation = reader.ReadVirtual<Operation>() as SiteOperation;
+		Operation = reader.ReadVirtual<Operation>() as StoreOperation;
  		Yes = reader.ReadArray<AutoId>();
 	}
 
@@ -35,7 +35,7 @@ public class PerpetualSurvey : IBinarySerializable
 	public sbyte				LastWin { get; set; }
 	public AutoId[]				Comments;
 	
-	public sbyte				FindIndex(ApprovalRequirement policy) => (sbyte)Array.FindIndex(Options, i => i.Operation is SiteApprovalPolicyChange o && o.Approval == policy);
+	public sbyte				FindIndex(ApprovalRequirement policy) => (sbyte)Array.FindIndex(Options, i => i.Operation is StoreApprovalPolicyChange o && o.Approval == policy);
 
 	public PerpetualSurvey()
 	{

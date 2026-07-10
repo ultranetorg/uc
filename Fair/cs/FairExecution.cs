@@ -8,7 +8,7 @@ public class FairExecution : Execution
 
 	public AuthorExecution				Authors;
 	public ProductExecution				Products;
-	public SiteExecution				Sites;
+	public StoreExecution				Stores;
 	public CategoryExecution			Categories;
 	public PublicationExecution			Publications;
 	public ReviewExecution				Reviews;
@@ -17,7 +17,7 @@ public class FairExecution : Execution
 	public FileExecution				Files;
 	public WordExecution				Words;
 	public ProductTitleExecution		ProductTitles;
-	public SiteTitleExecution			SiteTitles;
+	public StoreTitleExecution			StoreTitles;
 
 	public bool							SkipPowCheck;
 
@@ -25,7 +25,7 @@ public class FairExecution : Execution
 	{
 		Authors				= new(this);
 		Products			= new(this);
-		Sites				= new(this);
+		Stores				= new(this);
 		Categories			= new(this);
 		Publications		= new(this);
 		Reviews				= new(this);
@@ -34,7 +34,7 @@ public class FairExecution : Execution
 		Files				= new(this);
 		Words				= new(this);
 		ProductTitles		= new(this);
-		SiteTitles			= new(this);
+		StoreTitles			= new(this);
 	}
 
 	public FairExecution CreateChild()
@@ -49,7 +49,7 @@ public class FairExecution : Execution
 
 		e.Authors			= new(this){Parent = Authors};
 		e.Products			= new(this){Parent = Products};
-		e.Sites				= new(this){Parent = Sites};
+		e.Stores			= new(this){Parent = Stores};
 		e.Categories		= new(this){Parent = Categories};
 		e.Publications		= new(this){Parent = Publications};
 		e.Reviews			= new(this){Parent = Reviews};
@@ -58,7 +58,7 @@ public class FairExecution : Execution
 		e.Files				= new(this){Parent = Files};
 		e.Words				= new(this){Parent = Words};
 		e.ProductTitles		= new(this){Parent = ProductTitles};
-		e.SiteTitles		= new(this){Parent = SiteTitles};
+		e.StoreTitles		= new(this){Parent = StoreTitles};
 
 		return e;
 	}
@@ -73,7 +73,7 @@ public class FairExecution : Execution
 
 		Authors			.Absorb(execution.Authors);
 		Products		.Absorb(execution.Products);
-		Sites			.Absorb(execution.Sites);
+		Stores			.Absorb(execution.Stores);
 		Categories		.Absorb(execution.Categories);
 		Publications	.Absorb(execution.Publications);
 		Reviews			.Absorb(execution.Reviews);
@@ -82,7 +82,7 @@ public class FairExecution : Execution
 		Files			.Absorb(execution.Files);
 		Words			.Absorb(execution.Words);
 		ProductTitles	.Absorb(execution.ProductTitles);
-		SiteTitles		.Absorb(execution.SiteTitles);
+		StoreTitles		.Absorb(execution.StoreTitles);
 
 		foreach(var i in execution.EnergySpenders) /// This  may add a duplicated clone but we expect this is ok
 			EnergySpenders.Add(i);
@@ -95,7 +95,7 @@ public class FairExecution : Execution
 	{
 		if(table == Mcv.Authors.Id)				return Authors;
 		if(table == Mcv.Products.Id)			return Products;
-		if(table == Mcv.Sites.Id)				return Sites;
+		if(table == Mcv.Stores.Id)				return Stores;
 		if(table == Mcv.Categories.Id)			return Categories;
 		if(table == Mcv.Publications.Id)		return Publications;
 		if(table == Mcv.Reviews.Id)				return Reviews;
@@ -110,7 +110,7 @@ public class FairExecution : Execution
 	public override ITableEntry Affect(byte table, EntityId id)
 	{
 		if(table == Mcv.Authors.Id)				return Authors.Find(id as AutoId)				!= null	? Authors.Affect(id as AutoId) : null;
-		if(table == Mcv.Sites.Id)				return Sites.Find(id as AutoId)					!= null	? Sites.Affect(id as AutoId) : null;
+		if(table == Mcv.Stores.Id)				return Stores.Find(id as AutoId)					!= null	? Stores.Affect(id as AutoId) : null;
 		//if(table == Mcv.Products.Id)			return Products.Find(id as AutoId)				!= null	? Products.Affect(id as AutoId) : null;
 		//if(table == Mcv.Categories.Id)		return Categories.Find(id as AutoId)			!= null	? Categories.Affect(id as AutoId) : null;
 		//if(table == Mcv.Publications.Id)		return Publications.Find(id as AutoId)			!= null	? Publications.Affect(id as AutoId) : null;
@@ -126,7 +126,7 @@ public class FairExecution : Execution
 	{
 		if(table == Mcv.Authors)			return Authors.Affected;
 		if(table == Mcv.Products)			return Products.Affected;
-		if(table == Mcv.Sites)				return Sites.Affected;
+		if(table == Mcv.Stores)				return Stores.Affected;
 		if(table == Mcv.Categories)			return Categories.Affected;
 		if(table == Mcv.Publications)		return Publications.Affected;
 		if(table == Mcv.Reviews)			return Reviews.Affected;
@@ -135,7 +135,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Files)				return Files.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
 		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
-		if(table == Mcv.SiteTitles)			return SiteTitles.Affected;
+		if(table == Mcv.StoreTitles)			return StoreTitles.Affected;
 
 		return base.AffectedByTable(table);
 	}
@@ -155,10 +155,10 @@ public class FairExecution : Execution
 		var a = base.CreateUser(name) as FairUser;
 
 		a.Reviews = [];
-		a.ModeratedSites = [];
+		a.ModeratedStores = [];
 		a.Authors = [];
-		a.Sites = [];
-		a.FavoriteSites = [];
+		a.Stores = [];
+		a.FavoriteStores = [];
 
 		Words.Register(name, EntityTextField.UserName, a.Id);
 
@@ -175,19 +175,19 @@ public class FairExecution : Execution
 // 				DeleteAuthor(i);
 // 		}
 // 
-// 		foreach(var i in account.Sites.Select(i => Mcv.Sites.Find(i, Id)))
+// 		foreach(var i in account.Store.Select(i => Mcv.Store.Find(i, Id)))
 // 		{
 // 			if(i.Moderators.Length == 1)
 // 				DeleteAuthor(i);
 // 		}
 	}
 
-	public void Allocate(Site site, Author author, int space, out string error)
+	public void Allocate(Store store, Author author, int space, out string error)
 	{
 		error = null;
 
-		var i = Array.FindIndex(site.Publishers, i => i.Author == author.Id);
-		var b = site.Publishers[i];
+		var i = Array.FindIndex(store.Publishers, i => i.Author == author.Id);
+		var b = store.Publishers[i];
 
 		if(b.SpacetimeLimit != Publisher.Unlimit)
 		{
@@ -197,8 +197,8 @@ public class FairExecution : Execution
 				return;
 			}
 
-			site.Publishers = [..site.Publishers];
-			b = site.Publishers[i] = site.Publishers[i].Clone(); 
+			store.Publishers = [..store.Publishers];
+			b = store.Publishers[i] = store.Publishers[i].Clone(); 
 
 			b.SpacetimeLimit -= space;
 		}
@@ -206,12 +206,12 @@ public class FairExecution : Execution
 		Allocate(author, author, space);
 	}
 
-	public void RewardForModeration(Site site, Author author, out string error)
+	public void RewardForModeration(Store store, Author author, out string error)
 	{
 		error = null;
 
-		var i = Array.FindIndex(site.Publishers, i => i.Author == author.Id);
-		var b = site.Publishers[i];
+		var i = Array.FindIndex(store.Publishers, i => i.Author == author.Id);
+		var b = store.Publishers[i];
 
 		if(b.EnergyLimit != Publisher.Unlimit)
 		{
@@ -221,21 +221,21 @@ public class FairExecution : Execution
 				return;
 			}
 
-			site.Publishers = [..site.Publishers];
-			b = site.Publishers[i] = site.Publishers[i].Clone(); 
+			store.Publishers = [..store.Publishers];
+			b = store.Publishers[i] = store.Publishers[i].Clone(); 
 
 			b.EnergyLimit -= author.ModerationReward;
 		}
 
 		author.Energy -= author.ModerationReward;
-		site.Energy += author.ModerationReward;
+		store.Energy += author.ModerationReward;
 
 		EnergySpenders.Add(author);
 	}
 
-	public void Unpublish(Site site, AutoId publication, out string error)
+	public void Unpublish(Store store, AutoId publication, out string error)
 	{
-		if(site.UnpublishedPublications.Contains(publication))
+		if(store.UnpublishedPublications.Contains(publication))
 		{
 			error = FairOperation.NotPublished;
 			return;
@@ -247,9 +247,9 @@ public class FairExecution : Execution
 		var	c = Categories.Affect(p.Category);
 		var r = Products.Find(p.Product);
 
-		p.Category					= null;
-		c.Publications				 = c.Publications.Remove(publication);
-		site.UnpublishedPublications = [..site.UnpublishedPublications, p.Id];
+		p.Category						= null;
+		c.Publications					= c.Publications.Remove(publication);
+		store.UnpublishedPublications	= [..store.UnpublishedPublications, p.Id];
 		
 		ProductTitles.Deindex(p);
 	}
@@ -295,7 +295,7 @@ public class FairExecution : Execution
 //		SpacetimeSpenders.Add(SpacetimePayer);
 //	}
 
-/// 	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId site)
+/// 	public void IndexText(string text, EntityTextField field, EntityId entity, EntityId store)
 /// 	{
 /// 		var id = new EntityFieldAddress(entity, field);
 /// 
@@ -305,10 +305,10 @@ public class FairExecution : Execution
 /// 			return;
 /// 		}
 /// 
-/// 		AffectedTexts[id] = new LuceneEntity {Address = id, Site = site, Text = text};
+/// 		AffectedTexts[id] = new LuceneEntity {Address = id, Store = store, Text = text};
 /// 	}
 /// 
-/// 	public void DeindexText(EntityTextField field, EntityId entity, EntityId site)
+/// 	public void DeindexText(EntityTextField field, EntityId entity, EntityId store)
 /// 	{
 /// 		var id = new EntityFieldAddress(entity, field);
 /// 
@@ -318,7 +318,7 @@ public class FairExecution : Execution
 /// 			return;
 /// 		}
 /// 
-/// 		AffectedTexts[id] = new LuceneEntity {Address = id, Site = site, Deleted = true};
+/// 		AffectedTexts[id] = new LuceneEntity {Address = id, Store = store, Deleted = true};
 /// 	}
  
 /// 	public LuceneEntity FindText(EntityField id)

@@ -2,11 +2,11 @@
 
 namespace Uccs.Fair;
 
-public class SiteCommand : FairCommand
+public class StoreCommand : FairCommand
 {
-	Argument Eligible => ByArgument("A name of user eligible to propose changes to the site");
+	Argument Eligible => ByArgument("A name of user eligible to propose changes to the store");
 
-	public SiteCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
+	public StoreCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 
 	}
@@ -16,15 +16,15 @@ public class SiteCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Description = "Creates a new site";
+		a.Description = "Creates a new store";
 		a.Arguments =  [new ("years", INT, "Integer number of years in [1..10] range"),
-						new ("title", NAME, "A title of a site being created"),
-						ByArgument("A name of suer that is going to register the site")];
+						new ("title", NAME, "A title of a store being created"),
+						ByArgument("A name of suer that is going to register the store")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new SiteCreation {Title = GetString("title"), Years = byte.Parse(GetString("years"))};
+								return new StoreCreation {Title = GetString("title"), Years = byte.Parse(GetString("years"))};
 							};
 		return a;
 	}
@@ -34,17 +34,17 @@ public class SiteCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Description = "Get site entity information from MCV database";
-		a.Arguments =	[new (null, EID, "Id of an site to get information about", Flag.First)];
+		a.Description = "Get store entity information from MCV database";
+		a.Arguments =	[new (null, EID, "Id of an store to get information about", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new SitePpc(FirstAutoId));
+								var rp = Ppc(new StorePpc(FirstAutoId));
 
-								Flow.Log.Dump(rp.Site);
+								Flow.Log.Dump(rp.Store);
 					
-								return rp.Site;
+								return rp.Store;
 							};
 		return a;
 	}
@@ -56,15 +56,15 @@ public class SiteCommand : FairCommand
 		var years = "years";
 
 		a.Name = "r";
-		a.Description = "Prolongs current expiration date of a site for a specified number of years";
-		a.Arguments =  [new (null, EID, "Id of a site to update", Flag.First),
-							 new (years, INT, "A number of years to renew site for. Allowed during the last year of current period only."),
+		a.Description = "Prolongs current expiration date of a store for a specified number of years";
+		a.Arguments =  [new (null, EID, "Id of a store to update", Flag.First),
+							 new (years, INT, "A number of years to renew store for. Allowed during the last year of current period only."),
 							 Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new SiteRenewal {SiteId = FirstAutoId, Years = byte.Parse(GetString(years))};
+								return new StoreRenewal {StoreId = FirstAutoId, Years = byte.Parse(GetString(years))};
 							};
 		return a;
 	}
@@ -76,8 +76,8 @@ public class SiteCommand : FairCommand
 		var nickname = "nickname";
 
 		a.Name = "n";
-		a.Description = "Sets a nickname for a specified site";
-		a.Arguments =  [new (null, EID, "Id of a site to update", Flag.First),
+		a.Description = "Sets a nickname for a specified store";
+		a.Arguments =  [new (null, EID, "Id of a store to update", Flag.First),
 						new (null, EID, "Id of a creator", Flag.Second),
 						new (nickname, EID, "A new nickname"),
 						new (As, ROLE, "On behalf of"),
@@ -86,7 +86,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new ProposalCreation(FirstAutoId, SecondAutoId, GetEnum<Role>(@As), new SiteNameChange {Name = GetString(nickname)}); 
+								return new ProposalCreation(FirstAutoId, SecondAutoId, GetEnum<Role>(@As), new StoreNameChange {Name = GetString(nickname)}); 
 							};
 		return a;
 	}
@@ -96,13 +96,13 @@ public class SiteCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "lc";
-		a.Description = "Get categories of a specified site";
-		a.Arguments = [new (null, EID, "Id of a site to get categories from", Flag.First)];
+		a.Description = "Get categories of a specified store";
+		a.Arguments = [new (null, EID, "Id of a store to get categories from", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new SiteCategoriesPpc(FirstAutoId));
+								var rp = Ppc(new StoreCategoriesPpc(FirstAutoId));
 
 								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
 					
@@ -120,8 +120,8 @@ public class SiteCommand : FairCommand
 		var d = "description";
 
 		a.Name = "i";
-		a.Description = "Changes information abourt a site";
-		a.Arguments =  [new (null, EID, "Id of a site to update", Flag.First),
+		a.Description = "Changes information abourt a store";
+		a.Arguments =  [new (null, EID, "Id of a store to update", Flag.First),
 						new (@As, ROLE, $"A role of actor, {Uccs.Fair.Role.Moderator} by default"),
 						new (null, EID, "Id of a actor", Flag.Second),
 						new (t, TEXT, "A new title", Flag.Optional),
@@ -132,7 +132,7 @@ public class SiteCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var o = new SiteTextChange();
+								var o = new StoreInfoUpdation();
 
 								o.Title			= GetString(t, null); 
 								o.Slogan		= GetString(s, null); 

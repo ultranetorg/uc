@@ -138,7 +138,7 @@ public class ProductsService
 				return new TotalItemsResult<ProductStoreModel> {Items = result, TotalItems = totalItems};
 
 			Publication publication = mcv.Publications.Latest(publicationId);
-			Site store = mcv.Sites.Latest(publication.Site);
+			Store store = mcv.Stores.Latest(publication.Store);
 
 			var model = new ProductStoreModel
 			{
@@ -212,7 +212,7 @@ public class ProductsService
 
 
 			Publication publication = mcv.Publications.Latest(publicationId);
-			Site site = mcv.Sites.Latest(publication.Site);
+			Store site = mcv.Stores.Latest(publication.Store);
 			yield return new SitePublicationModel
 			{
 				SiteId = site.Id.ToString(),

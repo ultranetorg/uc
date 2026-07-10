@@ -17,7 +17,7 @@ public class ModeratorChangedPublicationsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {ChangedPublicationId}", nameof(ModeratorChangedPublicationsController), nameof(GetDetails), siteId, changedPublicationId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		autoIdValidator.Validate(changedPublicationId, nameof(EntityNames.ChangedPublicationEntityName).ToLower());
 
 		return publicationsService.GetChangedPublicationDetails(siteId, changedPublicationId);
@@ -28,7 +28,7 @@ public class ModeratorChangedPublicationsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ModeratorChangedPublicationsController), nameof(GetAll), siteId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);

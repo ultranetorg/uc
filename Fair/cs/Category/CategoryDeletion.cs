@@ -42,7 +42,7 @@ public class CategoryDeletion : VotableOperation
 
 		if(c.Parent == null)
 		{
-			Site.Categories = Site.Categories.Remove(c.Id);
+			Store.Categories = Store.Categories.Remove(c.Id);
 		}
 		else
 		{
@@ -53,6 +53,6 @@ public class CategoryDeletion : VotableOperation
 
 		c.Deleted = true;
 
-		execution.Free(Site, Site, execution.Net.EntityLength);
+		execution.Free(Store, Store, execution.Net.EntityLength);
 	}
 }

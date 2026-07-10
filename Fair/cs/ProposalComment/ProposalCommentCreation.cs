@@ -40,7 +40,7 @@ public class ProposalCommentCreation : FairOperation
 		d = execution.Proposals.Affect(d.Id);
 		d.Comments = [..d.Comments, c.Id];
 
-		var s = execution.Sites.Affect(d.Site);
+		var s = execution.Stores.Affect(d.Store);
 
 		if(s.IsDiscussion(d.OptionClass))
  		{

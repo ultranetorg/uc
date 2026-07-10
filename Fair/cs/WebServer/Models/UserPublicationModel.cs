@@ -16,7 +16,7 @@ public class UserPublicationModel
 	//
 	public string Url { get; set; }
 
-	public UserPublicationModel(Publication publication, Site site, Category category, Product product)
+	public UserPublicationModel(Publication publication, Store site, Category category, Product product)
 	{
 		Id = publication.Id.ToString();
 

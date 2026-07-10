@@ -17,7 +17,7 @@ public class SiteFilesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(SiteFilesController), nameof(Get), siteId);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);

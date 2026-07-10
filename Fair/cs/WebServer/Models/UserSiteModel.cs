@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair; 
 
-public class UserSiteModel(Site site) : SiteBaseModel(site)
+public class UserSiteModel(Store site) : SiteBaseModel(site)
 {
 	public int ProductsCount { get; init; }
 

@@ -74,7 +74,7 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 		a.Id = LastCreatedId = new AutoId(b, e);
 		a.Products = [];
 		a.Owners = [];
-		a.Sites = [];
+		a.Stores = [];
 		a.References = [];
 		a.Files = [];
 

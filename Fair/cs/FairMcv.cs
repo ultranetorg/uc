@@ -7,7 +7,7 @@ public enum FairMetaEntityType : int
 {
 	AuthorsCount = MetaEntityType._Last + 1,
 	ProductsCount,
-	SitesCount,
+	StoreCount,
 	CategoriesCount,
 	PublicationsCount,
 	ReviewsCount,
@@ -21,14 +21,14 @@ public enum FairTable : byte
 	Meta = McvTable.Meta, 
 	User = McvTable.User,
 	Subnet = McvTable.Subnet,
-	Author, Product, Site, Category, Publication, Review, Proposal, ProposalComment, File, _Word, _ProductTitle, _SiteTitle
+	Author, Product, Store, Category, Publication, Review, Proposal, ProposalComment, File, _Word, _ProductTitle, _StoreTitle
 }
 
 public class FairMcv : Mcv
 {
 	public AuthorTable					Authors;
 	public ProductTable					Products;
-	public SiteTable					Sites;
+	public StoreTable					Stores;
 	public CategoryTable				Categories;
 	public PublicationTable				Publications;
 	public ReviewTable					Reviews;
@@ -37,7 +37,7 @@ public class FairMcv : Mcv
 	public FileTable					Files;
 	public WordTable					Words;
 	public ProductTitleIndex			ProductTitles;
-	public SiteTitleIndex				SiteTitles;
+	public StoreTitleIndex				StoreTitles;
 
 	Net.Endpoint[]						GraphIPs;
 	public new IEnumerable<FairRound>	Tail => base.Tail.Cast<FairRound>();
@@ -79,7 +79,7 @@ public class FairMcv : Mcv
 		Friends = new (this);
 		Authors = new (this);
 		Products = new (this);
-		Sites = new (this);
+		Stores = new (this);
 		Categories = new (this);
 		Publications = new (this);
 		Reviews = new (this);
@@ -88,9 +88,9 @@ public class FairMcv : Mcv
 		Files = new (this);
 		Words = new (this);
 		ProductTitles = new (this);
-		SiteTitles = new (this);
+		StoreTitles = new (this);
 
-		Tables = [Metas, Users, Friends, Authors, Products, Sites, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, ProductTitles, SiteTitles];
+		Tables = [Metas, Users, Friends, Authors, Products, Stores, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, ProductTitles, StoreTitles];
 	}
 
 	public override Round CreateRound()

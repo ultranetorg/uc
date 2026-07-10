@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class SiteBaseModel(Site site)
+public class SiteBaseModel(Store site)
 {
 	[JsonPropertyOrder(-5)]
 	public string Id { get; } = site.Id.ToString();

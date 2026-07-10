@@ -32,7 +32,7 @@ public class UserUnregistration : VotableOperation
 
 	public override bool ValidateProposal(FairExecution execution, out string error)
 	{
-		if(!Site.Users.Contains(User))
+		if(!Store.Users.Contains(User))
 		{
 			error = NotFound;
 			return false;
@@ -44,12 +44,12 @@ public class UserUnregistration : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var s = Site;
+		var s = Store;
 
 		s.Users = s.Users.Remove(User);
 		
 		var u = execution.AffectUser(User);
 
-		u.Sites = u.Sites.Remove(s.Id);
+		u.Stores = u.Stores.Remove(s.Id);
 	}
 }

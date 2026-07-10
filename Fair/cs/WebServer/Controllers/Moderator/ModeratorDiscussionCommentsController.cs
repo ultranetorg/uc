@@ -17,7 +17,7 @@ public class ModeratorDiscussionCommentsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDiscussionCommentsController)}.{nameof(ModeratorDiscussionCommentsController.GetDiscussionComments)} method called with {{DiscussionId}}, {{Pagination}}", discussionId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		autoIdValidator.Validate(discussionId, nameof(Proposal).ToLower());
 		paginationValidator.Validate(pagination);
 

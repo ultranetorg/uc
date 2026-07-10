@@ -17,7 +17,7 @@ public class ProposalsController
 	{
 		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(GetModeratorProposals)} method called with {{SiteId}}, {{Search}}, {{Pagination}}", siteId, search, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
@@ -31,7 +31,7 @@ public class ProposalsController
 	{
 		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(PublisherProposalModel)} method called with {{SiteId}}, {{Search}}, {{Pagination}}", siteId, search, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
@@ -45,7 +45,7 @@ public class ProposalsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ProposalsController), nameof(GetUserRegistrations), siteId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
@@ -59,7 +59,7 @@ public class ProposalsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ProposalsController), nameof(GetUserUnregistrations), siteId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Site).ToLower());
+		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);

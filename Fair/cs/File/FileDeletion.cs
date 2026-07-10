@@ -54,12 +54,12 @@ public class FileDeletion : FairOperation
 				execution.Free(o, o, execution.Net.EntityLength + f.Data.Length);
 				break;
 			}
-			case FairTable.Site:
+			case FairTable.Store:
 			{
 				if(!IsModerator(execution, f.Owner.Id, out var o, out Error))
 					return;
 
-				o = execution.Sites.Affect(o.Id);
+				o = execution.Stores.Affect(o.Id);
 				o.Files = o.Files.Remove(f.Id);
 				execution.Free(o, o, execution.Net.EntityLength + f.Data.Length);
 				break;

@@ -30,14 +30,14 @@ public class ProposalCommentEdit : FairOperation
 	{
 		var c = execution.ProposalComments.Affect(Comment);
 		var d = execution.Proposals.Find(c.Proposal);
-		var s = execution.Sites.Find(d.Site);
+		var s = execution.Stores.Find(d.Store);
 
 		if(s.IsDiscussion(d.OptionClass))
  		{
- 			if(!IsModerator(execution, d.Site, out _, out Error))
+ 			if(!IsModerator(execution, d.Store, out _, out Error))
  				return;
  
-			s = execution.Sites.Affect(s.Id);
+			s = execution.Stores.Affect(s.Id);
 
 			execution.Free(s, s, Encoding.UTF8.GetByteCount(c.Text));
  			execution.Allocate(s, s, Encoding.UTF8.GetByteCount(Text));
