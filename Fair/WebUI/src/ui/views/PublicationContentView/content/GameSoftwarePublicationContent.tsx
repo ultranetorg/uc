@@ -173,7 +173,7 @@ export const GameSoftwarePublicationContent = memo(
             downloadFromWebLabel={t("downloadFromWeb")}
             onVersionChange={handleVersionChange}
           />
-          {officialSite && <SiteLink to={officialSite} label={t("officialSite")} />}
+          {officialSite && <SiteLink to={officialSite} label={t("common:officialSite")} className="capitalize" />}
           {eulaText && (
             <button
               type="button"

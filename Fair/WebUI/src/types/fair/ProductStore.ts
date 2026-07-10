@@ -1,5 +1,6 @@
 export type ProductStore = {
-  id: string
+  storeId: string
+  publicationId: string
   title: string
   avatarId?: string
 }

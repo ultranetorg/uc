@@ -7,12 +7,12 @@ import { PublicationTableRow } from "./PublicationTableRow"
 
 export type PublicationsTableBaseProps = {
   items: PublicationAuthor[]
-  onPublicationStoresClick: (id: string) => void
+  onProductStoresClick: (id: string) => void
 }
 
 export type PublicationsTableProps = PropsWithClassName & PublicationsTableBaseProps
 
-export const PublicationsTable = memo(({ className, items, onPublicationStoresClick }: PublicationsTableProps) => {
+export const PublicationsTable = memo(({ className, items, onProductStoresClick }: PublicationsTableProps) => {
   const { t } = useTranslation("profile")
 
   return (
@@ -20,11 +20,11 @@ export const PublicationsTable = memo(({ className, items, onPublicationStoresCl
       <div className="flex justify-between bg-gray-200 px-4 py-2 text-2xs font-medium leading-4">
         <span className="w-[43%] capitalize">{t("common:publication")}</span>
         <span className="w-[30%] capitalize">{t("common:category")}</span>
-        <span className="w-[27%]">{t("totalPublications")}</span>
+        <span className="w-[27%] text-center">{t("totalPublications")}</span>
       </div>
       <div className="divide-y divide-gray-300">
         {items.map(x => (
-          <PublicationTableRow key={x.id} {...x} onPublicationStoresClick={onPublicationStoresClick} />
+          <PublicationTableRow key={x.id} {...x} onProductStoresClick={onProductStoresClick} />
         ))}
       </div>
     </div>

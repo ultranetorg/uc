@@ -27,6 +27,7 @@ export const enUS = {
     delete: "delete",
     date: "Date",
     edit: "edit",
+    globalProfile: "global profile",
     governance: "governance",
     home: "Home",
     join: "join",
@@ -48,6 +49,7 @@ export const enUS = {
     nickname: "nickname",
     no: "No",
     noResults: "no results",
+    officialSite: "official site",
     ok: "ok",
     operation: "operation",
     options: "Options",
@@ -168,7 +170,6 @@ export const enUS = {
     version: "Version",
     price: "Price",
     license: "License",
-    viewSite: "Official site",
     releases: "Releases",
     release: "Release #{{version}}",
     distributive: {
@@ -337,7 +338,6 @@ export const enUS = {
     licenseType: "License Type",
     noReviews: "No reviews yet. Be the first to share your experience",
     noScreenshots: "No screenshots available<br/><br/>This product doesn’t include screenshots yet",
-    officialSite: "Official site",
     os: "OS",
     price: "Price",
     publicationDate: "Publication Date",
@@ -436,11 +436,10 @@ export const enUS = {
   },
 
   /* Views */
-  authorPublicationsView: {
+  authorProfile: {
     about: "About",
     author: "Author",
     links: "Links",
-    official: "Official site",
     readLess: "Read Less",
     readMore: "Read More",
   },

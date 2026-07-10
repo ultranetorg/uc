@@ -93,7 +93,7 @@ const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
       <UserPage />
     </FullscreenPageView>
   ),
-  publisherId: (
+  authorId: (
     <FullscreenPageView>
       <AuthorPage />
     </FullscreenPageView>

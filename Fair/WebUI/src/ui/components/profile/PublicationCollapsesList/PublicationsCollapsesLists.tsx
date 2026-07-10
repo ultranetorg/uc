@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react"
 
-import { PublicationStoresModal } from "ui/components/specific"
+import { ProductStoresModal } from "ui/components/specific"
 
 import { PublicationsCollapse, PublicationsCollapseProps } from "./PublicationsCollapse"
 
@@ -35,7 +35,7 @@ export const PublicationsCollapsesLists = ({ items }: PublicationsCollapsesLists
           />
         ))}
       </div>
-      {isModalOpen && <PublicationStoresModal onClose={handleModalClose} publicationId={selectedPublicationId!} />}
+      {isModalOpen && <ProductStoresModal onClose={handleModalClose} productId={selectedPublicationId!} />}
     </>
   )
 }

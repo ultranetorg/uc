@@ -2,7 +2,6 @@ import { memo } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useSiteRolesContext } from "app"
 import { useGetUserAuthors, useGetUserReviews } from "entities"
 import { useParams, useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
 import { Breadcrumbs } from "ui/components"
@@ -14,7 +13,6 @@ export type UserPageProps = {
 }
 
 export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
-  const { isModerator, isPublisher } = useSiteRolesContext()
   const { userId } = useParams()
   const siteId = useResolveSiteId()
   const { t } = useTranslation()
@@ -46,7 +44,7 @@ export const UserPage = memo(({ isFromModeration = true }: UserPageProps) => {
           ]}
         />
       )}
-      <UserDetailsView user={user} reviews={reviews} isPublisher={isPublisher} isModerator={isModerator} />
+      <UserDetailsView siteId={siteId!} user={user} reviews={reviews} />
     </div>
   )
 })

@@ -142,7 +142,8 @@ public class ProductsService
 
 			var model = new ProductStoreModel
 			{
-				Id = store.Id.ToString(),
+				StoreId = store.Id.ToString(),
+				PublicationId = publication.Id.ToString(),
 				Title = store.Title,
 				AvatarId = store.Avatar?.ToString()
 			};

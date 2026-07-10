@@ -15,7 +15,7 @@ export type PublicationTableRowProps = {
   publicationsCount: number
   categoryId: string
   categoryTitle: string
-  onPublicationStoresClick: (id: string) => void
+  onProductStoresClick: (id: string) => void
 }
 
 export const PublicationTableRow = memo(
@@ -27,7 +27,7 @@ export const PublicationTableRow = memo(
     publicationsCount,
     categoryId,
     categoryTitle,
-    onPublicationStoresClick,
+    onProductStoresClick,
   }: PublicationTableRowProps) => {
     const siteId = useResolveSiteId()
     const { t } = useTranslation("profile")
@@ -54,7 +54,7 @@ export const PublicationTableRow = memo(
             className="h-9"
             label={`${publicationsCount} ${t("publication", { count: publicationsCount })}`}
             disabled={publicationsCount === 0}
-            onClick={() => onPublicationStoresClick(productId)}
+            onClick={() => onProductStoresClick(productId)}
           />
         </div>
       </div>

@@ -1,9 +1,11 @@
 import { ReactNode } from "react"
+import { TFunction } from "i18next"
 
 import {
   SvgDiscordColored,
   SvgFacebookColored,
   SvgGithubColored,
+  SvgGlobe,
   SvgInstagramColored,
   SvgLinkedInColored,
   SvgMediumColored,
@@ -13,7 +15,6 @@ import {
   SvgXTwitterColored,
   SvgYoutubeColored,
 } from "assets"
-import { TFunction } from "i18next"
 
 export const getSocialIconFromLink = (link: string): ReactNode => {
   if (link) {
@@ -31,7 +32,7 @@ export const getSocialIconFromLink = (link: string): ReactNode => {
     if (lower.includes("youtube.com") || lower.includes("youtu.be")) return <SvgYoutubeColored />
   }
 
-  return null
+  return <SvgGlobe className="stroke-gray-800" />
 }
 
 export const getSocialNameFromLink = (t: TFunction, link: string): string | undefined => {
