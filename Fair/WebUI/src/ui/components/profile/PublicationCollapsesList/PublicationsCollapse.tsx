@@ -54,7 +54,7 @@ export const PublicationsCollapse = ({
             <SvgChevronUpCircle className="stroke-gray-800" />
           ))}
       </div>
-      {expanded && <PublicationsTable items={[]} onPublicationStoresClick={onPublicationStoresClick} />}
+      {expanded && <PublicationsTable items={[]} onProductStoresClick={onPublicationStoresClick} />}
     </div>
   )
 }

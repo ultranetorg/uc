@@ -11,7 +11,7 @@ import { createBreadcrumbs } from "utils"
 import { PublicationContentView } from "ui/views"
 
 export const PublicationPage = () => {
-  const { t } = useTranslation("publication")
+  const { t } = useTranslation("publicationPage")
   const { creator: create } = useOperationPolicy("review-creation")
   const { publicationId } = useParams()
   const siteId = useResolveSiteId()

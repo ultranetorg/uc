@@ -1,11 +1,12 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useSiteContext } from "app"
 import avatarFallback from "assets/fallback/user-30.png"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback } from "ui/components"
 import { ModeratorUserMenu } from "ui/components/specific"
-import { buildUserAvatarByIdUrl, formatRole } from "utils"
+import { buildUserAvatarByIdUrl, formatRole, isUserModerator, isUserPublisher } from "utils"
 
 import { ReviewsList } from "./ReviewsList"
 import { PublishersList } from "./PublishersList"
@@ -16,14 +17,16 @@ export type UserDetailsViewProps = {
   siteId: string
   user?: UserAuthors
   reviews?: TotalItemsResult<Review>
-  isPublisher: boolean
-  isModerator: boolean
 }
 
-export const UserDetailsView = memo(({ siteId, user, reviews, isPublisher, isModerator }: UserDetailsViewProps) => {
+export const UserDetailsView = memo(({ siteId, user, reviews }: UserDetailsViewProps) => {
+  const { site } = useSiteContext()
   const { t } = useTranslation("userDetailsView")
 
   if (!user || !reviews) return <div>Loading</div>
+
+  const isPublisher = isUserPublisher(site, user)
+  const isModerator = isUserModerator(site, user)
 
   return (
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300 bg-gray-100">

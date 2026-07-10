@@ -5,13 +5,13 @@ import storeFallback from "assets/fallback/store-fallback-8.png"
 import { ImageFallback } from "ui/components/ImageFallback"
 import { buildFileUrl } from "utils"
 
-export type PublicationStoreRowProps = {
+export type ProductStoreRowProps = {
   avatarId?: string
   title: string
   //publicationDate: number
 }
 
-export const PublicationStoreRow = memo(({ avatarId, title }: PublicationStoreRowProps) => (
+export const ProductStoreRow = memo(({ avatarId, title }: ProductStoreRowProps) => (
   <div className="flex cursor-pointer items-center gap-3 p-2 text-2sm leading-5">
     <div className="size-10 shrink-0 overflow-hidden rounded-lg">
       <ImageFallback src={buildFileUrl(avatarId)} fallbackSrc={storeFallback} />

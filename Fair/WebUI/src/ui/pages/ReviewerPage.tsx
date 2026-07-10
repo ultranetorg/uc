@@ -1,8 +1,7 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
-import { isNumber } from "lodash"
+import { capitalize, isNumber } from "lodash"
 
-import { useSiteRolesContext } from "app"
 import { useGetUserAuthors, useGetUserReviews } from "entities"
 import { useParams, useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
 import { Breadcrumbs } from "ui/components"
@@ -14,7 +13,6 @@ export type ReviewerPageProps = {
 }
 
 export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPageProps) => {
-  const { isModerator, isPublisher } = useSiteRolesContext()
   const { userId } = useParams()
   const siteId = useResolveSiteId()
   const { t } = useTranslation()
@@ -41,18 +39,12 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
           fullPath={true}
           items={[
             { path: routes.site(siteId!), title: t("common:home") },
-            { title: t("common:users") },
+            { title: capitalize(t("common:users")) },
             { title: user.name },
           ]}
         />
       )}
-      <UserDetailsView
-        siteId={siteId!}
-        user={user}
-        reviews={reviews}
-        isPublisher={isPublisher}
-        isModerator={isModerator}
-      />
+      <UserDetailsView siteId={siteId!} user={user} reviews={reviews} />
     </div>
   )
 })
