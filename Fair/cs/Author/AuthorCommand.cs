@@ -21,7 +21,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Creates a new author for a specified period";
 		a.Arguments =  [new ("years", YEARS, "Number of years in [1..10] range"),
 						new ("title", NAME, "A title of a author being created"),
-						ByArgument("A name of user that is going to register the author")];
+						ByArgument("Address of account that owns or is going to register the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -83,11 +83,11 @@ public class AuthorCommand : FairCommand
 		const string ro = "removeowner";
 
 		a.Name = "s";
-		a.Description = "Extend author rent for a specified period. Allowed during the last year of current period only.";
+		a.Description = "Manages ownership of an author. Adds or removes an owner account.";
 		a.Arguments =	[
-							new (null, EID, "Id of an author to be renewed", Flag.First),
-							new (ao, AA, "Account Id of a new owner to add"),
-							new (ro, AA, "Account Id of a existing owner to remove"),
+							new (null, EID, "Author ID whose owner list will be modified", Flag.First),
+							new (ao, AA, "Account ID to add as an owner"),
+							new (ro, AA, "Account ID to remove from owners"),
 							Eligible
 						];
 
