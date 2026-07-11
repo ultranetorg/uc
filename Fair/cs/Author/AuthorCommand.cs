@@ -102,7 +102,7 @@ public class AuthorCommand : FairCommand
 								}
 								if(Has(ro))
 								{
-									o = new AuthorOwnerRemoval {AuthorId = FirstAutoId, Owner = GetAutoId(ao)};
+									o = new AuthorOwnerRemoval {AuthorId = FirstAutoId, Owner = GetAutoId(ro)};
 								}
 
 								return o ?? throw new SyntaxException("Unknown parameters");
