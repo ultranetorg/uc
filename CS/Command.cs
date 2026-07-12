@@ -28,7 +28,7 @@ public abstract class Command
 		{
 			get
 			{
-				var s = Command.Keyword;
+				var s = $"{Command.Keyword} {Name}";
 	
 				var used = new Dictionary<ArgumentType, int>();
 	
@@ -56,7 +56,7 @@ public abstract class Command
 			Method = method;
 
 			Examples = () =>	{
-									var c = Command.Keyword;
+									var c = $"{Command.Keyword} {Name}";
 	
 									var used = new Dictionary<ArgumentType, int>();
 	
@@ -99,11 +99,11 @@ public abstract class Command
 		public string	Example1 => Examples[1];
 		public string	Example2 => Examples[2];
 
-		public ArgumentType(string name, string description, string[] example)
+		public ArgumentType(string name, string description, object[] example)
 		{
 			Name = name;
 			Description = description;
-			Examples = example;
+			Examples = example.Select(i => i.ToString()).ToArray();
 		}
 
 		public override string ToString()
@@ -151,8 +151,8 @@ public abstract class Command
 		}
 	}
 
-	public const string		FirstArg = "<first>";
 	public const string		ConfirmationArg = "_confirmation";
+	public virtual string[]	ControlArguments => [ConfirmationArg];
 
 	public string			Keyword => GetType().Name.Replace(nameof(Command), null).ToLower();
 	public CommandAction[]	Actions => GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(CommandAction)).Select(i => i.Invoke(this, null)).Cast<CommandAction>().ToArray();
@@ -239,6 +239,23 @@ public abstract class Command
 	public bool Has(string paramenter)
 	{
 		return One(paramenter) != null;
+	}
+
+	public bool GetBool(string paramenter, bool def)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+		{	
+			if(string.Compare(p.Get<string>(), "yes", true) == 0)
+				return true;
+			else if(string.Compare(p.Get<string>(), "no", true) == 0)
+				return false;
+			else
+				throw new SyntaxException($"Parameter '{paramenter}' has incorrect value");
+		}
+		else
+			return def;
 	}
 
 	public string GetString(string paramenter)

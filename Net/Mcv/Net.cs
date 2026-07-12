@@ -130,7 +130,7 @@ public abstract class McvNet : Net
 	public readonly AutoId					Father0Id;
 	public readonly AccountAddress			Father0Signer = new ("0000000AD6AFF35CF87E04E457A9395EAB7397D335C5B530F8CDBC9BD66EDF4D".FromHex());
 
-	public abstract int						TablesCount { get; }
+	public abstract Dictionary<string, byte>	Tables { get; }
 
 	public McvNet()
 	{

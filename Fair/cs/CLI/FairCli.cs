@@ -27,6 +27,7 @@ public class FairCli : McvCli
 
 	public FairCli(NexusSettings nexussettings, FairNodeSettings settings, FairApiClient api) : base(nexussettings, settings, api)
 	{
+		Net	= Fair.ByZone(nexussettings.Zone);
 	}
 
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)

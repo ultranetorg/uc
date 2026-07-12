@@ -44,23 +44,23 @@ public class VaultCommand : NetCommand
 		throw new Exception();
 	}
 
-	public CommandAction Run()
-	{
- 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "r";
-		a.Description = "Runs a new instance with command-line interface";
-		a.Arguments =	[
-							new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
-						];
-
-		a.Execute = () =>	{
-								Run(Cli, a);
-
-								return null;
-							};
-		
-		return a;
-	}
+//	public CommandAction Run()
+//	{
+// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+//
+//		a.Name = "r";
+//		a.Description = "Runs a new instance with command-line interface";
+//		a.Arguments =	[
+//							new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
+//						];
+//
+//		a.Execute = () =>	{
+//								Run(Cli, a);
+//
+//								return null;
+//							};
+//		
+//		return a;
+//	}
 
 }

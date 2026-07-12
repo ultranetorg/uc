@@ -45,10 +45,13 @@ public class ResourceDeletion : RdnOperation
 			execution.Free(User, d, execution.Net.EntityLength);
 		}
 
-		foreach(var i in r.Inbounds ?? [])
+		if(r.Inbounds != null)
 		{
-			var sr = execution.Resources.Affect(i);
-			sr.RemoveOutbound(r.Id);
+			foreach(var i in r.Inbounds)
+			{
+				var sr = execution.Resources.Affect(i);
+				sr.RemoveOutbound(r.Id);
+			}
 		}
 	}
 }

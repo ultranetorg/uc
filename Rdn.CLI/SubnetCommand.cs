@@ -4,8 +4,6 @@ namespace Uccs.Rdn.CLI;
 
 public class SubnetCommand : RdnCommand
 {
-	string First => Args[0].Name;
-
 	public SubnetCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
@@ -15,11 +13,11 @@ public class SubnetCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "a";
-		a.Description = "Request subnet attachment voting";
+		a.Description = "Requests subnet attachment voting";
 		a.Arguments =	[
 							new (null, SNN, "A name of a subnet to attach", Flag.First),
 							new ("peer", IP, "A list of ipadddress:port of peers of subnet", Flag.Multi),
-							new ("client", SNP, "An address of default client software"),
+							new ("client", SNQ, "An address of default client software"),
 							ByArgument()
 						];
 

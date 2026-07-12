@@ -19,9 +19,10 @@ public class LinkCommand : RdnCommand
 		a.Name = "c";
 		a.Description = "Creates a link from one resource to another";
 		a.Arguments =	[
-							new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
-							new ("to", RA, "Address of a destination resource"),
+							new ("from", RA, "The address of a source resource. Transaction user must be owner of resource domain."),
+							new ("to", RA, "The address of a destination resource"),
 							new ("type", LT, "The type of link to create", Flag.Optional),
+							DomainCommand.Eligible
 						];
 
 		a.Execute = () =>	{
@@ -42,8 +43,9 @@ public class LinkCommand : RdnCommand
 		a.Name = "x";
 		a.Description = "Destroys existing link";
 		a.Arguments =	[
-							new ("from", RA, "Address of a source resource. Transaction signer must be owner of this resource."),
-							new ("index", INT, "An index of link to delete")
+							new ("from", RA, "The address of a source resource. Transaction user must be owner of resource domain."),
+							new ("index", INT, "The index of link to delete"),
+							DomainCommand.Eligible
 						];
 
 		a.Execute = () =>	{
@@ -64,13 +66,13 @@ public class LinkCommand : RdnCommand
 
 		a.Description = "Lists outbound links of a specified resource";
 		a.Arguments =	[
-							new (null, RA, "Address of a resource which outbound links are be listed of", Flag.First)
+							new (null, RA, "The address of a resource to list outbound links from", Flag.First)
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var r = Ppc(new ResourceByAddressPpc(Ura.Parse(Args[0].Name)));
+								var r = Ppc(new ResourceByAddressPpc(Ura.Parse(First)));
 				
 								Flow.Log.Dump(	r.Resource.Outbounds.Select((o, i) => new {I = i, L = o, R = Ppc(new ResourceByIdPpc(o.Destination))}),
 												["#",		"Type",			"Id",					"Address"],
@@ -89,13 +91,13 @@ public class LinkCommand : RdnCommand
 
 		a.Description = "Lists inbound links of a specified resource";
 		a.Arguments =	[
-							new (null, RA, "Address of a resource which inbound links are be listed of", Flag.First)
+							new (null, RA, "The address of a resource to list inbound links from", Flag.First)
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var r = Ppc(new ResourceByAddressPpc(Ura.Parse(Args[0].Name)));
+								var r = Ppc(new ResourceByAddressPpc(Ura.Parse(First)));
 																	
 								Flow.Log.Dump(	r.Resource.Inbounds.Select(i => new {L = i, R = Ppc(new ResourceByIdPpc(i))}),
 												["Id",		"Address"],

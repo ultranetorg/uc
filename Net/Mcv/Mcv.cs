@@ -125,7 +125,7 @@ public abstract class Mcv /// Mutual chain voting
 	
 		CreateTables(databasepath);
 	
-		if(net.TablesCount != Tables.Count(i => !i.IsIndex))
+		if(net.Tables.Count != Tables.Count(i => !i.IsIndex))
 			throw new IntegrityException();
 
 		GraphHash = Net.Cryptography.ZeroHash;

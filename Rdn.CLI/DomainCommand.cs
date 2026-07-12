@@ -4,6 +4,10 @@ namespace Uccs.Rdn.CLI;
 
 public class DomainCommand : RdnCommand
 {
+	public static Argument Eligible => ByArgument("The name of the user eligible to change Domain entity");
+	public static Argument Years => new ("years", YEARS, "Integer number of years in [1..10] range");
+	public static Argument Policy = new ("policy", DCP, $"{DomainChildPolicy.FullOwnership} - the owner of the parent domain can later revoke/change ownership of subdomain, {DomainChildPolicy.FullFreedom} - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy");
+
 	public DomainCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
@@ -17,7 +21,7 @@ public class DomainCommand : RdnCommand
 		a.Arguments =	[
 							new (null, RDA, "Address of a root domain to migrate", Flag.First),
 							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
-							ByArgument("Address of account for which TXT record must be created in DNS net of specified web domain as a proof of ownership")
+							ByArgument("A name of user for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
 						];
 
 		a.Execute = () =>	{
@@ -37,8 +41,8 @@ public class DomainCommand : RdnCommand
 		a.Description = "Extend domain ownership for a specified period. It's allowed only during the last year of current period.";
 		a.Arguments =	[
 							new (null, DA, "Address of a domain to be renewed", Flag.First),
-							new ("years", YEARS, "Integer number of years in [1..10] range"),
-							ByArgument("Address of account that owns the domain")
+							Years,
+							Eligible
 						];
 
 		a.Execute = () =>	{
@@ -53,6 +57,7 @@ public class DomainCommand : RdnCommand
 		return a;
 	}
 
+
 	public CommandAction Acquire()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
@@ -61,10 +66,10 @@ public class DomainCommand : RdnCommand
 		a.Description = "Register a domain or subdomain";
 		a.Arguments =	[
 							new (null, SDA, "Subdomain address to create", Flag.First),
-							new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain"),
-							new ("years", YEARS, "Number of years in [1..10] range"),
+							Policy,
+							Years,
 							new ("for", NAME, "Name of the account that will own the subdomain"),
-							ByArgument("Address of account that owns the parent domain")
+							ByArgument("A name of user that is going to take  or give a domain")
 						];
 
 		a.Execute = () =>	{
@@ -101,9 +106,9 @@ public class DomainCommand : RdnCommand
 		a.Name = "up";
 		a.Description = "Changes current policy of subdomain";
 		a.Arguments =	[
-							new (null, SDA, "Address of a domain to change policy for", Flag.First),
-							new ("policy", DCP, "FullOwnership - the owner of parent domain can later revoke/change ownership of subdomain, FullFreedom - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy"),
-							ByArgument("Address of account that owns a subdomain")
+							new (null, SDA, "An address of a subdomain to change policy for", Flag.First),
+							Policy,
+							Eligible
 						];
 
 		a.Execute = () =>	{
@@ -122,11 +127,11 @@ public class DomainCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "s";
-		a.Description = "Changes an owner of domain";
+		a.Description = "Manages security for a specified domain";
 		a.Arguments =	[
 							new (null, DA, "Address of a domain to transfer", Flag.First),
 							new ("owner", NAME, "A name of a new owner"),
-							ByArgument("Address of account of the current owner")
+							Eligible
 						];
 
 		a.Execute = () =>	{
@@ -152,7 +157,7 @@ public class DomainCommand : RdnCommand
 		a.Name = "e";
 		a.Description = "Get domain entity information from MCV database";
 		a.Arguments =	[
-							new (null, DA, "Address of a domain to get information about", Flag.First)
+							new (null, DA, "An address of a domain to get information about", Flag.First)
 						];
 
 		a.Execute = () =>	{

@@ -2,10 +2,6 @@
 
 namespace Uccs.Rdn.CLI;
 
-/// <summary>
-/// Usage: 
-///		release publish 
-/// </summary>
 public class ReleaseCommand : RdnCommand
 {
 	//public const string Keyword = "release";

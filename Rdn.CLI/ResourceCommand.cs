@@ -4,7 +4,7 @@ namespace Uccs.Rdn.CLI;
 
 public class ResourceCommand : RdnCommand
 {
-	Ura			First => Ura.Parse(Args[0].Name);
+	new Ura		First => Ura.Parse(base.First);
 
 	Argument	Data		=> new ("data", HEX, "A data to be associated with the resource", Flag.Optional);
 	Argument	Dependable	=> new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", Flag.Optional);
@@ -24,7 +24,7 @@ public class ResourceCommand : RdnCommand
 							new (null, RA, "Address of a resource to create", Flag.First),
 							Data,
 							Dependable,
-							ByArgument()
+							DomainCommand.Eligible
 						];
 
 		a.Execute = () =>	{
@@ -51,7 +51,7 @@ public class ResourceCommand : RdnCommand
 		a.Description = "Destroys existing resource and all its associated links";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to delete", Flag.First),
-							ByArgument()
+							DomainCommand.Eligible
 						];
 
 		a.Execute = () =>	{
@@ -69,13 +69,13 @@ public class ResourceCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "u";
-		a.Description = "Updates a resource entity properties in the distributed database";
+		a.Description = "Updates a resource entity properties";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to update", Flag.First),
 							Data,
 							Dependable,
 							new ("recursive", null, "Update all descendants", Flag.Optional),
-							ByArgument()
+							DomainCommand.Eligible
 						];
 
 		a.Execute = () =>	{
@@ -159,7 +159,7 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var r = Api<IEnumerable<LocalResource>>(new LocalResourcesSearchApc {Query = Args.Any() ? Args[0].Name : null});
+								var r = Api<IEnumerable<LocalResource>>(new LocalResourcesSearchApc {Query = base.First});
 				
 								Flow.Log.Dump(	r, 
 												["Address", "Type", "Data", "Length"], 
@@ -177,12 +177,11 @@ public class ResourceCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "d";
-
 		a.Description = "Downloads the latest release of a specified resource";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource the latest release to download of", Flag.First),
 							new ("localpath", DIRPATH,	"Destination path on the local system to download the release to", Flag.Optional),
-							new ("nowait", null, "Wait download to finish", Flag.Optional)
+							new ("wait", BOOL, "Wait or not download to finish", Flag.Optional)
 						];
 
 		a.Execute = () =>	{
@@ -190,7 +189,7 @@ public class ResourceCommand : RdnCommand
 
 								Api(new ResourceDownloadApc{Id = r.Id, LocalPath = GetString("localpath", null)});
 
-								if(!Has("nowait"))
+								if(GetBool("wait", true))
 								{
 									while(Flow.Active)
 									{
@@ -219,13 +218,13 @@ public class ResourceCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "dx";
-		a.Description = "Cancels current downloading of specified release";
+		a.Description = "Cancels current download process of specified release";
 		a.Arguments =	[
 							new (null, RZA,  "Address of a release to cancel downloading of", Flag.First),
 						];
 
 		a.Execute = () =>	{
-								Api(new CancelResourceDownloadApc {Release = Urr.Parse(Args[0].Name)});
+								Api(new CancelResourceDownloadApc {Release = Urr.Parse(base.First)});
 
 								return null;
 							};
