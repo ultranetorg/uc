@@ -12,7 +12,7 @@ public class LogCommand : McvCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		a.Description = "Applicable in \"node run\" mode only. Start monitoring the log.";
+		a.Description = "Applicable in \"node run\" mode only. Starts monitoring of the node log. Press any key to break.";
 
 		a.Execute = () =>	{
 								if(Cli.Node == null)

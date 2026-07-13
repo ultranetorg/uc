@@ -20,7 +20,6 @@ public enum ResourceChanges : byte
 	Recursive		= 0b1000_0000,
 }
 
-[Flags]
 public enum ResourceLinkType : byte
 {
 	None			= 0,

@@ -10,39 +10,31 @@ public class UtilityCommand : McvCommand
 
 	public CommandAction Transfer()
 	{
-		var from = "from";
-		var to = "to";
+		string from = nameof(from);
+		string to = nameof(to);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "t";
 
 		a.Description = "Send utility from one account to another.";
-		a.Arguments =  [new (from, EA, "Entity type and id where utility are credited from"),
-						new (to, EA, "Entity type and id where utility are credited to"),
-						new ("st", ST, "Amount of space-time to be transferred", Flag.Optional),
-						new ("ec", EC, "Amount of Execution Cycles of the current year to be transferred", Flag.Optional),
-						new ("ecnext", EC, "Amount of Execution Cycles of next year to be transferred", Flag.Optional),
-						ByArgument("Account public address where funds are debited from")];
+		a.Arguments =  [new (from,		EA, "Source entity type and id where utility are credited from"),
+						new (to,		EA, "Destination entity type and id where utility are credited to"),
+						new ("st",		ST, "Amount of space-time to be transferred", Flag.Optional),
+						new ("ec",		EC, "Amount of energy of the current year to be transferred", Flag.Optional),
+						new ("ecnext",	EC, "Amount of energy of the next year to be transferred", Flag.Optional),
+						ByArgument("The name of the user eligible to withdraw utility(s) from the source entity")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var info = Ppc(new InfoPpc {});
-								
-								var toe = GetString(to).Split('/')[1];
+								var f = EntityAddress.Parse(Cli.Net.Tables, GetString(from));
+								var t = EntityAddress.Parse(Cli.Net.Tables, GetString(to));
 
-								AutoId toid;
-
-								if(toe == "lastcreated")
-									toid = AutoId.LastCreated;
-								else
-									toid = AutoId.Parse(toe);
-
-								return new UtilityTransfer( info.Tables.First(i => i.Value == GetString(from).Split('/')[0]).Key, 
-															AutoId.Parse(GetString(from).Split('/')[1]),
-															info.Tables.First(i => i.Value == GetString(to).Split('/')[0]).Key, 
-															toid,
+								return new UtilityTransfer( f.Table, 
+															f.Id,
+															t.Table, 
+															t.Id,
 															GetLong("e", 0), 
 															GetLong("en", 0), 
 															GetBD("st", 0));

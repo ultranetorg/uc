@@ -15,7 +15,7 @@ public enum DomainChildPolicy : byte
 	None, 
 	FullOwnership	= 1, 
 	FullFreedom		= 2, 
-	Programmatic	= 0b11111111, 
+	///Programmatic	= 0b11111111, 
 }
 
 public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirable

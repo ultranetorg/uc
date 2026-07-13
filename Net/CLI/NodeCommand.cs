@@ -52,7 +52,7 @@ public abstract class NodeCommand : McvCommand
 
 		attach.Description = "Connects to existing node instance via JSON RPC protocol";
 		attach.Arguments =	[
-								new (null, URL, "URL address of node to connect to"),
+								new (null, URL, "URL address of node to connect to", Flag.First),
 								new (Apc.AccessKey, PASSWORD, "API access key")
 							];
 
@@ -65,6 +65,13 @@ public abstract class NodeCommand : McvCommand
 		send = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		send.Name = "s";
+		send.Description = "Send specified command to existing running node";
+		send.Arguments =	[
+								new (null,			URL, "HOST address of node to send a command to", Flag.First),
+								new (Apc.AccessKey, PASSWORD, "API access key", Flag.Optional),
+								new ("command",		COMMAND, "A command to send for execution")
+							];
+
 		send.Execute = () => {
 								ReportPreambule();
 								ReportNetwork();
@@ -73,29 +80,10 @@ public abstract class NodeCommand : McvCommand
 
 								Cli.ApiClient = CreateClient(First);
 
-								if(Has("_confirmation"))
-								{
-									Console.WriteLine("_confirmation reqested. Press any key...");
-									Console.ReadKey();
-								}
-
-								Cli.Execute(Args.Skip(1).Where(i => i.Name != Apc.AccessKey && i.Name != "_confirmation"), Flow);
-
-								if(Has("_confirmation"))
-								{
-									Console.WriteLine("_confirmation requested. Press any key...");
-									Console.ReadKey();
-								}
+								Cli.Execute(Args.Skip(1).Where(i => new string[] {Apc.AccessKey, ConfirmationArg}.All(j => j != i.Name)), Flow);
 
 								return null;
 							};
-
-		send.Description = "Send specified command to existing running node";
-		send.Arguments =	[
-								new (null,			URL, "HOST address of node to send a command to", Flag.First),
-								new (Apc.AccessKey, PASSWORD, "API access key"),
-								new ("command",		COMMAND, "A command to send for execution")
-							];
 
 		return send;
 	}
@@ -109,13 +97,13 @@ public abstract class NodeCommand : McvCommand
 								var r = Api<PeersReportApc.Return>(new PeersReportApc {Limit = int.MaxValue});
 																
 								Flow.Log.Dump(	r.Peers, 
-												["IP", "Status", "PeerRank", "Roles"], 
-												[i => i.EP, i => i.Status, i => i.PeerRank, i => i.Roles]);
+												["IP",		"Status",		"PeerRank",		 "Roles"], 
+												[i => i.EP, i => i.Status,	i => i.PeerRank, i => i.Roles]);
 													
 								return r;
 							};
 
-		a.Description = "Gets a list of existing connections";
+		a.Description = "Gets the list of existing connections";
 
 		return a;
 	}
@@ -125,7 +113,7 @@ public abstract class NodeCommand : McvCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "it";
-		a.Description = "Gets current list of incomming transactions";
+		a.Description = "Applicable when node is a member of consensus. Gets current list of transactions that is going to be added to blocks by this node or are waiting for confirmation by the network";
 		a.Execute = () =>	{
 								var r = Api<TransactionApe[]>(new IncomingTransactionsApc{});
 			
@@ -149,7 +137,7 @@ public abstract class NodeCommand : McvCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "ot";
-		a.Description = "Gets current list of outgoing transactions";
+		a.Description = "Gets current list of transactions that are going to be sent to or are waiting for confirmation by the network";
 		a.Execute = () =>	{
 								var r = Api<TransactionApe[]>(new OutgoingTransactionsApc{});
 			
@@ -194,9 +182,9 @@ public abstract class NodeCommand : McvCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "m";
-		a.Description = "Get information about membership status of specified account";
+		a.Description = "Get information about membership status of specified user";
 		a.Arguments =	[
-							new (null, EID, "Ultranet account id to check the membership status", Flag.First)
+							new (null, EID, "An Id of the user to check membership status of", Flag.First)
 						];
 
 		a.Execute = () =>	{

@@ -8,7 +8,7 @@ public class EntityAddress : IBinarySerializable
 	public AutoId			Id { get; set; }
 	public byte				Table { get; set; }
 
-	public bool				IsValid(McvNet net) => Table < net.TablesCount;
+	public bool				IsValid(McvNet net) => Table < net.Tables.Count;
 	public static string	ToString<T>(T t, AutoId id) where T : unmanaged, Enum => $"{t}/{id}";
 
 	public EntityAddress(byte table, AutoId id)
@@ -26,16 +26,49 @@ public class EntityAddress : IBinarySerializable
 		return $"{Table}/{Id}";
 	}
 
+	public static string Format<T>(T table, AutoId id) where T : unmanaged, Enum
+	{
+		return $"{table}/{id}";
+	}
+
 	public static EntityAddress Parse(string text)
 	{
 		var i = text.IndexOf('/');
+
+		if(i == -1 || i == 0 || i == text.Length-1)
+			throw new FormatException($"{nameof(EntityAddress)} is not in valid format");
+
 		return new EntityAddress(byte.Parse(text[..i]), AutoId.Parse(text.AsSpan(i + 1)));
 	}
 
 	public static EntityAddress Parse<T>(string text) where T : unmanaged, Enum
 	{
 		var i = text.IndexOf('/');
-		return new EntityAddress((byte)(object)Enum.Parse<T>(text.AsSpan(0, i)), AutoId.Parse(text.AsSpan(i + 1)));
+
+		if(i == -1 || i == 0 || i == text.Length-1)
+			throw new FormatException($"{nameof(EntityAddress)} is not in valid format");
+
+		return new EntityAddress((byte)(object)Enum.Parse<T>(text.AsSpan(0, i), true), AutoId.Parse(text.AsSpan(i + 1)));
+	}
+
+	public static EntityAddress Parse(Type tables, string text)
+	{
+		var i = text.IndexOf('/');
+
+		if(i == -1 || i == 0 || i == text.Length-1)
+			throw new FormatException($"{nameof(EntityAddress)} is not in valid format");
+
+		return new EntityAddress((byte)Enum.Parse(tables, text.AsSpan(0, i), true), AutoId.Parse(text.AsSpan(i + 1)));
+	}
+
+	public static EntityAddress Parse(Dictionary<string, byte> tables, string text)
+	{
+		var i = text.IndexOf('/');
+
+		if(i == -1 || i == 0 || i == text.Length-1)
+			throw new FormatException($"{nameof(EntityAddress)} is not in valid format");
+
+		return new EntityAddress(tables.First(j => j.Key.AsSpan().Equals(text.AsSpan(0, i), StringComparison.InvariantCultureIgnoreCase)).Value, AutoId.Parse(text.AsSpan(i + 1)));
 	}
 
 	public static bool TryParse<T>(string text, out EntityAddress address) where T : unmanaged, Enum

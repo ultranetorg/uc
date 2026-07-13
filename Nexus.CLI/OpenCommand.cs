@@ -15,7 +15,7 @@ public class OpenCommand : NexusCommand
 
 		a.Description = "Handles entity by its address";
 		a.Arguments =	[
-							new (null, SNP, "Address to open"),
+							new (null, SNQ, "Address to open"),
 						];
 
 		a.Execute = () =>	{

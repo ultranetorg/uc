@@ -57,8 +57,8 @@ public class Execution : ITableExecution
 
 	public virtual ITableExecution FindExecution(byte table)
 	{
-		if(Mcv.Users.Id == table) return this;
-		if(table == Mcv.Friends.Id)		return Friends;
+		if(Mcv.Users.Id == table)	return this;
+		if(table == Mcv.Friends.Id)	return Friends;
 
 		return null;
 	}

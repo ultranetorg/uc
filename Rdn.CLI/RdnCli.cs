@@ -27,6 +27,7 @@ public class RdnCli : McvCli
 
 	public RdnCli(NexusSettings nexussettings, RdnNodeSettings settings, RdnApiClient api) : base(nexussettings, settings, api)
 	{
+		Net	= Rdn.ByZone(nexussettings.Zone);
 	}
 
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)

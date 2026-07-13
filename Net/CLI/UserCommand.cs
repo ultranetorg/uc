@@ -30,13 +30,16 @@ public class UserCommand : McvCommand
 
 	public CommandAction Create()
 	{
-		var owner = "owner";
+		string owner = nameof(owner);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Description = "Create a new user without fo free";
-		a.Arguments = [new (owner, AA, "Public address of a account owner")];
+		a.Description = "Creates a new user for free. Uses POW.";
+		a.Arguments =	[
+							new (owner, AA, "Account address that will have access to the user to be created"),
+							ByArgument("The name of the user to be created")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
@@ -48,13 +51,16 @@ public class UserCommand : McvCommand
 
 	public CommandAction UpdateName()
 	{
-		var name = "name";
+		string name = nameof(name);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "un";
-		a.Description = "Set a new name for a user";
-		a.Arguments = [new (name, NAME, "A new user name")];
+		a.Description = "Sets a new name for the user";
+		a.Arguments	  =	[
+							new (name, NAME, "A new user name"),
+							ByArgument()
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
@@ -66,13 +72,16 @@ public class UserCommand : McvCommand
 
 	public CommandAction Security()
 	{
-		var owner = "owner";
+		string owner = nameof(owner);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "s";
-		a.Description = "Create a new account entity";
-		a.Arguments = [new (owner, AA, "Public address of a new account owner")];
+		a.Description = "Creates a new account entity";
+		a.Arguments =	[
+							new (owner, AA, "Public address of a new account owner"),
+							ByArgument()
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
@@ -82,32 +91,12 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
-	public virtual CommandAction Entity()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "e";
-		a.Description = "Get account entity information from MCV database";
-		a.Arguments = [new ("name", NAME, "A name of user to get information about")];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.PpcTimeout);
-
-								var i = Ppc(new UserPpc(GetString(a.Arguments[0].Name)));
-												
-								Flow.Log.Dump(i.User);
-
-								return i.User;
-							};
-		return a;
-	}
-
 	public CommandAction AllocateBandwidth()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		a.Name = "ab";
-		a.Description = "Allocate execution bandwidth";
+		a.Description = "Allocates execution bandwidth";
 		a.Arguments =	[
 							new ("bandwidth", EC, "Amount of energy allocated per hour"),
 							new ("months", INT, "Number of months to allocate bandwidth for"),
@@ -123,4 +112,23 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
+	public virtual CommandAction Entity()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Name = "e";
+		a.Description = "Gets account entity information from MCV database";
+		a.Arguments = [new ("name", NAME, "The name of the user to get information about")];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
+
+								var i = Ppc(new UserPpc(GetString(a.Arguments[0].Name)));
+												
+								Flow.Log.Dump(i.User);
+
+								return i.User;
+							};
+		return a;
+	}
 }

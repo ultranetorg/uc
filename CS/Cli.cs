@@ -136,6 +136,12 @@ public abstract class Cli
 		if(flow.Aborted)
 			throw new OperationCanceledException();
 
+		if(args.Any(i => i.Name == Command.ConfirmationArg))
+		{
+			Console.WriteLine("_confirmation requested. Press any key...");
+			Console.ReadKey();
+		}
+
 		if(args.Skip(1).FirstOrDefault()?.Name == "?")
 		{
 			var l = new Log();

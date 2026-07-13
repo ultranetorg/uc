@@ -5,27 +5,27 @@ namespace Uccs.Rdn;
 
 public abstract class Rdn : McvNet
 {
-	public override	string				Address => Iccn.Root;
-	public override	string				Name => Iccn.Root;
-	public override ushort				PpiPort => Port.Map(Zone, KnownProtocol.Rdn);
-	public override ushort				ApiPort => Port.Map(Zone, KnownProtocol.RdnApi);
-	public override int					TablesCount => Enum.GetValues<RdnTable>().Length;
-	public override int					FreeSpaceMaximum => 4096;
-	public int							FreeNameLengthMinimum => 8;
-	public int							MigrationEnergyCost => 100;
+	public override	string						Address => Iccn.Root;
+	public override	string						Name => Iccn.Root;
+	public override ushort						PpiPort => Port.Map(Zone, KnownProtocol.Rdn);
+	public override ushort						ApiPort => Port.Map(Zone, KnownProtocol.RdnApi);
+	public override Dictionary<string, byte>	Tables => Enum.GetValues<RdnTable>().Where(i => i.ToString()[0] != '_').ToDictionary(i => i.ToString(), i => (byte)i);
+	public override int							FreeSpaceMaximum => 4096;
+	public int									FreeNameLengthMinimum => 8;
+	public int									MigrationEnergyCost => 100;
 
-	public static readonly IPAddress[]	LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
+	public static readonly IPAddress[]			LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
 
- 	public static readonly Rdn			Simulated = new SimulationRdn();
- 	public static readonly Rdn			Virtual = new VirtualRdn();
- 	public static readonly Rdn			Test = new TestRdn();
- 	public static readonly Rdn			Developer0 = new Developer0Rdn();
- 	public static readonly Rdn			TA = new TaRdn();
-	public static readonly Rdn			Main = null;
+ 	public static readonly Rdn					Simulated = new SimulationRdn();
+ 	public static readonly Rdn					Virtual = new VirtualRdn();
+ 	public static readonly Rdn					Test = new TestRdn();
+ 	public static readonly Rdn					Developer0 = new Developer0Rdn();
+ 	public static readonly Rdn					TA = new TaRdn();
+	public static readonly Rdn					Main = null;
 
 
-	public static Rdn					ByZone(Zone zone) => new Rdn[]{Simulated, Virtual, Developer0, Test, TA}.First(i => i.Zone == zone);
-	//public bool						IsFree(Domain domain) => domain.Space <= FreeSpaceMaximum && domain.Address.Length >= FreeNameLengthMinimum;
+	public static Rdn							ByZone(Zone zone) => new Rdn[]{Simulated, Virtual, Developer0, Test, TA}.First(i => i.Zone == zone);
+	//public bool								IsFree(Domain domain) => domain.Space <= FreeSpaceMaximum && domain.Address.Length >= FreeNameLengthMinimum;
 
 	public Rdn()
 	{

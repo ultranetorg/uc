@@ -12,12 +12,14 @@ public class BatchCommand : McvCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		string operation = nameof(operation);
+
 		a.Description = "Sends multiple operations as a single transaction";
-		a.Arguments = [new ("command", COMMAND, "Operation command arguments", Flag.Multi),
+		a.Arguments = [new (operation, OPEARATION, "Operation command-line", Flag.Multi),
 						ByArgument()];
 
 		a.Execute = () =>	{
-								return Args	.Where(i =>	i.Name != AORArg  && i.Name != ByArg  && i.Name != BoostArg)
+								return Args	.Where(i => i.Name == operation)
 											.Select(x => {
 															var op = (x.Value as Xon).Nodes;
 
