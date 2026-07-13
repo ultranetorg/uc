@@ -4,6 +4,8 @@ public class PublicationModel(Publication publication, Product product, Category
 	: PublicationBaseModel(publication, product)
 {
 	public string? LogoFileId { get; } = PublicationUtils.GetLogo(publication, product)?.ToString();
-	public string CategoryId { get; set; } = category.Id.ToString();
-	public string CategoryTitle { get; set; } = category.Title;
+	public string CategoryId { get; } = category.Id.ToString();
+	public string CategoryTitle { get; } = category.Title;
+
+	public byte Rating { get; } = publication.Rating;
 }
