@@ -270,7 +270,7 @@ export const enUS = {
     emptySitesList: "Stores added to Favorites will appear in this list",
     notice: "Press Enter to view all search results.",
     noResults: "We didn’t find anything. Try a different or shorter search.",
-    placeholder: "Enter store name or description...",
+    placeholder: "Enter product or store...",
     title: "Explore Multiple\nDecentralized Stores",
   },
   moderation: {
@@ -336,7 +336,7 @@ export const enUS = {
     lastUpdated: "Last Updated",
     editReview: "Edit Review",
     licenseType: "License Type",
-    noRatings: "Not yet rated",
+    noRatings: "No ratings yet",
     noReviews: "No reviews yet. Be the first to share your experience",
     noScreenshots: "No screenshots available<br/><br/>This product doesn’t include screenshots yet",
     os: "OS",
