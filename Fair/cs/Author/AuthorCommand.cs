@@ -230,7 +230,7 @@ public class AuthorCommand : FairCommand
 		a.Arguments =  [new (null, EID, "Id of the author to update", Flag.First),
 						new (t, TEXT, "New title"),
 						new (d, TEXT,  "New description"),
-						new (r, new ArgumentType("{text=TEXT uri=URI}", null, ["{text=Website uri=http://www.company.com}", "{text=Github uri=http://github.com/company}"]), "Zero or more Uri references with a description"),
+						new (r, HYPERLINK, "Zero or more Uri references with a description"),
 						Eligible];
 
 		a.Execute = () =>	{

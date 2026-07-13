@@ -8,7 +8,7 @@ public class PackageCommand : NexusCommand
 {
 	Ura	Address => Ura.Parse(First);
 
-	public static readonly ArgumentType PA		= new ("PA", "Package resource address", [@"/company/application/winx64/1.2.3"]);
+	public static readonly ArgumentType PA = new ("PA", "Package resource address", [@"/company/application/winx64/1.2.3"]);
 
 	public PackageCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
