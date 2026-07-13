@@ -4,6 +4,8 @@ namespace Uccs.Fair;
 
 public class PublicationCommand : FairCommand
 {
+	Argument		Eligible => ByArgument("Name of the user authorized to change the publication");
+
 	public PublicationCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 		
@@ -13,14 +15,14 @@ public class PublicationCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		const string product = "product";
-		const string store = "store";
+		const string product = nameof(product);
+		const string store = nameof(store);
 
 		a.Name = "c";
 		a.Description = "Creates a new product publication";
 		a.Arguments =  [new (product, EID, "Id of a product to create publication for", Flag.First),
 						new (store, EID, "Id of a store to create publication at"),
-						ByArgument()];
+						ByArgument("Name of the user authorized to create publication for the specified product")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -44,13 +46,13 @@ public class PublicationCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		const string publish = "publish";
+		const string publish = nameof(publish);
 
 		a.Name = "p";
 		a.Description = "Approve or revoke permission for a store to publish a publication";
 		a.Arguments =  [new (null,		EID, "Id of a publication to manage", Flag.First),
 						new (publish,	NAME, "Approve or revoke a permission to publish (approve/revoke)"),
-						ByArgument()];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -74,8 +76,8 @@ public class PublicationCommand : FairCommand
 
 		a.Name = "o";
 		a.Description = "Make specified publication(store) default in search results";
-		a.Arguments =  [new (null,		EID, "Id of a publication to have highest priority", Flag.First),
-						ByArgument()];
+		a.Arguments =  [new (null, EID, "Id of a publication to have highest priority", Flag.First),
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -100,7 +102,7 @@ public class PublicationCommand : FairCommand
 // 						Syntax = $"{Keyword} {a.NamesSyntax} {EID} [{product}={EID}] [{approve}={NAME} id={INT}] [{reject}={NAME} id={INT}] {SignerArg}={AA}",
 // 
 // 						Arguments =	[new (FirstArg, "Id of publication to update"),
-// 									 new (product, "A new  product id"),
+// 									 new (product, "New  product id"),
 // 									 new (approve, "Approve a field change"),
 // 									 new (reject, "Reject a field change"),
 // 									 new (SignerArg, "An address of account that assumed to have permissions to make specified changes")],

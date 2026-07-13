@@ -160,14 +160,14 @@ public class LocalPackageApc : Apc, INexusApc
 public class PackageDeployApc : Apc, INexusApc
 {
 	public Ura			Address { get; set; }
-	public string		DeploymentPath { get; set; }
+	public string		To { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		if(nexus.PackageHub == null)
 			throw new ResourceException(ResourceError.NotHub);
 
-		nexus.PackageHub.StartDeploy(Address, DeploymentPath ?? nexus.PackageHub.DeploymentPath, flow);
+		nexus.PackageHub.StartDeploy(Address, To ?? nexus.PackageHub.DeploymentPath, flow);
 		return null;
 	}
 }

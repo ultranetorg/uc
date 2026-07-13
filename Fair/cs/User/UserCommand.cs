@@ -12,14 +12,16 @@ public class UserCommand : Net.UserCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string name = nameof(name);
+
 		a.Name = "e";
-		a.Description = "Get account entity information from MCV distributed database";
-		a.Arguments = [new ("name", NAME, "A name of user to get information about")];
+		a.Description = "Get information about the user specified";
+		a.Arguments = [new (name, NAME, "Name of the user to get information about")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var i = Ppc(new FairUserPpc(GetString(a.Arguments[0].Name)));
+								var i = Ppc(new FairUserPpc(GetString(name)));
 												
 								Flow.Log.Dump(i.User);
 
@@ -35,9 +37,9 @@ public class UserCommand : Net.UserCommand
 //		var nickname = "nickname";
 //
 //		a.Name = "n";
-//		a.Description = "Sets a nickname for a specified account";
+//		a.Description = "Sets a nickname for the specified account";
 //		a.Arguments =  [new (null, EID,  "Id of account", Flag.First),
-//						new (nickname, NAME,  "A new nickname"),
+//						new (nickname, NAME,  "New nickname"),
 //						SignerArgument()];
 //
 //		a.Execute = () =>	{
@@ -52,14 +54,16 @@ public class UserCommand : Net.UserCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string name = nameof(name);
+
 		a.Name = "la";
 		a.Description = "Get authors that specified account owns";
-		a.Arguments = [new ("name", NAME, "A name of user to get authors from")];
+		a.Arguments = [new (name, NAME, "Name of the user to get authors from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new UserAuthorsPpc(GetString(a.Arguments[0].Name)));
+								var rp = Ppc(new UserAuthorsPpc(GetString(name)));
 
 								Flow.Log.Dump(rp.Authors, ["Id"], [i => i]);
 					
@@ -72,14 +76,16 @@ public class UserCommand : Net.UserCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string name = nameof(name);
+
 		a.Name = "ls";
-		a.Description = "Get sites of a specified account";
-		a.Arguments = [new ("name", NAME, "A name of user to get sites from")];
+		a.Description = "Get sites of the specified user";
+		a.Arguments = [new (name, NAME, "Name of the user to get stores from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new UserStoresPpc(GetString(a.Arguments[0].Name)));
+								var rp = Ppc(new UserStoresPpc(GetString(name)));
 
 								Flow.Log.Dump(rp.Stores.Select(i => Ppc(new StorePpc(i)).Store), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
 					
@@ -92,10 +98,10 @@ public class UserCommand : Net.UserCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		var path = "path";
+		const string path = nameof(path);
 
 		a.Name = "avatar";
-		a.Description = "Sets an avatar for a specified account";
+		a.Description = "Sets an avatar for the specified user";
 		a.Arguments =  [new (path, PATH, "A path to image file"),
 						ByArgument()];
 

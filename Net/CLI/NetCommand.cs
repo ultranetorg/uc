@@ -14,7 +14,7 @@ public abstract class NetCommand : Command
 	public static readonly ArgumentType		PASSWORD	= new ("PASSWORD",		@"Text string of any no. chars and longer than 1 char",					["MyStrongSecret!@#$%^&*()"]);
 	public static readonly ArgumentType		PATH		= new ("PATH",			@"A path to local file or directory in native format",					[@"C:\User\readme.txt", @"C:\User\Admin", @"D:\Documents"]);
 	public static readonly ArgumentType		FILEPATH	= new ("FILEPATH",		@"A text string of the local file path in its native format",			[@"C:\User\file", @"D:\image.jpg", @"E:\content.bin", ]);
-	public static readonly ArgumentType		DIRPATH		= new ("DIRPATH",		@"A text string of the local directory path in its native format",		[@"C:\Folder"]);
+	public static readonly ArgumentType		DIRPATH		= new ("DIRPATH",		@"A text string of the local directory path in its native format",		[@"C:\Folder", @"D:\Project\Content"]);
 	public static readonly ArgumentType		PORT		= new ("PORT",			@"Port number",															["3800"]);
 	public static readonly ArgumentType		PRIVATEKEY	= new ("PRIVATEKEY",	@"Hexadecimal text string of account private key",						["f5eb914b0cdf95fb3df9bcf7e3686cb16d351edf772e577dd6658f841f51b848"]);
 	public static readonly ArgumentType		NAME		= new ("NAME",			@"An arbitrary single-line string without spaces",						["satoshi", "nakamoto"]);
@@ -30,6 +30,7 @@ public abstract class NetCommand : Command
 	public static readonly ArgumentType		ZONE		= new ("ZONE",			@"Zone name",															[Zone.Main.ToString(), Zone.Test.ToString()]);
 	
 	protected string						First => Args.Count > 0 ? Args[0].Name : throw new SyntaxException("No arguments provided");
+	protected string						Second => Args.Count > 1 ? Args[1].Name : throw new SyntaxException("Second argument not provided");
 	
 	protected NetCommand(List<Xon> args, Flow flow) : base(args, flow)
 	{
@@ -111,15 +112,20 @@ public abstract class NetCommand : Command
 		return t;
 	}
 
-	public AccountAddress GetAccountAddress(string paramenter, bool mandatory = true)
+	public AccountAddress GetAccountAddress(string paramenter)
 	{
 		if(Has(paramenter))
 			return AccountAddress.Parse(GetString(paramenter));
 		else
-			if(mandatory)
-				throw new SyntaxException($"Parameter '{paramenter}' not provided");
-			else
-				return null;
+			throw new SyntaxException($"Parameter '{paramenter}' not provided");
+	}
+
+	public AccountAddress GetAccountAddress(string paramenter, AccountAddress def)
+	{
+		if(Has(paramenter))
+			return AccountAddress.Parse(GetString(paramenter));
+		else
+			return def;
 	}
 
 	protected E GetEnum<E>(string paramenter, E def) where E : struct

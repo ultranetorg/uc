@@ -5,7 +5,8 @@ namespace Uccs.Fair;
 
 public class ProductCommand : FairCommand
 {
-	AutoId First => AutoId.Parse(Args[0].Name);
+	new AutoId		First => AutoId.Parse(base.First);
+	Argument		Eligible => ByArgument("Name of the user eligible to change the product");
 
 	public ProductCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
@@ -15,13 +16,13 @@ public class ProductCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		var type = "type";
+		const string type = nameof(type);
 
 		a.Name = "c";
-		a.Description = "Creates a product entity in the MCV database";
-		a.Arguments =  [new (null, EID, "Entity id of author to create a product for", Flag.First),
+		a.Description = "Creates a product entity under the specified author";
+		a.Arguments =  [new (null, EID, "Author Id to create the product under", Flag.First),
 						new (type, PRODUCTTYPE, "A type of product"),
-						ByArgument()];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -37,8 +38,8 @@ public class ProductCommand : FairCommand
 
 		a.Name = "x";
 		a.Description = "Destroys existing product and all its associated data";
-		a.Arguments =  [new (null, EID, "Id of a product to delete", Flag.First),
-						ByArgument()];
+		a.Arguments =  [new (null, EID, "Id of the product to delete", Flag.First),
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -52,13 +53,13 @@ public class ProductCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		string definition;	definition = nameof(definition);
+		const string definition = nameof(definition);
 
 		a.Name = "u";
-		a.Description = "Updates a product entity properties in the MCV database";
+		a.Description = "Updates a product properties";
 		a.Arguments =  [new (null, EID, "Id of a product to update", Flag.First),
 						new (definition, TEXT, "Product definition"),
-						ByArgument()];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -80,9 +81,9 @@ public class ProductCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "e";
-		a.Description = "Gets product entity information from the MCV database";
+		a.Description = "Gets information about product specified";
 		a.Arguments =  [new (null, EID, "Id of a product to get information about", Flag.First), 
-						ByArgument()];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);

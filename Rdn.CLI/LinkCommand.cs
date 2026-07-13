@@ -64,7 +64,7 @@ public class LinkCommand : RdnCommand
 
 		a.Name = "lo";
 
-		a.Description = "Lists outbound links of a specified resource";
+		a.Description = "Lists outbound links of the specified resource";
 		a.Arguments =	[
 							new (null, RA, "The address of a resource to list outbound links from", Flag.First)
 						];
@@ -89,7 +89,7 @@ public class LinkCommand : RdnCommand
 
 		a.Name = "li";
 
-		a.Description = "Lists inbound links of a specified resource";
+		a.Description = "Lists inbound links of the specified resource";
 		a.Arguments =	[
 							new (null, RA, "The address of a resource to list inbound links from", Flag.First)
 						];

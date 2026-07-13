@@ -4,9 +4,8 @@ namespace Uccs.Fair;
 
 public class AuthorCommand : FairCommand
 {
-	AutoId FirstAuthorId => AutoId.Parse(First);
-
-	Argument Eligible => ByArgument("A name of user eligible to change Author entity");
+	AutoId					FirstAuthorId => AutoId.Parse(First);
+	public static Argument	Eligible => ByArgument("Name of the user eligible to change Author entity");
 
 	public AuthorCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
@@ -18,10 +17,10 @@ public class AuthorCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-		a.Description = "Creates a new author for a specified period";
+		a.Description = "Creates a new author for the specified period";
 		a.Arguments =  [new ("years", YEARS, "Number of years in [1..10] range"),
 						new ("title", NAME, "A title of a author being created"),
-						ByArgument("Address of account that owns or is going to register the author")];
+						ByArgument("Name of the user that is going to register the author")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -38,9 +37,9 @@ public class AuthorCommand : FairCommand
 		const string name = "name";
 
 		a.Name = "n";
-		a.Description = "Sets an nickname for a specified author";
-		a.Arguments =	[new (null, EID, "Id of a author to update", Flag.First),
-						new (name, NAME, "A new nickname"),
+		a.Description = "Sets an nickname for the specified author";
+		a.Arguments =	[new (null, EID, "Id of the author to update", Flag.First),
+						new (name, NAME, "New name"),
 						Eligible];
 
 		a.Execute = () =>	{
@@ -85,9 +84,9 @@ public class AuthorCommand : FairCommand
 		a.Name = "s";
 		a.Description = "Manages ownership of an author. Adds or removes an owner account.";
 		a.Arguments =	[
-							new (null, EID, "Author ID whose owner list will be modified", Flag.First),
-							new (ao, AA, "Account ID to add as an owner"),
-							new (ro, AA, "Account ID to remove from owners"),
+							new (null, EID, "Author Id whose owner list will be modified", Flag.First),
+							new (ao, AA, "User Id to add as an owner"),
+							new (ro, AA, "User Id to remove from owners"),
 							Eligible
 						];
 
@@ -117,9 +116,9 @@ public class AuthorCommand : FairCommand
 		const string years = "years";
 
 		a.Name = "r";
-		a.Description = "Prolongs current expiration date of an author for a specified number of years";
-		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
-						new (years, YEARS, "A number of years to renew author for. "),
+		a.Description = "Prolongs current expiration date of an author for the specified number of years";
+		a.Arguments =  [new (null, EID, "Id of the author to update", Flag.First),
+						new (years, YEARS, "The number of years to renew author for. "),
 						Eligible];
 
 		a.Execute = () =>	{
@@ -142,8 +141,8 @@ public class AuthorCommand : FairCommand
 		a.Description = "Sets a utility limits for the specified author of the specfied store";
 		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
 						new (store, EID, "Id of a store where author is the member"),
-						new (energy, INT, "A new limit for the energy"),
-						new (spacetime, INT, "A new limit for the spacetime"),
+						new (energy, INT, "New limit for the energy"),
+						new (spacetime, INT, "New limit for the spacetime"),
 						Eligible];
 
 		a.Execute = () =>	{
@@ -201,8 +200,8 @@ public class AuthorCommand : FairCommand
 		const string file = "file";
 
 		a.Name = "avatar";
-		a.Description = "Sets an avatar for a specified author. Only files with correct media type(MIME) are accepted.";
-		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+		a.Description = "Sets an avatar for the specified author. Only files with correct media type(MIME) are accepted.";
+		a.Arguments =  [new (null, EID, "Id of the author to update", Flag.First),
 						new (file, EID, "Id of a file entity"),
 						Eligible];
 
@@ -228,9 +227,9 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "i";
 		a.Description = "Changes various author descriptive properties";
-		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
-						new (t, TEXT, "A new title"),
-						new (d, TEXT,  "A new description"),
+		a.Arguments =  [new (null, EID, "Id of the author to update", Flag.First),
+						new (t, TEXT, "New title"),
+						new (d, TEXT,  "New description"),
 						new (r, new ArgumentType("{text=TEXT uri=URI}", null, ["{text=Website uri=http://www.company.com}", "{text=Github uri=http://github.com/company}"]), "Zero or more Uri references with a description"),
 						Eligible];
 

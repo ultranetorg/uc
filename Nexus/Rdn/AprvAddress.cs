@@ -1,9 +1,5 @@
 ﻿namespace Uccs.Rdn;
 
-/// <summary>
-///  ultranet:netid:uo/app/dotnet/1.23.456
-/// </summary>
-
 public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAddress>, IEquatable<AprvAddress>
 {
 	public string			Domain		{ get ; set; }
@@ -11,7 +7,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 	public string			Realization { get ; set; }
 	public string			Version		{ get ; set; }
 
-	public string			DPR => $"{Domain}/{Product}/{Realization}";
+	public string			APR => $"/{Domain}/{Product}/{Realization}";
 	public string			PRV => $"{Product}/{Realization}/{Version}";
 
 	public static implicit operator Ura(AprvAddress value) => new Ura(value.Domain, value.PRV);

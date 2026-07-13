@@ -43,7 +43,7 @@ public class ReleaseCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "l";
-		a.Description = "Get information about local copy of a specified release";
+		a.Description = "Get information about local copy of the specified release";
 		a.Arguments =	[
 							new (null, RZA, "Address of a release to get information about")
 						];

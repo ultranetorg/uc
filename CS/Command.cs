@@ -127,15 +127,17 @@ public abstract class Command
 		public ArgumentType	Type {get; set; }
 		public string		Description {get; set; }
 		public Flag			Flags {get; set; }
+		public object		Default {get; set; }	
 
 		public Argument[]	Arguments  {get; set; }
 
-		public Argument(string name, ArgumentType type, string description, Flag flags = Flag.None)
+		public Argument(string name, ArgumentType type, string description, Flag flags = Flag.None, object @default = null)
 		{
 			Type = type;
 			Name = name;
 			Description = description;
 			Flags = flags;
+			Default = @default;
 		}
 	}
 

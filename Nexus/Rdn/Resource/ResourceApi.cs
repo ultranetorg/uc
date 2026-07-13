@@ -28,7 +28,7 @@ public class LocalResourceAddApc : RdnApc
 public class ResourceDownloadApc : RdnApc
 {
 	public AutoId			Id { get; set; }
-	public string			LocalPath { get; set; }
+	public string			To { get; set; }
 
 	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -71,11 +71,11 @@ public class ResourceDownloadApc : RdnApc
 
 			if(r.Resource.Data.Type.Meaning == DataType.File)
 			{
-				node.ResourceHub.DownloadFile(lrl, true, "", LocalPath ?? node.ResourceHub.ToReleases(urr), itg, null, workflow);
+				node.ResourceHub.DownloadFile(lrl, true, "", To ?? node.ResourceHub.ToReleases(urr), itg, null, workflow);
 			}
 			else if(r.Resource.Data.Type.Meaning == DataType.Directory)
 			{
-				node.ResourceHub.DownloadDirectory(lrl, LocalPath ?? node.ResourceHub.ToReleases(urr), itg, workflow);
+				node.ResourceHub.DownloadDirectory(lrl, To ?? node.ResourceHub.ToReleases(urr), itg, workflow);
 			}
 			else
 				throw new ResourceException(ResourceError.NotSupportedDataType);

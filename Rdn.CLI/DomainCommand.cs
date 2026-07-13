@@ -4,7 +4,7 @@ namespace Uccs.Rdn.CLI;
 
 public class DomainCommand : RdnCommand
 {
-	public static Argument Eligible => ByArgument("The name of the user eligible to change Domain entity");
+	public static Argument Eligible => ByArgument("Name of the user eligible to change Domain entity");
 	public static Argument Years => new ("years", YEARS, "Integer number of years in [1..10] range");
 	public static Argument Policy = new ("policy", DCP, $"{DomainChildPolicy.FullOwnership} - the owner of the parent domain can later revoke/change ownership of subdomain, {DomainChildPolicy.FullFreedom} - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy");
 
@@ -21,7 +21,7 @@ public class DomainCommand : RdnCommand
 		a.Arguments =	[
 							new (null, RDA, "Address of a root domain to migrate", Flag.First),
 							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
-							ByArgument("A name of user for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
+							ByArgument("Name of the user for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
 						];
 
 		a.Execute = () =>	{
@@ -38,7 +38,7 @@ public class DomainCommand : RdnCommand
 
 		a.Name = "r";
 
-		a.Description = "Extend domain ownership for a specified period. It's allowed only during the last year of current period.";
+		a.Description = "Extend domain ownership for the specified period. It's allowed only during the last year of current period.";
 		a.Arguments =	[
 							new (null, DA, "Address of a domain to be renewed", Flag.First),
 							Years,
@@ -69,7 +69,7 @@ public class DomainCommand : RdnCommand
 							Policy,
 							Years,
 							new ("for", NAME, "Name of the account that will own the subdomain"),
-							ByArgument("A name of user that is going to take  or give a domain")
+							ByArgument("Name of the user that is going to take  or give a domain")
 						];
 
 		a.Execute = () =>	{
@@ -127,7 +127,7 @@ public class DomainCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "s";
-		a.Description = "Manages security for a specified domain";
+		a.Description = "Manages security for the specified domain";
 		a.Arguments =	[
 							new (null, DA, "Address of a domain to transfer", Flag.First),
 							new ("owner", NAME, "A name of a new owner"),

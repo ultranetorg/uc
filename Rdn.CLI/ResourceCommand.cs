@@ -6,7 +6,7 @@ public class ResourceCommand : RdnCommand
 {
 	new Ura		First => Ura.Parse(base.First);
 
-	Argument	Data		=> new ("data", HEX, "A data to be associated with the resource", Flag.Optional);
+	Argument	Data		=> new ("data", HEX, "Data to be associated with the resource", Flag.Optional);
 	Argument	Dependable	=> new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", Flag.Optional);
 
 	public ResourceCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
@@ -18,7 +18,6 @@ public class ResourceCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "c";
-
 		a.Description = "Creates a resource entity in the distributed database";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to create", Flag.First),
@@ -47,7 +46,6 @@ public class ResourceCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "x";
-
 		a.Description = "Destroys existing resource and all its associated links";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to delete", Flag.First),
@@ -68,13 +66,15 @@ public class ResourceCommand : RdnCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string recursive = nameof(recursive);
+
 		a.Name = "u";
-		a.Description = "Updates a resource entity properties";
+		a.Description = "Updates a resource properties";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to update", Flag.First),
 							Data,
 							Dependable,
-							new ("recursive", null, "Update all descendants", Flag.Optional),
+							new (recursive, null, "Update all descendants", Flag.Optional),
 							DomainCommand.Eligible
 						];
 
@@ -92,7 +92,7 @@ public class ResourceCommand : RdnCommand
 
 								if(Has(Data.Name))			o.Change(GetData());
 								if(Has(Dependable.Name))	o.MakeDependable();
-								if(Has("recursive"))		o.MakeRecursive();
+								if(Has(recursive))			o.MakeRecursive();
 
 								return o;
 							};
@@ -126,7 +126,7 @@ public class ResourceCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "l";
-		a.Description = "Gets information about locally available releases of a specified resource";
+		a.Description = "Gets information about locally available releases of the specified resource";
 		a.Arguments =	[
 							new (null, RA, "Address of a resource to get information about", Flag.First)
 						];
@@ -151,7 +151,7 @@ public class ResourceCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "ls";
-		a.Description = "Search local resources using a specified query";
+		a.Description = "Search local resources using the specified query";
 		a.Arguments =	[
 							new (null, RA, $"A text to look for in resource addresses (includes domain name)", Flag.First)
 						];
@@ -176,20 +176,23 @@ public class ResourceCommand : RdnCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string to = nameof(to);
+		const string wait = nameof(wait);
+
 		a.Name = "d";
-		a.Description = "Downloads the latest release of a specified resource";
+		a.Description = "Downloads the latest release of the specified resource";
 		a.Arguments =	[
-							new (null, RA, "Address of a resource the latest release to download of", Flag.First),
-							new ("localpath", DIRPATH,	"Destination path on the local system to download the release to", Flag.Optional),
-							new ("wait", BOOL, "Wait or not download to finish", Flag.Optional)
+							new (null,		RA,			"Address of a resource the latest release to download of", Flag.First),
+							new (to,		DIRPATH,	"Destination path on the local system to download the release to", Flag.Optional),
+							new (wait,		BOOL,		"Wait or not download to finish", Flag.Optional, "yes")
 						];
 
 		a.Execute = () =>	{
 								var	r = Ppc(new ResourceByAddressPpc(First)).Resource;
 
-								Api(new ResourceDownloadApc{Id = r.Id, LocalPath = GetString("localpath", null)});
+								Api(new ResourceDownloadApc{Id = r.Id, To = GetString(to, null)});
 
-								if(GetBool("wait", true))
+								if(GetBool(wait, true))
 								{
 									while(Flow.Active)
 									{

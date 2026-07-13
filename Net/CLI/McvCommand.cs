@@ -22,7 +22,7 @@ public abstract class McvCommand : NetCommand
 																											 EntityAddress.Format(McvTable.User, new AutoId(1234567, 890))]);
 	public static readonly ArgumentType		BOOL	= new ("BOOL",	@"Yes or No",							["yes, no"]);
 
-	public static Argument					ByArgument(string description = "The name of the user") => new (ByArg, NAME, description);
+	public static Argument					ByArgument(string description = "Name of the user") => new (ByArg, NAME, description);
 
 	protected McvCommand(McvCli cli, List<Xon> args, Flow flow) : base(args, flow)
 	{
@@ -105,7 +105,7 @@ public abstract class McvCommand : NetCommand
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	protected long GetBD(string paramenter, long def)
+	protected long GetSpacetime(string paramenter, long def)
 	{
 		var p = One(paramenter);
 

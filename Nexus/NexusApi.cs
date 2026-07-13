@@ -62,7 +62,7 @@ public class NexusApiClient : JsonApiClient
 
 	public PackageInfo DeployPackage(Ura address, string destination, Flow flow)
 	{
-		Send(new PackageDeployApc {Address = address, DeploymentPath = destination}, flow);
+		Send(new PackageDeployApc {Address = address, To = destination}, flow);
 
 		do
 		{

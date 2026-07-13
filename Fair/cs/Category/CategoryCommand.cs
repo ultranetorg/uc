@@ -82,15 +82,17 @@ public class CategoryCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "lp";
-		a.Description = "Get publications of a specified category";
-		a.Arguments = [new (null, EID, "Id of a category to get publications of", Flag.First)];
+		a.Description = "Get publications of the specified category";
+		a.Arguments = [new (null, EID, "Id of the category to get publications of", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new CategoryPublicationsPpc(FirstAutoId));
 
-								Flow.Log.DumpFixed(rp.Publications.Select(i => Ppc(new PublicationPpc(i)).Publication), ["Id", "Product", "Category"], [i => i.Id, i => i.Product, i => i.Category]);
+								Flow.Log.DumpFixed(	rp.Publications.Select(i => Ppc(new PublicationPpc(i)).Publication), 
+													["Id",		"Product",		"Category"], 
+													[i => i.Id, i => i.Product, i => i.Category]);
 					
 								return rp.Publications;
 							};
@@ -102,15 +104,17 @@ public class CategoryCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Name = "lc";
-		a.Description = "Get subcategories of a specified category";
-		a.Arguments = [new (null, EID, "Id of a store to get subcategories from", Flag.First)];
+		a.Description = "Get subcategories of the specified category";
+		a.Arguments = [new (null, EID, "Id of the category to get subcategories from", Flag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
 								var rp = Ppc(new CategoryCategoriesPpc(FirstAutoId));
 
-								Flow.Log.DumpFixed(rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category), ["Id", "Title", "Categories"], [i => i.Id, i => i.Title, i => i.Categories?.Length]);
+								Flow.Log.DumpFixed(	rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category),
+													["Id",		"Title",		"Categories"], 
+													[i => i.Id, i => i.Title,	i => i.Categories?.Length]);
 					
 								return rp.Categories;
 							};
