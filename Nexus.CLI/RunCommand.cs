@@ -15,8 +15,8 @@ internal class RunCommand : NexusCommand
 
 		a.Description = "Runs a new instance with command-line interface";
 		a.Arguments =	[
-							new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
-							new ("zone", ZONE, "Zone name", Flag.Optional),
+							new ("profile", DIRPATH, "Path to local profile directory", ArgumentFlag.Optional),
+							new ("zone", ZONE, "Zone name", ArgumentFlag.Optional),
 						];
 
 		a.Execute = () =>	{

@@ -51,7 +51,7 @@ public class VaultCommand : NetCommand
 //		a.Name = "r";
 //		a.Description = "Runs a new instance with command-line interface";
 //		a.Arguments =	[
-//							new ("profile", DIRPATH, "Path to local profile directory", Flag.Optional),
+//							new ("profile", DIRPATH, "Path to local profile directory", ArgumentFlag.Optional),
 //						];
 //
 //		a.Execute = () =>	{

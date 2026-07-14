@@ -28,12 +28,12 @@ public class PackageCommand : NexusCommand
 		a.Name = "c";
 		a.Description = "Builds and deploys a package to a node file base for distribution via RDN";
 		a.Arguments =	[
-							new (null,			PA,			"Resource address of the package being created", Flag.First),
-							new (previous,		PA,			"Resource address of the previous release", Flag.Optional),
-							new (source,		PATH,		"File or directory paths of the content to be packaged", Flag.Multi),
-							new (dependencies,	FILEPATH,	"Path to the version manifest file where complete dependencies are defined", Flag.Optional),
-							new (cr,			null,		"Creates corresponding resource in RDN database", Flag.Optional),
-							new (cdl,			null,		"Creates dependency links in RDN database", Flag.Optional),
+							new (null,			PA,			"Resource address of the package being created", ArgumentFlag.First),
+							new (previous,		PA,			"Resource address of the previous release", ArgumentFlag.Optional),
+							new (source,		PATH,		"File or directory paths of the content to be packaged", ArgumentFlag.Multi),
+							new (dependencies,	FILEPATH,	"Path to the version manifest file where complete dependencies are defined", ArgumentFlag.Optional),
+							new (cr,			null,		"Creates corresponding resource in RDN database", ArgumentFlag.Optional),
+							new (cdl,			null,		"Creates dependency links in RDN database", ArgumentFlag.Optional),
 						];
 
 		a.Examples =	() =>	[
@@ -94,7 +94,7 @@ public class PackageCommand : NexusCommand
 		a.Name = "l";
 		a.Description = "Gets information about local copy of the specified package";
 		a.Arguments =	[
-							new (null, PA, "Address of the local package to get information about", Flag.First)
+							new (null, PA, "Address of the local package to get information about", ArgumentFlag.First)
 						];
 
 		a.Execute = () =>	{
@@ -114,7 +114,7 @@ public class PackageCommand : NexusCommand
 		a.Name = "d";
 		a.Description = "Downloads a package from the specified address";
 		a.Arguments =	[
-							new (null, PA, "Address of the package to download", Flag.First)
+							new (null, PA, "Address of the package to download", ArgumentFlag.First)
 						];
 
 		a.Execute = () =>	{
@@ -160,8 +160,8 @@ public class PackageCommand : NexusCommand
 		a.Name = "dp";
 		a.Description = "If needed, downloads the specified package and its dependencies recursively and deploys its content to the default or specified directory";
 		a.Arguments =	[
-							new (null, PA, "Address of a package to install", Flag.First),
-							new (to, DIRPATH, "Destination path for all package contents", Flag.Optional)
+							new (null, PA, "Address of a package to install", ArgumentFlag.First),
+							new (to, DIRPATH, "Destination path for all package contents", ArgumentFlag.Optional)
 						];
 
 		a.Execute = () =>	{

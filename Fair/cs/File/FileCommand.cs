@@ -19,9 +19,9 @@ public class FileCommand : FairCommand
 		a.Name = "c";
 		a.Description = "Creates a file entity";
 		a.Arguments =	[
-							new (null, EA, "Entity address of the file owner", Flag.First),
+							new (null, EA, "Entity address of the file owner", ArgumentFlag.First),
 							new (path, PATH, "Path to the file content"),
-							new (mime, TEXT, "Mime type of the file content", Flag.Optional),
+							new (mime, TEXT, "Mime type of the file content", ArgumentFlag.Optional),
 							ByArgument("Name of the user authorized to access the file owner")
 						];
 
@@ -45,7 +45,7 @@ public class FileCommand : FairCommand
 		a.Name = "x";
 		a.Description = "Destroys existing file and all its associated data";
 		a.Arguments =	[
-							new (null, EID, "Id of the file to delete", Flag.First),
+							new (null, EID, "Id of the file to delete", ArgumentFlag.First),
 							ByArgument()
 						];
 
@@ -63,7 +63,7 @@ public class FileCommand : FairCommand
 
 		a.Name = "e";
 		a.Description = "Gets information about the specified file";
-		a.Arguments = [new (null, EID, "Id of the file to get information about", Flag.First)];
+		a.Arguments = [new (null, EID, "Id of the file to get information about", ArgumentFlag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);

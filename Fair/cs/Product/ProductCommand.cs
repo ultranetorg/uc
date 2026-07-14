@@ -20,7 +20,7 @@ public class ProductCommand : FairCommand
 
 		a.Name = "c";
 		a.Description = "Creates a product entity under the specified author";
-		a.Arguments =  [new (null, EID, "Author Id to create the product under", Flag.First),
+		a.Arguments =  [new (null, EID, "Author Id to create the product under", ArgumentFlag.First),
 						new (type, PRODUCTTYPE, "A type of product"),
 						Eligible];
 
@@ -38,7 +38,7 @@ public class ProductCommand : FairCommand
 
 		a.Name = "x";
 		a.Description = "Destroys existing product and all its associated data";
-		a.Arguments =  [new (null, EID, "Id of the product to delete", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of the product to delete", ArgumentFlag.First),
 						Eligible];
 
 		a.Execute = () =>	{
@@ -57,7 +57,7 @@ public class ProductCommand : FairCommand
 
 		a.Name = "u";
 		a.Description = "Updates a product properties";
-		a.Arguments =  [new (null, EID, "Id of a product to update", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of a product to update", ArgumentFlag.First),
 						new (definition, TEXT, "Product definition"),
 						Eligible];
 
@@ -82,7 +82,7 @@ public class ProductCommand : FairCommand
 
 		a.Name = "e";
 		a.Description = "Gets information about product specified";
-		a.Arguments =  [new (null, EID, "Id of a product to get information about", Flag.First), 
+		a.Arguments =  [new (null, EID, "Id of a product to get information about", ArgumentFlag.First), 
 						Eligible];
 
 		a.Execute = () =>	{

@@ -19,7 +19,7 @@ public class DomainCommand : RdnCommand
 		a.Name = "m";
 		a.Description = "Request web domain migration";
 		a.Arguments =	[
-							new (null, RDA, "Address of a root domain to migrate", Flag.First),
+							new (null, RDA, "Address of a root domain to migrate", ArgumentFlag.First),
 							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
 							ByArgument("Name of the user for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
 						];
@@ -40,7 +40,7 @@ public class DomainCommand : RdnCommand
 
 		a.Description = "Extend domain ownership for the specified period. It's allowed only during the last year of current period.";
 		a.Arguments =	[
-							new (null, DA, "Address of a domain to be renewed", Flag.First),
+							new (null, DA, "Address of a domain to be renewed", ArgumentFlag.First),
 							Years,
 							Eligible
 						];
@@ -65,7 +65,7 @@ public class DomainCommand : RdnCommand
 		a.Name = "a";
 		a.Description = "Register a domain or subdomain";
 		a.Arguments =	[
-							new (null, SDA, "Subdomain address to create", Flag.First),
+							new (null, SDA, "Subdomain address to create", ArgumentFlag.First),
 							Policy,
 							Years,
 							new ("for", NAME, "Name of the account that will own the subdomain"),
@@ -106,7 +106,7 @@ public class DomainCommand : RdnCommand
 		a.Name = "up";
 		a.Description = "Changes current policy of subdomain";
 		a.Arguments =	[
-							new (null, SDA, "An address of a subdomain to change policy for", Flag.First),
+							new (null, SDA, "An address of a subdomain to change policy for", ArgumentFlag.First),
 							Policy,
 							Eligible
 						];
@@ -129,7 +129,7 @@ public class DomainCommand : RdnCommand
 		a.Name = "s";
 		a.Description = "Manages security for the specified domain";
 		a.Arguments =	[
-							new (null, DA, "Address of a domain to transfer", Flag.First),
+							new (null, DA, "Address of a domain to transfer", ArgumentFlag.First),
 							new ("owner", NAME, "A name of a new owner"),
 							Eligible
 						];
@@ -157,7 +157,7 @@ public class DomainCommand : RdnCommand
 		a.Name = "e";
 		a.Description = "Get domain entity information from MCV database";
 		a.Arguments =	[
-							new (null, DA, "An address of a domain to get information about", Flag.First)
+							new (null, DA, "An address of a domain to get information about", ArgumentFlag.First)
 						];
 
 		a.Execute = () =>	{

@@ -15,8 +15,8 @@ public class SubnetCommand : RdnCommand
 		a.Name = "a";
 		a.Description = "Requests subnet attachment voting";
 		a.Arguments =	[
-							new (null, SNN, "A name of a subnet to attach", Flag.First),
-							new ("peer", IP, "A list of ipadddress:port of peers of subnet", Flag.Multi),
+							new (null, SNN, "A name of a subnet to attach", ArgumentFlag.First),
+							new ("peer", IP, "A list of ipadddress:port of peers of subnet", ArgumentFlag.Multi),
 							new ("client", SNQ, "An address of default client software"),
 							ByArgument()
 						];

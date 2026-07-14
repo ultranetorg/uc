@@ -17,7 +17,7 @@ public class ReleaseCommand : RdnCommand
 		a.Name = "c";
 		a.Description = "Deploys a file or files for P2P distribution";
 		a.Arguments =	[
-							new ("source", PATH, "A path to a file to build", Flag.Multi),
+							new ("source", PATH, "A path to a file to build", ArgumentFlag.Multi),
 						];
 
 		a.Execute = () =>	{

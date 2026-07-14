@@ -23,9 +23,9 @@ public class UtilityCommand : McvCommand
 		a.Description = "Send utility from one account to another.";
 		a.Arguments =  [new (from,		EA, "Source entity type and id where utility are credited from"),
 						new (to,		EA, "Destination entity type and id where utility are credited to"),
-						new (e,		EC, "Amount of energy of the current year to be transferred", Flag.Optional),
-						new (en,	EC, "Amount of energy of the next year to be transferred", Flag.Optional),
-						new (st,		ST, "Amount of space-time to be transferred", Flag.Optional),
+						new (e,		EC, "Amount of energy of the current year to be transferred", ArgumentFlag.Optional),
+						new (en,	EC, "Amount of energy of the next year to be transferred", ArgumentFlag.Optional),
+						new (st,		ST, "Amount of space-time to be transferred", ArgumentFlag.Optional),
 						ByArgument("Name of the user eligible to withdraw utility(s) from the source entity")];
 
 		a.Execute = () =>	{

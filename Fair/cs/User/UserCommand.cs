@@ -38,7 +38,7 @@ public class UserCommand : Net.UserCommand
 //
 //		a.Name = "n";
 //		a.Description = "Sets a nickname for the specified account";
-//		a.Arguments =  [new (null, EID,  "Id of account", Flag.First),
+//		a.Arguments =  [new (null, EID,  "Id of account", ArgumentFlag.First),
 //						new (nickname, NAME,  "New nickname"),
 //						SignerArgument()];
 //

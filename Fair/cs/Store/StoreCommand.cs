@@ -40,7 +40,7 @@ public class StoreCommand : FairCommand
 
 		a.Name = "r";
 		a.Description = "Prolongs expiration date of a store for the specified number of years";
-		a.Arguments =  [ new (null, EID, "Id of a store to update", Flag.First),
+		a.Arguments =  [ new (null, EID, "Id of a store to update", ArgumentFlag.First),
 						 new (years, YEARS, "A number of years (365 days per year) since today to renew the store for"),
 						 Eligible];
 
@@ -61,7 +61,7 @@ public class StoreCommand : FairCommand
 //
 //		a.Name = "n";
 //		a.Description = "Creates a proposal to change a name for the specified store";
-//		a.Arguments =  [new (null,		EID, "Id of the store to update", Flag.First),
+//		a.Arguments =  [new (null,		EID, "Id of the store to update", ArgumentFlag.First),
 //						new (AsArg,		ROLE, "On behalf of"),
 //						new (creator,	EID, "Id of the creator"),
 //						new (name,		EID, "New name"),
@@ -85,12 +85,12 @@ public class StoreCommand : FairCommand
 //
 //		a.Name = "i";
 //		a.Description = "Changes information about a store";
-//		a.Arguments =  [new (null,	EID, "Id of the store to update", Flag.First),
+//		a.Arguments =  [new (null,	EID, "Id of the store to update", ArgumentFlag.First),
 //						new (AsArg, ROLE, $"A role of actor, {Uccs.Fair.Role.Moderator} by default"),
 //						new (null,	EID, "Id of the actor", Flag.Second),
-//						new (t,		TEXT, "New title", Flag.Optional),
-//						new (s,		TEXT, "New slogan", Flag.Optional),
-//						new (d,		TEXT, "New description", Flag.Optional),
+//						new (t,		TEXT, "New title", ArgumentFlag.Optional),
+//						new (s,		TEXT, "New slogan", ArgumentFlag.Optional),
+//						new (d,		TEXT, "New description", ArgumentFlag.Optional),
 //						Eligible];
 //
 //		a.Execute = () =>	{
@@ -113,7 +113,7 @@ public class StoreCommand : FairCommand
 //
 //		a.Name = "lc";
 //		a.Description = "Get categories of the specified store";
-//		a.Arguments = [new (null, EID, "Id of the store to get categories from", Flag.First)];
+//		a.Arguments = [new (null, EID, "Id of the store to get categories from", ArgumentFlag.First)];
 //
 //		a.Execute = () =>	{
 //								Flow.CancelAfter(Cli.Settings.PpcTimeout);
@@ -133,7 +133,7 @@ public class StoreCommand : FairCommand
 
 		a.Name = "e";
 		a.Description = "Get information about the specified store";
-		a.Arguments =	[new (null, EID, "Id of the store to get information about", Flag.First)];
+		a.Arguments =	[new (null, EID, "Id of the store to get information about", ArgumentFlag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);

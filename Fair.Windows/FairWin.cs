@@ -14,7 +14,7 @@ public class FairWin : FairCli
 	{
 	}
 
-	public override void InteractOrWait(string profile, Command command, Command.CommandAction action, Flow flow)
+	public override void InteractOrWait(string profile, Command command, CommandAction action, Flow flow)
 	{
 		Node.ShowGui = () => {
 								var t = Node.CreateThread(() => {

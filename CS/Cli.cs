@@ -102,7 +102,7 @@ public abstract class Cli
 		LogView.StopListening();
 	}
 
-	public virtual void InteractOrWait(string profile, Command command, Command.CommandAction action, Flow flow)
+	public virtual void InteractOrWait(string profile, Command command, CommandAction action, Flow flow)
 	{
 		if(ConsoleAvailable)
 		{

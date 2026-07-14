@@ -21,7 +21,7 @@ public class LinkCommand : RdnCommand
 		a.Arguments =	[
 							new ("from", RA, "The address of a source resource. Transaction user must be owner of resource domain."),
 							new ("to", RA, "The address of a destination resource"),
-							new ("type", LT, "The type of link to create", Flag.Optional),
+							new ("type", LT, "The type of link to create", ArgumentFlag.Optional),
 							DomainCommand.Eligible
 						];
 
@@ -66,7 +66,7 @@ public class LinkCommand : RdnCommand
 
 		a.Description = "Lists outbound links of the specified resource";
 		a.Arguments =	[
-							new (null, RA, "The address of a resource to list outbound links from", Flag.First)
+							new (null, RA, "The address of a resource to list outbound links from", ArgumentFlag.First)
 						];
 
 		a.Execute = () =>	{
@@ -91,7 +91,7 @@ public class LinkCommand : RdnCommand
 
 		a.Description = "Lists inbound links of the specified resource";
 		a.Arguments =	[
-							new (null, RA, "The address of a resource to list inbound links from", Flag.First)
+							new (null, RA, "The address of a resource to list inbound links from", ArgumentFlag.First)
 						];
 
 		a.Execute = () =>	{

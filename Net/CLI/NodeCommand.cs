@@ -52,7 +52,7 @@ public abstract class NodeCommand : McvCommand
 
 		attach.Description = "Connects to existing node instance via JSON RPC protocol";
 		attach.Arguments =	[
-								new (null, URL, "URL address of node to connect to", Flag.First),
+								new (null, URL, "URL address of node to connect to", ArgumentFlag.First),
 								new (Apc.AccessKey, PASSWORD, "API access key")
 							];
 
@@ -67,8 +67,8 @@ public abstract class NodeCommand : McvCommand
 		send.Name = "s";
 		send.Description = "Send specified command to existing running node";
 		send.Arguments =	[
-								new (null,			URL, "HOST address of node to send a command to", Flag.First),
-								new (Apc.AccessKey, PASSWORD, "API access key", Flag.Optional),
+								new (null,			URL, "HOST address of node to send a command to", ArgumentFlag.First),
+								new (Apc.AccessKey, PASSWORD, "API access key", ArgumentFlag.Optional),
 								new ("command",		COMMAND, "A command to send for execution")
 							];
 
@@ -184,7 +184,7 @@ public abstract class NodeCommand : McvCommand
 		a.Name = "m";
 		a.Description = "Get information about membership status of specified user";
 		a.Arguments =	[
-							new (null, EID, "An Id of the user to check membership status of", Flag.First)
+							new (null, EID, "An Id of the user to check membership status of", ArgumentFlag.First)
 						];
 
 		a.Execute = () =>	{

@@ -6,7 +6,7 @@ public abstract class RdnCommand : McvCommand
 	public static readonly ArgumentType RDA		= new ("RDA",	"Root domain address",															["ultranetorg", "company", "a123"]);
 	public static readonly ArgumentType SDA		= new ("SDA",	"Subdomain address",															["application.company", "x_y_z.application.company"]);
 	public static readonly ArgumentType DCP		= new ("DCP",	"Domain child policy",															Enum.GetNames<DomainChildPolicy>().Where(i => i != DomainChildPolicy.None.ToString()).ToArray());
-	public static readonly ArgumentType RA		= new ("RA",	$"Fully-qualified resource address in form of {Iccp.Scheme} scheme",			[@"iccp:rdn/company/application", "/author/product"]);
+	public static readonly ArgumentType RA		= new ("RA",	$"Resource address including domain",											[@"/company/application", "rdn/author/product"]);
 	public static readonly ArgumentType TLD		= new ("TLD",	"Top-level  web domain",														Domain.PriorityTlds);
 	public static readonly ArgumentType RZA		= new ("RZA",	"Release address",																[$"{UrrScheme.Rrrh.ToString().ToLower()}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
 	public static readonly ArgumentType LT		= new ("RLT",	"Resource link type",															Enum.GetNames<ResourceLinkType>().Where(i => i != ResourceLinkType.None.ToString()).ToArray());

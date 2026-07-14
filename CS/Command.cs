@@ -5,154 +5,153 @@ using System.Reflection;
 
 namespace Uccs;
 
+public class CommandAction
+{
+	Command					Command;
+	public string			Name;
+	public string			LongName => Method.Name.Replace("_", null).ToLower();
+	public string			Title => Method.Name.Replace("_", " ");
+	public string[]			Names => [Name, LongName];
+	public string			Description {get; set; }
+	public Argument[]		Arguments {get; set; }
+	public Func<object>		Execute;
+
+	public string			NamesSyntax => string.Join('|', Names);
+	public Argument			this[int argument] => Arguments[argument];
+
+	MethodBase				Method;
+	public Func<Example[]>	Examples;
+		
+	public string Syntax
+	{
+		get
+		{
+			var s = $"{Command.Keyword} {Name}";
+	
+			var used = new Dictionary<ArgumentType, int>();
+	
+			if(Arguments != null)
+			{
+				foreach(var i in Arguments)
+					if(i.Name == null)
+						s += $" {i.Type.Name}";
+	
+				foreach(var i in Arguments)
+					if(i.Name != null)
+						if(i.Type != null)
+							s += $" {i.Name}={i.Type.Name}";
+						else
+							s += $" {i.Name}"; /// boolean
+			}
+			return s;
+		}
+	}
+	
+	public CommandAction(Command command, MethodBase method)
+	{
+		Command = command;
+		Method = method;
+
+		Examples = () =>	{
+								var c = $"{Command.Keyword} {Name}";
+	
+								var used = new Dictionary<ArgumentType, int>();
+	
+								string nextexample(ArgumentType t)
+								{
+									if(!used.ContainsKey(t))
+										used[t] = 0;
+									else
+										used[t]++;
+	
+									return t.Examples[used[t]];
+								}
+	
+								if(Arguments != null)
+								{
+									foreach(var i in Arguments)
+										if(i.Name == null)
+											c += $" {nextexample(i.Type)}";
+	
+									foreach(var i in Arguments)
+										if(i.Name != null)
+											if(i.Type != null)
+												c += $" {i.Name}={nextexample(i.Type)}";
+											else
+												c += $" {i.Name}";
+								}
+									
+								return [new Example(null, c)];
+							};
+	}
+}
+
+public class ArgumentType
+{
+	public string	Name;
+	public string	Description;
+	public string[] Examples;
+
+	public string	Example => Examples[0];
+	public string	Example1 => Examples[1];
+	public string	Example2 => Examples[2];
+
+	public ArgumentType(string name, string description, object[] example)
+	{
+		Name = name;
+		Description = description;
+		Examples = example.Select(i => i.ToString()).ToArray();
+	}
+
+	public override string ToString()
+	{
+		return Name;
+	}
+}
+
+public enum ArgumentFlag
+{
+	None,
+	First = 1,
+	Second = 2,
+	Optional = 4,
+	Multi = 8
+}
+
+public class Argument
+{
+	public string		Name {get; set; }
+	public ArgumentType	Type {get; set; }
+	public string		Description {get; set; }
+	public ArgumentFlag	Flags {get; set; }
+	public object		Default {get; set; }	
+
+	public Argument[]	Arguments  {get; set; }
+
+	public Argument(string name, ArgumentType type, string description, ArgumentFlag flags = ArgumentFlag.None, object @default = null)
+	{
+		Type = type;
+		Name = name;
+		Description = description;
+		Flags = flags;
+		Default = @default;
+	}
+}
+
+public class Example
+{
+	public string Description  {get; set; }
+	public string Code  {get; set; }
+
+	public Example(string description, string code)
+	{
+		Description = description;
+		Code = code;
+	}
+}
+
 public abstract class Command
 {
-	public class CommandAction
-	{
-		Command					Command;
-		public string			Name;
-		public string			LongName => Method.Name.Replace("_", null).ToLower();
-		public string			Title => Method.Name.Replace("_", " ");
-		public string[]			Names => [Name, LongName];
-		public string			Description {get; set; }
-		public Argument[]		Arguments {get; set; }
-		public Func<object>		Execute;
-
-		public string			NamesSyntax => string.Join('|', Names);
-		public Argument			this[int argument] => Arguments[argument];
-
-		MethodBase				Method;
-		public Func<Example[]>	Examples;
-		
-		public string Syntax
-		{
-			get
-			{
-				var s = $"{Command.Keyword} {Name}";
-	
-				var used = new Dictionary<ArgumentType, int>();
-	
-				if(Arguments != null)
-				{
-					foreach(var i in Arguments)
-						if(i.Name == null)
-							s += $" {i.Type.Name}";
-	
-					foreach(var i in Arguments)
-						if(i.Name != null)
-							if(i.Type != null)
-								s += $" {i.Name}={i.Type.Name}";
-							else
-								s += $" {i.Name}"; /// boolean
-				}
-				return s;
-			}
-		}
-		
-	
-		public CommandAction(Command command, MethodBase method)
-		{
-			Command = command;
-			Method = method;
-
-			Examples = () =>	{
-									var c = $"{Command.Keyword} {Name}";
-	
-									var used = new Dictionary<ArgumentType, int>();
-	
-									string nextexample(ArgumentType t)
-									{
-										if(!used.ContainsKey(t))
-											used[t] = 0;
-										else
-											used[t]++;
-	
-										return t.Examples[used[t]];
-									}
-	
-									if(Arguments != null)
-									{
-										foreach(var i in Arguments)
-											if(i.Name == null)
-												c += $" {nextexample(i.Type)}";
-	
-										foreach(var i in Arguments)
-											if(i.Name != null)
-												if(i.Type != null)
-													c += $" {i.Name}={nextexample(i.Type)}";
-												else
-													c += $" {i.Name}";
-									}
-									
-									return [new Example(null, c)];
-								};
-		}
-	}
-
-	public class ArgumentType
-	{
-		public string	Name;
-		public string	Description;
-		public string[] Examples;
-
-		public string	Example => Examples[0];
-		public string	Example1 => Examples[1];
-		public string	Example2 => Examples[2];
-
-		public ArgumentType(string name, string description, object[] example)
-		{
-			Name = name;
-			Description = description;
-			Examples = example.Select(i => i.ToString()).ToArray();
-		}
-
-		public override string ToString()
-		{
-			return Name;
-		}
-	}
-
-	public enum Flag
-	{
-		None,
-		First = 1,
-		Second = 2,
-		Optional = 4,
-		Multi = 8
-	}
-
-	public class Argument
-	{
-		public string		Name {get; set; }
-		public ArgumentType	Type {get; set; }
-		public string		Description {get; set; }
-		public Flag			Flags {get; set; }
-		public object		Default {get; set; }	
-
-		public Argument[]	Arguments  {get; set; }
-
-		public Argument(string name, ArgumentType type, string description, Flag flags = Flag.None, object @default = null)
-		{
-			Type = type;
-			Name = name;
-			Description = description;
-			Flags = flags;
-			Default = @default;
-		}
-	}
-
-	public class Example
-	{
-		public string Description  {get; set; }
-		public string Code  {get; set; }
-
-		public Example(string description, string code)
-		{
-			Description = description;
-			Code = code;
-		}
-	}
-
 	public const string		ConfirmationArg = "_confirmation";
 	public virtual string[]	ControlArguments => [ConfirmationArg];
 

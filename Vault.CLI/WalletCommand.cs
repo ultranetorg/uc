@@ -18,7 +18,7 @@ public class WalletCommand : VaultCommand
 		a.Arguments =	[
 							new ("name", NAME, "An arbitrary name of a newly created wallet"),
 							new ("accounts", INT, "Count of account to create in the wallet"),
-							new ("password", PASSWORD, "A password that is used to encrypt a newly created wallet", Flag.Optional)
+							new ("password", PASSWORD, "A password that is used to encrypt a newly created wallet", ArgumentFlag.Optional)
 						];
 
 		a.Execute = () =>	{
@@ -51,7 +51,7 @@ public class WalletCommand : VaultCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "l";
+		a.Name = "lw";
 		a.Description = "Lists all existing wallets";
 
 		a.Execute = () =>	{
@@ -73,7 +73,7 @@ public class WalletCommand : VaultCommand
 		a.Description = "Unlocks an existing wallet making it available for signing transactions";
 		a.Arguments =	[
 							new ("password", PASSWORD, "A password of a wallet to be unlocked"),
-							new ("name", NAME, "Name of wallet", Flag.Optional)
+							new ("name", NAME, "Name of wallet", ArgumentFlag.Optional)
 						];
 
 		a.Execute = () =>	{
@@ -91,7 +91,7 @@ public class WalletCommand : VaultCommand
 		a.Name = "l";
 
 		a.Description = "Locks an existing wallet";
-		a.Arguments =	[new ("name", NAME, "Name of wallet", Flag.Optional)];
+		a.Arguments =	[new ("name", NAME, "Name of wallet", ArgumentFlag.Optional)];
 
 		a.Execute = () =>	{
 								Api(new LockWalletApc {Name = GetString("name", null)});
@@ -106,8 +106,8 @@ public class WalletCommand : VaultCommand
 
 		a.Name = "aa";
 		a.Description = "Creates a new or import existing account to a wallet";
-		a.Arguments =  [new ("wallet", NAME, "A name of a wallet to add the account to", Flag.Optional),
-						new ("name", NAME, "A name of account", Flag.Optional),
+		a.Arguments =  [new ("wallet", NAME, "A name of a wallet to add the account to", ArgumentFlag.Optional),
+						new ("name", NAME, "A name of account", ArgumentFlag.Optional),
 						new ("key", PRIVATEKEY, "Private key of account to import")];
 
 		a.Execute = () =>	{
@@ -132,7 +132,7 @@ public class WalletCommand : VaultCommand
 		a.Name = "i";
 		a.Description = "Imports existing wallet using file store";
 		a.Arguments =	[
-							new ("name", NAME, "Name of wallet", Flag.Optional),
+							new ("name", NAME, "Name of wallet", ArgumentFlag.Optional),
 							new (p, FILEPATH, "A path to a source wallet file"),
 						];
 

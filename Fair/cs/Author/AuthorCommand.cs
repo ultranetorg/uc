@@ -38,7 +38,7 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "n";
 		a.Description = "Sets an nickname for the specified author";
-		a.Arguments =	[new (null, EID, "Id of the author to update", Flag.First),
+		a.Arguments =	[new (null, EID, "Id of the author to update", ArgumentFlag.First),
 						new (name, NAME, "New name"),
 						Eligible];
 
@@ -60,7 +60,7 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "e";
 		a.Description = "Get author entity information from MCV database";
-		a.Arguments =	[new (null, EID, "Id of an author to get information about", Flag.First)];
+		a.Arguments =	[new (null, EID, "Id of an author to get information about", ArgumentFlag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
@@ -84,7 +84,7 @@ public class AuthorCommand : FairCommand
 		a.Name = "s";
 		a.Description = "Manages ownership of an author. Adds or removes an owner account.";
 		a.Arguments =	[
-							new (null, EID, "Author Id whose owner list will be modified", Flag.First),
+							new (null, EID, "Author Id whose owner list will be modified", ArgumentFlag.First),
 							new (ao, AA, "User Id to add as an owner"),
 							new (ro, AA, "User Id to remove from owners"),
 							Eligible
@@ -117,7 +117,7 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "r";
 		a.Description = "Prolongs current expiration date of an author for the specified number of years";
-		a.Arguments =  [new (null, EID, "Id of the author to update", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of the author to update", ArgumentFlag.First),
 						new (years, YEARS, "The number of years to renew author for. "),
 						Eligible];
 
@@ -139,7 +139,7 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "pl";
 		a.Description = "Sets a utility limits for the specified author of the specfied store";
-		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of a author to update", ArgumentFlag.First),
 						new (store, EID, "Id of a store where author is the member"),
 						new (energy, INT, "New limit for the energy"),
 						new (spacetime, INT, "New limit for the spacetime"),
@@ -161,7 +161,7 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "mr";
 		a.Description = "Sets the moderation reward for the specified author";
-		a.Arguments =  [new (null, EID, "Id of a author to update", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of a author to update", ArgumentFlag.First),
 						new (energy, INT, "Amount of energy for reward"),
 						Eligible];
 
@@ -181,7 +181,7 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "v";
 		a.Description = "Requests the net to check ownership of web domain for the specified author";
-		a.Arguments =  [new (null, EID, "Id of an author to verify", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of an author to verify", ArgumentFlag.First),
 						new (domain, NAME, "Web domain name"),
 						Eligible];
 
@@ -201,7 +201,7 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "avatar";
 		a.Description = "Sets an avatar for the specified author. Only files with correct media type(MIME) are accepted.";
-		a.Arguments =  [new (null, EID, "Id of the author to update", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of the author to update", ArgumentFlag.First),
 						new (file, EID, "Id of a file entity"),
 						Eligible];
 
@@ -227,7 +227,7 @@ public class AuthorCommand : FairCommand
 
 		a.Name = "i";
 		a.Description = "Changes various author descriptive properties";
-		a.Arguments =  [new (null, EID, "Id of the author to update", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of the author to update", ArgumentFlag.First),
 						new (t, TEXT, "New title"),
 						new (d, TEXT,  "New description"),
 						new (r, HYPERLINK, "Zero or more Uri references with a description"),

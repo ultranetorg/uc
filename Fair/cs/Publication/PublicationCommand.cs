@@ -20,7 +20,7 @@ public class PublicationCommand : FairCommand
 
 		a.Name = "c";
 		a.Description = "Creates a new product publication";
-		a.Arguments =  [new (product, EID, "Id of a product to create publication for", Flag.First),
+		a.Arguments =  [new (product, EID, "Id of a product to create publication for", ArgumentFlag.First),
 						new (store, EID, "Id of a store to create publication at"),
 						ByArgument("Name of the user authorized to create publication for the specified product")];
 
@@ -50,7 +50,7 @@ public class PublicationCommand : FairCommand
 
 		a.Name = "p";
 		a.Description = "Approve or revoke permission for a store to publish a publication";
-		a.Arguments =  [new (null,		EID, "Id of a publication to manage", Flag.First),
+		a.Arguments =  [new (null,		EID, "Id of a publication to manage", ArgumentFlag.First),
 						new (publish,	NAME, "Approve or revoke a permission to publish (approve/revoke)"),
 						Eligible];
 
@@ -76,7 +76,7 @@ public class PublicationCommand : FairCommand
 
 		a.Name = "o";
 		a.Description = "Make specified publication(store) default in search results";
-		a.Arguments =  [new (null, EID, "Id of a publication to have highest priority", Flag.First),
+		a.Arguments =  [new (null, EID, "Id of a publication to have highest priority", ArgumentFlag.First),
 						Eligible];
 
 		a.Execute = () =>	{

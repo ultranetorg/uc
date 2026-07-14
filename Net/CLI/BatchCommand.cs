@@ -15,7 +15,7 @@ public class BatchCommand : McvCommand
 		string operation = nameof(operation);
 
 		a.Description = "Sends multiple operations as a single transaction";
-		a.Arguments = [new (operation, OPEARATION, "Operation command-line", Flag.Multi),
+		a.Arguments = [new (operation, OPEARATION, "Operation command-line", ArgumentFlag.Multi),
 						ByArgument()];
 
 		a.Execute = () =>	{

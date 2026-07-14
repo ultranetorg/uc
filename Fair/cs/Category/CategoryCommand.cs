@@ -83,7 +83,7 @@ public class CategoryCommand : FairCommand
 
 		a.Name = "lp";
 		a.Description = "Get publications of the specified category";
-		a.Arguments = [new (null, EID, "Id of the category to get publications of", Flag.First)];
+		a.Arguments = [new (null, EID, "Id of the category to get publications of", ArgumentFlag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
@@ -105,7 +105,7 @@ public class CategoryCommand : FairCommand
 
 		a.Name = "lc";
 		a.Description = "Get subcategories of the specified category";
-		a.Arguments = [new (null, EID, "Id of the category to get subcategories from", Flag.First)];
+		a.Arguments = [new (null, EID, "Id of the category to get subcategories from", ArgumentFlag.First)];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
