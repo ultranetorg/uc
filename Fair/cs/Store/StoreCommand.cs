@@ -4,25 +4,39 @@ namespace Uccs.Fair;
 
 public class StoreCommand : FairCommand
 {
-	Argument Eligible => ByArgument("Name of the user eligible to propose changes to the store");
+	Argument	Eligible => ByArgument("Name of the user eligible to propose changes to the store");
+
+	new AutoId Id
+	{
+		get
+		{
+			if(Has(IdKeyword))
+				return GetAutoId(IdKeyword);
+			else if(Has(NameKeyword))
+				return Ppc(new StoreByNamePpc(GetString(NameKeyword))).Store.Id;
+			else
+				throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+		}
+	}
 
 	public StoreCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 
 	}
 
-	public CommandAction Create()
+	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		const string years = nameof(years);
 		const string title = nameof(title);
 
-		a.Name = "c";
 		a.Description = "Creates a new store";
-		a.Arguments =  [new (years, YEARS, "Number of years for which ownership is guaranteed"),
-						new (title, NAME, "Title of the store being created"),
-						ByArgument("Name of the user registering the store")];
+		a.Arguments =  [
+							new (years, YEARS, "Number of years for which ownership is guaranteed"),
+							new (title, NAME, "Title of the store being created"),
+							ByArgument("Name of the user registering the store")
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
@@ -32,22 +46,23 @@ public class StoreCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Renew()
+	public CommandAction Renew_R()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		const string years = nameof(years);
 
-		a.Name = "r";
 		a.Description = "Prolongs expiration date of a store for the specified number of years";
-		a.Arguments =  [ new (null, EID, "Id of a store to update", ArgumentFlag.First),
-						 new (years, YEARS, "A number of years (365 days per year) since today to renew the store for"),
-						 Eligible];
+		a.Arguments =	[	
+							NameOrId(NAME,  "store to update"),
+							new (years, YEARS, "Number of years (365 days per year) since today to renew the store for"),
+							Eligible
+						 ];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new StoreRenewal {StoreId = FirstAutoId, Years = byte.Parse(GetString(years))};
+								return new StoreRenewal {StoreId = Id, Years = byte.Parse(GetString(years))};
 							};
 		return a;
 	}
@@ -127,22 +142,28 @@ public class StoreCommand : FairCommand
 //		return a;
 //	}
 
-	public CommandAction Entity()
+	public CommandAction Entity_E()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "e";
 		a.Description = "Get information about the specified store";
-		a.Arguments =	[new (null, EID, "Id of the store to get information about", ArgumentFlag.First)];
+		a.Arguments =	[NameOrId(NAME, "store to get information about")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new StorePpc(FirstAutoId));
+								Store u;
 
-								Flow.Log.Dump(rp.Store);
+								if(Has(IdKeyword))
+									u = Ppc(new StorePpc(Id)).Store;
+								else if(Has(NameKeyword))
+									u = Ppc(new StoreByNamePpc(Name)).Store;
+								else
+									throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+
+								Flow.Log.Dump(u);
 					
-								return rp.Store;
+								return u;
 							};
 		return a;
 	}

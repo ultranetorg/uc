@@ -145,13 +145,13 @@ public class NexusPropertyApc : Apc, INexusApc
 	}
 }
 
-public class NexusOpenApc : Apc, INexusApc
+public class DoApc : Apc, INexusApc
 {
-	public Snq Request { get; set; }
+	public Snq Query { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		nexus.Do(Request, flow);
+		nexus.Do(Query, flow);
 
 		return null;
 	}

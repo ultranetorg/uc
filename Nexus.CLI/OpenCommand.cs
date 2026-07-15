@@ -13,13 +13,13 @@ public class OpenCommand : NexusCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Description = "Handles entity by its address";
+		a.Description = "Handles entity by the corresponding net client software. Runs a new instance of the client or uses existing. Downloads default client if necessary. Default nodes are retrieved from the parent network.";
 		a.Arguments =	[
-							new (null, SNQ, "Address to open"),
+							new (null, SNQ, "Address to open", ArgumentFlag.First),
 						];
 
 		a.Execute = () =>	{
-								Cli.NexusApi.Send(new NexusOpenApc {Request = Snq.Parse(First)}, Flow);
+								Cli.NexusApi.Send(new DoApc {Query = Snq.Parse(First)}, Flow);
 
 								return null;
 							};

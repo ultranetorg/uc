@@ -10,14 +10,13 @@ public class ReleaseCommand : RdnCommand
 	{
 	}
 
-	public CommandAction Create()
+	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "c";
 		a.Description = "Deploys a file or files for P2P distribution";
 		a.Arguments =	[
-							new ("source", PATH, "A path to a file to build", ArgumentFlag.Multi),
+							new ("source", PATH, "File or directory paths of content to package", ArgumentFlag.Multi),
 						];
 
 		a.Execute = () =>	{
@@ -38,18 +37,17 @@ public class ReleaseCommand : RdnCommand
 		return a;
 	}
 
-	public CommandAction Local()
+	public CommandAction Local_L()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "l";
 		a.Description = "Get information about local copy of the specified release";
 		a.Arguments =	[
-							new (null, RZA, "Address of a release to get information about")
+							AddressArgument(RZA, "release to get information about")
 						];
 
 		a.Execute = () =>	{
-								var r = Api<LocalReleaseApe>(new LocalReleaseApc {Address = Urr.Parse(Args[0].Name)});
+								var r = Api<LocalReleaseApe>(new LocalReleaseApc {Address = Urr.Parse(Address)});
 				
 								if(r != null)
 								{

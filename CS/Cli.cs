@@ -198,14 +198,14 @@ public abstract class Cli
 					??
 					throw new SyntaxException("Unknown command name");
 
-			var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(args.Skip(1).FirstOrDefault()?.Name))
+			var a = c.GetAction(args.Skip(1).FirstOrDefault()?.Name);
+			
+			if(a != null)
+				c.Args.RemoveAt(0);
+			else
+				a = c.GetDefaultAction()
 					??
 					throw new SyntaxException("Unknown or missing command action");
-
-			if(a.Name != null)
-			{
-				c.Args.RemoveAt(0);
-			}
 
 			var r = a.Execute();
 

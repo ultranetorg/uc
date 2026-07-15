@@ -240,11 +240,10 @@ public class EconomyCommand : RdnCommand
 
 	}
 
-	public CommandAction Cost()
+	public CommandAction Cost_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "c";
 		a.Description = "Gets information about current cost of various ULTRANET resources.";
 
 		a.Execute = () =>	{

@@ -9,17 +9,17 @@ public class FileCommand : FairCommand
 	{
 	}
 
-	public CommandAction Create()
+	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string owner = nameof(owner);
 		const string path = nameof(path);
 		const string mime = nameof(mime);
 
-		a.Name = "c";
 		a.Description = "Creates a file entity";
 		a.Arguments =	[
-							new (null, EA, "Entity address of the file owner", ArgumentFlag.First),
+							new (owner, EA, "Entity address of the file owner"),
 							new (path, PATH, "Path to the file content"),
 							new (mime, TEXT, "Mime type of the file content", ArgumentFlag.Optional),
 							ByArgument("Name of the user authorized to access the file owner")
@@ -30,7 +30,7 @@ public class FileCommand : FairCommand
 
 								return	new FileCreation
 										{
-											Owner = EntityAddress.Parse<FairTable>(base.First), 
+											Owner = EntityAddress.Parse<FairTable>(GetString(owner)), 
 											Data = System.IO.File.ReadAllBytes(GetString(path)),
 											Mime = GetEnum<FairMime>(mime, FairMime.None)
 										};
@@ -38,37 +38,35 @@ public class FileCommand : FairCommand
 		return a;
 	}
 		
-	public CommandAction Destroy()
+	public CommandAction Destroy_X()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "x";
 		a.Description = "Destroys existing file and all its associated data";
 		a.Arguments =	[
-							new (null, EID, "Id of the file to delete", ArgumentFlag.First),
+							IdArgument("file to delete"),
 							ByArgument()
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new FileDeletion {File = FirstAutoId};
+								return new FileDeletion {File = Id};
 							};
 		return a;
 	}
 
-	public CommandAction Entity()
+	public CommandAction Entity_E()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "e";
 		a.Description = "Gets information about the specified file";
-		a.Arguments = [new (null, EID, "Id of the file to get information about", ArgumentFlag.First)];
+		a.Arguments = [IdArgument("file to get information about")];	
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var	r = Ppc(new FilePpc(FirstAutoId)).File;
+								var	r = Ppc(new FilePpc(GetAutoId(IdKeyword))).File;
 				
 								Flow.Log.Dump(r);
 

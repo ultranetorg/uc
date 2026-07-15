@@ -7,28 +7,6 @@ public class UserCommand : Net.UserCommand
 	public UserCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
-
-	public override CommandAction Entity()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		const string name = nameof(name);
-
-		a.Name = "e";
-		a.Description = "Get information about the user specified";
-		a.Arguments = [new (name, NAME, "Name of the user to get information about")];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.PpcTimeout);
-
-								var i = Ppc(new FairUserPpc(GetString(name)));
-												
-								Flow.Log.Dump(i.User);
-
-								return i.User;
-							};
-		return a;
-	}
 	
 //	public CommandAction Nickname()
 //	{
@@ -50,20 +28,17 @@ public class UserCommand : Net.UserCommand
 //		return a;
 //	}
 
-	public CommandAction ListAuthors()
+	public CommandAction ListAuthors_LA()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		const string name = nameof(name);
-
-		a.Name = "la";
-		a.Description = "Get authors that specified account owns";
-		a.Arguments = [new (name, NAME, "Name of the user to get authors from")];
+		a.Description = "Get authors owned by the specified user";
+		a.Arguments = [NameOrId(NAME, "user to get authors from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new UserAuthorsPpc(GetString(name)));
+								var rp = Ppc(new UserAuthorsPpc(Id));
 
 								Flow.Log.Dump(rp.Authors, ["Id"], [i => i]);
 					
@@ -72,20 +47,19 @@ public class UserCommand : Net.UserCommand
 		return a;
 	}
 
-	public CommandAction ListStores()
+	public CommandAction ListStores_LS()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		const string name = nameof(name);
 
-		a.Name = "ls";
 		a.Description = "Get sites of the specified user";
-		a.Arguments = [new (name, NAME, "Name of the user to get stores from")];
+		a.Arguments = [NameOrId(NAME, "user to get stores from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new UserStoresPpc(GetString(name)));
+								var rp = Ppc(new UserStoresPpc(Id));
 
 								Flow.Log.Dump(rp.Stores.Select(i => Ppc(new StorePpc(i)).Store), ["Id", "Title", "Owners", "Root Categories"], [i => i.Id, i => i.Title, i => i.Moderators[0] + (i.Moderators.Length > 1 ? $",  {{{i.Moderators.Length-1}}} more" : null), i => i.Categories?.Length]);
 					
@@ -100,8 +74,7 @@ public class UserCommand : Net.UserCommand
 		
 		const string path = nameof(path);
 
-		a.Name = "avatar";
-		a.Description = "Sets an avatar for the specified user";
+		a.Description = "Sets an avatar for the signing user";
 		a.Arguments =  [new (path, PATH, "A path to image file"),
 						ByArgument()];
 
@@ -114,4 +87,30 @@ public class UserCommand : Net.UserCommand
 							};
 		return a;
 	}	
+
+	public override CommandAction Entity_E()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Get information about the user specified";
+		a.Arguments = [NameOrId(NAME, "user to get information about")];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
+
+								User u;
+
+								if(Has(IdKeyword))
+									u = Ppc(new FairUserPpc(Id)).User;
+								else if(Has(NameKeyword))
+									u = Ppc(new FairUserPpc(Name)).User;
+								else
+									throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+																					
+								Flow.Log.Dump(u);
+
+								return u;
+							};
+		return a;
+	}
 }

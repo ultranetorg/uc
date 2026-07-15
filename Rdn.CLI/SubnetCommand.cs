@@ -8,16 +8,15 @@ public class SubnetCommand : RdnCommand
 	{
 	}
 
-	public CommandAction Attach()
+	public CommandAction Attach_A()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "a";
 		a.Description = "Requests subnet attachment voting";
 		a.Arguments =	[
-							new (null, SNN, "A name of a subnet to attach", ArgumentFlag.First),
-							new ("peer", IP, "A list of ipadddress:port of peers of subnet", ArgumentFlag.Multi),
-							new ("client", SNQ, "An address of default client software"),
+							new (NameKeyword, SNN, "Name of a subnet to attach"),
+							new ("peer", IP, "List of IPAdddress:Port of peers of subnet", ArgumentFlag.Multi),
+							new ("client", SNQ, "Address of default client software"),
 							ByArgument()
 						];
 
@@ -26,7 +25,7 @@ public class SubnetCommand : RdnCommand
 
 								return	new FriendAttachment
 										{
-											Name = First, 
+											Name = Name, 
 											Client = Snq.Parse(GetString("client")),
 											Peers =	Args.Where(i => i.Name == "peer").Select(i => Endpoint.Parse(i.Get<string>())).ToArray()
 										};

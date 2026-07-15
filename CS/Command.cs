@@ -8,20 +8,22 @@ namespace Uccs;
 public class CommandAction
 {
 	Command					Command;
-	public string			Name;
-	public string			LongName => Method.Name.Replace("_", null).ToLower();
-	public string			Title => Method.Name.Replace("_", " ");
-	public string[]			Names => [Name, LongName];
+	//public string			Name;
+	public string[]			Names => Method.Name.ToLower().Split('_');
+	public string			Name => (Names.Length > 1 ? Names[1] : Names[0]);
+	public string			LongName => Names[0];
+	public string			Title => Method.Name.Split('_')[0];
 	public string			Description {get; set; }
 	public Argument[]		Arguments {get; set; }
 	public Func<object>		Execute;
+	public bool				IsDefault;
 
 	public string			NamesSyntax => string.Join('|', Names);
 	public Argument			this[int argument] => Arguments[argument];
 
 	MethodBase				Method;
 	public Func<Example[]>	Examples;
-		
+
 	public string Syntax
 	{
 		get
@@ -70,19 +72,28 @@ public class CommandAction
 								if(Arguments != null)
 								{
 									foreach(var i in Arguments)
-										if(i.Name == null)
+										if(i.Name == null && i.Type != null)
 											c += $" {nextexample(i.Type)}";
-	
-									foreach(var i in Arguments)
-										if(i.Name != null)
-											if(i.Type != null)
-												c += $" {i.Name}={nextexample(i.Type)}";
-											else
-												c += $" {i.Name}";
+
+								foreach(var i in Arguments)
+								{
+									var a = i.Arguments == null ? i : i.Arguments[0];
+
+									if(a.Name != null)
+										if(a.Type != null)
+											c += $" {a.Name}={nextexample(a.Type)}";
+										else
+											c += $" {a.Name}";
 								}
-									
-								return [new Example(null, c)];
+							}
+
+			return [new Example(null, c)];
 							};
+	}
+
+	public override string ToString()
+	{
+		return Method.Name;
 	}
 }
 
@@ -109,33 +120,40 @@ public class ArgumentType
 	}
 }
 
+[Flags]
 public enum ArgumentFlag
 {
-	None,
 	First = 1,
 	Second = 2,
 	Optional = 4,
-	Multi = 8
+	Multi = 8,
 }
 
 public class Argument
 {
-	public string		Name {get; set; }
-	public ArgumentType	Type {get; set; }
-	public string		Description {get; set; }
-	public ArgumentFlag	Flags {get; set; }
-	public object		Default {get; set; }	
+	public string			Name {get; set; }
+	public ArgumentType		Type {get; set; }
+	public string			Description {get; set; }
+	public ArgumentFlag		Flags {get; set; }
+	public object			Default {get; set; }	
 
-	public Argument[]	Arguments  {get; set; }
+	public Argument[]		Arguments  {get; set; }
 
-	public Argument(string name, ArgumentType type, string description, ArgumentFlag flags = ArgumentFlag.None, object @default = null)
+	public Argument(string name, ArgumentType type, string description, ArgumentFlag flags = 0, object @default = null, Argument[] arguments = null)
 	{
 		Type = type;
 		Name = name;
 		Description = description;
 		Flags = flags;
 		Default = @default;
+		Arguments = arguments;
 	}
+
+	public override string ToString()
+	{
+		return Name;
+	}
+
 }
 
 public class Example
@@ -156,7 +174,7 @@ public abstract class Command
 	public virtual string[]	ControlArguments => [ConfirmationArg];
 
 	public string			Keyword => GetType().Name.Replace(nameof(Command), null).ToLower();
-	public CommandAction[]	Actions => GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(CommandAction)).Select(i => i.Invoke(this, null)).Cast<CommandAction>().ToArray();
+	public CommandAction[]	Actions => GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(CommandAction) && i.Name != nameof(GetAction) && i.Name != nameof(GetDefaultAction)).Select(i => i.Invoke(this, null)).Cast<CommandAction>().ToArray();
 
 	public List<Xon>		Args;
 	public static bool		ConsoleAvailable { get; protected set; }
@@ -187,6 +205,20 @@ public abstract class Command
 		Flow = flow;;
 	}
 
+	public CommandAction GetAction(string name)
+	{ 
+		var c = GetType().GetMethods().FirstOrDefault(i => i.ReturnParameter.ParameterType == typeof(CommandAction) && i.Name != nameof(GetAction) && i.Name != nameof(GetDefaultAction) && ContainsWord(i.Name, name));
+
+		return c?.Invoke(this, null) as CommandAction;
+	}
+
+	public CommandAction GetDefaultAction()
+	{ 
+		var c = GetType().GetMethods().FirstOrDefault(i => i.ReturnParameter.ParameterType == typeof(CommandAction) && i.Name != nameof(GetAction) && i.Name != nameof(GetDefaultAction));
+
+		return c?.Invoke(this, null) as CommandAction;
+	}
+
 	public Xon One(string path)
 	{
 		var names = path.Split('/');
@@ -211,31 +243,32 @@ public abstract class Command
 		}
 		return p;	 
 	}
-	
-//		protected ResourceIdentifier GetResourceIdentifier(string a, string id)
-//		{
-//			if(Has(a))
-//				return new ResourceIdentifier(GetResourceAddress(a));
-//
-//			if(Has(id))
-//				return new ResourceIdentifier(ResourceId.Parse(GetString(id)));
-//
-//			throw new SyntaxException("address or id required");
-//		}
-//		
-//		protected ResourceIdentifier ResourceIdentifier
-//		{
-//			get
-//			{
-//				if(Has("a"))
-//					return new ResourceIdentifier(GetResourceAddress("a"));
-//
-//				if(Has("id"))
-//					return new ResourceIdentifier(ResourceId.Parse(GetString("id")));
-//
-//				throw new SyntaxException("address or id required");
-//			}
-//		}
+
+	public static bool ContainsWord(string source, string word)
+	{
+		if(string.IsNullOrEmpty(source) || string.IsNullOrEmpty(word))
+			return false;
+
+		int wordLength = word.Length;
+		int sourceLength = source.Length;
+		int i = 0;
+
+		while((i = source.IndexOf(word, i, StringComparison.InvariantCultureIgnoreCase)) != -1)
+		{
+			bool isLeftValid = (i == 0) || (source[i - 1] == '_');
+
+			bool isRightValid = (i + wordLength == sourceLength) || (source[i + wordLength] == '_');
+
+			if(isLeftValid && isRightValid)
+			{
+				return true;
+			}
+
+			i += 1;
+		}
+
+		return false;
+	}
 
 	public bool Has(string paramenter)
 	{

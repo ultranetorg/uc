@@ -2,22 +2,22 @@
 
 public class UserStoresPpc : McvPpc<UserStoresPpr>
 {
-	public string		Name {get; set;}
+	public AutoId		User {get; set;}
 
 	public UserStoresPpc()
 	{
 	}
 
-	public UserStoresPpc(string name)
+	public UserStoresPpc(AutoId name)
 	{
-		Name = name;
+		User = name;
 	}
 
 	public override Result Execute()
 	{
 		RequireGraph();
 
-		var	e = Mcv.Users.Latest(Name) as FairUser;
+		var	e = Mcv.Users.Latest(User) as FairUser;
 			
 		if(e == null)
 			throw new EntityException(EntityError.NotFound);

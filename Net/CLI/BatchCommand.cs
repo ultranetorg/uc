@@ -8,7 +8,7 @@ public class BatchCommand : McvCommand
 	{
 	}
 
-	public CommandAction Batch()
+	public CommandAction Default()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
@@ -27,7 +27,7 @@ public class BatchCommand : McvCommand
 
 															c.Args.RemoveAt(0);
 
-															var a = c.Actions.FirstOrDefault(i => i.Name == null || i.Names.Contains(op.Skip(1).First().Name));
+															var a = c.GetAction(op.Skip(1).First().Name);
 
 															var o = a.Execute() as Operation;
 

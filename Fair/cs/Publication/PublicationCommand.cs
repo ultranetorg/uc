@@ -11,16 +11,15 @@ public class PublicationCommand : FairCommand
 		
 	}
 
-	public CommandAction Create()
+	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		const string product = nameof(product);
 		const string store = nameof(store);
 
-		a.Name = "c";
 		a.Description = "Creates a new product publication";
-		a.Arguments =  [new (product, EID, "Id of a product to create publication for", ArgumentFlag.First),
+		a.Arguments =  [new (product, EID, "Id of a product to create publication for"),
 						new (store, EID, "Id of a store to create publication at"),
 						ByArgument("Name of the user authorized to create publication for the specified product")];
 
@@ -42,24 +41,25 @@ public class PublicationCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Permittance()
+	public CommandAction Permittance_P()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		const string publish = nameof(publish);
 
-		a.Name = "p";
 		a.Description = "Approve or revoke permission for a store to publish a publication";
-		a.Arguments =  [new (null,		EID, "Id of a publication to manage", ArgumentFlag.First),
-						new (publish,	NAME, "Approve or revoke a permission to publish (approve/revoke)"),
-						Eligible];
+		a.Arguments =	[
+							IdArgument("publication to manage"),
+							new (publish,	NAME, "Approve or revoke a permission to publish (approve/revoke)"),
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var o = new PublicationAuthorPermittance
 										{
-											Publication = FirstAutoId,
+											Publication = Id,
 											Approved = GetString(publish) == "approve" ? true : 
 																						 (GetString(publish) == "revoke" ?	false : 
 																															throw new SyntaxException($"Unknown '{publish}' value"))
@@ -70,19 +70,18 @@ public class PublicationCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Priority()
+	public CommandAction Priority_O()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "o";
 		a.Description = "Make specified publication(store) default in search results";
-		a.Arguments =  [new (null, EID, "Id of a publication to have highest priority", ArgumentFlag.First),
+		a.Arguments =  [IdArgument("publication to have highest priority"),
 						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var o = new PublicationPrioritization {Publication = FirstAutoId};
+								var o = new PublicationPrioritization {Publication = Id};
 								
 								return o;
 							};

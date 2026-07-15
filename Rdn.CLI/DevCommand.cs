@@ -14,7 +14,6 @@ public class DevCommand : RdnCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "ping";
 		a.Execute = () =>	{
 								string host = Args[0].Name;
 								var s = host.Split(':');
@@ -29,7 +28,7 @@ public class DevCommand : RdnCommand
 
 										var t = DateTime.Now;
 
-										client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Net.PpiPort);
+										client.Connect(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Cli.Net.PpiPort);
 			
 										Report($"Succeeded in {(DateTime.Now - t).TotalMilliseconds:0.} ms");
 
@@ -49,12 +48,11 @@ public class DevCommand : RdnCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "listen";
 		a.Execute = () =>	{
 								var host = Args[0].Name;
 								var s = host.Split(':');
 
-								var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Program.Net.PpiPort);
+								var Listener = new TcpListener(IPAddress.Parse(s[0]), s.Length > 1 ? int.Parse(s[1]) : Cli.Net.PpiPort);
 								Listener.Start();
 
 								Report($"Listening...");
@@ -70,7 +68,6 @@ public class DevCommand : RdnCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "keypair";
 		a.Execute = () =>	{
 								var k = AccountKey.Create();
 

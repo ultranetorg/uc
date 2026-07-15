@@ -32,6 +32,8 @@ public class Port
 
 public abstract class Net
 {
+	public const string					Postfix = $".{Iccn.Root}";
+
 	public abstract string				Address { get; }
 	public abstract string				Name { get; }
 	public abstract	Zone				Zone { get; }
@@ -89,6 +91,23 @@ public abstract class Net
 	public static string Unescape(string path)
 	{
 		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
+	}
+
+	public static bool Equal(string x, string y)
+	{
+		if(x == null || x == string.Empty)
+			x = Iccn.Root;
+
+		if(y == null || y == string.Empty)
+			y = Iccn.Root;
+
+		var i = x.LastIndexOf(Postfix, StringComparison.InvariantCultureIgnoreCase);
+		var j = y.LastIndexOf(Postfix, StringComparison.InvariantCultureIgnoreCase);
+
+		if((i != -1 && i == x.Length - Postfix.Length) || (j != -1 && j == y.Length - Postfix.Length))
+			return string.Compare(x, 0, y, 0, Math.Min(Math.Max(i, j), Math.Min(x.Length, y.Length)), true) == 0;
+		else
+			return string.Compare(x, 0, y, 0, Math.Min(x.Length, y.Length), true) == 0;
 	}
 
 }

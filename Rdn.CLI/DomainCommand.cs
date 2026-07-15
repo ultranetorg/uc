@@ -4,22 +4,31 @@ namespace Uccs.Rdn.CLI;
 
 public class DomainCommand : RdnCommand
 {
-	public static Argument Eligible => ByArgument("Name of the user eligible to change Domain entity");
-	public static Argument Years => new ("years", YEARS, "Integer number of years in [1..10] range");
-	public static Argument Policy = new ("policy", DCP, $"{DomainChildPolicy.FullOwnership} - the owner of the parent domain can later revoke/change ownership of subdomain, {DomainChildPolicy.FullFreedom} - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy");
+	public static readonly Argument Eligible = ByArgument("Name of the user eligible to change Domain entity");
+	public static readonly Argument Years = new ("years", YEARS, "Integer number of years in [1..10] range");
+	public static readonly Argument Policy = new ("policy", DCP, $"{DomainChildPolicy.FullOwnership} - the owner of the parent domain can later revoke/change ownership of subdomain, {DomainChildPolicy.FullFreedom} - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy");
+
+	new AutoId Id(string nameaddress)
+	{
+		if(Has(IdKeyword))
+			return GetAutoId(IdKeyword);
+		else if(Has(nameaddress))
+			return Ppc(new DomainPpc(GetString(nameaddress))).Domain.Id;
+		else
+			throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+	}
 
 	public DomainCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
 
-	public CommandAction Migrate()
+	public CommandAction Migrate_M()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "m";
-		a.Description = "Request web domain migration";
+		a.Description = "Requests domain name acquisition by verifying web domain ownership";
 		a.Arguments =	[
-							new (null, RDA, "Address of a root domain to migrate", ArgumentFlag.First),
+							NameArgument(RDN, "root domain name to migrate"),
 							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
 							ByArgument("Name of the user for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
 						];
@@ -27,20 +36,18 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new DomainMigration(First, GetString("wtld"));
+								return new DomainMigration(Name, GetString("wtld"));
 							};
 		return a;
 	}
 
-	public CommandAction Renew()
+	public CommandAction Renew_R()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "r";
-
 		a.Description = "Extend domain ownership for the specified period. It's allowed only during the last year of current period.";
 		a.Arguments =	[
-							new (null, DA, "Address of a domain to be renewed", ArgumentFlag.First),
+							NameOrId(RDN, "root domain to be renewed"),
 							Years,
 							Eligible
 						];
@@ -48,50 +55,49 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var d = Ppc(new DomainPpc(First)).Domain;
-
-								return new DomainRenewal() {Id		= d.Id,
-															Years	= byte.Parse(GetString("years"))};
+								return new DomainRenewal() {Id		= Id(NameKeyword),
+															Years	= byte.Parse(GetString(Years.Name))};
 							};
 
 		return a;
 	}
 
 
-	public CommandAction Acquire()
+	public CommandAction Acquire_A()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "a";
+		const string @for = nameof(@for);
+
 		a.Description = "Register a domain or subdomain";
 		a.Arguments =	[
-							new (null, SDA, "Subdomain address to create", ArgumentFlag.First),
+							AddressArgument(DA, "domain or subdomain to create"),
 							Policy,
 							Years,
-							new ("for", NAME, "Name of the account that will own the subdomain"),
+							new (@for, NAME, "Name of the account that will own the subdomain"),
 							ByArgument("Name of the user that is going to take  or give a domain")
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								if(Domain.IsRoot(First))
+								if(Domain.IsRoot(Address))
 								{
 									return	new DomainRegistration
 											{
-												Address	= First,
-												Years	= byte.Parse(GetString("years"))
+												Address	= Address,
+												Years	= byte.Parse(GetString(Years.Name))
 											};
 								} 
 								else
 								{
-									var f = Ppc(new UserPpc(GetString(a.Arguments[3].Name)));
+									var f = Ppc(new UserPpc(GetString(@for)));
 	
 									return	new DomainRegistration
 											{
-												Address	= First,
-												Policy	= GetEnum(a.Arguments[1].Name, DomainChildPolicy.FullOwnership),
-												Years	= byte.Parse(GetString(a.Arguments[2].Name)),
+												Address	= Address,
+												Policy	= GetEnum(Policy.Name, DomainChildPolicy.FullOwnership),
+												Years	= byte.Parse(GetString(Years.Name)),
 												Owner	= f.User.Id
 											};
 								}
@@ -99,14 +105,13 @@ public class DomainCommand : RdnCommand
 		return a;
 	}
 
-	public CommandAction Update_Policy()
+	public CommandAction UpdatePolicy_UP()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "up";
 		a.Description = "Changes current policy of subdomain";
 		a.Arguments =	[
-							new (null, SDA, "An address of a subdomain to change policy for", ArgumentFlag.First),
+							AddressOrId(RDN, "domain to change policy for"),
 							Policy,
 							Eligible
 						];
@@ -114,35 +119,33 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var d = Ppc(new DomainPpc(First)).Domain;
-
-								return new DomainPolicyUpdation {Id		= d.Id,
-																 Policy	= GetEnum(a.Arguments[1].Name, DomainChildPolicy.FullOwnership)};
+								return new DomainPolicyUpdation {Id		= Id(AddressKeyword),
+																 Policy	= GetEnum(Policy.Name, DomainChildPolicy.FullOwnership)};
 							};
 		return a;
 	}
 
-	public CommandAction Security()
+	public CommandAction Security_S()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "s";
+		const string owner = nameof(owner);
+
 		a.Description = "Manages security for the specified domain";
 		a.Arguments =	[
-							new (null, DA, "Address of a domain to transfer", ArgumentFlag.First),
-							new ("owner", NAME, "A name of a new owner"),
+							AddressOrId(DA, "domain to manage security of"),
+							new (owner, NAME, "Name of the new owner"),
 							Eligible
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var d = Ppc(new DomainPpc(First)).Domain;
-								var to = Ppc(new UserPpc(GetString(a.Arguments[1].Name))).User;
+								var to = Ppc(new UserPpc(GetString(owner))).User;
 
 								return new DomainTransfer
 										{
-											Id		= d.Id,
+											Id		= Id(AddressKeyword),
 											Owner	= to.Id
 										};
 							};
@@ -150,20 +153,19 @@ public class DomainCommand : RdnCommand
 		return a;
 	}
 
-	public CommandAction Entity()
+	public CommandAction Entity_E()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "e";
 		a.Description = "Get domain entity information from MCV database";
 		a.Arguments =	[
-							new (null, DA, "An address of a domain to get information about", ArgumentFlag.First)
+							AddressOrId(DA, "domain to get information about"),
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new DomainPpc(First));
+								var rp = Ppc(new DomainPpc(Id(AddressKeyword)));
 
 								Flow.Log.Dump(rp.Domain);
 					

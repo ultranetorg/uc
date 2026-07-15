@@ -7,7 +7,6 @@ public class Snq : IBinarySerializable, IEquatable<Snq>  /// Scheme Net Path
 	public string		Net { get; set; }
 	public string		Query { get; set; }
 
-	const string		Postfix = $".{Iccn.Root}";
 	//public bool Valid => !string.IsNullOrWhiteSpace(Scheme) && !string.IsNullOrWhiteSpace(Entity);
 
 	public Snq()
@@ -32,8 +31,8 @@ public class Snq : IBinarySerializable, IEquatable<Snq>  /// Scheme Net Path
 		if(address == Iccn.Root || address == null || address == string.Empty)
 			return Iccn.Root;
 
- 		if(!address.EndsWith(Postfix))
-			return $"{address}{Postfix}";
+ 		if(!address.EndsWith(Uccs.Net.Net.Postfix))
+			return $"{address}{Uccs.Net.Net.Postfix}";
 
 		return address;
 	}
@@ -92,7 +91,7 @@ public class Snq : IBinarySerializable, IEquatable<Snq>  /// Scheme Net Path
 
 	public bool Equals(Snq o)
 	{
-		return o is not null && Scheme == o.Scheme && NetsEqual(Net, o.Net) && Query == o.Query;
+		return o is not null && Scheme == o.Scheme && Uccs.Net.Net.Equal(Net, o.Net) && Query == o.Query;
 	}
 
 	public override int GetHashCode()
@@ -144,22 +143,5 @@ public class Snq : IBinarySerializable, IEquatable<Snq>  /// Scheme Net Path
 		Scheme	= reader.ReadUtf8();
 		Net		= reader.ReadUtf8();
 		Query	= reader.ReadUtf8();
-	}
-
-	public static bool NetsEqual(string x, string y)
-	{
-		if(x == null || x == string.Empty)
-			x = Iccn.Root;
-
-		if(y == null || y == string.Empty)
-			y = Iccn.Root;
-
-		var i = x.LastIndexOf(Postfix, StringComparison.InvariantCultureIgnoreCase);
-		var j = y.LastIndexOf(Postfix, StringComparison.InvariantCultureIgnoreCase);
-
-		if((i != -1 && i == x.Length - Postfix.Length) || (j != -1 && j == y.Length - Postfix.Length))
-			return string.Compare(x, 0, y, 0, Math.Min(Math.Max(i, j), Math.Min(x.Length, y.Length)), true) == 0;
-		else
-			return string.Compare(x, 0, y, 0, Math.Min(x.Length, y.Length), true) == 0;
 	}
 }

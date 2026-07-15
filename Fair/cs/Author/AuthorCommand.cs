@@ -4,19 +4,31 @@ namespace Uccs.Fair;
 
 public class AuthorCommand : FairCommand
 {
-	AutoId					FirstAuthorId => AutoId.Parse(First);
+	//AutoId					FirstAuthorId => AutoId.Parse(First);
 	public static Argument	Eligible => ByArgument("Name of the user eligible to change Author entity");
+
+	new AutoId Id
+	{
+		get
+		{
+			if(Has(IdKeyword))
+				return GetAutoId(IdKeyword);
+			else if(Has(NameKeyword))
+				return Ppc(new AuthorByNamePpc(GetString(NameKeyword))).Author.Id;
+			else
+				throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+		}
+	}
 
 	public AuthorCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 
 	}
 
-	public CommandAction Create()
+	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "c";
 		a.Description = "Creates a new author for the specified period";
 		a.Arguments =  [new ("years", YEARS, "Number of years in [1..10] range"),
 						new ("title", NAME, "A title of a author being created"),
@@ -30,61 +42,41 @@ public class AuthorCommand : FairCommand
 		return a;
 	}
 	
-	public CommandAction Name()
+	public CommandAction Name_N()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		const string name = "name";
 
-		a.Name = "n";
 		a.Description = "Sets an nickname for the specified author";
-		a.Arguments =	[new (null, EID, "Id of the author to update", ArgumentFlag.First),
-						new (name, NAME, "New name"),
-						Eligible];
+		a.Arguments =  [
+							NameOrId(NAME, "author to set name for"),
+							new (name, NAME, "New name"),
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return	new AuthorNameChange
 										{
-											Author = FirstAuthorId,
+											Author = Id,
 											Name = GetString(name)
 										}; 
 							};
 		return a;
 	}
 
-	public CommandAction Entity()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "e";
-		a.Description = "Get author entity information from MCV database";
-		a.Arguments =	[new (null, EID, "Id of an author to get information about", ArgumentFlag.First)];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.PpcTimeout);
-				
-								var rp = Ppc(new AuthorPpc(FirstAuthorId));
-
-								Flow.Log.Dump(rp.Author);
-					
-								return rp.Author;
-							};
-		return a;
-	}
-
-	public CommandAction Security()
+	public CommandAction Security_S()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		const string ao = "addowner";
 		const string ro = "removeowner";
 
-		a.Name = "s";
 		a.Description = "Manages ownership of an author. Adds or removes an owner account.";
 		a.Arguments =	[
-							new (null, EID, "Author Id whose owner list will be modified", ArgumentFlag.First),
+							NameOrId(NAME, "author whose owner list will be modified"),
 							new (ao, AA, "User Id to add as an owner"),
 							new (ro, AA, "User Id to remove from owners"),
 							Eligible
@@ -97,11 +89,11 @@ public class AuthorCommand : FairCommand
 								
 								if(Has(ao))
 								{
-									o = new AuthorOwnerAddition {AuthorId = FirstAutoId, Owner = GetAutoId(ao)};
+									o = new AuthorOwnerAddition {AuthorId = Id, Owner = GetAutoId(ao)};
 								}
 								if(Has(ro))
 								{
-									o = new AuthorOwnerRemoval {AuthorId = FirstAutoId, Owner = GetAutoId(ro)};
+									o = new AuthorOwnerRemoval {AuthorId = Id, Owner = GetAutoId(ro)};
 								}
 
 								return o ?? throw new SyntaxException("Unknown parameters");
@@ -109,27 +101,26 @@ public class AuthorCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction Renew()
+	public CommandAction Renew_R()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		const string years = "years";
 
-		a.Name = "r";
 		a.Description = "Prolongs current expiration date of an author for the specified number of years";
-		a.Arguments =  [new (null, EID, "Id of the author to update", ArgumentFlag.First),
+		a.Arguments =  [NameOrId(NAME, "author to update"),
 						new (years, YEARS, "The number of years to renew author for. "),
 						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new AuthorRenewal {AuthorId = FirstAutoId, Years = byte.Parse(GetString(years))};
+								return new AuthorRenewal {AuthorId = Id, Years = byte.Parse(GetString(years))};
 							};
 		return a;
 	}
 		
-	public CommandAction PulisherLimits()
+	public CommandAction PulisherLimits_PL()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
@@ -137,9 +128,8 @@ public class AuthorCommand : FairCommand
 		const string energy = "energy";
 		const string spacetime = "spacetime";
 
-		a.Name = "pl";
 		a.Description = "Sets a utility limits for the specified author of the specfied store";
-		a.Arguments =  [new (null, EID, "Id of a author to update", ArgumentFlag.First),
+		a.Arguments =  [NameOrId(NAME, "author to update"),
 						new (store, EID, "Id of a store where author is the member"),
 						new (energy, INT, "New limit for the energy"),
 						new (spacetime, INT, "New limit for the spacetime"),
@@ -148,47 +138,47 @@ public class AuthorCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new PublisherLimitsUpdation {Author = FirstAutoId, Store = GetAutoId(store), EnergyLimit = GetLong(energy), SpacetimeLimit = GetLong(spacetime)};
+								return new PublisherLimitsUpdation {Author = Id, Store = GetAutoId(store), EnergyLimit = GetLong(energy), SpacetimeLimit = GetLong(spacetime)};
 							};
 		return a;
 	}
 		
-	public CommandAction ModerationReward()
+	public CommandAction ModerationReward_MR()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		const string energy = "energy";
 
-		a.Name = "mr";
 		a.Description = "Sets the moderation reward for the specified author";
-		a.Arguments =  [new (null, EID, "Id of a author to update", ArgumentFlag.First),
+		a.Arguments =  [NameOrId(NAME, "author to update"),
 						new (energy, INT, "Amount of energy for reward"),
 						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new AuthorModerationReward {AuthorId = FirstAutoId, Energy = GetLong(energy)};
+								return new AuthorModerationReward {AuthorId = Id, Energy = GetLong(energy)};
 							};
 		return a;
 	}
 		
-	public CommandAction Verification()
+	public CommandAction Verification_V()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		const string domain = "domain";
 
-		a.Name = "v";
 		a.Description = "Requests the net to check ownership of web domain for the specified author";
-		a.Arguments =  [new (null, EID, "Id of an author to verify", ArgumentFlag.First),
-						new (domain, NAME, "Web domain name"),
-						Eligible];
+		a.Arguments =  [
+							NameOrId(NAME, "author to verify"),
+							new (domain, NAME, "Web domain name"),
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new AuthorVerification {Author = FirstAutoId, Webdomain = GetString(domain)};
+								return new AuthorVerification {Author = Id, Webdomain = GetString(domain)};
 							};
 		return a;
 	}
@@ -199,25 +189,26 @@ public class AuthorCommand : FairCommand
 		
 		const string file = "file";
 
-		a.Name = "avatar";
 		a.Description = "Sets an avatar for the specified author. Only files with correct media type(MIME) are accepted.";
-		a.Arguments =  [new (null, EID, "Id of the author to update", ArgumentFlag.First),
-						new (file, EID, "Id of a file entity"),
-						Eligible];
+		a.Arguments =	[
+							NameOrId(NAME, "author to change avatar of"),
+							new (file, EID, "Id of a file entity"),
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return	new AuthorAvatarChange
 										{
-											Author = FirstAuthorId,
+											Author = Id,
 											File = GetAutoId(file)
 										}; 
 							};
 		return a;
 	}
 
-	public CommandAction Info()
+	public CommandAction Info_i()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
@@ -225,20 +216,21 @@ public class AuthorCommand : FairCommand
 		const string d = "description";
 		const string r = "ref";
 
-		a.Name = "i";
 		a.Description = "Changes various author descriptive properties";
-		a.Arguments =  [new (null, EID, "Id of the author to update", ArgumentFlag.First),
-						new (t, TEXT, "New title"),
-						new (d, TEXT,  "New description"),
-						new (r, HYPERLINK, "Zero or more Uri references with a description"),
-						Eligible];
+		a.Arguments =	[
+							NameOrId(NAME, "author to update"),
+							new (t, TEXT, "New title"),
+							new (d, TEXT,  "New description"),
+							new (r, HYPERLINK, "Zero or more Uri references with a description"),
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								var o = new AuthorInfoUpdation();
 
-								o.Author = FirstAuthorId;
+								o.Author = Id;
 								o.Changes = [];
 
 								foreach(var i in Args)
@@ -255,4 +247,31 @@ public class AuthorCommand : FairCommand
 							};
 		return a;
 	}
+
+	public CommandAction Entity_E()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Get author entity information from MCV database";
+		a.Arguments =	[NameOrId(NAME, "author to get information about")];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
+				
+								Author e;
+
+								if(Has(IdKeyword))
+									e = Ppc(new AuthorPpc(Id)).Author;
+								else if(Has(NameKeyword))
+									e = Ppc(new AuthorByNamePpc(Name)).Author;
+								else
+									throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+
+								Flow.Log.Dump(e);
+								
+								return e;
+							};
+		return a;
+	}
+
 }

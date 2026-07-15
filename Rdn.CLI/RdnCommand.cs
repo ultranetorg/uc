@@ -3,7 +3,7 @@
 public abstract class RdnCommand : McvCommand
 {
 	public static readonly ArgumentType DA		= new ("DA",	"Domain address, a text of [a...z],[0...9] and \"_\" symbols",					["company", "application.company", "x_y_z.application.company"]);
-	public static readonly ArgumentType RDA		= new ("RDA",	"Root domain address",															["ultranetorg", "company", "a123"]);
+	public static readonly ArgumentType RDN		= new ("RDA",	"Root domain name",																["ultranetorg", "company", "a123"]);
 	public static readonly ArgumentType SDA		= new ("SDA",	"Subdomain address",															["application.company", "x_y_z.application.company"]);
 	public static readonly ArgumentType DCP		= new ("DCP",	"Domain child policy",															Enum.GetNames<DomainChildPolicy>().Where(i => i != DomainChildPolicy.None.ToString()).ToArray());
 	public static readonly ArgumentType RA		= new ("RA",	$"Resource address including domain",											[@"/company/application", "rdn/author/product"]);
@@ -12,12 +12,24 @@ public abstract class RdnCommand : McvCommand
 	public static readonly ArgumentType LT		= new ("RLT",	"Resource link type",															Enum.GetNames<ResourceLinkType>().Where(i => i != ResourceLinkType.None.ToString()).ToArray());
 	public static readonly ArgumentType SNN		= new ("SNN",	"Subnet name",																	["fair"]);
 
-	protected RdnCli			Program;
+	new protected RdnCli				Cli => base.Cli as RdnCli;
 
-	protected RdnCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
+	protected AutoId ResourceId
 	{
-		Program = program;
-	
+		get
+		{
+			if(Has(IdKeyword))
+				return GetAutoId(IdKeyword);
+			else if(Has(AddressKeyword))
+				 return Ppc(new ResourceByAddressPpc(Ura.Parse(Address))).Resource.Id;
+			else
+				throw new SyntaxException("Neither 'id' nor 'name' arguments provided");
+
+		}
+	}
+
+	protected RdnCommand(RdnCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
+	{
 		Flow.Log?.TypesForExpanding.AddRange([typeof(IEnumerable<AnalyzerReport>), 
 											  typeof(Resource)]);
 	}

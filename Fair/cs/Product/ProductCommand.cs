@@ -5,90 +5,93 @@ namespace Uccs.Fair;
 
 public class ProductCommand : FairCommand
 {
-	new AutoId		First => AutoId.Parse(base.First);
 	Argument		Eligible => ByArgument("Name of the user eligible to change the product");
 
 	public ProductCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
 
-	public CommandAction Create()
+	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string author = nameof(author);
 		const string type = nameof(type);
 
-		a.Name = "c";
 		a.Description = "Creates a product entity under the specified author";
-		a.Arguments =  [new (null, EID, "Author Id to create the product under", ArgumentFlag.First),
-						new (type, PRODUCTTYPE, "A type of product"),
-						Eligible];
+		a.Arguments =	[
+							new (author, EID, "Author Id to create the product under", ArgumentFlag.First),
+							new (type, PRODUCTTYPE, "A type of product"),
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new ProductCreation {Type = GetEnum<ProductType>(type), Author = AutoId.Parse(Args[0].Name)};
+								return new ProductCreation {Author = AutoId.Parse(GetString(author)), Type = GetEnum<ProductType>(type)};
 							};
 		return a;
 	}
 		
-	public CommandAction Destroy()
+	public CommandAction Destroy_X()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "x";
 		a.Description = "Destroys existing product and all its associated data";
-		a.Arguments =  [new (null, EID, "Id of the product to delete", ArgumentFlag.First),
-						Eligible];
+		a.Arguments =	[
+							IdArgument("product to delete"),
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new ProductDeletion {Product = First};
+								return new ProductDeletion {Product = Id};
 							};
 		return a;
 	}
 
-	public CommandAction Update()
+	public CommandAction Update_U()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		const string definition = nameof(definition);
 
-		a.Name = "u";
 		a.Description = "Updates a product properties";
-		a.Arguments =  [new (null, EID, "Id of a product to update", ArgumentFlag.First),
-						new (definition, TEXT, "Product definition"),
-						Eligible];
+		a.Arguments =	[
+							IdArgument("product to update"),
+							new (definition, TEXT, "Product definition"),
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var o =	new ProductUpdation(First);
+								var	r = Ppc(new ProductPpc(Id)).Product;
 
-								var	r = Ppc(new ProductPpc(First)).Product;
+								var o =	new ProductUpdation(Id);
 
-								if(Has(definition))
-									o.Fields = Product.ParseDefinition(Product.FindDeclaration(r.Type), GetString(definition));
+								o.Fields = Product.ParseDefinition(Product.FindDeclaration(r.Type), GetString(definition));
 
 								return o;
 							};
 		return a;
 	}
 
-	public CommandAction Entity()
+	public CommandAction Entity_E()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "e";
 		a.Description = "Gets information about product specified";
-		a.Arguments =  [new (null, EID, "Id of a product to get information about", ArgumentFlag.First), 
-						Eligible];
+		a.Arguments =	[
+							IdArgument("product to get information about"), 
+							Eligible
+						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var	r = Ppc(new ProductPpc(First)).Product;
+								var	r = Ppc(new ProductPpc(Id)).Product;
 				
 								Flow.Log.Dump(r);
 

@@ -6,23 +6,17 @@ namespace Uccs.Net;
 
 public abstract class McvCommand : NetCommand
 {
-	public const string						AORArg = "aor";
-	public const string						ByArg = "by";
-	public const string						BoostArg = "boost";
-	public virtual string[]					TransactionArguments => [AORArg, ByArg, BoostArg];
-
 	public Action							Transacted;
 	protected McvCli						Cli;
 
 	public static readonly ArgumentType		YEARS	= new ("YEARS",	@"Number of years, in [1..10] range",	["5"]);
 	public static readonly ArgumentType		ET		= new ("ET",	@"Entity Type",							[McvTable.User, McvTable.Subnet]);
-	public static readonly ArgumentType		EID		= new ("EID",	@"Entity Id",							[new AutoId(1111, 22), new AutoId(12345,6789), new AutoId(987, 6543321)]);
 	public static readonly ArgumentType		EA		= new ("EA",	@"Entity address as {TableName}/{EID}",	[EntityAddress.Format(McvTable.User, new AutoId(1111, 22)), 
 																											 EntityAddress.Format(McvTable.User, new AutoId(333, 444444)), 
 																											 EntityAddress.Format(McvTable.User, new AutoId(1234567, 890))]);
 	public static readonly ArgumentType		BOOL	= new ("BOOL",	@"Yes or No",							["yes, no"]);
 
-	public static Argument					ByArgument(string description = "Name of the user") => new (ByArg, NAME, description);
+	public static Argument					ByArgument(string description = "Name of the user") => new (ByKeyword, NAME, description);
 
 	protected McvCommand(McvCli cli, List<Xon> args, Flow flow) : base(args, flow)
 	{
@@ -65,7 +59,7 @@ public abstract class McvCommand : NetCommand
 
 	public static ActionOnResult GetActionOnResult(IEnumerable<Xon> args)
 	{
-		var a = args.FirstOrDefault(i => i.Name == AORArg);
+		var a = args.FirstOrDefault(i => i.Name == AORKeyword);
 
 		if(a != null)
 		{

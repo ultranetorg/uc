@@ -4,6 +4,19 @@ namespace Uccs.Net;
 
 public class UserCommand : McvCommand
 {
+	new protected AutoId Id
+	{
+		get
+		{
+			if(Has(IdKeyword))
+				return GetAutoId(IdKeyword);
+			else if(Has(NameKeyword))
+				return Ppc(new UserPpc(Name)).User.Id;
+			else
+				throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+		}
+	}
+
 	public UserCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
@@ -28,13 +41,12 @@ public class UserCommand : McvCommand
 	//	return a;
 	//}
 
-	public CommandAction Create()
+	public CommandAction Create_C()
 	{
 		const string owner = nameof(owner);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "c";
 		a.Description = "Creates a new user for free. Uses POW.";
 		a.Arguments =	[
 							new (owner, AA, "Account address that has access to the user being created"),
@@ -49,13 +61,12 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
-	public CommandAction Name()
+	public CommandAction Name_N()
 	{
 		const string name = nameof(name);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "n";
 		a.Description = "Sets a new name for the user";
 		a.Arguments	  =	[
 							new (name, NAME, "New user name"),
@@ -70,13 +81,12 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
-	public CommandAction Security()
+	public CommandAction Security_S()
 	{
 		const string owner = nameof(owner);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "s";
 		a.Description = "Manages the security settings for the specified user";
 		a.Arguments =	[
 							new (owner, AA, "Public address of the new account owner"),
@@ -91,14 +101,13 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
-	public CommandAction AllocateBandwidth()
+	public CommandAction AllocateBandwidth_AB()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		const string bandwidth = nameof(bandwidth);
 		const string months = nameof(months);
 
-		a.Name = "ab";
 		a.Description = "Allocates execution bandwidth";
 		a.Arguments =	[
 							new (bandwidth,	EC, "Amount of energy allocated per hour"),
@@ -115,24 +124,28 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
-	public virtual CommandAction Entity()
+	public virtual CommandAction Entity_E()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		const string name = nameof(name);
-
-		a.Name = "e";
 		a.Description = "Gets information about the specified user";
-		a.Arguments = [new (name, NAME, "Name of the user to get information about")];
+		a.Arguments = [NameOrId(NAME, "user to get information about")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								var i = Ppc(new UserPpc(GetString(name)));
-												
-								Flow.Log.Dump(i.User);
+								User u;
 
-								return i.User;
+								if(Has(IdKeyword))
+									u = Ppc(new UserPpc(Id)).User;
+								else if(Has(NameKeyword))
+									u = Ppc(new UserPpc(Name)).User;
+								else
+									throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+
+								Flow.Log.Dump(u);
+
+								return u;
 							};
 		return a;
 	}

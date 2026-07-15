@@ -21,15 +21,15 @@ public static class AddressTests
 
 		foreach(var i in a )
 			foreach(var j in a)
-				Assert.True(Snq.NetsEqual(i, j));
+				Assert.True(Net.Net.Equal(i, j));
 
 		string[] b = [".rdnx", "x.rdn.y"];
 
 		foreach(var i in a )
 			foreach(var j in b)
-				Assert.False(Snq.NetsEqual(i, j));
+				Assert.False(Net.Net.Equal(i, j));
 
-		Assert.True(Snq.NetsEqual("n.rdn", "n"));
+		Assert.True(Net.Net.Equal("n.rdn", "n"));
 
 		void check(string a) => Assert.True(Snq.Parse(a).ToString() == a);
 

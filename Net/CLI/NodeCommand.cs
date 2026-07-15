@@ -13,11 +13,10 @@ public abstract class NodeCommand : McvCommand
 	{
 	}
 
-	public CommandAction Attach()
+	public CommandAction Attach_a()
 	{
 		attach = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		attach.Name = "a";
 		attach.Execute = () =>	{
 									ReportPreambule();
 									ReportNetwork();
@@ -60,11 +59,10 @@ public abstract class NodeCommand : McvCommand
 	}
 
 
-	public CommandAction Send()
+	public CommandAction Send_s()
 	{
 		send = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		send.Name = "s";
 		send.Description = "Send specified command to existing running node";
 		send.Arguments =	[
 								new (null,			URL, "HOST address of node to send a command to", ArgumentFlag.First),
@@ -92,7 +90,6 @@ public abstract class NodeCommand : McvCommand
 	{ 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		a.Name = "peers";
 		a.Execute = () =>	{
 								var r = Api<PeersReportApc.Return>(new PeersReportApc {Limit = int.MaxValue});
 																
@@ -108,11 +105,10 @@ public abstract class NodeCommand : McvCommand
 		return a;
 	}
 
-	public CommandAction Incoming_Transactions()
+	public CommandAction IncomingTransactions_it()
 	{ 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		a.Name = "it";
 		a.Description = "Applicable when node is a member of consensus. Gets current list of transactions that is going to be added to blocks by this node or are waiting for confirmation by the network";
 		a.Execute = () =>	{
 								var r = Api<TransactionApe[]>(new IncomingTransactionsApc{});
@@ -132,11 +128,10 @@ public abstract class NodeCommand : McvCommand
 		return a;
 	}
 
-	public CommandAction Outgoing_Transactions()
+	public CommandAction OutgoingTransactions_ot()
 	{ 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		a.Name = "ot";
 		a.Description = "Gets current list of transactions that are going to be sent to or are waiting for confirmation by the network";
 		a.Execute = () =>	{
 								var r = Api<TransactionApe[]>(new OutgoingTransactionsApc{});
@@ -177,11 +172,10 @@ public abstract class NodeCommand : McvCommand
 	//	return a;
 	//}
 	
-	public CommandAction Membership()
+	public CommandAction Membership_m()
 	{ 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		a.Name = "m";
 		a.Description = "Get information about membership status of specified user";
 		a.Arguments =	[
 							new (null, EID, "An Id of the user to check membership status of", ArgumentFlag.First)

@@ -31,6 +31,7 @@ internal class RunCommand : NexusCommand
 								Cli.InteractOrWait(b.Profile, this, a, Cli.Nexus.Flow);
 
 								Cli.Nexus.Stop();
+
 								return null;
 							};
 

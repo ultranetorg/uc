@@ -77,18 +77,17 @@ public class CategoryCommand : FairCommand
 	//	return a;
 	//}
 
-	public CommandAction ListPublications()
+	public CommandAction ListPublications_LP()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "lp";
 		a.Description = "Get publications of the specified category";
-		a.Arguments = [new (null, EID, "Id of the category to get publications of", ArgumentFlag.First)];
+		a.Arguments = [IdArgument("category to get publications of")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new CategoryPublicationsPpc(FirstAutoId));
+								var rp = Ppc(new CategoryPublicationsPpc(Id));
 
 								Flow.Log.DumpFixed(	rp.Publications.Select(i => Ppc(new PublicationPpc(i)).Publication), 
 													["Id",		"Product",		"Category"], 
@@ -99,18 +98,17 @@ public class CategoryCommand : FairCommand
 		return a;
 	}
 
-	public CommandAction ListCategories()
+	public CommandAction ListCategories_LC()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "lc";
 		a.Description = "Get subcategories of the specified category";
-		a.Arguments = [new (null, EID, "Id of the category to get subcategories from", ArgumentFlag.First)];
+		a.Arguments = [IdArgument("category to get subcategories from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new CategoryCategoriesPpc(FirstAutoId));
+								var rp = Ppc(new CategoryCategoriesPpc(Id));
 
 								Flow.Log.DumpFixed(	rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category),
 													["Id",		"Title",		"Categories"], 

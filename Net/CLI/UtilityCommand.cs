@@ -8,7 +8,7 @@ public class UtilityCommand : McvCommand
 	{
 	}
 
-	public CommandAction Transfer()
+	public CommandAction Transfer_T()
 	{
 		const string from = nameof(from);
 		const string to = nameof(to);
@@ -17,8 +17,6 @@ public class UtilityCommand : McvCommand
 		const string st = nameof(st);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "t";
 
 		a.Description = "Send utility from one account to another.";
 		a.Arguments =  [new (from,		EA, "Source entity type and id where utility are credited from"),

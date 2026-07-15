@@ -39,12 +39,12 @@ public class McvCli : Cli
 
 			if(c.Has("estimate"))
 			{
-				var rp = c.Api<PretransactingPpr>(new EstimateOperationApc {Operations = ops, User = c.GetString(McvCommand.ByArg)});
+				var rp = c.Api<PretransactingPpr>(new EstimateOperationApc {Operations = ops, User = c.GetString(McvCommand.ByKeyword)});
 				flow.Log.Dump(rp);
 			}
 			else
 			{
-				var t = c.Transact(ApiClient, ops, c.GetString(McvCommand.ByArg), c.GetLong(McvCommand.BoostArg, 0), McvCommand.GetActionOnResult(args));
+				var t = c.Transact(ApiClient, ops, c.GetString(McvCommand.ByKeyword), c.GetLong(McvCommand.BoostKeyword, 0), McvCommand.GetActionOnResult(args));
 
 				c.Transacted?.Invoke();
 			}

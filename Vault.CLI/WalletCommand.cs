@@ -9,11 +9,10 @@ public class WalletCommand : VaultCommand
 	{
 	}
 
-	public CommandAction Create()
+	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "c";
 		a.Description = "Used to create a new account and its wallet.";
 		a.Arguments =	[
 							new ("name", NAME, "An arbitrary name of a newly created wallet"),
@@ -47,13 +46,11 @@ public class WalletCommand : VaultCommand
 		return a;
 	}
 
-	public CommandAction List()
+	public CommandAction List_LW()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "lw";
 		a.Description = "Lists all existing wallets";
-
 		a.Execute = () =>	{
 								var r = Api<WalletsApc.Wallet[]>(new WalletsApc {});
 
@@ -64,11 +61,9 @@ public class WalletCommand : VaultCommand
 		return a;
 	}
 
-	public CommandAction Unlock()
+	public CommandAction Unlock_U()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "u";
 
 		a.Description = "Unlocks an existing wallet making it available for signing transactions";
 		a.Arguments =	[
@@ -84,11 +79,9 @@ public class WalletCommand : VaultCommand
 		return a;
 	}
 
-	public CommandAction Lock()
+	public CommandAction Lock_L()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Name = "l";
 
 		a.Description = "Locks an existing wallet";
 		a.Arguments =	[new ("name", NAME, "Name of wallet", ArgumentFlag.Optional)];
@@ -100,11 +93,10 @@ public class WalletCommand : VaultCommand
 		return a;
 	}
 
-	public CommandAction AddAccount()
+	public CommandAction AddAccount_AA()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "aa";
 		a.Description = "Creates a new or import existing account to a wallet";
 		a.Arguments =  [new ("wallet", NAME, "A name of a wallet to add the account to", ArgumentFlag.Optional),
 						new ("name", NAME, "A name of account", ArgumentFlag.Optional),
@@ -123,13 +115,12 @@ public class WalletCommand : VaultCommand
 		return a;
 	}
 
-	public CommandAction Import()
+	public CommandAction Import_I()
 	{
 		var p = "path";
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Name = "i";
 		a.Description = "Imports existing wallet using file store";
 		a.Arguments =	[
 							new ("name", NAME, "Name of wallet", ArgumentFlag.Optional),
