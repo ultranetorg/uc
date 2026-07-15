@@ -123,10 +123,8 @@ public class ArgumentType
 [Flags]
 public enum ArgumentFlag
 {
-	First = 1,
-	Second = 2,
-	Optional = 4,
-	Multi = 8,
+	Optional = 1,
+	Multi = 2,
 }
 
 public class Argument
@@ -214,9 +212,9 @@ public abstract class Command
 
 	public CommandAction GetDefaultAction()
 	{ 
-		var c = GetType().GetMethods().FirstOrDefault(i => i.ReturnParameter.ParameterType == typeof(CommandAction) && i.Name != nameof(GetAction) && i.Name != nameof(GetDefaultAction));
+		var c = GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(CommandAction) && i.Name != nameof(GetAction) && i.Name != nameof(GetDefaultAction));
 
-		return c?.Invoke(this, null) as CommandAction;
+		return c.Count() == 1 ? c.First().Invoke(this, null) as CommandAction : null;
 	}
 
 	public Xon One(string path)

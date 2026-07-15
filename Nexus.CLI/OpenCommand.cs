@@ -15,7 +15,7 @@ public class OpenCommand : NexusCommand
 
 		a.Description = "Handles entity by the corresponding net client software. Runs a new instance of the client or uses existing. Downloads default client if necessary. Default nodes are retrieved from the parent network.";
 		a.Arguments =	[
-							new (null, SNQ, "Address to open", ArgumentFlag.First),
+							new (null, SNQ, "Address to open"),
 						];
 
 		a.Execute = () =>	{

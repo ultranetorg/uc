@@ -20,7 +20,7 @@ public class ProductCommand : FairCommand
 
 		a.Description = "Creates a product entity under the specified author";
 		a.Arguments =	[
-							new (author, EID, "Author Id to create the product under", ArgumentFlag.First),
+							new (author, EID, "Author Id to create the product under"),
 							new (type, PRODUCTTYPE, "A type of product"),
 							Eligible
 						];

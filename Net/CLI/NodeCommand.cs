@@ -51,7 +51,7 @@ public abstract class NodeCommand : McvCommand
 
 		attach.Description = "Connects to existing node instance via JSON RPC protocol";
 		attach.Arguments =	[
-								new (null, URL, "URL address of node to connect to", ArgumentFlag.First),
+								new (AddressKeyword, URL, "URL address of node to connect to"),
 								new (Apc.AccessKey, PASSWORD, "API access key")
 							];
 
@@ -65,7 +65,7 @@ public abstract class NodeCommand : McvCommand
 
 		send.Description = "Send specified command to existing running node";
 		send.Arguments =	[
-								new (null,			URL, "HOST address of node to send a command to", ArgumentFlag.First),
+								new (AddressKeyword,URL, "HOST address of node to send a command to"),
 								new (Apc.AccessKey, PASSWORD, "API access key", ArgumentFlag.Optional),
 								new ("command",		COMMAND, "A command to send for execution")
 							];
@@ -171,32 +171,5 @@ public abstract class NodeCommand : McvCommand
 	//						};
 	//	return a;
 	//}
-	
-	public CommandAction Membership_m()
-	{ 
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-		
-		a.Description = "Get information about membership status of specified user";
-		a.Arguments =	[
-							new (null, EID, "An Id of the user to check membership status of", ArgumentFlag.First)
-						];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.PpcTimeout);
-
-								var rp = Ppc(new MembersPpc());
-	
-								var m = rp.Members.FirstOrDefault(i => i.User == AutoId.Parse(First));
-
-								if(m == null)
-									throw new EntityException(EntityError.NotFound);
-
-								Flow.Log.Dump(m);
-
-								return m;
-							};
-
-		return a;
-	}
 }
 

@@ -123,6 +123,34 @@ public class UserCommand : McvCommand
 
 		return a;
 	}
+	
+	public CommandAction Membership_M()
+	{ 
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+		
+		a.Description = "Get information about membership status of specified user";
+		a.Arguments =	[
+							NameOrId(NAME, "user to check membership status of")
+						];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
+
+								var rp = Ppc(new MembersPpc());
+	
+								var id = Id;
+
+								var m = rp.Members.FirstOrDefault(i => i.User == id)
+										??
+										throw new EntityException(EntityError.NotFound);
+
+								Flow.Log.Dump(m);
+
+								return m;
+							};
+
+		return a;
+	}
 
 	public virtual CommandAction Entity_E()
 	{

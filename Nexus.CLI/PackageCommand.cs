@@ -110,7 +110,7 @@ public class PackageCommand : NexusCommand
 
 		a.Description = "Downloads a package from the specified address";
 		a.Arguments =	[
-							new (AddressKeyword, PA, "Resource address of the package to download", ArgumentFlag.First)
+							new (AddressKeyword, PA, "Resource address of the package to download")
 						];
 
 		a.Execute = () =>	{
@@ -155,7 +155,7 @@ public class PackageCommand : NexusCommand
 
 		a.Description = "If needed, downloads the specified package and its dependencies recursively and deploys its content to the default or specified directory";
 		a.Arguments =	[
-							new (AddressKeyword, PA, "Resource address of the package to install", ArgumentFlag.First),
+							new (AddressKeyword, PA, "Resource address of the package to install"),
 							new (to, DIRPATH, "Destination path for all package contents", ArgumentFlag.Optional)
 						];
 
