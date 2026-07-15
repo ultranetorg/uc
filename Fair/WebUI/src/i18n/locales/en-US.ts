@@ -148,8 +148,13 @@ export const enUS = {
   currentAccount: {
     addUser: "Add user",
     authenticate: "Authenticate Yourself",
+    changeAvatar: "Change Avatar",
     createNickname: "Create nickname",
+    deleteAvatar: "Delete Avatar",
+    deleteAvatarModalTitle: "Delete User Avatar",
+    deleteAvatarModalText: "Are you sure you want to delete avatar?",
     profile: "Profile",
+    setAvatar: "Set Avatar",
     switchUsers: "Switch Users",
   },
   pageBanner: {
@@ -197,6 +202,8 @@ export const enUS = {
     },
   },
   toast: {
+    avatarDeleted: "Avatar successfully deleted",
+    avatarUploaded: "Avatar successfully uploaded",
     commentAdded: "Comment successfully added",
     favoriteAdded: `Site "{{site}}" added to favorites`,
     favoriteRemoved: `Site "{{site}}" removed from favorites`,

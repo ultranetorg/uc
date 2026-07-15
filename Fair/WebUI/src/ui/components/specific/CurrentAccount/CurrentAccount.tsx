@@ -1,11 +1,14 @@
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useAuthenticationContext, useSignInContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveSiteId, useScrollOrResize, useSubmenu } from "hooks"
-import { routes } from "utils"
+import { UserAvatarChange } from "types"
+import { FileUpload, FileUploadHandle, TextModal } from "ui/components"
+import { fileToBase64, routes, showToast } from "utils"
 
 import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
 import { CurrentAccountButton } from "./components"
@@ -18,14 +21,19 @@ export const CurrentAccount = () => {
   const navigate = useNavigate()
   const siteId = useResolveSiteId()
   const { t } = useTranslation("currentAccount")
+  const { mutate } = useTransactMutationWithStatus()
 
+  const fileUploadRef = useRef<FileUploadHandle>(null)
   const profileMenu = useSubmenu({ placement: "top-start" })
   const accountsMenu = useSubmenu({ placement: "right-end" })
   useScrollOrResize(() => profileMenu.setOpen(false))
 
-  const { user } = useUserContext()
+  const { user, refetch } = useUserContext()
   const { selectedUserName, users, removeUser, selectUser } = useAuthenticationContext()
   const { startSignIn, openSignInModal } = useSignInContext()
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [avatarVersion, setAvatarVersion] = useState(0)
 
   const userItems = useMemo(
     () =>
@@ -35,6 +43,53 @@ export const CurrentAccount = () => {
       })),
     [users],
   )
+
+  const handleUpload = useCallback(
+    async (file: File) => {
+      const data = await fileToBase64(file)
+      const operation = new UserAvatarChange(data)
+      mutate(operation, {
+        onSuccess: () => {
+          showToast(t("toast:avatarUploaded"), "success")
+          setAvatarVersion(v => v + 1)
+          refetch()
+        },
+        onError: err => {
+          showToast(err.toString(), "error")
+        },
+      })
+    },
+    [mutate, refetch, t],
+  )
+
+  const handleDeleteModalConfirm = useCallback(() => {
+    const operation = new UserAvatarChange(null)
+    mutate(operation, {
+      onSuccess: () => {
+        showToast(t("toast:avatarRemoved"), "success")
+        setAvatarVersion(v => v + 1)
+        refetch()
+      },
+      onError: err => {
+        showToast(err.toString(), "error")
+      },
+      onSettled: () => setDeleteModalOpen(false),
+    })
+  }, [mutate, refetch, t])
+
+  const handleDeleteModalClose = useCallback(() => setDeleteModalOpen(false), [])
+
+  const handleAvatarChange = useCallback(() => {
+    fileUploadRef.current?.show()
+    accountsMenu.setOpen(false)
+    profileMenu.setOpen(false)
+  }, [accountsMenu, profileMenu])
+
+  const handleAvatarDelete = useCallback(() => {
+    setDeleteModalOpen(true)
+    accountsMenu.setOpen(false)
+    profileMenu.setOpen(false)
+  }, [accountsMenu, profileMenu])
 
   const handleAuthenticate = useCallback(() => startSignIn("user"), [startSignIn])
 
@@ -72,11 +127,23 @@ export const CurrentAccount = () => {
     () => ({
       items: userItems,
       selectedUserName,
+      avatarVersion,
+      onAvatarChange: handleAvatarChange,
+      onAvatarDelete: handleAvatarDelete,
       onAdd: handleAccountAdd,
       onRemove: handleUserRemove,
       onSelect: handleUserSelect,
     }),
-    [userItems, handleAccountAdd, handleUserRemove, handleUserSelect, selectedUserName],
+    [
+      userItems,
+      selectedUserName,
+      avatarVersion,
+      handleAvatarChange,
+      handleAvatarDelete,
+      handleAccountAdd,
+      handleUserRemove,
+      handleUserSelect,
+    ],
   )
 
   return (
@@ -103,17 +170,19 @@ export const CurrentAccount = () => {
           nickname={user.name}
           id={user.id}
           address={user.owner}
+          avatarVersion={avatarVersion}
           ref={profileMenu.refs.setReference}
           {...profileMenu.getReferenceProps()}
         />
       )}
-      {profileMenu.isOpen && (
+      {user && profileMenu.isOpen && (
         <ProfileMenu
           customParentId={profileMenu.nodeId!}
           ref={profileMenu.refs.setFloating}
           style={profileMenu.floatingStyles}
           nickname={user!.name}
           address={user!.owner!}
+          hasAvatar={user!.hasAvatar}
           onNicknameCreate={handleNicknameCreate}
           {...userSwitcherProps}
           {...profileMenu.getFloatingProps()}
@@ -127,6 +196,18 @@ export const CurrentAccount = () => {
           {...accountsMenu.getFloatingProps()}
         />
       )}
+      {deleteModalOpen && (
+        <TextModal
+          title={t("deleteAvatarModalTitle")}
+          text={t("deleteAvatarModalText")}
+          onClose={handleDeleteModalClose}
+          onCancel={handleDeleteModalClose}
+          onConfirm={handleDeleteModalConfirm}
+          cancelLabel={t("common:cancel")}
+          confirmLabel={t("common:delete")}
+        />
+      )}
+      <FileUpload ref={fileUploadRef} onUpload={handleUpload} />
     </>
   )
 }

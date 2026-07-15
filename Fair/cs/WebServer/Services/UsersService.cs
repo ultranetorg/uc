@@ -95,7 +95,8 @@ public class UsersService
 			Name = account.Name,
 			Owner = account.Owner.ToString(),
 			AuthorsIds = account.Authors.Select(id => id.ToString()),
-			FavoriteSites = account.FavoriteStores.Length > 0 ? LoadAccountSites(account.FavoriteStores) : []
+			FavoriteSites = account.FavoriteStores.Length > 0 ? LoadAccountSites(account.FavoriteStores) : [],
+			HasAvatar = account.Avatar != null
 		};
 	}
 
