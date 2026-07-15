@@ -15,7 +15,7 @@ public class UserAvatarChange : FairOperation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return File.GetImageFormat(Image) != FairMime.None;
+		return Image == null || File.GetImageFormat(Image) != FairMime.None;
 	}
 
 	public override void Read(Reader reader)

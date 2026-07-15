@@ -7,4 +7,5 @@ export type FairOperationType =
   | "ProposalCreation"
   | "ProposalCommentCreation"
   | "ProposalVoting"
+  | "UserAvatarChange"
   | "UserCreation"

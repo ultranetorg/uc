@@ -12,6 +12,7 @@ export type AccountSwitcherItem = Omit<AccountBase, "id">
 export interface AccountSwitcherBaseProps {
   selectedUserName?: string
   items: AccountSwitcherItem[]
+  avatarVersion?: number
   onAdd: () => void
   onRemove: (userName: string) => void
   onSelect: (userName: string) => void
@@ -21,7 +22,7 @@ export type AccountSwitcherProps = PropsWithStyle & AccountSwitcherBaseProps
 
 export const AccountSwitcher = memo(
   forwardRef<HTMLDivElement, AccountSwitcherProps>(
-    ({ style, selectedUserName, items, onAdd, onRemove, onSelect }: AccountSwitcherProps, ref) => {
+    ({ style, selectedUserName, items, avatarVersion, onAdd, onRemove, onSelect }: AccountSwitcherProps, ref) => {
       const { t } = useTranslation("currentAccount")
 
       return (
@@ -36,6 +37,7 @@ export const AccountSwitcher = memo(
                 key={x.nickname}
                 addressShort={shortenAddress(x.address)}
                 selected={x.nickname === selectedUserName}
+                avatarVersion={x.nickname === selectedUserName ? avatarVersion : undefined}
                 onSelect={() => onSelect(x.nickname)}
                 onRemove={() => onRemove(x.nickname)}
                 {...x}

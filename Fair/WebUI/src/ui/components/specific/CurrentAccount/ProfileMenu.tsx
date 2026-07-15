@@ -1,7 +1,7 @@
 import { forwardRef, memo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SvgChevronRight, SvgPencilSm, SvgPerson2 } from "assets"
+import { SvgChevronRight, SvgPencilSm, SvgPerson2, SvgPersonSquare } from "assets"
 import avatarFallback from "assets/fallback/user-22.5.png"
 import { useSubmenu } from "hooks"
 import { AccountBaseAvatar, PropsWithStyle } from "types"
@@ -11,19 +11,24 @@ import { buildUserAvatarByNameUrl } from "utils"
 import pngBackground from "./background.png"
 import { AccountSwitcher, AccountSwitcherBaseProps } from "./AccountSwitcher"
 import { ProfileButton } from "./ProfileButton"
+import { AvatarMenu } from "./AvatarMenu"
 
 type ProfileMenuBaseProps = {
   customParentId: string
+  hasAvatar: boolean
   onNicknameCreate: () => void
+  onAvatarChange: () => void
+  onAvatarDelete: () => void
 } & AccountSwitcherBaseProps
 
 export type ProfileMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id"> & ProfileMenuBaseProps
 
 export const ProfileMenu = memo(
   forwardRef<HTMLDivElement, ProfileMenuProps>(
-    ({ customParentId, style, selectedUserName, address, ...userSwitcherProps }, ref) => {
+    ({ customParentId, hasAvatar, style, selectedUserName, address, ...userSwitcherProps }, ref) => {
       const { t } = useTranslation("currentAccount")
 
+      const avatarMenu = useSubmenu({ placement: "right-end", customParentId })
       const accountMenu = useSubmenu({ placement: "right-end", customParentId })
 
       return (
@@ -43,7 +48,10 @@ export const ProfileMenu = memo(
                 className="absolute bottom-[4px] left-[24px] size-[90px] overflow-hidden rounded-full"
                 title={selectedUserName}
               >
-                <ImageFallback src={buildUserAvatarByNameUrl(selectedUserName!)} fallbackSrc={avatarFallback} />
+                <ImageFallback
+                  src={`${buildUserAvatarByNameUrl(selectedUserName!)}?v=${userSwitcherProps.avatarVersion ?? 0}`}
+                  fallbackSrc={avatarFallback}
+                />
               </div>
             </div>
             <div className="flex flex-col gap-2 px-6 py-2">
@@ -70,6 +78,22 @@ export const ProfileMenu = memo(
               {/* <LinkFullscreen to={`/p/${address}`}>
                 <ProfileButton iconBefore={<SvgPersonSquare className="fill-gray-800" />} label={t("profile")} />
               </LinkFullscreen> */}
+              {!hasAvatar ? (
+                <ProfileButton
+                  label={t("setAvatar")}
+                  iconBefore={<SvgPersonSquare className="fill-gray-800" />}
+                  onClick={userSwitcherProps.onAvatarChange}
+                />
+              ) : (
+                <ProfileButton
+                  label={t("changeAvatar")}
+                  iconBefore={<SvgPersonSquare className="fill-gray-800" />}
+                  iconAfter={<SvgChevronRight className="stroke-gray-800" />}
+                  ref={avatarMenu.refs.setReference}
+                  {...avatarMenu.getReferenceProps()}
+                />
+              )}
+
               <ProfileButton
                 label={t("switchUsers")}
                 iconBefore={<SvgPerson2 className="fill-gray-800" />}
@@ -79,6 +103,17 @@ export const ProfileMenu = memo(
               />
             </div>
           </div>
+          {avatarMenu.isOpen && (
+            <AvatarMenu
+              ref={avatarMenu.refs.setFloating}
+              style={avatarMenu.floatingStyles}
+              t={t}
+              onChange={userSwitcherProps.onAvatarChange}
+              onDelete={userSwitcherProps.onAvatarDelete}
+              {...userSwitcherProps}
+              {...avatarMenu.getFloatingProps()}
+            />
+          )}
           {accountMenu.isOpen && (
             <AccountSwitcher
               ref={accountMenu.refs.setFloating}

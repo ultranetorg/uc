@@ -5,4 +5,6 @@ public class UserDetailsModel : UserModel
 	public IEnumerable<SiteBaseModel> FavoriteSites { get; init; }
 
 	public IEnumerable<string> AuthorsIds { get; init; }
+
+	public bool HasAvatar { get; init; }
 }
