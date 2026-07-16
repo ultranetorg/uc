@@ -11,7 +11,6 @@ import {
 } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
-import { useSiteRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { PropsWithClassName } from "types"
@@ -31,7 +30,6 @@ export type ModeratorPublicationContextMenuProps = PropsWithClassName & Moderato
 
 export const ModeratorPublicationContextMenu = memo(
   ({ className, publicationId, publicationTitle, size = "medium" }: ModeratorPublicationContextMenuProps) => {
-    const { isModerator } = useSiteRolesContext()
     const { menuItems } = useModeratorPublicationMenuItems(publicationId, publicationTitle, true)
 
     const [isExpanded, setExpanded] = useState(false)
@@ -50,10 +48,6 @@ export const ModeratorPublicationContextMenu = memo(
     const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
 
     const handleMenuClick = useCallback(() => setExpanded(false), [])
-
-    if (!isModerator) {
-      return null
-    }
 
     return (
       <>

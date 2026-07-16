@@ -53,6 +53,8 @@ export const ReviewModal = memo(
     const [reviewText, setReviewText] = useState(initialText ?? "")
 
     const handleSubmit = useCallback(() => {
+      if (!creator) return
+
       const options = isEditMode
         ? ([
             {
@@ -71,12 +73,12 @@ export const ReviewModal = memo(
                 $type: "ReviewCreation",
                 Publication: publicationId,
                 Text: reviewText,
-                Rating: rating,
+                Rating: rating * 10,
               } as unknown as BaseVotableOperation,
             },
           ] as ProposalOption[])
 
-      const operation = new ProposalCreation(siteId!, creator!.id, creator!.role, "", options, "")
+      const operation = new ProposalCreation(siteId!, creator.id, creator.role, "", options, "")
       mutate(operation, {
         onSuccess: () => {
           setStep(1)

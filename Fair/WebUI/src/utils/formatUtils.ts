@@ -117,3 +117,5 @@ export const formatRole = (t: TFunction, isPublisher: boolean, isModerator: bool
       : isModerator
         ? t("common:moderator")
         : t("common:user")
+
+export const formatRating = (value: number): string => (value / 10).toFixed(1)
