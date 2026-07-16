@@ -25,7 +25,9 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
     },
   })
 
-  const { data: user } = useGetUserAuthors(userId)
+  const { data: user, error } = useGetUserAuthors(userId)
+  if (error) throw error
+
   const { data: reviews } = useGetUserReviews(user?.id, state.page)
 
   useSiteTitle(user?.name ? `User - ${user?.name}` : undefined)

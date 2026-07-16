@@ -50,7 +50,7 @@ import {
 } from "types"
 
 import { FairApi } from "./FairApi"
-import { buildUrlParams, toTotalItemsResult } from "./utils"
+import { buildUrlParams, fetchApi, toTotalItemsResult } from "./utils"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
@@ -150,8 +150,7 @@ const getUser = async (name: string): Promise<StatusResult<User>> => {
   }
 }
 
-const getUserAuthors = (userId: string): Promise<UserAuthors> =>
-  fetch(`${BASE_URL}/users/${userId}/authors`).then(res => res.json())
+const getUserAuthors = (userId: string): Promise<UserAuthors> => fetchApi(fetch(`${BASE_URL}/users/${userId}/authors`))
 
 const getUserDetails = (name: string): Promise<UserDetails> =>
   fetch(`${BASE_URL}/users/${name}/details`).then(res => res.json())
@@ -169,7 +168,7 @@ const getUserReviews = async (userId: string, page?: number): Promise<TotalItems
 }
 
 const getAuthor = (authorId: string): Promise<AuthorDetails> =>
-  fetch(`${BASE_URL}/authors/${authorId}`).then(res => res.json())
+  fetchApi<AuthorDetails>(fetch(`${BASE_URL}/authors/${authorId}`))
 
 const getAuthorProducts = async (
   authorId: string,
@@ -186,7 +185,7 @@ const getCategoriesRoot = (siteId: string): Promise<CategoryBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/categories/root`).then(res => res.json())
 
 const getCategoryDetails = (categoryId: string): Promise<Category> =>
-  fetch(`${BASE_URL}/categories/${categoryId}`).then(res => res.json())
+  fetchApi(fetch(`${BASE_URL}/categories/${categoryId}`))
 
 const getCategoriesTree = (siteId: string, depth?: number): Promise<CategoryParentBase[]> =>
   fetch(`${BASE_URL}/sites/${siteId}/categories/tree` + (depth !== undefined ? `?depth=${depth}` : "")).then(res =>
@@ -197,7 +196,7 @@ const getCategoriesPublications = (siteId: string): Promise<CategoryPublications
   fetch(`${BASE_URL}/sites/${siteId}/categories/publications`).then(res => res.json())
 
 const getPublication = (publicationId: string): Promise<PublicationDetails> =>
-  fetch(`${BASE_URL}/publications/${publicationId}`).then(res => res.json())
+  fetchApi(fetch(`${BASE_URL}/publications/${publicationId}`))
 
 const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
   fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())

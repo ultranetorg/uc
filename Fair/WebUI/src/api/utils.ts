@@ -1,6 +1,8 @@
 import { camelCase, isArray, isObject, mapKeys, upperFirst } from "lodash"
 
-import { TotalItemsResult, PaginationResult } from "types"
+import { ErrorResult, TotalItemsResult, PaginationResult } from "types"
+
+import { ApiError } from "./ApiError"
 
 type ParamsTypes = string | number | undefined
 
@@ -54,6 +56,22 @@ export const toPaginationResult = async <T>(response: Response): Promise<Paginat
     page,
     pageSize,
   }
+}
+
+export const fetchApi = async <T>(request: Promise<Response>): Promise<T> => {
+  let response: Response
+  try {
+    response = await request
+  } catch {
+    throw new ApiError(0, "Network Error")
+  }
+
+  if (!response.ok) {
+    const body: ErrorResult | undefined = await response.json().catch(() => undefined)
+    throw new ApiError(response.status, response.statusText, body)
+  }
+
+  return (await response.json()) as T
 }
 
 export const keysToCamelCase = (obj: object): object =>

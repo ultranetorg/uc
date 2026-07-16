@@ -20,7 +20,8 @@ export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: Publisher
 
   const [isModalOpen, setModalOpen] = useState(false)
 
-  const { isPending, data: author } = useGetAuthor(publisherId)
+  const { isPending, data: author, error } = useGetAuthor(publisherId)
+  if (error) throw error
 
   useSiteTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 

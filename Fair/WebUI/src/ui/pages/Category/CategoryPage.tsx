@@ -27,7 +27,9 @@ export const CategoryPage = () => {
     },
   })
 
-  const { data: category, isPending } = useGetCategoryDetails(categoryId)
+  const { data: category, isPending, error } = useGetCategoryDetails(categoryId)
+  if (error) throw error
+
   const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, state.page)
 
   useSiteTitle(site?.title, category?.title ? `Category - ${category?.title}` : undefined)
