@@ -65,7 +65,7 @@ public class ReviewCreation : VotableOperation
 
 		var p = execution.Publications.Affect(Publication);
 		p.Reviews = [..p.Reviews, v.Id];
-		p.Rating = (byte)((p.Rating + v.Rating)/2);
+		p.Rating = p.Rating != 0 ? (byte)((p.Rating + v.Rating)/2) : v.Rating;
 
 		User.Reviews = [..User.Reviews, v.Id];
 

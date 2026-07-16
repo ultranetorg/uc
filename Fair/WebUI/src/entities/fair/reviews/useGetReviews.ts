@@ -7,11 +7,11 @@ const api = getFairApi()
 export const useGetReviews = (publicationId?: string, page?: number, pageSize?: number) => {
   const queryFn = () => api.getReviews(publicationId!, page, pageSize)
 
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, refetch } = useQuery({
     queryKey: ["publications", publicationId, "reviews", { page, pageSize }],
     queryFn: queryFn,
     enabled: !!publicationId,
   })
 
-  return { isPending, error: error ?? undefined, data }
+  return { isPending, error: error ?? undefined, data, refetch }
 }

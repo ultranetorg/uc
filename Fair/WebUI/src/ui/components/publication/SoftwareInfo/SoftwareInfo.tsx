@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 import { SvgBoxArrowUpRight, SvgStarXxs } from "assets"
 import { DownloadSource, ProductDetails, PublicationDetails } from "types"
 import { DropdownSecondary, LinkFullscreen } from "ui/components"
-import { formatDate, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq, routes } from "utils"
+import { formatDate, formatRating, formatSupportedPlatforms, formatUiLanguages, getValue, nameEq, routes } from "utils"
 
 import { AuthorImageTitle, DownloadLinks } from "./components"
 
@@ -166,7 +166,7 @@ export const SoftwareInfo = memo(
             <div className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}>
               {productOrPublication.rating !== 0 ? (
                 <>
-                  {productOrPublication.rating} <SvgStarXxs className="fill-favorite" />
+                  {formatRating(productOrPublication.rating)} <SvgStarXxs className="fill-favorite" />
                 </>
               ) : (
                 noRatingsLabel

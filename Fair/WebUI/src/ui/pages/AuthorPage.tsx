@@ -22,8 +22,6 @@ export const AuthorPage = () => {
 
   const handleModalClose = useCallback(() => setSelectedProductId(undefined), [])
 
-  console.log(isPending, author, error)
-
   if (isPending || !author) {
     return <div>Loading</div>
   }
