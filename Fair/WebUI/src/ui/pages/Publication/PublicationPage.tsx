@@ -16,17 +16,24 @@ export const PublicationPage = () => {
   const { publicationId } = useParams()
   const siteId = useResolveSiteId()
   const { site } = useSiteContext()
+  console.log(siteId)
 
   const { startSignIn } = useSignInContext()
 
   const [isReviewModalOpen, setReviewModalOpen] = useState(false)
   const [editReview, setEditReview] = useState<{ id: string; text: string } | null>(null)
 
-  const { isPending, data: publication } = useGetPublicationDetails(publicationId)
+  const { isPending, data: publication, error } = useGetPublicationDetails(publicationId)
+  if (error) throw error
+  console.log(error)
 
   useSiteTitle(site?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
 
-  const { isPending: isPendingReviews, data: reviews, error } = useGetReviews(publicationId, 0, DEFAULT_PAGE_SIZE_20)
+  const {
+    isPending: isPendingReviews,
+    data: reviews,
+    error: reviewsError,
+  } = useGetReviews(publicationId, 0, DEFAULT_PAGE_SIZE_20)
 
   const handleEditReview = useCallback((id: string, text: string) => setEditReview({ id, text }), [])
 
@@ -55,7 +62,7 @@ export const PublicationPage = () => {
             isPending={isPending}
             isPendingReviews={isPendingReviews}
             productOrPublication={publication}
-            error={error}
+            error={reviewsError}
             reviews={reviews}
             onLeaveReview={handleLeaveReview}
             onEditReview={handleEditReview}

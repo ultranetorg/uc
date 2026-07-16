@@ -1,3 +1,4 @@
+export * from "./ApiError"
 export * from "./getFairApi"
 export * from "./getIccpNodeApi"
 export * from "./getLocalFairApi"

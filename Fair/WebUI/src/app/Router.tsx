@@ -1,10 +1,11 @@
 import { createBrowserRouter, createHashRouter, Outlet, RouteObject, RouterProvider } from "react-router-dom"
 
 import { BaseLayout } from "ui/layouts"
-import { ErrorPage, IndexPage } from "ui/pages"
+import { IndexPage } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
 import { EntityRoute } from "./EntityRoute"
+import { RouteErrorBoundary } from "./RouteErrorBoundary"
 import { SignInProvider } from "./SignInProvider"
 import { SitePoliciesProvider } from "./SitePoliciesProvider"
 import { SiteProvider } from "./SiteProvider"
@@ -27,13 +28,7 @@ const routes: RouteObject[] = [
         </SignInProvider>
       </AuthenticationProvider>
     ),
-    errorElement: (
-      // <AppLayout>
-      <BaseLayout>
-        <ErrorPage />
-      </BaseLayout>
-      //</AppLayout>
-    ),
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         index: true,
@@ -52,6 +47,7 @@ const routes: RouteObject[] = [
             </SitePoliciesProvider>
           </SiteRolesProvider>
         ),
+        errorElement: <RouteErrorBoundary />,
       },
     ],
   },

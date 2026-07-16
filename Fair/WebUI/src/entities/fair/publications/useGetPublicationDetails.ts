@@ -9,11 +9,11 @@ const api = getFairApi()
 export const useGetPublicationDetails = (publicationId?: string) => {
   const queryFn = () => api.getPublicationDetails(publicationId!)
 
-  const { isPending, isError, data } = useQuery({
+  const { isPending, isError, data, error } = useQuery({
     queryKey: publicationsKeys.detail(publicationId!),
     queryFn: queryFn,
     enabled: !!publicationId,
   })
 
-  return { isPending, isError, data }
+  return { isPending, isError, data, error: error ?? undefined }
 }
