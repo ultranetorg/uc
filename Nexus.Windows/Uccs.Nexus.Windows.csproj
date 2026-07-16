@@ -11,8 +11,8 @@
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
-    <AssemblyVersion>1.0.634.0</AssemblyVersion>
-    <FileVersion>1.0.634.0</FileVersion>
+    <AssemblyVersion>1.0.635.0</AssemblyVersion>
+    <FileVersion>1.0.635.0</FileVersion>
     <AssemblyName>nexuswin</AssemblyName>
     <Title>Uos for Widnows</Title>
     <Product>Uos</Product>

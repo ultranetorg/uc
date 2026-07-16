@@ -12,7 +12,7 @@ public class CommandAction
 	public string[]			Names => Method.Name.ToLower().Split('_');
 	public string			Name => (Names.Length > 1 ? Names[1] : Names[0]);
 	public string			LongName => Names[0];
-	public string			Title => Method.Name.Split('_')[0];
+	public string			Title => Names.Length == 1 ? Names[0] : $"{Names[0]}, {Names[1]}";
 	public string			Description {get; set; }
 	public Argument[]		Arguments {get; set; }
 	public Func<object>		Execute;
@@ -55,7 +55,7 @@ public class CommandAction
 		Method = method;
 
 		Examples = () =>	{
-								var c = $"{Command.Keyword} {Name}";
+								var c = $"{Command.Keyword}{(Name != Command.DefaultAction.ToLower() ? $" {Name}" : null)}";
 	
 								var used = new Dictionary<ArgumentType, int>();
 	
@@ -168,6 +168,7 @@ public class Example
 
 public abstract class Command
 {
+	public const string		DefaultAction = "Default";
 	public const string		ConfirmationArg = "_confirmation";
 	public virtual string[]	ControlArguments => [ConfirmationArg];
 
@@ -212,9 +213,7 @@ public abstract class Command
 
 	public CommandAction GetDefaultAction()
 	{ 
-		var c = GetType().GetMethods().Where(i => i.ReturnParameter.ParameterType == typeof(CommandAction) && i.Name != nameof(GetAction) && i.Name != nameof(GetDefaultAction));
-
-		return c.Count() == 1 ? c.First().Invoke(this, null) as CommandAction : null;
+		return GetType().GetMethods().Where(i => i.Name == DefaultAction).FirstOrDefault()?.Invoke(this, null) as CommandAction;
 	}
 
 	public Xon One(string path)

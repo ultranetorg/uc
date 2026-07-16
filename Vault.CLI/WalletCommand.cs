@@ -98,9 +98,9 @@ public class WalletCommand : VaultCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Creates a new or import existing account to a wallet";
-		a.Arguments =  [new ("wallet", NAME, "A name of a wallet to add the account to", ArgumentFlag.Optional),
-						new ("name", NAME, "A name of account", ArgumentFlag.Optional),
-						new ("key", PRIVATEKEY, "Private key of account to import")];
+		a.Arguments =  [new ("wallet", NAME, "Name of a wallet to add the account to. Otherwise the default is used.", ArgumentFlag.Optional),
+						new ("name", NAME, "Name of account", ArgumentFlag.Optional),
+						new ("key", PRIVATEKEY, "Private key of account to import", ArgumentFlag.Optional)];
 
 		a.Execute = () =>	{
 								var pk = Api<byte[]>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", null), Name = GetString("name", null), Tag = GetString("tag", null)});
@@ -123,8 +123,8 @@ public class WalletCommand : VaultCommand
 
 		a.Description = "Imports existing wallet using file store";
 		a.Arguments =	[
-							new ("name", NAME, "Name of wallet", ArgumentFlag.Optional),
-							new (p, FILEPATH, "A path to a source wallet file"),
+							new ("name", NAME, "Name under which the wallet is stored", ArgumentFlag.Optional),
+							new (p, FILEPATH, "Path to the source wallet file"),
 						];
 
 		a.Execute = () =>	{

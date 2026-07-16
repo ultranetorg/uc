@@ -3,7 +3,7 @@ using Uccs.Net;
 
 namespace Uccs.Nexus.CLI;
 
-internal class RunCommand : NexusCommand
+public class RunCommand : NexusCommand
 {
 	public RunCommand(NexusCli uos, List<Xon> args, Flow flow) : base(uos, args, flow)
 	{

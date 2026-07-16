@@ -8,7 +8,7 @@ public class LogCommand : McvCommand
 	{
 	}
 
-	public CommandAction Log()
+	public CommandAction Default()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
