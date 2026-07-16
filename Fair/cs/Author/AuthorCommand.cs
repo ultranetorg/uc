@@ -16,7 +16,7 @@ public class AuthorCommand : FairCommand
 			else if(Has(NameKeyword))
 				return Ppc(new AuthorByNamePpc(GetString(NameKeyword))).Author.Id;
 			else
-				throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+				throw new SyntaxException("Neither author 'id' nor 'name' arguments provided");
 		}
 	}
 
@@ -32,7 +32,7 @@ public class AuthorCommand : FairCommand
 		a.Description = "Creates a new author for the specified period";
 		a.Arguments =  [new ("years", YEARS, "Number of years in [1..10] range"),
 						new ("title", NAME, "A title of a author being created"),
-						ByArgument("Name of the user that is going to register the author")];
+						Eligible];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
