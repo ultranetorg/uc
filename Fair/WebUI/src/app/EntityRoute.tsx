@@ -1,15 +1,14 @@
 import { ReactNode } from "react"
 import { Route, Routes } from "react-router-dom"
 
+import { ApiError } from "api"
 import { useBackgroundLocation, useParams } from "hooks"
 import { BaseLayout, SiteLayout } from "ui/layouts"
 import { ConstrainedWidthLayout, ModerationLayout, PublishersLayout, UsersSectionLayout } from "ui/layouts/moderation"
-
 import {
   AboutPage,
   AuthorPage,
   CategoryPage,
-  ErrorPage,
   PublicationPage,
   PublisherPage,
   ReviewerPage,
@@ -45,16 +44,15 @@ import { ENTITY_PREFIXES, EntityParam } from "utils"
 
 import { MaybeFullscreen } from "./route"
 
-const ERROR_PAGE = (
-  <BaseLayout>
-    <ErrorPage />
-  </BaseLayout>
-)
+const NotFoundRoute = (): ReactNode => {
+  throw new ApiError(404, "Not Found")
+}
 
 const SiteEntityRoute = () => {
   const { userId, publisherId } = useParams()
   const backgroundLocation = useBackgroundLocation()
 
+  // site123-4/user234-5
   if (userId !== undefined)
     return (
       <MaybeFullscreen showFullscreen={!!backgroundLocation}>
@@ -62,6 +60,7 @@ const SiteEntityRoute = () => {
       </MaybeFullscreen>
     )
 
+  // site123-4/publisher234-5
   if (publisherId !== undefined)
     return (
       <MaybeFullscreen showFullscreen={!!backgroundLocation}>
@@ -69,10 +68,11 @@ const SiteEntityRoute = () => {
       </MaybeFullscreen>
     )
 
-  return ERROR_PAGE
+  throw new ApiError(404, "Not Found")
 }
 
 const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
+  // fair.net/category123-4
   categoryId: (
     <BaseLayout>
       <SiteLayout>
@@ -80,6 +80,7 @@ const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
       </SiteLayout>
     </BaseLayout>
   ),
+  // fair.net/publication234-5
   publicationId: (
     <BaseLayout>
       <SiteLayout>
@@ -87,6 +88,7 @@ const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
       </SiteLayout>
     </BaseLayout>
   ),
+  // fair.net/author345-6
   authorId: (
     <FullscreenPageView>
       <AuthorPage />
@@ -182,19 +184,23 @@ export const EntityRoute = () => {
           </Route>
 
           {/* любой другой путь под сайтом */}
-          <Route path="*" element={<ErrorPage />} />
+          <Route path="*" element={<NotFoundRoute />} />
         </Route>
       </Routes>
     )
   }
 
   if (rest) {
-    return ERROR_PAGE
+    throw new ApiError(404, "Not Found")
   }
 
   const matchedEntity = (Object.keys(ENTITY_ELEMENTS) as EntityParam[]).find(key =>
     appEntity.startsWith(ENTITY_PREFIXES[key]),
   )
 
-  return matchedEntity ? <>{ENTITY_ELEMENTS[matchedEntity]}</> : ERROR_PAGE
+  if (!matchedEntity) {
+    throw new ApiError(404, "Not Found")
+  }
+
+  return <>{ENTITY_ELEMENTS[matchedEntity]}</>
 }

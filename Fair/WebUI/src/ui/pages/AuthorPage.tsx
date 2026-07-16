@@ -13,13 +13,16 @@ export const AuthorPage = () => {
 
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>()
 
-  const { isPending, data: author } = useGetAuthor(authorId)
+  const { isPending, data: author, error } = useGetAuthor(authorId)
+  if (error) throw error
 
   useSiteTitle(author?.title ? `Author - ${author?.title}` : undefined)
 
   const handleProductStoresClick = useCallback((id: string) => setSelectedProductId(id), [])
 
   const handleModalClose = useCallback(() => setSelectedProductId(undefined), [])
+
+  console.log(isPending, author, error)
 
   if (isPending || !author) {
     return <div>Loading</div>
