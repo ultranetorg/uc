@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class FilesController
 (
 	ILogger<FilesController> logger,
-	IAutoIdValidator autoIdValidator,
+	AutoIdValidator autoIdValidator,
 	FilesService filesService
 ) : BaseController
 {

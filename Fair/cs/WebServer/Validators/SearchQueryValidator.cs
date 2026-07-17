@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class SearchQueryValidator : ISearchQueryValidator
+public class SearchQueryValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(string searchQuery)

@@ -6,10 +6,10 @@ namespace Uccs.Fair;
 public class SitesController
 (
 	ILogger<SitesController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
-	ISiteSearchQueryValidator siteSearchQueryValidator,
-	ISearchQueryValidator searchQueryValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
+	SiteSearchQueryValidator siteSearchQueryValidator,
+	SearchQueryValidator searchQueryValidator,
 	LimitValidator limitValidator,
 	SitesService sitesService,
 	UsersService usersService,

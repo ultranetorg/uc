@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-public class PublishersController(ILogger<PublishersController> logger, IAutoIdValidator autoIdValidator, IPaginationValidator paginationValidator, PublicationsService publicationsService) : BaseController
+public class PublishersController(ILogger<PublishersController> logger, AutoIdValidator autoIdValidator, PaginationValidator paginationValidator, PublicationsService publicationsService) : BaseController
 {
 	[HttpGet("~/api/sites/{siteId}/publishers/{publisherId}/publications")]
 	public IEnumerable<PublicationAuthorModel> GetPublications(string siteId, string publisherId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)

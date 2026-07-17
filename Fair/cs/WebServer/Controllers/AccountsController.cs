@@ -7,8 +7,8 @@ public class AccountsController
 	ILogger<AccountsController> logger,
 	AccountsService accountsService,
 	SearchService searchService,
-	IAutoIdValidator autoIdValidator,
-	ISearchQueryValidator searchQueryValidator,
+	AutoIdValidator autoIdValidator,
+	SearchQueryValidator searchQueryValidator,
 	LimitValidator limitValidator
 ) : BaseController
 {

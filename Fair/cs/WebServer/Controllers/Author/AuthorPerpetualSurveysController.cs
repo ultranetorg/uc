@@ -7,7 +7,7 @@ namespace Uccs.Fair;
 public class AuthorPerpetualSurveysController
 (
 	ILogger<AuthorPerpetualSurveysController> logger,
-	IAutoIdValidator autoIdValidator,
+	AutoIdValidator autoIdValidator,
 	PerpetualSurveysService proposalsService
 	//IPaginationValidator paginationValidator
 ) : BaseController

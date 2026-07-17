@@ -16,7 +16,6 @@ export const PublicationPage = () => {
   const { publicationId } = useParams()
   const siteId = useResolveSiteId()
   const { site } = useSiteContext()
-  console.log(siteId)
 
   const { startSignIn } = useSignInContext()
 
@@ -25,7 +24,6 @@ export const PublicationPage = () => {
 
   const { isPending, data: publication, error } = useGetPublicationDetails(publicationId)
   if (error) throw error
-  console.log(error)
 
   useSiteTitle(site?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
 
@@ -33,6 +31,7 @@ export const PublicationPage = () => {
     isPending: isPendingReviews,
     data: reviews,
     error: reviewsError,
+    refetch: refetchReviews,
   } = useGetReviews(publicationId, 0, DEFAULT_PAGE_SIZE_20)
 
   const handleEditReview = useCallback((id: string, text: string) => setEditReview({ id, text }), [])
@@ -47,6 +46,12 @@ export const PublicationPage = () => {
     if (create) setReviewModalOpen(true)
     else startSignIn("user")
   }, [create, startSignIn])
+
+  const handleReviewSubmit = useCallback(() => {
+    setReviewModalOpen(false)
+    setEditReview(null)
+    refetchReviews()
+  }, [refetchReviews])
 
   if (isPending || !publication) {
     return <div>Loading</div>
@@ -74,7 +79,7 @@ export const PublicationPage = () => {
           publicationId={publication.id}
           title={t("writeReview")}
           onClose={() => setReviewModalOpen(false)}
-          onSubmit={() => setReviewModalOpen(false)}
+          onSubmit={handleReviewSubmit}
           cancelLabel={t("common:cancel")}
           submitLabel={t("submitReview")}
           thankYouLabel={t("thankYou")}
@@ -90,7 +95,7 @@ export const PublicationPage = () => {
           initialText={editReview.text}
           title={t("editReview")}
           onClose={() => setEditReview(null)}
-          onSubmit={() => setEditReview(null)}
+          onSubmit={handleReviewSubmit}
           cancelLabel={t("common:cancel")}
           submitLabel={t("common:saveChanges")}
           thankYouLabel={t("thankYou")}

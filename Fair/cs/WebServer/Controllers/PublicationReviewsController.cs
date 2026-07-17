@@ -3,19 +3,18 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/publications/{publicationId}/[controller]")]
-public class ReviewsController
+public class PublicationReviewsController
 (
-	ILogger<ReviewsController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
+	ILogger<PublicationReviewsController> logger,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
 	ReviewsService reviewsService
 ) : BaseController
 {
-	[HttpGet]
+	[HttpGet("~/api/publications/{publicationId}/reviews")]
 	public IEnumerable<ReviewModel> Get(string publicationId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(ReviewsController)}.{nameof(ReviewsController.Get)} method called with {{PublicationId}}, {{Pagination}}", publicationId, pagination);
+		logger.LogInformation($"GET {nameof(PublicationReviewsController)}.{nameof(PublicationReviewsController.Get)} method called with {{PublicationId}}, {{Pagination}}", publicationId, pagination);
 
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 		paginationValidator.Validate(pagination);

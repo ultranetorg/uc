@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 
 import { useSiteTitle } from "hooks"
 import { ButtonPrimary, ErrorInfo } from "ui/components"
+import { routes } from "utils"
 
 export const NotFoundPage = () => {
   const { t } = useTranslation("error")
@@ -14,7 +16,9 @@ export const NotFoundPage = () => {
         title="Page not found"
         description="The page you’re looking for doesn’t exist or is no longer available."
       />
-      <ButtonPrimary className="w-33" label={t("backToHome")} />
+      <Link to={routes.home()}>
+        <ButtonPrimary className="w-33" label={t("backToHome")} />
+      </Link>
     </div>
   )
 }

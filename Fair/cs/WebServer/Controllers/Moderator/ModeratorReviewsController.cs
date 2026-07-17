@@ -7,8 +7,8 @@ namespace Uccs.Fair;
 public class ModeratorReviewsController
 (
 	ILogger<ModeratorReviewsController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
 	ModeratorProposalsService moderatorProposalsService
 ) : BaseController
 {

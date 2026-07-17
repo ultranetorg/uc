@@ -7,8 +7,8 @@ namespace Uccs.Fair;
 public class AuthorReferendumCommentsController
 (
 	ILogger<AuthorReferendumCommentsController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
 	ProposalCommentsService proposalCommentsService
 ) : BaseController
 {
