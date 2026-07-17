@@ -6,8 +6,8 @@ namespace Uccs.Fair;
 public class PublicationReviewsController
 (
 	ILogger<PublicationReviewsController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
 	ReviewsService reviewsService
 ) : BaseController
 {

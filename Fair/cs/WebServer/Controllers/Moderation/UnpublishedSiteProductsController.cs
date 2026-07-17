@@ -6,7 +6,7 @@ namespace Uccs.Fair;
 public class UnpublishedSiteProductsController
 (
 	ILogger<UnpublishedSiteProductsController> logger,
-	IAutoIdValidator autoIdValidator,
+	AutoIdValidator autoIdValidator,
 	UnpublishedSiteProductsService unpublishedSiteProductsService
 ) : BaseController
 {

@@ -6,9 +6,9 @@ namespace Uccs.Fair;
 public class PublicationsController
 (
 	ILogger<PublicationsController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
-	ISearchQueryValidator searchQueryValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
+	SearchQueryValidator searchQueryValidator,
 	PublicationsService publicationsService,
 	ProductsService productsService,
 	SearchService searchService,

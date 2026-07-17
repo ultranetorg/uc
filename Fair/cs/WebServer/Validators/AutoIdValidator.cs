@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class AutoIdValidator : IAutoIdValidator
+public class AutoIdValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(string autoId, string entityName)

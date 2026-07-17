@@ -5,8 +5,8 @@ namespace Uccs.Fair;
 public class CategoriesController
 (
 	ILogger<CategoriesController> logger,
-	IAutoIdValidator autoIdValidator,
-	IDepthValidator depthValidator,
+	AutoIdValidator autoIdValidator,
+	DepthValidator depthValidator,
 	CategoriesService categoriesService
 ) : BaseController
 {

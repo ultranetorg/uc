@@ -8,10 +8,10 @@ public class AuthorsController
 	ILogger<AuthorsController> logger,
 	AuthorsService authorsService,
 	SearchService searchService,
-	IAutoIdValidator autoIdValidator,
-	ISearchQueryValidator searchQueryValidator,
+	AutoIdValidator autoIdValidator,
+	SearchQueryValidator searchQueryValidator,
 	LimitValidator limitValidator,
-	IPaginationValidator paginationValidator
+	PaginationValidator paginationValidator
 ) : BaseController
 {
 	[HttpGet("{authorId}")]

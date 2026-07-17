@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class DepthValidator : IDepthValidator
+public class DepthValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(int? depth)

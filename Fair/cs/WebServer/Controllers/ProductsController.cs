@@ -6,9 +6,9 @@ namespace Uccs.Fair;
 public class ProductsController
 (
 	ILogger<ProductsController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
-	ISearchQueryValidator searchQueryValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
+	SearchQueryValidator searchQueryValidator,
 	ProductsService productsService
 ) : BaseController
 {

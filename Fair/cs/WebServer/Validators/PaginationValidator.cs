@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class PaginationValidator : IPaginationValidator
+public class PaginationValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public void Validate(PaginationRequest pagination)

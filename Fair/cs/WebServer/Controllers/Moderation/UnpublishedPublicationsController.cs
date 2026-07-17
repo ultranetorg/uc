@@ -7,8 +7,8 @@ namespace Uccs.Fair;
 public class UnpublishedPublicationsController
 (
 	ILogger<UnpublishedPublicationsController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
 	UnpublishedPublicationsService unpublishedPublicationsService
 ) : BaseController
 {

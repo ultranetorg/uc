@@ -40,12 +40,12 @@ public static class RegisterServicesExtensions
 	private static void RegisterValidators(IServiceCollection services)
 	{
 		services.AddSingleton<AccountAddressValidator>();
-		services.AddSingleton<IDepthValidator, DepthValidator>();
-		services.AddSingleton<IAutoIdValidator, AutoIdValidator>();
+		services.AddSingleton<DepthValidator>();
+		services.AddSingleton<AutoIdValidator>();
 		services.AddSingleton<LimitValidator>();
-		services.AddSingleton<IPaginationValidator, PaginationValidator>();
-		services.AddSingleton<ISearchQueryValidator, SearchQueryValidator>();
-		services.AddSingleton<ISiteSearchQueryValidator, SiteSearchQueryValidator>();
+		services.AddSingleton<PaginationValidator>();
+		services.AddSingleton<SearchQueryValidator>();
+		services.AddSingleton<SiteSearchQueryValidator>();
 		services.AddSingleton<UserNameValidator>();
 		services.AddSingleton<VersionValidator>();
 	}

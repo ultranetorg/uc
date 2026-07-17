@@ -8,8 +8,8 @@ public class ProposalsController
 (
 	ILogger<ProposalsController> logger,
 	ModeratorProposalsService proposalsService,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator
 ) : BaseController
 {
 	[HttpGet("moderators")]

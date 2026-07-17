@@ -7,8 +7,8 @@ namespace Uccs.Fair;
 public class SiteFilesController
 (
 	ILogger<SiteFilesController> logger,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
 	FilesService filesService
 ) : BaseController
 {

@@ -7,8 +7,8 @@ public class UsersController
 (
 	ILogger<UsersController> logger,
 	UserNameValidator userNameValidator,
-	IAutoIdValidator autoIdValidator,
-	IPaginationValidator paginationValidator,
+	AutoIdValidator autoIdValidator,
+	PaginationValidator paginationValidator,
 	UsersService usersService,
 	ReviewsService reviewsService
 ) : BaseController
