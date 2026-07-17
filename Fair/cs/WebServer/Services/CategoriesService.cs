@@ -45,22 +45,42 @@ public class CategoriesService
 			throw new EntityNotFoundException(nameof(Category).ToLower(), categoryId);
 		}
 
-		Category parentCategory = null;
-		if (category.Parent != null)
-		{
-			parentCategory = mcv.Categories.Latest(category.Parent);
-		}
-		IEnumerable<CategoryPathItem>? path = parentCategory != null ? PublicationUtils.BuildPath(mcv, parentCategory).Reverse() : null;
-
-		Store site = mcv.Stores.Latest(category.Store);
-		IEnumerable<CategoryBaseModel> categories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
+		IEnumerable<CategoryBaseModel> subCategories = category.Categories.Length > 0 ? LoadCategories(category.Categories) : [];
+		Tuple<ProductType, IEnumerable<CategoryPathItem>> typeAndPath = GetCategoryTypeAndPath(category.Parent, category.Type);
 
 		return new CategoryModel(category)
 		{
 			SiteId = category.Store.ToString(),
-			Path = path,
-			Categories = categories,
+			Categories = subCategories,
+			Type = typeAndPath.Item1,
+			Path = typeAndPath.Item2
 		};
+	}
+
+	Tuple<ProductType, IEnumerable<CategoryPathItem>> GetCategoryTypeAndPath(AutoId? parentCategoryId, ProductType categoryType)
+	{
+		ProductType productType = categoryType;
+		List<CategoryPathItem> path = new List<CategoryPathItem>(10);
+
+		while (parentCategoryId != null)
+		{
+			Category parentCategory = mcv.Categories.Latest(parentCategoryId);
+			path.Add(new CategoryPathItem
+			{
+				Id = parentCategory.Id.ToString(),
+				Title = parentCategory.Title
+			});
+
+			if (productType == ProductType.None && parentCategory.Type != ProductType.None)
+			{
+				productType = parentCategory.Type;
+			}
+
+			parentCategoryId = parentCategory.Parent;
+		}
+
+		path.Reverse();
+		return Tuple.Create(productType, path.AsEnumerable());
 	}
 
 	IEnumerable<CategoryBaseModel> LoadCategories(AutoId[] categoriesIds)

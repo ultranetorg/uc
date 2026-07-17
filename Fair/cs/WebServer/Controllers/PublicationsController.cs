@@ -81,7 +81,7 @@ public class PublicationsController
 	}
 
 	[HttpGet("~/api/categories/{categoryId}/publications")]
-	public IEnumerable<PublicationModel> GetCategoryPublications(string categoryId, [FromQuery] int? page, CancellationToken cancellationToken)
+	public IEnumerable<PublicationExtendedModel> GetCategoryPublications(string categoryId, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetCategoryPublications)} method called with {{CategoryId}}, {{Page}}", categoryId, page);
 
@@ -89,7 +89,7 @@ public class PublicationsController
 		paginationValidator.Validate(page);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page, CategoriesPublications.DefaultCategoryPageSize);
-		TotalItemsResult<PublicationModel> publications = publicationsService.GetCategoryPublicationsNotOptimized(categoryId, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<PublicationExtendedModel> publications = publicationsService.GetCategoryPublicationsNotOptimized(categoryId, pageValue, pageSizeValue, cancellationToken);
 
 		return this.OkPaged(publications.Items, pageValue, pageSizeValue, publications.TotalItems);
 	}

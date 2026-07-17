@@ -166,7 +166,7 @@ public class PublicationsService
 		}
 	}
 
-	public TotalItemsResult<PublicationModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<PublicationExtendedModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}", nameof(PublicationsService), nameof(GetCategoryPublicationsNotOptimized), categoryId);
 
@@ -183,25 +183,25 @@ public class PublicationsService
 
 		if (category.Publications.Length == 0)
 		{
-			return TotalItemsResult<PublicationModel>.Empty;
+			return TotalItemsResult<PublicationExtendedModel>.Empty;
 		}
 
-		var context = new SearchContext<PublicationModel>
+		var context = new SearchContext<PublicationExtendedModel>
 		{
 			Page = page,
 			PageSize = pageSize,
-			Items = new List<PublicationModel>(pageSize)
+			Items = new List<PublicationExtendedModel>(pageSize)
 		};
 		LoadPublications(category, context, cancellationToken);
 
-		return new TotalItemsResult<PublicationModel>
+		return new TotalItemsResult<PublicationExtendedModel>
 		{
 			Items = context.Items,
 			TotalItems = category.Publications.Length
 		};
 	}
 
-	void LoadPublications(Category category, SearchContext<PublicationModel> context, CancellationToken cancellationToken)
+	void LoadPublications(Category category, SearchContext<PublicationExtendedModel> context, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
@@ -216,8 +216,9 @@ public class PublicationsService
 				Publication publication = mcv.Publications.Latest(publicationId);
 				Product product = mcv.Products.Latest(publication.Product);
 				AutoId? fileId = PublicationUtils.GetLogo(publication, product);
+				Author author = mcv.Authors.Latest(product.Author);
 
-				var model = new PublicationModel(publication, product, category);
+				var model = new PublicationExtendedModel(publication, product, author, category);
 				context.Items.Add(model);
 			}
 

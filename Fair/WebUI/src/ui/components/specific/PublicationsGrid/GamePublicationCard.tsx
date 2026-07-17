@@ -10,6 +10,7 @@ import { PublicationCardProps } from "./types"
 
 export const GamePublicationCard = memo(({ id, title, authorTitle, categoryTitle, rating }: PublicationCardProps) => {
   const { isModerator } = useSiteRolesContext()
+  const formattedRating = formatRating(rating)
 
   return (
     <div className="relative h-117.5 w-67.75 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
@@ -17,10 +18,10 @@ export const GamePublicationCard = memo(({ id, title, authorTitle, categoryTitle
         <img src={TEST_GAME_SRC} className="size-full object-cover" />
       </div>
       <div className="flex flex-col gap-1 p-3">
-        <span className="flex h-5 items-center text-base">
+        <span className="flex h-5 items-center text-base" title={formattedRating}>
           {rating > 0 && (
             <>
-              {formatRating(rating)} <SvgStarXxs className="fill-favorite" />
+              {formattedRating} <SvgStarXxs className="fill-favorite" />
             </>
           )}
         </span>

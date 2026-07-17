@@ -13,6 +13,7 @@ import { PublicationCardProps } from "./types"
 export const SoftwarePublicationCard = memo(
   ({ id, title, logoFileId, authorTitle, categoryTitle, rating }: PublicationCardProps) => {
     const { isModerator } = useSiteRolesContext()
+    const formattedRating = formatRating(rating)
 
     return (
       <div
@@ -32,8 +33,11 @@ export const SoftwarePublicationCard = memo(
         </div>
 
         {rating > 0 && (
-          <span className={twMerge("absolute top-2.5 flex items-center", !isModerator ? "right-2.5" : "left-2.5")}>
-            {formatRating(rating)} <SvgStarXxs className="fill-favorite" />
+          <span
+            className={twMerge("absolute top-2.5 flex items-center", !isModerator ? "right-2.5" : "left-2.5")}
+            title={formattedRating}
+          >
+            {formattedRating} <SvgStarXxs className="fill-favorite" />
           </span>
         )}
         {isModerator && (
