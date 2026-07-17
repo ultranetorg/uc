@@ -54,7 +54,7 @@ public class StoreCommand : FairCommand
 
 		a.Description = "Prolongs expiration date of a store for the specified number of years";
 		a.Arguments =	[	
-							NameOrId(NAME,  "store to update"),
+							NameOrId("store to update"),
 							new (years, YEARS, "Number of years (365 days per year) since today to renew the store for"),
 							Eligible
 						 ];
@@ -147,7 +147,7 @@ public class StoreCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Get information about the specified store";
-		a.Arguments =	[NameOrId(NAME, "store to get information about")];
+		a.Arguments =	[NameOrId("store to get information about")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);

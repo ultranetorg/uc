@@ -50,7 +50,7 @@ public class AuthorCommand : FairCommand
 
 		a.Description = "Sets an nickname for the specified author";
 		a.Arguments =  [
-							NameOrId(NAME, "author to set name for"),
+							NameOrId("author to set name for"),
 							new (name, NAME, "New name"),
 							Eligible
 						];
@@ -76,7 +76,7 @@ public class AuthorCommand : FairCommand
 
 		a.Description = "Manages ownership of an author. Adds or removes an owner account.";
 		a.Arguments =	[
-							NameOrId(NAME, "author whose owner list will be modified"),
+							NameOrId("author whose owner list will be modified"),
 							new (ao, AA, "User Id to add as an owner"),
 							new (ro, AA, "User Id to remove from owners"),
 							Eligible
@@ -108,7 +108,7 @@ public class AuthorCommand : FairCommand
 		const string years = "years";
 
 		a.Description = "Prolongs current expiration date of an author for the specified number of years";
-		a.Arguments =  [NameOrId(NAME, "author to update"),
+		a.Arguments =  [NameOrId("author to update"),
 						new (years, YEARS, "The number of years to renew author for. "),
 						Eligible];
 
@@ -129,7 +129,7 @@ public class AuthorCommand : FairCommand
 		const string spacetime = "spacetime";
 
 		a.Description = "Sets a utility limits for the specified author of the specfied store";
-		a.Arguments =  [NameOrId(NAME, "author to update"),
+		a.Arguments =  [NameOrId("author to update"),
 						new (store, EID, "Id of a store where author is the member"),
 						new (energy, INT, "New limit for the energy"),
 						new (spacetime, INT, "New limit for the spacetime"),
@@ -150,7 +150,7 @@ public class AuthorCommand : FairCommand
 		const string energy = "energy";
 
 		a.Description = "Sets the moderation reward for the specified author";
-		a.Arguments =  [NameOrId(NAME, "author to update"),
+		a.Arguments =  [NameOrId("author to update"),
 						new (energy, INT, "Amount of energy for reward"),
 						Eligible];
 
@@ -170,7 +170,7 @@ public class AuthorCommand : FairCommand
 
 		a.Description = "Requests the net to check ownership of web domain for the specified author";
 		a.Arguments =  [
-							NameOrId(NAME, "author to verify"),
+							NameOrId("author to verify"),
 							new (domain, NAME, "Web domain name"),
 							Eligible
 						];
@@ -191,7 +191,7 @@ public class AuthorCommand : FairCommand
 
 		a.Description = "Sets an avatar for the specified author. Only files with correct media type(MIME) are accepted.";
 		a.Arguments =	[
-							NameOrId(NAME, "author to change avatar of"),
+							NameOrId("author to change avatar of"),
 							new (file, EID, "Id of a file entity"),
 							Eligible
 						];
@@ -218,7 +218,7 @@ public class AuthorCommand : FairCommand
 
 		a.Description = "Changes various author descriptive properties";
 		a.Arguments =	[
-							NameOrId(NAME, "author to update"),
+							NameOrId("author to update"),
 							new (t, TEXT, "New title"),
 							new (d, TEXT,  "New description"),
 							new (r, HYPERLINK, "Zero or more Uri references with a description"),
@@ -253,7 +253,7 @@ public class AuthorCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Get author entity information from MCV database";
-		a.Arguments =	[NameOrId(NAME, "author to get information about")];
+		a.Arguments =	[NameOrId("author to get information about")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Globalization;
-using System.Reflection;
+﻿using System.Globalization;
 
 namespace Uccs.Net;
 
@@ -21,6 +19,10 @@ public abstract class McvCommand : NetCommand
 	protected McvCommand(McvCli cli, List<Xon> args, Flow flow) : base(args, flow)
 	{
 		Cli = cli;
+	}
+
+	protected McvCommand()
+	{
 	}
 
 	protected void ReportPreambule()

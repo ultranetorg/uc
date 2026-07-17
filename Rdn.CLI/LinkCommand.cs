@@ -20,7 +20,7 @@ public class LinkCommand : RdnCommand
 		a.Arguments =	[
 							new ("from", RA, "The address of a source resource. Transaction user must be owner of resource domain."),
 							new ("to", RA, "The address of a destination resource"),
-							new ("type", LT, "The type of link to create", ArgumentFlag.Optional),
+							new ("type", RLT, "The type of link to create", ArgumentFlag.Optional),
 							DomainCommand.Eligible
 						];
 

@@ -253,6 +253,9 @@ public class Vault
 	
 		if(c != null)
 		{
+			if(c.Waiting)
+				return null; 
+
 			var a = Find(c.Account);
 		
 			if(a == null)

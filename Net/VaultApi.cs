@@ -4,7 +4,13 @@ namespace Uccs.Net;
 
 public enum Trust : byte
 {
-	None, Complete, AskEveryTime
+	None, AlwaysAllow, AskEveryTime
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))] 
+public enum CryptographyType : byte
+{
+	No, Mcv, Iccp
 }
 
 public class AuthenticationResult
@@ -57,12 +63,6 @@ public class AuthenticateApc : Apc
 	public string			User { get; set; } /// optional
 	public byte[]			Logo { get; set; }
 	public AccountAddress	Account { get; set; }/// suggested
-}
-
-[JsonConverter(typeof(JsonStringEnumConverter))] 
-public enum CryptographyType : byte
-{
-	No, Mcv, Iccp
 }
 
 public class AuthorizeApc : Apc

@@ -8,13 +8,17 @@ public class SubnetCommand : RdnCommand
 	{
 	}
 
+	public SubnetCommand()
+	{
+	}
+
 	public CommandAction Attach_A()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Requests subnet attachment voting";
 		a.Arguments =	[
-							new (NameKeyword, SNN, "Name of a subnet to attach"),
+							new (NameKeyword, NETNAME, "Name of a subnet to attach"),
 							new ("peer", IP, "List of IPAdddress:Port of peers of subnet", ArgumentFlag.Multi),
 							new ("client", SNQ, "Address of default client software"),
 							ByArgument()

@@ -26,9 +26,10 @@ public class VaultCli : Cli
 		Execute(Boot.Profile, Boot.Commnand);
 	}
 
-	public VaultCli(Nexus.Vault vault)
+	public VaultCli(NetBoot boot, VaultSettings settings)
 	{
-		Vault = vault;
+		Boot = boot;
+		Settings = settings;
 	}
 
 	public static void Main(string[] args)

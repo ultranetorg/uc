@@ -77,15 +77,37 @@ public class WalletsApc : AdminApc
 
 public class WalletAccountsApc : AdminApc
 {
+	public class Account
+	{
+		public string				Name { get; set; } 
+		public AccountAddress		Address { get; set; }
+
+		public Account(WalletAccount account)
+		{
+			Name = account.Name;
+			Address = account.Address;
+		}
+
+		public Account()
+		{
+  		}
+	}
+
  	public string		Name { get; set; }
 
 	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
 		{	
-			var w = vault.Wallets.FirstOrDefault(i => i.Name == Name, Name == null ? vault.Wallets[0] : null);
+			var w = vault.Wallets.FirstOrDefault(i => i.Name == Name, vault.Wallets.FirstOrDefault());
 
-			return w.Accounts;
+			if(w == null)
+				throw new VaultException(VaultError.NotFound);
+
+			if(w.Locked)
+				throw new VaultException(VaultError.Locked);
+
+			return w.Accounts.Select(i => new Account(i)).ToArray();
 		}
 	}
 }
@@ -125,8 +147,8 @@ public class AddAccountToWalletApc : AdminApc
 {
 	public string		Wallet { get; set; } ///  Null means first
 	public string		Name { get; set; } ///  Null means first
-	public string		Tag { get; set; } ///  Null means first
-	public byte[]		Key { get; set; } ///  Null means create new
+	public string		Tag { get; set; }
+	public byte[]		Key { get; set; } ///  Null means create a new
 
 	public override object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
@@ -157,7 +179,7 @@ public class OverrideAuthenticationApc : AdminApc
 				vault.AuthenticationRequested = (application, logo, net, user, account) =>
 												{	
 													lock(vault)
-														return new AuthenticationChoice {Account = vault.Find(user).Address, Trust = Trust.Complete};
+														return new AuthenticationChoice {Account = vault.Find(user).Address, Trust = Trust.AlwaysAllow};
 												};
 			} 
 			else

@@ -67,6 +67,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public abstract void		Write(Writer w);
 	public abstract void		Read(Reader r);
 
+	public const int			NemaLengthMin = 4;
+	public const int			NemaLengthMax = 32;
+
 	public Operation()
 	{
 	}
@@ -76,8 +79,8 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
 	}
 
-	public static bool	IsNameValid(string name) =>	name.Length <= 32 
-													&& name.Length >= 4
+	public static bool	IsNameValid(string name) =>	name.Length >= NemaLengthMin
+													&& name.Length <= NemaLengthMax 
 													&& Regex.Match(name, "^[a-z0-9_]+$").Success;
 	
 	public virtual void PreTransact(McvNode node, Flow flow)

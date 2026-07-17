@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
+using Uccs;
 using Uccs.Nexus;
+using Uccs.Vault.CLI;
 
-namespace Uccs.Vault.CLI;
-
-public class VaultCommand : NetCommand
+public abstract class VaultCommand : NetCommand
 {
 	public VaultCli	Cli;
 
@@ -12,22 +12,16 @@ public class VaultCommand : NetCommand
 		Cli = vault;
 	}
 
+	public VaultCommand()
+	{
+	}
+
 	public void Api(Apc call)
 	{
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 			
-		if(call is IVaultApc u)
-		{
-			if(Cli.Vault != null)
-				u.Execute(Cli.Vault, null, null, Flow);
-			else
-				Cli.Api.Send(call, Flow);
-
-			return;
-		}
-
-		throw new Exception();
+		Cli.Api.Send(call, Flow);
 	}
 
 	public R Api<R>(Apc call)
@@ -35,32 +29,6 @@ public class VaultCommand : NetCommand
 		if(Has("apitimeout"))
 			call.Timeout = GetInt("apitimeout") * 1000;
 
-		if(call is IVaultApc u)	
-			if(Cli.Vault != null)
-				return (R)u.Execute(Cli.Vault, null, null, Flow);
-			else
-				return Cli.Api.Call<R>(call, Flow);
-
-		throw new Exception();
+		return Cli.Api.Call<R>(call, Flow);
 	}
-
-//	public CommandAction Run()
-//	{
-// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-//
-//		a.Name = "r";
-//		a.Description = "Runs a new instance with command-line interface";
-//		a.Arguments =	[
-//							new ("profile", DIRPATH, "Path to local profile directory", ArgumentFlag.Optional),
-//						];
-//
-//		a.Execute = () =>	{
-//								Run(Cli, a);
-//
-//								return null;
-//							};
-//		
-//		return a;
-//	}
-
 }

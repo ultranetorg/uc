@@ -52,7 +52,7 @@ public partial class AuthenticattionForm : Form
 
 	private void Allow_Click(object sender, EventArgs e)
 	{
-		Trust = Trust.Complete;
+		Trust = Trust.AlwaysAllow;
 		DialogResult = DialogResult.OK;
 		Close();
 	}

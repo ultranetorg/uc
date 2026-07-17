@@ -33,7 +33,7 @@ public class UserCommand : Net.UserCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Get authors owned by the specified user";
-		a.Arguments = [NameOrId(NAME, "user to get authors from")];
+		a.Arguments = [NameOrId("user to get authors from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
@@ -54,7 +54,7 @@ public class UserCommand : Net.UserCommand
 		const string name = nameof(name);
 
 		a.Description = "Get sites of the specified user";
-		a.Arguments = [NameOrId(NAME, "user to get stores from")];
+		a.Arguments = [NameOrId("user to get stores from")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
@@ -93,7 +93,7 @@ public class UserCommand : Net.UserCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Get information about the user specified";
-		a.Arguments = [NameOrId(NAME, "user to get information about")];
+		a.Arguments = [NameOrId("user to get information about")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);

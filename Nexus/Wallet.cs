@@ -7,6 +7,7 @@ public class AuthenticationChoice
 {
 	public AccountAddress	Account { get; set; }
 	public Trust			Trust { get; set; }
+	public bool				Waiting { get; set; }
 }
 
 public class Authentication : IBinarySerializable
@@ -57,11 +58,12 @@ public class Authentication : IBinarySerializable
 
 public class WalletAccount : IBinarySerializable
 {
-	public string				Name { get; set; } 
-	public AccountKey			Key { get; set; }
-	public AccountAddress		Address  => Key.Address;
-	public List<Authentication>	Authentications = [];
-	public Wallet				Wallet;
+	public string						Name { get; set; } 
+	public AccountKey					Key { get; set; }
+	public AccountAddress				Address  => Key.Address;
+	public List<Authentication>			Authentications = [];
+	public Wallet						Wallet;
+	public List<Authentication>			PendingAuthentications = [];
 
 	public WalletAccount()
 	{ 
@@ -98,8 +100,7 @@ public class WalletAccount : IBinarySerializable
 			var h = i.Hashify();
 			Wallet.AuthenticationHashes.RemoveAll(i => i.SequenceEqual(h));
 		}
-		
-	
+			
 		var a = new Authentication
 				{
 					User = user,

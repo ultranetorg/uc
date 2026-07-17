@@ -2,17 +2,15 @@
 
 public abstract class RdnCommand : McvCommand
 {
-	public static readonly ArgumentType DA		= new ("DA",	"Domain address, a text of [a...z],[0...9] and \"_\" symbols",					["company", "application.company", "x_y_z.application.company"]);
-	public static readonly ArgumentType RDN		= new ("RDA",	"Root domain name",																["ultranetorg", "company", "a123"]);
-	public static readonly ArgumentType SDA		= new ("SDA",	"Subdomain address",															["application.company", "x_y_z.application.company"]);
-	public static readonly ArgumentType DCP		= new ("DCP",	"Domain child policy",															Enum.GetNames<DomainChildPolicy>().Where(i => i != DomainChildPolicy.None.ToString()).ToArray());
-	public static readonly ArgumentType RA		= new ("RA",	$"Resource address including domain",											[@"/company/application", "rdn/author/product"]);
-	public static readonly ArgumentType TLD		= new ("TLD",	"Top-level  web domain",														Domain.PriorityTlds);
-	public static readonly ArgumentType RZA		= new ("RZA",	"Release address",																[$"{UrrScheme.Rrrh.ToString().ToLower()}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
-	public static readonly ArgumentType LT		= new ("RLT",	"Resource link type",															Enum.GetNames<ResourceLinkType>().Where(i => i != ResourceLinkType.None.ToString()).ToArray());
-	public static readonly ArgumentType SNN		= new ("SNN",	"Subnet name",																	["fair"]);
+	public static readonly ArgumentType		DA		= new (nameof(DA),	"Domain address, a text of [a..z 0..9 _ .] symbols",		["company", "application.company", "x_y_z.application.company"]);
+	public static readonly ArgumentType		DN		= new (nameof(DN),	"Domain name, a text of [a..z 0..9 _] symbols",				["ultranetorg", "company", "a123"]);
+	public static readonly ArgumentType		DCP		= new (nameof(DCP),	"Domain child policy",										Enum.GetNames<DomainChildPolicy>().Where(i => i != DomainChildPolicy.None.ToString()).ToArray());
+	public static readonly ArgumentType		TLD		= new (nameof(TLD),	"Top-level  web domain",									Domain.PriorityTlds);
+	public static readonly ArgumentType		RA		= new (nameof(RA),	$"Resource address including domain",						[@"/company/application", "rdn/author/product"]);
+	public static readonly ArgumentType		RLT		= new (nameof(RLT),	"Resource link type",										Enum.GetNames<ResourceLinkType>().Where(i => i != ResourceLinkType.None.ToString()).ToArray());
+	public static readonly ArgumentType		RZA		= new (nameof(RZA),	"Release address",											[$"{UrrScheme.Rrrh.ToString().ToLower()}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
 
-	new protected RdnCli				Cli => base.Cli as RdnCli;
+	new protected RdnCli					Cli => base.Cli as RdnCli;
 
 	protected AutoId ResourceId
 	{
@@ -32,6 +30,10 @@ public abstract class RdnCommand : McvCommand
 	{
 		Flow.Log?.TypesForExpanding.AddRange([typeof(IEnumerable<AnalyzerReport>), 
 											  typeof(Resource)]);
+	}
+
+	protected RdnCommand()
+	{
 	}
 
 	protected Ura GetResourceAddress(string paramenter, bool mandatory = true)

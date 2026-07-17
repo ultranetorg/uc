@@ -50,7 +50,7 @@ public class PublicationCommand : FairCommand
 		a.Description = "Approve or revoke permission for a store to publish a publication";
 		a.Arguments =	[
 							IdArgument("publication to manage"),
-							new (publish,	NAME, "Approve or revoke a permission to publish (approve/revoke)"),
+							new (publish, BOOL, "Approve or revoke a permission to publish"),
 							Eligible
 						];
 
@@ -60,9 +60,7 @@ public class PublicationCommand : FairCommand
 								var o = new PublicationAuthorPermittance
 										{
 											Publication = Id,
-											Approved = GetString(publish) == "approve" ? true : 
-																						 (GetString(publish) == "revoke" ?	false : 
-																															throw new SyntaxException($"Unknown '{publish}' value"))
+											Approved = GetBool(publish)
 										};
 								
 								return o;

@@ -569,6 +569,9 @@ public abstract class Mcv /// Mutual chain voting
 			r.Confirmed		= true;
 			r.Raw			= d;
 
+			if(RawRounds.Count > 100_000)
+				RawRounds.Clear();
+
 			RawRounds[rid] = r;
 			
 			return r;

@@ -74,6 +74,7 @@ public enum VaultError : uint
 	NotAuthorized,
     NotFound,
     NotSupported,
+	NotPermittedOutsideVaultApplication,
 	Rejected,
 	UnknownCtyptography,
 }

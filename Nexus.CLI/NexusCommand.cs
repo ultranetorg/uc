@@ -3,7 +3,7 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus.CLI;
 
-public class NexusCommand : NetCommand
+public abstract class NexusCommand : NetCommand
 {
 	public NexusCli	Cli;
 
@@ -15,6 +15,10 @@ public class NexusCommand : NetCommand
 												typeof(IEnumerable<AnalyzerReport>), 
 												typeof(Resource), 
 												typeof(PackageManifest)]);
+	}
+
+	public NexusCommand()
+	{
 	}
 
 	public void Api(Apc call)
@@ -59,5 +63,4 @@ public class NexusCommand : NetCommand
 			else
 				return null;
 	}
-
 }

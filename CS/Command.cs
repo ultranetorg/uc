@@ -289,6 +289,21 @@ public abstract class Command
 			return def;
 	}
 
+	public bool GetBool(string paramenter)
+	{
+		var p = One(paramenter);
+
+		if(p != null)
+		{	
+			if(string.Compare(p.Get<string>(), "yes", true) == 0)
+				return true;
+			else if(string.Compare(p.Get<string>(), "no", true) == 0)
+				return false;
+		}
+
+		throw new SyntaxException($"Parameter '{paramenter}' has incorrect value");
+	}
+
 	public string GetString(string paramenter)
 	{
 		var p = One(paramenter);

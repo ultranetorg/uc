@@ -4,8 +4,8 @@ namespace Uccs.Rdn.CLI;
 
 public class DomainCommand : RdnCommand
 {
-	public static readonly Argument Eligible = ByArgument("Name of the user eligible to change Domain entity");
-	public static readonly Argument Years = new ("years", YEARS, "Integer number of years in [1..10] range");
+	public static readonly Argument Eligible = ByArgument("Name of the user eligible to change the domain");
+	public static readonly Argument Years = new ("years", YEARS, "Number of years in [1..10] range");
 	public static readonly Argument Policy = new ("policy", DCP, $"{DomainChildPolicy.FullOwnership} - the owner of the parent domain can later revoke/change ownership of subdomain, {DomainChildPolicy.FullFreedom} - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy");
 
 	new AutoId Id(string nameaddress)
@@ -28,7 +28,7 @@ public class DomainCommand : RdnCommand
 
 		a.Description = "Requests domain name acquisition by verifying web domain ownership";
 		a.Arguments =	[
-							NameArgument(RDN, "root domain name to migrate"),
+							NameArgument(DN, "root domain name to migrate"),
 							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
 							ByArgument("Name of the user for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
 						];
@@ -47,7 +47,7 @@ public class DomainCommand : RdnCommand
 
 		a.Description = "Extend domain ownership for the specified period. It's allowed only during the last year of current period.";
 		a.Arguments =	[
-							NameOrId(RDN, "root domain to be renewed"),
+							NameOrId("root domain to be renewed", DN),
 							Years,
 							Eligible
 						];
@@ -111,7 +111,7 @@ public class DomainCommand : RdnCommand
 
 		a.Description = "Changes current policy of subdomain";
 		a.Arguments =	[
-							AddressOrId(RDN, "domain to change policy for"),
+							AddressOrId(DA, "domain to change policy for"),
 							Policy,
 							Eligible
 						];

@@ -8,25 +8,28 @@ public abstract class NetCommand : Command
 	public static readonly ArgumentType		COMMAND		= new (nameof(COMMAND),		"CLI command string",													["node peers"]);
 	public static readonly ArgumentType		EID			= new (nameof(EID),			"Entity Id",															[new AutoId(1111, 22), new AutoId(12345,6789), new AutoId(987, 6543321)]);
 	public static readonly ArgumentType		IP			= new (nameof(IP),			"IP Address",															["123.234.55.66"]);
-	public static readonly ArgumentType		INT			= new (nameof(INT),			"Positive integer number",												["324552", "1000"]);
+	public static readonly ArgumentType		INT			= new (nameof(INT),			"Positive integer number",												["1", "78"]);
 	public static readonly ArgumentType		HEX			= new (nameof(HEX),			"Array of bytes in form of hexadecimal string",							["0105BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37"]);
 	public static readonly ArgumentType		HOST		= new (nameof(HOST),		"Host name",															["1.2.3.4"]);
+	public static readonly ArgumentType		NAME		= new (nameof(NAME),		$"An single-line string of [a-z 0-9 _] symbols from {Operation.NemaLengthMin} to {Operation.NemaLengthMax} length",		
+																																							["satoshi", "nakamoto", "hagardjuna"]);
 	public static readonly ArgumentType		PASSWORD	= new (nameof(PASSWORD),	"Text string of any no. chars and longer than 1 char",					["MyStrongSecret!@#$%^&*()"]);
 	public static readonly ArgumentType		PATH		= new (nameof(PATH),		"A path to local file or directory in native format",					[@"C:\User\readme.txt", @"C:\User\Admin", @"D:\Documents"]);
+	public static readonly ArgumentType		FILENAME	= new (nameof(FILENAME),	"A string that complies with local file system naming restrictions",	[@"my123", @"Q_w_e_r_t_y"]);
 	public static readonly ArgumentType		FILEPATH	= new (nameof(FILEPATH),	"A text string of the local file path in its native format",			[@"C:\User\file", @"D:\image.jpg", @"E:\content.bin", ]);
 	public static readonly ArgumentType		DIRPATH		= new (nameof(DIRPATH),		"A text string of the local directory path in its native format",		[@"C:\Folder", @"D:\Project\Content"]);
 	public static readonly ArgumentType		PORT		= new (nameof(PORT),		"Port number",															["3800"]);
 	public static readonly ArgumentType		PRIVATEKEY	= new (nameof(PRIVATEKEY),	"Hexadecimal text string of account private key",						["f5eb914b0cdf95fb3df9bcf7e3686cb16d351edf772e577dd6658f841f51b848"]);
-	public static readonly ArgumentType		NAME		= new (nameof(NAME),		"An arbitrary single-line string without spaces",						["satoshi", "nakamoto", "hagardjuna"]);
-	public static readonly ArgumentType		NA			= new (nameof(NA),			"A name of a network",													["rdn", "fair"]);
-	public static readonly ArgumentType		NN			= new (nameof(NN),			"Full address of a network",											["fair.rdn"]);
+	public static readonly ArgumentType		NETNAME		= new (nameof(NETNAME),		"A name of the network",												["rdn", "fair"]);
+	public static readonly ArgumentType		NA			= new (nameof(NA),			"Full address of a network",											["fair.rdn"]);
 	public static readonly ArgumentType		ST			= new (nameof(ST),			"Space-time in form of byte-years(BY), byte-days(BD), eth.",			["300bd", "500by"]);
 	public static readonly ArgumentType		EC			= new (nameof(EC),			"Execution Cycles in form of integer number",							["1000", "10"]);
 	public static readonly ArgumentType		TEXT		= new (nameof(TEXT),		"Arbitrary text, can be multi-line",									["\"Hello world!\"", "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua\"", "\"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur\""]);
 	public static readonly ArgumentType		OPEARATION	= new (nameof(OPEARATION),	"MCV operation",														["{utility transfer from=user/12390-0 to=user/12345-6 e=100}"]);
 	public static readonly ArgumentType		UID			= new (nameof(UID),			"User Id",																["123456-789"]);
 	public static readonly ArgumentType		SNQ			= new (nameof(SNQ),			"URI-derived scheme-network-query address",								[new Snq(Iccp.Scheme, "fair", "author/123-234")]);
-	public static readonly ArgumentType		STRING		= new (nameof(STRING),		"An arbitrary single-line string",										["sato shi", "na+ka+mo+to"]);
+	public static readonly ArgumentType		STRING		= new (nameof(STRING),		"An arbitrary single-line string",										["\"lorem ipsum\"", "abra-cadabra"]);
+	public static readonly ArgumentType		TRUST		= new (nameof(TRUST),		"Authentication trust level",											Enum.GetNames<Trust>().Where(i => i != Trust.None.ToString()).ToArray());
 	public static readonly ArgumentType		URI			= new (nameof(URI),			"Fully-qualified URI address",											["http://fair.net", "iccp:fair/author"]);
 	public static readonly ArgumentType		URL			= new (nameof(URL),			"Fully-qualified URL address",											["http://fair.net", "http://ultranet.org"]);
 	public static readonly ArgumentType		ZONE		= new (nameof(ZONE),		"Zone name",															[Zone.Main.ToString(), Zone.Test.ToString()]);
@@ -49,16 +52,20 @@ public abstract class NetCommand : Command
 																																	AddressArgument(type, entity),
 																																	IdArgument(entity)
 																																]);
-	public Argument							NameOrId(ArgumentType type, string entity) => new(null, null, "OR", arguments:	[
-																																NameArgument(type, entity),
-																																IdArgument(entity)
-																															]);
+	public Argument							NameOrId(string entity, ArgumentType type = null) => new(null, null, "OR", arguments:	[
+																																		NameArgument(type ?? NAME, entity),
+																																		IdArgument(entity)
+																																	]);
 	public AutoId							Id => AutoId.Parse(GetString(IdKeyword));
 	public string							Name => GetString(NameKeyword);
 	public string							Address => GetString(AddressKeyword);
 	public virtual string[]					TransactionKeywords => [AORKeyword, ByKeyword, BoostKeyword];
 
 	protected NetCommand(List<Xon> args, Flow flow) : base(args, flow)
+	{
+	}
+
+	protected NetCommand()
 	{
 	}
 

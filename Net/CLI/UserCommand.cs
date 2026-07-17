@@ -21,6 +21,10 @@ public class UserCommand : McvCommand
 	{
 	}
 
+	public UserCommand()
+	{
+	}
+
 	//public CommandAction Create()
 	//{
 	//	var name = "name";
@@ -130,7 +134,7 @@ public class UserCommand : McvCommand
 		
 		a.Description = "Get information about membership status of specified user";
 		a.Arguments =	[
-							NameOrId(NAME, "user to check membership status of")
+							NameOrId("user to check membership status of")
 						];
 
 		a.Execute = () =>	{
@@ -157,7 +161,7 @@ public class UserCommand : McvCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Gets information about the specified user";
-		a.Arguments = [NameOrId(NAME, "user to get information about")];
+		a.Arguments = [NameOrId("user to get information about")];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);

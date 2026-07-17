@@ -148,9 +148,9 @@ public abstract class Cli
 			var v = new ConsoleLogView(false, false);
 			v.StartListening(l);
 
-			var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.BaseType == typeof(Command) && i.Name.ToLower() == args.First().Name + nameof(Command).ToLower());
-
-			var c = Activator.CreateInstance(t, [this, null, flow]) as Command;
+			var c = Create(args, flow)
+					??
+					throw new SyntaxException("Unknown command name");
 
 			foreach(var i in c.Actions)
 			{
@@ -165,9 +165,9 @@ public abstract class Cli
 		}
 		else if(args.Skip(2).FirstOrDefault()?.Name == "?")
 		{
-			var t = GetType().Assembly.GetTypes().FirstOrDefault(i => i.BaseType == typeof(Command) && i.Name.ToLower() == args.First().Name + "command");
-
-			var c = Activator.CreateInstance(t, [this, null, flow]) as Command;
+			var c = Create(args, flow)
+					??
+					throw new SyntaxException("Unknown command name");
 
 			var a = c.Actions.FirstOrDefault(i => i.Names.Contains(args.Skip(1).First().Name));
 
