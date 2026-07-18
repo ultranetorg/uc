@@ -76,7 +76,7 @@ public class RdnApiClient : McvApiClient
 	public LocalResource	FindLocalResource(Ura address, Flow flow) => Call<LocalResource>(new LocalResourceApc {Address = address}, flow);
 	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Call<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
 
-	public RdnApiClient(string address, string accesskey = null, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	public RdnApiClient(string address, HttpClient http = null, int timeout = 30) : base(address, http, timeout)
 	{
 		Options = RdnJsonConfiguration.CreateOptions();
 	}

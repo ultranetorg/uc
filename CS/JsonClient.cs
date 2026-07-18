@@ -50,15 +50,14 @@ public class JsonClient
 {
 	HttpClient						Http;
 	public string					Address;
-	string							Key;
 	public int						Failures;
 	public JsonSerializerOptions	Options;
+	public string					Credentials;
 
-	public JsonClient(string address, string accesskey, HttpClient http = null, int timeout = 30)
+	public JsonClient(string address, HttpClient http = null, int timeout = 30)
 	{
 		Http = http;
 		Address = address;
-		Key = accesskey;
 
 		if(http == null)
 		{
@@ -76,11 +75,11 @@ public class JsonClient
 		return Address;
 	}
 
-	public HttpResponseMessage Send(Apc request, Flow flow)
+	public HttpResponseMessage Send(Apc request, Flow flow, string credentials = null)
 	{
 		var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-		using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}" + (Key == null ? null : $"?{Apc.AccessKey}={Key}")))
+		using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}" + ((credentials ?? Credentials) == null ? null : $"?{Apc.CredentialsKeyword}={credentials ?? Credentials}")))
 		{
 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 
@@ -103,11 +102,11 @@ public class JsonClient
 		}
 	}
 
-	public async Task<HttpResponseMessage> SendAsync(Apc request, Flow workflow)
+	public async Task<HttpResponseMessage> SendAsync(Apc request, Flow workflow, string credentials = null)
 	{
 		var c = JsonSerializer.Serialize(request, request.GetType(), Options);
 
-		using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}?{Apc.AccessKey}={Key}"))
+		using(var m = new HttpRequestMessage(HttpMethod.Get, $"{Address}/{Apc.NameOf(request.GetType())}" + ((credentials ?? Credentials) == null ? null : $"?{Apc.CredentialsKeyword}={credentials ?? Credentials}")))
 		{
 			m.Content = new StringContent(c, Encoding.UTF8, "application/json");
 
@@ -120,9 +119,9 @@ public class JsonClient
 		}
 	}
 
-	public Rp Call<Rp>(Apc request, Flow flow)
+	public Rp Call<Rp>(Apc request, Flow flow, string credentials = null)
 	{
-		using(var rp = Send(request, flow))
+		using(var rp = Send(request, flow, credentials))
 		{
 			try
 			{
@@ -135,9 +134,9 @@ public class JsonClient
 		}
 	}
 
-	public async Task<Rp> CallAsync<Rp>(Apc request, Flow flow)
+	public async Task<Rp> CallAsync<Rp>(Apc request, Flow flow, string credentials = null)
 	{
-		using(var rp = await SendAsync(request, flow))
+		using(var rp = await SendAsync(request, flow, credentials))
 		{
 			try
 			{

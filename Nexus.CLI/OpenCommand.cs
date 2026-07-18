@@ -19,7 +19,7 @@ public class OpenCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								Cli.NexusApi.Send(new DoApc {Query = Snq.Parse(First)}, Flow);
+								Cli.Api.Send(new DoApc {Query = Snq.Parse(First)}, Flow);
 
 								return null;
 							};

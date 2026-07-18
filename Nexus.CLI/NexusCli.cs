@@ -3,14 +3,16 @@ using Uccs.Net;
 
 namespace Uccs.Nexus.CLI;
 
-public class NexusCli : Cli
+public class NexusCli : NetCli
 {
-	public Nexus				Nexus;
-	public NetBoot				Boot;
-	public NexusSettings		Settings;
+	public Nexus					Nexus;
+	public VaultSettings			VaultSettings;
 
-	NexusApiClient				_Nexus;
-	public NexusApiClient		NexusApi => _Nexus ??= new NexusApiClient(Settings.Api.LocalSystemAddress(Settings.Zone, Api.Nexus));
+	NexusApiClient					_Api;
+	public override JsonApiClient	Api => _Api ??= new NexusApiClient(NexusSettings.Api.LocalSystemAddress(NexusSettings.Zone, Net.Api.Nexus));
+
+	VaultApiClient					_VaulApi;
+	public JsonApiClient			VaultApi => _VaulApi ??= new VaultApiClient(NexusSettings.Api.LocalSystemAddress(Boot.Zone, Net.Api.Vault));
 
 	static NexusCli()
 	{
@@ -19,7 +21,8 @@ public class NexusCli : Cli
 	public NexusCli()
 	{
 		Boot = new NetBoot(ExeDirectory);
-		Settings = new NexusSettings(Boot.Zone, Boot.Profile);
+		NexusSettings = new NexusSettings(Boot.Zone, Boot.Profile);
+		VaultSettings = new VaultSettings(NexusSettings);
 
 		//var c = Console.ForegroundColor;
 		//Console.Write($"Zone    = ");

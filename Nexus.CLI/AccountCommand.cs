@@ -4,13 +4,13 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus.CLI;
 
-public class VaultCommand : NexusCommand
+public class AccountCommand : NexusCommand
 {
-	public VaultCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
+	public AccountCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
 	}
 
-	public VaultCommand()
+	public AccountCommand()
 	{
 	}
 
@@ -25,7 +25,7 @@ public class VaultCommand : NexusCommand
 
 		a.Description = "Authenticates the specified user to transact in the specified network from the specified application";
 		a.Arguments =	[
-							new (account,		AA, "Address of the account which are authorized to sign transactions"),
+							AddressArgument(AA, "account which are authorized to sign transactions"),
 							new (user,			NAME, "Name of user in the specified network on whose behalf transactions are to be sent"),
 							new (net,			NA, "Address of the network to where transactions are to be sent"),
 							new (application,	STRING, "Identifier of the application"),
@@ -33,13 +33,13 @@ public class VaultCommand : NexusCommand
 
 		a.Execute = () =>	{
 
-								var ar = Api<AuthenticationResult>(	new AuthenticateApc
-																	{
-																		User = GetString(user),
-																		Net = GetString(net),
-																		Application = GetString(application),
-																		Account  = GetAccountAddress(account, null)
-																	});
+								var ar = VaultApi<AuthenticationResult>(new AuthenticateApc
+																		{
+																			Account  = GetAccountAddress(AddressKeyword),
+																			User = GetString(user),
+																			Net = GetString(net),
+																			Application = GetString(application),
+																		});
 								return ar;
 							};
 		return a;
@@ -49,13 +49,12 @@ public class VaultCommand : NexusCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		const string account = nameof(account);
 		const string session = nameof(session);
 		const string trust = nameof(trust);
 
 		a.Description = "Confirms pending authentication";
 		a.Arguments =	[
-							new (account, AA, "Name of the account to confirm authentication for"),
+							AddressArgument(AA, "account to confirm authentication for"),
 							new (session, HEX, "Session Id"),
 							new (trust, TRUST, "Trust level"),
 						];
@@ -66,7 +65,7 @@ public class VaultCommand : NexusCommand
 
 								lock(Cli.Nexus.Vault)
 								{
-									var ac = Cli.Nexus.Vault.Find(GetString(account))
+									var ac = Cli.Nexus.Vault.Find(GetAccountAddress(AddressKeyword))
 											 ??
 											 throw new VaultException(VaultError.NotFound);
 	
@@ -84,15 +83,13 @@ public class VaultCommand : NexusCommand
 		return a;
 	}
 
-	public CommandAction PendingAuthentications_LPA()
+	public CommandAction ListPendingAuthentications_LPA()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		const string account = nameof(account);
-
 		a.Description = "Lists pending authentications for the specified account";
 		a.Arguments =	[
-							new (account, AA, "Name of the account to get pending authentications from"),
+							AddressArgument(AA, "account to get pending authentications from"),
 						];
 
 		a.Execute = () =>	{
@@ -101,11 +98,38 @@ public class VaultCommand : NexusCommand
 
 								lock(Cli.Nexus.Vault)
 								{
-									var ac = Cli.Nexus.Vault.Find(GetAccountAddress(account))
+									var ac = Cli.Nexus.Vault.Find(GetAccountAddress(AddressKeyword))
 											 ??
 											 throw new VaultException(VaultError.NotFound);
 
 									Flow.Log.Dump(ac.PendingAuthentications, ["Application", "Net", "User", "Session"], [i => i.Application, i => i.Net, i => i.User, i => i.Session.ToHex()]);	
+								}
+
+								return null;
+							};
+		return a;
+	}
+
+	public CommandAction ListAuthentications_LA()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Lists existing authentications for the specified account";
+		a.Arguments =	[
+							AddressArgument(AA, "account to get authentications from"),
+						];
+
+		a.Execute = () =>	{
+								if(Cli.Nexus.Vault == null)
+									throw new VaultException(VaultError.NotPermittedOutsideVaultApplication);
+
+								lock(Cli.Nexus.Vault)
+								{
+									var ac = Cli.Nexus.Vault.Find(GetAccountAddress(AddressKeyword))
+											 ??
+											 throw new VaultException(VaultError.NotFound);
+
+									Flow.Log.Dump(ac.Authentications, ["Application", "Net", "User", "Session", "Trust"], [i => i.Application, i => i.Net, i => i.User, i => i.Session.ToHex(), i => i.Trust]);	
 								}
 
 								return null;

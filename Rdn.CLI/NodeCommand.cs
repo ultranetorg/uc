@@ -10,7 +10,7 @@ public class NodeCommand : Net.NodeCommand
 
 	protected override McvApiClient CreateClient(string url)
 	{
-		return new RdnApiClient(url, GetString(Apc.AccessKey, null));
+		return new RdnApiClient(url);
 	}
 
 //	public CommandAction Run()

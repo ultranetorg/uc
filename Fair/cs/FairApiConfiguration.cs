@@ -90,7 +90,7 @@ public class FairApiServer : McvApiServer
 
 public class FairApiClient : McvApiClient
 {
-	public FairApiClient(string address, string accesskey = null, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	public FairApiClient(string address, HttpClient http = null, int timeout = 30) : base(address, http, timeout)
 	{
 		Options = FairApiConfiguration.CreateOptions();
 	}

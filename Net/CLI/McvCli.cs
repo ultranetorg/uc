@@ -2,14 +2,12 @@
 
 namespace Uccs.Net;
 
-public class McvCli : Cli
+public abstract class McvCli : NetCli
 {
-	public NexusSettings	NexusSettings;
 	public McvNodeSettings	Settings;
 	public McvNet			Net;
 	public McvNode			Node;
 	public McvApiClient		ApiClient;
-	public NetBoot			Boot;
 
 	public McvCli()
 	{

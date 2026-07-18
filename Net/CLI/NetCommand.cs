@@ -61,12 +61,34 @@ public abstract class NetCommand : Command
 	public string							Address => GetString(AddressKeyword);
 	public virtual string[]					TransactionKeywords => [AORKeyword, ByKeyword, BoostKeyword];
 
+	protected NetCli						Cli;
+
 	protected NetCommand(List<Xon> args, Flow flow) : base(args, flow)
 	{
 	}
 
 	protected NetCommand()
 	{
+	}
+
+	protected void ApplyTimeouts(Apc call)
+	{
+ 		if(Has("apitimeout"))
+			call.Timeout = GetInt("apitimeout") * 1000;
+	}
+
+	public virtual void Api(Apc call)
+	{
+		ApplyTimeouts(call);
+		
+		Cli.Api.Send(call, Flow, GetString(Apc.CredentialsKeyword, null));
+	}
+
+	public virtual R Api<R>(Apc call)
+	{
+		ApplyTimeouts(call);
+
+		return Cli.Api.Call<R>(call, Flow, GetString(Apc.CredentialsKeyword, null));
 	}
 
 	protected void Run(Cli cli, CommandAction action)

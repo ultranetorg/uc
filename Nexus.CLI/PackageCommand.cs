@@ -47,7 +47,7 @@ public class PackageCommand : NexusCommand
 																Resource		 = address, 
 																Sources			 = Args.Where(i => i.Name == source).Select(i => i.Get<string>()), 
 																DependenciesPath = dp,
-																Previous		 = GetResourceAddress(previous, false),
+																Previous		 = GetResourceAddress(previous, null),
 																AddressCreator	 =	new()
 																					{
 																						Type = UrrScheme.Rrrh,

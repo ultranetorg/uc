@@ -14,7 +14,11 @@ public class Settings
 
 	protected object Load(string name, Type t, Xon x)
 	{
-		if(t.Name.EndsWith("Settings"))
+		if(t == typeof(byte[]))
+		{
+			return x.Get(t);
+		}
+		else if(t.Name.EndsWith("Settings"))
 		{
 			var s = Activator.CreateInstance(t) as Settings;
 			s.Load(x);
@@ -67,7 +71,7 @@ public class Settings
 		{
 			var x = p.PropertyType.Name.EndsWith("Settings") ? xon.One(p.Name.TrimEnd('s')) : xon.One(p.Name);
 	
-			if(p.PropertyType == typeof(bool))	
+			if(p.PropertyType == typeof(bool))
 			{
 				p.SetValue(this, x != null);
 			}

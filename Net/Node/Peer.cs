@@ -110,7 +110,6 @@ public abstract class Peer : IBinarySerializable
 		Retries = 0;
 		IdCounter = 0;
 		Inbound = false;
-		Reader = null;
 		/// Writer = null; Leave to be not null to get System.Net exceptions
 
 		lock(OutRequests)
@@ -133,6 +132,8 @@ public abstract class Peer : IBinarySerializable
 			Tcp.Close();
 			Tcp = null;
 		}
+
+		Reader = null;
 	
 		//if(ListenThread == null)
 		{

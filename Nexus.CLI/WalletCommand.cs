@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
+using Uccs.Net;
 using Uccs.Nexus;
 
-namespace Uccs.Vault.CLI;
+namespace Uccs.Nexus.CLI;
 
-public class WalletCommand : VaultCommand
+public class WalletCommand : NexusCommand
 {
-	public WalletCommand(VaultCli vault, List<Xon> args, Flow flow) : base(vault, args, flow)
+	public WalletCommand(NexusCli vault, List<Xon> args, Flow flow) : base(vault, args, flow)
 	{
 	}
 
@@ -33,10 +34,10 @@ public class WalletCommand : VaultCommand
 								//	p = Cli.PasswordAsker.Password;
 								//}
 
-								var v = new Nexus.Vault(Cli.Boot.Zone, Cli.Settings, Flow);
+								var v = new Vault(Cli.NexusSettings.Zone, Cli.VaultSettings, Flow);
 								var w = v.CreateWallet(Name, GetString("password"), GetInt("accounts", (int)a.Arguments[1].Default));
 
-								Api(new AddWalletApc {Name = GetString(NameKeyword), Raw = w.ToRaw()});
+								VaultApi(new AddWalletApc {Name = GetString(NameKeyword), Raw = w.ToRaw()});
 
 								foreach(var i in w.Accounts.Index())
 								{
@@ -56,7 +57,7 @@ public class WalletCommand : VaultCommand
 
 		a.Description = "Lists all existing wallets";
 		a.Execute = () =>	{
-								var r = Api<WalletsApc.Wallet[]>(new WalletsApc {});
+								var r = VaultApi<WalletsApc.Wallet[]>(new WalletsApc {});
 
 								Flow.Log.Dump(r, ["Name", "State"], [i => i.Name, i => i.Locked ? "Locked" : "Unlocked"]);
 
@@ -74,7 +75,7 @@ public class WalletCommand : VaultCommand
 							new (NameKeyword, FILENAME, "Name of the wallet", ArgumentFlag.Optional),
 						];
 		a.Execute = () =>	{
-								var r = Api<WalletAccountsApc.Account[]>(new WalletAccountsApc {Name = GetString(NameKeyword, null)});
+								var r = VaultApi<WalletAccountsApc.Account[]>(new WalletAccountsApc {Name = GetString(NameKeyword, null)});
 
 								Flow.Log.Dump(r, ["Name", "Address"], [i => i.Name, i => i.Address]);
 
@@ -94,7 +95,7 @@ public class WalletCommand : VaultCommand
 						];
 
 		a.Execute = () =>	{
-								Api(new UnlockWalletApc{Name = GetString(NameKeyword, null), 
+								VaultApi(new UnlockWalletApc{Name = GetString(NameKeyword, null), 
 														Password = GetString("password")});
 								return null;
 							};
@@ -109,7 +110,7 @@ public class WalletCommand : VaultCommand
 		a.Arguments =	[new (NameKeyword, FILENAME, "Name of the wallet", ArgumentFlag.Optional)];
 
 		a.Execute = () =>	{
-								Api(new LockWalletApc {Name = GetString(NameKeyword, null)});
+								VaultApi(new LockWalletApc {Name = GetString(NameKeyword, null)});
 								return null;
 							};
 		return a;
@@ -125,14 +126,11 @@ public class WalletCommand : VaultCommand
 						new ("key", PRIVATEKEY, "Private key of account to import", ArgumentFlag.Optional)];
 
 		a.Execute = () =>	{
-								var pk = Api<byte[]>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", null), Name = GetString(NameKeyword, null), Tag = GetString("tag", null)});
+								var aa = VaultApi<AccountAddress>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", null), Name = GetString(NameKeyword, null), Tag = GetString("tag", null)});
 								
-								var k = new AccountKey(pk);
+								Report("Address - " + aa); 
 
-								Report("Public Address - " + k); 
-								Report("Private Key    - " + k.Secret.ToHex());
-
-								return k;
+								return aa;
 							};
 		return a;
 	}
@@ -152,7 +150,7 @@ public class WalletCommand : VaultCommand
 		a.Execute = () =>	{
 								var	b = File.ReadAllBytes(GetString(p));
 
-								Api(new AddWalletApc {Name = GetString(NameKeyword, null), Raw = b});
+								VaultApi(new AddWalletApc {Name = GetString(NameKeyword, null), Raw = b});
 		
 								return a;
 							};

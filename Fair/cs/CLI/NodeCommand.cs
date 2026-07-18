@@ -10,7 +10,7 @@ public class NodeCommand : Uccs.Net.NodeCommand
 
 	protected override McvApiClient CreateClient(string url)
 	{
-		return new FairApiClient(url, GetString(Apc.AccessKey, null));
+		return new FairApiClient(url);
 	}
 
 	public CommandAction Run()

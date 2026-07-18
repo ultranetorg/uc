@@ -5,14 +5,17 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Web;
+using Blake2Fast;
 
 namespace Uccs;
 
 public abstract class Apc
 {
-	public const string		AccessKey = "accesskey";
+	public const string		CredentialsKeyword = "credentials";
 	public const string		Postfix = "Apc";
-	public static string	NameOf(Type type) => type.Name.Remove(type.Name.IndexOf(Postfix));
+	public static string	NameOf(Type type) => type.Name.Remove(type.Name.LastIndexOf(Postfix));
+	public static byte[]	HashifyAdminPassword(string password) => Blake2b.ComputeHash(32, Encoding.UTF8.GetBytes(password));
 
 	public int				Timeout {get; set;} = System.Threading.Timeout.Infinite;
 	public int				Limit { get; set; }
@@ -22,7 +25,7 @@ public class ApiSettings : Settings
 {
 	public string			LocalAddress { get; set; }
 	public string			PublicAddress { get; set; }
-	public string			PublicAccessKey { get; set; }
+	public byte[]			AdminPasswordHash { get; set; }
 
 	public ApiSettings() : base(XonTextValueSerializator.Default)
 	{
@@ -90,6 +93,8 @@ public abstract class JsonServer
 	public Flow								Flow;
 	protected JsonSerializerOptions			Options;
 	Dictionary<string, ConstructorInfo>		Calls = [];
+	protected List<string>					Restricted = [];
+	protected const string					All = "*";
 
 	protected abstract object				Execute(object call, HttpListenerRequest request, HttpListenerResponse response, Flow workflow);
 	protected abstract Type					Create(string call);
@@ -200,27 +205,38 @@ public abstract class JsonServer
 		
 		try
 		{
-            rp.AddHeader("Access-Control-Allow-Origin", "*");
-            rp.AddHeader("Access-Control-Allow-Methods", "*");
-            rp.AddHeader("Access-Control-Allow-Headers", "*");
-
-            if(rq.HttpMethod == "OPTIONS")
+            if(rq.HttpMethod == HttpMethod.Options.Method)
             {
                 rp.StatusCode = 200;
                 rp.Close();
                 return;
             }
 
-			if(!rq.Url.IsLoopback && !string.IsNullOrWhiteSpace(Settings.PublicAccessKey) && System.Web.HttpUtility.ParseQueryString(rq.Url.Query).Get(Apc.AccessKey) != Settings.PublicAccessKey)
+			var p = Listener.Prefixes.First(i => rq.Url.ToString().StartsWith(i));
+			var call = rq.Url.LocalPath.Substring(new Uri(p).LocalPath.Length);
+
+			if(Restricted.Any(i => i.Equals(call, StringComparison.InvariantCultureIgnoreCase)))
 			{
-				RespondError(rp, "text/plain", HttpStatusCode.Unauthorized.ToString(), HttpStatusCode.Unauthorized);
-				rp.Close();
-				return;
+				if(Settings.AdminPasswordHash == null)
+				{	
+					RespondError(rp, "text/plain", "Set admin password first", HttpStatusCode.Unauthorized);
+					rp.Close();
+					return;
+				}
+				
+				var k = HttpUtility.ParseQueryString(rq.Url.Query).Get(Apc.CredentialsKeyword);
+
+				if(string.IsNullOrWhiteSpace(k) || !Bytes.Equal(Apc.HashifyAdminPassword(k), Settings.AdminPasswordHash))
+				{
+					RespondError(rp, "text/plain", "Password mismatch", HttpStatusCode.Unauthorized);
+					rp.Close();
+					return;
+				}
 			}
 
-			var p = Listener.Prefixes.First(i => rq.Url.ToString().StartsWith(i));
-
-			var call = rq.Url.LocalPath.Substring(new Uri(p).LocalPath.Length);
+            rp.AddHeader("Access-Control-Allow-Origin", "*");
+            rp.AddHeader("Access-Control-Allow-Methods", "*");
+            rp.AddHeader("Access-Control-Allow-Headers", "*");
 
 			Route(context, call);
 		}

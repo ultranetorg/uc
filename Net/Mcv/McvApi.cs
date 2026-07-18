@@ -59,7 +59,7 @@ public abstract class McvApiServer : NodeApiServer
 
 public class McvApiClient : JsonApiClient
 {
-	public McvApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	public McvApiClient(string address, HttpClient http = null, int timeout = 30) : base(address, http, timeout)
 	{
 		Options = NetJsonConfiguration.CreateOptions();
 	}

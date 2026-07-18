@@ -21,7 +21,7 @@ public class AuthenticationResult
 
 public class VaultApiClient : JsonApiClient
 {
-	public VaultApiClient(string address, string accesskey = null, HttpClient http = null, int timeout = 30) : base(address, accesskey, http, timeout)
+	public VaultApiClient(string address, HttpClient http = null, int timeout = 30) : base(address, http, timeout)
 	{
 	}
 }

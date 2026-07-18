@@ -4,6 +4,9 @@ namespace Uccs.Fair;
 
 public class FairCli : McvCli
 {
+	public override JsonApiClient	Api => _Api ??= new FairApiClient(Settings.Api.LocalNodeAddress(Net));
+	JsonApiClient					_Api;
+
 	static void Main(string[] args)
 	{
 		Thread.CurrentThread.CurrentCulture = 
@@ -20,7 +23,6 @@ public class FairCli : McvCli
 		NexusSettings	= new NexusSettings(Boot.Zone, Boot.Profile);
 		Settings		= new FairNodeSettings(Path.Join(Boot.Profile, typeof(FairNode).FullName), Boot.Zone, NexusSettings);
 
-		ApiClient		= new FairApiClient(Settings.Api.LocalNodeAddress(Net));
 
 		Execute(Boot.Profile, Boot.Commnand);
 	}

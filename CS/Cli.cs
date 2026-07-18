@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace Uccs;
 
@@ -73,6 +74,14 @@ public abstract class Cli
 			f.Log.ReportError(null, "Execution aborted");
 		}
 		catch(SyntaxException ex)
+		{
+			f.Log.ReportError(ex.Message);
+		}
+		catch(CodeException ex)
+		{
+			f.Log.ReportError(ex.Message);
+		}
+		catch(CryptographicException ex)
 		{
 			f.Log.ReportError(ex.Message);
 		}

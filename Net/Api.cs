@@ -64,7 +64,7 @@ public class IpApiSettings : Settings
 {
 	public IPAddress		LocalIP { get; set; }
 	public IPAddress		PublicIP { get; set; }
-	public string			PublicAccessKey { get; set; }
+	public byte[]			AdminPasswordHash { get; set; }
 	public bool				Ssl { get; set; }
 
 	public IpApiSettings() : base(XonTextValueSerializator.Default)
@@ -97,7 +97,7 @@ public class IpApiSettings : Settings
 				{
 					LocalAddress = LocalSystemAddress(zone, path),
 					PublicAddress = PublicIP == null ? null : PublicSystemAddress(zone, path),
-					PublicAccessKey = PublicAccessKey,
+					AdminPasswordHash = AdminPasswordHash,
 				};
 	}
 
@@ -107,7 +107,7 @@ public class IpApiSettings : Settings
 				{
 					LocalAddress = LocalNodeAddress(net),
 					PublicAddress = PublicIP == null ? null : PublicNodeAddress(net),
-					PublicAccessKey = PublicAccessKey,
+					AdminPasswordHash = AdminPasswordHash,
 				};
 	}
 }
@@ -199,7 +199,7 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 
 public class JsonApiClient : JsonClient
 {
-	public JsonApiClient(string address, string accesskey, HttpClient http = null, int timeout = 30) : base(address, accesskey, http ?? Api.HttpClient, timeout)
+	public JsonApiClient(string address, HttpClient http = null, int timeout = 30) : base(address, http ?? Api.HttpClient, timeout)
 	{
 		Options = NetJsonConfiguration.CreateOptions();
 	}
