@@ -15,8 +15,8 @@ public class AccountKeyTests
 		var h = new byte[32];
 		r.NextBytes(h);
 
-		var k = AccountKey.Create();
-		var kk = AccountKey.Create();
+		var k = SecretKey.Create();
+		var kk = SecretKey.Create();
 
 		var s = Cryptography.Mcv.Sign(k, h);
 

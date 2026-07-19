@@ -117,7 +117,7 @@ public class Vote : IBinarySerializable
 		Transactions = Transactions.Prepend(t).ToArray();
 	}
 	
-	public void Sign(AccountKey generator)
+	public void Sign(SecretKey generator)
 	{
 	//	_Generator = generator.Address;
 		Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());

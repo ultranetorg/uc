@@ -9,7 +9,7 @@ public class NetXonTextValueSerializator : XonTextValueSerializator
 		if(val == null)
 			return null;
 
-		if(val is AccountKey k)
+		if(val is SecretKey k)
 			return k.Secret.ToHex();
 
 		if(	val is AccountAddress ||
@@ -26,7 +26,7 @@ public class NetXonTextValueSerializator : XonTextValueSerializator
 	{
 		var v = value as string;
 
-		if(type == typeof(AccountKey))			return new AccountKey(v.FromHex());
+		if(type == typeof(SecretKey))			return new SecretKey(v.FromHex());
 		if(type == typeof(AccountAddress))		return AccountAddress.Parse(v);
 		if(type == typeof(Time))				return Time.Parse(v);
 		if(type == typeof(Unit))				return Unit.Parse(v);

@@ -59,7 +59,7 @@ public class Authentication : IBinarySerializable
 public class WalletAccount : IBinarySerializable
 {
 	public string						Name { get; set; } 
-	public AccountKey					Key { get; set; }
+	public SecretKey					Key { get; set; }
 	public AccountAddress				Address  => Key.Address;
 	public List<Authentication>			Authentications = [];
 	public Wallet						Wallet;
@@ -74,7 +74,7 @@ public class WalletAccount : IBinarySerializable
 		Wallet = vault;
 	}
 
-	public WalletAccount(Wallet vault, string name, AccountKey key)
+	public WalletAccount(Wallet vault, string name, SecretKey key)
 	{
 		Wallet = vault;
 		Name = name;
@@ -143,7 +143,7 @@ public class WalletAccount : IBinarySerializable
 	public void Read(Reader reader)
 	{
 		Name			= reader.ReadUtf8();
-		Key				= new AccountKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
+		Key				= new SecretKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
 		Authentications	= reader.ReadList<Authentication>();
 	}
 }
@@ -173,7 +173,7 @@ public class Wallet
 		Encrypted			 = r.ReadBytes();
 	}
 
-	public Wallet(Vault vault, string name, IDictionary<AccountKey, string> keys, string password)
+	public Wallet(Vault vault, string name, IDictionary<SecretKey, string> keys, string password)
 	{
 		Name = name ?? Default;
 		Vault = vault;
@@ -221,7 +221,7 @@ public class Wallet
 		if(key != null && Accounts.Any(i => Bytes.Equal(i.Key.Secret, key)))
 			throw new VaultException(VaultError.AlreadyExists);
 
-		var a = new WalletAccount(this, name, key == null ? AccountKey.Create(tag) : new AccountKey(key, tag));
+		var a = new WalletAccount(this, name, key == null ? SecretKey.Create(tag) : new SecretKey(key, tag));
 		
 		Accounts.Add(a);
 

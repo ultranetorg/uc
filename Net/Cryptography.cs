@@ -22,7 +22,7 @@ public abstract class Cryptography
 
 	public abstract CryptographyType				Type {get; }
 
-	public abstract byte[]							Sign(AccountKey pk, byte[] hash);
+	public abstract byte[]							Sign(SecretKey pk, byte[] hash);
 	public abstract bool							Verify(AccountAddress address, byte[] hash, byte[] signature);
     public abstract byte[]							HashifyPassword(string password, byte[] salt);
 													
@@ -132,7 +132,7 @@ public class NoCryptography : Cryptography
 {
 	public override CryptographyType Type => CryptographyType.No;
 
-	public override byte[] Sign(AccountKey k, byte[] h)
+	public override byte[] Sign(SecretKey k, byte[] h)
 	{
 		var s = new byte[SignatureLength];
 
@@ -157,14 +157,14 @@ public class McvCryptography : Cryptography
 {
 	public override CryptographyType Type => CryptographyType.Mcv;
 
-	public override byte[] Sign(AccountKey k, byte[] h)
+	public override byte[] Sign(SecretKey k, byte[] h)
 	{
 		return k.Sign(h);
 	}
 
 	public override bool Verify(AccountAddress address, byte[] hash, byte[] signature)
 	{
-		return AccountKey.Verify(address.Bytes, signature, hash);
+		return SecretKey.Verify(address.Bytes, signature, hash);
 	}
 
 	public override byte[] HashifyPassword(string password, byte[] salt)

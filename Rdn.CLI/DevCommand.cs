@@ -69,7 +69,7 @@ public class DevCommand : RdnCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Execute = () =>	{
-								var k = AccountKey.Create();
+								var k = SecretKey.Create();
 
 								Report("Public Address - " + k.ToString()); 
 								Report("Private Key    - " + k.Secret.ToHex());

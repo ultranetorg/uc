@@ -132,8 +132,8 @@ public partial class WalletsPage : Page
 
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{
-				var acc = AccountKey.Create();
-				var w = Nexus.Vault.AddWallet(f.WalletName, new OrderedDictionary<AccountKey, string> {{acc, sender == null ? "YourFirstAccount" : null}}, f.Password);
+				var acc = SecretKey.Create();
+				var w = Nexus.Vault.AddWallet(f.WalletName, new OrderedDictionary<SecretKey, string> {{acc, sender == null ? "YourFirstAccount" : null}}, f.Password);
 
 				LoadWallets();
 			}

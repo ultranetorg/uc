@@ -108,11 +108,11 @@ public class Vault
 		if(string.IsNullOrWhiteSpace(name) || name.Length > 256 || name.Any(i => System.IO.Path.GetInvalidFileNameChars().Contains(i)))
 			throw new VaultException(VaultError.InvalidWalletName);
 
-		var w = new Wallet(this, name, Enumerable.Range(0, accounts).ToDictionary(i => AccountKey.Create(), i => (string)null), password);
+		var w = new Wallet(this, name, Enumerable.Range(0, accounts).ToDictionary(i => SecretKey.Create(), i => (string)null), password);
 		return w;
 	}
 
-	public Wallet CreateWallet(string name, IDictionary<AccountKey, string> keys, string password)
+	public Wallet CreateWallet(string name, IDictionary<SecretKey, string> keys, string password)
 	{
 		var w = new Wallet(this, name, keys, password);
 		return w;
@@ -136,7 +136,7 @@ public class Vault
 		w.Save();
 	}
 
-	public Wallet AddWallet(string name, IDictionary<AccountKey, string> keys, string password)
+	public Wallet AddWallet(string name, IDictionary<SecretKey, string> keys, string password)
 	{
 		if(FindWallet(name) != null)
 			throw new VaultException(VaultError.AlreadyExists);

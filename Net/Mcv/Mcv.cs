@@ -40,7 +40,7 @@ public abstract class Mcv /// Mutual chain voting
 	public const int								TransactionQueueLimit = 1000;
 	public static readonly Time						Forever = Time.FromYears(30);
 
-	public readonly static AccountKey				God = new AccountKey([1, ..new byte[31]]);
+	public readonly static SecretKey				God = new SecretKey([1, ..new byte[31]]);
 	public readonly static string					GodName = "";
 
 	public object									Lock = new();

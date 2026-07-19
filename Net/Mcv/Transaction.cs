@@ -60,7 +60,7 @@ public class Transaction : IBinarySerializable
 		return $"User={User}, Nonce={Nonce}, {Status}, Operations={Operations.FirstOrDefault()?.ToString() ?? $"{{{Operations.Length}}}"}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
 	}
 
-	public void Sign(McvNet net, AccountKey signer)
+	public void Sign(McvNet net, SecretKey signer)
 	{
 		//Signer = signer.Address;
 		Signature = net.Cryptography.Sign(signer, Hashify(net));
