@@ -20,6 +20,8 @@ public class Nexus : IProgram
 	public IccpPeering				IccpPeering;
 	public IccpLcpServer			IccpLcpServer;
 	
+	public System.Version			Version => GetType().Assembly.GetName().Version;
+
 	public delegate void			Delegate(Nexus d);
 
 	public Nexus(NetBoot boot, NexusSettings settings, VaultSettings vaultsettings, Flow flow)

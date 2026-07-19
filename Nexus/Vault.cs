@@ -105,6 +105,9 @@ public class Vault
 
 	public Wallet CreateWallet(string name, string password, int accounts)
 	{
+		if(string.IsNullOrWhiteSpace(name) || name.Length > 256 || name.Any(i => System.IO.Path.GetInvalidFileNameChars().Contains(i)))
+			throw new VaultException(VaultError.InvalidWalletName);
+
 		var w = new Wallet(this, name, Enumerable.Range(0, accounts).ToDictionary(i => AccountKey.Create(), i => (string)null), password);
 		return w;
 	}

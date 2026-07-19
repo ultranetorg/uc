@@ -148,7 +148,7 @@ public class XonTextReader : IXonReader
 
 	public object ParseValue()
 	{
-		StringBuilder value = null; 
+		StringBuilder b = null; 
 
 		bool q = false;
 
@@ -158,22 +158,18 @@ public class XonTextReader : IXonReader
 			{
 				if(C == ' ' || C == '\t' || C == '\r' || C == '\n' || C == '}' || C == '{')
 				{
-					if(value != null)
+					if(b != null)
 						break;
 				}
-				else if(C == '\"') /// opening "
+				else if(b == null && C == '\"') /// opening "
 				{
-					value = new StringBuilder();
+					b = new StringBuilder();
 					q = true;
 				}
 				else
 				{
-					if(value == null)
-					{
-						//found = true;
-						value = new StringBuilder();
-					}
-					value.Append(C);
+					b ??= new StringBuilder();
+					b.Append(C);
 				}
 			}
 			else
@@ -185,12 +181,12 @@ public class XonTextReader : IXonReader
 					if(!R)
 						break;
 					else if(C == '"')
-						value.Append(C);
+						b.Append(C);
 					else
 						break;
 				}
 				else
-					value.Append(C);
+					b.Append(C);
 
 			}
 			Move();
@@ -198,14 +194,13 @@ public class XonTextReader : IXonReader
 
 		Current = XonToken.SimpleValueEnd;
 
-		return value?.ToString();
+		return b?.ToString();
 	}
 
 	public string ParseName()
 	{
 		bool q = false;
-
-		var name = new StringBuilder(); 
+		StringBuilder b = null; 
 
 		while(true)
 		{
@@ -214,15 +209,16 @@ public class XonTextReader : IXonReader
 				if(!R || C == ' ' || C == '\t' || C == '\r' || C == '\n' || C == '{' || C == '}' || C == '=')
 				{
 					Current = XonToken.NameEnd;
-					return name.ToString();
+					return b.ToString();
 				}
-				else if(C == '\"') // opening '
+				else if(b == null && C == '\"') /// opening quotation mark
 				{
 					q = true;
 				}
 				else
 				{
-					name.Append(C);
+					b ??= new StringBuilder();
+					b.Append(C);
 				}
 			}
 			else
@@ -234,7 +230,7 @@ public class XonTextReader : IXonReader
 					if(!R)
 						break;
 					else if(C == '\"')
-						name.Append(C);
+						b.Append(C);
 					else
 					{
 						Current = XonToken.NameEnd;
@@ -242,12 +238,15 @@ public class XonTextReader : IXonReader
 					}
 				}
 				else
-					name.Append(C);
+				{	
+					b ??= new StringBuilder();
+					b.Append(C);
+				}
 			}
 			Move();
 		}
 
-		return name.ToString();
+		return b?.ToString();
 	}
 
 	public object ParseMeta()

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Security.Cryptography;
 
 namespace Uccs.Net;
 
@@ -41,7 +42,7 @@ public class NexusSettings : SavableSettings
 
 		if(!File.Exists(Path))
 		{
-			Name		= Guid.NewGuid().ToByteArray().ToHex();
+			Name		= GenerateRandomString();
 			Host		= StandardHost;
 			IccpPeering	= new PeeringSettings {Endpoint = new (IPAddress.Any, Port.Map(zone, KnownProtocol.Iccp))};
 			Api			= new () {LocalIP = StandardHost};
@@ -49,5 +50,12 @@ public class NexusSettings : SavableSettings
 			
 			Save();
 		}
+	}
+
+	public static string GenerateRandomString(int length = 16)
+	{
+		const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    
+		return string.Create(length, chars, (span, alphabet) => RandomNumberGenerator.GetItems(alphabet, span));
 	}
 }

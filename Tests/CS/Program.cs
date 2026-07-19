@@ -7,11 +7,11 @@ class Program
 	{
 		//AccountAddressTests.Main();
 		//AccountAddressTests.ReadWrite();
-		AccountKeyTests.Main();
+		//AccountKeyTests.Main();
 		//Array.Main();
 		//IdTests.Main();
 		//MoneyTests.Main();
-		//XonTest.Basic();
+		XonTest.Basic();
 		//ECTests.Move();
 		//Serialization.Main();
 		//PlatformExpressionTest.Main();

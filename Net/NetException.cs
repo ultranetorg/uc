@@ -69,6 +69,7 @@ public enum VaultError : uint
     AccountNotFound,
 	Corrupted,
 	IncorrectArgumets,
+	InvalidWalletName,
 	Locked,
     NetNotFound,
 	NotAuthorized,
