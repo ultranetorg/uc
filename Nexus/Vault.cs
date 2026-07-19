@@ -247,7 +247,7 @@ public class Vault
 		}
 	}
 
-	public AuthenticationResult Authenticate(string application, string net, string user, byte[] logo, AccountAddress account, Flow flow)
+	public AuthenticationResult Authenticate(string application, string net, string user, byte[] logo, AccountAddress account)
 	{
 		var c = AuthenticationRequested?.Invoke(application, logo, net, user, account);
 	

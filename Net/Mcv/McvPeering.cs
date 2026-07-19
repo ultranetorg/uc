@@ -830,7 +830,7 @@ public abstract class McvPeering : HomoPeering
 		if(a == null)
 			return null;
 
-		var ass = new AccountSessionSettings {User = user, Signer = a.Signer, Session = a.Session};
+		var ass = new AccountSessionSettings {User = user, Session = a.Session};
 		Node.Settings.Sessions = [..Node.Settings.Sessions, ass];
 		Node.Settings.Save();
 

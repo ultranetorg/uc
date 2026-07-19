@@ -292,7 +292,7 @@ public class Nexus : IProgram
 				s = new NexusSessionSettings
 					{
 						Net = net,
-						Session = Vault.Authenticate(Settings.Name, net, "", null, null, flow).Session
+						Session = Vault.Authenticate(Settings.Name, net, "", null, null).Session
 					};
 
 			Settings.Sessions = [..Settings.Sessions, s];

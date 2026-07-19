@@ -6,7 +6,6 @@ namespace Uccs.Net;
 public class AccountSessionSettings : Settings
 {
 	public string			User { get; set; }
-	public AccountAddress	Signer { get; set; }
 	public byte[]			Session { get; set; }
 
 	public AccountSessionSettings() : base(NetXonTextValueSerializator.Default)
