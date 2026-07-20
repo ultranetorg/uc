@@ -95,12 +95,12 @@ public class UsersService
 			Name = account.Name,
 			Owner = account.Owner.ToString(),
 			AuthorsIds = account.Authors.Select(id => id.ToString()),
-			FavoriteSites = account.FavoriteStores.Length > 0 ? LoadAccountSites(account.FavoriteStores) : [],
+			FavoriteSites = account.FavoriteStores.Length > 0 ? LoadUserSites(account.FavoriteStores) : [],
 			HasAvatar = account.Avatar != null
 		};
 	}
 
-	IEnumerable<SiteBaseModel> LoadAccountSites(AutoId[] sitesIds)
+	IEnumerable<SiteBaseModel> LoadUserSites(AutoId[] sitesIds)
 	{
 		return sitesIds.Select(id =>
 		{

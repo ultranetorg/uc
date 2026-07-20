@@ -8,7 +8,7 @@ namespace Uccs.Net;
 public class NexusSessionSettings
 {
 	public string			Net { get; set; }
-	public AccountAddress	Signer { get; set; }
+	public PublicKey	Signer { get; set; }
 	public byte[]			Session { get; set; }
 }
 

@@ -6,11 +6,11 @@ namespace Uccs.Nexus.Windows;
 
 public partial class AuthenticattionForm : Form
 {
-	Vault Vault;
-	public AccountAddress Account { get => AccountAddress.Parse(Accounts.Text); }
-	public Trust Trust { get; protected set; }
+	Vault				Vault;
+	public PublicKey	Key { get => PublicKey.Parse(Keys.Text); }
+	public Trust		Trust { get; protected set; }
 
-	public AuthenticattionForm(Vault vault, string applicaiton, string net, string user, AccountAddress account)
+	public AuthenticattionForm(Vault vault, string applicaiton, string net, string user, PublicKey account)
 	{
 		Vault = vault;
 
@@ -21,7 +21,7 @@ public partial class AuthenticattionForm : Form
 		Application.Text = applicaiton;
 		Allow.Enabled = Ask.Enabled = false;
 
-		Program.NexusWindows.BindWallets(this, vault, Wallets, Accounts, account);
+		Program.NexusWindows.BindWallets(this, vault, Wallets, Keys, account);
 	}
 
 	public void SetLogo(byte[] image)
@@ -64,9 +64,9 @@ public partial class AuthenticattionForm : Form
 		Close();
 	}
 
-	private void Accounts_TextChanged(object sender, EventArgs e)
+	private void Keys_TextChanged(object sender, EventArgs e)
 	{
-		Allow.Enabled = Ask.Enabled = Accounts.SelectedItem is AccountAddress;
+		Allow.Enabled = Ask.Enabled = Keys.SelectedItem is PublicKey;
 	}
 
 	protected override void OnShown(EventArgs e)

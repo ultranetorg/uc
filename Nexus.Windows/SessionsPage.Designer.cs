@@ -35,7 +35,7 @@ partial class SessionsPage
 		Revoke = new Button();
 		Wallets = new ComboBox();
 		label1 = new Label();
-		Accounts = new ComboBox();
+		Keys = new ComboBox();
 		label2 = new Label();
 		label3 = new Label();
 		SuspendLayout();
@@ -96,25 +96,25 @@ partial class SessionsPage
 		label1.TabIndex = 6;
 		label1.Text = "Wallet";
 		// 
-		// Accounts
+		// Keys
 		// 
-		Accounts.DropDownStyle = ComboBoxStyle.DropDownList;
-		Accounts.FormattingEnabled = true;
-		Accounts.Location = new Point(369, 56);
-		Accounts.Name = "Accounts";
-		Accounts.Size = new Size(428, 23);
-		Accounts.TabIndex = 5;
-		Accounts.SelectionChangeCommitted += Accounts_SelectionChangeCommitted;
+		Keys.DropDownStyle = ComboBoxStyle.DropDownList;
+		Keys.FormattingEnabled = true;
+		Keys.Location = new Point(369, 56);
+		Keys.Name = "Keys";
+		Keys.Size = new Size(428, 23);
+		Keys.TabIndex = 5;
+		Keys.SelectionChangeCommitted += Keys_SelectionChangeCommitted;
 		// 
 		// label2
 		// 
 		label2.AutoSize = true;
 		label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-		label2.Location = new Point(310, 59);
+		label2.Location = new Point(335, 59);
 		label2.Name = "label2";
-		label2.Size = new Size(53, 15);
+		label2.Size = new Size(28, 15);
 		label2.TabIndex = 6;
-		label2.Text = "Account";
+		label2.Text = "Key";
 		// 
 		// label3
 		// 
@@ -136,7 +136,7 @@ partial class SessionsPage
 		Controls.Add(label3);
 		Controls.Add(label2);
 		Controls.Add(label1);
-		Controls.Add(Accounts);
+		Controls.Add(Keys);
 		Controls.Add(Wallets);
 		Controls.Add(Revoke);
 		Controls.Add(Sessions);
@@ -155,7 +155,7 @@ partial class SessionsPage
 	private ColumnHeader columnHeader3;
 	private ComboBox Wallets;
 	private Label label1;
-	private ComboBox Accounts;
+	private ComboBox Keys;
 	private Label label2;
 	private Label label3;
 }

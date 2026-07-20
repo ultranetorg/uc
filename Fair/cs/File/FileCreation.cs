@@ -66,16 +66,6 @@ public class FileCreation : FairOperation
 
 		switch((FairTable)Owner.Table)
 		{
-			//case FairTable.Account:
-			//{
-			//	if(!CanAccessAccount(execution, Owner.Id, out var a, out Error))
-			//		return;
-			//	
-			//	a = execution.AffectAccount(a.Id);
-			//	execution.Allocate(a, a, Data.Length);
-			//	break;
-			//}
-
 			case FairTable.Author:
 			{
 				if(!CanAccessAuthor(execution, Owner.Id, out var a, out Error))

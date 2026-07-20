@@ -2,7 +2,7 @@
 
 public class UserOwnerChange : Operation
 {
-	public AccountAddress		Owner { get; set; }
+	public PublicKey		Owner { get; set; }
 
 	public override string		Explanation => $"{Owner}";
 	
@@ -17,7 +17,7 @@ public class UserOwnerChange : Operation
 
 	public override void Read(Reader reader)
 	{
-		Owner = reader.Read<AccountAddress>();
+		Owner = reader.Read<PublicKey>();
 	}
 
 	public override void Write(Writer writer)

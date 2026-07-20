@@ -18,8 +18,8 @@ public partial class DomainPanel : McvPanel
 	{
 		if(first)
 		{
-		//	BindAccounts(RegisrationSigner);
-		//	BindAccounts(AuctionSigner);
+		//	BindUsers(RegisrationSigner);
+		//	BindUsers(AuctionSigner);
 		//
 		//	DomainTitle_TextChanged(null, null);
 		//
@@ -100,11 +100,11 @@ public partial class DomainPanel : McvPanel
 /*
 	private void search_Click(object sender, EventArgs e)
 	{
-		Account a = null;
+		User a = null;
 
 		try
 		{
-			a = Account.Parse(DomainSearch.Text.ToString());
+			a = User.Parse(DomainSearch.Text.ToString());
 		}
 		catch(Exception ex)
 		{
@@ -155,7 +155,7 @@ public partial class DomainPanel : McvPanel
 		//	if(!Domain.Valid(DomainSearch.Text))
 		//		throw new ArgumentException("Invalid domain name");
 		//
-		//	var a = GetPrivate(RegisrationSigner.SelectedItem as AccountAddress);
+		//	var a = GetPrivate(RegisrationSigner.SelectedItem as UserAddress);
 		//
 		//	Sun.Enqueue(new DomainRegistration(DomainSearch.Text, (byte)Years.Value), a, TransactionStatus.None, new Workflow("DomainRegistration"));
 		//}
@@ -201,7 +201,7 @@ public partial class DomainPanel : McvPanel
 // 
 // 				var a = Database.Domains.Find(DomainSearch.Text, int.MaxValue);
 // 
-// 				//Sun.Enqueue(new DomainTransfer(DomainSearch.Text, AccountAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
+// 				//Sun.Enqueue(new DomainTransfer(DomainSearch.Text, UserAddress.Parse(NewOwner.Text)), GetPrivate(a.Owner), TransactionStatus.None, new Workflow("Transfer_Click"));
 // 			}
 // 			catch(Exception ex) when (ex is RequirementException || ex is FormatException || ex is ArgumentException)
 // 			{
@@ -214,7 +214,7 @@ public partial class DomainPanel : McvPanel
 	{
 // 			try
 // 			{
-// 				var s = GetPrivate(AuctionSigner.SelectedItem as AccountAddress);
+// 				var s = GetPrivate(AuctionSigner.SelectedItem as UserAddress);
 // 
 // 				if(s == null)
 // 					return;

@@ -2,5 +2,5 @@
 
 public class SearchConstants
 {
-	public const int SearchAccountsLimit = 10;
+	public const int SearchUsersLimit = 10;
 }

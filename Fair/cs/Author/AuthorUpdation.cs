@@ -188,7 +188,7 @@ public class AuthorOwnerAddition : FairOperation
 		
 		a = execution.Authors.Affect(AuthorId);
 
-		if(!AccountExists(execution, Owner, out var x, out Error))
+		if(!UserExists(execution, Owner, out var x, out Error))
 			return;
 
 		a.Owners = [..a.Owners, x.Id];
@@ -238,7 +238,7 @@ public class AuthorOwnerRemoval : FairOperation
 			return;
 		}
 
-		if(!AccountExists(execution, Owner, out var x, out Error))
+		if(!UserExists(execution, Owner, out var x, out Error))
 			return;
 
 		a.Owners = a.Owners.Remove(x.Id);

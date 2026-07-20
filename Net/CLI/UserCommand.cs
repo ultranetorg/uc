@@ -25,26 +25,6 @@ public class UserCommand : McvCommand
 	{
 	}
 
-	//public CommandAction Create()
-	//{
-	//	var name = "name";
-	//	var owner = "owner";
-	//
-	//	var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-	//
-	//	a.Name = "c";
-	//	a.Description = "Create a new user entity";
-	//	a.Arguments = [	new (name,	NAME, "User name"),
-	//					new (owner, AA, "Account public address of account owner")];
-	//
-	//	a.Execute = () =>	{
-	//							Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
-	//
-	//							return new UserCreation {Name = GetString(name), Owner = GetAccountAddress(owner)};
-	//						};
-	//	return a;
-	//}
-
 	public CommandAction Create_C()
 	{
 		const string owner = nameof(owner);
@@ -53,14 +33,14 @@ public class UserCommand : McvCommand
 
 		a.Description = "Creates a new user for free. Uses POW.";
 		a.Arguments =	[
-							new (owner, AA, "Account address that has access to the user being created"),
+							new (owner, PUBKEY, "Account address that has access to the user being created"),
 							ByArgument("Name of the user to be created")
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								return new UserCreation {Owner = GetAccountAddress(owner)};
+								return new UserCreation {Owner = GetPublicKey(owner)};
 							};
 		return a;
 	}
@@ -93,14 +73,14 @@ public class UserCommand : McvCommand
 
 		a.Description = "Manages the security settings for the specified user";
 		a.Arguments =	[
-							new (owner, AA, "Public address of the new account owner"),
+							new (owner, PUBKEY, "Public address of the new account owner"),
 							ByArgument()
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								return new UserOwnerChange {Owner = GetAccountAddress(owner)};
+								return new UserOwnerChange {Owner = GetPublicKey(owner)};
 							};
 		return a;
 	}

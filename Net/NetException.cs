@@ -66,7 +66,6 @@ public enum VaultError : uint
 	AlreadyExists,
 	AlreadyLocked,
 	AlreadyUnlocked,
-    AccountNotFound,
 	Corrupted,
 	IncorrectArgumets,
 	InvalidWalletName,

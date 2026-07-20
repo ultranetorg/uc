@@ -38,8 +38,6 @@ public partial class TransferPage : Page
 				ToEntity.Text = $"{McvTable.User}/{Rdn.Rdn.Test.Father0Name}";
 			}
 		}
-
-		//Program.NexusSystem.BindWallets(this, Nexus.Vault, Wallets, Accounts, null);
 	}
 
 	private void Open_DropDown(object sender, EventArgs e)
@@ -48,7 +46,6 @@ public partial class TransferPage : Page
 		{
 			if(sender == FromNet) RefreshNets(FromNet);
 			if(sender == FromEntity) RefreshClasses(FromNet.Text, FromEntity);
-			//if(sender == FromAccount) BindAccounts(Nexus.Vault, FromAccount, Nexus.Vault.Wallets.SelectMany(i => i.Accounts));
 
 			if(sender == ToNet) RefreshNets(ToNet);
 			if(sender == ToEntity) RefreshClasses(ToNet.Text, ToEntity);

@@ -31,8 +31,8 @@ public class EthereumSettings : Settings
 
 public class RdnNodeSettings : McvNodeSettings
 {
-	public List<AccountAddress>		ProposedFundJoiners = new();
-	public List<AccountAddress>		ProposedFundLeavers = new();
+	public List<PublicKey>		ProposedFundJoiners = new();
+	public List<PublicKey>		ProposedFundLeavers = new();
 
 	public string[]					ProposedFriendAttachments { get; set; } = [];
 

@@ -5,16 +5,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
-public class AccountsService
+public class UserService
 (
-	ILogger<AccountsService> logger,
+	ILogger<UserService> logger,
 	FairMcv mcv
 )
 {
 	[Obsolete("This method is deprected use GetUserAvatar instead")]
 	public FileContentResult GetAvatar([NotNull][NotEmpty] string accountId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountId}", nameof(AccountsService), nameof(GetAvatar), accountId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountId}", nameof(UserService), nameof(GetAvatar), accountId);
 
 		Guard.Against.NullOrEmpty(accountId);
 

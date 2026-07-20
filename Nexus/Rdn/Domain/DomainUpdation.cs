@@ -105,7 +105,7 @@ public class DomainTransfer : RdnOperation
 			return;
 		}	
 
-		if(!AccountExists(execution, Owner, out var o, out Error))
+		if(!UserExists(execution, Owner, out var o, out Error))
 			return;
 
 		if(Domain.IsRoot(e.Address))

@@ -36,7 +36,7 @@ public partial class AssetsPage : Page
 		//Search(Entity.SelectedItem.ToString());
 	}
 
-	private void Accounts_KeyDown(object sender, KeyEventArgs e)
+	private void Keys_KeyDown(object sender, KeyEventArgs e)
 	{
 		if(!Start.Enabled)
 			return;

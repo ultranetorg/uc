@@ -14,12 +14,12 @@ public partial class IamForm : Form
 	{
 		InitializeComponent();
 
-		WalletsAndAccounts.Tag = new WalletsPage(nexus);
+		Wallets.Tag = new WalletsPage(nexus);
 		Sessions.Tag = new SessionsPage(nexus);
 		Assets.Tag = new AssetsPage(nexus);
 		Transfer.Tag = new TransferPage(nexus);
 
-		WalletsAndAccounts.Checked = true;
+		Wallets.Checked = true;
 	}
 
 	protected override void OnClosed(EventArgs e)
@@ -29,7 +29,7 @@ public partial class IamForm : Form
 
 	public void CreateFirstWallet()
 	{
-		(WalletsAndAccounts.Tag as WalletsPage).CreateWallet_Click();
+		(Wallets.Tag as WalletsPage).CreateWallet_Click();
 	}
 	
 	private void radioButton_CheckedChanged(object sender, EventArgs e)

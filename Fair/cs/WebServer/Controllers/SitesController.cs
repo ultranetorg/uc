@@ -47,7 +47,7 @@ public class SitesController
 		siteSearchQueryValidator.Validate(query);
 		limitValidator.Validate(limit);
 
-		return searchService.SearchSiteUsers(siteId, query, limit ?? SearchConstants.SearchAccountsLimit, cancellationToken);
+		return searchService.SearchSiteUsers(siteId, query, limit ?? SearchConstants.SearchUsersLimit, cancellationToken);
 	}
 
 	[HttpGet("{siteId}/publishers")]

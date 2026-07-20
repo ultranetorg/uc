@@ -36,7 +36,7 @@ public class UserAvatarChange : FairOperation
 			return;
 		}
 
-		if(!CanAccessAccount(execution, User.Id, out var a, out Error))
+		if(!CanAccessUser(execution, User.Id, out var a, out Error))
 			return;
 
 		User.Avatar = Image;

@@ -109,24 +109,23 @@ public abstract class FairOperation : Operation
 
 	public abstract void		Execute(FairExecution execution);
 
-
 	public override void Execute(Execution execution)
 	{
 		Execute(execution as FairExecution);
 	}
 
-	public bool AccountExists(FairExecution execution, AutoId id, out FairUser account, out string error)
+	public bool UserExists(FairExecution execution, AutoId id, out FairUser account, out string error)
 	{
-		var r = base.AccountExists(execution, id, out var a, out error);
+		var r = base.UserExists(execution, id, out var a, out error);
 		
 		account = a as FairUser;
 
 		return r;
 	}
 
-	public bool CanAccessAccount(FairExecution execution, AutoId id, out FairUser account, out string error)
+	public bool CanAccessUser(FairExecution execution, AutoId id, out FairUser account, out string error)
 	{
-		var r = base.CanAccessAccount(execution, id, out var a, out error);
+		var r = base.CanAccessUser(execution, id, out var a, out error);
 		
 		account = a as FairUser;
 

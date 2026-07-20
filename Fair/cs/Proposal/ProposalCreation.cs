@@ -163,7 +163,7 @@ public class ProposalCreation : FairOperation
  		}
 		else if(As == Role.Moderator && p.Creators.HasFlag(Role.Moderator))
  		{
-			if(!CanAccessAccount(execution, By, out _, out Error))
+			if(!CanAccessUser(execution, By, out _, out Error))
 				return;
 			
 			if(!IsModerator(execution, s, By, out var m, out Error))
@@ -191,7 +191,7 @@ public class ProposalCreation : FairOperation
  		}
 		else if(As == Role.User && p.Creators.HasFlag(Role.User))
 		{
-			if(!CanAccessAccount(execution, By, out var _, out Error))
+			if(!CanAccessUser(execution, By, out var _, out Error))
 				return;
 		
 			execution.PayOperationEnergy(s);

@@ -23,7 +23,7 @@ public abstract class Cryptography
 	public abstract CryptographyType				Type {get; }
 
 	public abstract byte[]							Sign(SecretKey pk, byte[] hash);
-	public abstract bool							Verify(AccountAddress address, byte[] hash, byte[] signature);
+	public abstract bool							Verify(PublicKey address, byte[] hash, byte[] signature);
     public abstract byte[]							HashifyPassword(string password, byte[] salt);
 													
 
@@ -137,12 +137,12 @@ public class NoCryptography : Cryptography
 		var s = new byte[SignatureLength];
 
 		Array.Copy(h, 0, s, 0, h.Length);
-		Array.Copy(k.Address.Bytes, 0, s, 32, k.Address.Bytes.Length);
+		Array.Copy(k.PuplicKey.Bytes, 0, s, 32, k.PuplicKey.Bytes.Length);
 
 		return s;
 	}
 
-	public override bool Verify(AccountAddress address, byte[] hash, byte[] signature)
+	public override bool Verify(PublicKey address, byte[] hash, byte[] signature)
 	{
 		return Bytes.EqualityComparer.Equals(hash, signature[0..32]) && Bytes.EqualityComparer.Equals(address.Bytes, signature[32..64]);
 	}
@@ -162,7 +162,7 @@ public class McvCryptography : Cryptography
 		return k.Sign(h);
 	}
 
-	public override bool Verify(AccountAddress address, byte[] hash, byte[] signature)
+	public override bool Verify(PublicKey address, byte[] hash, byte[] signature)
 	{
 		return SecretKey.Verify(address.Bytes, signature, hash);
 	}

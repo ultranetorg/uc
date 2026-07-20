@@ -97,7 +97,7 @@ public class UtilityTransfer : Operation
 					return;
 				}
 	
-				if(User.Owner != Mcv.God.Address)
+				if(User.Owner != Mcv.God.PuplicKey)
 				{
 					s.Energy		-= Energy;
 					s.EnergyNext	-= EnergyNext;

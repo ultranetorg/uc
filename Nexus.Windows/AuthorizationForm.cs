@@ -6,7 +6,7 @@ namespace Uccs.Nexus.Windows;
 public partial class AuthorizationForm : Form
 {
 
-	public AuthorizationForm(AccountAddress signer, Authentication authentication, string operation)
+	public AuthorizationForm(PublicKey signer, Authentication authentication, string operation)
 	{
 		InitializeComponent();
 

@@ -15,7 +15,7 @@ public enum CryptographyType : byte
 
 public class AuthenticationResult
 {
-	public AccountAddress	Signer { get; set; }
+	public PublicKey	Signer { get; set; }
 	public byte[]			Session { get; set; }
 }
 
@@ -25,28 +25,6 @@ public class VaultApiClient : JsonApiClient
 	{
 	}
 }
-
-//public class AddWalletApc : Apc
-//{
-//	public byte[]	Raw { get; set; }
-//}
-//
-//public class UnlockWalletApc : Apc
-//{
-//	public string	Name { get; set; } ///  Null means first
-//	public string	Password { get; set; }
-//}
-//
-//public class LockWalletApc : Apc
-//{
-//	public string	Name { get; set; } ///  Null means first
-//}
-//
-//public class AddAccountToWalletApc : Apc
-//{
-//	public string	Name { get; set; } ///  Null means first
-//	public byte[]	Key { get; set; } ///  Null means create new
-//}
 
 public class IsAuthenticatedApc : Apc
 {
@@ -62,7 +40,7 @@ public class AuthenticateApc : Apc
 	public string			Net { get; set; } /// fair.rdn
 	public string			User { get; set; } /// optional
 	public byte[]			Logo { get; set; }
-	public AccountAddress	Account { get; set; }/// suggested
+	public PublicKey	Key { get; set; }/// suggested
 }
 
 public class AuthorizeApc : Apc

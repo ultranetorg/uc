@@ -5,7 +5,7 @@ public class Consil : IBinarySerializable
 	public long				SizeEnergyFeeMinimum;
 	public long				ResultEnergyFeeMinimum;
 	public long				ResultSpacetimeFeeMinimum;
-	public AccountAddress[]	Analyzers;
+	public PublicKey[]	Analyzers;
 
 	public const int		AnalyzersMaximum = 256;
 
@@ -14,7 +14,7 @@ public class Consil : IBinarySerializable
 		ResultEnergyFeeMinimum		= reader.Read7BitEncodedInt64();
 		SizeEnergyFeeMinimum		= reader.Read7BitEncodedInt64();
 		ResultSpacetimeFeeMinimum	= reader.Read7BitEncodedInt64();
-		Analyzers					= reader.ReadArray<AccountAddress>();
+		Analyzers					= reader.ReadArray<PublicKey>();
 	}
 
 	public void Write(Writer writer)

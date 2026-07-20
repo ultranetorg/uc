@@ -104,7 +104,7 @@ partial class AssetsPage
 		Entity.Name = "Entity";
 		Entity.Size = new Size(309, 23);
 		Entity.TabIndex = 10;
-		Entity.KeyDown += Accounts_KeyDown;
+		Entity.KeyDown += Keys_KeyDown;
 		// 
 		// Start
 		// 
@@ -124,7 +124,7 @@ partial class AssetsPage
 		Nets.Name = "Nets";
 		Nets.Size = new Size(163, 23);
 		Nets.TabIndex = 11;
-		Nets.KeyDown += Accounts_KeyDown;
+		Nets.KeyDown += Keys_KeyDown;
 		// 
 		// label4
 		// 

@@ -39,11 +39,11 @@ public class WalletCommand : NexusCommand
 
 								VaultApi(new AddWalletApc {Name = GetString(NameKeyword), Raw = w.ToRaw()});
 
-								foreach(var i in w.Accounts.Index())
+								foreach(var i in w.Keys.Index())
 								{
-									Report($"Account {i.Index}:");
-									Report($"   Public Address - {i.Item.Address}");
-									Report($"   Private Key    - {i.Item.Key.Secret.ToHex()}");
+									Report($"Key {i.Index}:");
+									Report($"   Public - {i.Item.Address}");
+									Report($"   Secret - {i.Item.Key.Secret.ToHex()}");
 								}
 
 								return w;
@@ -66,7 +66,7 @@ public class WalletCommand : NexusCommand
 		return a;
 	}
 
-	public CommandAction ListAccounts_LA()
+	public CommandAction ListKeys_LK()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
@@ -75,9 +75,9 @@ public class WalletCommand : NexusCommand
 							new (NameKeyword, FILENAME, "Name of the wallet", ArgumentFlag.Optional),
 						];
 		a.Execute = () =>	{
-								var r = VaultApi<WalletAccountsApc.Account[]>(new WalletAccountsApc {Name = GetString(NameKeyword, null)});
+								var r = VaultApi<WalletKeysApc.Key[]>(new WalletKeysApc {Name = GetString(NameKeyword, null)});
 
-								Flow.Log.Dump(r, ["Name", "Address"], [i => i.Name, i => i.Address]);
+								Flow.Log.Dump(r, ["Name", "Address"], [i => i.Name, i => i.Public]);
 
 								return r;
 							};
@@ -116,17 +116,17 @@ public class WalletCommand : NexusCommand
 		return a;
 	}
 
-	public CommandAction AddAccount_AA()
+	public CommandAction AddKey_AK()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Creates a new or import existing account to a wallet";
 		a.Arguments =  [new ("wallet", FILENAME, "Name of a wallet to add the account to. Otherwise the default is used.", ArgumentFlag.Optional),
 						new (NameKeyword, STRING, "Name of account", ArgumentFlag.Optional),
-						new ("key", PRIVATEKEY, "Private key of account to import", ArgumentFlag.Optional)];
+						new ("key", SECKEY, "Private key of account to import", ArgumentFlag.Optional)];
 
 		a.Execute = () =>	{
-								var aa = VaultApi<AccountAddress>(new AddAccountToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", null), Name = GetString(NameKeyword, null), Tag = GetString("tag", null)});
+								var aa = VaultApi<PublicKey>(new AddKeyToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", null), Name = GetString(NameKeyword, null), Tag = GetString("tag", null)});
 								
 								Report("Address - " + aa); 
 

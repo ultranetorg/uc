@@ -30,7 +30,7 @@ public class FavoriteStoreChange : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		if(!CanAccessAccount(execution, User.Id, out var a, out Error))
+		if(!CanAccessUser(execution, User.Id, out var a, out Error))
 			return;
 
 		if(Action)

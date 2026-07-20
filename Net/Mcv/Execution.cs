@@ -264,7 +264,7 @@ public class Execution : ITableExecution
 	public virtual User AffectSigner()
 	{
  		if(Round.Id == 0)
- 			return new User {Name = Mcv.GodName, Owner = Mcv.God.Address};
+ 			return new User {Name = Mcv.GodName, Owner = Mcv.God.PuplicKey};
 
 		var name = Transaction.User;
 
@@ -354,7 +354,7 @@ public class Execution : ITableExecution
 
 		AffectedUsers[a.Id] = a;
 
-		IncrementCount((int)MetaEntityType.AccountCount);
+		IncrementCount((int)MetaEntityType.UserCount);
 
 		return a;
 	}

@@ -19,15 +19,15 @@ public partial class SessionsPage : Page
 
 	public override void Open(bool first)
 	{
-		Program.NexusWindows.BindWallets(this, Nexus.Vault, Wallets, Accounts, null);
+		Program.NexusWindows.BindWallets(this, Nexus.Vault, Wallets, Keys, null);
 
-		if(Accounts.Items.Count > 0)
+		if(Keys.Items.Count > 0)
 		{
-			Accounts_SelectionChangeCommitted(null, null);
+			Keys_SelectionChangeCommitted(null, null);
 		}
 	}
 
-	protected void BindSessions(WalletAccount account)
+	protected void BindSessions(WalletKey account)
 	{
 		Sessions.Items.Clear();
 
@@ -44,14 +44,14 @@ public partial class SessionsPage : Page
 		Revoke.Enabled = false;
 	}
 
-	private void Accounts_SelectionChangeCommitted(object sender, EventArgs e)
+	private void Keys_SelectionChangeCommitted(object sender, EventArgs e)
 	{
-		WalletAccount a;
+		WalletKey a;
 
 		lock(Nexus.Vault)
 		{
 			var w = Wallets.SelectedItem as Wallet;
-			a = w.Accounts.Find(i => i.Address == Accounts.SelectedItem as AccountAddress);
+			a = w.Keys.Find(i => i.Address == Keys.SelectedItem as PublicKey);
 		}
 
 		BindSessions(a);
@@ -59,12 +59,12 @@ public partial class SessionsPage : Page
 
 	private void Revoke_Click(object sender, EventArgs e)
 	{
-		WalletAccount a;
+		WalletKey a;
 
 		lock(Nexus.Vault)
 		{
 			var w = Nexus.Vault.Wallets.Find(i => i.Name == Wallets.SelectedItem as string);
-			a = w.Accounts.Find(i => i.Address == Accounts.SelectedItem as AccountAddress);
+			a = w.Keys.Find(i => i.Address == Keys.SelectedItem as PublicKey);
 
 			a.RemoveAuthentication(Sessions.SelectedItems[0].Tag as Authentication);
 

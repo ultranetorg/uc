@@ -48,7 +48,7 @@ public class NetJsonConfiguration : JsonConfiguration
 		var o = JsonConfiguration.CreateOptions();
 
 		o.Converters.Add(new UnitJsonConverter());
-		o.Converters.Add(new AccountJsonConverter());
+		o.Converters.Add(new PublicKeyJsonConverter());
 		o.Converters.Add(new SecretKeyJsonConverter());
 		o.Converters.Add(new AutoIdJsonConverter());
 		o.Converters.Add(new TimeJsonConverter());

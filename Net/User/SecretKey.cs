@@ -8,10 +8,10 @@ namespace Uccs.Net;
 public class SecretKey
 {
 	private readonly ECPrivKey			ECKey;
-	AccountAddress						_Address;
+	PublicKey						_Address;
 
 	public byte[]						Secret { get; protected set; }
-	public AccountAddress				Address => _Address ??= new AccountAddress(ECKey.CreateXOnlyPubKey().ToBytes(), Tag);
+	public PublicKey				PuplicKey => _Address ??= new PublicKey(ECKey.CreateXOnlyPubKey().ToBytes(), Tag);
 	public string						Tag { get; protected set; }
 			
 	public SecretKey(byte[] secret, string tag = null)

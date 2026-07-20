@@ -341,7 +341,7 @@ public class TransactionApe
 	public byte[]					Tag { get; set; }
 	public byte[]					Signature { get; set; }
 	
-	public AccountAddress			Signer { get; set; }
+	public PublicKey			Signer { get; set; }
 	public TransactionStatus		Status { get; set; }
 	public string					Error { get; set; }
 	public Endpoint					MemberEndpoint { get; set; }

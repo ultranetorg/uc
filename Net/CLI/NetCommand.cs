@@ -4,7 +4,7 @@ namespace Uccs.Net;
 
 public abstract class NetCommand : Command
 {
-	public static readonly ArgumentType		AA			= new (nameof(AA),			"Account address, in Bech32 form",										["plsar7tfrq83mvfaw0m6u0l9jmsxhkjvk5zzanaqrhavfygl5w2sq3cyyk9btes", "gya27t2jsxdfa3gdywck9cdtwe6lhc59qwwrq2jdq6plz3k9hhjsqx0yuc6btes", "uh39t57ujhn4skcdhkg24mavdp4jsghtvv0uxeg2596et7h6vmnsqrntezqbtes", "vlrvxjhwz96gckyk9etxft3980agmy8s38u45gscp93ajk8rje5qqkgeww3btes"]);
+	public static readonly ArgumentType		PUBKEY		= new (nameof(PUBKEY),		"Public key, in Bech32 form",											["plsar7tfrq83mvfaw0m6u0l9jmsxhkjvk5zzanaqrhavfygl5w2sq3cyyk9btes", "gya27t2jsxdfa3gdywck9cdtwe6lhc59qwwrq2jdq6plz3k9hhjsqx0yuc6btes", "uh39t57ujhn4skcdhkg24mavdp4jsghtvv0uxeg2596et7h6vmnsqrntezqbtes", "vlrvxjhwz96gckyk9etxft3980agmy8s38u45gscp93ajk8rje5qqkgeww3btes"]);
 	public static readonly ArgumentType		COMMAND		= new (nameof(COMMAND),		"CLI command string",													["node peers"]);
 	public static readonly ArgumentType		EID			= new (nameof(EID),			"Entity Id",															[new AutoId(1111, 22), new AutoId(12345,6789), new AutoId(987, 6543321)]);
 	public static readonly ArgumentType		IP			= new (nameof(IP),			"IP Address",															["123.234.55.66"]);
@@ -19,7 +19,7 @@ public abstract class NetCommand : Command
 	public static readonly ArgumentType		FILEPATH	= new (nameof(FILEPATH),	"A text string of the local file path in its native format",			[@"C:\User\file", @"D:\image.jpg", @"E:\content.bin", ]);
 	public static readonly ArgumentType		DIRPATH		= new (nameof(DIRPATH),		"A text string of the local directory path in its native format",		[@"C:\Folder", @"D:\Project\Content"]);
 	public static readonly ArgumentType		PORT		= new (nameof(PORT),		"Port number",															["3800"]);
-	public static readonly ArgumentType		PRIVATEKEY	= new (nameof(PRIVATEKEY),	"Hexadecimal text string of account private key",						["f5eb914b0cdf95fb3df9bcf7e3686cb16d351edf772e577dd6658f841f51b848"]);
+	public static readonly ArgumentType		SECKEY		= new (nameof(SECKEY),		"Hexadecimal text string of a private key",								["f5eb914b0cdf95fb3df9bcf7e3686cb16d351edf772e577dd6658f841f51b848"]);
 	public static readonly ArgumentType		NETNAME		= new (nameof(NETNAME),		"A name of the network",												["rdn", "fair"]);
 	public static readonly ArgumentType		NA			= new (nameof(NA),			"Full address of a network",											["fair.rdn"]);
 	public static readonly ArgumentType		ST			= new (nameof(ST),			"Space-time in form of byte-years(BY), byte-days(BD), eth.",			["300bd", "500by"]);
@@ -167,18 +167,18 @@ public abstract class NetCommand : Command
 		return t;
 	}
 
-	public AccountAddress GetAccountAddress(string paramenter)
+	public PublicKey GetPublicKey(string paramenter)
 	{
 		if(Has(paramenter))
-			return AccountAddress.Parse(GetString(paramenter));
+			return PublicKey.Parse(GetString(paramenter));
 		else
 			throw new SyntaxException($"Parameter '{paramenter}' not provided");
 	}
 
-	public AccountAddress GetAccountAddress(string paramenter, AccountAddress def)
+	public PublicKey GetPublicKey(string paramenter, PublicKey def)
 	{
 		if(Has(paramenter))
-			return AccountAddress.Parse(GetString(paramenter));
+			return PublicKey.Parse(GetString(paramenter));
 		else
 			return def;
 	}

@@ -83,7 +83,7 @@ public abstract class RdnCommand : McvCommand
 					if(t.Content == ContentType.Ampp_Council)
 						return new ResourceData(t,	new Consil
 													{
-														Analyzers = d.Get<string>("analyzers").Split(',').Select(AccountAddress.Parse).ToArray(),  
+														Analyzers = d.Get<string>("analyzers").Split(',').Select(PublicKey.Parse).ToArray(),  
 														SizeEnergyFeeMinimum = d.Get<long>("sefm"),
 														ResultEnergyFeeMinimum = d.Get<long>("refm"),
 														ResultSpacetimeFeeMinimum = d.Get<long>("rstfm")

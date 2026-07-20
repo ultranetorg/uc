@@ -4,13 +4,13 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus.CLI;
 
-public class AccountCommand : NexusCommand
+public class KeyCommand : NexusCommand
 {
-	public AccountCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
+	public KeyCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
 	}
 
-	public AccountCommand()
+	public KeyCommand()
 	{
 	}
 
@@ -25,7 +25,7 @@ public class AccountCommand : NexusCommand
 
 		a.Description = "Authenticates the specified user to transact in the specified network from the specified application";
 		a.Arguments =	[
-							AddressArgument(AA, "account which are authorized to sign transactions"),
+							AddressArgument(PUBKEY, "account which are authorized to sign transactions"),
 							new (user,			NAME, "Name of user in the specified network on whose behalf transactions are to be sent"),
 							new (net,			NA, "Address of the network to where transactions are to be sent"),
 							new (application,	STRING, "Identifier of the application"),
@@ -35,7 +35,7 @@ public class AccountCommand : NexusCommand
 
 								var ar = VaultApi<AuthenticationResult>(new AuthenticateApc
 																		{
-																			Account  = GetAccountAddress(AddressKeyword),
+																			Key  = GetPublicKey(AddressKeyword),
 																			User = GetString(user),
 																			Net = GetString(net),
 																			Application = GetString(application),
@@ -54,7 +54,7 @@ public class AccountCommand : NexusCommand
 
 		a.Description = "Confirms pending authentication";
 		a.Arguments =	[
-							AddressArgument(AA, "account to confirm authentication for"),
+							AddressArgument(PUBKEY, "account to confirm authentication for"),
 							new (session, HEX, "Session Id"),
 							new (trust, TRUST, "Trust level"),
 						];
@@ -65,7 +65,7 @@ public class AccountCommand : NexusCommand
 
 								lock(Cli.Nexus.Vault)
 								{
-									var ac = Cli.Nexus.Vault.Find(GetAccountAddress(AddressKeyword))
+									var ac = Cli.Nexus.Vault.Find(GetPublicKey(AddressKeyword))
 											 ??
 											 throw new VaultException(VaultError.NotFound);
 	
@@ -89,7 +89,7 @@ public class AccountCommand : NexusCommand
 
 		a.Description = "Lists pending authentications for the specified account";
 		a.Arguments =	[
-							AddressArgument(AA, "account to get pending authentications from"),
+							AddressArgument(PUBKEY, "account to get pending authentications from"),
 						];
 
 		a.Execute = () =>	{
@@ -98,7 +98,7 @@ public class AccountCommand : NexusCommand
 
 								lock(Cli.Nexus.Vault)
 								{
-									var ac = Cli.Nexus.Vault.Find(GetAccountAddress(AddressKeyword))
+									var ac = Cli.Nexus.Vault.Find(GetPublicKey(AddressKeyword))
 											 ??
 											 throw new VaultException(VaultError.NotFound);
 
@@ -116,7 +116,7 @@ public class AccountCommand : NexusCommand
 
 		a.Description = "Lists existing authentications for the specified account";
 		a.Arguments =	[
-							AddressArgument(AA, "account to get authentications from"),
+							AddressArgument(PUBKEY, "account to get authentications from"),
 						];
 
 		a.Execute = () =>	{
@@ -125,7 +125,7 @@ public class AccountCommand : NexusCommand
 
 								lock(Cli.Nexus.Vault)
 								{
-									var ac = Cli.Nexus.Vault.Find(GetAccountAddress(AddressKeyword))
+									var ac = Cli.Nexus.Vault.Find(GetPublicKey(AddressKeyword))
 											 ??
 											 throw new VaultException(VaultError.NotFound);
 

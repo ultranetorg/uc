@@ -33,24 +33,24 @@ partial class WalletsPage
 		DeleteWallet = new Button();
 		LockUnlock = new Button();
 		CreateWallet = new Button();
-		CreateAccount = new Button();
+		CreateKey = new Button();
 		ShowSecret = new Button();
-		DeleteAccount = new Button();
-		CopyAddress = new Button();
+		DeleteKey = new Button();
+		CopyPublic = new Button();
 		ImportWallet = new Button();
 		label3 = new Label();
 		label1 = new Label();
-		ImportAccount = new Button();
-		Accounts = new ListView();
+		ImportKey = new Button();
+		Keys = new ListView();
 		columnHeader1 = new ColumnHeader();
 		columnHeader2 = new ColumnHeader();
 		imageList1 = new ImageList(components);
 		Wallets = new ListView();
 		columnHeader4 = new ColumnHeader();
-		AccountsPanel = new Panel();
+		KeysPanel = new Panel();
 		Locked = new Label();
 		ExportWallet = new Button();
-		AccountsPanel.SuspendLayout();
+		KeysPanel.SuspendLayout();
 		SuspendLayout();
 		// 
 		// DeleteWallet
@@ -84,15 +84,15 @@ partial class WalletsPage
 		CreateWallet.UseVisualStyleBackColor = true;
 		CreateWallet.Click += CreateWallet_Click;
 		// 
-		// CreateAccount
+		// CreateKey
 		// 
-		CreateAccount.Location = new Point(586, 49);
-		CreateAccount.Name = "CreateAccount";
-		CreateAccount.Size = new Size(211, 32);
-		CreateAccount.TabIndex = 12;
-		CreateAccount.Text = "Create";
-		CreateAccount.UseVisualStyleBackColor = true;
-		CreateAccount.Click += CreateAccount_Click;
+		CreateKey.Location = new Point(586, 49);
+		CreateKey.Name = "CreateKey";
+		CreateKey.Size = new Size(211, 32);
+		CreateKey.TabIndex = 12;
+		CreateKey.Text = "Create";
+		CreateKey.UseVisualStyleBackColor = true;
+		CreateKey.Click += CreateKey_Click;
 		// 
 		// ShowSecret
 		// 
@@ -104,25 +104,25 @@ partial class WalletsPage
 		ShowSecret.UseVisualStyleBackColor = true;
 		ShowSecret.Click += ShowSecret_Click;
 		// 
-		// DeleteAccount
+		// DeleteKey
 		// 
-		DeleteAccount.Location = new Point(586, 293);
-		DeleteAccount.Name = "DeleteAccount";
-		DeleteAccount.Size = new Size(211, 32);
-		DeleteAccount.TabIndex = 11;
-		DeleteAccount.Text = "Delete";
-		DeleteAccount.UseVisualStyleBackColor = true;
-		DeleteAccount.Click += DeleteAccount_Click;
+		DeleteKey.Location = new Point(586, 293);
+		DeleteKey.Name = "DeleteKey";
+		DeleteKey.Size = new Size(211, 32);
+		DeleteKey.TabIndex = 11;
+		DeleteKey.Text = "Delete";
+		DeleteKey.UseVisualStyleBackColor = true;
+		DeleteKey.Click += DeleteKey_Click;
 		// 
-		// CopyAddress
+		// CopyPublic
 		// 
-		CopyAddress.Location = new Point(586, 217);
-		CopyAddress.Name = "CopyAddress";
-		CopyAddress.Size = new Size(211, 32);
-		CopyAddress.TabIndex = 9;
-		CopyAddress.Text = "Copy Address to Clipboard";
-		CopyAddress.UseVisualStyleBackColor = true;
-		CopyAddress.Click += CopyAddress_Click;
+		CopyPublic.Location = new Point(586, 217);
+		CopyPublic.Name = "CopyPublic";
+		CopyPublic.Size = new Size(211, 32);
+		CopyPublic.TabIndex = 9;
+		CopyPublic.Text = "Copy Public Key to Clipboard";
+		CopyPublic.UseVisualStyleBackColor = true;
+		CopyPublic.Click += CopyAddress_Click;
 		// 
 		// ImportWallet
 		// 
@@ -157,30 +157,30 @@ partial class WalletsPage
 		label1.Padding = new Padding(8, 0, 0, 0);
 		label1.Size = new Size(800, 32);
 		label1.TabIndex = 14;
-		label1.Text = "Accounts";
+		label1.Text = "Keys";
 		label1.TextAlign = ContentAlignment.MiddleLeft;
 		// 
-		// ImportAccount
+		// ImportKey
 		// 
-		ImportAccount.Location = new Point(586, 87);
-		ImportAccount.Name = "ImportAccount";
-		ImportAccount.Size = new Size(211, 32);
-		ImportAccount.TabIndex = 11;
-		ImportAccount.Text = "Import";
-		ImportAccount.UseVisualStyleBackColor = true;
-		ImportAccount.Click += ImportAccount_Click;
+		ImportKey.Location = new Point(586, 87);
+		ImportKey.Name = "ImportKey";
+		ImportKey.Size = new Size(211, 32);
+		ImportKey.TabIndex = 11;
+		ImportKey.Text = "Import";
+		ImportKey.UseVisualStyleBackColor = true;
+		ImportKey.Click += ImportKey_Click;
 		// 
-		// Accounts
+		// Keys
 		// 
-		Accounts.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
-		Accounts.FullRowSelect = true;
-		Accounts.Location = new Point(3, 49);
-		Accounts.Name = "Accounts";
-		Accounts.Size = new Size(568, 276);
-		Accounts.TabIndex = 15;
-		Accounts.UseCompatibleStateImageBehavior = false;
-		Accounts.View = View.Details;
-		Accounts.ItemSelectionChanged += Accounts_ItemSelectionChanged;
+		Keys.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2 });
+		Keys.FullRowSelect = true;
+		Keys.Location = new Point(3, 49);
+		Keys.Name = "Keys";
+		Keys.Size = new Size(568, 276);
+		Keys.TabIndex = 15;
+		Keys.UseCompatibleStateImageBehavior = false;
+		Keys.View = View.Details;
+		Keys.ItemSelectionChanged += Keys_ItemSelectionChanged;
 		// 
 		// columnHeader1
 		// 
@@ -189,7 +189,7 @@ partial class WalletsPage
 		// 
 		// columnHeader2
 		// 
-		columnHeader2.Text = "Address";
+		columnHeader2.Text = "Public Key";
 		columnHeader2.Width = 300;
 		// 
 		// imageList1
@@ -219,20 +219,20 @@ partial class WalletsPage
 		columnHeader4.Text = "Name";
 		columnHeader4.Width = 150;
 		// 
-		// AccountsPanel
+		// KeysPanel
 		// 
-		AccountsPanel.Controls.Add(Locked);
-		AccountsPanel.Controls.Add(Accounts);
-		AccountsPanel.Controls.Add(DeleteAccount);
-		AccountsPanel.Controls.Add(ImportAccount);
-		AccountsPanel.Controls.Add(label1);
-		AccountsPanel.Controls.Add(ShowSecret);
-		AccountsPanel.Controls.Add(CreateAccount);
-		AccountsPanel.Controls.Add(CopyAddress);
-		AccountsPanel.Location = new Point(0, 272);
-		AccountsPanel.Name = "AccountsPanel";
-		AccountsPanel.Size = new Size(800, 328);
-		AccountsPanel.TabIndex = 17;
+		KeysPanel.Controls.Add(Locked);
+		KeysPanel.Controls.Add(Keys);
+		KeysPanel.Controls.Add(DeleteKey);
+		KeysPanel.Controls.Add(ImportKey);
+		KeysPanel.Controls.Add(label1);
+		KeysPanel.Controls.Add(ShowSecret);
+		KeysPanel.Controls.Add(CreateKey);
+		KeysPanel.Controls.Add(CopyPublic);
+		KeysPanel.Location = new Point(0, 272);
+		KeysPanel.Name = "KeysPanel";
+		KeysPanel.Size = new Size(800, 328);
+		KeysPanel.TabIndex = 17;
 		// 
 		// Locked
 		// 
@@ -259,7 +259,7 @@ partial class WalletsPage
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		Controls.Add(AccountsPanel);
+		Controls.Add(KeysPanel);
 		Controls.Add(Wallets);
 		Controls.Add(label3);
 		Controls.Add(DeleteWallet);
@@ -269,7 +269,7 @@ partial class WalletsPage
 		Controls.Add(CreateWallet);
 		Name = "WalletsPage";
 		Size = new Size(800, 600);
-		AccountsPanel.ResumeLayout(false);
+		KeysPanel.ResumeLayout(false);
 		ResumeLayout(false);
 	}
 
@@ -277,21 +277,21 @@ partial class WalletsPage
 	private Button DeleteWallet;
 	private Button LockUnlock;
 	private Button CreateWallet;
-	private Button CreateAccount;
+	private Button CreateKey;
 	private Button ShowSecret;
-	private Button DeleteAccount;
-	private Button CopyAddress;
+	private Button DeleteKey;
+	private Button CopyPublic;
 	private Button ImportWallet;
 	private Label label3;
 	private Label label1;
-	private Button ImportAccount;
-	private ListView Accounts;
+	private Button ImportKey;
+	private ListView Keys;
 	private ColumnHeader columnHeader1;
 	private ColumnHeader columnHeader2;
 	private ImageList imageList1;
 	private ListView Wallets;
 	private ColumnHeader columnHeader4;
-	private Panel AccountsPanel;
+	private Panel KeysPanel;
 	private Button ExportWallet;
 	private Label Locked;
 }

@@ -4,8 +4,8 @@ namespace Uccs.Nexus.Windows;
 
 public partial class WalletsPage : Page
 {
-	WalletAccount	CurrentAccout => Accounts.SelectedItems[0].Tag as WalletAccount;
-	Wallet			CurrentWallet => Wallets.SelectedItems.Count == 0 ? null : Wallets.SelectedItems[0].Tag as Wallet;
+	WalletKey	CurrentAccout => Keys.SelectedItems[0].Tag as WalletKey;
+	Wallet		CurrentWallet => Wallets.SelectedItems.Count == 0 ? null : Wallets.SelectedItems[0].Tag as Wallet;
 
 	public WalletsPage()
 	{
@@ -21,7 +21,7 @@ public partial class WalletsPage : Page
 		base.OnHandleCreated(e);
 
 		Wallets.SmallImageList = imageList1;
-		//AccountsPanel.Enabled = false;
+		//KeysPanel.Enabled = false;
 
 
 		Task.Run(() =>
@@ -47,24 +47,24 @@ public partial class WalletsPage : Page
 		Invoke(() => Wallets_ItemSelectionChanged(this, new ListViewItemSelectionChangedEventArgs(null, 0, false)));
 	}
 
-	void LoadAccounts(Wallet w)
+	void LoadKeys(Wallet w)
 	{
-		Invoke(() => Accounts.Items.Clear());
+		Invoke(() => Keys.Items.Clear());
 
-		foreach(var i in w.Accounts)
+		foreach(var i in w.Keys)
 		{
 			var li = new ListViewItem(i.Name);
 			li.Tag = i;
 			li.SubItems.Add(i.Address.ToString());
 
-			Invoke(() => Accounts.Items.Add(li));
+			Invoke(() => Keys.Items.Add(li));
 		}
 
 		Invoke(() =>{
-						Accounts_ItemSelectionChanged(this, new ListViewItemSelectionChangedEventArgs(null, 0, false));
+						Keys_ItemSelectionChanged(this, new ListViewItemSelectionChangedEventArgs(null, 0, false));
 
-						CreateAccount.Enabled = !w.Locked;
-						ImportAccount.Enabled = !w.Locked;
+						CreateKey.Enabled = !w.Locked;
+						ImportKey.Enabled = !w.Locked;
 					});
 	}
 
@@ -81,10 +81,10 @@ public partial class WalletsPage : Page
 			ExportWallet.Enabled = true;
 			DeleteWallet.Enabled = true;
 
-			//AccountsPanel.Enabled = !w.Locked;
+			//KeysPanel.Enabled = !w.Locked;
 			Locked.Visible = w.Locked;
 
-			LoadAccounts(w);
+			LoadKeys(w);
 		}
 		else
 		{
@@ -92,8 +92,8 @@ public partial class WalletsPage : Page
 			ExportWallet.Enabled = false;
 			DeleteWallet.Enabled = false;
 
-			Accounts.Items.Clear();
-			//AccountsPanel.Enabled = false;
+			Keys.Items.Clear();
+			//KeysPanel.Enabled = false;
 		}
 
 	}
@@ -103,20 +103,20 @@ public partial class WalletsPage : Page
 
 	}
 
-	private void Accounts_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+	private void Keys_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 	{
 		if(e.IsSelected)
 		{
-			var a = e.Item.Tag as WalletAccount;
+			var a = e.Item.Tag as WalletKey;
 
 		}
 		else
 		{
 		}
 
-		CopyAddress.Enabled = e.IsSelected;
+		CopyPublic.Enabled = e.IsSelected;
 		ShowSecret.Enabled = e.IsSelected;
-		DeleteAccount.Enabled = e.IsSelected;
+		DeleteKey.Enabled = e.IsSelected;
 	}
 
 	public void CreateWallet_Click(object sender = null, EventArgs e = null)
@@ -133,7 +133,7 @@ public partial class WalletsPage : Page
 			if(f.ShowDialog(this) == DialogResult.OK)
 			{
 				var acc = SecretKey.Create();
-				var w = Nexus.Vault.AddWallet(f.WalletName, new OrderedDictionary<SecretKey, string> {{acc, sender == null ? "YourFirstAccount" : null}}, f.Password);
+				var w = Nexus.Vault.AddWallet(f.WalletName, new OrderedDictionary<SecretKey, string> {{acc, sender == null ? "YourFirstKey" : null}}, f.Password);
 
 				LoadWallets();
 			}
@@ -213,13 +213,13 @@ public partial class WalletsPage : Page
 		LoadWallets();
 	}
 
-	private void CreateAccount_Click(object sender, EventArgs e)
+	private void CreateKey_Click(object sender, EventArgs e)
 	{
-		//CurrentWallet.AddAccount(null, AccountKey.Create().Secret);
-		//LoadAccounts(CurrentWallet);
+		//CurrentWallet.AddKey(null, KeyKey.Create().Secret);
+		//LoadKeys(CurrentWallet);
 	}
 
-	private void ImportAccount_Click(object sender, EventArgs e)
+	private void ImportKey_Click(object sender, EventArgs e)
 	{
 		try
 		{
@@ -232,13 +232,13 @@ public partial class WalletsPage : Page
 																"Always copy it exactly — even a single wrong character will make it invalid.\r\n" +
 																"Keep it secret and offline — anyone with this key can access your funds and data.", out var k) == DialogResult.OK)
 			{
-				//CurrentWallet.AddAccount(null, k.FromHex());
-				//LoadAccounts(CurrentWallet);
+				//CurrentWallet.AddKey(null, k.FromHex());
+				//LoadKeys(CurrentWallet);
 			}
 		}
 		catch(Exception ex)
 		{
-			ShowException("Account import failed", ex);
+			ShowException("Key import failed", ex);
 		}
 	}
 
@@ -265,7 +265,7 @@ public partial class WalletsPage : Page
 							CurrentAccout.Key.Secret.ToHex());
 	}
 
-	private void DeleteAccount_Click(object sender, EventArgs e)
+	private void DeleteKey_Click(object sender, EventArgs e)
 	{
 		if(MessageBox.Show(this,"You are about to delete your crypto account from this wallet.\r\n" +
 								"This action is irreversible — once deleted, your account and all associated data will be removed.\r\n\r\n" +
@@ -274,13 +274,13 @@ public partial class WalletsPage : Page
 								"Without it, you will lose permanent access to your funds and data.\r\n" +
 								"We cannot recover your account or restore your assets after deletion.\r\n\r\n" +
 								"Are you sure you want to continue?", 
-								"Warning – Deleting Your Account is Permanent", 
+								"Warning – Deleting Your Key is Permanent", 
 								MessageBoxButtons.YesNo, 
 								MessageBoxIcon.Warning, 
 								MessageBoxDefaultButton.Button2) == System.Windows.Forms.DialogResult.Yes)
 		{
-			CurrentWallet.DeleteAccount(CurrentAccout);
-			LoadAccounts(CurrentWallet);
+			CurrentWallet.DeleteKey(CurrentAccout);
+			LoadKeys(CurrentWallet);
 		}
 	}
 

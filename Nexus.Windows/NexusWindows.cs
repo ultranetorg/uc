@@ -107,9 +107,9 @@ public class Program: ApplicationContext
 
 			Nexus.RunRdn(null, new RealClock());
 
-			 f.Log.Report($"CreateFirstAccountIfEmpty={Nexus.Vault.Settings.CreateFirstAccountIfEmpty} && Nexus.Vault.Wallets={Nexus.Vault.Wallets.Count}");
+			f.Log.Report($"{nameof(Nexus.Vault.Settings.CreateFirstKeyIfEmpty)}={Nexus.Vault.Settings.CreateFirstKeyIfEmpty} && {nameof(Nexus.Vault.Wallets)}={Nexus.Vault.Wallets.Count}");
 
-			if(Nexus.Vault.Settings.CreateFirstAccountIfEmpty && !Nexus.Vault.Wallets.Any())
+			if(Nexus.Vault.Settings.CreateFirstKeyIfEmpty && !Nexus.Vault.Wallets.Any())
 			{
 				var iam = new IamForm(Nexus);
 				iam.CreateFirstWallet();
@@ -128,7 +128,7 @@ public class Program: ApplicationContext
 													
 														if(f.ShowDialog() == DialogResult.OK)
 														{
-															return new AuthenticationChoice {Account = f.Account, Trust = f.Trust};
+															return new AuthenticationChoice {PublickKey = f.Key, Trust = f.Trust};
 														}
 														else
 														{
@@ -186,11 +186,11 @@ public class Program: ApplicationContext
 			control.SelectedItem = control.Items.OfType<Wallet>().FirstOrDefault(i => !i.Locked);
 		}
 
-		public static void BindAccounts(Vault vault, ComboBox control, IEnumerable<WalletAccount> accounts, AccountAddress preselected)
+		public static void BindKeys(Vault vault, ComboBox control, IEnumerable<WalletKey> accounts, PublicKey preselected)
 		{
 			control.Items.Clear();
 
-			IEnumerable<AccountAddress> keys;
+			IEnumerable<PublicKey> keys;
 
 			lock(vault)
 				keys = accounts.Select(i => i.Address);
@@ -205,7 +205,7 @@ public class Program: ApplicationContext
 					control.SelectedIndex = 0;
 		}
 
-		public static void BindWallets(IWin32Window parent, Vault vault, ComboBox wallets, ComboBox accounts, AccountAddress preselected)
+		public static void BindWallets(IWin32Window parent, Vault vault, ComboBox wallets, ComboBox accounts, PublicKey preselected)
 		{
 			void f(object s, EventArgs e)
 			{
@@ -217,7 +217,7 @@ public class Program: ApplicationContext
 						vault.UnlockRequested(parent, w.Name);
 	
 					if(!w.Locked)
-						BindAccounts(vault, accounts, w.Accounts, preselected);
+						BindKeys(vault, accounts, w.Keys, preselected);
 					else
 						wallets.SelectedItem = null;
 				}

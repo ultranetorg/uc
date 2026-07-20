@@ -13,10 +13,10 @@ internal class VaultApiServer : JsonServer
 		
 		Restricted.Add(Apc.NameOf(typeof(AddWalletApc)));
 		Restricted.Add(Apc.NameOf(typeof(WalletsApc)));
-		Restricted.Add(Apc.NameOf(typeof(WalletAccountsApc)));
+		Restricted.Add(Apc.NameOf(typeof(WalletKeysApc)));
 		Restricted.Add(Apc.NameOf(typeof(UnlockWalletApc)));
 		Restricted.Add(Apc.NameOf(typeof(LockWalletApc)));
-		Restricted.Add(Apc.NameOf(typeof(AddAccountToWalletApc)));
+		Restricted.Add(Apc.NameOf(typeof(AddKeyToWalletApc)));
 		Restricted.Add(Apc.NameOf(typeof(OverrideAuthenticationApc)));
 	}
 
@@ -76,20 +76,20 @@ public class WalletsApc : Apc, IVaultApc
 	}
 }
 
-public class WalletAccountsApc : Apc, IVaultApc
+public class WalletKeysApc : Apc, IVaultApc
 {
-	public class Account
+	public class Key
 	{
-		public string				Name { get; set; } 
-		public AccountAddress		Address { get; set; }
+		public string			Name { get; set; } 
+		public PublicKey		Public { get; set; }
 
-		public Account(WalletAccount account)
+		public Key(WalletKey key)
 		{
-			Name = account.Name;
-			Address = account.Address;
+			Name = key.Name;
+			Public = key.Address;
 		}
 
-		public Account()
+		public Key()
 		{
   		}
 	}
@@ -108,7 +108,7 @@ public class WalletAccountsApc : Apc, IVaultApc
 			if(w.Locked)
 				throw new VaultException(VaultError.Locked);
 
-			return w.Accounts.Select(i => new Account(i)).ToArray();
+			return w.Keys.Select(i => new Key(i)).ToArray();
 		}
 	}
 }
@@ -148,7 +148,7 @@ public class LockWalletApc : Apc, IVaultApc
 	}
 }
 
-public class AddAccountToWalletApc : Apc, IVaultApc
+public class AddKeyToWalletApc : Apc, IVaultApc
 {
 	public string		Wallet { get; set; } ///  Null means first
 	public string		Name { get; set; } ///  Null means first
@@ -164,7 +164,7 @@ public class AddAccountToWalletApc : Apc, IVaultApc
 			if(w == null)
 				throw new VaultException(VaultError.NotFound);
 
-			var a = w.AddAccount(Name, Key, Tag);
+			var a = w.AddKey(Name, Key, Tag);
 		
 			return a.Address;
 		}
@@ -184,7 +184,7 @@ public class OverrideAuthenticationApc : Apc, IVaultApc
 				vault.AuthenticationRequested = (application, logo, net, user, account) =>
 												{	
 													lock(vault)
-														return new AuthenticationChoice {Account = vault.Find(user).Address, Trust = Trust.AlwaysAllow};
+														return new AuthenticationChoice {PublickKey = vault.Find(user).Address, Trust = Trust.AlwaysAllow};
 												};
 			} 
 			else
@@ -211,7 +211,7 @@ internal class AuthenticateApc : Uccs.Net.AuthenticateApc, IVaultApc
 	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
-			return vault.Authenticate(Application, Net, User, Logo, Account);
+			return vault.Authenticate(Application, Net, User, Logo, Key);
 	}
 }
 

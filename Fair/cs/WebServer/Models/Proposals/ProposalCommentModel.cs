@@ -6,7 +6,7 @@ public class ProposalCommentModel(ProposalComment proposal, FairUser account)
 
 	public string ProposalId { get; set; } = proposal.Proposal.ToString();
 
-	public AccountBaseAvatarModel CreatorAccount { get; set; } = new(account);
+	public UserBaseAvatarModel CreatorUser { get; set; } = new(account);
 
 	public string Text { get; set; } = proposal.Text;
 

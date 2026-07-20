@@ -8,24 +8,24 @@ namespace Uccs.Nexus;
 
 public class Vault
 {
-	public const string																	WalletExtention = "uwa";
-	public const string																	PrivateKeyExtention = "pk";
-	//public static string																WalletExt(Cryptography c) => c is McvCryptography ? WalletExtention : PrivateKeyExtention;
+	public const string																WalletExtention = "uwa";
+	public const string																PrivateKeyExtention = "pk";
+	//public static string															WalletExt(Cryptography c) => c is McvCryptography ? WalletExtention : PrivateKeyExtention;
 
-	Flow																				Flow;
-	public List<Wallet>																	Wallets = new();
-	public IEnumerable<WalletAccount>													UnlockedAccounts => Wallets.SelectMany(i => i.Accounts);
-	public VaultSettings																Settings;
-	public Zone																			Zone;
-	public Cryptography																	Cryptography;
-	internal VaultApiServer																ApiServer;
-	public IPasswordAsker																PasswordAsker = new ConsolePasswordAsker();
+	Flow																			Flow;
+	public List<Wallet>																Wallets = new();
+	public IEnumerable<WalletKey>													UnlockedKeys => Wallets.SelectMany(i => i.Keys);
+	public VaultSettings															Settings;
+	public Zone																		Zone;
+	public Cryptography																Cryptography;
+	internal VaultApiServer															ApiServer;
+	public IPasswordAsker															PasswordAsker = new ConsolePasswordAsker();
 
-	public Func<string, byte[], string, string, AccountAddress, AuthenticationChoice>	AuthenticationRequested;
-	public Func<AccountAddress, Authentication, string, bool>							AuthorizationRequested;
-	public Action<object, string>														UnlockRequested;
+	public Func<string, byte[], string, string, PublicKey, AuthenticationChoice>	AuthenticationRequested;
+	public Func<PublicKey, Authentication, string, bool>							AuthorizationRequested;
+	public Action<object, string>													UnlockRequested;
 
-	public readonly static string[]		PasswordWarning =  {"There is no way to recover Ultranet Account passwords. Back it up in some reliable location.",
+	public readonly static string[]		PasswordWarning =  {"There is no way to recover Key passwords. Back it up in some reliable location.",
 															"Make it long. This is the most critical factor. Choose nothing shorter than 15 characters, more if possible.",
 															"Use a mix of characters. The more you mix up letters (upper-case and lower-case), numbers, and symbols, the more potent your password is, and the harder it is for a brute force attack to crack it.",
 															"Avoid common substitutions. Password crackers are hip to the usual substitutions. Whether you use DOORBELL or D00R8377, the brute force attacker will crack it with equal ease.",
@@ -78,20 +78,20 @@ public class Vault
 		ApiServer = new VaultApiServer(this, Settings.Api, Flow);
 	}
 
-	public WalletAccount Find(AccountAddress address)
+	public WalletKey Find(PublicKey address)
 	{
 		foreach(var i in Wallets)
-			foreach(var j in i.Accounts)
+			foreach(var j in i.Keys)
 				if(j.Address == address)
 					return j;
 
 		return null;
 	}
 
-	public WalletAccount Find(string name)
+	public WalletKey Find(string name)
 	{
 		foreach(var i in Wallets)
-			foreach(var j in i.Accounts)
+			foreach(var j in i.Keys)
 				if(j.Name == name)
 					return j;
 
@@ -152,7 +152,7 @@ public class Vault
 		return w;
 	}
 
-	public bool IsUnlocked(AccountAddress address)
+	public bool IsUnlocked(PublicKey address)
 	{
 		return Find(address)?.Key != null;
 	}
@@ -250,7 +250,7 @@ public class Vault
 		}
 	}
 
-	public AuthenticationResult Authenticate(string application, string net, string user, byte[] logo, AccountAddress account)
+	public AuthenticationResult Authenticate(string application, string net, string user, byte[] logo, PublicKey account)
 	{
 		var c = AuthenticationRequested?.Invoke(application, logo, net, user, account);
 	
@@ -259,14 +259,14 @@ public class Vault
 			if(c.Waiting)
 				return null; 
 
-			var a = Find(c.Account);
+			var a = Find(c.PublickKey);
 		
 			if(a == null)
-				throw new VaultException(VaultError.AccountNotFound);
+				throw new VaultException(VaultError.NotFound);
 		
 			var n = a.AddAuthentication(application, net, user, logo, c.Trust);
 		
-			return new AuthenticationResult {Signer = c.Account, Session = n.Session};
+			return new AuthenticationResult {Signer = c.PublickKey, Session = n.Session};
 		} 
 		else
 			throw new VaultException(VaultError.Rejected);
@@ -279,7 +279,7 @@ public class Vault
 
 		var h = new	Authentication {Net = net, User = user, Session = session}.Hashify();
 
-		WalletAccount acc;
+		WalletKey acc;
 
 		var w = Wallets.Find(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
 	
@@ -294,7 +294,7 @@ public class Vault
 	
 		//acc = w.Accounts.Find(i => i.Address == Account);
 			
-		acc = w.Accounts.FirstOrDefault(i => i.Authentications.Any(i =>	i.Session.SequenceEqual(session)));
+		acc = w.Keys.FirstOrDefault(i => i.Authentications.Any(i =>	i.Session.SequenceEqual(session)));
 	
 		var au = acc?.Authentications.Find(i => i.Session.SequenceEqual(session));
 

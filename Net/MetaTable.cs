@@ -3,7 +3,7 @@
 public enum MetaEntityType : int
 {
 	None,
-	AccountCount,
+	UserCount,
 	_Last = 1000
 }
 

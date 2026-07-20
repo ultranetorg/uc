@@ -5,7 +5,7 @@ namespace Uccs.Nexus;
 public class VaultSettings : SavableSettings
 {
 	public IpApiSettings	Api { get; set; }
-	public bool				CreateFirstAccountIfEmpty { get; set; } = true;
+	public bool				CreateFirstKeyIfEmpty { get; set; } = true;
 
 	public VaultSettings() : base(NetXonTextValueSerializator.Default)
 	{

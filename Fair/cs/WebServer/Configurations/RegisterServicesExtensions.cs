@@ -29,7 +29,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<SitesService>();
 		services.AddSingleton<PerpetualSurveysService>();
 		services.AddSingleton<ProductsService>();
-		services.AddSingleton<AccountsService>();
+		services.AddSingleton<UserService>();
 		services.AddSingleton<ModeratorProposalsService>();
 		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<UnpublishedPublicationsService>();

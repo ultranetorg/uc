@@ -28,38 +28,9 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			fileToolStripMenuItem = new ToolStripMenuItem();
-			newToolStripMenuItem = new ToolStripMenuItem();
-			toolStripSeparator = new ToolStripSeparator();
-			exitToolStripMenuItem = new ToolStripMenuItem();
 			Navigator = new TreeView();
 			place = new Panel();
 			SuspendLayout();
-			// 
-			// fileToolStripMenuItem
-			// 
-			fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-			fileToolStripMenuItem.Size = new Size(58, 24);
-			fileToolStripMenuItem.Text = "&Account";
-			// 
-			// newToolStripMenuItem
-			// 
-			newToolStripMenuItem.ImageTransparentColor = Color.Magenta;
-			newToolStripMenuItem.Name = "newToolStripMenuItem";
-			newToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.N;
-			newToolStripMenuItem.Size = new Size(176, 22);
-			newToolStripMenuItem.Text = "&New Account";
-			// 
-			// toolStripSeparator
-			// 
-			toolStripSeparator.Name = "toolStripSeparator";
-			toolStripSeparator.Size = new Size(173, 6);
-			// 
-			// exitToolStripMenuItem
-			// 
-			exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			exitToolStripMenuItem.Size = new Size(176, 22);
-			exitToolStripMenuItem.Text = "E&xit";
 			// 
 			// Navigator
 			// 
@@ -98,10 +69,6 @@
 		}
 
 		#endregion
-		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
-		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
 		protected System.Windows.Forms.TreeView Navigator;
 		private System.Windows.Forms.Panel place;
 	}

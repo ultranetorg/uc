@@ -86,7 +86,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 {
 	public AutoId			Id { get; set; }
 	public string			Name { get; set; }
-	public AccountAddress	Owner { get; set; }
+	public PublicKey	Owner { get; set; }
 	public int				LastNonce { get; set; } = -1;
 	public int				LastOutward { get; set; } = -1;
 	public long				AverageUptime { get; set; }
@@ -149,7 +149,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public virtual void Read(Reader reader)
 	{
 		Id					= reader.Read<AutoId>();
-		Owner				= reader.ReadAccount();
+		Owner				= reader.Read<PublicKey>();
 		Name				= reader.ReadASCII();
 
 		Spacetime 			= reader.Read7BitEncodedInt64();

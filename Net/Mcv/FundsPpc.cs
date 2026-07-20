@@ -12,5 +12,5 @@ public class FundsPpc : McvPpc<FundsPpr>
 
 public class FundsPpr : Result
 {
-	public AccountAddress[] Funds { get; set; }
+	public PublicKey[] Funds { get; set; }
 }

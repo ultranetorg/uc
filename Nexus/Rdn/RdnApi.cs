@@ -229,11 +229,6 @@ public class CostApc : RdnApc
 {
 	public class Return
 	{
-		//public Money		RentBytePerDay { get; set; }
-		//public Money		Exeunit { get; set; }
-
-		public Unit		RentAccount { get; set; }
-
 		public Unit[][]	RentDomain { get; set; }
 		
 		public Unit[]	RentResource { get; set; }
@@ -257,11 +252,7 @@ public class CostApc : RdnApc
 		var r = rdn.Peering.Call(new CostPpc(), workflow);
 	
 		return	new Return
-				{	//RentBytePerDay				= r.RentPerBytePerDay * Rate,
-					//Exeunit						= r.ConsensusExeunitFee * Rate,
-				
-					RentAccount					= Execution.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,
-					
+				{
 					RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnExecution.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
 					
 					RentResource				= Years.Select(y => Execution.ToBD(rdn.Net.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
@@ -273,7 +264,7 @@ public class CostApc : RdnApc
 	}
 }
 //
-//public class HoldersByAccountIccpApc : RdnApc
+//public class HoldersByUserIccpApc : RdnApc
 //{
 //	public byte[]	Address { get; set; }
 //
@@ -358,21 +349,21 @@ public class TransferIccpApc : RdnApc
 
 	public override object Execute(RdnNode rdn, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
-//		if(HolderClass != nameof(Account))
+//		if(HolderClass != nameof(User))
 //			throw new NnException(NnError.Unknown);
 //
-//		if(Name != nameof(Account.Spacetime) && Name != nameof(Account.Energy))
+//		if(Name != nameof(User.Spacetime) && Name != nameof(User.Energy))
 //			throw new NnException(NnError.Unknown);
 //
 //		lock(rdn.Mcv.Lock)
 //		{	
-//			var a = rdn.Mcv.Accounts.Latest(AutoId.Parse(HolderId));
+//			var a = rdn.Mcv.Users.Latest(AutoId.Parse(HolderId));
 //			
 //			if(a != null)
 //				return new BigInteger (Name switch
 //											{
-//												nameof(Account.Spacetime) => a.Spacetime,
-//												nameof(Account.Energy) => a.Energy,
+//												nameof(User.Spacetime) => a.Spacetime,
+//												nameof(User.Energy) => a.Energy,
 //											});
 //			else
 //				throw new NnException(NnError.NotFound);

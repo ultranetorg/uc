@@ -2,7 +2,7 @@
 
 public interface IFeeAsker
 {
-	bool Ask(HomoPeering sun, AccountAddress account, Operation operation);
+	bool Ask(HomoPeering sun, PublicKey account, Operation operation);
 }
 
 public class SilentFeeAsker : IFeeAsker
@@ -11,7 +11,7 @@ public class SilentFeeAsker : IFeeAsker
 	{
 	}
 
-	public bool Ask(HomoPeering sun, AccountAddress account, Operation operation)
+	public bool Ask(HomoPeering sun, PublicKey account, Operation operation)
 	{
 		return true;
 	}

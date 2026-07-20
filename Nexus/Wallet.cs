@@ -5,7 +5,7 @@ namespace Uccs.Nexus;
 
 public class AuthenticationChoice
 {
-	public AccountAddress	Account { get; set; }
+	public PublicKey		PublickKey { get; set; }
 	public Trust			Trust { get; set; }
 	public bool				Waiting { get; set; }
 }
@@ -56,25 +56,25 @@ public class Authentication : IBinarySerializable
 	}
 }
 
-public class WalletAccount : IBinarySerializable
+public class WalletKey : IBinarySerializable
 {
 	public string						Name { get; set; } 
 	public SecretKey					Key { get; set; }
-	public AccountAddress				Address  => Key.Address;
+	public PublicKey				Address  => Key.PuplicKey;
 	public List<Authentication>			Authentications = [];
 	public Wallet						Wallet;
 	public List<Authentication>			PendingAuthentications = [];
 
-	public WalletAccount()
+	public WalletKey()
 	{ 
 	}
 
-	public WalletAccount(Wallet vault)
+	public WalletKey(Wallet vault)
 	{
 		Wallet = vault;
 	}
 
-	public WalletAccount(Wallet vault, string name, SecretKey key)
+	public WalletKey(Wallet vault, string name, SecretKey key)
 	{
 		Wallet = vault;
 		Name = name;
@@ -151,7 +151,7 @@ public class WalletAccount : IBinarySerializable
 public class Wallet
 {
 	public string				Name {get;set; }
-	public List<WalletAccount>	Accounts = new();
+	public List<WalletKey>		Keys = new();
 	public List<byte[]>			AuthenticationHashes = new();
 	public byte[]				Encrypted;
 	public string				Password;
@@ -178,7 +178,7 @@ public class Wallet
 		Name = name ?? Default;
 		Vault = vault;
 		Password = password;
-		Accounts = keys.Select(i => new WalletAccount(this, i.Value, i.Key)).ToList();
+		Keys = keys.Select(i => new WalletKey(this, i.Value, i.Key)).ToList();
 	}
 
 	byte[] Encrypt()
@@ -189,7 +189,7 @@ public class Wallet
 		var es = new MemoryStream();
 		var ew = new Writer(es);
 
-		ew.Write(Accounts);
+		ew.Write(Keys);
 
 		return Vault.Encrypt(es.ToArray(), Password);
 	}
@@ -210,7 +210,7 @@ public class Wallet
 		File.WriteAllBytes(Path, ToRaw());
 	}
 
-	public WalletAccount AddAccount(string name, byte[] key, string tag)
+	public WalletKey AddKey(string name, byte[] key, string tag)
 	{
 		if(Encrypted != null)
 			throw new VaultException(VaultError.Locked);
@@ -218,21 +218,21 @@ public class Wallet
 		if(key != null && key.Length != Cryptography.PrivateKeyLength)
 			throw new VaultException(VaultError.IncorrectArgumets);
 
-		if(key != null && Accounts.Any(i => Bytes.Equal(i.Key.Secret, key)))
+		if(key != null && Keys.Any(i => Bytes.Equal(i.Key.Secret, key)))
 			throw new VaultException(VaultError.AlreadyExists);
 
-		var a = new WalletAccount(this, name, key == null ? SecretKey.Create(tag) : new SecretKey(key, tag));
+		var a = new WalletKey(this, name, key == null ? SecretKey.Create(tag) : new SecretKey(key, tag));
 		
-		Accounts.Add(a);
+		Keys.Add(a);
 
 		Save();
 
 		return a;
 	}
 
-	public void DeleteAccount(WalletAccount account)
+	public void DeleteKey(WalletKey account)
 	{
-		Accounts.Remove(account);
+		Keys.Remove(account);
 	
 		Save();
 	}
@@ -244,7 +244,7 @@ public class Wallet
 
 		Encrypted = Encrypt();
 
-		Accounts.Clear();
+		Keys.Clear();
 		Password = null;
 	}
 
@@ -267,7 +267,7 @@ public class Wallet
 
 		var r = new Reader(de);
 
-		Accounts = r.ReadList(() => { var a = new WalletAccount(this); a.Read(r); return a; });
+		Keys = r.ReadList(() => { var a = new WalletKey(this); a.Read(r); return a; });
 
 		Encrypted = null;
 	}

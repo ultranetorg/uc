@@ -42,8 +42,8 @@ public abstract class Round : IBinarySerializable
 	public Transaction[]								ConsensusTransactions;
 	public AutoId[]										ConsensusMemberLeavers;
 	public AutoId[]										ConsensusViolators;
-	public AccountAddress[]								ConsensusFundJoiners = [];
-	public AccountAddress[]								ConsensusFundLeavers = [];
+	public PublicKey[]								ConsensusFundJoiners = [];
+	public PublicKey[]								ConsensusFundLeavers = [];
 	public long											ConsensusOperationCost;
 	//public int											ConsensusOverloadRound;
 	public byte[][]										ConsensusIncomingTransfers;
@@ -53,7 +53,7 @@ public abstract class Round : IBinarySerializable
 	public bool											Confirmed = false;
 	public byte[]										Hash;
 
-	public List<AccountAddress>							Funds;
+	public List<PublicKey>							Funds;
 	public long[]										Spacetimes;
 	public long[]										Bandwidths;
 
@@ -690,7 +690,7 @@ public abstract class Round : IBinarySerializable
 		Id						= reader.Read7BitEncodedInt();
 		Hash					= reader.ReadHash();
 		Bandwidths				= reader.ReadArray(reader.Read7BitEncodedInt64);
-		Funds					= reader.ReadList<AccountAddress>();
+		Funds					= reader.ReadList<PublicKey>();
 		Spacetimes				= reader.ReadArray(reader.Read7BitEncodedInt64);
 
 		ConsensusTime			= reader.Read<Time>();
@@ -721,8 +721,8 @@ public abstract class Round : IBinarySerializable
 		ConsensusOperationCost		= reader.Read7BitEncodedInt64();
 		ConsensusMemberLeavers		= reader.ReadArray<AutoId>();
 		ConsensusViolators			= reader.ReadArray<AutoId>();
-		ConsensusFundJoiners		= reader.ReadArray<AccountAddress>();
-		ConsensusFundLeavers		= reader.ReadArray<AccountAddress>();
+		ConsensusFundJoiners		= reader.ReadArray<PublicKey>();
+		ConsensusFundLeavers		= reader.ReadArray<PublicKey>();
 		ConsensusTransactions		= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		ConsensusIncomingTransfers	= reader.ReadArray(reader.ReadHash);
 		ConsensusOutgoingTransfers	= reader.ReadArray<IccpTransferResult>();

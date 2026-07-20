@@ -12,7 +12,7 @@ public class NetXonTextValueSerializator : XonTextValueSerializator
 		if(val is SecretKey k)
 			return k.Secret.ToHex();
 
-		if(	val is AccountAddress ||
+		if(	val is PublicKey ||
 			val is Time ||
 			val is Endpoint ||
 			val is AutoId ||
@@ -27,7 +27,7 @@ public class NetXonTextValueSerializator : XonTextValueSerializator
 		var v = value as string;
 
 		if(type == typeof(SecretKey))			return new SecretKey(v.FromHex());
-		if(type == typeof(AccountAddress))		return AccountAddress.Parse(v);
+		if(type == typeof(PublicKey))		return PublicKey.Parse(v);
 		if(type == typeof(Time))				return Time.Parse(v);
 		if(type == typeof(Unit))				return Unit.Parse(v);
 		if(type == typeof(AutoId))				return AutoId.Parse(v);

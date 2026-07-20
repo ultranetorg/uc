@@ -50,7 +50,7 @@ public class RunCommand : NexusCommand
 		return a;
 	}
 
-	AuthenticationChoice OnAuth(string application, byte[] logo, string net, string user, AccountAddress account)
+	AuthenticationChoice OnAuth(string application, byte[] logo, string net, string user, PublicKey account)
 	{
 		var a = new Authentication
 				{

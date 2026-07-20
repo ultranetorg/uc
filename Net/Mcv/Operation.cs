@@ -39,7 +39,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			AlreadyTaken = "Already taken";
 	public const string			AtLeastOneOwnerRequired = "At least one owner required";
 	public const string			Denied = "Access denied";
-	public const string			ExistingAccountRequired = "Existing account required";
+	public const string			ExistingUserRequired = "Existing account required";
 	public const string			Expired = "Expired";
 	public const string			InvalidName = "Invalid name";
 	public const string			LimitExceeded = "Limit exceeded";
@@ -87,7 +87,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	{
 	}
 
-	public bool AccountExists(Execution executions, AutoId id, out User account, out string error)
+	public bool UserExists(Execution executions, AutoId id, out User account, out string error)
 	{
 		account = executions.FindUser(id);
 
@@ -101,9 +101,9 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		return true;
 	}
 
-	public bool CanAccessAccount(Execution executions, AutoId id, out User account, out string error)
+	public bool CanAccessUser(Execution executions, AutoId id, out User account, out string error)
 	{
-		if(!AccountExists(executions, id, out account, out error))
+		if(!UserExists(executions, id, out account, out error))
 			return false;
 
 		if(account.Owner != User.Owner)

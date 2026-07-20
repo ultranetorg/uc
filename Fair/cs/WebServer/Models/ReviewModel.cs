@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ReviewModel(Review review, FairUser account)
+public class ReviewModel(Review review, FairUser user)
 {
 	public string Id { get; set; } = review.Id.ToString();
 
@@ -10,7 +10,7 @@ public class ReviewModel(Review review, FairUser account)
 
 	public int Created { get; set; } = review.Created.Days;
 
-	public AccountBaseAvatarModel CreatorAccount { get; set; } = new(account);
+	public UserBaseAvatarModel CreatorUser { get; set; } = new(user);
 
 	public string PublicationId { get; init; }
 	public string PublicationTitle { get; init; }

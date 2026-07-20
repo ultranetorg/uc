@@ -56,7 +56,7 @@
 //// 
 //// 			Transaction = new Transaction();
 //// 			
-//// 			Transaction.Signer	= reader.ReadAccount();
+//// 			Transaction.Signer	= reader.ReadUser();
 //// 			Name				= reader.ReadUtf8();
 //// 			Bid					= reader.Read<Money>();
 //// 		}
@@ -87,9 +87,9 @@
 //// 			{
 //// 				if(a.LastBid < Bid) /// outbid
 //// 				{
-//// 					var lw = mcv.Accounts.Find(a.LastWinner, round.Id);
+//// 					var lw = mcv.Users.Find(a.LastWinner, round.Id);
 //// 					
-//// 					round.AffectAccount(lw.Address).Spacetime += a.LastBid;
+//// 					round.AffectUser(lw.Address).Spacetime += a.LastBid;
 //// 					Signer.Spacetime -= Bid;
 //// 					
 //// 					a.LastBid		= Bid;

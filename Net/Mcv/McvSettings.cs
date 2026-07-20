@@ -29,11 +29,6 @@ public class McvSettings : Settings
 	public virtual long				Roles => ((long)Role.Graph) |
 											 (Chain != null ? (long)Role.Chain : 0);
 
-	//public long					Pledge { get; set; }
-	//public List<AccountAddress>	ProposedFundJoiners = new();
-	//public List<AccountAddress>	ProposedFundLeavers = new();
-
-
 	public McvSettings() : base(NetXonTextValueSerializator.Default)
 	{
 	}

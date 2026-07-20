@@ -3,12 +3,12 @@ using System.Net;
 
 namespace Uccs.Net;
 
-public class AccountSessionSettings : Settings
+public class UserSessionSettings : Settings
 {
 	public string			User { get; set; }
 	public byte[]			Session { get; set; }
 
-	public AccountSessionSettings() : base(NetXonTextValueSerializator.Default)
+	public UserSessionSettings() : base(NetXonTextValueSerializator.Default)
 	{
 	}
 }
@@ -19,7 +19,7 @@ public class McvNodeSettings : SavableSettings
 	public McvSettings					Mcv { get; set; }
 	public PeeringSettings				Peering { get; set; } = new();
 	//public PeeringSettings			NnPeering { get; set; }
-	public AccountSessionSettings[]		Sessions { get; set; } = [];
+	public UserSessionSettings[]		Sessions { get; set; } = [];
 	public bool							Log { get; set; }
 	public int							PoolMaximum { get; set; } = 100_000;
 	public int							PpcTimeout { get; set; } = 5000;

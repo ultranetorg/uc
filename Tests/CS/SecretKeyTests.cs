@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Uccs.Tests;
 
-public class AccountKeyTests
+public class SecretKeyTests
 {
  	[Fact]
  	public static void Main()
@@ -21,9 +21,9 @@ public class AccountKeyTests
 		var s = Cryptography.Mcv.Sign(k, h);
 
 
-		Assert.True(k.Address == AccountAddress.Parse(k.Address.ToString()));
-		Assert.True(Cryptography.Mcv.Verify(k.Address, h, s));
-		Assert.False(Cryptography.Mcv.Verify(kk.Address, h, s));
+		Assert.True(k.PuplicKey == PublicKey.Parse(k.PuplicKey.ToString()));
+		Assert.True(Cryptography.Mcv.Verify(k.PuplicKey, h, s));
+		Assert.False(Cryptography.Mcv.Verify(kk.PuplicKey, h, s));
 					
 		var v = new Vault(Zone.Test, new VaultSettings{}, new Flow());
 		

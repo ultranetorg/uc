@@ -177,9 +177,9 @@ public class SearchService
 		return result;
 	}
 
-	public IEnumerable<AccountBaseAvatarModel> SearchAccount([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	public IEnumerable<UserBaseAvatarModel> SearchUser([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchAccount), query, limit);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchUser), query, limit);
 
 		if(cancellationToken.IsCancellationRequested)
 			return [];
@@ -189,7 +189,7 @@ public class SearchService
 		if(AutoId.TryParse(query, out AutoId entityId))
 		{
 			FairUser account = (FairUser)mcv.Users.Latest(entityId);
-			return [new AccountBaseAvatarModel(account)];
+			return [new UserBaseAvatarModel(account)];
 		}
 
 		string lowercase = query.ToLower();
@@ -197,15 +197,15 @@ public class SearchService
 		IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
 		AutoId[] accountsIds = searchResult.ToArray();
 
-		return LoadAccounts(mcv, accountsIds, cancellationToken);
+		return LoadUsers(mcv, accountsIds, cancellationToken);
 	}
 
-	static IEnumerable<AccountBaseAvatarModel> LoadAccounts(Mcv mcv, AutoId[] accountsIds, CancellationToken cancellationToken)
+	static IEnumerable<UserBaseAvatarModel> LoadUsers(Mcv mcv, AutoId[] accountsIds, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
 
-		List<AccountBaseAvatarModel> result = new(accountsIds.Length);
+		List<UserBaseAvatarModel> result = new(accountsIds.Length);
 
 		foreach(AutoId id in accountsIds)
 		{
@@ -213,7 +213,7 @@ public class SearchService
 				return result;
 
 			FairUser account = (FairUser)mcv.Users.Latest(id);
-			AccountBaseAvatarModel model = new(account);
+			UserBaseAvatarModel model = new(account);
 			result.Add(model);
 		}
 
@@ -247,9 +247,9 @@ public class SearchService
 		return McvUtils.LoadAuthors(mcv, authorsIds, cancellationToken);
 	}
 
-	public IEnumerable<AccountSearchLiteModel> SearchLiteAccounts(string query, int limit, CancellationToken cancellationToken)
+	public IEnumerable<UserSearchLiteModel> SearchLiteUsers(string query, int limit, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchLiteAccounts), query, limit);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchLiteUsers), query, limit);
 
 		if(cancellationToken.IsCancellationRequested)
 			return [];
@@ -260,11 +260,11 @@ public class SearchService
 
 		IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
 
-		var result = new List<AccountSearchLiteModel>(limit);
-		return LoadAccounts(searchResult, result, cancellationToken);
+		var result = new List<UserSearchLiteModel>(limit);
+		return LoadUsers(searchResult, result, cancellationToken);
 	}
 
-	IList<AccountSearchLiteModel> LoadAccounts(IEnumerable<AutoId> accounts, IList<AccountSearchLiteModel> result, CancellationToken cancellationToken)
+	IList<UserSearchLiteModel> LoadUsers(IEnumerable<AutoId> accounts, IList<UserSearchLiteModel> result, CancellationToken cancellationToken)
 	{
 		foreach(AutoId accountId in accounts)
 		{
@@ -272,7 +272,7 @@ public class SearchService
 				break;
 
 			FairUser account = (FairUser)mcv.Users.Latest(accountId);
-			AccountSearchLiteModel model = new AccountSearchLiteModel
+			UserSearchLiteModel model = new UserSearchLiteModel
 			{
 				Id = account.Id.ToString(),
 				Nickname = account.Name

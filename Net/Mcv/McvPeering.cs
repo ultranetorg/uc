@@ -818,19 +818,19 @@ public abstract class McvPeering : HomoPeering
 		return o;
 	}
 
-	public AccountSessionSettings FindSession(string user)
+	public UserSessionSettings FindSession(string user)
 	{
 		return Node.Settings.Sessions.FirstOrDefault(i => i.User == user);
 	}
 
-	public AccountSessionSettings CreateSession(string application, string user)
+	public UserSessionSettings CreateSession(string application, string user)
 	{
 		var a = VaultApi.Call<AuthenticationResult>(new AuthenticateApc {Application = application, Net = Net.Address, User = user}, Flow); 
 
 		if(a == null)
 			return null;
 
-		var ass = new AccountSessionSettings {User = user, Session = a.Session};
+		var ass = new UserSessionSettings {User = user, Session = a.Session};
 		Node.Settings.Sessions = [..Node.Settings.Sessions, ass];
 		Node.Settings.Save();
 

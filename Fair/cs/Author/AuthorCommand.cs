@@ -77,8 +77,8 @@ public class AuthorCommand : FairCommand
 		a.Description = "Manages ownership of an author. Adds or removes an owner account.";
 		a.Arguments =	[
 							NameOrId("author whose owner list will be modified"),
-							new (ao, AA, "User Id to add as an owner"),
-							new (ro, AA, "User Id to remove from owners"),
+							new (ao, PUBKEY, "User Id to add as an owner"),
+							new (ro, PUBKEY, "User Id to remove from owners"),
 							Eligible
 						];
 

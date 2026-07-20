@@ -72,13 +72,13 @@ namespace Uccs.Nexus.Windows
 			Transfering.Controls.Add(label5);
 			Transfering.Controls.Add(NewOwner);
 			Transfering.Location = new Point(630, 357);
-			Transfering.Margin = new Padding(7, 7, 7, 7);
+			Transfering.Margin = new Padding(7);
 			Transfering.Name = "Transfering";
 			Transfering.Padding = new Padding(4, 3, 4, 3);
 			Transfering.Size = new Size(616, 161);
 			Transfering.TabIndex = 4;
 			Transfering.TabStop = false;
-			Transfering.Text = "Transfer Domain to other Account";
+			Transfering.Text = "Changes an owner of the domain";
 			Transfering.Visible = false;
 			// 
 			// transfer
@@ -106,7 +106,7 @@ namespace Uccs.Nexus.Windows
 			// NewOwner
 			// 
 			NewOwner.Location = new Point(232, 50);
-			NewOwner.Margin = new Padding(7, 7, 7, 7);
+			NewOwner.Margin = new Padding(7);
 			NewOwner.Name = "NewOwner";
 			NewOwner.Size = new Size(280, 23);
 			NewOwner.TabIndex = 11;
@@ -124,7 +124,7 @@ namespace Uccs.Nexus.Windows
 			Registration.Controls.Add(RegisrationSigner);
 			Registration.Controls.Add(DomainTitle);
 			Registration.Location = new Point(0, 351);
-			Registration.Margin = new Padding(7, 7, 7, 7);
+			Registration.Margin = new Padding(7);
 			Registration.Name = "Registration";
 			Registration.Padding = new Padding(4, 3, 4, 3);
 			Registration.Size = new Size(616, 291);
@@ -136,7 +136,7 @@ namespace Uccs.Nexus.Windows
 			// Cost
 			// 
 			Cost.Location = new Point(206, 161);
-			Cost.Margin = new Padding(7, 7, 7, 7);
+			Cost.Margin = new Padding(7);
 			Cost.Name = "Cost";
 			Cost.ReadOnly = true;
 			Cost.Size = new Size(116, 23);
@@ -147,7 +147,7 @@ namespace Uccs.Nexus.Windows
 			// Years
 			// 
 			Years.Location = new Point(206, 123);
-			Years.Margin = new Padding(7, 7, 7, 7);
+			Years.Margin = new Padding(7);
 			Years.Maximum = new decimal(new int[] { 256, 0, 0, 0 });
 			Years.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
 			Years.Name = "Years";
@@ -230,7 +230,7 @@ namespace Uccs.Nexus.Windows
 			RegisrationSigner.DropDownStyle = ComboBoxStyle.DropDownList;
 			RegisrationSigner.FormattingEnabled = true;
 			RegisrationSigner.Location = new Point(206, 43);
-			RegisrationSigner.Margin = new Padding(7, 7, 7, 7);
+			RegisrationSigner.Margin = new Padding(7);
 			RegisrationSigner.Name = "RegisrationSigner";
 			RegisrationSigner.Size = new Size(280, 23);
 			RegisrationSigner.TabIndex = 10;
@@ -238,7 +238,7 @@ namespace Uccs.Nexus.Windows
 			// DomainTitle
 			// 
 			DomainTitle.Location = new Point(206, 81);
-			DomainTitle.Margin = new Padding(7, 7, 7, 7);
+			DomainTitle.Margin = new Padding(7);
 			DomainTitle.Name = "DomainTitle";
 			DomainTitle.Size = new Size(280, 23);
 			DomainTitle.TabIndex = 11;
@@ -253,7 +253,7 @@ namespace Uccs.Nexus.Windows
 			Auction.Controls.Add(label14);
 			Auction.Controls.Add(AuctionSigner);
 			Auction.Location = new Point(630, 56);
-			Auction.Margin = new Padding(7, 7, 7, 7);
+			Auction.Margin = new Padding(7);
 			Auction.Name = "Auction";
 			Auction.Padding = new Padding(4, 3, 4, 3);
 			Auction.Size = new Size(616, 231);
@@ -265,7 +265,7 @@ namespace Uccs.Nexus.Windows
 			// Bid
 			// 
 			Bid.Location = new Point(170, 86);
-			Bid.Margin = new Padding(7, 7, 7, 7);
+			Bid.Margin = new Padding(7);
 			Bid.Name = "Bid";
 			Bid.Size = new Size(116, 23);
 			Bid.TabIndex = 13;
@@ -322,7 +322,7 @@ namespace Uccs.Nexus.Windows
 			AuctionSigner.DropDownStyle = ComboBoxStyle.DropDownList;
 			AuctionSigner.FormattingEnabled = true;
 			AuctionSigner.Location = new Point(170, 43);
-			AuctionSigner.Margin = new Padding(7, 7, 7, 7);
+			AuctionSigner.Margin = new Padding(7);
 			AuctionSigner.Name = "AuctionSigner";
 			AuctionSigner.Size = new Size(280, 23);
 			AuctionSigner.TabIndex = 10;
@@ -332,7 +332,7 @@ namespace Uccs.Nexus.Windows
 			groupBox2.Controls.Add(Fields);
 			groupBox2.Controls.Add(Values);
 			groupBox2.Location = new Point(0, 56);
-			groupBox2.Margin = new Padding(7, 7, 7, 7);
+			groupBox2.Margin = new Padding(7);
 			groupBox2.Name = "groupBox2";
 			groupBox2.Padding = new Padding(4, 3, 4, 3);
 			groupBox2.Size = new Size(616, 287);
@@ -365,7 +365,7 @@ namespace Uccs.Nexus.Windows
 			// 
 			// Search
 			// 
-			Search.Location = new Point(450, 13);
+			Search.Location = new Point(439, 12);
 			Search.Margin = new Padding(7, 14, 7, 7);
 			Search.Name = "Search";
 			Search.Size = new Size(166, 26);
@@ -378,7 +378,7 @@ namespace Uccs.Nexus.Windows
 			// 
 			namelabel.AutoSize = true;
 			namelabel.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-			namelabel.Location = new Point(19, 18);
+			namelabel.Location = new Point(19, 19);
 			namelabel.Margin = new Padding(4, 0, 4, 0);
 			namelabel.Name = "namelabel";
 			namelabel.Size = new Size(85, 13);
@@ -388,7 +388,7 @@ namespace Uccs.Nexus.Windows
 			// DomainSearch
 			// 
 			DomainSearch.FormattingEnabled = true;
-			DomainSearch.Location = new Point(124, 15);
+			DomainSearch.Location = new Point(112, 15);
 			DomainSearch.Margin = new Padding(4, 3, 4, 3);
 			DomainSearch.Name = "DomainSearch";
 			DomainSearch.Size = new Size(316, 23);

@@ -5,7 +5,7 @@ namespace Uccs.Net;
 public class UserCreation : Operation
 {
 	public byte[]				Pow { get; set; }
-	public AccountAddress		Owner { get; set; }
+	public PublicKey		Owner { get; set; }
 	public override string		Explanation => $"Pow={Pow?.ToHex()} {nameof(Owner)}={Owner}";
 	
 	public override bool IsValid(McvNet net)
@@ -16,7 +16,7 @@ public class UserCreation : Operation
 	public override void Read(Reader reader)
 	{
 		Pow = reader.ReadBytes();
-		Owner = reader.Read<AccountAddress>();
+		Owner = reader.Read<PublicKey>();
 	}
 
 	public override void Write(Writer writer)

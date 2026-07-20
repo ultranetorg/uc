@@ -32,7 +32,7 @@ public class AuthorsController
 		searchQueryValidator.Validate(query);
 		limitValidator.Validate(limit);
 
-		return searchService.SearchAuthors(query, limit ?? SearchConstants.SearchAccountsLimit, cancellationToken);
+		return searchService.SearchAuthors(query, limit ?? SearchConstants.SearchUsersLimit, cancellationToken);
 	}
 
 	[HttpGet("{authorId}/products")]

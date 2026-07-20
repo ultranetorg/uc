@@ -213,26 +213,4 @@ public class Transaction : IBinarySerializable
 			throw new IntegrityException();
 		#endif
 	}
-
-	//public static byte[] Export(Net net, Operation[] operations, string user, Func<MemoryStream, Writer, byte[]> sign)
-	//{
-	//	var s = new MemoryStream();
-	//	var w = new Writer(s, net.Constructor);
-	//
-	//	w.WriteVirtual(operations);
-	//	w.WriteUtf8(user);
-	//	w.WriteBytes(sign(s, w));
-	//
-	//	return s.ToArray();
-	//}
-	//
-	//public static void Import(McvNet net, byte[] raw, Constructor constructor, out Operation[] operations, out string user)
-	//{
-	//	var r = new Reader(raw, net.Constructor);
-	//
-	//	operations = r.ReadArrayVirtual<Operation>();
-	//	user = r.ReadUtf8();
-	//	signiture = r.ReadBytes()
-	//	//account = net.Cryptography.AccountFrom(r.ReadSignature(), Cryptography.Hash(raw.AsSpan(0, raw.Length - Cryptography.SignatureLength)));
-	//}
 }

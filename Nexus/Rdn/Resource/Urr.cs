@@ -170,67 +170,7 @@ public class Rrrh : Urr /// Rdn Resource Release Hash
 	{
  		Hash = reader.ReadBytes(Cryptography.HashLength);
 	}
-  }
-
-//public class Urrsd : Urr
-//{
-//	public override UrrScheme	Scheme => UrrScheme.Urrsd;
-//
-//	public Ura					Resource { get; set; }
-//	public byte[]				Signature { get; set; }
-//	public override byte[]		MemberOrderKey => Signature;
-//
-// 	public override int			GetHashCode() => BitConverter.ToInt32(Signature);
-// 	public override bool		Equals(object o) => Equals(o as Urrsd);
-//	public override bool		Equals(Urr o) => o is Urrsd a && Resource == a.Resource && Signature.SequenceEqual(a.Signature);
-// 
-//	public override string ToString()
-//	{
-//		return Unel.ToString(Scheme.ToString(), Net, $"{Resource.Domain}/{Resource.Resource}:{Signature.ToHex()}");
-//	}
-//	
-//	public override void ParseSpecific(string t)
-//	{
-//		Resource	= Ura.ParseAR(t);
-//
-//		var s = Resource.Resource.LastIndexOf(':');
-//		
-//		Signature		  = Resource.Resource.Substring(s + 1).FromHex();
-//		Resource.Resource = Resource.Resource.Substring(0, s);
-//	}
-//
-//	public bool Prove(Cryptography cryptography, AccountAddress account, byte[] hash)
-//	{
-//		var s = new Blake2Stream();
-//		var w = new BinaryWriter(s);
-//		w.Write(Resource);
-//		w.Write(hash);
-//
-//		return cryptography.AccountFrom(Signature, s.Hash) == account;
-//	}
-//
-//	public static Urr Create(Cryptography cryptography, AccountKey key, Ura resource, byte[] hash)
-//	{
-//		var s = new MemoryStream();
-//		var w = new BinaryWriter(s);
-//		w.Write(resource);
-//		w.Write(hash);
-//
-//		return new Urrsd {Resource = resource, Signature = cryptography.Sign(key, Cryptography.Hash(s.ToArray()))};
-//	}
-//
-//	protected override void WriteMore(Writer writer)
-//	{
-//		writer.Write(Resource);
-//		writer.Write(Signature);
-//	}
-//
-//	protected override void ReadMore(Reader reader)
-//	{
-//		Resource = reader.Read<Ura>();
-//		Signature = reader.ReadBytes(Cryptography.SignatureLength);
-//	}
-//}
+}
 
 public class UrrJsonConverter : JsonConverter<Urr>
 {
@@ -248,7 +188,7 @@ public class UrrJsonConverter : JsonConverter<Urr>
 public class ReleaseAddressCreator
 {
 	public UrrScheme		Type { get; set; }
-	public AccountAddress	Owner { get; set; }
+	public PublicKey	Owner { get; set; }
 	public Ura				Resource { get; set; }
 
 	public Urr Create(VaultApiClient vault, byte[] hash)

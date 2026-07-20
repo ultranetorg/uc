@@ -34,16 +34,6 @@ public class FileDeletion : FairOperation
 
 		switch((FairTable)f.Owner.Table)
 		{
-			//case FairTable.Account:
-			//{
-			//	if(!CanAccessAccount(execution, f.Owner.Id, out var o))
-			//		return;
-			//
-			//	execution.AffectAccount(o.Id);
-			//	o.Files = o.Files.Remove(f.Id);
-			//	break;
-			//}
-
 			case FairTable.Author:
 			{
 				if(!CanAccessAuthor(execution, f.Owner.Id, out var o, out Error))

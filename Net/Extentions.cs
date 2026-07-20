@@ -21,7 +21,7 @@ public static class Extentions
 		return s;
 	}
 
-	public static T NearestBy<T>(this IEnumerable<T> e, Func<T, AccountAddress> by, AccountAddress account, int nonce)
+	public static T NearestBy<T>(this IEnumerable<T> e, Func<T, PublicKey> by, PublicKey account, int nonce)
 	{
 		return e.MinBy(m => Cryptography.Hash(by(m).Bytes, [..account.Bytes, (byte)(nonce>>24), (byte)(nonce>>16), (byte)(nonce>>8), (byte)nonce]), Bytes.Comparer);
 	}
@@ -79,13 +79,6 @@ public static class Extentions
 	public static byte[] ReadSignature(this Reader r)
 	{
 		return r.ReadBytes(Cryptography.SignatureLength);
-	}
-
-	public static AccountAddress ReadAccount(this Reader r)
-	{
-		var a = new AccountAddress();
-		a.Read(r);
-		return a;
 	}
 
 	public static T[] RemoveAt<T>(this T[] s, int index)

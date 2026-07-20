@@ -38,7 +38,7 @@ public class StoreModeratorAddition : VotableOperation
 				return false;
 			}
 
-			if(!AccountExists(execution, i, out _, out error))
+			if(!UserExists(execution, i, out _, out error))
 				return false;
 		}
 	

@@ -4,13 +4,11 @@ public class Vote : IBinarySerializable
 {
 	public int							ParentId => RoundId - Mcv.Net.P;
 
-	//public List<Peer>					Peers;
 	public bool							BroadcastConfirmed;
 	public Round						Round;
 	byte[]								_Hash;
 	byte[]								_RawPayload;
 	Mcv									Mcv;
-	//AccountAddress						_Generator;
 
 	public AutoId						Member;
 	public int							RoundId;
@@ -49,24 +47,6 @@ public class Vote : IBinarySerializable
 		}
 	}
 
-//	public AccountAddress Signer
-//	{ 
-//		get
-//		{
-//			if(_Generator == null)
-//			{
-//				_Hash = Hashify();
-//				_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, _Hash);
-//			}
-//
-//			return _Generator;
-//		}
-//		set
-//		{
-//			_Generator = value;
-//		}
-//	}
-
 	public byte[] Hash
 	{ 
 		get
@@ -74,7 +54,6 @@ public class Vote : IBinarySerializable
 			if(_Hash == null)
 			{
 				_Hash = Hashify();
-				//_Generator = Mcv.Net.Cryptography.AccountFrom(Signature, _Hash);
 			}
 
 			return _Hash;
@@ -119,7 +98,6 @@ public class Vote : IBinarySerializable
 	
 	public void Sign(SecretKey generator)
 	{
-	//	_Generator = generator.Address;
 		Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());
 	}
 
