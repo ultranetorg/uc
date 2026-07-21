@@ -46,38 +46,38 @@ public class PublicationsController
 		return productsService.GetDiff(publicationId, version);
 	}
 
-	[HttpGet("~/api/sites/{siteId}/categories/publications")]
-	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublications(string siteId, CancellationToken cancellationToken)
+	[HttpGet("~/api/stores/{storeId}/categories/publications")]
+	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublications(string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetCategoriesPublications)} method called with {{SiteId}}", siteId);
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetCategoriesPublications)} method called with {{StoreId}}", storeId);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
-		return publicationsService.GetCategoriesPublicationsNotOptimized(siteId, cancellationToken);
+		return publicationsService.GetCategoriesPublicationsNotOptimized(storeId, cancellationToken);
 	}
 
-	[HttpGet("~/api/sites/{siteId}/publications")]
-	public IEnumerable<PublicationExtendedModel> Search(string siteId, [FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
+	[HttpGet("~/api/stores/{storeId}/publications")]
+	public IEnumerable<PublicationExtendedModel> Search(string storeId, [FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Query}, {Page}", nameof(PublicationsController), nameof(PublicationsController.Search), siteId, query, page);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Query}, {Page}", nameof(PublicationsController), nameof(PublicationsController.Search), storeId, query, page);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		searchQueryValidator.Validate(query);
 		paginationValidator.Validate(page);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
-		return searchService.SearchPublications(siteId, query, pageValue, pageSizeValue, cancellationToken);
+		return searchService.SearchPublications(storeId, query, pageValue, pageSizeValue, cancellationToken);
 	}
 
-	[HttpGet("~/api/sites/{siteId}/publications/search")]
-	public IEnumerable<PublicationBaseModel> SearchLite(string siteId, [FromQuery] string? query, CancellationToken cancellationToken)
+	[HttpGet("~/api/stores/{storeId}/publications/search")]
+	public IEnumerable<PublicationBaseModel> SearchLite(string storeId, [FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.SearchLite)} method called with {{SiteId}}, {{Query}}", siteId, query);
+		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.SearchLite)} method called with {{StoreId}}, {{Query}}", storeId, query);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		searchQueryValidator.Validate(query);
 
-		return searchService.SearchLitePublications(siteId, query, 0, SiteConstants.SearchLitePageSize, cancellationToken);
+		return searchService.SearchLitePublications(storeId, query, 0, StoreConstants.SearchLitePageSize, cancellationToken);
 	}
 
 	[HttpGet("~/api/categories/{categoryId}/publications")]

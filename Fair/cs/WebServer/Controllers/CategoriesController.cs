@@ -10,14 +10,14 @@ public class CategoriesController
 	CategoriesService categoriesService
 ) : BaseController
 {
-	[HttpGet("~/api/sites/{siteId}/categories/root")]
-	public IEnumerable<CategoryBaseModel> GetRoot(string siteId, CancellationToken cancellationToken)
+	[HttpGet("~/api/stores/{storeId}/categories/root")]
+	public IEnumerable<CategoryBaseModel> GetRoot(string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(CategoriesController), nameof(GetRoot), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(CategoriesController), nameof(GetRoot), storeId);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
-		return categoriesService.GetRoot(siteId, cancellationToken);
+		return categoriesService.GetRoot(storeId, cancellationToken);
 	}
 
 	[HttpGet("{categoryId}")]
@@ -30,15 +30,15 @@ public class CategoriesController
 		return categoriesService.GetDetails(categoryId, cancellationToken);
 	}
 
-	[HttpGet("~/api/sites/{siteId}/categories/tree")]
-	public IEnumerable<CategoryParentBaseModel> GetTree(string siteId, [FromQuery] int? depth, CancellationToken cancellationToken)
+	[HttpGet("~/api/stores/{storeId}/categories/tree")]
+	public IEnumerable<CategoryParentBaseModel> GetTree(string storeId, [FromQuery] int? depth, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Depth}", nameof(CategoriesController), nameof(GetTree), siteId, depth);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Depth}", nameof(CategoriesController), nameof(GetTree), storeId, depth);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		depthValidator.Validate(depth);
 
 		int? categoriesDepth = DepthUtils.GetDepth(depth);
-		return categoriesService.GetTree(siteId, categoriesDepth, cancellationToken);
+		return categoriesService.GetTree(storeId, categoriesDepth, cancellationToken);
 	}
 }

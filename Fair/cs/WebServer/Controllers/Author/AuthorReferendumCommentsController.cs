@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/author/sites/{siteId}/referendums/{referendumId}/comments")]
+[Route("api/author/stores/{storeId}/referendums/{referendumId}/comments")]
 public class AuthorReferendumCommentsController
 (
 	ILogger<AuthorReferendumCommentsController> logger,
@@ -13,16 +13,16 @@ public class AuthorReferendumCommentsController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<ProposalCommentModel> GetDiscussionComments(string siteId, string referendumId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ProposalCommentModel> GetDiscussionComments(string storeId, string referendumId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(AuthorReferendumCommentsController)}.{nameof(AuthorReferendumCommentsController.GetDiscussionComments)} method called with {{ReferendumId}}, {{Pagination}}", referendumId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ReferendumId}, {Pagination}", nameof(AuthorReferendumCommentsController), nameof(AuthorReferendumCommentsController.GetDiscussionComments), storeId, referendumId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		autoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ProposalCommentModel> reviews = proposalCommentsService.GetProposalComments(siteId, referendumId, page, pageSize, cancellationToken);
+		TotalItemsResult<ProposalCommentModel> reviews = proposalCommentsService.GetProposalComments(storeId, referendumId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}

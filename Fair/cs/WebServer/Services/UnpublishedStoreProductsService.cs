@@ -3,24 +3,24 @@ using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
 
-public class UnpublishedSiteProductsService
+public class UnpublishedStoreProductsService
 (
-	ILogger<UnpublishedSiteProductsService> logger,
+	ILogger<UnpublishedStoreProductsService> logger,
 	FairMcv mcv
 )
 {
-	public ProductDetailsModel GetDetails([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string productId)
+	public ProductDetailsModel GetDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string productId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {ProductId}", nameof(UnpublishedSiteProductsService), nameof(GetDetails), siteId, productId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProductId}", nameof(UnpublishedStoreProductsService), nameof(GetDetails), storeId, productId);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(productId);
 
-		AutoId entitySiteId = AutoId.Parse(siteId);
-		Store site = mcv.Stores.Latest(entitySiteId);
-		if(site == null)
+		AutoId storeEntityId = AutoId.Parse(storeId);
+		Store store = mcv.Stores.Latest(storeEntityId);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
 		AutoId entityProductId = AutoId.Parse(productId);
@@ -30,11 +30,11 @@ public class UnpublishedSiteProductsService
 			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 		}
 
-		if(product.Publications.Any(i => mcv.Publications.Latest(i).Store == site.Id))
+		if(product.Publications.Any(i => mcv.Publications.Latest(i).Store == store.Id))
 		{
 			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 		}
-		if (HasProductCreationProposalForProduct(site, product.Id))
+		if (HasProductCreationProposalForProduct(store, product.Id))
 		{
 			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
 		}
@@ -55,9 +55,9 @@ public class UnpublishedSiteProductsService
 			AuthorLogoId = author.Avatar?.ToString()
 		};
 
-		bool HasProductCreationProposalForProduct(Store site, AutoId productId)
+		bool HasProductCreationProposalForProduct(Store store, AutoId productId)
 		{
-			return site.Proposals.Any(x =>
+			return store.Proposals.Any(x =>
 			{
 				Proposal proposal = mcv.Proposals.Latest(x);
 				if (proposal.OptionClass != FairOperationClass.PublicationCreation)

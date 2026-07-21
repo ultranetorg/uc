@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/sites/{siteId}/[controller]")]
+[Route("api/stores/{storeId}/[controller]")]
 public class ProposalsController
 (
 	ILogger<ProposalsController> logger,
@@ -13,57 +13,57 @@ public class ProposalsController
 ) : BaseController
 {
 	[HttpGet("moderators")]
-	public IEnumerable<ModeratorProposalModel> GetModeratorProposals(string siteId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ModeratorProposalModel> GetModeratorProposals(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(GetModeratorProposals)} method called with {{SiteId}}, {{Search}}, {{Pagination}}", siteId, search, pagination);
+		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(GetModeratorProposals)} method called with {{StoreId}}, {{Search}}, {{Pagination}}", storeId, search, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ModeratorProposalModel> discussions = proposalsService.GetModeratorProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ModeratorProposalModel> discussions = proposalsService.GetModeratorProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
 	}
 
 	[HttpGet("publishers")]
-	public IEnumerable<PublisherProposalModel> GetPublisherProposals(string siteId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<PublisherProposalModel> GetPublisherProposals(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(PublisherProposalModel)} method called with {{SiteId}}, {{Search}}, {{Pagination}}", siteId, search, pagination);
+		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(PublisherProposalModel)} method called with {{StoreId}}, {{Search}}, {{Pagination}}", storeId, search, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<PublisherProposalModel> discussions = proposalsService.GetPublisherProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<PublisherProposalModel> discussions = proposalsService.GetPublisherProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
 	}
 
 	[HttpGet("user-registrations")]
-	public IEnumerable<ProposalModel> GetUserRegistrations(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ProposalModel> GetUserRegistrations(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ProposalsController), nameof(GetUserRegistrations), siteId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ProposalsController), nameof(GetUserRegistrations), storeId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ProposalModel> discussions = proposalsService.GetUserRegistrations(siteId, page, pageSize, cancellationToken);
+		TotalItemsResult<ProposalModel> discussions = proposalsService.GetUserRegistrations(storeId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
 	}
 
 	[HttpGet("user-unregistrations")]
-	public IEnumerable<UserUnregistrationProposalModel> GetUserUnregistrations(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<UserUnregistrationProposalModel> GetUserUnregistrations(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ProposalsController), nameof(GetUserUnregistrations), siteId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ProposalsController), nameof(GetUserUnregistrations), storeId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<UserUnregistrationProposalModel> discussions = proposalsService.GetUserUnregistrations(siteId, page, pageSize, cancellationToken);
+		TotalItemsResult<UserUnregistrationProposalModel> discussions = proposalsService.GetUserUnregistrations(storeId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(discussions.Items, page, pageSize, discussions.TotalItems);
 	}

@@ -9,25 +9,25 @@ public class CategoriesService
 	FairMcv mcv
 )
 {
-	public IEnumerable<CategoryBaseModel> GetRoot([NotNull][NotEmpty] string siteId, CancellationToken cancellationToken)
+	public IEnumerable<CategoryBaseModel> GetRoot([NotNull][NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}", nameof(CategoriesService), nameof(GetRoot), siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(CategoriesService), nameof(GetRoot), storeId);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 
-		AutoId id = AutoId.Parse(siteId);
+		AutoId id = AutoId.Parse(storeId);
 
-		Store site = mcv.Stores.Latest(id);
-		if (site == null)
+		Store store = mcv.Stores.Latest(id);
+		if (store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
-		if (site.Categories.Length == 0)
+		if (store.Categories.Length == 0)
 		{
 			return [];
 		}
 
-		return LoadCategories(site.Categories);
+		return LoadCategories(store.Categories);
 	}
 
 	public CategoryModel GetDetails([NotNull][NotEmpty] string categoryId, CancellationToken cancellationToken)
@@ -49,7 +49,7 @@ public class CategoriesService
 
 		return new CategoryModel(category)
 		{
-			SiteId = category.Store.ToString(),
+			StoreId = category.Store.ToString(),
 			Categories = subCategories,
 			Type = typeAndPath.Item1,
 			Path = typeAndPath.Item2
@@ -91,28 +91,28 @@ public class CategoriesService
 		}).ToArray();
 	}
 
-	public IEnumerable<CategoryParentBaseModel> GetTree([NotEmpty] string siteId, [NonNegativeValue] int? depth, CancellationToken cancellationToken)
+	public IEnumerable<CategoryParentBaseModel> GetTree([NotEmpty] string storeId, [NonNegativeValue] int? depth, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Depth}", nameof(CategoriesService), nameof(GetTree), siteId, depth);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Depth}", nameof(CategoriesService), nameof(GetTree), storeId, depth);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.DepthValid(depth);
 
-		AutoId id = AutoId.Parse(siteId);
+		AutoId id = AutoId.Parse(storeId);
 
-		Store site = mcv.Stores.Latest(id);
-		if(site == null)
+		Store store = mcv.Stores.Latest(id);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		if (site.Categories.Length == 0)
+		if (store.Categories.Length == 0)
 		{
 			return [];
 		}
 
-		List<CategoryParentBaseModel> result = new List<CategoryParentBaseModel>(site.Categories.Length);
-		LoadCategoriesRecursively(site.Categories, depth, ref result, cancellationToken);
+		List<CategoryParentBaseModel> result = new List<CategoryParentBaseModel>(store.Categories.Length);
+		LoadCategoriesRecursively(store.Categories, depth, ref result, cancellationToken);
 
 		return result;
 	}

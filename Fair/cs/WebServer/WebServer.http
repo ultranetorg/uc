@@ -5,32 +5,32 @@
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/users/65537-0
 Accept: application/json
 
-### GET Sites
+### GET Stores
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores
 Accept: application/json
 
-### GET Site
+### GET Store
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/65576-0
 Accept: application/json
 
 ### Get Policies
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/287078-0/policies
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/287078-0/policies
 Accept: application/json
 
 ### GET Categories Publications
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/categories/publications
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/65576-0/categories/publications
 Accept: application/json
 
-### GET Site Authors
+### GET Authors
 
-# GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors
+# GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/65793-0/authors
 # Accept: application/json
 
-### Get Site Author
+### Get Author
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/authors/65793-0
 Accept: application/json
@@ -40,19 +40,19 @@ Accept: application/json
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/accounts/search?query=pixel
 Accept: application/json
 
-### GET Site Categories
+### GET Categories
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67073-0/categories
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/67073-0/categories
 Accept: application/json
 
-### Get Site Category
+### Get Category
 
 GET {{Uccs.Fair.WebApi_HostAddress}}/api/categories/65793-3
 Accept: application/json
 
-### GET Site Author
+### GET Author
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors/65537-0
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/65793-0/authors/65537-0
 Accept: application/json
 
 ### Get Reviews
@@ -82,25 +82,25 @@ Accept: application/json
 
 ### Search Publications
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/publications?title=a
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/65576-0/publications?title=a
 Accept: application/json
 
 ### Search Publications Lite
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65576-0/publications/search
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/65576-0/publications/search
 Accept: application/json
 
 ### GET Author Publications
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/65793-0/authors/65537-0/publications
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/65793-0/authors/65537-0/publications
 Accept: application/json
 
 ### GET Perpetual Surveys
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/author/sites/287078-61/perpetual-surveys
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/author/stores/287078-61/perpetual-surveys
 Accept: application/json
 
 ### GET Perpetual Survey Details
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/author/sites/287078-61/perpetual-surveys/0
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/author/stores/287078-61/perpetual-surveys/0
 Accept: application/json

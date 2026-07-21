@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class SiteSearchQueryValidator
+public class StoreSearchQueryValidator
 {
 	public void Validate(string value)
 	{

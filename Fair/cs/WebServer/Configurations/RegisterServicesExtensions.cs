@@ -26,14 +26,14 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<PublicationsService>();
 		services.AddSingleton<ReviewsService>();
 		services.AddSingleton<SearchService>();
-		services.AddSingleton<SitesService>();
+		services.AddSingleton<StoresService>();
 		services.AddSingleton<PerpetualSurveysService>();
 		services.AddSingleton<ProductsService>();
 		services.AddSingleton<UserService>();
 		services.AddSingleton<ModeratorProposalsService>();
 		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<UnpublishedPublicationsService>();
-		services.AddSingleton<UnpublishedSiteProductsService>();
+		services.AddSingleton<UnpublishedStoreProductsService>();
 		services.AddSingleton<UsersService>();
 	}
 
@@ -45,7 +45,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<LimitValidator>();
 		services.AddSingleton<PaginationValidator>();
 		services.AddSingleton<SearchQueryValidator>();
-		services.AddSingleton<SiteSearchQueryValidator>();
+		services.AddSingleton<StoreSearchQueryValidator>();
 		services.AddSingleton<UserNameValidator>();
 		services.AddSingleton<VersionValidator>();
 	}
