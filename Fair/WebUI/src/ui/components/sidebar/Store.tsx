@@ -6,7 +6,7 @@ import { SvgStoreLogo } from "assets/fallback"
 import { ImageFallback } from "ui/components"
 import { buildFileUrl } from "utils"
 
-export type SiteProps = {
+export type StoreProps = {
   disabled?: boolean
   disabledFavorite?: boolean
   title: string
@@ -15,8 +15,8 @@ export type SiteProps = {
   onFavoriteClick: () => void
 }
 
-export const Site = memo(
-  ({ disabled, disabledFavorite, title, imageFileId, isStarred, onFavoriteClick }: SiteProps) => {
+export const Store = memo(
+  ({ disabled, disabledFavorite, title, imageFileId, isStarred, onFavoriteClick }: StoreProps) => {
     const handleFavoriteClick = (e: MouseEvent<SVGSVGElement>) => {
       e.preventDefault()
 

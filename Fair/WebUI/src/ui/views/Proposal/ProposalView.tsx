@@ -263,13 +263,13 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           ) : undefined
         }
       />
-      {NestedContent && <NestedContent t={t} siteId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
+      {NestedContent && <NestedContent t={t} storeId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
       <div className="flex gap-8">
         <div className="flex w-full flex-col gap-8">
           {!isPublicationMode && (
             <DefaultContent
               t={t}
-              siteId={storeId!}
+              storeId={storeId!}
               proposal={proposal}
               isReferendum={isReferendum}
               pageState={pageState}

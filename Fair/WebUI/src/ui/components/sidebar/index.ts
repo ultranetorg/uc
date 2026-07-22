@@ -1,1 +1,1 @@
-export * from "./SitesList"
+export * from "./StoresList"

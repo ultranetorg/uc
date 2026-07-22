@@ -13,7 +13,7 @@ import {
   PublisherPage,
   ReviewerPage,
   SearchPage,
-  SitePage,
+  StorePage,
 } from "ui/pages"
 import {
   CreateReferendumPage,
@@ -112,7 +112,7 @@ export const EntityRoute = () => {
             </BaseLayout>
           }
         >
-          <Route index element={<SitePage />} />
+          <Route index element={<StorePage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="about" element={<AboutPage />} />
 

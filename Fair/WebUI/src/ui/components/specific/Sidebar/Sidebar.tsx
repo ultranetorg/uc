@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge"
 import { useStoreContext, useUserContext } from "app"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { FavoriteSiteChange, PropsWithClassName, StoreBase } from "types"
-import { SitesList } from "ui/components/sidebar"
+import { StoresList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"
 import { routes, showToast } from "utils"
 
@@ -61,7 +61,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
           <AllSitesButton title={t("allSites")} />
         </Link>
         {store && (
-          <SitesList
+          <StoresList
             disabledFavorite={(!user || user?.favoriteStores?.some(s => s.id === store.id)) ?? false}
             title={t("currentSite")}
             items={[store]}
@@ -70,7 +70,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
             disabledIds={disabledIds}
           />
         )}
-        <SitesList
+        <StoresList
           title={t("starredSites")}
           items={user?.favoriteStores}
           emptyStateMessage={t("emptySitesList")}

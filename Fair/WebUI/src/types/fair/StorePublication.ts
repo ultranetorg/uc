@@ -1,5 +1,5 @@
 export type StorePublication = {
-  siteId: string
-  siteTitle: string
+  storeId: string
+  storeTitle: string
   publicationId: string
 }

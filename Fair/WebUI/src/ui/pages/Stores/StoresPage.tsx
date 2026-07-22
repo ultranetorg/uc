@@ -14,7 +14,7 @@ import { parseInteger, routes } from "utils"
 
 import { PageHeader } from "./PageHeader"
 
-export const SitesPage = () => {
+export const StoresPage = () => {
   const { t } = useTranslation("sites")
   const navigate = useNavigate()
   const { user } = useUserContext()

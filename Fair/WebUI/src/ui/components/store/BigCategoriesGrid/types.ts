@@ -6,6 +6,6 @@ export type BigCategoriesGridItem = {
 
 export type BigCategoriesGridProps = {
   isLoading?: boolean
-  siteId: string
+  storeId: string
   items?: BigCategoriesGridItem[]
 }
