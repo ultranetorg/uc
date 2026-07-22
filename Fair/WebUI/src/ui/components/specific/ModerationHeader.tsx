@@ -16,7 +16,7 @@ export type ModerationHeaderProps = {
 export const ModerationHeader = memo(
   ({ title, breadcrumbTitle, parentBreadcrumbs, components }: ModerationHeaderProps) => {
     const storeId = useResolveStoreId()
-    const { store: site } = useStoreContext()
+    const { store } = useStoreContext()
     const { t } = useTranslation()
 
     return (
@@ -34,9 +34,9 @@ export const ModerationHeader = memo(
               { title: breadcrumbTitle ?? title },
             ]}
           />
-          {site && (
+          {store && (
             <span className="text-2xs font-medium leading-5">
-              {site.moderatorsIds.length} {t("common:moderators", { count: site.moderatorsIds.length })}
+              {store.moderatorsIds.length} {t("common:moderators", { count: store.moderatorsIds.length })}
             </span>
           )}
         </div>

@@ -70,7 +70,7 @@ export const CategoryPage = () => {
           <PublicationsGrid
             isPending={isPendingPublications}
             publications={publications.items}
-            siteId={storeId!}
+            storeId={storeId!}
             productType={category.type}
           />
         ) : (

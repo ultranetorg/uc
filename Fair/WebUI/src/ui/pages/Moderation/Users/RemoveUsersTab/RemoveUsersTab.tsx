@@ -16,7 +16,7 @@ import { getRemoveUsersTabItemRenderer } from "./removeUsersTabItemRenderer"
 export const UsersRemovalsTab = () => {
   const storeId = useResolveStoreId()
   const { voterId } = useOperationPolicy("user-registration")
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
 
@@ -90,8 +90,8 @@ export const UsersRemovalsTab = () => {
   const handleReject = useCallback((id: string, name: string) => vote(id, name, "reject"), [vote])
 
   const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("user-unregistration", site, policies),
-    [policies, site],
+    () => calculateVotesRequiredToWinProposal("user-unregistration", store, policies),
+    [policies, store],
   )
 
   const itemRenderer = useMemo(

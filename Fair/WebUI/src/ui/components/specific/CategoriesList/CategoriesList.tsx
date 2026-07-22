@@ -53,7 +53,7 @@ export const CategoriesList = memo(({ siteId, categories }: CategoriesListProps)
           <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent"></div>
         </>
       </div>
-      {hiddenCategories.length > 0 && <MoreDropdownButton siteId={siteId} items={hiddenCategories} />}
+      {hiddenCategories.length > 0 && <MoreDropdownButton storeId={siteId} items={hiddenCategories} />}
     </div>
   )
 })

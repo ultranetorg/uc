@@ -21,10 +21,10 @@ export const UsersPage = () => {
   const navigate = useNavigate()
   const { tabKey } = useParams()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation("moderationUsersPage")
 
-  useStoreTitle(site?.title, "Users")
+  useStoreTitle(store?.title, "Users")
 
   const key = routeToTabKey[tabKey!]
 

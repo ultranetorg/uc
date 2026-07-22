@@ -17,11 +17,11 @@ import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 export const ReviewsPage = () => {
   const { voterId } = useOperationPolicy("review-creation")
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("reviewsPage")
 
-  useStoreTitle(site?.title, "Reviews")
+  useStoreTitle(store?.title, "Reviews")
 
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
   const [selectedReviewText, setSelectedReviewText] = useState<string | undefined>()
@@ -120,10 +120,10 @@ export const ReviewsPage = () => {
 
   const votesRequired = useMemo(
     () => ({
-      create: calculateVotesRequiredToWinProposal("review-creation", site, policies),
-      edit: calculateVotesRequiredToWinProposal("review-edit", site, policies),
+      create: calculateVotesRequiredToWinProposal("review-creation", store, policies),
+      edit: calculateVotesRequiredToWinProposal("review-edit", store, policies),
     }),
-    [policies, site],
+    [policies, store],
   )
 
   const itemRenderer = useMemo(

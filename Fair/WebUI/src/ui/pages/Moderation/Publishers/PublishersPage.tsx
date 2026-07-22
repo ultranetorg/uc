@@ -20,10 +20,10 @@ export const PublishersPage = () => {
   const navigate = useNavigate()
   const { tabKey } = useParams()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation("publishersPage")
 
-  useStoreTitle(site?.title, "Publishers")
+  useStoreTitle(store?.title, "Publishers")
 
   const key = routeToTabKey[tabKey!]
 

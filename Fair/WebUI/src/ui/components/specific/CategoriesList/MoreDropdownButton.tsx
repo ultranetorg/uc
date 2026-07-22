@@ -7,11 +7,11 @@ import { MoreButton } from "ui/components"
 import { MoreMenu } from "./MoreMenu"
 
 export type MoreButtonProps = {
-  siteId: string
+  storeId: string
   items: CategoryBase[]
 }
 
-export const MoreDropdownButton = memo(({ siteId, items }: MoreButtonProps) => {
+export const MoreDropdownButton = memo(({ storeId, items }: MoreButtonProps) => {
   const [isOpen, setOpen] = useState(false)
 
   const { context, floatingStyles, refs } = useFloating({
@@ -44,7 +44,7 @@ export const MoreDropdownButton = memo(({ siteId, items }: MoreButtonProps) => {
           <MoreMenu
             ref={refs.setFloating}
             style={floatingStyles}
-            siteId={siteId}
+            siteId={storeId}
             items={items}
             {...getFloatingProps()}
           />

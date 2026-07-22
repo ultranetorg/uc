@@ -23,10 +23,10 @@ type AuthorProfileBaseProps = {
 export type AuthorProfileProps = PropsWithClassName & AuthorProfileBaseProps
 
 export const AuthorProfile = memo(({ t, className, size = "compact", author, showStoreInfo }: AuthorProfileProps) => {
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
 
-  const isPublisher = isAuthorPublisher(site, author)
-  const isModerator = isAuthorModerator(site, author)
+  const isPublisher = isAuthorPublisher(store, author)
+  const isModerator = isAuthorModerator(store, author)
 
   const renderAvatar = () => (
     <div
@@ -45,11 +45,11 @@ export const AuthorProfile = memo(({ t, className, size = "compact", author, sho
     <div className="flex flex-col gap-1">
       <span className="text-xl font-semibold leading-6">
         {author.title}{" "}
-        {site && showStoreInfo && (
+        {store && showStoreInfo && (
           <>
             on{" "}
-            <Link to={routes.store(site.id)} className="underline">
-              {site.title} store
+            <Link to={routes.store(store.id)} className="underline">
+              {store.title} store
             </Link>
           </>
         )}
@@ -77,12 +77,16 @@ export const AuthorProfile = memo(({ t, className, size = "compact", author, sho
   const renderLinks = () => (
     <div className="flex flex-col gap-2">
       <span className={LABEL_CLASSNAME}>{t("authorProfile:links")}</span>
-      <ProfileLinks t={t} links={author.references!} authorLink={site != null ? routes.author(author.id) : undefined} />
+      <ProfileLinks
+        t={t}
+        links={author.references!}
+        authorLink={store != null ? routes.author(author.id) : undefined}
+      />
     </div>
   )
 
   const renderAuthorInfo = () =>
-    site ? (
+    store ? (
       <div className="flex flex-col gap-2">
         <span className={LABEL_CLASSNAME}>{t("authorProfile:roles")}</span>
         <span className="capitalize">{formatRole(t, isPublisher, isModerator)}</span>

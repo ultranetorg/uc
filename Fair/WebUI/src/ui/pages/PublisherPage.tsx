@@ -44,7 +44,7 @@ export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: Publisher
       <AuthorProfile t={t} size="compact" author={author} showStoreInfo={!showDefaultBreadcrumbs} />
       <PublisherPublicationsView
         size="compact"
-        siteId={storeId!}
+        storeId={storeId!}
         author={author}
         isModalOpen={isModalOpen}
         onModalOpenChange={setModalOpen}

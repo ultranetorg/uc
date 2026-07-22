@@ -46,7 +46,7 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
           ]}
         />
       )}
-      <UserDetailsView siteId={storeId!} user={user} reviews={reviews} />
+      <UserDetailsView storeId={storeId!} user={user} reviews={reviews} />
     </div>
   )
 })

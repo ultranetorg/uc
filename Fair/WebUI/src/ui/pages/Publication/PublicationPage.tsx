@@ -15,7 +15,7 @@ export const PublicationPage = () => {
   const { creator: create } = useOperationPolicy("review-creation")
   const { publicationId } = useParams()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
 
   const { startSignIn } = useSignInContext()
 
@@ -25,7 +25,7 @@ export const PublicationPage = () => {
   const { isPending, data: publication, error } = useGetPublicationDetails(publicationId)
   if (error) throw error
 
-  useStoreTitle(site?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
+  useStoreTitle(store?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
 
   const {
     isPending: isPendingReviews,

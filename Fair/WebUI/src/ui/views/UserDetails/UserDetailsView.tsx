@@ -14,12 +14,12 @@ import { PublishersList } from "./PublishersList"
 const LABEL_CLASSNAME = "text-2base font-medium leading-5 first-letter:uppercase"
 
 export type UserDetailsViewProps = {
-  siteId: string
+  storeId: string
   user?: UserAuthors
   reviews?: TotalItemsResult<Review>
 }
 
-export const UserDetailsView = memo(({ siteId, user, reviews }: UserDetailsViewProps) => {
+export const UserDetailsView = memo(({ storeId, user, reviews }: UserDetailsViewProps) => {
   const { store } = useStoreContext()
   const { t } = useTranslation("userDetailsView")
 
@@ -58,7 +58,11 @@ export const UserDetailsView = memo(({ siteId, user, reviews }: UserDetailsViewP
       </div>
       <div className="flex flex-col gap-5 p-6">
         <span className={LABEL_CLASSNAME}>{t("common:publishers")}</span>
-        {user.authors.length > 0 ? <PublishersList siteId={siteId} authors={user.authors} /> : <>{t("noPublishers")}</>}
+        {user.authors.length > 0 ? (
+          <PublishersList storeId={storeId} authors={user.authors} />
+        ) : (
+          <>{t("noPublishers")}</>
+        )}
       </div>
       <div className="flex flex-col gap-5 p-6">
         <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>

@@ -24,7 +24,7 @@ export const ProfileLinks = memo(({ t, links, authorLink }: ProfileLinksProps) =
     )}
     {links.map(x => {
       const icon = getSocialIconFromLink(x)
-      const text = getSocialNameFromLink(t, x) ?? t("common:officialSite")
+      const text = getSocialNameFromLink(t, x) ?? t("common:officialStore")
       return <ProfileLink key={x} link={x} icon={icon} text={text} className="capitalize" />
     })}
   </div>

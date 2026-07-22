@@ -62,7 +62,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         </Link>
         {site && (
           <SitesList
-            disabledFavorite={(!user || user?.favoriteSites?.some(s => s.id === site.id)) ?? false}
+            disabledFavorite={(!user || user?.favoriteStores?.some(s => s.id === site.id)) ?? false}
             title={t("currentSite")}
             items={[site]}
             emptyStateMessage={t("emptySitesList")}
@@ -72,7 +72,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         )}
         <SitesList
           title={t("starredSites")}
-          items={user?.favoriteSites}
+          items={user?.favoriteStores}
           emptyStateMessage={t("emptySitesList")}
           onFavoriteClick={handleFavoriteRemove}
           isStarred={true}

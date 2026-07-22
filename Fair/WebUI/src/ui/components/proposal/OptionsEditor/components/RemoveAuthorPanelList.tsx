@@ -17,7 +17,7 @@ export type RemoveAuthorPanelListProps = {
 }
 
 export const RemoveAuthorPanelList = memo(({ value: selectedAuthors = [], onChange }: RemoveAuthorPanelListProps) => {
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation("createProposal")
 
   const [search, setSearch] = useState("")
@@ -29,9 +29,9 @@ export const RemoveAuthorPanelList = memo(({ value: selectedAuthors = [], onChan
     () =>
       publishers
         .filter(x => selectedAuthors.every(a => a.id !== x.id)) // Do not display authors that have already been selected
-        .filter(x => site?.authorsIds.some(m => m === x.id)) // Do not display authors who are not publishers
+        .filter(x => store?.authorsIds.some(m => m === x.id)) // Do not display authors who are not publishers
         .map(x => ({ value: x.id, label: x.title, avatarId: x.avatarId })) || [],
-    [publishers, selectedAuthors, site?.authorsIds],
+    [publishers, selectedAuthors, store?.authorsIds],
   )
 
   const selectedItems = useMemo(

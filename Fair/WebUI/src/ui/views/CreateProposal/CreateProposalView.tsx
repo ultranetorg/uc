@@ -116,7 +116,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   return (
     <div className="flex max-w-[648px] flex-col gap-6">
       <PageHeader
-        siteId={storeId!}
+        storeId={storeId!}
         homeLabel={t("common:home")}
         title={
           (location.state?.title as string)

@@ -15,7 +15,7 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 export const NewUsersTab = () => {
   const storeId = useResolveStoreId()
   const { voterId } = useOperationPolicy("user-registration")
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
 
@@ -88,8 +88,8 @@ export const NewUsersTab = () => {
   const handleReject = useCallback((id: string, name: string) => vote(id, name, "reject"), [vote])
 
   const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("user-registration", site, policies),
-    [policies, site],
+    () => calculateVotesRequiredToWinProposal("user-registration", store, policies),
+    [policies, store],
   )
 
   const itemRenderer = useMemo(

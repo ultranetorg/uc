@@ -11,7 +11,7 @@ type PublicationContentViewBaseProps = {
 }
 
 export type PublicationContentViewProps = PublicationContentViewBaseProps &
-  Omit<ContentProps, "publication" | "siteId" | "t">
+  Omit<ContentProps, "publication" | "storeId" | "t">
 
 export const PublicationContentView = ({
   isPending,
@@ -33,7 +33,7 @@ export const PublicationContentView = ({
       isPending={isPending}
       isPendingReviews={isPendingReviews}
       productOrPublication={productOrPublication}
-      siteId={storeId!}
+      storeId={storeId!}
       error={error}
       reviews={reviews}
       onLeaveReview={onLeaveReview}

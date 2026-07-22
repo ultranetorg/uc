@@ -15,7 +15,7 @@ import { getPublisherProposalsItemRenderer } from "./publisherProposalsItemRende
 export const PublishersProposalsTab = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("publishersProposalsTab")
 
@@ -51,8 +51,8 @@ export const PublishersProposalsTab = () => {
   )
 
   const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("site-authors-removal", site, policies),
-    [policies, site],
+    () => calculateVotesRequiredToWinProposal("site-authors-removal", store, policies),
+    [policies, store],
   )
 
   const itemRenderer = useMemo(() => getPublisherProposalsItemRenderer(t, votesRequired), [t, votesRequired])

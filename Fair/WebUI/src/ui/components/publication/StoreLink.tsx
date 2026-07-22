@@ -5,14 +5,14 @@ import { twMerge } from "tailwind-merge"
 import { SvgBoxArrowUpRight } from "assets"
 import { PropsWithClassName } from "types"
 
-export type SiteLinkBaseProps = {
+export type StoreLinkBaseProps = {
   to: To
   label: string
 }
 
-export type SiteLinkProps = PropsWithClassName & SiteLinkBaseProps
+export type StoreLinkProps = PropsWithClassName & StoreLinkBaseProps
 
-export const SiteLink = memo(({ className, to, label }: SiteLinkProps) => (
+export const StoreLink = memo(({ className, to, label }: StoreLinkProps) => (
   <Link
     to={to}
     className={twMerge(

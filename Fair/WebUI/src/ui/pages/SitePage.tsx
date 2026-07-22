@@ -31,7 +31,7 @@ export const SitePage = () => {
           <>
             <BigCategoriesGrid isLoading={isPending} siteId={storeId} items={categories} />
             <CategoriesPublicationsList
-              siteId={storeId!}
+              storeId={storeId!}
               isPending={isCategoriesPublicationsPending}
               categoriesPublications={categoriesPublications}
               seeAllLabel={t("seeAll")}

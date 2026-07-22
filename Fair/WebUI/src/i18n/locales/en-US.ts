@@ -49,7 +49,7 @@ export const enUS = {
     nickname: "nickname",
     no: "No",
     noResults: "no results",
-    officialSite: "official site",
+    officialStore: "official store",
     ok: "ok",
     operation: "operation",
     options: "Options",
