@@ -2,7 +2,7 @@ import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { StarSvg } from "assets"
-import { SvgSiteLogo } from "assets/fallback"
+import { SvgStoreLogo } from "assets/fallback"
 import { buildFileUrl } from "utils"
 import { ImageFallback } from "ui/components/ImageFallback"
 
@@ -20,7 +20,7 @@ export const SiteCard = memo(({ title, description, imageFileId, isStarred = fal
     title={title}
   >
     <div className="mx-auto size-18 overflow-hidden rounded-2xl">
-      <ImageFallback src={buildFileUrl(imageFileId)} fallback={<SvgSiteLogo className="size-18" />} />
+      <ImageFallback src={buildFileUrl(imageFileId)} fallback={<SvgStoreLogo className="size-18" />} />
     </div>
     <div className="flex w-51 flex-col gap-2 text-center">
       <span className="truncate text-2sm font-semibold leading-4.5 text-gray-800">{title}</span>

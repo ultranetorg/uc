@@ -71,7 +71,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
       const data = await fileToBase64(file)
       const mimeType: MimeType = file.type === "image/png" ? "ImagePng" : "ImageJpg"
 
-      const operation = new FileCreation(FileOwner.Site, storeId!, data, mimeType)
+      const operation = new FileCreation(FileOwner.Store, storeId!, data, mimeType)
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:fileUploaded", { fileName: file.name }), "success")

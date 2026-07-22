@@ -111,7 +111,7 @@ export const StoreHeader = () => {
       <div className="flex items-center gap-8">
         <GovernanceDropdownButton className="w-28" />
         {isModerator && <ModerationDropdownButton className="w-28" />}
-        {isPublisher && <PublisherMembersDropdownButton className="w-25" siteId={storeId} t={t} user={user!} />}
+        {isPublisher && <PublisherMembersDropdownButton className="w-25" storeId={storeId} t={t} user={user!} />}
         <UserProfileButton storeId={storeId} t={t} />
       </div>
     </div>

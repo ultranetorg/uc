@@ -12,7 +12,7 @@ import { HeaderDropdownButton } from "./HeaderDropdownButton"
 import { MENU_ITEM_STYLE } from "./styles"
 
 type PublisherMembersDropdownButtonBaseProps = {
-  siteId: string
+  storeId: string
   t: TFunction
   user: UserDetails
 }
@@ -20,7 +20,7 @@ type PublisherMembersDropdownButtonBaseProps = {
 export type PublisherMembersDropdownButtonProps = PropsWithClassName & PublisherMembersDropdownButtonBaseProps
 
 export const PublisherMembersDropdownButton = memo(
-  ({ className, siteId, t, user }: PublisherMembersDropdownButtonProps) => {
+  ({ className, storeId, t, user }: PublisherMembersDropdownButtonProps) => {
     const { data: userAuthors } = useGetUserAuthors(user.authorsIds.length > 1 ? user.id : undefined)
 
     const menuItems = useMemo<SimpleMenuItem[]>(
@@ -33,7 +33,7 @@ export const PublisherMembersDropdownButton = memo(
     )
 
     return user.authorsIds.length <= 1 ? (
-      <Link to={routes.publisher(siteId, user!.authorsIds[0])} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
+      <Link to={routes.publisher(storeId, user!.authorsIds[0])} className={twMerge(MENU_ITEM_STYLE, "w-16")}>
         {t("common:member")}
       </Link>
     ) : (

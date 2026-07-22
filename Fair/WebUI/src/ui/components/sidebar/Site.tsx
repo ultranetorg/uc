@@ -2,7 +2,7 @@ import { memo, MouseEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { StarSvg } from "assets"
-import { SvgSiteLogo } from "assets/fallback"
+import { SvgStoreLogo } from "assets/fallback"
 import { ImageFallback } from "ui/components"
 import { buildFileUrl } from "utils"
 
@@ -28,7 +28,7 @@ export const Site = memo(
     return (
       <div className={twMerge("group flex items-center gap-3", disabled && "opacity-60")}>
         <div className="size-10 overflow-hidden rounded-lg">
-          <ImageFallback src={buildFileUrl(imageFileId)} fallback={<SvgSiteLogo className="size-10" />} />
+          <ImageFallback src={buildFileUrl(imageFileId)} fallback={<SvgStoreLogo className="size-10" />} />
         </div>
         <span
           className={twMerge(

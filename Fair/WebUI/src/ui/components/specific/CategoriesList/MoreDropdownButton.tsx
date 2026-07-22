@@ -44,7 +44,7 @@ export const MoreDropdownButton = memo(({ storeId, items }: MoreButtonProps) => 
           <MoreMenu
             ref={refs.setFloating}
             style={floatingStyles}
-            siteId={storeId}
+            storeId={storeId}
             items={items}
             {...getFloatingProps()}
           />

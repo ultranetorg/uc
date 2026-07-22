@@ -1,4 +1,4 @@
 export enum FileOwner {
   Author = 2,
-  Site = 5,
+  Store = 5,
 }

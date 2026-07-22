@@ -1,2 +1,2 @@
-export * from "./site-logo"
+export * from "./store-logo"
 export * from "./software-logo"

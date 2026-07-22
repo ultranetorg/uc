@@ -5,14 +5,14 @@ import { CategoryBase, PropsWithStyle } from "types"
 import { chunkArray, routes } from "utils"
 
 type MoreMenuBaseProps = {
-  siteId: string
+  storeId: string
   items: CategoryBase[]
 }
 
 export type MoreMenuProps = PropsWithStyle & MoreMenuBaseProps
 
 export const MoreMenu = memo(
-  forwardRef<HTMLDivElement, MoreMenuProps>(({ style, siteId, items }, ref) => {
+  forwardRef<HTMLDivElement, MoreMenuProps>(({ style, storeId, items }, ref) => {
     const chunks = useMemo(() => chunkArray(items, 8), [items])
 
     return (
@@ -22,7 +22,7 @@ export const MoreMenu = memo(
             {chunk.map(x => (
               <Link
                 key={x.id}
-                to={routes.category(siteId, x.id)}
+                to={routes.category(storeId, x.id)}
                 className="w-40 truncate rounded-sm p-2 text-2sm leading-4.5 text-gray-900 hover:bg-gray-100"
                 title={x.title}
               >
