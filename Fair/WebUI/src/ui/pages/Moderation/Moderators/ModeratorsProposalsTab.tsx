@@ -15,7 +15,7 @@ import { getModeratorsProposalsItemRenderer } from "./moderatorProposalsItemRend
 export const ModeratorsProposalsTab = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("moderatorsProposalsTab")
 
@@ -51,8 +51,8 @@ export const ModeratorsProposalsTab = () => {
   )
 
   const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("site-authors-removal", site, policies),
-    [policies, site],
+    () => calculateVotesRequiredToWinProposal("site-authors-removal", store, policies),
+    [policies, store],
   )
 
   const itemRenderer = useMemo(() => getModeratorsProposalsItemRenderer(t, votesRequired), [t, votesRequired])

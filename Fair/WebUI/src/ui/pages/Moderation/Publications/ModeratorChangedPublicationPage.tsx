@@ -19,7 +19,7 @@ export const ModeratorChangedPublicationPage = () => {
   const { t } = useTranslation()
 
   const { voterId } = useOperationPolicy("publication-updation")
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { isModerator } = useStoreRolesContext()
   const { mutate } = useTransactMutationWithStatus()
 
@@ -28,7 +28,7 @@ export const ModeratorChangedPublicationPage = () => {
   const { isLoading, data: publication } = useGetChangedPublication(storeId, publicationId)
 
   const pageTitle = publication?.title ?? publication?.id
-  useStoreTitle(site?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
+  useStoreTitle(store?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
 
   const parentBreadcrumbs = useMemo(
     () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!, "changed") }],
@@ -104,7 +104,7 @@ export const ModeratorChangedPublicationPage = () => {
 
       <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
         <ModerationPublicationHeader
-          siteId={storeId}
+          storeId={storeId}
           title={publication.title}
           logoId={publication.logoId}
           authorId={publication.authorId}

@@ -21,10 +21,10 @@ export const ModeratorsPage = () => {
   const { voterId } = useOperationPolicy("site-moderator-addition")
   const { tabKey } = useParams()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation("moderatorsPage")
 
-  useStoreTitle(site?.title, "Moderators")
+  useStoreTitle(store?.title, "Moderators")
 
   const key = routeToTabKey[tabKey!]
 

@@ -23,10 +23,10 @@ export const PublicationsPage = () => {
   const { voterId } = useOperationPolicy("publication-creation")
   const { tabKey } = useParams()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation("publicationsPage")
 
-  useStoreTitle(site?.title, "Publications")
+  useStoreTitle(store?.title, "Publications")
 
   const key = routeToTabKey[tabKey!]
 

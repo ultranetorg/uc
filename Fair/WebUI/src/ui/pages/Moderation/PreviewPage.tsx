@@ -13,7 +13,7 @@ import { routes } from "utils"
 export const PreviewPage = () => {
   const location = useLocation()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation()
 
   const productId = location.state?.productId as string | undefined
@@ -28,7 +28,7 @@ export const PreviewPage = () => {
   const { data: publication, isPending: isPublicationPending } = useGetPublicationDetails(publicationId)
 
   const pageTitle = product?.title ?? publication?.title
-  useStoreTitle(site?.title, pageTitle ? `Preview - ${pageTitle}` : "Preview")
+  useStoreTitle(store?.title, pageTitle ? `Preview - ${pageTitle}` : "Preview")
 
   // Show logo only for game or software.
   const showLogo =

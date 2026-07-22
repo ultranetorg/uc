@@ -22,7 +22,7 @@ export const StoreHeader = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:storeId/s")
-  const { store: site, rootCategories } = useStoreContext()
+  const { store, rootCategories } = useStoreContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
   const { t } = useTranslation("site")
   const { user } = useUserContext()
@@ -79,7 +79,7 @@ export const StoreHeader = () => {
     }
   }, [query, setSiteQuery])
 
-  if (!site || !storeId) {
+  if (!store || !storeId) {
     return null
   }
 
@@ -87,10 +87,10 @@ export const StoreHeader = () => {
     <div className="flex items-center justify-between gap-8 pb-8">
       <LogoDropdownButton
         t={t}
-        siteId={storeId}
-        title={site.title}
-        imageFileId={site.imageFileId}
-        publishersCount={site.authorsIds.length}
+        storeId={storeId}
+        title={store.title}
+        imageFileId={store.imageFileId}
+        publishersCount={store.authorsIds.length}
       />
       <div className="flex w-135 items-center justify-between gap-4">
         {categoriesItems && categoriesItems.length > 0 && (
@@ -112,7 +112,7 @@ export const StoreHeader = () => {
         <GovernanceDropdownButton className="w-28" />
         {isModerator && <ModerationDropdownButton className="w-28" />}
         {isPublisher && <PublisherMembersDropdownButton className="w-25" siteId={storeId} t={t} user={user!} />}
-        <UserProfileButton siteId={storeId} t={t} />
+        <UserProfileButton storeId={storeId} t={t} />
       </div>
     </div>
   )

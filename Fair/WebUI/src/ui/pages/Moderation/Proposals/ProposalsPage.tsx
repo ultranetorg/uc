@@ -15,9 +15,9 @@ export const ProposalsPage = () => {
   const { t } = useTranslation("proposalsPage")
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
 
-  useStoreTitle(site?.title, "Proposals")
+  useStoreTitle(store?.title, "Proposals")
 
   const [state, setState] = useUrlParamsState({
     page: {

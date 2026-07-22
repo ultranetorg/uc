@@ -15,9 +15,9 @@ export const ReferendumsPage = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const { t } = useTranslation("referendumsPage")
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
 
-  useStoreTitle(site?.title, "Referendums")
+  useStoreTitle(store?.title, "Referendums")
 
   const [state, setState] = useUrlParamsState({
     page: {

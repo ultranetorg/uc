@@ -10,5 +10,5 @@ export const useResolveStoreId = (): string | undefined => {
   const state = useLocation().state as LinkFullscreenState
   const { data: category } = useGetCategoryDetails(categoryId)
   const { data: publication } = useGetPublicationDetails(publicationId)
-  return storeId ?? category?.siteId ?? publication?.siteId ?? state?.siteId
+  return storeId ?? category?.siteId ?? publication?.storeId ?? state?.storeId
 }

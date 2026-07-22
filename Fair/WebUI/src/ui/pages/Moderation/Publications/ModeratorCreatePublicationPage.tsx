@@ -20,19 +20,19 @@ export const ModeratorCreatePublicationPage = () => {
   const { t } = useTranslation("createPublication")
 
   const { voterId } = useOperationPolicy("publication-creation")
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { isModerator } = useStoreRolesContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
 
-  const isRequiredVoting = isVotingRequired("publication-creation", site, policies)
+  const isRequiredVoting = isVotingRequired("publication-creation", store, policies)
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get("productId") ?? "")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
   const { data: product, isError } = useGetUnpublishedStoreProduct(storeId, debouncedQuery)
 
-  useStoreTitle(site?.title, query ? `Search Product - ${query}` : "Search Product")
+  useStoreTitle(store?.title, query ? `Search Product - ${query}` : "Search Product")
 
   const parentBreadcrumbs = useMemo(
     () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!) }],
@@ -99,7 +99,7 @@ export const ModeratorCreatePublicationPage = () => {
         {!!debouncedQuery && isProductValid ? (
           <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
             <ModerationPublicationHeader
-              siteId={storeId!}
+              storeId={storeId!}
               title={product.title}
               logoId={product.logoId}
               authorId={product.authorId}

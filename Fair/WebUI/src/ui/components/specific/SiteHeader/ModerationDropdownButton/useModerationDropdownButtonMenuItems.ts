@@ -7,7 +7,7 @@ import { storesKeys } from "entities"
 import { isModeratorVoting, routes } from "utils"
 import { SimpleMenuItem } from "ui/components/SimpleMenu"
 
-export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenuItem[] => {
+export const useModerationDropdownButtonMenuItems = (storeId: string): SimpleMenuItem[] => {
   const location = useLocation()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("storeDropdownMenu")
@@ -18,15 +18,15 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("avatarChange"),
-              to: routes.moderation.createProposal(siteId),
+              to: routes.moderation.createProposal(storeId),
               state: {
                 title: `Change site avatar`,
                 type: "site-avatar-change",
-                siteId,
-                parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.proposals(siteId),
+                siteId: storeId,
+                parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.moderation.proposals(storeId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(storeId),
               },
             },
           ]
@@ -35,15 +35,15 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("nameChange"),
-              to: routes.moderation.createProposal(siteId),
+              to: routes.moderation.createProposal(storeId),
               state: {
                 title: `Change site name`,
                 type: "site-name-change",
-                siteId,
-                parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.proposals(siteId),
+                siteId: storeId,
+                parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.moderation.proposals(storeId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(storeId),
               },
             },
           ]
@@ -52,34 +52,34 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
         ? [
             {
               label: t("textChange"),
-              to: routes.moderation.createProposal(siteId),
+              to: routes.moderation.createProposal(storeId),
               state: {
                 title: `Change site text`,
                 type: "site-text-change",
-                siteId,
-                parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.proposals(siteId),
+                siteId: storeId,
+                parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
+                redirectAfterProposalCreation: routes.moderation.proposals(storeId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(storeId),
               },
             },
           ]
         : []),
     ],
-    [location.pathname, policies, siteId, t],
+    [location.pathname, policies, storeId, t],
   )
 
   const menuItems = useMemo(
     () => [
-      { label: t("common:proposals"), to: routes.moderation.proposals(siteId) },
-      { label: t("common:moderators"), to: routes.moderation.moderators(siteId) },
-      { label: t("common:publications"), to: routes.moderation.publications(siteId) },
-      { label: t("common:publishers"), to: routes.moderation.publishers(siteId) },
-      { label: t("common:reviews"), to: routes.moderation.reviews(siteId) },
-      { label: t("common:users"), to: routes.moderation.users(siteId) },
+      { label: t("common:proposals"), to: routes.moderation.proposals(storeId) },
+      { label: t("common:moderators"), to: routes.moderation.moderators(storeId) },
+      { label: t("common:publications"), to: routes.moderation.publications(storeId) },
+      { label: t("common:publishers"), to: routes.moderation.publishers(storeId) },
+      { label: t("common:reviews"), to: routes.moderation.reviews(storeId) },
+      { label: t("common:users"), to: routes.moderation.users(storeId) },
       ...(siteItems.length > 0 ? [{ separator: true }, ...siteItems] : []),
     ],
-    [siteId, siteItems, t],
+    [storeId, siteItems, t],
   )
 
   return menuItems

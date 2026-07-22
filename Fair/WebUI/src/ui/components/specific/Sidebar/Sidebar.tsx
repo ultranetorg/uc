@@ -15,7 +15,7 @@ import { AllSitesButton } from "./components"
 export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const { t } = useTranslation("sites")
 
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { user, refetch } = useUserContext()
   const [showPending, setShowPending] = useState(false)
   const [disabledIds, setDisabledIds] = useState<string[]>([])
@@ -60,11 +60,11 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
         <Link to={routes.home()}>
           <AllSitesButton title={t("allSites")} />
         </Link>
-        {site && (
+        {store && (
           <SitesList
-            disabledFavorite={(!user || user?.favoriteStores?.some(s => s.id === site.id)) ?? false}
+            disabledFavorite={(!user || user?.favoriteStores?.some(s => s.id === store.id)) ?? false}
             title={t("currentSite")}
-            items={[site]}
+            items={[store]}
             emptyStateMessage={t("emptySitesList")}
             onFavoriteClick={handleFavoriteAdd}
             disabledIds={disabledIds}

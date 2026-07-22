@@ -10,12 +10,12 @@ import { routes } from "utils"
 export const PublisherProposalPage = memo(() => {
   const { proposalId } = useParams()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation()
 
   const { isFetching, data: proposal } = useGetModeratorDiscussion(storeId, proposalId)
 
-  useStoreTitle(site?.title, proposal?.title ? `Publisher Proposal - ${proposal?.title}` : "Publisher Proposal")
+  useStoreTitle(store?.title, proposal?.title ? `Publisher Proposal - ${proposal?.title}` : "Publisher Proposal")
 
   return (
     <ProposalView

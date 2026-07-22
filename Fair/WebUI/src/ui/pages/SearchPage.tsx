@@ -20,11 +20,11 @@ export const SearchPage = () => {
     },
   })
 
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { query: searchQuery, setQuery: setSearchQuery } = useSearchQueryContext()
 
   const pageTitle = state.query || searchQuery
-  useStoreTitle(site?.title, pageTitle ? `Search - ${pageTitle}` : undefined)
+  useStoreTitle(store?.title, pageTitle ? `Search - ${pageTitle}` : undefined)
 
   const {
     isPending,
@@ -63,7 +63,7 @@ export const SearchPage = () => {
         allAuthorsLabel={t("allAuthors")}
         allCategoriesLabel={t("allCategories")}
       />
-      <PublicationsList publications={publications} isLoading={isPending || !publications} siteId={storeId!} />
+      <PublicationsList publications={publications} isLoading={isPending || !publications} storeId={storeId!} />
       <NextPagination
         hasNext={hasNext && !isFetchingNext}
         page={page}

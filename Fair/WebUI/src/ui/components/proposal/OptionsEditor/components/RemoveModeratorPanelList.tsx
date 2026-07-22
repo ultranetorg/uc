@@ -17,7 +17,7 @@ export type RemoveModeratorPanelListProps = {
 
 export const RemoveModeratorPanelList = memo(
   ({ value: selectedModerators = [], onChange }: RemoveModeratorPanelListProps) => {
-    const { store: site } = useStoreContext()
+    const { store } = useStoreContext()
     const { t } = useTranslation("createProposal")
 
     const [search, setSearch] = useState("")
@@ -29,9 +29,9 @@ export const RemoveModeratorPanelList = memo(
       () =>
         users
           .filter(x => selectedModerators.every(a => a.id !== x.id)) // Do not display moderators that have already been selected
-          .filter(x => site?.moderatorsIds.some(m => m === x.id)) // Do not display users who are not moderators
+          .filter(x => store?.moderatorsIds.some(m => m === x.id)) // Do not display users who are not moderators
           .map(x => ({ label: x.nickname ?? x.id, value: x.id, avatarId: x.id })) || [],
-      [users, selectedModerators, site?.moderatorsIds],
+      [users, selectedModerators, store?.moderatorsIds],
     )
 
     const selectedItems = useMemo(

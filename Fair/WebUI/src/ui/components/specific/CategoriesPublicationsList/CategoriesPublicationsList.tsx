@@ -23,7 +23,7 @@ export const CategoriesPublicationsList = ({
   ) : (
     <>
       {categoriesPublications.map(x => (
-        <CategoryPublicationsList key={x.id} siteId={storeId} {...x} {...rest} />
+        <CategoryPublicationsList key={x.id} storeId={storeId} {...x} {...rest} />
       ))}
     </>
   )

@@ -6,7 +6,7 @@ import { PropsWithClassName } from "types"
 
 export type LinkFullscreenState = {
   backgroundLocation?: Location
-  siteId?: string
+  storeId?: string
 }
 
 type LinkFullscreenBaseProps = {
@@ -28,7 +28,7 @@ export const LinkFullscreen = memo(({ children, className, title, location, to, 
     <Link
       className={className}
       to={to}
-      state={{ backgroundLocation: location ?? currentLocation, siteId: storeId, ...params } as LinkFullscreenState}
+      state={{ backgroundLocation: location ?? currentLocation, storeId, ...params } as LinkFullscreenState}
       title={title}
     >
       {children}

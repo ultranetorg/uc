@@ -11,11 +11,11 @@ export const ModeratorProposalPage = memo(() => {
   const { t } = useTranslation()
   const { proposalId } = useParams()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
 
   const { isFetching, data: proposal } = useGetAuthorReferendum(storeId, proposalId)
 
-  useStoreTitle(site?.title, proposal?.title ? `Moderator Proposal - ${proposal?.title}` : "Moderator Proposal")
+  useStoreTitle(store?.title, proposal?.title ? `Moderator Proposal - ${proposal?.title}` : "Moderator Proposal")
 
   return (
     <ProposalView

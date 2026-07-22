@@ -10,7 +10,7 @@ import { renderUser } from "ui/renderers2"
 import { routes } from "utils"
 
 export const moderatorsTabItemRenderer =
-  (t: TFunction, siteId: string) =>
+  (t: TFunction, storeId: string) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const moderator = item as unknown as Moderator
 
@@ -25,15 +25,15 @@ export const moderatorsTabItemRenderer =
         return (
           <div className="flex justify-end">
             <Link
-              to={routes.governance.createReferendum(siteId)}
+              to={routes.governance.createReferendum(storeId)}
               state={{
-                parentBreadcrumbs: [{ path: routes.moderation.moderators(siteId), title: t("title") }],
+                parentBreadcrumbs: [{ path: routes.moderation.moderators(storeId), title: t("title") }],
                 title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
                 type: "site-moderator-removal",
                 moderators: [moderator.user],
-                redirectAfterProposalCreation: routes.moderation.moderators(siteId, "proposals"),
+                redirectAfterProposalCreation: routes.moderation.moderators(storeId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.moderators(siteId),
+                invalidateQueryKeys: storesKeys.moderators(storeId),
               }}
             >
               <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />

@@ -15,7 +15,7 @@ import { CategoryHeader } from "./CategoryHeader"
 
 export const CategoryPage = () => {
   const { categoryId } = useParams()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const storeId = useResolveStoreId()
   const { t } = useTranslation("category")
 
@@ -32,7 +32,7 @@ export const CategoryPage = () => {
 
   const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, state.page)
 
-  useStoreTitle(site?.title, category?.title ? `Category - ${category?.title}` : undefined)
+  useStoreTitle(store?.title, category?.title ? `Category - ${category?.title}` : undefined)
 
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0
@@ -63,8 +63,8 @@ export const CategoryPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <CategoryHeader category={category} siteId={storeId!} view={view} onViewChange={handleViewChange} />
-      {category.categories.length > 0 && <CategoriesList siteId={storeId!} categories={category.categories} />}
+      <CategoryHeader category={category} storeId={storeId!} view={view} onViewChange={handleViewChange} />
+      {category.categories.length > 0 && <CategoriesList storeId={storeId!} categories={category.categories} />}
       {publications.items.length !== 0 ? (
         view === "grid" ? (
           <PublicationsGrid
@@ -74,7 +74,7 @@ export const CategoryPage = () => {
             productType={category.type}
           />
         ) : (
-          <PublicationsList siteId={storeId!} publications={publications.items} />
+          <PublicationsList storeId={storeId!} publications={publications.items} />
         )
       ) : (
         <NoContent>{t("empty")}</NoContent>

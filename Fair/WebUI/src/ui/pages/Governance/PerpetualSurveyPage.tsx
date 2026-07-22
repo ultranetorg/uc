@@ -19,7 +19,7 @@ export const PerpetualSurveyPage = () => {
   const { perpetualSurveyId } = useParams()
   const queryClient = useQueryClient()
   const storeId = useResolveStoreId()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
 
   const { startSignIn } = useSignInContext()
   const { publisherIds } = useStoreRolesContext()
@@ -32,7 +32,7 @@ export const PerpetualSurveyPage = () => {
   const operation = (survey?.options[0].operation as SiteApprovalPolicyChange)?.operation
   const title = operation !== undefined ? t(`operations:${operation}`) : undefined
 
-  useStoreTitle(site?.title, `Perpetual Survey - ${startCase(title)}`)
+  useStoreTitle(store?.title, `Perpetual Survey - ${startCase(title)}`)
 
   const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({

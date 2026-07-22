@@ -18,7 +18,7 @@ export const UnpublishedPublicationPage = () => {
   const { t } = useTranslation("unpublishedPublicationPage")
 
   const { voterId } = useOperationPolicy("publication-updation")
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
 
   const parentBreadcrumbs = useMemo(
     () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!, "unpublished") }],
@@ -28,7 +28,7 @@ export const UnpublishedPublicationPage = () => {
   const { isLoading, data: publication } = useGetUnpublishedPublication(storeId, publicationId)
 
   const pageTitle = publication?.title ?? publication?.id
-  useStoreTitle(site?.title, pageTitle ? `Unpublished Publication - ${pageTitle}` : "Unpublished Publication")
+  useStoreTitle(store?.title, pageTitle ? `Unpublished Publication - ${pageTitle}` : "Unpublished Publication")
 
   if (isLoading || !publication) return <div>Loading</div>
 
@@ -79,7 +79,7 @@ export const UnpublishedPublicationPage = () => {
 
       <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
         <ModerationPublicationHeader
-          siteId={storeId!}
+          storeId={storeId!}
           title={publication.title}
           logoId={publication.logoId}
           authorId={publication.authorId}

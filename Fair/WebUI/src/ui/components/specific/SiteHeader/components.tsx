@@ -27,10 +27,10 @@ function LinkItem({ to, children, ...rest }: { to: string; children: ReactNode }
 }
 
 export type CategoriesButtonProps = {
-  siteId: string
+  storeId: string
 }
 
-export const CategoriesButton = memo(({ siteId }: CategoriesButtonProps) => {
+export const CategoriesButton = memo(({ storeId }: CategoriesButtonProps) => {
   const ref = useRef(null)
   const [isOpen, setOpen] = useState(false)
   const anchorProps = useClick(isOpen, setOpen)
@@ -46,23 +46,23 @@ export const CategoriesButton = memo(({ siteId }: CategoriesButtonProps) => {
       x.children.length > 0 ? (
         <SubMenu
           key={x.id}
-          label={<Link to={routes.category(siteId, x.id)}>{formatTitle(x.title)}</Link>}
+          label={<Link to={routes.category(storeId, x.id)}>{formatTitle(x.title)}</Link>}
           className="cursor-pointer"
           itemProps={{ onClick: () => setOpen(false) }}
         >
           {x.children.map(y => (
-            <LinkItem key={y.id} to={routes.category(siteId, y.id)}>
+            <LinkItem key={y.id} to={routes.category(storeId, y.id)}>
               {formatTitle(y.title)}
             </LinkItem>
           ))}
         </SubMenu>
       ) : (
-        <LinkItem key={x.id} to={routes.category(siteId, x.id)}>
+        <LinkItem key={x.id} to={routes.category(storeId, x.id)}>
           {formatTitle(x.title)}
         </LinkItem>
       ),
     )
-  }, [siteId, categories, isPending])
+  }, [storeId, categories, isPending])
 
   return (
     <>

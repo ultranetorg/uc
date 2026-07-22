@@ -10,16 +10,16 @@ import { NoContent } from "ui/components"
 export const SitePage = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("site")
-  const { isPending, store: site } = useStoreContext()
+  const { isPending, store } = useStoreContext()
 
-  useStoreTitle(site?.title ? `Store - ${site?.title}` : "Store")
+  useStoreTitle(store?.title ? `Store - ${store?.title}` : "Store")
 
-  const { isPending: isCategoriesPending, data: categories } = useGetCategoriesRoot(site?.id)
+  const { isPending: isCategoriesPending, data: categories } = useGetCategoriesRoot(store?.id)
   const { isPending: isCategoriesPublicationsPending, data: categoriesPublications } = useGetCategoriesPublications(
-    site?.id,
+    store?.id,
   )
 
-  if (isPending || !site || !storeId || !categories || !categoriesPublications || isCategoriesPending) {
+  if (isPending || !store || !storeId || !categories || !categoriesPublications || isCategoriesPending) {
     return <div>Loading</div>
   }
 

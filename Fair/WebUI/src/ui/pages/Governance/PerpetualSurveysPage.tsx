@@ -13,10 +13,10 @@ import { routes } from "utils"
 export const PerpetualSurveysPage = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation("perpetualSurveysPage")
 
-  useStoreTitle(site?.title, "Perpetual Surveys")
+  useStoreTitle(store?.title, "Perpetual Surveys")
 
   const columns = useMemo(
     () => [

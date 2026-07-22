@@ -42,7 +42,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
   const { isModerator, isPublisher } = useStoreRolesContext()
   const { policies } = useStorePoliciesContext()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const { user } = useUserContext()
 
   const {
@@ -58,7 +58,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
   const parentPath =
     proposalType === "discussion" ? routes.moderation.proposals(storeId!) : routes.governance.referendums(storeId!)
-  const isRequiredVoting = isVotingRequired(formData.type, site, policies)
+  const isRequiredVoting = isVotingRequired(formData.type, store, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])
 

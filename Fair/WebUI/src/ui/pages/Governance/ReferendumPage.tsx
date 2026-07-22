@@ -8,13 +8,13 @@ import { routes } from "utils"
 
 export const ReferendumPage = () => {
   const { referendumId } = useParams()
-  const { store: site } = useStoreContext()
+  const { store } = useStoreContext()
   const storeId = useResolveStoreId()
   const { t } = useTranslation()
 
   const { isFetching, data: proposal } = useGetAuthorReferendum(storeId, referendumId)
 
-  useStoreTitle(site?.title, proposal?.title ? `Referendum - ${proposal?.title}` : "Referendum")
+  useStoreTitle(store?.title, proposal?.title ? `Referendum - ${proposal?.title}` : "Referendum")
 
   return (
     <ProposalView

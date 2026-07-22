@@ -298,7 +298,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         <div className="flex flex-col gap-6">
           <ProposalInfo
             className="w-87.5"
-            siteId={storeId!}
+            storeId={storeId!}
             createdBy={proposal.by}
             createdAt={proposal.creationTime}
           />
