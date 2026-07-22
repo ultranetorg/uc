@@ -2,9 +2,9 @@ import { memo, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SvgSpinnerXl } from "assets"
-import { useGetSiteFilesInfinite } from "entities"
+import { useGetStoreFilesInfinite } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useEscapeKey, useInfiniteScrollWithPosition, useResolveSiteId } from "hooks"
+import { useEscapeKey, useInfiniteScrollWithPosition, useResolveStoreId } from "hooks"
 import { File as FileType, FileDeletion, FileCreation, MimeType, FileOwner } from "types"
 import { Modal, ModalProps, TabContent, TabsList, TabsListItem, TabsProvider, TextModal } from "ui/components"
 import { FilesGrid } from "ui/components/specific"
@@ -20,7 +20,7 @@ type MemberFilesModalBaseProps = {
 export type MemberFilesModalProps = MemberFilesModalBaseProps & ModalProps
 
 export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalProps) => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("memberFilesModal")
   const { mutate } = useTransactMutationWithStatus()
 
@@ -29,7 +29,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
   const [removeModalOpen, setRemoveModalOpen] = useState(false)
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error, refetch } =
-    useGetSiteFilesInfinite(siteId)
+    useGetStoreFilesInfinite(storeId)
   const allFiles = data?.pages.flatMap(p => p.items) || []
 
   const tabsItems: TabsListItem[] = useMemo(
@@ -71,7 +71,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
       const data = await fileToBase64(file)
       const mimeType: MimeType = file.type === "image/png" ? "ImagePng" : "ImageJpg"
 
-      const operation = new FileCreation(FileOwner.Site, siteId!, data, mimeType)
+      const operation = new FileCreation(FileOwner.Site, storeId!, data, mimeType)
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:fileUploaded", { fileName: file.name }), "success")
@@ -83,7 +83,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
         },
       })
     },
-    [siteId, mutate, t, refetch],
+    [storeId, mutate, t, refetch],
   )
 
   const { scrollRef, loaderRef } = useInfiniteScrollWithPosition(

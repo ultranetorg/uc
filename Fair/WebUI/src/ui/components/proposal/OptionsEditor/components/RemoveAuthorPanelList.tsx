@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchAuthors } from "entities"
 import { AuthorBaseAvatar } from "types"
@@ -17,7 +17,7 @@ export type RemoveAuthorPanelListProps = {
 }
 
 export const RemoveAuthorPanelList = memo(({ value: selectedAuthors = [], onChange }: RemoveAuthorPanelListProps) => {
-  const { site } = useSiteContext()
+  const { store: site } = useStoreContext()
   const { t } = useTranslation("createProposal")
 
   const [search, setSearch] = useState("")

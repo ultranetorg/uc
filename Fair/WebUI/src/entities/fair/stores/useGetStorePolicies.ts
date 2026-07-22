@@ -4,11 +4,11 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useGetSitePolicies = (enabled: boolean, siteId?: string) => {
+export const useGetStorePolicies = (enabled: boolean, storeId?: string) => {
   const { isFetching, error, data, refetch } = useQuery({
-    queryKey: ["sites", siteId, "policies"],
-    queryFn: () => api.getSitePolicies(siteId!),
-    enabled: !!siteId && enabled === true,
+    queryKey: ["stores", storeId, "policies"],
+    queryFn: () => api.getStorePolicies(storeId!),
+    enabled: !!storeId && enabled === true,
     // Auto refetch disable
     staleTime: Infinity,
     refetchOnMount: false,

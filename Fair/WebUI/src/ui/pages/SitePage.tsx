@@ -1,25 +1,25 @@
 import { useTranslation } from "react-i18next"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
-import { useResolveSiteId, useSiteTitle } from "hooks"
+import { useResolveStoreId, useStoreTitle } from "hooks"
 import { BigCategoriesGrid } from "ui/components/site"
 import { CategoriesPublicationsList, ModeratorSiteMenu } from "ui/components/specific"
 import { NoContent } from "ui/components"
 
 export const SitePage = () => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("site")
-  const { isPending, site } = useSiteContext()
+  const { isPending, store: site } = useStoreContext()
 
-  useSiteTitle(site?.title ? `Store - ${site?.title}` : "Store")
+  useStoreTitle(site?.title ? `Store - ${site?.title}` : "Store")
 
   const { isPending: isCategoriesPending, data: categories } = useGetCategoriesRoot(site?.id)
   const { isPending: isCategoriesPublicationsPending, data: categoriesPublications } = useGetCategoriesPublications(
     site?.id,
   )
 
-  if (isPending || !site || !siteId || !categories || !categoriesPublications || isCategoriesPending) {
+  if (isPending || !site || !storeId || !categories || !categoriesPublications || isCategoriesPending) {
     return <div>Loading</div>
   }
 
@@ -29,9 +29,9 @@ export const SitePage = () => {
       <div className="flex flex-col gap-6">
         {categories.length && categoriesPublications.length ? (
           <>
-            <BigCategoriesGrid isLoading={isPending} siteId={siteId} items={categories} />
+            <BigCategoriesGrid isLoading={isPending} siteId={storeId} items={categories} />
             <CategoriesPublicationsList
-              siteId={siteId!}
+              siteId={storeId!}
               isPending={isCategoriesPublicationsPending}
               categoriesPublications={categoriesPublications}
               seeAllLabel={t("seeAll")}

@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useOperationPolicy, useSiteContext, useSitePoliciesContext, useSiteRolesContext } from "app"
-import { useResolveSiteId, useSiteTitle } from "hooks"
+import { useOperationPolicy, useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
+import { useResolveStoreId, useStoreTitle } from "hooks"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
-import { useGetUnpublishedSiteProduct } from "entities"
+import { useGetUnpublishedStoreProduct } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
@@ -16,13 +16,13 @@ import { isVotingRequired, routes, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const navigate = useNavigate()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("createPublication")
 
   const { voterId } = useOperationPolicy("publication-creation")
-  const { site } = useSiteContext()
-  const { policies } = useSitePoliciesContext()
-  const { isModerator } = useSiteRolesContext()
+  const { store: site } = useStoreContext()
+  const { policies } = useStorePoliciesContext()
+  const { isModerator } = useStoreRolesContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const isRequiredVoting = isVotingRequired("publication-creation", site, policies)
@@ -30,13 +30,13 @@ export const ModeratorCreatePublicationPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get("productId") ?? "")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
-  const { data: product, isError } = useGetUnpublishedSiteProduct(siteId, debouncedQuery)
+  const { data: product, isError } = useGetUnpublishedStoreProduct(storeId, debouncedQuery)
 
-  useSiteTitle(site?.title, query ? `Search Product - ${query}` : "Search Product")
+  useStoreTitle(site?.title, query ? `Search Product - ${query}` : "Search Product")
 
   const parentBreadcrumbs = useMemo(
-    () => [{ title: t("common:publications"), path: routes.moderation.publications(siteId!) }],
-    [siteId, t],
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!) }],
+    [storeId, t],
   )
 
   useEffect(() => {
@@ -56,20 +56,20 @@ export const ModeratorCreatePublicationPage = () => {
       },
     ] as ProposalOption[]
 
-    const operation = new ProposalCreation(siteId!, voterId!, role, "", options, "")
+    const operation = new ProposalCreation(storeId!, voterId!, role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
         showToast(t("toast:publicationCreated"), "success")
 
         if (isRequiredVoting) {
-          navigate(routes.moderation.publications(siteId!))
+          navigate(routes.moderation.publications(storeId!))
         } else {
-          navigate(routes.moderation.publications(siteId!, "unpublished"))
+          navigate(routes.moderation.publications(storeId!, "unpublished"))
         }
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [isModerator, isRequiredVoting, mutate, navigate, product, siteId, t, voterId])
+  }, [isModerator, isRequiredVoting, mutate, navigate, product, storeId, t, voterId])
 
   const isProductValid = !isError && !!product && !!product.fields && product.fields.length > 0
 
@@ -99,7 +99,7 @@ export const ModeratorCreatePublicationPage = () => {
         {!!debouncedQuery && isProductValid ? (
           <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
             <ModerationPublicationHeader
-              siteId={siteId!}
+              siteId={storeId!}
               title={product.title}
               logoId={product.logoId}
               authorId={product.authorId}
@@ -116,15 +116,15 @@ export const ModeratorCreatePublicationPage = () => {
                         loading={isPending}
                       />
                       <Link
-                        to={routes.moderation.preview(siteId!)}
+                        to={routes.moderation.preview(storeId!)}
                         state={{
                           productId: product.id,
-                          previousPath: `${routes.moderation.createPublication(siteId!)}?productId=${product.id}`,
+                          previousPath: `${routes.moderation.createPublication(storeId!)}?productId=${product.id}`,
                           parentBreadcrumbs: [
                             ...parentBreadcrumbs,
                             {
                               title: t("searchProduct"),
-                              path: `${routes.moderation.createPublication(siteId!)}?productId=${product.id}`,
+                              path: `${routes.moderation.createPublication(storeId!)}?productId=${product.id}`,
                             },
                           ],
                         }}

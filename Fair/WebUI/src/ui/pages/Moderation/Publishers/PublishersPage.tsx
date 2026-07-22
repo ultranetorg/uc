@@ -2,8 +2,8 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { useSiteContext } from "app"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useStoreContext } from "app"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
@@ -19,17 +19,17 @@ const routeToTabKey: Record<string, string> = {
 export const PublishersPage = () => {
   const navigate = useNavigate()
   const { tabKey } = useParams()
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
+  const storeId = useResolveStoreId()
+  const { store: site } = useStoreContext()
   const { t } = useTranslation("publishersPage")
 
-  useSiteTitle(site?.title, "Publishers")
+  useStoreTitle(site?.title, "Publishers")
 
   const key = routeToTabKey[tabKey!]
 
   const handleTabSelect = useCallback(
-    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.publishers(siteId!, item.route)),
-    [navigate, siteId],
+    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.publishers(storeId!, item.route)),
+    [navigate, storeId],
   )
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(

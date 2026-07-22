@@ -6,7 +6,7 @@ export * from "./products"
 export * from "./proposals"
 export * from "./publications"
 export * from "./reviews"
-export * from "./sites"
+export * from "./stores"
 export * from "./users"
 
 export * from "./moderator"

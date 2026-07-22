@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next"
 import { Link, Navigate, useLocation } from "react-router-dom"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { SvgXSm } from "assets"
 import { useGetProductDetails, useGetPublicationDetails } from "entities"
-import { useResolveSiteId, useSiteTitle } from "hooks"
+import { useResolveStoreId, useStoreTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps, ButtonPrimary } from "ui/components"
 import { PublicationHeader } from "ui/components/publication"
 import { PublicationContentView } from "ui/views"
@@ -12,8 +12,8 @@ import { routes } from "utils"
 
 export const PreviewPage = () => {
   const location = useLocation()
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
+  const storeId = useResolveStoreId()
+  const { store: site } = useStoreContext()
   const { t } = useTranslation()
 
   const productId = location.state?.productId as string | undefined
@@ -28,14 +28,14 @@ export const PreviewPage = () => {
   const { data: publication, isPending: isPublicationPending } = useGetPublicationDetails(publicationId)
 
   const pageTitle = product?.title ?? publication?.title
-  useSiteTitle(site?.title, pageTitle ? `Preview - ${pageTitle}` : "Preview")
+  useStoreTitle(site?.title, pageTitle ? `Preview - ${pageTitle}` : "Preview")
 
   // Show logo only for game or software.
   const showLogo =
     (product && (product.type === "game" || product.type === "software")) ||
     (publication && (publication.type === "game" || publication.type === "software"))
 
-  if (!previousPath || (!productId && !publicationId)) return <Navigate to={routes.site(siteId!)} />
+  if (!previousPath || (!productId && !publicationId)) return <Navigate to={routes.store(storeId!)} />
 
   if (isProductPending && isPublicationPending && !product && !publication) {
     return <div>Loading</div>
@@ -47,7 +47,7 @@ export const PreviewPage = () => {
         <Breadcrumbs
           fullPath={true}
           items={[
-            { path: routes.site(siteId!), title: t("common:home") },
+            { path: routes.store(storeId!), title: t("common:home") },
             ...(parentBreadcrumbs ? (Array.isArray(parentBreadcrumbs) ? parentBreadcrumbs : [parentBreadcrumbs]) : []),
             { title: product?.id ?? publication?.id ?? "" },
           ]}

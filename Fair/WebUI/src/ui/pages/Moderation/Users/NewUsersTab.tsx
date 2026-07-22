@@ -2,21 +2,21 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
+import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserRegistrationProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveSiteId, useUrlParamsState } from "hooks"
+import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getUsersItemRenderer } from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
 
 export const NewUsersTab = () => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { voterId } = useOperationPolicy("user-registration")
-  const { site } = useSiteContext()
-  const { policies } = useSitePoliciesContext()
+  const { store: site } = useStoreContext()
+  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -29,7 +29,7 @@ export const NewUsersTab = () => {
   const [page, setPage] = useState(state.page)
   const [loadingItem, setLoadingItem] = useState<{ id: string; action: "approve" | "reject" } | undefined>()
 
-  const { data: users, refetch } = useGetUserRegistrationProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: users, refetch } = useGetUserRegistrationProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const { mutate } = useTransactMutationWithStatus()

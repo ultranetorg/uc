@@ -18,7 +18,7 @@ export const LogoDropdownButton = memo(
   ({ t, siteId, title, imageFileId, publishersCount }: LogoDropdownButtonProps) => (
     <div className="flex cursor-pointer items-center rounded-xl p-1" title={title}>
       <div className="flex select-none items-center gap-3">
-        <Link to={routes.site(siteId)} className="size-10 overflow-hidden rounded-lg">
+        <Link to={routes.store(siteId)} className="size-10 overflow-hidden rounded-lg">
           <ImageFallback src={buildFileUrl(imageFileId)} fallback={<SvgSiteLogo className="size-10" />} />
         </Link>
         <div className="flex flex-col">

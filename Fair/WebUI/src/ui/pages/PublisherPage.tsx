@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { capitalize } from "lodash"
 
 import { useGetAuthor } from "entities"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { AuthorProfile } from "ui/components/author"
 import { PublisherPublicationsView } from "ui/views"
@@ -15,7 +15,7 @@ export type PublisherPageProps = {
 
 export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: PublisherPageProps) => {
   const { publisherId } = useParams()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation()
 
   const [isModalOpen, setModalOpen] = useState(false)
@@ -23,7 +23,7 @@ export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: Publisher
   const { isPending, data: author, error } = useGetAuthor(publisherId)
   if (error) throw error
 
-  useSiteTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
+  useStoreTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 
   if (isPending || !author) {
     return <div>Loading</div>
@@ -35,7 +35,7 @@ export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: Publisher
         <Breadcrumbs
           fullPath={true}
           items={[
-            { path: routes.site(siteId!), title: t("common:home") },
+            { path: routes.store(storeId!), title: t("common:home") },
             { title: capitalize(t("common:publishers")) },
             { title: author?.title },
           ]}
@@ -44,7 +44,7 @@ export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: Publisher
       <AuthorProfile t={t} size="compact" author={author} showStoreInfo={!showDefaultBreadcrumbs} />
       <PublisherPublicationsView
         size="compact"
-        siteId={siteId!}
+        siteId={storeId!}
         author={author}
         isModalOpen={isModalOpen}
         onModalOpenChange={setModalOpen}

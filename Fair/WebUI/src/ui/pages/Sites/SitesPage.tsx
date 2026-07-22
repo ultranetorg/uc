@@ -6,8 +6,8 @@ import { isNumber } from "lodash"
 
 import { useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "config"
-import { useGetDefaultSites, useSearchLiteSites, useSearchSites } from "entities"
-import { useSiteTitle, useUrlParamsState } from "hooks"
+import { useGetDefaultStores, useSearchLiteStores, useSearchStores } from "entities"
+import { useStoreTitle, useUrlParamsState } from "hooks"
 import { Pagination, SearchDropdown, SearchDropdownItem } from "ui/components"
 import { SitesGrid, SitesGridEmpty } from "ui/components/specific"
 import { parseInteger, routes } from "utils"
@@ -19,7 +19,7 @@ export const SitesPage = () => {
   const navigate = useNavigate()
   const { user } = useUserContext()
 
-  useSiteTitle()
+  useStoreTitle()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -39,10 +39,10 @@ export const SitesPage = () => {
   const [liteQuery, setLiteQuery] = useState("")
   const [debouncedLiteQuery] = useDebounceValue(liteQuery, SEARCH_DELAY)
 
-  const { data: defaultSites, isFetching: isDefaultSitesFetching } = useGetDefaultSites(!query)
-  const { data: liteSites, isFetching: isLiteFetching } = useSearchLiteSites(debouncedLiteQuery)
+  const { data: defaultSites, isFetching: isDefaultSitesFetching } = useGetDefaultStores(!query)
+  const { data: liteSites, isFetching: isLiteFetching } = useSearchLiteStores(debouncedLiteQuery)
   const liteItems = useMemo(() => liteSites?.map(x => ({ value: x.id, label: x.title })), [liteSites])
-  const { isFetching, data: sites } = useSearchSites(query, page)
+  const { isFetching, data: sites } = useSearchStores(query, page)
   const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / DEFAULT_PAGE_SIZE) : 0
 
   const isDefaultFetching = !query && (!defaultSites || isDefaultSitesFetching)
@@ -51,7 +51,7 @@ export const SitesPage = () => {
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
       if (item) {
-        navigate(routes.site(item.value))
+        navigate(routes.store(item.value))
       }
     },
     [navigate],

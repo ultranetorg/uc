@@ -2,12 +2,12 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useOperationPolicy, useSiteContext } from "app"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useOperationPolicy, useStoreContext } from "app"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
-import { sitesKeys } from "entities"
+import { storesKeys } from "entities"
 import { routes } from "utils"
 import { ModeratorsTab } from "./ModeratorsTab"
 import { ModeratorsProposalsTab } from "./ModeratorsProposalsTab"
@@ -20,17 +20,17 @@ export const ModeratorsPage = () => {
   const navigate = useNavigate()
   const { voterId } = useOperationPolicy("site-moderator-addition")
   const { tabKey } = useParams()
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
+  const storeId = useResolveStoreId()
+  const { store: site } = useStoreContext()
   const { t } = useTranslation("moderatorsPage")
 
-  useSiteTitle(site?.title, "Moderators")
+  useStoreTitle(site?.title, "Moderators")
 
   const key = routeToTabKey[tabKey!]
 
   const handleTabSelect = useCallback(
-    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.moderators(siteId!, item.route)),
-    [navigate, siteId],
+    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.moderators(storeId!, item.route)),
+    [navigate, storeId],
   )
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
@@ -49,14 +49,14 @@ export const ModeratorsPage = () => {
           <>
             {voterId && (
               <Link
-                to={routes.governance.createReferendum(siteId!)}
+                to={routes.governance.createReferendum(storeId!)}
                 state={{
-                  parentBreadcrumbs: [{ path: routes.moderation.moderators(siteId!), title: t("title") }],
+                  parentBreadcrumbs: [{ path: routes.moderation.moderators(storeId!), title: t("title") }],
                   title: t("addModerator"),
                   type: "site-moderator-addition",
-                  redirectAfterProposalCreation: routes.moderation.moderators(siteId!, "p"),
+                  redirectAfterProposalCreation: routes.moderation.moderators(storeId!, "p"),
                   redirectAfterProposalExecution: location.pathname,
-                  invalidateQueryKeys: sitesKeys.publishers(siteId!),
+                  invalidateQueryKeys: storesKeys.publishers(storeId!),
                 }}
               >
                 <ButtonPrimary label={t("addModerator")} />

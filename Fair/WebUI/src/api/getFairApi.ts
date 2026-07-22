@@ -38,9 +38,9 @@ import {
   PublisherProposal,
   Review,
   ReviewProposal,
-  Site,
-  SiteBase,
-  SiteLiteSearch,
+  Store,
+  StoreBase,
+  StoreLiteSearch,
   StatusResult,
   TotalItemsResult,
   User,
@@ -54,24 +54,24 @@ import { buildUrlParams, fetchApi, toTotalItemsResult } from "./utils"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
-const getDefaultSites = (): Promise<SiteBase[]> => fetch(`${BASE_URL}/sites/default`).then(res => res.json())
+const getDefaultStores = (): Promise<StoreBase[]> => fetch(`${BASE_URL}/stores/default`).then(res => res.json())
 
-const getSite = (siteId: string): Promise<Site> => fetch(`${BASE_URL}/sites/${siteId}`).then(res => res.json())
+const getStore = (storeId: string): Promise<Store> => fetch(`${BASE_URL}/stores/${storeId}`).then(res => res.json())
 
-const getSitePolicies = (siteId: string): Promise<Policy[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/policies`).then(res => res.json())
+const getStorePolicies = (storeId: string): Promise<Policy[]> =>
+  fetch(`${BASE_URL}/stores/${storeId}/policies`).then(res => res.json())
 
-const getSiteUsers = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<User>> => {
+const getStoreUsers = async (storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<User>> => {
   const params = buildUrlParams(
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/users` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/users` + params)
   return await toTotalItemsResult(res)
 }
 
-const getSitePublishers = async (
-  siteId: string,
+const getStorePublishers = async (
+  storeId: string,
   page?: number,
   pageSize?: number,
   search?: string,
@@ -80,22 +80,22 @@ const getSitePublishers = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/publishers` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/publishers` + params)
   return await toTotalItemsResult(res)
 }
 
-const getSiteModerators = (siteId: string): Promise<Moderator[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/moderators`).then(res => res.json())
+const getStoreModerators = (storeId: string): Promise<Moderator[]> =>
+  fetch(`${BASE_URL}/stores/${storeId}/moderators`).then(res => res.json())
 
-const getSiteFiles = async (siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>> => {
+const getStoreFiles = async (storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/files` + params)
-  if (!res.ok) throw new Error(`Failed to fetch site files`)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/files` + params)
+  if (!res.ok) throw new Error(`Failed to fetch store files`)
   return await toTotalItemsResult(res)
 }
 
-const searchSiteUsers = (siteId: string, query?: string, limit?: number): Promise<User[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/users/search?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res =>
+const searchStoreUsers = (storeId: string, query?: string, limit?: number): Promise<User[]> =>
+  fetch(`${BASE_URL}/stores/${storeId}/users/search?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res =>
     res.json(),
   )
 
@@ -105,23 +105,23 @@ const searchAccounts = (query?: string, limit?: number): Promise<AccountBase[]> 
 const searchAuthors = (query?: string, limit?: number): Promise<AuthorBaseAvatar[]> =>
   fetch(`${BASE_URL}/authors?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
 
-const searchSites = async (query?: string, page?: number): Promise<TotalItemsResult<SiteBase>> => {
+const searchStores = async (query?: string, page?: number): Promise<TotalItemsResult<StoreBase>> => {
   const params = buildUrlParams({ query, page })
-  const res = await fetch(`${BASE_URL}/sites` + params)
+  const res = await fetch(`${BASE_URL}/stores` + params)
   return await toTotalItemsResult(res)
 }
 
-const searchLiteSites = (query?: string): Promise<SiteLiteSearch[]> =>
-  fetch(`${BASE_URL}/sites/search?query=${query}`).then(res => res.json())
+const searchLiteStores = (query?: string): Promise<StoreLiteSearch[]> =>
+  fetch(`${BASE_URL}/stores/search?query=${query}`).then(res => res.json())
 
-const searchPublications = async (siteId: string, query?: string, page?: number): Promise<PublicationExtended[]> => {
+const searchPublications = async (storeId: string, query?: string, page?: number): Promise<PublicationExtended[]> => {
   const params = buildUrlParams({ query, page })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/publications` + params)
   return res.json()
 }
 
-const searchLitePublication = (siteId: string, query?: string): Promise<PublicationBase[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/publications/search?query=${query}`).then(res => res.json())
+const searchLitePublication = (storeId: string, query?: string): Promise<PublicationBase[]> =>
+  fetch(`${BASE_URL}/stores/${storeId}/publications/search?query=${query}`).then(res => res.json())
 
 const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
   fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
@@ -155,8 +155,8 @@ const getUserAuthors = (userId: string): Promise<UserAuthors> => fetchApi(fetch(
 const getUserDetails = (name: string): Promise<UserDetails> =>
   fetch(`${BASE_URL}/users/${name}/details`).then(res => res.json())
 
-const getUserSiteExists = async (userId: string, siteId: string): Promise<boolean> => {
-  const res = await fetch(`${BASE_URL}/users/${userId}/sites/${siteId}`, { method: "HEAD" })
+const getUserStoreExists = async (userId: string, storeId: string): Promise<boolean> => {
+  const res = await fetch(`${BASE_URL}/users/${userId}/stores/${storeId}`, { method: "HEAD" })
   if (res.status === 404) return false
   if (res.ok) return true
   throw new Error(`Failed to check registration: ${res.status}`)
@@ -181,19 +181,19 @@ const getAuthorProducts = async (
 }
 
 // Categories
-const getCategoriesRoot = (siteId: string): Promise<CategoryBase[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/categories/root`).then(res => res.json())
+const getCategoriesRoot = (storeId: string): Promise<CategoryBase[]> =>
+  fetch(`${BASE_URL}/stores/${storeId}/categories/root`).then(res => res.json())
 
 const getCategoryDetails = (categoryId: string): Promise<Category> =>
   fetchApi(fetch(`${BASE_URL}/categories/${categoryId}`))
 
-const getCategoriesTree = (siteId: string, depth?: number): Promise<CategoryParentBase[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/categories/tree` + (depth !== undefined ? `?depth=${depth}` : "")).then(res =>
+const getCategoriesTree = (storeId: string, depth?: number): Promise<CategoryParentBase[]> =>
+  fetch(`${BASE_URL}/stores/${storeId}/categories/tree` + (depth !== undefined ? `?depth=${depth}` : "")).then(res =>
     res.json(),
   )
 
-const getCategoriesPublications = (siteId: string): Promise<CategoryPublications[]> =>
-  fetch(`${BASE_URL}/sites/${siteId}/categories/publications`).then(res => res.json())
+const getCategoriesPublications = (storeId: string): Promise<CategoryPublications[]> =>
+  fetch(`${BASE_URL}/stores/${storeId}/categories/publications`).then(res => res.json())
 
 const getPublication = (publicationId: string): Promise<PublicationDetails> =>
   fetchApi(fetch(`${BASE_URL}/publications/${publicationId}`))
@@ -201,21 +201,21 @@ const getPublication = (publicationId: string): Promise<PublicationDetails> =>
 const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
   fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())
 
-const getChangedPublication = (siteId: string, changedPublicationId: string): Promise<PublicationChangedDetails> =>
-  fetch(`${BASE_URL}/sites/${siteId}/publications/changed/${changedPublicationId}`).then(res => res.json())
+const getChangedPublication = (storeId: string, changedPublicationId: string): Promise<PublicationChangedDetails> =>
+  fetch(`${BASE_URL}/stores/${storeId}/publications/changed/${changedPublicationId}`).then(res => res.json())
 
 const getChangedPublications = async (
-  siteId: string,
+  storeId: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<PublicationChanged>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications/changed` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/publications/changed` + params)
   return await toTotalItemsResult(res)
 }
 
-const getUnpublishedSiteProduct = async (siteId: string, unpublishedProductId: string): Promise<ProductDetails> => {
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/products/unpublished/${unpublishedProductId}`)
+const getUnpublishedStoreProduct = async (storeId: string, unpublishedProductId: string): Promise<ProductDetails> => {
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/products/unpublished/${unpublishedProductId}`)
   if (!res.ok) {
     throw new Error()
   }
@@ -223,27 +223,27 @@ const getUnpublishedSiteProduct = async (siteId: string, unpublishedProductId: s
   return await res.json()
 }
 
-const getUnpublishedPublication = (siteId: string, publicationId: string): Promise<ProductDetails> =>
-  fetch(`${BASE_URL}/sites/${siteId}/publications/unpublished/${publicationId}`).then(res => res.json())
+const getUnpublishedPublication = (storeId: string, publicationId: string): Promise<ProductDetails> =>
+  fetch(`${BASE_URL}/stores/${storeId}/publications/unpublished/${publicationId}`).then(res => res.json())
 
 const getUnpublishedPublications = async (
-  siteId: string,
+  storeId: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<PublicationUnpublished>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/publications/unpublished` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/publications/unpublished` + params)
   return await toTotalItemsResult(res)
 }
 
 const getPublisherPublications = async (
-  siteId: string,
+  storeId: string,
   publisherId: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<PublicationAuthor>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/publishers/${publisherId}/publications` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/publishers/${publisherId}/publications` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -265,28 +265,28 @@ const getReviews = async (
 }
 
 const getAuthorFiles = async (
-  siteId: string,
+  storeId: string,
   authorId?: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<File>> => {
   const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/authors/${authorId}/files` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/authors/${authorId}/files` + params)
   if (!res.ok) throw new Error(`Failed to fetch author files`)
   return await toTotalItemsResult(res)
 }
 
-const getAuthorPerpetualSurveys = (siteId: string): Promise<PerpetualSurvey[]> =>
-  fetch(`${BASE_URL}/author/sites/${siteId}/perpetual-surveys`).then(res => res.json())
+const getAuthorPerpetualSurveys = (storeId: string): Promise<PerpetualSurvey[]> =>
+  fetch(`${BASE_URL}/author/stores/${storeId}/perpetual-surveys`).then(res => res.json())
 
-const getAuthorPerpetualSurveyDetails = (siteId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails> =>
-  fetch(`${BASE_URL}/author/sites/${siteId}/perpetual-surveys/${perpetualSurveyId}`).then(res => res.json())
+const getAuthorPerpetualSurveyDetails = (storeId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails> =>
+  fetch(`${BASE_URL}/author/stores/${storeId}/perpetual-surveys/${perpetualSurveyId}`).then(res => res.json())
 
-const getAuthorReferendum = (siteId: string, referendumId: string): Promise<ProposalDetails> =>
-  fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}`).then(res => res.json())
+const getAuthorReferendum = (storeId: string, referendumId: string): Promise<ProposalDetails> =>
+  fetch(`${BASE_URL}/author/stores/${storeId}/referendums/${referendumId}`).then(res => res.json())
 
 const getAuthorReferendumComments = async (
-  siteId: string,
+  storeId: string,
   referendumId: string,
   page?: number,
   pageSize?: number,
@@ -295,12 +295,12 @@ const getAuthorReferendumComments = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/author/sites/${siteId}/referendums/${referendumId}/comments` + params)
+  const res = await fetch(`${BASE_URL}/author/stores/${storeId}/referendums/${referendumId}/comments` + params)
   return await toTotalItemsResult(res)
 }
 
 const getAuthorReferendums = async (
-  siteId: string,
+  storeId: string,
   page?: number,
   pageSize?: number,
   search?: string,
@@ -309,12 +309,12 @@ const getAuthorReferendums = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/author/sites/${siteId}/referendums` + params)
+  const res = await fetch(`${BASE_URL}/author/stores/${storeId}/referendums` + params)
   return await toTotalItemsResult(res)
 }
 
-const getModeratorDiscussion = async (siteId: string, discussionId: string): Promise<ProposalDetails> => {
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}`)
+const getModeratorDiscussion = async (storeId: string, discussionId: string): Promise<ProposalDetails> => {
+  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/discussions/${discussionId}`)
   if (!res.ok) {
     throw new Error()
   }
@@ -323,7 +323,7 @@ const getModeratorDiscussion = async (siteId: string, discussionId: string): Pro
 }
 
 const getModeratorDiscussionComments = async (
-  siteId: string,
+  storeId: string,
   discussionId: string,
   page?: number,
   pageSize?: number,
@@ -332,12 +332,12 @@ const getModeratorDiscussionComments = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions/${discussionId}/comments` + params)
+  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/discussions/${discussionId}/comments` + params)
   return await toTotalItemsResult(res)
 }
 
 const getModeratorDiscussions = async (
-  siteId: string,
+  storeId: string,
   page?: number,
   pageSize?: number,
   search?: string,
@@ -346,12 +346,12 @@ const getModeratorDiscussions = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/discussions` + params)
+  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/discussions` + params)
   return await toTotalItemsResult(res)
 }
 
 const getPublicationProposals = async (
-  siteId: string,
+  storeId: string,
   page?: number,
   pageSize?: number,
   search?: string,
@@ -360,7 +360,7 @@ const getPublicationProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/publications` + params)
+  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/publications` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -387,7 +387,7 @@ const getPublicationDetailsDiff = (publicationId: string, version: number): Prom
   fetch(`${BASE_URL}/publications/${publicationId}/diff?to=${version}`).then(res => res.json())
 
 const getModeratorProposals = async (
-  siteId: string,
+  storeId: string,
   search?: string,
   page?: number,
   pageSize?: number,
@@ -396,12 +396,12 @@ const getModeratorProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/proposals/moderators` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/proposals/moderators` + params)
   return await toTotalItemsResult(res)
 }
 
 const getPublisherProposals = async (
-  siteId: string,
+  storeId: string,
   search?: string,
   page?: number,
   pageSize?: number,
@@ -410,12 +410,12 @@ const getPublisherProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/proposals/publishers` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/proposals/publishers` + params)
   return await toTotalItemsResult(res)
 }
 
 const getReviewProposals = async (
-  siteId: string,
+  storeId: string,
   page?: number,
   pageSize?: number,
   search?: string,
@@ -424,12 +424,12 @@ const getReviewProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/sites/${siteId}/reviews` + params)
+  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/reviews` + params)
   return await toTotalItemsResult(res)
 }
 
 const getUserRegistrationProposals = async (
-  siteId: string,
+  storeId: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<Proposal>> => {
@@ -437,12 +437,12 @@ const getUserRegistrationProposals = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/proposals/user-registrations` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/proposals/user-registrations` + params)
   return await toTotalItemsResult(res)
 }
 
 const getUserUnregistrationProposals = async (
-  siteId: string,
+  storeId: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<UserUnregistrationProposal>> => {
@@ -450,7 +450,7 @@ const getUserUnregistrationProposals = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/sites/${siteId}/proposals/user-unregistrations` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/proposals/user-unregistrations` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -458,7 +458,7 @@ const api: FairApi = {
   getUser,
   getUserAuthors,
   getUserDetails,
-  getUserSiteExists,
+  getUserStoreExists,
   getUserReviews,
 
   getPublisherPublications,
@@ -467,33 +467,33 @@ const api: FairApi = {
   getCategoryDetails,
   getCategoriesRoot,
   getCategoryPublications,
-  getDefaultSites,
+  getDefaultStores,
   getPublicationDetails: getPublication,
   getPublicationVersions,
 
   getChangedPublication,
   getChangedPublications,
-  getUnpublishedSiteProduct,
+  getUnpublishedStoreProduct,
 
   // UnpublishedPublications
   getUnpublishedPublication,
   getUnpublishedPublications,
 
   getReviews,
-  getSite,
-  getSitePolicies,
-  getSiteUsers,
-  getSitePublishers,
-  getSiteFiles,
-  getSiteModerators,
-  searchSiteUsers,
+  getStore,
+  getStorePolicies,
+  getStoreUsers,
+  getStorePublishers,
+  getStoreFiles,
+  getStoreModerators,
+  searchStoreUsers,
 
   searchLitePublication,
-  searchLiteSites,
+  searchLiteStores,
   searchPublications,
   searchAccounts,
   searchAuthors,
-  searchSites,
+  searchStores,
   searchLiteAccounts,
   searchLiteProducts,
   searchProducts,

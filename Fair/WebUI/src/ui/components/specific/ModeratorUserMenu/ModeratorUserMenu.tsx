@@ -10,7 +10,7 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { useSiteRolesContext, useUserContext } from "app"
+import { useStoreRolesContext, useUserContext } from "app"
 import { SvgThreeDotsVertical } from "assets"
 import { useScrollOrResize } from "hooks"
 import { PropsWithClassName } from "types"
@@ -26,7 +26,7 @@ type ModeratorUserMenuBaseProps = {
 export type ModeratorUserMenuProps = PropsWithClassName & ModeratorUserMenuBaseProps
 
 export const ModeratorUserMenu = memo(({ userId, userName }: ModeratorUserMenuProps) => {
-  const { isModerator } = useSiteRolesContext()
+  const { isModerator } = useStoreRolesContext()
   const { menuItems } = useModeratorUserMenuItems(userId, userName)
   const { user } = useUserContext()
 

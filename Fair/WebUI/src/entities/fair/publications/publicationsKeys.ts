@@ -1,9 +1,10 @@
 export const publicationsKeys = {
-  site: (siteId: string) => ["sites", siteId] as const,
+  store: (storeId: string) => ["stores", storeId] as const,
 
-  authorPublications: (siteId: string, authorId: string, page?: number, pageSize?: number) =>
-    [...publicationsKeys.site(siteId), "authors", authorId, { page, pageSize }] as const,
-  categoriesPublications: (siteId: string) => [...publicationsKeys.site(siteId), "categories", "publication"] as const,
+  authorPublications: (storeId: string, authorId: string, page?: number, pageSize?: number) =>
+    [...publicationsKeys.store(storeId), "authors", authorId, { page, pageSize }] as const,
+  categoriesPublications: (storeId: string) =>
+    [...publicationsKeys.store(storeId), "categories", "publication"] as const,
 
   categoryPublications: (categoryId: string, page?: number) => ["categories", categoryId, { page }] as const,
 

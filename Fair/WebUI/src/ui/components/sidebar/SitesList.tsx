@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { Link } from "react-router-dom"
 
-import { SiteBase } from "types"
+import { StoreBase } from "types"
 import { routes } from "utils"
 
 import { Site } from "./Site"
@@ -12,9 +12,9 @@ export type SitesListProps = {
   disabledFavorite?: boolean
   isStarred?: boolean
   title: string
-  items?: SiteBase[]
+  items?: StoreBase[]
   emptyStateMessage: string
-  onFavoriteClick: (item: SiteBase) => void
+  onFavoriteClick: (item: StoreBase) => void
   disabledIds?: string[]
   showPending?: boolean
 }
@@ -36,7 +36,7 @@ export const SitesList = memo(
         {(items && items.length > 0) || showPending === true ? (
           <>
             {items.map(x => (
-              <Link key={x.id} to={routes.site(x.id)}>
+              <Link key={x.id} to={routes.store(x.id)}>
                 <Site
                   disabled={disabledIds?.includes(x.id)}
                   disabledFavorite={disabledFavorite}

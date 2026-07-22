@@ -4,25 +4,25 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useGetSiteFiles = (siteId?: string, page?: number, pageSize?: number) => {
-  const queryFn = () => api.getSiteFiles(siteId!, page, pageSize)
+export const useGetStoreFiles = (storeId?: string, page?: number, pageSize?: number) => {
+  const queryFn = () => api.getStoreFiles(storeId!, page, pageSize)
 
   const { isPending, error, data, isFetching, refetch } = useQuery({
-    queryKey: ["sites", siteId, "files", { page, pageSize }],
+    queryKey: ["stores", storeId, "files", { page, pageSize }],
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storeId,
   })
 
   return { isPending, error: error ?? undefined, data, isFetching, refetch }
 }
 
-export const useGetSiteFilesInfinite = (siteId?: string, page?: number, pageSize?: number) => {
-  const queryFn = (page: number) => api.getSiteFiles(siteId!, page, pageSize)
+export const useGetStoreFilesInfinite = (storeId?: string, page?: number, pageSize?: number) => {
+  const queryFn = (page: number) => api.getStoreFiles(storeId!, page, pageSize)
 
   const { data, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useInfiniteQuery(
     {
       initialPageParam: 0,
-      queryKey: ["sites", siteId, "files", { page, pageSize }],
+      queryKey: ["stores", storeId, "files", { page, pageSize }],
       queryFn: ({ pageParam = 0 }) => queryFn(pageParam),
       getNextPageParam: (lastPage, allPages) => {
         const loadedItems = allPages.flatMap(p => p.items).length

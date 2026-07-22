@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 import { isNumber, startCase } from "lodash"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorDiscussions } from "entities"
-import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
+import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
 import { parseInteger, routes } from "utils"
@@ -14,10 +14,10 @@ import { parseInteger, routes } from "utils"
 export const ProposalsPage = () => {
   const { t } = useTranslation("proposalsPage")
   const navigate = useNavigate()
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
+  const storeId = useResolveStoreId()
+  const { store: site } = useStoreContext()
 
-  useSiteTitle(site?.title, "Proposals")
+  useStoreTitle(site?.title, "Proposals")
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -32,7 +32,7 @@ export const ProposalsPage = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: discussions } = useGetModeratorDiscussions(siteId, page, DEFAULT_PAGE_SIZE_20, state.query)
+  const { data: discussions } = useGetModeratorDiscussions(storeId, page, DEFAULT_PAGE_SIZE_20, state.query)
   const pagesCount =
     discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
@@ -45,8 +45,8 @@ export const ProposalsPage = () => {
   )
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.moderation.proposal(siteId!, id)),
-    [navigate, siteId],
+    (id: string) => navigate(routes.moderation.proposal(storeId!, id)),
+    [navigate, storeId],
   )
 
   const handleSearchChange = useCallback(

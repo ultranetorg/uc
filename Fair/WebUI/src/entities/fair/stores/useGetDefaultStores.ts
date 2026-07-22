@@ -4,13 +4,13 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useSearchSites = (query?: string, page?: number) => {
-  const queryFn = () => api.searchSites(query, page)
+export const useGetDefaultStores = (enabled?: boolean) => {
+  const queryFn = () => api.getDefaultStores()
 
   const { isFetching, error, data } = useQuery({
-    queryKey: ["sites", { page, query }],
+    queryKey: ["stores", "default"],
     queryFn: queryFn,
-    enabled: !!query,
+    enabled: !!enabled,
   })
 
   return { isFetching, error: error ?? undefined, data }

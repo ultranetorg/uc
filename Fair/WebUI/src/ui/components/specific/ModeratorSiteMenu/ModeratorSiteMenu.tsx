@@ -4,18 +4,18 @@ import { useLocation } from "react-router-dom"
 import { FloatingPortal } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
-import { useSiteRolesContext } from "app"
+import { useStoreRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { categoriesKeys } from "entities"
-import { useResolveSiteId, useScrollOrResize, useSubmenu } from "hooks"
+import { useResolveStoreId, useScrollOrResize, useSubmenu } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
 import { routes } from "utils"
 
 export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
   const location = useLocation()
-  const { isModerator } = useSiteRolesContext()
-  const siteId = useResolveSiteId()
+  const { isModerator } = useStoreRolesContext()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation()
 
   const menu = useSubmenu({ placement: "bottom-end" })
@@ -25,22 +25,22 @@ export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
     () => [
       {
         label: t("moderatorCategoryMenu:categoryCreate"),
-        to: routes.moderation.createProposal(siteId!),
+        to: routes.moderation.createProposal(storeId!),
         state: {
           title: "Create category",
           type: "category-creation",
           parentBreadcrumbs: [
-            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
-            { path: routes.moderation.publications(siteId!), title: t("common:publications") },
+            { path: routes.moderation.proposals(storeId!), title: t("common:proposals") },
+            { path: routes.moderation.publications(storeId!), title: t("common:publications") },
           ],
           categoryId: null,
-          redirectAfterProposalCreation: routes.moderation.proposals(siteId!),
+          redirectAfterProposalCreation: routes.moderation.proposals(storeId!),
           redirectAfterProposalExecution: location.pathname,
-          invalidateQueryKeys: categoriesKeys.all(siteId!),
+          invalidateQueryKeys: categoriesKeys.all(storeId!),
         },
       },
     ],
-    [location.pathname, siteId, t],
+    [location.pathname, storeId, t],
   )
 
   const handleMenuClick = useCallback(() => menu.setOpen(false), [menu])

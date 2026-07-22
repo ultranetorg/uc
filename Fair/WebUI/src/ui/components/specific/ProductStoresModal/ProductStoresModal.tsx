@@ -7,7 +7,7 @@ import { useEscapeKey } from "hooks"
 import { Modal, ModalProps } from "ui/components"
 import { routes } from "utils"
 
-import { useGetProductSites } from "entities"
+import { useGetProductStores } from "entities"
 
 import { ProductStoreRow } from "./ProductStoreRow"
 
@@ -23,7 +23,7 @@ type ProductStoresModalBaseProps = {
 export type ProductStoresModalProps = Pick<ModalProps, "onClose"> & ProductStoresModalBaseProps
 
 export const ProductStoresModal = memo(({ onClose, productId }: ProductStoresModalProps) => {
-  const { data: sites } = useGetProductSites(productId, 0, DEFAULT_PAGE_SIZE_20)
+  const { data: sites } = useGetProductStores(productId, 0, DEFAULT_PAGE_SIZE_20)
 
   useEscapeKey(onClose)
 

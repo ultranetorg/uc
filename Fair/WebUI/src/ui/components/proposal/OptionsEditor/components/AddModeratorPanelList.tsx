@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchAccounts } from "entities"
 import { AccountBase } from "types"
@@ -17,7 +17,7 @@ export type AddModeratorPanelListProps = {
 
 export const AddModeratorPanelList = memo(
   ({ value: selectedModerators = [], onChange }: AddModeratorPanelListProps) => {
-    const { site } = useSiteContext()
+    const { store: site } = useStoreContext()
     const { t } = useTranslation("createProposal")
 
     const [search, setSearch] = useState("")

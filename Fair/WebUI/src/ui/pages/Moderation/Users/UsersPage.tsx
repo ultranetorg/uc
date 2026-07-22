@@ -2,8 +2,8 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { useSiteContext } from "app"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useStoreContext } from "app"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
 
@@ -20,17 +20,17 @@ const routeToTabKey: Record<string, string> = {
 export const UsersPage = () => {
   const navigate = useNavigate()
   const { tabKey } = useParams()
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
+  const storeId = useResolveStoreId()
+  const { store: site } = useStoreContext()
   const { t } = useTranslation("moderationUsersPage")
 
-  useSiteTitle(site?.title, "Users")
+  useStoreTitle(site?.title, "Users")
 
   const key = routeToTabKey[tabKey!]
 
   const handleTabSelect = useCallback(
-    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.users(siteId!, item.route)),
-    [navigate, siteId],
+    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.users(storeId!, item.route)),
+    [navigate, storeId],
   )
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(

@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetSiteUsers } from "entities"
-import { useResolveSiteId, useUrlParamsState } from "hooks"
+import { useGetStoreUsers } from "entities"
+import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger, routes } from "utils"
 
@@ -13,7 +13,7 @@ import { usersTabItemRenderer } from "./usersTabItemRenderer"
 
 export const UsersTab = () => {
   const navigate = useNavigate()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("usersTab")
 
   const [state, setState] = useUrlParamsState({
@@ -25,12 +25,15 @@ export const UsersTab = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: users, isPending } = useGetSiteUsers(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: users, isPending } = useGetStoreUsers(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const columns = useMemo(() => [{ accessor: "user", label: t("common:user"), type: "user" }], [t])
 
-  const handleRowClick = useCallback((id: string) => navigate(routes.moderation.user(siteId!, id)), [navigate, siteId])
+  const handleRowClick = useCallback(
+    (id: string) => navigate(routes.moderation.user(storeId!, id)),
+    [navigate, storeId],
+  )
 
   const handlePageChange = useCallback(
     (page: number) => {

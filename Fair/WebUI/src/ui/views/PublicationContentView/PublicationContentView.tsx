@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { ProductDetails, PublicationDetails } from "types"
 
 import { ContentProps } from "./types"
@@ -22,7 +22,7 @@ export const PublicationContentView = ({
   onLeaveReview,
   onEditReview,
 }: PublicationContentViewProps) => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("publicationPage")
 
   const ContentComponent = getPublicationContentByType(productOrPublication.type)
@@ -33,7 +33,7 @@ export const PublicationContentView = ({
       isPending={isPending}
       isPendingReviews={isPendingReviews}
       productOrPublication={productOrPublication}
-      siteId={siteId!}
+      siteId={storeId!}
       error={error}
       reviews={reviews}
       onLeaveReview={onLeaveReview}

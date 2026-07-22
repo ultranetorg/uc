@@ -3,9 +3,9 @@ import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { useSiteContext, useUserContext } from "app"
+import { useStoreContext, useUserContext } from "app"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { FavoriteSiteChange, PropsWithClassName, SiteBase } from "types"
+import { FavoriteSiteChange, PropsWithClassName, StoreBase } from "types"
 import { SitesList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"
 import { routes, showToast } from "utils"
@@ -15,14 +15,14 @@ import { AllSitesButton } from "./components"
 export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const { t } = useTranslation("sites")
 
-  const { site } = useSiteContext()
+  const { store: site } = useStoreContext()
   const { user, refetch } = useUserContext()
   const [showPending, setShowPending] = useState(false)
   const [disabledIds, setDisabledIds] = useState<string[]>([])
   const { mutate } = useTransactMutationWithStatus()
 
   const transactOperation = useCallback(
-    ({ id, title }: SiteBase, action: boolean) => {
+    ({ id, title }: StoreBase, action: boolean) => {
       if (action) {
         setShowPending(true)
       }
@@ -50,9 +50,9 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
     [mutate, refetch, t],
   )
 
-  const handleFavoriteAdd = useCallback((item: SiteBase) => transactOperation(item, true), [transactOperation])
+  const handleFavoriteAdd = useCallback((item: StoreBase) => transactOperation(item, true), [transactOperation])
 
-  const handleFavoriteRemove = useCallback((item: SiteBase) => transactOperation(item, false), [transactOperation])
+  const handleFavoriteRemove = useCallback((item: StoreBase) => transactOperation(item, false), [transactOperation])
 
   return (
     <div className={twMerge("flex w-65 min-w-65 flex-col gap-6 p-2", className)}>

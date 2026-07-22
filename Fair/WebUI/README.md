@@ -3,9 +3,9 @@ yarn dev
 
 ## Pages
 
-### SitesPage
+### StoresPage
 
-### SitePage
+### StorePage
 
 ### CategoryPage
 
@@ -48,7 +48,7 @@ text-9xl font-size: 8rem; /_ 128px _/
 
 ```mermaid
 graph TD;
-    AccountModel["AccountModel<br/>(Используется AccountSwitcher, используется Sidebar, содержит настройки аккаунта - FavoriteSites)"]
+    AccountModel["AccountModel<br/>(Используется AccountSwitcher, используется Sidebar, содержит настройки аккаунта - FavoriteStores)"]
 
     AccountModel --> AccountBaseModel
     AccountBaseAvatarModel --> AccountBaseModel
@@ -81,11 +81,11 @@ graph TD;
     CategoryModel --> CategoryParentBaseModel
 ```
 
-### Site
+### Store
 
 ```mermaid
 graph TD;
-    SiteModel --> SiteBaseModel
+    StoreModel --> StoreBaseModel
 ```
 
 
@@ -97,7 +97,7 @@ classDiagram
 
     FairOperation <|-- AccountAvatarChange
     FairOperation <|-- AccountNicknameChange
-    FairOperation <|-- FavoriteSiteChange
+    FairOperation <|-- FavoriteStoreChange
 
     FairOperation <|-- AuthorAvatarChange
     FairOperation <|-- AuthorCreation
@@ -123,12 +123,12 @@ classDiagram
     FairOperation <|-- ProposalCommentCreation
     FairOperation <|-- ProposalCommentEdit
 
-    FairOperation <|-- SiteCreation
-    FairOperation <|-- SiteRenewal
+    FairOperation <|-- StoreCreation
+    FairOperation <|-- StoreRenewal
 
-    FairOperation <|-- SiteOperation
-    SiteOperation <|-- SitePolicyChange
-    SiteOperation <|-- VotableOperation
+    FairOperation <|-- StoreOperation
+    StoreOperation <|-- StorePolicyChange
+    StoreOperation <|-- VotableOperation
 
     VotableOperation <|-- CategoryAvatarChange
     VotableOperation <|-- CategoryCreation
@@ -145,11 +145,11 @@ classDiagram
     VotableOperation <|-- ReviewEdit
     VotableOperation <|-- ReviewStatusChange
 
-    VotableOperation <|-- SiteAvatarChange
-    VotableOperation <|-- SiteModeratorAddition
-    VotableOperation <|-- SiteModeratorRemoval
-    VotableOperation <|-- SiteNameChange
-    VotableOperation <|-- SiteTextChange
+    VotableOperation <|-- StoreAvatarChange
+    VotableOperation <|-- StoreModeratorAddition
+    VotableOperation <|-- StoreModeratorRemoval
+    VotableOperation <|-- StoreNameChange
+    VotableOperation <|-- StoreTextChange
 
     VotableOperation <|-- UserDeletion
     VotableOperation <|-- UserRegistration

@@ -2,14 +2,14 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 
-import { useSitePoliciesContext } from "app"
-import { sitesKeys } from "entities"
+import { useStorePoliciesContext } from "app"
+import { storesKeys } from "entities"
 import { isPublisherVoting, routes } from "utils"
 import { SimpleMenuItem } from "ui/components/SimpleMenu"
 
 export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenuItem[] => {
   const location = useLocation()
-  const { policies } = useSitePoliciesContext()
+  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("storeDropdownMenu")
 
   const siteItems = useMemo(
@@ -26,7 +26,7 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:referendums") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(siteId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: sitesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(siteId),
               },
             },
           ]
@@ -43,7 +43,7 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
                 parentBreadcrumbs: [{ path: routes.governance.referendums(siteId), title: t("common:referendums") }],
                 redirectAfterProposalCreation: routes.governance.referendums(siteId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: sitesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(siteId),
               },
             },
           ]
@@ -60,7 +60,7 @@ export const useGovernanceDropdownButtonMenuItems = (siteId: string): SimpleMenu
                 parentBreadcrumbs: [{ path: routes.governance.referendums(siteId), title: t("common:referendums") }],
                 redirectAfterProposalCreation: routes.governance.referendums(siteId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: sitesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(siteId),
               },
             },
           ]

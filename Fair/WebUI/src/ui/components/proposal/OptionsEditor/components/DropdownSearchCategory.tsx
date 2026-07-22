@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react"
 
 import { useGetCategoriesTree } from "entities"
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { Dropdown, DropdownProps } from "ui/components"
 import { buildCategoryTree } from "utils"
 
@@ -23,8 +23,8 @@ export const DropdownSearchCategory = ({
   hasRoot = false,
   ...rest
 }: DropdownSearchCategoryProps) => {
-  const siteId = useResolveSiteId()
-  const { refetch, data: categories } = useGetCategoriesTree(siteId, 16)
+  const storeId = useResolveStoreId()
+  const { refetch, data: categories } = useGetCategoriesTree(storeId, 16)
 
   const items = useMemo(() => {
     if (!categories) return undefined

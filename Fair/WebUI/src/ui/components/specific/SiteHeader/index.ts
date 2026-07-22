@@ -1,1 +1,1 @@
-export * from "./SiteHeader"
+export * from "./StoreHeader"

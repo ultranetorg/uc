@@ -24,14 +24,14 @@ import { AccountsList } from "ui/components"
 import { MembersList } from "ui/components/MembersList"
 import { buildFileUrl, buildUserAvatarByIdUrl, routes } from "utils"
 
-const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange): JSX.Element => (
+const getCategoryAvatarChange = (storeId: string, operation: CategoryAvatarChange): JSX.Element => (
   <>
     <Trans
       ns="proposalView"
       i18nKey={operation.$type}
       components={{
         CategoryLink: (
-          <Link to={routes.category(siteId, operation.categoryId)} className="underline">
+          <Link to={routes.category(storeId, operation.categoryId)} className="underline">
             {operation.categoryTitle}
           </Link>
         ),
@@ -42,14 +42,14 @@ const getCategoryAvatarChange = (siteId: string, operation: CategoryAvatarChange
   </>
 )
 
-const getCategoryCreation = (siteId: string, operation: CategoryCreation): JSX.Element =>
+const getCategoryCreation = (storeId: string, operation: CategoryCreation): JSX.Element =>
   operation.parentCategoryId ? (
     <Trans
       ns="proposalView"
       i18nKey={operation.$type}
       components={{
         ParentLink: (
-          <Link to={routes.category(siteId, operation.parentCategoryId)} className="underline">
+          <Link to={routes.category(storeId, operation.parentCategoryId)} className="underline">
             {operation.parentCategoryTitle}
           </Link>
         ),
@@ -63,7 +63,7 @@ const getCategoryCreation = (siteId: string, operation: CategoryCreation): JSX.E
       i18nKey={`${operation.$type}_root`}
       components={{
         ParentLink: (
-          <Link to={routes.category(siteId, operation.parentCategoryId ?? "")} className="underline">
+          <Link to={routes.category(storeId, operation.parentCategoryId ?? "")} className="underline">
             {operation.parentCategoryTitle}
           </Link>
         ),
@@ -73,13 +73,13 @@ const getCategoryCreation = (siteId: string, operation: CategoryCreation): JSX.E
     />
   )
 
-const getCategoryDeletion = (siteId: string, operation: CategoryDeletion): JSX.Element => (
+const getCategoryDeletion = (storeId: string, operation: CategoryDeletion): JSX.Element => (
   <Trans
     ns="proposalView"
     i18nKey={`${operation.$type}`}
     components={{
       CategoryLink: (
-        <Link to={routes.category(siteId, operation.categoryId)} className="underline">
+        <Link to={routes.category(storeId, operation.categoryId)} className="underline">
           {operation.categoryTitle}
         </Link>
       ),
@@ -88,19 +88,19 @@ const getCategoryDeletion = (siteId: string, operation: CategoryDeletion): JSX.E
   />
 )
 
-const getCategoryMovement = (siteId: string, operation: CategoryMovement): JSX.Element =>
+const getCategoryMovement = (storeId: string, operation: CategoryMovement): JSX.Element =>
   operation.parentCategoryId ? (
     <Trans
       ns="proposalView"
       i18nKey={operation.$type}
       components={{
         CategoryLink: (
-          <Link to={routes.category(siteId, operation.categoryId)} className="underline">
+          <Link to={routes.category(storeId, operation.categoryId)} className="underline">
             {operation.categoryTitle}
           </Link>
         ),
         ParentLink: (
-          <Link to={routes.category(siteId, operation.parentCategoryId)} className="underline">
+          <Link to={routes.category(storeId, operation.parentCategoryId)} className="underline">
             {operation.parentCategoryTitle}
           </Link>
         ),
@@ -113,7 +113,7 @@ const getCategoryMovement = (siteId: string, operation: CategoryMovement): JSX.E
       i18nKey={`${operation.$type}_root`}
       components={{
         CategoryLink: (
-          <Link to={routes.category(siteId, operation.categoryId)} className="underline">
+          <Link to={routes.category(storeId, operation.categoryId)} className="underline">
             {operation.categoryTitle}
           </Link>
         ),
@@ -122,13 +122,13 @@ const getCategoryMovement = (siteId: string, operation: CategoryMovement): JSX.E
     />
   )
 
-const getCategoryTypeChange = (siteId: string, operation: CategoryTypeChange): JSX.Element => (
+const getCategoryTypeChange = (storeId: string, operation: CategoryTypeChange): JSX.Element => (
   <Trans
     ns="proposalView"
     i18nKey={`${operation.$type}`}
     components={{
       CategoryLink: (
-        <Link to={routes.category(siteId, operation.categoryId)} className="underline">
+        <Link to={routes.category(storeId, operation.categoryId)} className="underline">
           {operation.categoryTitle}
         </Link>
       ),
@@ -138,18 +138,18 @@ const getCategoryTypeChange = (siteId: string, operation: CategoryTypeChange): J
   />
 )
 
-const getPublicationPublish = (siteId: string, operation: PublicationPublish): JSX.Element => (
+const getPublicationPublish = (storeId: string, operation: PublicationPublish): JSX.Element => (
   <Trans
     ns="proposalView"
     i18nKey={`${operation.$type}`}
     components={{
       PublicationLink: (
-        <Link to={routes.moderation.unpublishedPublication(siteId, operation.publicationId)} className="underline">
+        <Link to={routes.moderation.unpublishedPublication(storeId, operation.publicationId)} className="underline">
           {operation.publicationTitle}
         </Link>
       ),
       CategoryLink: (
-        <Link to={routes.category(siteId, operation.categoryId)} className="underline">
+        <Link to={routes.category(storeId, operation.categoryId)} className="underline">
           {operation.categoryTitle}
         </Link>
       ),
@@ -158,18 +158,18 @@ const getPublicationPublish = (siteId: string, operation: PublicationPublish): J
   />
 )
 
-const getPublicationUnpublish = (siteId: string, operation: PublicationPublish): JSX.Element => (
+const getPublicationUnpublish = (storeId: string, operation: PublicationPublish): JSX.Element => (
   <Trans
     ns="proposalView"
     i18nKey={`${operation.$type}`}
     components={{
       PublicationLink: (
-        <Link to={routes.publication(siteId, operation.publicationId)} className="underline">
+        <Link to={routes.publication(storeId, operation.publicationId)} className="underline">
           {operation.publicationTitle}
         </Link>
       ),
       CategoryLink: (
-        <Link to={routes.category(siteId, operation.categoryId)} className="underline">
+        <Link to={routes.category(storeId, operation.categoryId)} className="underline">
           {operation.categoryTitle}
         </Link>
       ),
@@ -260,23 +260,23 @@ const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element =
   )
 }
 
-export const renderDescription = (siteId: string, option: ProposalOption): ReactNode => {
+export const renderDescription = (storeId: string, option: ProposalOption): ReactNode => {
   switch (option.operation.$type) {
     case "category-avatar-change":
-      return getCategoryAvatarChange(siteId, option.operation as CategoryAvatarChange)
+      return getCategoryAvatarChange(storeId, option.operation as CategoryAvatarChange)
     case "category-creation":
-      return getCategoryCreation(siteId, option.operation as CategoryCreation)
+      return getCategoryCreation(storeId, option.operation as CategoryCreation)
     case "category-deletion":
-      return getCategoryDeletion(siteId, option.operation as CategoryDeletion)
+      return getCategoryDeletion(storeId, option.operation as CategoryDeletion)
     case "category-movement":
-      return getCategoryMovement(siteId, option.operation as CategoryMovement)
+      return getCategoryMovement(storeId, option.operation as CategoryMovement)
     case "category-type-change":
-      return getCategoryTypeChange(siteId, option.operation as CategoryTypeChange)
+      return getCategoryTypeChange(storeId, option.operation as CategoryTypeChange)
 
     case "publication-publish":
-      return getPublicationPublish(siteId, option.operation as PublicationPublish)
+      return getPublicationPublish(storeId, option.operation as PublicationPublish)
     case "publication-unpublish":
-      return getPublicationUnpublish(siteId, option.operation as PublicationUnpublish)
+      return getPublicationUnpublish(storeId, option.operation as PublicationUnpublish)
 
     case "site-avatar-change":
       return getSiteAvatarChange(option.operation as SiteAvatarChange)

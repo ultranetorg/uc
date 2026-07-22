@@ -4,11 +4,11 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useSearchLiteSites = (query?: string) => {
-  const queryFn = async () => api.searchLiteSites(query)
+export const useSearchLiteStores = (query?: string) => {
+  const queryFn = async () => api.searchLiteStores(query)
 
   const { isPending, isFetching, error, data } = useQuery({
-    queryKey: ["sites", "search", query],
+    queryKey: ["stores", "search", query],
     queryFn: queryFn,
     enabled: !!query,
   })

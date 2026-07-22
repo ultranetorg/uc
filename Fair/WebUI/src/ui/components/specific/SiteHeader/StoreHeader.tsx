@@ -3,10 +3,10 @@ import { useMatch, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSiteContext, useSearchQueryContext, useSiteRolesContext, useUserContext } from "app"
+import { useStoreContext, useSearchQueryContext, useStoreRolesContext, useUserContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchLitePublications } from "entities"
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 import { routes } from "utils"
 
@@ -18,12 +18,12 @@ import { UserProfileButton } from "./UserProfileButton"
 import { toSimpleMenuItems } from "./utils"
 import { PublisherMembersDropdownButton } from "./PublisherMembersDropdownButton"
 
-export const SiteHeader = () => {
-  const siteId = useResolveSiteId()
+export const StoreHeader = () => {
+  const storeId = useResolveStoreId()
   const navigate = useNavigate()
-  const isSearchPage = useMatch("/:siteId/s")
-  const { site, rootCategories } = useSiteContext()
-  const { isModerator, isPublisher } = useSiteRolesContext()
+  const isSearchPage = useMatch("/:storeId/s")
+  const { store: site, rootCategories } = useStoreContext()
+  const { isModerator, isPublisher } = useStoreRolesContext()
   const { t } = useTranslation("site")
   const { user } = useUserContext()
 
@@ -31,13 +31,13 @@ export const SiteHeader = () => {
 
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
-    () => (rootCategories && siteId ? toSimpleMenuItems(rootCategories, siteId) : undefined),
-    [rootCategories, siteId],
+    () => (rootCategories && storeId ? toSimpleMenuItems(rootCategories, storeId) : undefined),
+    [rootCategories, storeId],
   )
 
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
-  const { data: publication, isFetching } = useSearchLitePublications(siteId, debouncedQuery, !!isSearchPage)
+  const { data: publication, isFetching } = useSearchLitePublications(storeId, debouncedQuery, !!isSearchPage)
   const items = useMemo(
     () => (!isSearchPage ? publication?.map(x => ({ value: x.id, label: x.title })) : undefined),
     [isSearchPage, publication],
@@ -46,10 +46,10 @@ export const SiteHeader = () => {
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
       if (item) {
-        navigate(routes.publication(siteId!, item.value))
+        navigate(routes.publication(storeId!, item.value))
       }
     },
-    [navigate, siteId],
+    [navigate, storeId],
   )
 
   const handleClearInputClick = useCallback(() => {
@@ -67,10 +67,10 @@ export const SiteHeader = () => {
     (e: KeyboardEvent) => {
       if (e.key === "Enter" && query) {
         setSiteQuery(query)
-        navigate(routes.search(siteId!))
+        navigate(routes.search(storeId!))
       }
     },
-    [query, navigate, siteId, setSiteQuery],
+    [query, navigate, storeId, setSiteQuery],
   )
 
   const handleSearchClick = useCallback(() => {
@@ -79,7 +79,7 @@ export const SiteHeader = () => {
     }
   }, [query, setSiteQuery])
 
-  if (!site || !siteId) {
+  if (!site || !storeId) {
     return null
   }
 
@@ -87,7 +87,7 @@ export const SiteHeader = () => {
     <div className="flex items-center justify-between gap-8 pb-8">
       <LogoDropdownButton
         t={t}
-        siteId={siteId}
+        siteId={storeId}
         title={site.title}
         imageFileId={site.imageFileId}
         publishersCount={site.authorsIds.length}
@@ -111,8 +111,8 @@ export const SiteHeader = () => {
       <div className="flex items-center gap-8">
         <GovernanceDropdownButton className="w-28" />
         {isModerator && <ModerationDropdownButton className="w-28" />}
-        {isPublisher && <PublisherMembersDropdownButton className="w-25" siteId={siteId} t={t} user={user!} />}
-        <UserProfileButton siteId={siteId} t={t} />
+        {isPublisher && <PublisherMembersDropdownButton className="w-25" siteId={storeId} t={t} user={user!} />}
+        <UserProfileButton siteId={storeId} t={t} />
       </div>
     </div>
   )

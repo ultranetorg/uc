@@ -5,10 +5,10 @@ import { LinkFullscreenState } from "ui/components"
 
 import { useParams } from "./useParams"
 
-export const useResolveSiteId = (): string | undefined => {
-  const { siteId, categoryId, publicationId } = useParams()
+export const useResolveStoreId = (): string | undefined => {
+  const { storeId, categoryId, publicationId } = useParams()
   const state = useLocation().state as LinkFullscreenState
   const { data: category } = useGetCategoryDetails(categoryId)
   const { data: publication } = useGetPublicationDetails(publicationId)
-  return siteId ?? category?.siteId ?? publication?.siteId ?? state?.siteId
+  return storeId ?? category?.siteId ?? publication?.siteId ?? state?.siteId
 }

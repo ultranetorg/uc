@@ -5,7 +5,7 @@ import { truncate } from "lodash"
 
 import { Moderator } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
-import { sitesKeys } from "entities"
+import { storesKeys } from "entities"
 import { renderUser } from "ui/renderers2"
 import { routes } from "utils"
 
@@ -33,7 +33,7 @@ export const moderatorsTabItemRenderer =
                 moderators: [moderator.user],
                 redirectAfterProposalCreation: routes.moderation.moderators(siteId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: sitesKeys.moderators(siteId),
+                invalidateQueryKeys: storesKeys.moderators(siteId),
               }}
             >
               <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />

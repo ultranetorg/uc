@@ -1,11 +1,11 @@
-import { useSiteContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useStoreContext } from "app"
+import { useStoreTitle } from "hooks"
 import { CreateProposalView } from "ui/views"
 
 export const CreateDiscussionPage = () => {
-  const { site } = useSiteContext()
+  const { store: site } = useStoreContext()
 
-  useSiteTitle(site?.title, "Create New Moderator Proposal")
+  useStoreTitle(site?.title, "Create New Moderator Proposal")
 
   return <CreateProposalView proposalType="discussion" />
 }

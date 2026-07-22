@@ -2,17 +2,17 @@ import { useQuery } from "@tanstack/react-query"
 
 import { getFairApi } from "api"
 
-import { sitesKeys } from "./sitesKeys"
+import { storesKeys } from "./storesKeys"
 
 const api = getFairApi()
 
-export const useGetSite = (siteId?: string) => {
-  const queryFn = () => api.getSite(siteId!)
+export const useGetStore = (storesId?: string) => {
+  const queryFn = () => api.getStore(storesId!)
 
   const { isPending, error, data } = useQuery({
-    queryKey: sitesKeys.detail(siteId!),
+    queryKey: storesKeys.detail(storesId!),
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storesId,
   })
 
   return { isPending, error: error ?? undefined, data }

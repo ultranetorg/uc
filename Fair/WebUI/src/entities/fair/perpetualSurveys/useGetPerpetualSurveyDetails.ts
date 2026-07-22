@@ -4,13 +4,13 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useGetPerpetualSurveyDetails = (siteId?: string, perpetualSurveyId?: string) => {
-  const queryFn = () => api.getAuthorPerpetualSurveyDetails(siteId!, perpetualSurveyId!)
+export const useGetPerpetualSurveyDetails = (storeId?: string, perpetualSurveyId?: string) => {
+  const queryFn = () => api.getAuthorPerpetualSurveyDetails(storeId!, perpetualSurveyId!)
 
   const { isFetching, isError, data, refetch } = useQuery({
-    queryKey: ["sites", siteId, "perpetual-surveys", perpetualSurveyId],
+    queryKey: ["stores", storeId, "perpetual-surveys", perpetualSurveyId],
     queryFn: queryFn,
-    enabled: !!siteId && perpetualSurveyId !== undefined,
+    enabled: !!storeId && perpetualSurveyId !== undefined,
   })
 
   return { isFetching, isError, data, refetch }

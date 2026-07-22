@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { TFunction } from "i18next"
 import { Link } from "react-router-dom"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import avatarFallback from "assets/fallback/author-30.png"
 import { AuthorDetails, PropsWithClassName } from "types"
 import { ExpandableText, ImageFallback } from "ui/components"
@@ -23,7 +23,7 @@ type AuthorProfileBaseProps = {
 export type AuthorProfileProps = PropsWithClassName & AuthorProfileBaseProps
 
 export const AuthorProfile = memo(({ t, className, size = "compact", author, showStoreInfo }: AuthorProfileProps) => {
-  const { site } = useSiteContext()
+  const { store: site } = useStoreContext()
 
   const isPublisher = isAuthorPublisher(site, author)
   const isModerator = isAuthorModerator(site, author)
@@ -48,7 +48,7 @@ export const AuthorProfile = memo(({ t, className, size = "compact", author, sho
         {site && showStoreInfo && (
           <>
             on{" "}
-            <Link to={routes.site(site.id)} className="underline">
+            <Link to={routes.store(site.id)} className="underline">
               {site.title} store
             </Link>
           </>

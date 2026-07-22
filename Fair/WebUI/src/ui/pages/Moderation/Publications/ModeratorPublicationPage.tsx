@@ -1,27 +1,27 @@
 import { useTranslation } from "react-i18next"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { useGetModeratorDiscussion } from "entities"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
 
 export const ModeratorPublicationPage = () => {
   const { proposalId } = useParams()
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
+  const storeId = useResolveStoreId()
+  const { store: site } = useStoreContext()
   const { t } = useTranslation()
 
-  const { isFetching, data: proposal } = useGetModeratorDiscussion(siteId, proposalId)
+  const { isFetching, data: proposal } = useGetModeratorDiscussion(storeId, proposalId)
 
-  useSiteTitle(site?.title, proposal?.title ? `Publication - ${proposal?.title}` : "Publication")
+  useStoreTitle(site?.title, proposal?.title ? `Publication - ${proposal?.title}` : "Publication")
 
   return (
     <ProposalView
-      parentBreadcrumbs={{ title: t("common:publications"), path: routes.moderation.publications(siteId!) }}
+      parentBreadcrumbs={{ title: t("common:publications"), path: routes.moderation.publications(storeId!) }}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={routes.moderation.publications(siteId!, "proposals")}
+      previousPath={routes.moderation.publications(storeId!, "proposals")}
     />
   )
 }

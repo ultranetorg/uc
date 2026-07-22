@@ -6,13 +6,13 @@ import { unpublishedPublicationsKeys } from "./unpublishedPublicationsKeys"
 
 const api = getFairApi()
 
-export const useGetUnpublishedPublication = (siteId?: string, publicationId?: string) => {
-  const queryFn = () => api.getUnpublishedPublication(siteId!, publicationId!)
+export const useGetUnpublishedPublication = (storeId?: string, publicationId?: string) => {
+  const queryFn = () => api.getUnpublishedPublication(storeId!, publicationId!)
 
   const { isLoading, isFetching, isError, data } = useQuery({
-    queryKey: unpublishedPublicationsKeys.detail(siteId!, publicationId!),
+    queryKey: unpublishedPublicationsKeys.detail(storeId!, publicationId!),
     queryFn: queryFn,
-    enabled: !!siteId && !!publicationId,
+    enabled: !!storeId && !!publicationId,
   })
 
   return { isLoading, isFetching, isError, data }

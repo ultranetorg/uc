@@ -3,21 +3,21 @@ import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber, startCase } from "lodash"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthorReferendums } from "entities"
-import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
+import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
 import { parseInteger, routes } from "utils"
 
 export const ReferendumsPage = () => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const { t } = useTranslation("referendumsPage")
-  const { site } = useSiteContext()
+  const { store: site } = useStoreContext()
 
-  useSiteTitle(site?.title, "Referendums")
+  useStoreTitle(site?.title, "Referendums")
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -32,7 +32,7 @@ export const ReferendumsPage = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: referendums } = useGetAuthorReferendums(siteId, page, DEFAULT_PAGE_SIZE_20, state.query)
+  const { data: referendums } = useGetAuthorReferendums(storeId, page, DEFAULT_PAGE_SIZE_20, state.query)
   const pagesCount =
     referendums?.totalItems && referendums.totalItems > 0 ? Math.ceil(referendums.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
@@ -45,8 +45,8 @@ export const ReferendumsPage = () => {
   )
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.governance.referendum(siteId!, id)),
-    [navigate, siteId],
+    (id: string) => navigate(routes.governance.referendum(storeId!, id)),
+    [navigate, storeId],
   )
 
   const handleSearchChange = useCallback(

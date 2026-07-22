@@ -6,13 +6,13 @@ import { usersKeys } from "./usersKeys"
 
 const api = getFairApi()
 
-export const useGetUserSiteExists = (userId?: string, siteId?: string) => {
-  const queryFn = () => api.getUserSiteExists(userId!, siteId!)
+export const useGetUserStoreExists = (userId?: string, storeId?: string) => {
+  const queryFn = () => api.getUserStoreExists(userId!, storeId!)
 
   const { isFetching, isError, data, refetch } = useQuery({
-    queryKey: usersKeys.site(userId!, siteId!),
+    queryKey: usersKeys.store(userId!, storeId!),
     queryFn: queryFn,
-    enabled: !!userId && !!siteId,
+    enabled: !!userId && !!storeId,
   })
 
   return { isFetching, isError, data, refetch }

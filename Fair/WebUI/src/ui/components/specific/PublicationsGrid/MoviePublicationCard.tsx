@@ -1,6 +1,6 @@
 import { memo } from "react"
 
-import { useSiteRolesContext } from "app"
+import { useStoreRolesContext } from "app"
 import { SvgStarXxs } from "assets"
 import { TEST_MOVIE_SRC } from "testConfig"
 import { ModeratorPublicationContextMenu } from "ui/components/specific"
@@ -9,7 +9,7 @@ import { formatRating } from "utils"
 import { PublicationCardProps } from "./types"
 
 export const MoviePublicationCard = memo(({ id, title, authorTitle, rating }: PublicationCardProps) => {
-  const { isModerator } = useSiteRolesContext()
+  const { isModerator } = useStoreRolesContext()
   const formattedRating = formatRating(rating)
 
   return (

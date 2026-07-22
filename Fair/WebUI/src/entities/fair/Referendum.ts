@@ -4,25 +4,25 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useGetAuthorReferendum = (siteId?: string, referendumId?: string) => {
-  const queryFn = () => api.getAuthorReferendum(siteId!, referendumId!)
+export const useGetAuthorReferendum = (storeId?: string, referendumId?: string) => {
+  const queryFn = () => api.getAuthorReferendum(storeId!, referendumId!)
 
   const { isFetching, error, data } = useQuery({
-    queryKey: ["author", "sites", siteId, "referendums", referendumId],
+    queryKey: ["author", "stores", storeId, "referendums", referendumId],
     queryFn: queryFn,
-    enabled: !!siteId && !!referendumId,
+    enabled: !!storeId && !!referendumId,
   })
 
   return { isFetching, error: error ?? undefined, data }
 }
 
-export const useGetAuthorReferendums = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
-  const queryFn = () => api.getAuthorReferendums(siteId!, page, pageSize, search)
+export const useGetAuthorReferendums = (storeId?: string, page?: number, pageSize?: number, search?: string) => {
+  const queryFn = () => api.getAuthorReferendums(storeId!, page, pageSize, search)
 
   const { isFetching, error, data } = useQuery({
-    queryKey: ["author", "sites", siteId, "referendums", { page, pageSize, search }],
+    queryKey: ["author", "stores", storeId, "referendums", { page, pageSize, search }],
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storeId,
   })
 
   return { isFetching, error: error ?? undefined, data }

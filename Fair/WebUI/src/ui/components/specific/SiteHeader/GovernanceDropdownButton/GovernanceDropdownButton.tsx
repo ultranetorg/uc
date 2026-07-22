@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { PropsWithClassName } from "types"
 
 import { HeaderDropdownButton } from "../HeaderDropdownButton"
@@ -9,10 +9,10 @@ import { HeaderDropdownButton } from "../HeaderDropdownButton"
 import { useGovernanceDropdownButtonMenuItems } from "./useGovernanceDropdownButtonMenuItems"
 
 export const GovernanceDropdownButton = ({ className }: PropsWithClassName) => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation()
 
-  const menuItems = useGovernanceDropdownButtonMenuItems(siteId!)
+  const menuItems = useGovernanceDropdownButtonMenuItems(storeId!)
 
   return (
     <HeaderDropdownButton

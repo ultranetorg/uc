@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { Link } from "react-router-dom"
 import { TFunction } from "i18next"
 
-import { useOperationPolicy, useSiteRolesContext, useUserContext } from "app"
+import { useOperationPolicy, useStoreRolesContext, useUserContext } from "app"
 import { useCreateProposal } from "hooks"
 import { routes, showToast } from "utils"
 
@@ -16,7 +16,7 @@ export type UserProfileButtonProps = {
 
 export const UserProfileButton = memo(({ siteId, t }: UserProfileButtonProps) => {
   const { creator } = useOperationPolicy("user-registration")
-  const { isJoined } = useSiteRolesContext()
+  const { isJoined } = useStoreRolesContext()
   const { user } = useUserContext()
 
   const { execute, isExecuting } = useCreateProposal(

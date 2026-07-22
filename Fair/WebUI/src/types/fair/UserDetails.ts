@@ -1,8 +1,8 @@
-import { SiteBase } from "./SiteBase"
+import { StoreBase } from "./StoreBase"
 import { User } from "./User"
 
 export type UserDetails = {
-  favoriteSites: SiteBase[]
+  favoriteSites: StoreBase[]
   authorsIds: string[]
   hasAvatar: boolean
 } & User

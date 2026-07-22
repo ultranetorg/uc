@@ -2,14 +2,14 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 
-import { useSitePoliciesContext } from "app"
-import { sitesKeys } from "entities"
+import { useStorePoliciesContext } from "app"
+import { storesKeys } from "entities"
 import { isModeratorVoting, routes } from "utils"
 import { SimpleMenuItem } from "ui/components/SimpleMenu"
 
 export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenuItem[] => {
   const location = useLocation()
-  const { policies } = useSitePoliciesContext()
+  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("storeDropdownMenu")
 
   const siteItems = useMemo(
@@ -26,7 +26,7 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(siteId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: sitesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(siteId),
               },
             },
           ]
@@ -43,7 +43,7 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(siteId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: sitesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(siteId),
               },
             },
           ]
@@ -60,7 +60,7 @@ export const useModerationDropdownButtonMenuItems = (siteId: string): SimpleMenu
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(siteId), title: t("common:proposals") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(siteId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: sitesKeys.detail(siteId),
+                invalidateQueryKeys: storesKeys.detail(siteId),
               },
             },
           ]
