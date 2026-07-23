@@ -4,12 +4,12 @@ import { useStoreContext } from "app"
 import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
 import { useResolveStoreId, useStoreTitle } from "hooks"
 import { BigCategoriesGrid } from "ui/components/store"
-import { CategoriesPublicationsList, ModeratorSiteMenu } from "ui/components/specific"
+import { CategoriesPublicationsList, ModeratorStoreMenu } from "ui/components/specific"
 import { NoContent } from "ui/components"
 
 export const StorePage = () => {
   const storeId = useResolveStoreId()
-  const { t } = useTranslation("site")
+  const { t } = useTranslation("storePage")
   const { isPending, store } = useStoreContext()
 
   useStoreTitle(store?.title ? `Store - ${store?.title}` : "Store")
@@ -25,7 +25,7 @@ export const StorePage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ModeratorSiteMenu className="self-end" />
+      <ModeratorStoreMenu className="self-end" />
       <div className="flex flex-col gap-6">
         {categories.length && categoriesPublications.length ? (
           <>

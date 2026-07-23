@@ -24,7 +24,7 @@ export type FieldNameType =
   | "moderators"
   | "name"
   | "parentCategoryId"
-  | "siteTitle"
+  | "storeTitle"
   | "slogan"
   | "status"
   | "type"

@@ -18,7 +18,7 @@ const routeToTabKey: Record<string, string> = {
 
 export const ModeratorsPage = () => {
   const navigate = useNavigate()
-  const { voterId } = useOperationPolicy("site-moderator-addition")
+  const { voterId } = useOperationPolicy("store-moderator-addition")
   const { tabKey } = useParams()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
@@ -53,7 +53,7 @@ export const ModeratorsPage = () => {
                 state={{
                   parentBreadcrumbs: [{ path: routes.moderation.moderators(storeId!), title: t("title") }],
                   title: t("addModerator"),
-                  type: "site-moderator-addition",
+                  type: "store-moderator-addition",
                   redirectAfterProposalCreation: routes.moderation.moderators(storeId!, "p"),
                   redirectAfterProposalExecution: location.pathname,
                   invalidateQueryKeys: storesKeys.publishers(storeId!),

@@ -16,7 +16,7 @@ export const ReviewsList = memo(({ reviews }: ReviewsListProps) => (
         id={x.id}
         text={x.text}
         rating={x.rating}
-        account={x.creatorAccount}
+        account={x.creatorUser}
         created={x.created}
         publication={{ id: x.publicationId, title: x.publicationTitle }}
       />

@@ -53,7 +53,7 @@ export const ReviewsList = memo(
               id={r.id}
               text={r.text}
               rating={r.rating}
-              account={r.creatorAccount}
+              account={r.creatorUser}
               created={r.created}
               contextMenu={contextMenu}
             />

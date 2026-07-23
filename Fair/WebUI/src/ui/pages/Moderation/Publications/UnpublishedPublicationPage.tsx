@@ -7,7 +7,7 @@ import { useOperationPolicy, useStoreContext } from "app"
 import { SvgEyeSm } from "assets"
 import { unpublishedPublicationsKeys, useGetUnpublishedPublication } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
-import { OperationClass } from "types"
+import { OperationType } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { routes } from "utils"
@@ -48,7 +48,7 @@ export const UnpublishedPublicationPage = () => {
                     title: publication.title
                       ? `Publish "${truncate(publication.title, { length: 46 })}" product`
                       : t("publishNoTitle"),
-                    type: "publication-publish" as OperationClass,
+                    type: "publication-publish" as OperationType,
                     publicationId: publication.id,
                     redirectAfterProposalCreation: routes.moderation.publications(storeId!, "proposals"),
                     redirectAfterProposalExecution: routes.moderation.publications(storeId!, "unpublished"),

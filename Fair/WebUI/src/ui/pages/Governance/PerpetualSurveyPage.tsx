@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useSignInContext, useStoreContext, useStoreRolesContext } from "app"
 import { storesKeys, useGetPerpetualSurveyDetails } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { OperationType, PerpetualVoting, SiteApprovalPolicyChange } from "types"
+import { OperationType, PerpetualVoting, StoreApprovalPolicyChange } from "types"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
@@ -29,16 +29,16 @@ export const PerpetualSurveyPage = () => {
 
   const { data: survey, isFetching, refetch } = useGetPerpetualSurveyDetails(storeId, perpetualSurveyId)
 
-  const operation = (survey?.options[0].operation as SiteApprovalPolicyChange)?.operation
+  const operation = (survey?.options[0].operation as StoreApprovalPolicyChange)?.operation
   const title = operation !== undefined ? t(`operations:${operation}`) : undefined
 
   useStoreTitle(store?.title, `Perpetual Survey - ${startCase(title)}`)
 
   const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({
-      "site-avatar-change": [storesKeys.policies(storeId!)],
-      "site-name-change": [storesKeys.policies(storeId!)],
-      "site-text-change": [storesKeys.policies(storeId!)],
+      "store-avatar-change": [storesKeys.policies(storeId!)],
+      "store-name-change": [storesKeys.policies(storeId!)],
+      "store-info-updation": [storesKeys.policies(storeId!)],
     }),
     [storeId],
   )
@@ -91,7 +91,7 @@ export const PerpetualSurveyPage = () => {
 
     setItems(prevItems => {
       return survey.options.map((x, i) => {
-        const operation = x.operation as SiteApprovalPolicyChange
+        const operation = x.operation as StoreApprovalPolicyChange
 
         const prevItem = prevItems?.find(item => item.value === i)
 

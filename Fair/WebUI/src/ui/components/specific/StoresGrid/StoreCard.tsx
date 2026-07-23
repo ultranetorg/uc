@@ -6,7 +6,7 @@ import { SvgStoreLogo } from "assets/fallback"
 import { buildFileUrl } from "utils"
 import { ImageFallback } from "ui/components/ImageFallback"
 
-export type SiteCardProps = {
+export type StoreCardProps = {
   title: string
   description?: string
   imageFileId?: string
@@ -14,7 +14,7 @@ export type SiteCardProps = {
   showStar?: boolean
 }
 
-export const SiteCard = memo(({ title, description, imageFileId, isStarred = false, showStar }: SiteCardProps) => (
+export const StoreCard = memo(({ title, description, imageFileId, isStarred = false, showStar }: StoreCardProps) => (
   <div
     className="group relative flex h-48.5 w-55 flex-col gap-4 rounded-lg bg-gray-100 px-2 py-6 hover:bg-gray-200"
     title={title}

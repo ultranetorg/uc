@@ -10,7 +10,7 @@ import { moderatorsTabItemRenderer } from "./moderatorsTabItemRenderer"
 
 export const ModeratorsTab = () => {
   const storeId = useResolveStoreId()
-  const { voterId } = useOperationPolicy("site-moderator-removal")
+  const { voterId } = useOperationPolicy("store-moderator-removal")
   const { t } = useTranslation("moderatorsPage")
 
   const { data: moderators } = useGetStoreModerators(storeId)

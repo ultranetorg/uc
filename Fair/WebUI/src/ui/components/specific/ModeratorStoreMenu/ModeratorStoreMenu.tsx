@@ -12,7 +12,7 @@ import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
 import { routes } from "utils"
 
-export const ModeratorSiteMenu = memo(({ className }: PropsWithClassName) => {
+export const ModeratorStoreMenu = memo(({ className }: PropsWithClassName) => {
   const location = useLocation()
   const { isModerator } = useStoreRolesContext()
   const storeId = useResolveStoreId()

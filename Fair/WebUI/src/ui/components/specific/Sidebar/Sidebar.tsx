@@ -5,15 +5,15 @@ import { twMerge } from "tailwind-merge"
 
 import { useStoreContext, useUserContext } from "app"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { FavoriteSiteChange, PropsWithClassName, StoreBase } from "types"
+import { FavoriteStoreChange, PropsWithClassName, StoreBase } from "types"
 import { StoresList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"
 import { routes, showToast } from "utils"
 
-import { AllSitesButton } from "./components"
+import { AllStoresButton } from "./components"
 
 export const Sidebar = memo(({ className }: PropsWithClassName) => {
-  const { t } = useTranslation("sites")
+  const { t } = useTranslation("storesPage")
 
   const { store } = useStoreContext()
   const { user, refetch } = useUserContext()
@@ -29,12 +29,12 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
 
       setDisabledIds(prev => [...prev, id])
 
-      const operation = new FavoriteSiteChange(id, action)
+      const operation = new FavoriteStoreChange(id, action)
       mutate(operation, {
         onSuccess: () => {
           const message = action
-            ? t("toast:favoriteAdded", { site: title })
-            : t("toast:favoriteRemoved", { site: title })
+            ? t("toast:favoriteAdded", { store: title })
+            : t("toast:favoriteRemoved", { store: title })
           showToast(message, "success")
         },
         onError: err => {
@@ -58,22 +58,22 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
     <div className={twMerge("flex w-65 min-w-65 flex-col gap-6 p-2", className)}>
       <div className="flex grow flex-col gap-8 p-2">
         <Link to={routes.home()}>
-          <AllSitesButton title={t("allSites")} />
+          <AllStoresButton title={t("allStores")} />
         </Link>
         {store && (
           <StoresList
             disabledFavorite={(!user || user?.favoriteStores?.some(s => s.id === store.id)) ?? false}
-            title={t("currentSite")}
+            title={t("currentStore")}
             items={[store]}
-            emptyStateMessage={t("emptySitesList")}
+            emptyStateMessage={t("emptyStoresList")}
             onFavoriteClick={handleFavoriteAdd}
             disabledIds={disabledIds}
           />
         )}
         <StoresList
-          title={t("starredSites")}
+          title={t("starredStores")}
           items={user?.favoriteStores}
-          emptyStateMessage={t("emptySitesList")}
+          emptyStateMessage={t("emptyStoresList")}
           onFavoriteClick={handleFavoriteRemove}
           isStarred={true}
           disabledIds={disabledIds}

@@ -1,13 +1,13 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import { PerpetualSurvey, Policy, SiteApprovalPolicyChange } from "types"
+import { PerpetualSurvey, Policy, StoreApprovalPolicyChange } from "types"
 import { TableColumn, TableItem } from "ui/components/Table"
 import { formatPercents } from "utils"
 
-const getOperation = (survey: PerpetualSurvey, index: number): SiteApprovalPolicyChange | undefined =>
+const getOperation = (survey: PerpetualSurvey, index: number): StoreApprovalPolicyChange | undefined =>
   survey?.options && survey.options.length > 0 && index < survey.options.length
-    ? (survey.options[index].operation as SiteApprovalPolicyChange)
+    ? (survey.options[index].operation as StoreApprovalPolicyChange)
     : undefined
 
 const getVotedApproval = (t: TFunction, survey: PerpetualSurvey, policies?: Policy[]): string => {

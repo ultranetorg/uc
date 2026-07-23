@@ -12,17 +12,17 @@ export const useModerationDropdownButtonMenuItems = (storeId: string): SimpleMen
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("storeDropdownMenu")
 
-  const siteItems = useMemo(
+  const storeItems = useMemo(
     () => [
-      ...(isModeratorVoting("site-avatar-change", policies)
+      ...(isModeratorVoting("store-avatar-change", policies)
         ? [
             {
               label: t("avatarChange"),
               to: routes.moderation.createProposal(storeId),
               state: {
-                title: `Change site avatar`,
-                type: "site-avatar-change",
-                siteId: storeId,
+                title: `Change store avatar`,
+                type: "store-avatar-change",
+                storeId: storeId,
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(storeId),
                 redirectAfterProposalExecution: location.pathname,
@@ -31,15 +31,15 @@ export const useModerationDropdownButtonMenuItems = (storeId: string): SimpleMen
             },
           ]
         : []),
-      ...(isModeratorVoting("site-name-change", policies)
+      ...(isModeratorVoting("store-name-change", policies)
         ? [
             {
               label: t("nameChange"),
               to: routes.moderation.createProposal(storeId),
               state: {
-                title: `Change site name`,
-                type: "site-name-change",
-                siteId: storeId,
+                title: `Change store name`,
+                type: "store-name-change",
+                storeId: storeId,
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(storeId),
                 redirectAfterProposalExecution: location.pathname,
@@ -48,15 +48,15 @@ export const useModerationDropdownButtonMenuItems = (storeId: string): SimpleMen
             },
           ]
         : []),
-      ...(isModeratorVoting("site-text-change", policies)
+      ...(isModeratorVoting("store-info-updation", policies)
         ? [
             {
               label: t("textChange"),
               to: routes.moderation.createProposal(storeId),
               state: {
-                title: `Change site text`,
-                type: "site-text-change",
-                siteId: storeId,
+                title: `Update store information`,
+                type: "store-info-updation",
+                storeId: storeId,
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(storeId),
                 redirectAfterProposalExecution: location.pathname,
@@ -77,9 +77,9 @@ export const useModerationDropdownButtonMenuItems = (storeId: string): SimpleMen
       { label: t("common:publishers"), to: routes.moderation.publishers(storeId) },
       { label: t("common:reviews"), to: routes.moderation.reviews(storeId) },
       { label: t("common:users"), to: routes.moderation.users(storeId) },
-      ...(siteItems.length > 0 ? [{ separator: true }, ...siteItems] : []),
+      ...(storeItems.length > 0 ? [{ separator: true }, ...storeItems] : []),
     ],
-    [storeId, siteItems, t],
+    [storeId, storeItems, t],
   )
 
   return menuItems

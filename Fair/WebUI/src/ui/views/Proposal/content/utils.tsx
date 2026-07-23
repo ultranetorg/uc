@@ -13,12 +13,12 @@ import {
   ProposalOption,
   PublicationPublish,
   PublicationUnpublish,
-  SiteAuthorsRemoval,
-  SiteAvatarChange,
-  SiteModeratorAddition,
-  SiteModeratorRemoval,
-  SiteNameChange,
-  SiteTextChange,
+  StoreAuthorsRemoval,
+  StoreAvatarChange,
+  StoreModeratorAddition,
+  StoreModeratorRemoval,
+  StoreNameChange,
+  StoreInfoUpdation,
 } from "types"
 import { AccountsList } from "ui/components"
 import { MembersList } from "ui/components/MembersList"
@@ -178,26 +178,26 @@ const getPublicationUnpublish = (storeId: string, operation: PublicationPublish)
   />
 )
 
-const getSiteAvatarChange = (operation: SiteAvatarChange): JSX.Element => (
+const getStoreAvatarChange = (operation: StoreAvatarChange): JSX.Element => (
   <>
     <Trans ns="proposalView" i18nKey={operation.$type} parent={"p"} />
     <img src={buildFileUrl(operation.fileId)} loading="lazy" className="size-35 rounded" />
   </>
 )
 
-const getSiteNameChange = (operation: SiteNameChange): JSX.Element =>
-  operation.siteName ? (
+const getStoreNameChange = (operation: StoreNameChange): JSX.Element =>
+  operation.storeName ? (
     <Trans
       ns="proposalView"
       i18nKey={operation.$type}
-      values={{ name: operation.name, siteName: operation.siteName }}
+      values={{ name: operation.name, storeName: operation.storeName }}
       parent={"p"}
     />
   ) : (
     <Trans ns="proposalView" i18nKey={`${operation.$type}_empty`} values={{ name: operation.name }} parent={"p"} />
   )
 
-const getSiteTextChange = (operation: SiteTextChange): JSX.Element => (
+const getStoreInfoUpdation = (operation: StoreInfoUpdation): JSX.Element => (
   <Trans
     ns="proposalView"
     i18nKey={`${operation.$type}`}
@@ -206,7 +206,7 @@ const getSiteTextChange = (operation: SiteTextChange): JSX.Element => (
   />
 )
 
-const getSiteAuthorsRemoval = (operation: SiteAuthorsRemoval): JSX.Element => {
+const getStoreAuthorsRemoval = (operation: StoreAuthorsRemoval): JSX.Element => {
   return (
     <div className="flex flex-col gap-2">
       <Trans
@@ -224,7 +224,7 @@ const getSiteAuthorsRemoval = (operation: SiteAuthorsRemoval): JSX.Element => {
   )
 }
 
-const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element => {
+const getStoreModeratorAddition = (operation: StoreModeratorAddition): JSX.Element => {
   return (
     <div className="flex flex-col gap-2">
       <Trans
@@ -242,7 +242,7 @@ const getSiteModeratorAddition = (operation: SiteModeratorAddition): JSX.Element
   )
 }
 
-const getSiteModeratorRemoval = (operation: SiteModeratorRemoval): JSX.Element => {
+const getStoreModeratorRemoval = (operation: StoreModeratorRemoval): JSX.Element => {
   return (
     <div className="flex flex-col gap-2">
       <Trans ns="proposalView" i18nKey={`${operation.$type}`} parent={"p"} className="text-2sm leading-5" />
@@ -278,19 +278,19 @@ export const renderDescription = (storeId: string, option: ProposalOption): Reac
     case "publication-unpublish":
       return getPublicationUnpublish(storeId, option.operation as PublicationUnpublish)
 
-    case "site-avatar-change":
-      return getSiteAvatarChange(option.operation as SiteAvatarChange)
-    case "site-name-change":
-      return getSiteNameChange(option.operation as SiteNameChange)
-    case "site-text-change":
-      return getSiteTextChange(option.operation as SiteTextChange)
+    case "store-avatar-change":
+      return getStoreAvatarChange(option.operation as StoreAvatarChange)
+    case "store-name-change":
+      return getStoreNameChange(option.operation as StoreNameChange)
+    case "store-info-updation":
+      return getStoreInfoUpdation(option.operation as StoreInfoUpdation)
 
-    case "site-authors-removal":
-      return getSiteAuthorsRemoval(option.operation as SiteAuthorsRemoval)
-    case "site-moderator-addition":
-      return getSiteModeratorAddition(option.operation as SiteModeratorAddition)
-    case "site-moderator-removal":
-      return getSiteModeratorRemoval(option.operation as SiteModeratorRemoval)
+    case "store-authors-removal":
+      return getStoreAuthorsRemoval(option.operation as StoreAuthorsRemoval)
+    case "store-moderator-addition":
+      return getStoreModeratorAddition(option.operation as StoreModeratorAddition)
+    case "store-moderator-removal":
+      return getStoreModeratorRemoval(option.operation as StoreModeratorRemoval)
   }
 
   return null

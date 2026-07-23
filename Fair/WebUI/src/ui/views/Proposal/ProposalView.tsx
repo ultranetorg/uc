@@ -68,12 +68,12 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
 
   const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({
-      "site-moderator-removal": [storesKeys.moderators(storeId!), proposalsKeys.moderators(storeId!)],
-      "site-authors-removal": [storesKeys.publishers(storeId!), proposalsKeys.publishers(storeId!)],
+      "store-moderator-removal": [storesKeys.moderators(storeId!), proposalsKeys.moderators(storeId!)],
+      "store-authors-removal": [storesKeys.publishers(storeId!), proposalsKeys.publishers(storeId!)],
 
-      "site-avatar-change": [storesKeys.detail(storeId!)],
-      "site-name-change": [storesKeys.detail(storeId!)],
-      "site-text-change": [storesKeys.detail(storeId!)],
+      "store-avatar-change": [storesKeys.detail(storeId!)],
+      "store-name-change": [storesKeys.detail(storeId!)],
+      "store-info-updation": [storesKeys.detail(storeId!)],
 
       "category-creation": [categoriesKeys.all(storeId!)],
       "publication-deletion": [publicationsKeys.categoriesPublications(storeId!)],

@@ -27,7 +27,7 @@ export type CreateProposalDataOption = {
   moderators?: AccountBase[]
   name?: string
   parentCategoryId?: string
-  siteTitle?: string
+  storeTitle?: string
   slogan?: string
   type?: ProductType
 }

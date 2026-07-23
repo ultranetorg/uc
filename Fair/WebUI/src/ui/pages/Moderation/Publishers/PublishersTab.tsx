@@ -15,7 +15,7 @@ import { getPublishersTabItemRenderer } from "./publishersTabItemRenderer"
 
 export const PublishersTab = () => {
   const storeId = useResolveStoreId()
-  const { voterId } = useOperationPolicy("site-authors-removal")
+  const { voterId } = useOperationPolicy("store-authors-removal")
   const { t } = useTranslation("publishersPage")
 
   const [state, setState] = useUrlParamsState({

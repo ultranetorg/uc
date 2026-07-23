@@ -29,7 +29,7 @@ export const moderatorsTabItemRenderer =
               state={{
                 parentBreadcrumbs: [{ path: routes.moderation.moderators(storeId), title: t("title") }],
                 title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,
-                type: "site-moderator-removal",
+                type: "store-moderator-removal",
                 moderators: [moderator.user],
                 redirectAfterProposalCreation: routes.moderation.moderators(storeId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,

@@ -2,7 +2,7 @@ import { AccountBaseAvatar } from "./AccountBaseAvatar"
 
 export type CommentBase = {
   id: string
-  creatorAccount: AccountBaseAvatar
+  creatorUser: AccountBaseAvatar
   text: string
   created: number
   rating?: number

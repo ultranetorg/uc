@@ -32,7 +32,7 @@ export const getPublishersTabItemRenderer =
                 parentBreadcrumbs: [{ path: routes.moderation.publishers(storeId), title: t("common:proposals") }],
                 previousPath: pathname,
                 title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
-                type: "site-authors-removal",
+                type: "store-authors-removal",
                 authors: [publisher.author],
                 redirectAfterProposalCreation: routes.moderation.publishers(storeId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,

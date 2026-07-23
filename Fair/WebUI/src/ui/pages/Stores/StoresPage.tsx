@@ -9,13 +9,13 @@ import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "config"
 import { useGetDefaultStores, useSearchLiteStores, useSearchStores } from "entities"
 import { useStoreTitle, useUrlParamsState } from "hooks"
 import { Pagination, SearchDropdown, SearchDropdownItem } from "ui/components"
-import { SitesGrid, SitesGridEmpty } from "ui/components/specific"
+import { StoresGrid, StoresGridEmpty } from "ui/components/specific"
 import { parseInteger, routes } from "utils"
 
 import { PageHeader } from "./PageHeader"
 
 export const StoresPage = () => {
-  const { t } = useTranslation("sites")
+  const { t } = useTranslation("storesPage")
   const navigate = useNavigate()
   const { user } = useUserContext()
 
@@ -39,14 +39,14 @@ export const StoresPage = () => {
   const [liteQuery, setLiteQuery] = useState("")
   const [debouncedLiteQuery] = useDebounceValue(liteQuery, SEARCH_DELAY)
 
-  const { data: defaultSites, isFetching: isDefaultSitesFetching } = useGetDefaultStores(!query)
-  const { data: liteSites, isFetching: isLiteFetching } = useSearchLiteStores(debouncedLiteQuery)
-  const liteItems = useMemo(() => liteSites?.map(x => ({ value: x.id, label: x.title })), [liteSites])
-  const { isFetching, data: sites } = useSearchStores(query, page)
-  const pagesCount = sites?.totalItems && sites.totalItems > 0 ? Math.ceil(sites.totalItems / DEFAULT_PAGE_SIZE) : 0
+  const { data: defaultStores, isFetching: isDefaultStoresFetching } = useGetDefaultStores(!query)
+  const { data: liteStores, isFetching: isLiteFetching } = useSearchLiteStores(debouncedLiteQuery)
+  const liteItems = useMemo(() => liteStores?.map(x => ({ value: x.id, label: x.title })), [liteStores])
+  const { isFetching, data: stores } = useSearchStores(query, page)
+  const pagesCount = stores?.totalItems && stores.totalItems > 0 ? Math.ceil(stores.totalItems / DEFAULT_PAGE_SIZE) : 0
 
-  const isDefaultFetching = !query && (!defaultSites || isDefaultSitesFetching)
-  const isSitesFetching = query && (!sites || isFetching)
+  const isDefaultFetching = !query && (!defaultStores || isDefaultStoresFetching)
+  const isStoresFetching = query && (!stores || isFetching)
 
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
@@ -90,7 +90,7 @@ export const StoresPage = () => {
     [query, setState],
   )
 
-  if (isDefaultFetching || isSitesFetching) {
+  if (isDefaultFetching || isStoresFetching) {
     return <div>Loading</div>
   }
 
@@ -112,13 +112,13 @@ export const StoresPage = () => {
           onSearchClick={handleSearchClick}
         />
       </div>
-      {(sites && sites!.items.length > 0) || (defaultSites && defaultSites!.length > 0) ? (
+      {(stores && stores!.items.length > 0) || (defaultStores && defaultStores!.length > 0) ? (
         <>
-          <SitesGrid items={(sites?.items ?? defaultSites)!} showStar={!!user} />
-          {sites && <Pagination page={page} pagesCount={pagesCount} onPageChange={handlePageChange} />}
+          <StoresGrid items={(stores?.items ?? defaultStores)!} showStar={!!user} />
+          {stores && <Pagination page={page} pagesCount={pagesCount} onPageChange={handlePageChange} />}
         </>
       ) : (
-        <SitesGridEmpty message={t("noResults")} />
+        <StoresGridEmpty message={t("noResults")} />
       )}
     </div>
   )

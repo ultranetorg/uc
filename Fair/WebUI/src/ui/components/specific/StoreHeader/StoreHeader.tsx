@@ -24,10 +24,10 @@ export const StoreHeader = () => {
   const isSearchPage = useMatch("/:storeId/s")
   const { store, rootCategories } = useStoreContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
-  const { t } = useTranslation("site")
+  const { t } = useTranslation("storePage")
   const { user } = useUserContext()
 
-  const { setQuery: setSiteQuery } = useSearchQueryContext()
+  const { setQuery: setStoreQuery } = useSearchQueryContext()
 
   const [query, setQuery] = useState("")
   const categoriesItems = useMemo(
@@ -66,18 +66,18 @@ export const StoreHeader = () => {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Enter" && query) {
-        setSiteQuery(query)
+        setStoreQuery(query)
         navigate(routes.search(storeId!))
       }
     },
-    [query, navigate, storeId, setSiteQuery],
+    [query, navigate, storeId, setStoreQuery],
   )
 
   const handleSearchClick = useCallback(() => {
     if (query) {
-      setSiteQuery(query)
+      setStoreQuery(query)
     }
-  }, [query, setSiteQuery])
+  }, [query, setStoreQuery])
 
   if (!store || !storeId) {
     return null

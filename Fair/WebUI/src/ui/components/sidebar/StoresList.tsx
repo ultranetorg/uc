@@ -6,7 +6,7 @@ import { routes } from "utils"
 
 import { Store } from "./Store"
 import { StoreSkeleton } from "./StoreSkeleton"
-import { SitesListEmptyState } from "./SitesListEmptyState"
+import { StoresListEmptyState } from "./StoresListEmptyState"
 
 export type StoresListProps = {
   disabledFavorite?: boolean
@@ -50,7 +50,7 @@ export const StoresList = memo(
             {showPending && <StoreSkeleton />}
           </>
         ) : (
-          <SitesListEmptyState message={emptyStateMessage} />
+          <StoresListEmptyState message={emptyStateMessage} />
         )}
       </div>
     ),
