@@ -45,7 +45,6 @@ import {
   UserAuthors,
   UserBase,
   UserDetails,
-  UserSearchLite,
   UserUnregistrationProposal,
 } from "types"
 
@@ -99,8 +98,8 @@ const searchStoreUsers = (storeId: string, query?: string, limit?: number): Prom
     res.json(),
   )
 
-const searchAccounts = (query?: string, limit?: number): Promise<UserBase[]> =>
-  fetch(`${BASE_URL}/accounts?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
+const searchUsers = (query?: string, limit?: number): Promise<UserBase[]> =>
+  fetch(`${BASE_URL}/users?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
 
 const searchAuthors = (query?: string, limit?: number): Promise<AuthorBaseAvatar[]> =>
   fetch(`${BASE_URL}/authors?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
@@ -122,9 +121,6 @@ const searchPublications = async (storeId: string, query?: string, page?: number
 
 const searchLitePublication = (storeId: string, query?: string): Promise<PublicationBase[]> =>
   fetch(`${BASE_URL}/stores/${storeId}/publications/search?query=${query}`).then(res => res.json())
-
-const searchLiteAccounts = (query?: string): Promise<UserSearchLite[]> =>
-  fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
 
 const searchLiteProducts = (query: string): Promise<ProductSearchResultBase[]> =>
   fetch(`${BASE_URL}/products/search?query=${query}`).then(res => res.json())
@@ -491,10 +487,9 @@ const api: FairApi = {
   searchLitePublication,
   searchLiteStores,
   searchPublications,
-  searchAccounts,
+  searchUsers,
   searchAuthors,
   searchStores,
-  searchLiteAccounts,
   searchLiteProducts,
   searchProducts,
 

@@ -4,7 +4,7 @@ import { useDebounceValue } from "usehooks-ts"
 
 import { useStoreContext } from "app"
 import { SEARCH_DELAY } from "config"
-import { useSearchAccounts } from "entities"
+import { useSearchUsers } from "entities"
 import { UserBase } from "types"
 import { DropdownItem } from "ui/components/proposal/DropdownSearchMember"
 
@@ -23,7 +23,7 @@ export const AddModeratorPanelList = memo(
     const [search, setSearch] = useState("")
     const [debouncedSearch] = useDebounceValue(search, SEARCH_DELAY)
 
-    const { data: users = [] } = useSearchAccounts(debouncedSearch)
+    const { data: users = [] } = useSearchUsers(debouncedSearch)
 
     const dropdownSearchItems = useMemo<DropdownItem[]>(
       () =>

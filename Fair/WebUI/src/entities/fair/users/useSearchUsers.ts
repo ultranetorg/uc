@@ -4,11 +4,11 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useSearchAccounts = (query?: string, limit?: number) => {
-  const queryFn = async () => api.searchAccounts(query, limit)
+export const useSearchUsers = (query?: string, limit?: number) => {
+  const queryFn = async () => api.searchUsers(query, limit)
 
   const { isPending, isFetching, error, data } = useQuery({
-    queryKey: ["accounts", { query, limit }],
+    queryKey: ["users", { query, limit }],
     queryFn: queryFn,
     enabled: !!query,
   })

@@ -246,40 +246,4 @@ public class SearchService
 
 		return McvUtils.LoadAuthors(mcv, authorsIds, cancellationToken);
 	}
-
-	public IEnumerable<UserSearchLiteModel> SearchLiteUsers(string query, int limit, CancellationToken cancellationToken)
-	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchLiteUsers), query, limit);
-
-		if(cancellationToken.IsCancellationRequested)
-			return [];
-
-		Guard.Against.NullOrEmpty(query);
-
-		string lowercase = query.ToLower();
-
-		IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
-
-		var result = new List<UserSearchLiteModel>(limit);
-		return LoadUsers(searchResult, result, cancellationToken);
-	}
-
-	IList<UserSearchLiteModel> LoadUsers(IEnumerable<AutoId> accounts, IList<UserSearchLiteModel> result, CancellationToken cancellationToken)
-	{
-		foreach(AutoId accountId in accounts)
-		{
-			if(cancellationToken.IsCancellationRequested)
-				break;
-
-			FairUser account = (FairUser)mcv.Users.Latest(accountId);
-			UserSearchLiteModel model = new UserSearchLiteModel
-			{
-				Id = account.Id.ToString(),
-				Nickname = account.Name
-			};
-			result.Add(model);
-		}
-
-		return result;
-	}
 }

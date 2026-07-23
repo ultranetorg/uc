@@ -6,11 +6,14 @@ namespace Uccs.Fair;
 public class UsersController
 (
 	ILogger<UsersController> logger,
-	UserNameValidator userNameValidator,
 	AutoIdValidator autoIdValidator,
 	PaginationValidator paginationValidator,
-	UsersService usersService,
-	ReviewsService reviewsService
+	SearchQueryValidator searchQueryValidator,
+	UserNameValidator userNameValidator,
+	LimitValidator limitValidator,
+	ReviewsService reviewsService,
+	SearchService searchService,
+	UsersService usersService
 ) : BaseController
 {
 	[HttpGet("{name}")]
@@ -86,5 +89,16 @@ public class UsersController
 		userNameValidator.Validate(name);
 
 		return usersService.GetAvatarByName(name);
+	}
+
+	[HttpGet]
+	public IEnumerable<UserBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(UsersController), nameof(Search), query, limit);
+
+		searchQueryValidator.Validate(query);
+		limitValidator.Validate(limit);
+
+		return searchService.SearchUser(query, limit ?? SearchConstants.SearchUsersLimit, cancellationToken);
 	}
 }
