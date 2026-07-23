@@ -2,7 +2,7 @@
 
 public class UserDetailsModel : UserModel
 {
-	public IEnumerable<SiteBaseModel> FavoriteSites { get; init; }
+	public IEnumerable<StoreBaseModel> FavoriteStores { get; init; }
 
 	public IEnumerable<string> AuthorsIds { get; init; }
 

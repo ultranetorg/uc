@@ -1,13 +1,13 @@
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useSiteTitle } from "hooks"
+import { useStoreTitle } from "hooks"
 import { ButtonPrimary, ErrorInfo } from "ui/components"
 
 export const UnknownErrorPage = () => {
   const { t } = useTranslation("error")
 
-  useSiteTitle("Error - Something Went Wrong")
+  useStoreTitle("Error - Something Went Wrong")
 
   const handleClick = useCallback(() => window.location.reload(), [])
 

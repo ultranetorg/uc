@@ -3,7 +3,7 @@ import { ProductDetails, PublicationDetails, Review, TotalItemsResult } from "ty
 
 export type ContentProps = {
   t: TFunction
-  siteId: string
+  storeId: string
   productOrPublication: ProductDetails | PublicationDetails
   isPending: boolean
   isPendingReviews?: boolean

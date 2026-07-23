@@ -1,7 +1,7 @@
 import { memo, PropsWithChildren } from "react"
 
 import { FullscreenPageView } from "ui/views"
-import { BaseLayout, SiteLayout } from "ui/layouts"
+import { BaseLayout, StoreLayout } from "ui/layouts"
 import { ConstrainedWidthLayout } from "ui/layouts/moderation"
 
 type MaybeFullscreenBaseProps = {
@@ -15,9 +15,9 @@ export const MaybeFullscreen = memo(({ children, showFullscreen }: MaybeFullscre
     <FullscreenPageView>{children}</FullscreenPageView>
   ) : (
     <BaseLayout>
-      <SiteLayout>
+      <StoreLayout>
         <ConstrainedWidthLayout>{children}</ConstrainedWidthLayout>
-      </SiteLayout>
+      </StoreLayout>
     </BaseLayout>
   ),
 )

@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { useSiteRolesContext } from "app"
+import { useStoreRolesContext } from "app"
 import { SvgStarXxs } from "assets"
 import { SvgSoftwareLogo } from "assets/fallback"
 import { ModeratorPublicationContextMenu } from "ui/components/specific"
@@ -12,7 +12,7 @@ import { PublicationCardProps } from "./types"
 
 export const SoftwarePublicationCard = memo(
   ({ id, title, logoFileId, authorTitle, categoryTitle, rating }: PublicationCardProps) => {
-    const { isModerator } = useSiteRolesContext()
+    const { isModerator } = useStoreRolesContext()
     const formattedRating = formatRating(rating)
 
     return (

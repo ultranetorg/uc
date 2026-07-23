@@ -3,12 +3,12 @@
 
 ### Test 1
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/67329-0
 Accept: application/json
 
 ### Test 2
 
-GET {{Uccs.Fair.WebApi_HostAddress}}/api/sites/67329-0/categories
+GET {{Uccs.Fair.WebApi_HostAddress}}/api/stores/67329-0/categories
 Accept: application/json
 
 ### Test 3

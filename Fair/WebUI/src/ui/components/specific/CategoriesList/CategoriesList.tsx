@@ -10,11 +10,11 @@ import { MoreDropdownButton } from "./MoreDropdownButton"
 import { getVisibleItemsCount } from "./utils"
 
 export type CategoriesListProps = {
-  siteId: string
+  storeId: string
   categories: CategoryBase[]
 }
 
-export const CategoriesList = memo(({ siteId, categories }: CategoriesListProps) => {
+export const CategoriesList = memo(({ storeId, categories }: CategoriesListProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const [visibleCount, setVisibleCount] = useState(categories.length)
@@ -42,7 +42,7 @@ export const CategoriesList = memo(({ siteId, categories }: CategoriesListProps)
           {categories.map((x, i) => (
             <Link
               key={x.id}
-              to={routes.category(siteId, x.id)}
+              to={routes.category(storeId, x.id)}
               ref={el => (itemRefs.current[i] = el)}
               className={twMerge(i >= visibleCount && "invisible")}
             >
@@ -53,7 +53,7 @@ export const CategoriesList = memo(({ siteId, categories }: CategoriesListProps)
           <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent"></div>
         </>
       </div>
-      {hiddenCategories.length > 0 && <MoreDropdownButton siteId={siteId} items={hiddenCategories} />}
+      {hiddenCategories.length > 0 && <MoreDropdownButton storeId={storeId} items={hiddenCategories} />}
     </div>
   )
 })

@@ -1,5 +1,5 @@
 export const ENTITY_PREFIXES = {
-  siteId: "site",
+  storeId: "store",
   categoryId: "category",
   publicationId: "publication",
   publisherId: "publisher",
@@ -16,56 +16,58 @@ export const addPrefix = (key: EntityParam, value: string): string =>
 export const stripPrefix = (key: EntityParam, value: string | undefined): string | undefined =>
   value?.startsWith(ENTITY_PREFIXES[key]) ? value.slice(ENTITY_PREFIXES[key].length) : value
 
-const sitePath = (siteId: string): string => `/${addPrefix("siteId", siteId)}`
+const storePath = (storeId: string): string => `/${addPrefix("storeId", storeId)}`
 
 const withTab = (base: string, tabKey?: string): string => (tabKey ? `${base}/${tabKey}` : base)
 
 export const routes = {
   home: () => "/",
-  site: (siteId: string) => sitePath(siteId),
-  category: (_siteId: string, categoryId: string) => `/${addPrefix("categoryId", categoryId)}`,
-  publication: (_siteId: string, publicationId: string) => `/${addPrefix("publicationId", publicationId)}`,
-  search: (siteId: string) => `${sitePath(siteId)}/search`,
-  about: (siteId: string) => `${sitePath(siteId)}/about`,
-  reviewer: (siteId: string, reviewerId: string) => `${sitePath(siteId)}/${addPrefix("userId", reviewerId)}`,
-  publisher: (siteId: string, publisherId: string) => `${sitePath(siteId)}/${addPrefix("publisherId", publisherId)}`,
+  store: (storeId: string) => storePath(storeId),
+  category: (_storeId: string, categoryId: string) => `/${addPrefix("categoryId", categoryId)}`,
+  publication: (_storeId: string, publicationId: string) => `/${addPrefix("publicationId", publicationId)}`,
+  search: (storeId: string) => `${storePath(storeId)}/search`,
+  about: (storeId: string) => `${storePath(storeId)}/about`,
+  reviewer: (storeId: string, reviewerId: string) => `${storePath(storeId)}/${addPrefix("userId", reviewerId)}`,
+  publisher: (storeId: string, publisherId: string) => `${storePath(storeId)}/${addPrefix("publisherId", publisherId)}`,
 
   author: (authorId: string) => `/${addPrefix("authorId", authorId)}`,
 
   governance: {
-    surveys: (siteId: string) => `${sitePath(siteId)}/surveys`,
-    survey: (siteId: string, surveyId: string) => `${sitePath(siteId)}/surveys/${surveyId}`,
+    surveys: (storeId: string) => `${storePath(storeId)}/surveys`,
+    survey: (storeId: string, surveyId: string) => `${storePath(storeId)}/surveys/${surveyId}`,
 
-    createReferendum: (siteId: string) => `${sitePath(siteId)}/referendums/new`,
-    referendums: (siteId: string) => `${sitePath(siteId)}/referendums`,
-    referendum: (siteId: string, referendumId: string) => `${sitePath(siteId)}/referendums/${referendumId}`,
+    createReferendum: (storeId: string) => `${storePath(storeId)}/referendums/new`,
+    referendums: (storeId: string) => `${storePath(storeId)}/referendums`,
+    referendum: (storeId: string, referendumId: string) => `${storePath(storeId)}/referendums/${referendumId}`,
   },
 
   moderation: {
-    createProposal: (siteId: string) => `${sitePath(siteId)}/proposals/new`,
-    proposals: (siteId: string) => `${sitePath(siteId)}/proposals`,
-    proposal: (siteId: string, discussionId: string) => `${sitePath(siteId)}/proposals/${discussionId}`,
+    createProposal: (storeId: string) => `${storePath(storeId)}/proposals/new`,
+    proposals: (storeId: string) => `${storePath(storeId)}/proposals`,
+    proposal: (storeId: string, discussionId: string) => `${storePath(storeId)}/proposals/${discussionId}`,
 
-    moderators: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/moderators`, tabKey),
-    moderatorProposal: (siteId: string, proposalId: string) => `${sitePath(siteId)}/moderators/proposals/${proposalId}`,
+    moderators: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/moderators`, tabKey),
+    moderatorProposal: (storeId: string, proposalId: string) =>
+      `${storePath(storeId)}/moderators/proposals/${proposalId}`,
 
-    createPublication: (siteId: string) => `${sitePath(siteId)}/publications/new`,
-    preview: (siteId: string) => `${sitePath(siteId)}/publications/preview`,
-    publications: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/publications`, tabKey),
-    moderatorPublication: (siteId: string, proposalId: string) =>
-      `${sitePath(siteId)}/publications/proposals/${proposalId}`,
-    changedPublication: (siteId: string, publicationId: string) =>
-      `${sitePath(siteId)}/publications/changed/${publicationId}`,
-    unpublishedPublication: (siteId: string, publicationId: string) =>
-      `${sitePath(siteId)}/publications/unpublished/${publicationId}`,
+    createPublication: (storeId: string) => `${storePath(storeId)}/publications/new`,
+    preview: (storeId: string) => `${storePath(storeId)}/publications/preview`,
+    publications: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/publications`, tabKey),
+    moderatorPublication: (storeId: string, proposalId: string) =>
+      `${storePath(storeId)}/publications/proposals/${proposalId}`,
+    changedPublication: (storeId: string, publicationId: string) =>
+      `${storePath(storeId)}/publications/changed/${publicationId}`,
+    unpublishedPublication: (storeId: string, publicationId: string) =>
+      `${storePath(storeId)}/publications/unpublished/${publicationId}`,
 
-    publishers: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/publishers`, tabKey),
-    publisherProposal: (siteId: string, proposalId: string) => `${sitePath(siteId)}/publishers/proposals/${proposalId}`,
-    publisher: (siteId: string, publisherId: string) => `${sitePath(siteId)}/publishers/details/${publisherId}`,
+    publishers: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/publishers`, tabKey),
+    publisherProposal: (storeId: string, proposalId: string) =>
+      `${storePath(storeId)}/publishers/proposals/${proposalId}`,
+    publisher: (storeId: string, publisherId: string) => `${storePath(storeId)}/publishers/details/${publisherId}`,
 
-    reviews: (siteId: string) => `${sitePath(siteId)}/reviews`,
+    reviews: (storeId: string) => `${storePath(storeId)}/reviews`,
 
-    users: (siteId: string, tabKey?: string) => withTab(`${sitePath(siteId)}/users`, tabKey),
-    user: (siteId: string, userId: string) => `${sitePath(siteId)}/users/details/${userId}`,
+    users: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/users`, tabKey),
+    user: (storeId: string, userId: string) => `${storePath(storeId)}/users/details/${userId}`,
   },
 } as const

@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/sites/{siteId}/publications/changed")]
+[Route("api/stores/{storeId}/publications/changed")]
 public class ModeratorChangedPublicationsController
 (
 	ILogger<ModeratorChangedPublicationsController> logger,
@@ -13,26 +13,26 @@ public class ModeratorChangedPublicationsController
 ) : BaseController
 {
 	[HttpGet("{changedPublicationId}")]
-	public ChangedPublicationDetailsModel GetDetails(string siteId, string changedPublicationId)
+	public ChangedPublicationDetailsModel GetDetails(string storeId, string changedPublicationId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {ChangedPublicationId}", nameof(ModeratorChangedPublicationsController), nameof(GetDetails), siteId, changedPublicationId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ChangedPublicationId}", nameof(ModeratorChangedPublicationsController), nameof(GetDetails), storeId, changedPublicationId);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		autoIdValidator.Validate(changedPublicationId, nameof(EntityNames.ChangedPublicationEntityName).ToLower());
 
-		return publicationsService.GetChangedPublicationDetails(siteId, changedPublicationId);
+		return publicationsService.GetChangedPublicationDetails(storeId, changedPublicationId);
 	}
 
 	[HttpGet]
-	public IEnumerable<ChangedPublicationModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ChangedPublicationModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(ModeratorChangedPublicationsController), nameof(GetAll), siteId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ModeratorChangedPublicationsController), nameof(GetAll), storeId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ChangedPublicationModel> products = publicationsService.GetChangedPublicationsAll(siteId, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<ChangedPublicationModel> products = publicationsService.GetChangedPublicationsAll(storeId, pageValue, pageSizeValue, cancellationToken);
 
 		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
 	}

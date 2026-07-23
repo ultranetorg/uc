@@ -1,7 +1,7 @@
 export const unpublishedPublicationsKeys = {
-  all: (siteId: string) => ["sites", siteId, "publications", "unpublished"] as const,
-  paged: (siteId: string, page?: number, pageSize?: number) =>
-    [...unpublishedPublicationsKeys.all(siteId), { page, pageSize }] as const,
-  detail: (siteId: string, unpublishedPublicationId: string) =>
-    [...unpublishedPublicationsKeys.all(siteId), unpublishedPublicationId] as const,
+  all: (storeId: string) => ["stores", storeId, "publications", "unpublished"] as const,
+  paged: (storeId: string, page?: number, pageSize?: number) =>
+    [...unpublishedPublicationsKeys.all(storeId), { page, pageSize }] as const,
+  detail: (storeId: string, unpublishedPublicationId: string) =>
+    [...unpublishedPublicationsKeys.all(storeId), unpublishedPublicationId] as const,
 }

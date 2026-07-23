@@ -5,17 +5,17 @@ import { getFairApi } from "api"
 const api = getFairApi()
 
 export const useGetModeratorDiscussionComments = (
-  siteId?: string,
+  storeId?: string,
   discussionId?: string,
   page?: number,
   pageSize?: number,
 ) => {
-  const queryFn = () => api.getModeratorDiscussionComments(siteId!, discussionId!, page, pageSize)
+  const queryFn = () => api.getModeratorDiscussionComments(storeId!, discussionId!, page, pageSize)
 
   const { isFetching, error, data, refetch } = useQuery({
-    queryKey: ["moderator", "sites", siteId, "discussions", discussionId, "comments", { page, pageSize }],
+    queryKey: ["moderator", "stores", storeId, "discussions", discussionId, "comments", { page, pageSize }],
     queryFn: queryFn,
-    enabled: !!siteId && !!discussionId,
+    enabled: !!storeId && !!discussionId,
   })
 
   return { isFetching, error: error ?? undefined, data, refetch }

@@ -4,13 +4,13 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useGetUserUnregistrationProposals = (siteId?: string, page?: number, pageSize?: number) => {
-  const queryFn = () => api.getUserUnregistrationProposals(siteId!, page, pageSize)
+export const useGetUserUnregistrationProposals = (storeId?: string, page?: number, pageSize?: number) => {
+  const queryFn = () => api.getUserUnregistrationProposals(storeId!, page, pageSize)
 
   const { isPending, isError, data, refetch } = useQuery({
-    queryKey: ["sites", siteId, "proposals", "user-unregistrations", { page, pageSize }],
+    queryKey: ["stores", storeId, "proposals", "user-unregistrations", { page, pageSize }],
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storeId,
   })
 
   return { isPending, isError, data, refetch }

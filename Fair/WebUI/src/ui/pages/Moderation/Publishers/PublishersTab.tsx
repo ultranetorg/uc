@@ -6,16 +6,16 @@ import { isNumber } from "lodash"
 import { useOperationPolicy } from "app"
 import { SvgSearchMd, SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
-import { useGetSitePublishers } from "entities"
-import { useResolveSiteId, useUrlParamsState } from "hooks"
+import { useGetStorePublishers } from "entities"
+import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Input, Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger } from "utils"
 
 import { getPublishersTabItemRenderer } from "./publishersTabItemRenderer"
 
 export const PublishersTab = () => {
-  const siteId = useResolveSiteId()
-  const { voterId } = useOperationPolicy("site-authors-removal")
+  const storeId = useResolveStoreId()
+  const { voterId } = useOperationPolicy("store-authors-removal")
   const { t } = useTranslation("publishersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -33,7 +33,7 @@ export const PublishersTab = () => {
   const [query, setQuery] = useState(state.query)
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
-  const { data: publishers } = useGetSitePublishers(siteId, state.page, DEFAULT_PAGE_SIZE_20, debouncedQuery)
+  const { data: publishers } = useGetStorePublishers(storeId, state.page, DEFAULT_PAGE_SIZE_20, debouncedQuery)
   const pagesCount =
     publishers?.totalItems && publishers.totalItems > 0 ? Math.ceil(publishers.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
@@ -55,7 +55,7 @@ export const PublishersTab = () => {
     [t, voterId],
   )
 
-  const itemRenderer = useMemo(() => getPublishersTabItemRenderer(t, siteId!, location.pathname), [siteId, t])
+  const itemRenderer = useMemo(() => getPublishersTabItemRenderer(t, storeId!, location.pathname), [storeId, t])
 
   const items = useMemo(
     () =>

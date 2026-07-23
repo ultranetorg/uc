@@ -5,7 +5,7 @@ import { useDebounceValue } from "usehooks-ts"
 
 import { SEARCH_DELAY } from "config"
 import { useSearchLiteProducts, useSearchPaginatedProducts } from "entities"
-import { useSiteTitle, useUrlParamsState } from "hooks"
+import { useStoreTitle, useUrlParamsState } from "hooks"
 import { NextPagination, MultilineText, SearchDropdown, SearchDropdownItem } from "ui/components"
 import { ProductsGrid, ProductsGridEmpty, ProductsGridItem } from "ui/components/specific"
 import { routes } from "utils"
@@ -14,7 +14,7 @@ export const IndexPage = () => {
   const { t } = useTranslation("indexPage")
   const navigate = useNavigate()
 
-  useSiteTitle()
+  useStoreTitle()
 
   const [state, setState] = useUrlParamsState({
     query: {

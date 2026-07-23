@@ -6,7 +6,7 @@ namespace Uccs.Fair;
 public static class ProposalUtils
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsDiscussion(Store site, Proposal proposal) => site.IsDiscussion(proposal.OptionClass); /// TODO: remove this method
+	public static bool IsDiscussion(Store store, Proposal proposal) => store.IsDiscussion(proposal.OptionClass); /// TODO: remove this method
 
 	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
 		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationUpdation or PublicationUnpublish;
@@ -38,13 +38,13 @@ public static class ProposalUtils
 			ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
 			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
-			StoreApprovalPolicyChange operation => new SiteApprovalPolicyChangeModel(operation),
-			StoreAuthorsRemoval operation => CreateSiteAuthorsRemovalModel(mcv, operation),
-			StoreAvatarChange operation => new SiteAvatarChangeModel(operation),
-			StoreModeratorAddition operation => CreateSiteModeratorAdditionModel(mcv, operation),
-			StoreModeratorRemoval operation => CreateSiteModeratorRemovalModel(mcv, operation),
-			StoreNameChange operation => CreateSiteNameChangeModel(operation),
-			StoreInfoUpdation operation => new SiteTextChangeModel(operation),
+			StoreApprovalPolicyChange operation => new StoreApprovalPolicyChangeModel(operation),
+			StoreAuthorsRemoval operation => CreateStoreAuthorsRemovalModel(mcv, operation),
+			StoreAvatarChange operation => new StoreAvatarChangeModel(operation),
+			StoreModeratorAddition operation => CreateStoreModeratorAdditionModel(mcv, operation),
+			StoreModeratorRemoval operation => CreateStoreModeratorRemovalModel(mcv, operation),
+			StoreNameChange operation => CreateStoreNameChangeModel(operation),
+			StoreInfoUpdation operation => new StoreInfoUpdationModel(operation),
 			UserUnregistration operation => new UserUnregistrationModel(operation),
 			UserRegistration operation => new UserRegistrationModel(operation),
 			_ => throw new NotSupportedException($"Operation type {proposal.GetType()} is not supported")
@@ -82,7 +82,7 @@ public static class ProposalUtils
 		return new CategoryTypeChangeModel(operation, category);
 	}
 
-	static SiteAuthorsRemovalModel CreateSiteAuthorsRemovalModel(FairMcv mcv, StoreAuthorsRemoval operation)
+	static StoreAuthorsRemovalModel CreateStoreAuthorsRemovalModel(FairMcv mcv, StoreAuthorsRemoval operation)
 	{
 		IEnumerable<AuthorBaseAvatarModel> removals = operation.Authors.Select(authorId =>
 		{
@@ -90,14 +90,14 @@ public static class ProposalUtils
 			return new AuthorBaseAvatarModel(author);
 		});
 
-		return new SiteAuthorsRemovalModel(operation)
+		return new StoreAuthorsRemovalModel(operation)
 		{
 			Removals = removals
 		};
 	}
 
 	// TODO: split models on regular and details models. Need to avoid expensive operations with data loading.
-	static SiteModeratorAdditionModel CreateSiteModeratorAdditionModel(FairMcv mcv, StoreModeratorAddition operation)
+	static StoreModeratorAdditionModel CreateStoreModeratorAdditionModel(FairMcv mcv, StoreModeratorAddition operation)
 	{
 		IEnumerable<UserModel> candidates = operation.Candidates.Select(candidateId =>
 		{
@@ -105,25 +105,25 @@ public static class ProposalUtils
 			return new UserModel(user);
 		});
 
-		return new SiteModeratorAdditionModel(operation)
+		return new StoreModeratorAdditionModel(operation)
 		{
 			Candidates = candidates,
 		};
 	}
 
 	// TODO: split models on regular and details models. Need to avoid expensive operations with data loading.
-	static SiteModeratorRemovalModel CreateSiteModeratorRemovalModel(FairMcv mcv, StoreModeratorRemoval operation)
+	static StoreModeratorRemovalModel CreateStoreModeratorRemovalModel(FairMcv mcv, StoreModeratorRemoval operation)
 	{
 		User user = (FairUser) mcv.Users.Latest(operation.Moderator);
-		return new SiteModeratorRemovalModel(operation)
+		return new StoreModeratorRemovalModel(operation)
 		{
 			Moderator = new UserModel(user)
 		};
 	}
 
-	static SiteNameChangeModel CreateSiteNameChangeModel(StoreNameChange operation)
+	static StoreNameChangeModel CreateStoreNameChangeModel(StoreNameChange operation)
 	{
-		return new SiteNameChangeModel(operation, operation.Store.Name);
+		return new StoreNameChangeModel(operation, operation.Store.Name);
 	}
 
 	static PublicationPublishModel CreatePublicationPublishModel(FairMcv mcv, PublicationPublish operation)
@@ -143,12 +143,12 @@ public static class ProposalUtils
 	}
 }
 
-//public static int CalculateHoursLeft(Proposal proposal, Site site)
+//public static int CalculateHoursLeft(Proposal proposal, Store store)
 //{
-//	if (site.Policies.First(i => i.OperationClass == proposal.OptionClass).Approval == ApprovalRequirement.PublishersMajority)
+//	if (store.Policies.First(i => i.OperationClass == proposal.OptionClass).Approval == ApprovalRequirement.PublishersMajority)
 //		return -1;
 
-//	Restiction? restriction = Site.Restrictions.FirstOrDefault(x => x.OperationClass == proposal.OptionClass);
+//	Restiction? restriction = Store.Restrictions.FirstOrDefault(x => x.OperationClass == proposal.OptionClass);
 //	if(restriction == null || restriction.Flags.HasFlag(PolicyFlag.Infinite))
 //		return -1;
 

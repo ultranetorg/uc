@@ -46,19 +46,19 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
       // @ts-expect-error fix
       return { review: data.reviewId, status: option.status }
 
-    // Site
-    case "site-authors-removal":
+    // Store
+    case "store-authors-removal":
       return { authors: mapAuthorsToIds(option.authors) }
-    case "site-avatar-change":
+    case "store-avatar-change":
       return { file: option.fileId }
-    case "site-moderator-addition":
+    case "store-moderator-addition":
       return { candidates: mapAccountsToIds(option.moderators) }
-    case "site-moderator-removal":
+    case "store-moderator-removal":
       return { moderator: mapAccountsToIds(option.moderators)[0] }
-    case "site-name-change":
+    case "store-name-change":
       return { name: option.name }
-    case "site-text-change":
-      return { title: option.siteTitle, slogan: option.slogan, description: option.description }
+    case "store-info-updation":
+      return { title: option.storeTitle, slogan: option.slogan, description: option.description }
 
     // User
     case "user-unregistration":

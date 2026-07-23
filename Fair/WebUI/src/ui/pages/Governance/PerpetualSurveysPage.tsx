@@ -2,21 +2,21 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { useSiteContext } from "app"
-import { useGetSitePolicies, useGetPerpetualSurveys } from "entities"
-import { useResolveSiteId, useSiteTitle } from "hooks"
+import { useStoreContext } from "app"
+import { useGetStorePolicies, useGetPerpetualSurveys } from "entities"
+import { useResolveStoreId, useStoreTitle } from "hooks"
 import { Table, TableEmptyState } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { perpetualSurveysItemRenderer } from "ui/renderers"
 import { routes } from "utils"
 
 export const PerpetualSurveysPage = () => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const navigate = useNavigate()
-  const { site } = useSiteContext()
+  const { store } = useStoreContext()
   const { t } = useTranslation("perpetualSurveysPage")
 
-  useSiteTitle(site?.title, "Perpetual Surveys")
+  useStoreTitle(store?.title, "Perpetual Surveys")
 
   const columns = useMemo(
     () => [
@@ -52,12 +52,12 @@ export const PerpetualSurveysPage = () => {
     [t],
   )
 
-  const { data: surveys } = useGetPerpetualSurveys(siteId)
-  const { data: policies } = useGetSitePolicies(true, siteId)
+  const { data: surveys } = useGetPerpetualSurveys(storeId)
+  const { data: policies } = useGetStorePolicies(true, storeId)
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.governance.survey(siteId!, id)),
-    [navigate, siteId],
+    (id: string) => navigate(routes.governance.survey(storeId!, id)),
+    [navigate, storeId],
   )
 
   const itemRenderer = useMemo(() => perpetualSurveysItemRenderer(t, policies), [policies, t])

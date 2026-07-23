@@ -10,21 +10,21 @@ public class SearchService
 	FairMcv mcv
 )
 {
-	public IEnumerable<PublicationExtendedModel> SearchPublications([NotNull, NotEmpty] string siteId, [NotNull, NotEmpty] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public IEnumerable<PublicationExtendedModel> SearchPublications([NotNull, NotEmpty] string storeId, [NotNull, NotEmpty] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchPublications), siteId, query, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchPublications), storeId, query, page, pageSize);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(siteId);
+		AutoId id = AutoId.Parse(storeId);
 
-		Store site = mcv.Stores.Latest(id);
-		if(site == null)
+		Store store = mcv.Stores.Latest(id);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
 		List<ProductSearchResult> searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
@@ -47,19 +47,19 @@ public class SearchService
 		}
 	}
 
-	public IEnumerable<PublicationBaseModel> SearchLitePublications(string siteId, string query, int page, int pageSize, CancellationToken cancellationToken)
+	public IEnumerable<PublicationBaseModel> SearchLitePublications(string storeId, string query, int page, int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLitePublications)} method called with {{SiteId}}, {{Query}}, {{Page}}, {{PageSize}}", siteId, query, page, pageSize);
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLitePublications)} method called with {{StoreId}}, {{Query}}, {{Page}}, {{PageSize}}", storeId, query, page, pageSize);
 
 		if(cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<PublicationBaseModel>();
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(siteId);
+		AutoId id = AutoId.Parse(storeId);
 
 		List<ProductSearchResult> result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
 		return LoadPublicationsBase(result, cancellationToken);
@@ -78,12 +78,12 @@ public class SearchService
 		}
 	}
 
-	public TotalItemsResult<SiteBaseModel> SearchSites(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<StoreBaseModel> SearchStores(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchSites)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchStores)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
 
 		if(cancellationToken.IsCancellationRequested)
-			return TotalItemsResult<SiteBaseModel>.Empty;
+			return TotalItemsResult<StoreBaseModel>.Empty;
 
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
@@ -91,38 +91,38 @@ public class SearchService
 		var searchResult = mcv.StoreTitles.Search(query ?? "", page * pageSize, pageSize);
 		if(searchResult.Length == 0)
 		{
-			return TotalItemsResult<SiteBaseModel>.Empty;
+			return TotalItemsResult<StoreBaseModel>.Empty;
 		}
 
-		List<SiteBaseModel> result = new List<SiteBaseModel>(searchResult.Length);
-		LoadSites(searchResult, result, cancellationToken);
+		List<StoreBaseModel> result = new List<StoreBaseModel>(searchResult.Length);
+		LoadStores(searchResult, result, cancellationToken);
 
-		return new TotalItemsResult<SiteBaseModel>
+		return new TotalItemsResult<StoreBaseModel>
 		{
 			Items = result,
 			TotalItems = BitConverter.ToInt32(mcv.Metas.Latest(new MetaId((int)FairMetaEntityType.StoreCount)).Value)
 		};
 	}
 
-	void LoadSites(StoreSearchResult[] searchResult, IList<SiteBaseModel> result, CancellationToken cancellationToken)
+	void LoadStores(StoreSearchResult[] searchResult, IList<StoreBaseModel> result, CancellationToken cancellationToken)
 	{
 		foreach(var search in searchResult)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				break;
 
-			Store site = mcv.Stores.Latest(search.Entity);
-			var model = new SiteBaseModel(site);
+			Store store = mcv.Stores.Latest(search.Entity);
+			var model = new StoreBaseModel(store);
 			result.Add(model);
 		}
 	}
 
-	public IEnumerable<SiteSearchLiteModel> SearchLiteSites([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public IEnumerable<StoreSearchLiteModel> SearchLiteStores([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteSites)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
+		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteStores)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
 
 		if(cancellationToken.IsCancellationRequested)
-			return Enumerable.Empty<SiteSearchLiteModel>();
+			return Enumerable.Empty<StoreSearchLiteModel>();
 
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.Negative(page);
@@ -130,32 +130,32 @@ public class SearchService
 
 		var result = mcv.StoreTitles.Search(query, page * pageSize, pageSize);
 
-		return result.Select(x => new SiteSearchLiteModel(x.Entity.ToString(), x.Text));
+		return result.Select(x => new StoreSearchLiteModel(x.Entity.ToString(), x.Text));
 	}
 
-	public IEnumerable<UserModel> SearchSiteUsers([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	public IEnumerable<UserModel> SearchStoreUsers([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Query}, {Limit}", nameof(SearchService), nameof(SearchSiteUsers), siteId, query, limit);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Limit}", nameof(SearchService), nameof(SearchStoreUsers), storeId, query, limit);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.NegativeOrZero(limit);
 
-		AutoId siteEntityId = AutoId.Parse(siteId);
+		AutoId storeEntityId = AutoId.Parse(storeId);
 
 		if(AutoId.TryParse(query, out AutoId entityId))
 		{
 			FairUser user = (FairUser)mcv.Users.Latest(entityId);
-			return user != null && user.Stores.Contains(siteEntityId) ? [new UserModel(user)] : [];
+			return user != null && user.Stores.Contains(storeEntityId) ? [new UserModel(user)] : [];
 		}
 
 		string lowercase = query.ToLower();
 		IEnumerable<AutoId> searchResult = mcv.Words.Search(EntityTextField.UserName, lowercase, limit);
 
-		return LoadUsers(siteEntityId, searchResult, cancellationToken);
+		return LoadUsers(storeEntityId, searchResult, cancellationToken);
 	}
 
-	IEnumerable<UserModel> LoadUsers(AutoId siteId, IEnumerable<AutoId> usersIds, CancellationToken cancellationToken)
+	IEnumerable<UserModel> LoadUsers(AutoId storeId, IEnumerable<AutoId> usersIds, CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
 
@@ -167,7 +167,7 @@ public class SearchService
 
 			FairUser user = (FairUser)mcv.Users.Latest(id);
 
-			if(user.Stores.Contains(siteId))
+			if(user.Stores.Contains(storeId))
 			{
 				var model = new UserModel(user);
 				result.Add(model);

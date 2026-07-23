@@ -5,9 +5,15 @@ import { useQueryClient } from "@tanstack/react-query"
 
 import { useOperationPolicy, useSignInContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
-import { categoriesKeys, proposalsKeys, publicationsKeys, sitesKeys, useGetModeratorDiscussionComments } from "entities"
+import {
+  categoriesKeys,
+  proposalsKeys,
+  publicationsKeys,
+  storesKeys,
+  useGetModeratorDiscussionComments,
+} from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
@@ -43,7 +49,7 @@ export type ProposalViewProps = {
 }
 
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -62,25 +68,25 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
 
   const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({
-      "site-moderator-removal": [sitesKeys.moderators(siteId!), proposalsKeys.moderators(siteId!)],
-      "site-authors-removal": [sitesKeys.publishers(siteId!), proposalsKeys.publishers(siteId!)],
+      "store-moderator-removal": [storesKeys.moderators(storeId!), proposalsKeys.moderators(storeId!)],
+      "store-authors-removal": [storesKeys.publishers(storeId!), proposalsKeys.publishers(storeId!)],
 
-      "site-avatar-change": [sitesKeys.detail(siteId!)],
-      "site-name-change": [sitesKeys.detail(siteId!)],
-      "site-text-change": [sitesKeys.detail(siteId!)],
+      "store-avatar-change": [storesKeys.detail(storeId!)],
+      "store-name-change": [storesKeys.detail(storeId!)],
+      "store-info-updation": [storesKeys.detail(storeId!)],
 
-      "category-creation": [categoriesKeys.all(siteId!)],
-      "publication-deletion": [publicationsKeys.categoriesPublications(siteId!)],
-      "publication-unpublish": [publicationsKeys.categoriesPublications(siteId!)],
+      "category-creation": [categoriesKeys.all(storeId!)],
+      "publication-deletion": [publicationsKeys.categoriesPublications(storeId!)],
+      "publication-unpublish": [publicationsKeys.categoriesPublications(storeId!)],
     }),
-    [siteId],
+    [storeId],
   )
 
   const {
     isFetching: isCommentsFetching,
     data: comments,
     refetch: refetchComments,
-  } = useGetModeratorDiscussionComments(siteId, proposal?.id)
+  } = useGetModeratorDiscussionComments(storeId, proposal?.id)
 
   const NestedContent = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
   const isPublicationMode = !!NestedContent
@@ -100,8 +106,8 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         ? Array.isArray(parentBreadcrumbs)
           ? [...parentBreadcrumbs]
           : [parentBreadcrumbs]
-        : { title: t("common:proposals"), path: routes.moderation.proposals(siteId!) },
-    [parentBreadcrumbs, siteId, t],
+        : { title: t("common:proposals"), path: routes.moderation.proposals(storeId!) },
+    [parentBreadcrumbs, storeId, t],
   )
 
   const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
@@ -126,7 +132,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
             invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
           }
 
-          navigate(previousPath ?? routes.moderation.proposals(siteId!))
+          navigate(previousPath ?? routes.moderation.proposals(storeId!))
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -145,7 +151,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       invalidateQueryKeysByOperationType,
       navigate,
       previousPath,
-      siteId,
+      storeId,
       queryClient,
     ],
   )
@@ -158,7 +164,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:publicationVoted"), "success")
-          navigate(routes.moderation.publications(siteId!, "proposals"))
+          navigate(routes.moderation.publications(storeId!, "proposals"))
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -167,7 +173,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         },
       })
     },
-    [mutate, navigate, proposal, siteId, t, approval],
+    [mutate, navigate, proposal, storeId, t, approval],
   )
 
   const handleApprove = useCallback(() => vote("approve"), [vote])
@@ -237,12 +243,12 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
               />
               <Separator className="h-8" />
               <Link
-                to={routes.moderation.preview(siteId!)}
+                to={routes.moderation.preview(storeId!)}
                 state={{
                   productId,
                   publicationId,
                   proposalId: proposal.id,
-                  previousPath: routes.moderation.moderatorPublication(siteId!, proposal.id),
+                  previousPath: routes.moderation.moderatorPublication(storeId!, proposal.id),
                   parentBreadcrumbs,
                 }}
               >
@@ -257,13 +263,13 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           ) : undefined
         }
       />
-      {NestedContent && <NestedContent t={t} siteId={siteId!} proposal={proposal} voteStatus={voteStatus} />}
+      {NestedContent && <NestedContent t={t} storeId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
       <div className="flex gap-8">
         <div className="flex w-full flex-col gap-8">
           {!isPublicationMode && (
             <DefaultContent
               t={t}
-              siteId={siteId!}
+              storeId={storeId!}
               proposal={proposal}
               isReferendum={isReferendum}
               pageState={pageState}
@@ -290,7 +296,12 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           />
         </div>
         <div className="flex flex-col gap-6">
-          <ProposalInfo className="w-87.5" siteId={siteId!} createdBy={proposal.by} createdAt={proposal.creationTime} />
+          <ProposalInfo
+            className="w-87.5"
+            storeId={storeId!}
+            createdBy={proposal.by}
+            createdAt={proposal.creationTime}
+          />
           {!isPublicationMode &&
             (pageState === "voting" ? (
               <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />

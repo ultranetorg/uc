@@ -1,12 +1,12 @@
 import { memo, PropsWithChildren } from "react"
 import { Link, LinkProps, To, useLocation } from "react-router-dom"
 
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { PropsWithClassName } from "types"
 
 export type LinkFullscreenState = {
   backgroundLocation?: Location
-  siteId?: string
+  storeId?: string
 }
 
 type LinkFullscreenBaseProps = {
@@ -22,13 +22,13 @@ export type LinkFullscreenProps = PropsWithChildren &
 
 export const LinkFullscreen = memo(({ children, className, title, location, to, params }: LinkFullscreenProps) => {
   const currentLocation = useLocation()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
 
   return (
     <Link
       className={className}
       to={to}
-      state={{ backgroundLocation: location ?? currentLocation, siteId, ...params } as LinkFullscreenState}
+      state={{ backgroundLocation: location ?? currentLocation, storeId, ...params } as LinkFullscreenState}
       title={title}
     >
       {children}

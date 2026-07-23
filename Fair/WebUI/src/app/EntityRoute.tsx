@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom"
 
 import { ApiError } from "api"
 import { useBackgroundLocation, useParams } from "hooks"
-import { BaseLayout, SiteLayout } from "ui/layouts"
+import { BaseLayout, StoreLayout } from "ui/layouts"
 import { ConstrainedWidthLayout, ModerationLayout, PublishersLayout, UsersSectionLayout } from "ui/layouts/moderation"
 import {
   AboutPage,
@@ -13,7 +13,7 @@ import {
   PublisherPage,
   ReviewerPage,
   SearchPage,
-  SitePage,
+  StorePage,
 } from "ui/pages"
 import {
   CreateReferendumPage,
@@ -48,11 +48,11 @@ const NotFoundRoute = (): ReactNode => {
   throw new ApiError(404, "Not Found")
 }
 
-const SiteEntityRoute = () => {
+const StoreEntityRoute = () => {
   const { userId, publisherId } = useParams()
   const backgroundLocation = useBackgroundLocation()
 
-  // site123-4/user234-5
+  // store123-4/user234-5
   if (userId !== undefined)
     return (
       <MaybeFullscreen showFullscreen={!!backgroundLocation}>
@@ -60,7 +60,7 @@ const SiteEntityRoute = () => {
       </MaybeFullscreen>
     )
 
-  // site123-4/publisher234-5
+  // store123-4/publisher234-5
   if (publisherId !== undefined)
     return (
       <MaybeFullscreen showFullscreen={!!backgroundLocation}>
@@ -75,17 +75,17 @@ const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
   // fair.net/category123-4
   categoryId: (
     <BaseLayout>
-      <SiteLayout>
+      <StoreLayout>
         <CategoryPage />
-      </SiteLayout>
+      </StoreLayout>
     </BaseLayout>
   ),
   // fair.net/publication234-5
   publicationId: (
     <BaseLayout>
-      <SiteLayout>
+      <StoreLayout>
         <PublicationPage />
-      </SiteLayout>
+      </StoreLayout>
     </BaseLayout>
   ),
   // fair.net/author345-6
@@ -100,19 +100,19 @@ const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
 export const EntityRoute = () => {
   const { appEntity = "", "*": rest } = useParams()
 
-  if (appEntity.startsWith(ENTITY_PREFIXES.siteId)) {
+  if (appEntity.startsWith(ENTITY_PREFIXES.storeId)) {
     return (
       <Routes>
-        <Route path=":subEntity" element={<SiteEntityRoute />} />
+        <Route path=":subEntity" element={<StoreEntityRoute />} />
 
         <Route
           element={
             <BaseLayout>
-              <SiteLayout />
+              <StoreLayout />
             </BaseLayout>
           }
         >
-          <Route index element={<SitePage />} />
+          <Route index element={<StorePage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="about" element={<AboutPage />} />
 

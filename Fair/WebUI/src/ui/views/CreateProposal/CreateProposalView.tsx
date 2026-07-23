@@ -5,10 +5,10 @@ import { Controller, useFormContext } from "react-hook-form"
 import { useQueryClient } from "@tanstack/react-query"
 import { twMerge } from "tailwind-merge"
 
-import { useSiteContext, useSitePoliciesContext, useSiteRolesContext, useUserContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { CreateProposalData, ProposalCreation, ProposalType, Role } from "types"
 import {
   BreadcrumbsItemProps,
@@ -36,13 +36,13 @@ export type CreateProposalViewProps = {
 export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProps) => {
   const location = useLocation()
   const navigate = useNavigate()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const queryClient = useQueryClient()
   const { t } = useTranslation("createProposal")
 
-  const { isModerator, isPublisher } = useSiteRolesContext()
-  const { policies } = useSitePoliciesContext()
-  const { site } = useSiteContext()
+  const { isModerator, isPublisher } = useStoreRolesContext()
+  const { policies } = useStorePoliciesContext()
+  const { store } = useStoreContext()
   const { user } = useUserContext()
 
   const {
@@ -57,8 +57,8 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
   const parentPath =
-    proposalType === "discussion" ? routes.moderation.proposals(siteId!) : routes.governance.referendums(siteId!)
-  const isRequiredVoting = isVotingRequired(formData.type, site, policies)
+    proposalType === "discussion" ? routes.moderation.proposals(storeId!) : routes.governance.referendums(storeId!)
+  const isRequiredVoting = isVotingRequired(formData.type, store, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])
 
@@ -67,7 +67,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
     const by = proposalType === "discussion" ? user!.id : user!.authorsIds[0]
     const role = proposalType === "discussion" ? Role.Moderator : Role.Publisher
-    const operation = new ProposalCreation(siteId!, by, role, data.title, options, data.description)
+    const operation = new ProposalCreation(storeId!, by, role, data.title, options, data.description)
     mutate(operation, {
       onSuccess: () => {
         if (!isRequiredVoting && Array.isArray(location.state?.invalidateQueryKeys)) {
@@ -110,13 +110,13 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     !location.state?.redirectAfterProposalCreation ||
     !location.state?.redirectAfterProposalExecution
   ) {
-    return <Navigate to={routes.site(siteId!)} />
+    return <Navigate to={routes.store(storeId!)} />
   }
 
   return (
     <div className="flex max-w-[648px] flex-col gap-6">
       <PageHeader
-        siteId={siteId!}
+        storeId={storeId!}
         homeLabel={t("common:home")}
         title={
           (location.state?.title as string)

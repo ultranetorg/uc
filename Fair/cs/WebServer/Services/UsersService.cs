@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
@@ -14,29 +13,29 @@ public class UsersService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<UserModel> GetSiteUsers([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<UserModel> GetStoreUsers([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(UsersService), nameof(GetSiteUsers), siteId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UsersService), nameof(GetStoreUsers), storeId, page, pageSize);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId entityId = AutoId.Parse(siteId);
+		AutoId entityId = AutoId.Parse(storeId);
 
-		Store site = mcv.Stores.Latest(entityId);
-		if(site == null)
+		Store store = mcv.Stores.Latest(entityId);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store), siteId);
+			throw new EntityNotFoundException(nameof(Store), storeId);
 		}
 
-		IEnumerable<AutoId> paged = site.Users.Skip(page * pageSize).Take(pageSize);
-		IEnumerable<UserModel> items = site.Users.Length > 0 ? LoadUsers(paged, cancellationToken) : [];
+		IEnumerable<AutoId> paged = store.Users.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<UserModel> items = store.Users.Length > 0 ? LoadUsers(paged, cancellationToken) : [];
 
 		return new TotalItemsResult<UserModel>
 		{
 			Items = items,
-			TotalItems = site.Users.Length
+			TotalItems = store.Users.Length
 		};
 	}
 
@@ -95,17 +94,17 @@ public class UsersService
 			Name = account.Name,
 			Owner = account.Owner.ToString(),
 			AuthorsIds = account.Authors.Select(id => id.ToString()),
-			FavoriteSites = account.FavoriteStores.Length > 0 ? LoadUserSites(account.FavoriteStores) : [],
+			FavoriteStores = account.FavoriteStores.Length > 0 ? LoadUserStores(account.FavoriteStores) : [],
 			HasAvatar = account.Avatar != null
 		};
 	}
 
-	IEnumerable<SiteBaseModel> LoadUserSites(AutoId[] sitesIds)
+	IEnumerable<StoreBaseModel> LoadUserStores(AutoId[] storesIds)
 	{
-		return sitesIds.Select(id =>
+		return storesIds.Select(id =>
 		{
-			Store site = mcv.Stores.Latest(id);
-			return new SiteBaseModel(site);
+			Store store = mcv.Stores.Latest(id);
+			return new StoreBaseModel(store);
 		}).ToArray();
 	}
 
@@ -141,12 +140,12 @@ public class UsersService
 		}).ToArray();
 	}
 
-	public bool SiteExists([NotNull][NotEmpty] string userId, [NotNull][NotEmpty] string siteId)
+	public bool StoreExists([NotNull][NotEmpty] string userId, [NotNull][NotEmpty] string storeId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {SiteId}", nameof(UsersService), nameof(SiteExists), userId, siteId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {StoreId}", nameof(UsersService), nameof(StoreExists), userId, storeId);
 
 		Guard.Against.NullOrEmpty(userId);
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 
 		AutoId userEntityId = AutoId.Parse(userId);
 
@@ -156,8 +155,8 @@ public class UsersService
 			throw new EntityNotFoundException(nameof(User), userId);
 		}
 
-		AutoId siteEntityId = AutoId.Parse(siteId);
-		return user.Stores.Contains(siteEntityId);
+		AutoId storeEntityId = AutoId.Parse(storeId);
+		return user.Stores.Contains(storeEntityId);
 	}
 
 	public FileContentResult GetAvatarById([NotNull][NotEmpty] string userId)

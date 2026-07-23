@@ -2,11 +2,11 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useOperationPolicy, useSiteContext, useSiteRolesContext } from "app"
+import { useOperationPolicy, useStoreContext, useStoreRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
@@ -15,24 +15,24 @@ import { routes, showToast } from "utils"
 export const ModeratorChangedPublicationPage = () => {
   const navigate = useNavigate()
   const { publicationId } = useParams()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation()
 
   const { voterId } = useOperationPolicy("publication-updation")
-  const { site } = useSiteContext()
-  const { isModerator } = useSiteRolesContext()
+  const { store } = useStoreContext()
+  const { isModerator } = useStoreRolesContext()
   const { mutate } = useTransactMutationWithStatus()
 
   const [isPending, setPending] = useState<boolean | undefined>()
 
-  const { isLoading, data: publication } = useGetChangedPublication(siteId, publicationId)
+  const { isLoading, data: publication } = useGetChangedPublication(storeId, publicationId)
 
   const pageTitle = publication?.title ?? publication?.id
-  useSiteTitle(site?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
+  useStoreTitle(store?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
 
   const parentBreadcrumbs = useMemo(
-    () => [{ title: t("common:publications"), path: routes.moderation.publications(siteId!, "changed") }],
-    [siteId, t],
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!, "changed") }],
+    [storeId, t],
   )
 
   const handleUpdatePublication = useCallback(() => {
@@ -49,17 +49,17 @@ export const ModeratorChangedPublicationPage = () => {
       },
     ] as ProposalOption[]
 
-    const operation = new ProposalCreation(siteId!, voterId!, role, "", options, "")
+    const operation = new ProposalCreation(storeId!, voterId!, role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
         showToast(t("toast:publicationUpdated"), "success")
-        navigate(routes.moderation.publications(siteId!))
+        navigate(routes.moderation.publications(storeId!))
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [isModerator, mutate, navigate, publication, siteId, t, voterId])
+  }, [isModerator, mutate, navigate, publication, storeId, t, voterId])
 
-  if (!siteId || isLoading) return <div>Loading</div>
+  if (!storeId || isLoading) return <div>Loading</div>
 
   if (!publication) {
     return <div>Not found</div>
@@ -82,10 +82,10 @@ export const ModeratorChangedPublicationPage = () => {
                   loading={!!isPending}
                 />
                 <Link
-                  to={routes.moderation.preview(siteId!)}
+                  to={routes.moderation.preview(storeId!)}
                   state={{
                     publicationId: publication.id,
-                    previousPath: routes.moderation.changedPublication(siteId!, publication.id),
+                    previousPath: routes.moderation.changedPublication(storeId!, publication.id),
                     parentBreadcrumbs,
                   }}
                 >
@@ -104,7 +104,7 @@ export const ModeratorChangedPublicationPage = () => {
 
       <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
         <ModerationPublicationHeader
-          siteId={siteId}
+          storeId={storeId}
           title={publication.title}
           logoId={publication.logoId}
           authorId={publication.authorId}

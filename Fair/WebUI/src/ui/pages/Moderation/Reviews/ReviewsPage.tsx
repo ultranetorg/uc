@@ -2,11 +2,11 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber, isString } from "lodash"
 
-import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
+import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
+import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, SpecialChoice } from "types"
 import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
@@ -16,12 +16,12 @@ import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
 export const ReviewsPage = () => {
   const { voterId } = useOperationPolicy("review-creation")
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
-  const { policies } = useSitePoliciesContext()
+  const storeId = useResolveStoreId()
+  const { store } = useStoreContext()
+  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("reviewsPage")
 
-  useSiteTitle(site?.title, "Reviews")
+  useStoreTitle(store?.title, "Reviews")
 
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
   const [selectedReviewText, setSelectedReviewText] = useState<string | undefined>()
@@ -36,7 +36,7 @@ export const ReviewsPage = () => {
   const [page, setPage] = useState(state.page)
   const [loadingItem, setLoadingItem] = useState<{ id: string; action: "approve" | "reject" } | undefined>()
 
-  const { data: reviews, refetch } = useGetReviewProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: reviews, refetch } = useGetReviewProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
     reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
@@ -120,10 +120,10 @@ export const ReviewsPage = () => {
 
   const votesRequired = useMemo(
     () => ({
-      create: calculateVotesRequiredToWinProposal("review-creation", site, policies),
-      edit: calculateVotesRequiredToWinProposal("review-edit", site, policies),
+      create: calculateVotesRequiredToWinProposal("review-creation", store, policies),
+      edit: calculateVotesRequiredToWinProposal("review-edit", store, policies),
     }),
-    [policies, site],
+    [policies, store],
   )
 
   const itemRenderer = useMemo(

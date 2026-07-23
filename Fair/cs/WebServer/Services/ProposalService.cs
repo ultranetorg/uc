@@ -10,44 +10,43 @@ public class ProposalService
 	FairMcv mcv
 )
 {
-	public ProposalDetailsModel GetDiscussion([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string proposalId) =>
-		GetProposalDetails(siteId, proposalId, true);
+	public ProposalDetailsModel GetDiscussion([NotEmpty][NotNull] string storeId, [NotEmpty][NotNull] string proposalId) =>
+		GetProposalDetails(storeId, proposalId, true);
 
-	public TotalItemsResult<ProposalModel> GetDiscussions([NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>
-		GetProposals(siteId, true, page, pageSize, search, cancellationToken);
+	public TotalItemsResult<ProposalModel> GetDiscussions([NotEmpty][NotNull] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>
+		GetProposals(storeId, true, page, pageSize, search, cancellationToken);
 
-	public ProposalDetailsModel GetReferendum([NotEmpty][NotNull] string siteId, [NotEmpty][NotNull] string proposalId) =>
-		GetProposalDetails(siteId, proposalId, false);
+	public ProposalDetailsModel GetReferendum([NotEmpty][NotNull] string storeId, [NotEmpty][NotNull] string proposalId) =>
+		GetProposalDetails(storeId, proposalId, false);
 
-	public TotalItemsResult<ProposalModel> GetReferendums([NotEmpty][NotNull] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>
-		GetProposals(siteId, false, page, pageSize, search, cancellationToken);
+	public TotalItemsResult<ProposalModel> GetReferendums([NotEmpty][NotNull] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>
+		GetProposals(storeId, false, page, pageSize, search, cancellationToken);
 
 	/// <param name="discussionOrReferendums">`true` for Discussion, `false` for Referendum</param>
-	ProposalDetailsModel GetProposalDetails(string siteId, string proposalId, bool discussionOrReferendums)
+	ProposalDetailsModel GetProposalDetails(string storeId, string proposalId, bool discussionOrReferendums)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalDetails)} method called with {{SiteId}}, {{ProposalId}}, {{ProposalsOrReferendums}}", siteId, proposalId, discussionOrReferendums);
+		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalDetails)} method called with {{StoreId}}, {{ProposalId}}, {{ProposalsOrReferendums}}", storeId, proposalId, discussionOrReferendums);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(proposalId);
 
-		AutoId siteEntityId = AutoId.Parse(siteId);
+		AutoId storeEntityId = AutoId.Parse(storeId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
-		Store site = mcv.Stores.Latest(siteEntityId);
-			
-		if (site == null)
+		Store store = mcv.Stores.Latest(storeEntityId);
+		if (store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
 		string entityName = discussionOrReferendums ? EntityNames.DiscussionEntityName : EntityNames.ReferendumEntityName;
-		if (!site.Proposals.Any(x => x == proposalEntityId))
+		if (!store.Proposals.Any(x => x == proposalEntityId))
 		{
-			throw new EntityNotFoundException(entityName, siteId);
+			throw new EntityNotFoundException(entityName, storeId);
 		}
 
 		Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-		if (discussionOrReferendums != ProposalUtils.IsDiscussion(site, proposal)
+		if (discussionOrReferendums != ProposalUtils.IsDiscussion(store, proposal)
 			/* || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsUserOperation(proposal) */)
 		{
 			throw new EntityNotFoundException(entityName, proposalId);
@@ -57,8 +56,8 @@ public class ProposalService
 
 		IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
 
-		Policy proposalPolicy = site.Policies.FirstOrDefault(p => p.OperationClass == proposal.OptionClass);
-		int votesRequiredToWin = VotingUtils.CalculateVotesRequiredToWinProposal(proposalPolicy.Approval, site);
+		Policy proposalPolicy = store.Policies.FirstOrDefault(p => p.OperationClass == proposal.OptionClass);
+		int votesRequiredToWin = VotingUtils.CalculateVotesRequiredToWinProposal(proposalPolicy.Approval, store);
 
 		return new ProposalDetailsModel(proposal, account, votesRequiredToWin)
 		{
@@ -108,27 +107,27 @@ public class ProposalService
 	//	}
 	//}
 
-	TotalItemsResult<ProposalModel> GetProposals(string siteId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
+	TotalItemsResult<ProposalModel> GetProposals(string storeId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{SiteId}}, {{ProposalsOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", siteId, discussionOrReferendums, page, pageSize, search);
+		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{StoreId}}, {{ProposalsOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", storeId, discussionOrReferendums, page, pageSize, search);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
-		AutoId siteEntityId = AutoId.Parse(siteId);
+		AutoId storeEntityId = AutoId.Parse(storeId);
 
-		Store site = mcv.Stores.Latest(siteEntityId);
-		if (site == null)
+		Store store = mcv.Stores.Latest(storeEntityId);
+		if (store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		return LoadProposalsOrReferendumsPaged(site, discussionOrReferendums, page, pageSize, search, cancellationToken);
+		return LoadProposalsOrReferendumsPaged(store, discussionOrReferendums, page, pageSize, search, cancellationToken);
 	}
 
 	/// <param name="discussionsOrReferendums">`true` for Proposal, `false` for Referendum</param>
-	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Store site, bool discussionsOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
+	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Store store, bool discussionsOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<ProposalModel>.Empty;
@@ -136,7 +135,7 @@ public class ProposalService
 		var proposals = new List<Proposal>(pageSize);
 		int totalItems = 0;
 
-		IEnumerable<AutoId> reversedIds = site.Proposals.Reverse();
+		IEnumerable<AutoId> reversedIds = store.Proposals.Reverse();
 		foreach (var proposalId in reversedIds)
 		{
 			if (cancellationToken.IsCancellationRequested)
@@ -144,7 +143,7 @@ public class ProposalService
 
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
-			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(site, proposal) ||
+			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(store, proposal) ||
 				ProposalUtils.IsReviewOperation(proposal) || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsUserRegistrationOperation(proposal) ||
 				ProposalUtils.IsUserUnregistrationOperation(proposal) || ProposalUtils.IsModeratorOperation(proposal) || ProposalUtils.IsPublisherOperation(proposal))
 			{
@@ -184,23 +183,23 @@ public class ProposalService
 		};
 	}
 
-	public TotalItemsResult<ProposalModel> GetProposals([NotEmpty][NotNull] string siteId, FairOperationClass? operationClass, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ProposalModel> GetProposals([NotEmpty][NotNull] string storeId, FairOperationClass? operationClass, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{SiteId}}, {{OperationClass}}, {{Page}}, {{PageSize}}", siteId, operationClass, page, pageSize);
+		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{StoreId}}, {{OperationClass}}, {{Page}}, {{PageSize}}", storeId, operationClass, page, pageSize);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
-		AutoId siteEntityId = AutoId.Parse(siteId);
+		AutoId storeEntityId = AutoId.Parse(storeId);
 
-		Store site = mcv.Stores.Latest(siteEntityId);
-		if(site == null)
+		Store store = mcv.Stores.Latest(storeEntityId);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		return LoadProposalsPagedNotOptimized(site.Proposals, operationClass, page, pageSize, cancellationToken);
+		return LoadProposalsPagedNotOptimized(store.Proposals, operationClass, page, pageSize, cancellationToken);
 	}
 
 	TotalItemsResult<ProposalModel> LoadProposalsPagedNotOptimized(IEnumerable<AutoId> proposalIds, FairOperationClass? operation, int page, int pageSize, CancellationToken cancellationToken)

@@ -32,9 +32,9 @@ export const validateUniqueParentCategory = (t: TFunction) => (value: unknown, d
   return sameAsCategory.length == 0 || t("validation:differentParentCategory")
 }
 
-export const validateUniqueSiteNickname = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
+export const validateUniqueStoreName = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.name === value)
-  return duplicates.length <= 1 || t("validation:uniqueSiteNickname")
+  return duplicates.length <= 1 || t("validation:uniqueStoreNickname")
 }
 
 export const validateUniqueTitle = (t: TFunction) => (value: string, data: CreateProposalData) => {
@@ -48,7 +48,7 @@ const normalizeAuthors = (authors?: AuthorBaseAvatar[]) =>
     .sort()
     .join("")
 
-export const validateSiteAuthorsRemoval = (
+export const validateStoreAuthorsRemoval = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
@@ -74,7 +74,7 @@ const normalizeAccounts = (accounts?: AccountBase[]) =>
     .sort()
     .join("")
 
-export const validateSiteModeratorChange = (
+export const validateStoreModeratorChange = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
@@ -94,7 +94,7 @@ export const validateSiteModeratorChange = (
   }
 }
 
-export const validateSiteTextChange = (
+export const validateStoreInfoUpdation = (
   t: TFunction,
   options: CreateProposalDataOption[],
   clearErrors: UseFormClearErrors<CreateProposalData>,
@@ -105,7 +105,7 @@ export const validateSiteTextChange = (
 
   const edited = options[lastEditedIndex]
   const hasAnyField =
-    ((edited.siteTitle ?? "") as string).trim().length > 0 ||
+    ((edited.storeTitle ?? "") as string).trim().length > 0 ||
     ((edited.slogan ?? "") as string).trim().length > 0 ||
     ((edited.description ?? "") as string).trim().length > 0
 
@@ -118,7 +118,7 @@ export const validateSiteTextChange = (
     options.some(
       (other, j) =>
         i !== j &&
-        ((other.siteTitle ?? "") as string).trim() == ((opt.siteTitle ?? "") as string).trim() &&
+        ((other.storeTitle ?? "") as string).trim() == ((opt.storeTitle ?? "") as string).trim() &&
         ((other.slogan ?? "") as string).trim() === ((opt.slogan ?? "") as string).trim() &&
         ((other.description ?? "") as string).trim() === ((opt.description ?? "") as string).trim(),
     ),

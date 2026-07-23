@@ -5,10 +5,10 @@ import { PublicationExtended } from "types"
 
 const api = getFairApi()
 
-export const useSearchPaginatedPublications = (siteId?: string, query?: string) => {
+export const useSearchPaginatedPublications = (storeId?: string, query?: string) => {
   return useNextPaginationQuery<PublicationExtended>({
-    queryKey: ["sites", siteId, "publications", { query }],
-    queryFn: page => api.searchPublications(siteId!, query, page),
+    queryKey: ["stores", storeId, "publications", { query }],
+    queryFn: page => api.searchPublications(storeId!, query, page),
     pageSize: DEFAULT_PAGE_SIZE,
     enabled: !!query,
   })

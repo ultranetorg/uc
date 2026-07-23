@@ -36,9 +36,9 @@ import {
   PublisherProposal,
   Review,
   ReviewProposal,
-  Site,
-  SiteBase,
-  SiteLiteSearch,
+  Store,
+  StoreBase,
+  StoreLiteSearch,
   StatusResult,
   TotalItemsResult,
   User,
@@ -48,26 +48,26 @@ import {
 } from "types"
 
 export type FairApi = {
-  getDefaultSites(): Promise<SiteBase[]>
-  getSite(siteId: string): Promise<Site>
-  getSitePolicies(siteId: string): Promise<Policy[]>
-  getSiteUsers(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<User>>
-  getSitePublishers(
-    siteId: string,
+  getDefaultStores(): Promise<StoreBase[]>
+  getStore(storeId: string): Promise<Store>
+  getStorePolicies(storeId: string): Promise<Policy[]>
+  getStoreUsers(storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<User>>
+  getStorePublishers(
+    storeId: string,
     page?: number,
     pageSize?: number,
     search?: string,
   ): Promise<TotalItemsResult<Publisher>>
-  getSiteModerators(siteId: string): Promise<Moderator[]>
-  getSiteFiles(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
-  searchSiteUsers(siteId: string, query?: string, limit?: number): Promise<User[]>
+  getStoreModerators(storeId: string): Promise<Moderator[]>
+  getStoreFiles(storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
+  searchStoreUsers(storeId: string, query?: string, limit?: number): Promise<User[]>
 
   searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
   searchAuthors(query?: string, limit?: number): Promise<AuthorBaseAvatar[]>
-  searchSites(query?: string, page?: number): Promise<TotalItemsResult<SiteBase>>
-  searchLiteSites(query?: string): Promise<SiteLiteSearch[]>
-  searchPublications(siteId: string, query?: string, page?: number): Promise<PublicationExtended[]>
-  searchLitePublication(siteId: string, query?: string): Promise<PublicationBase[]>
+  searchStores(query?: string, page?: number): Promise<TotalItemsResult<StoreBase>>
+  searchLiteStores(query?: string): Promise<StoreLiteSearch[]>
+  searchPublications(storeId: string, query?: string, page?: number): Promise<PublicationExtended[]>
+  searchLitePublication(storeId: string, query?: string): Promise<PublicationBase[]>
   searchLiteAccounts(query?: string): Promise<AccountSearchLite[]>
   searchLiteProducts(query?: string): Promise<ProductSearchResultBase[]>
   searchProducts(query?: string, page?: number, pageSize?: number): Promise<ProductSearchResult[]>
@@ -76,34 +76,34 @@ export type FairApi = {
   getUser(name: string): Promise<StatusResult<User>>
   getUserAuthors(userId: string): Promise<UserAuthors>
   getUserDetails(name: string): Promise<UserDetails>
-  getUserSiteExists(userId: string, siteId: string): Promise<boolean>
+  getUserStoreExists(userId: string, storeId: string): Promise<boolean>
   getUserReviews(userId: string, page?: number): Promise<TotalItemsResult<Review>>
 
-  getCategoriesTree(siteId: string, depth?: number): Promise<CategoryParentBase[]>
+  getCategoriesTree(storeId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategoryDetails(categoryId: string): Promise<Category>
-  getCategoriesRoot(siteId: string): Promise<CategoryBase[]>
-  getCategoriesPublications(siteId: string): Promise<CategoryPublications[]>
+  getCategoriesRoot(storeId: string): Promise<CategoryBase[]>
+  getCategoriesPublications(storeId: string): Promise<CategoryPublications[]>
   getPublicationDetails(publicationId: string): Promise<PublicationDetails>
   getPublicationVersions(publicationId: string): Promise<PublicationVersionInfo>
 
-  getChangedPublication(siteId: string, changedPublicationId: string): Promise<PublicationChangedDetails>
+  getChangedPublication(storeId: string, changedPublicationId: string): Promise<PublicationChangedDetails>
   getChangedPublications(
-    siteId: string,
+    storeId: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<PublicationChanged>>
 
-  getUnpublishedSiteProduct(siteId: string, unpublishedProductId: string): Promise<ProductDetails>
+  getUnpublishedStoreProduct(storeId: string, unpublishedProductId: string): Promise<ProductDetails>
 
-  getUnpublishedPublication(siteId: string, publicationId: string): Promise<ProductDetails>
+  getUnpublishedPublication(storeId: string, publicationId: string): Promise<ProductDetails>
   getUnpublishedPublications(
-    siteId: string,
+    storeId: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<PublicationUnpublished>>
 
   getPublisherPublications(
-    siteId: string,
+    storeId: string,
     publisherId: string,
     page?: number,
     pageSize?: number,
@@ -115,44 +115,44 @@ export type FairApi = {
   getAuthor(authorId: string): Promise<AuthorDetails>
   getAuthorProducts(authorId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<ProductAuthor>>
 
-  getAuthorFiles(siteId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
+  getAuthorFiles(storeId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
-  getAuthorPerpetualSurveys(siteId: string): Promise<PerpetualSurvey[]>
-  getAuthorPerpetualSurveyDetails(siteId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails>
+  getAuthorPerpetualSurveys(storeId: string): Promise<PerpetualSurvey[]>
+  getAuthorPerpetualSurveyDetails(storeId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails>
 
-  getAuthorReferendum(siteId: string, referendumId: string): Promise<ProposalDetails>
+  getAuthorReferendum(storeId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(
-    siteId: string,
+    storeId: string,
     page?: number,
     pageSize?: number,
     search?: string,
   ): Promise<TotalItemsResult<Proposal>>
 
   getAuthorReferendumComments(
-    siteId: string,
+    storeId: string,
     discussionId: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<ProposalComment>>
 
   // Moderator
-  getModeratorDiscussion(siteId: string, discussionId: string): Promise<ProposalDetails>
+  getModeratorDiscussion(storeId: string, discussionId: string): Promise<ProposalDetails>
   getModeratorDiscussions(
-    siteId: string,
+    storeId: string,
     page?: number,
     pageSize?: number,
     search?: string,
   ): Promise<TotalItemsResult<Proposal>>
 
   getModeratorDiscussionComments(
-    siteId: string,
+    storeId: string,
     discussionId: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<ProposalComment>>
 
   getPublicationProposals(
-    siteId: string,
+    storeId: string,
     page?: number,
     pageSize?: number,
     search?: string,
@@ -166,30 +166,30 @@ export type FairApi = {
   getPublicationDetailsDiff(publicationId: string, version: number): Promise<PublicationDetailsDiff>
 
   getModeratorProposals(
-    siteId: string,
+    storeId: string,
     search?: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<ModeratorProposal>>
 
   getPublisherProposals(
-    siteId: string,
+    storeId: string,
     search?: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<PublisherProposal>>
 
   getReviewProposals(
-    siteId: string,
+    storeId: string,
     page?: number,
     pageSize?: number,
     search?: string,
   ): Promise<TotalItemsResult<ReviewProposal>>
 
-  getUserRegistrationProposals(siteId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Proposal>>
+  getUserRegistrationProposals(storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Proposal>>
 
   getUserUnregistrationProposals(
-    siteId: string,
+    storeId: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<UserUnregistrationProposal>>

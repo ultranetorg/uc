@@ -1,6 +1,6 @@
 export type FairOperationType =
   | "AccountNicknameChange"
-  | "FavoriteSiteChange"
+  | "FavoriteStoreChange"
   | "FileCreation"
   | "FileDeletion"
   | "PerpetualVoting"

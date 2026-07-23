@@ -63,6 +63,7 @@
     "**/node_modules": true
   },
   "search.exclude": {
-    "**/archive": true
+    "**/archive": true,
+    "**/package-lock.json": true,
   }
 }

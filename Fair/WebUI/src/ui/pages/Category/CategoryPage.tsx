@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next"
 import { useLocalStorage } from "usehooks-ts"
 import { isNumber } from "lodash"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { DEFAULT_PAGE_SIZE_24 } from "config"
 import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
-import { useParams, useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
+import { useParams, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { NoContent, Pagination } from "ui/components"
 import { CategoriesList, PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
 import { parseInteger } from "utils"
@@ -15,8 +15,8 @@ import { CategoryHeader } from "./CategoryHeader"
 
 export const CategoryPage = () => {
   const { categoryId } = useParams()
-  const { site } = useSiteContext()
-  const siteId = useResolveSiteId()
+  const { store } = useStoreContext()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("category")
 
   const [state, setState] = useUrlParamsState({
@@ -32,7 +32,7 @@ export const CategoryPage = () => {
 
   const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, state.page)
 
-  useSiteTitle(site?.title, category?.title ? `Category - ${category?.title}` : undefined)
+  useStoreTitle(store?.title, category?.title ? `Category - ${category?.title}` : undefined)
 
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0
@@ -63,18 +63,18 @@ export const CategoryPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <CategoryHeader category={category} siteId={siteId!} view={view} onViewChange={handleViewChange} />
-      {category.categories.length > 0 && <CategoriesList siteId={siteId!} categories={category.categories} />}
+      <CategoryHeader category={category} storeId={storeId!} view={view} onViewChange={handleViewChange} />
+      {category.categories.length > 0 && <CategoriesList storeId={storeId!} categories={category.categories} />}
       {publications.items.length !== 0 ? (
         view === "grid" ? (
           <PublicationsGrid
             isPending={isPendingPublications}
             publications={publications.items}
-            siteId={siteId!}
+            storeId={storeId!}
             productType={category.type}
           />
         ) : (
-          <PublicationsList siteId={siteId!} publications={publications.items} />
+          <PublicationsList storeId={storeId!} publications={publications.items} />
         )
       ) : (
         <NoContent>{t("empty")}</NoContent>

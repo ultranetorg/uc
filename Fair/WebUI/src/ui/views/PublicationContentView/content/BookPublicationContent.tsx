@@ -16,7 +16,7 @@ const VALUE_CLASSNAME = "truncate text-2sm leading-5"
 const LONG_VALUE_CLASSNAME = "line-clamp-3 text-2sm leading-5"
 
 export const BookPublicationContent = memo(
-  ({ t, siteId, productOrPublication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
+  ({ t, storeId, productOrPublication, isPending, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
     const fields = productOrPublication.fields
 
     const bookFields = useMemo(() => buildBookFields(fields), [fields])
@@ -62,7 +62,7 @@ export const BookPublicationContent = memo(
             {/* Publisher (account with avatar) */}
             <div className="flex items-center gap-4">
               <span className={LABEL_CLASSNAME}>{t("publisher")}:</span>
-              <LinkFullscreen to={routes.publisher(siteId, productOrPublication.authorId)}>
+              <LinkFullscreen to={routes.publisher(storeId, productOrPublication.authorId)}>
                 <AuthorImageTitle title={publisherAccountName} authorFileId={productOrPublication.authorId} />
               </LinkFullscreen>
             </div>

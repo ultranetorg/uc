@@ -8,17 +8,17 @@ import { createBreadcrumbs, formatTitle } from "utils"
 
 export type CategoryHeaderProps = {
   category: Category
-  siteId: string
+  storeId: string
   view: ViewType
   onViewChange(view: ViewType): void
 }
 
-export const CategoryHeader = memo(({ category, siteId, view, onViewChange }: CategoryHeaderProps) => {
+export const CategoryHeader = memo(({ category, storeId, view, onViewChange }: CategoryHeaderProps) => {
   const { t } = useTranslation("category")
 
   const breadcrumbsItems = useMemo<BreadcrumbsItemProps[]>(
-    () => createBreadcrumbs(siteId, category.path, category.title, t),
-    [category.path, category.title, siteId, t],
+    () => createBreadcrumbs(storeId, category.path, category.title, t),
+    [category.path, category.title, storeId, t],
   )
 
   return (

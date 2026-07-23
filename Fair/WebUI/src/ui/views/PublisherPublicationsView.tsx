@@ -9,7 +9,7 @@ import { AuthorProfileProps } from "ui/components/author"
 import { PublicationsTable, ProductStoresModal } from "ui/components/specific"
 
 type PublisherPublicationsViewBaseProps = {
-  siteId: string
+  storeId: string
   author?: AuthorDetails
   isModalOpen: boolean
   onModalOpenChange: (open: boolean) => void
@@ -18,13 +18,13 @@ type PublisherPublicationsViewBaseProps = {
 export type PublisherPublicationsViewProps = Pick<AuthorProfileProps, "size"> & PublisherPublicationsViewBaseProps
 
 export const PublisherPublicationsView = memo(
-  ({ siteId, author, isModalOpen, onModalOpenChange }: PublisherPublicationsViewProps) => {
+  ({ storeId, author, isModalOpen, onModalOpenChange }: PublisherPublicationsViewProps) => {
     const { t } = useTranslation()
 
     const [page, setPage] = useState(0)
     const [selectedPublicationId, setPublicationId] = useState<string | undefined>()
 
-    const { data: publications } = useGetPublisherPublications(siteId, author?.id, page, DEFAULT_PAGE_SIZE_20)
+    const { data: publications } = useGetPublisherPublications(storeId, author?.id, page, DEFAULT_PAGE_SIZE_20)
 
     const pagesCount =
       publications?.totalItems && publications.totalItems > 0

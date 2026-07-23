@@ -1,11 +1,11 @@
-import { useSiteContext } from "app"
-import { useSiteTitle } from "hooks"
+import { useStoreContext } from "app"
+import { useStoreTitle } from "hooks"
 import { CreateProposalView } from "ui/views"
 
 export const CreateReferendumPage = () => {
-  const { site } = useSiteContext()
+  const { store } = useStoreContext()
 
-  useSiteTitle(site?.title, "Create New Publisher Referendum")
+  useStoreTitle(store?.title, "Create New Publisher Referendum")
 
   return <CreateProposalView proposalType="referendum" />
 }

@@ -1,11 +1,11 @@
 import { memo, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useSiteRolesContext, useUserContext } from "app"
+import { useStoreRolesContext, useUserContext } from "app"
 import { TabsProvider } from "ui/components"
 
 import { EditProfileInfo } from "./EditProfileInfo"
-// import { ModeratedSites } from "./ModeratedSites"
+// import { ModeratedStores } from "./ModeratedStores"
 import { ProfileInfo } from "./ProfileInfo"
 // import { PublicationsCollapsesLists } from "./PublicationCollapsesList"
 import { TabContent } from "./TabContent"
@@ -20,7 +20,7 @@ export type ProfileTabsProps = {
 export const ProfileTabs = memo(({ defaultTabKey, tabsListClassName, onTabSelect }: ProfileTabsProps) => {
   const { t } = useTranslation("profile")
 
-  const { isPublisher, isModerator } = useSiteRolesContext()
+  const { isPublisher, isModerator } = useStoreRolesContext()
   const { user } = useUserContext()
 
   const roles = useMemo(() => {
@@ -45,7 +45,7 @@ export const ProfileTabs = memo(({ defaultTabKey, tabsListClassName, onTabSelect
               <PublicationsCollapsesLists items={[]} />
             </TabContent>
             <TabContent when="moderation">
-              <ModeratedSites />
+              <ModeratedStores />
             </TabContent>
           */}
         </div>

@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useOperationPolicy, useSignInContext, useSiteContext } from "app"
+import { useOperationPolicy, useSignInContext, useStoreContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublicationDetails, useGetReviews } from "entities"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, PublicationHeader } from "ui/components/publication"
 import { createBreadcrumbs } from "utils"
@@ -14,8 +14,8 @@ export const PublicationPage = () => {
   const { t } = useTranslation("publicationPage")
   const { creator: create } = useOperationPolicy("review-creation")
   const { publicationId } = useParams()
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
+  const storeId = useResolveStoreId()
+  const { store } = useStoreContext()
 
   const { startSignIn } = useSignInContext()
 
@@ -25,7 +25,7 @@ export const PublicationPage = () => {
   const { isPending, data: publication, error } = useGetPublicationDetails(publicationId)
   if (error) throw error
 
-  useSiteTitle(site?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
+  useStoreTitle(store?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
 
   const {
     isPending: isPendingReviews,
@@ -38,8 +38,8 @@ export const PublicationPage = () => {
 
   const breadcrumbsItems = useMemo<BreadcrumbsItemProps[] | undefined>(
     () =>
-      publication ? createBreadcrumbs(siteId!, publication.path, publication.title ?? publication.id, t) : undefined,
-    [publication, siteId, t],
+      publication ? createBreadcrumbs(storeId!, publication.path, publication.title ?? publication.id, t) : undefined,
+    [publication, storeId, t],
   )
 
   const handleLeaveReview = useCallback(() => {

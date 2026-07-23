@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/moderator/sites/{siteId}/reviews")]
+[Route("api/moderator/stores/{storeId}/reviews")]
 public class ModeratorReviewsController
 (
 	ILogger<ModeratorReviewsController> logger,
@@ -13,15 +13,15 @@ public class ModeratorReviewsController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<ReviewProposalModel> Get(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<ReviewProposalModel> Get(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}, {Search}", nameof(ModeratorReviewsController), nameof(Get), siteId, pagination, search);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorReviewsController), nameof(Get), storeId, pagination, search);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ReviewProposalModel> reviews = moderatorProposalsService.GetReviewProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ReviewProposalModel> reviews = moderatorProposalsService.GetReviewProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}

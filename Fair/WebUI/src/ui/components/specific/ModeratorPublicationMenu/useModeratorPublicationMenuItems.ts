@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
 import { unpublishedPublicationsKeys } from "entities"
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
 export const useModeratorPublicationMenuItems = (
@@ -11,14 +11,14 @@ export const useModeratorPublicationMenuItems = (
   publicationTitle?: string,
   isFromContextMenu: boolean = false,
 ) => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("moderatorPublicationMenu")
 
   const menuItems = useMemo(
     () => [
       {
         label: t("unpublishPublication"),
-        to: routes.moderation.createProposal(siteId!),
+        to: routes.moderation.createProposal(storeId!),
         state: {
           title: publicationTitle
             ? `Unpublish publication "${truncate(publicationTitle, { length: 40 })}"`
@@ -26,18 +26,18 @@ export const useModeratorPublicationMenuItems = (
           type: "publication-unpublish",
           publicationId,
           parentBreadcrumbs: [
-            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
-            { path: routes.moderation.publications(siteId!), title: t("common:publications") },
+            { path: routes.moderation.proposals(storeId!), title: t("common:proposals") },
+            { path: routes.moderation.publications(storeId!), title: t("common:publications") },
           ],
-          redirectAfterProposalCreation: routes.moderation.publications(siteId!),
-          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.site(siteId!),
-          invalidateQueryKeys: unpublishedPublicationsKeys.all(siteId!),
+          redirectAfterProposalCreation: routes.moderation.publications(storeId!),
+          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.store(storeId!),
+          invalidateQueryKeys: unpublishedPublicationsKeys.all(storeId!),
         },
       },
       { separator: true },
       {
         label: t("removePublication"),
-        to: routes.moderation.createProposal(siteId!),
+        to: routes.moderation.createProposal(storeId!),
         state: {
           title: publicationTitle
             ? `Remove publication "${truncate(publicationTitle, { length: 43 })}"`
@@ -45,15 +45,15 @@ export const useModeratorPublicationMenuItems = (
           type: "publication-deletion",
           publicationId,
           parentBreadcrumbs: [
-            { path: routes.moderation.proposals(siteId!), title: t("common:proposals") },
-            { path: routes.moderation.publications(siteId!), title: t("common:publications") },
+            { path: routes.moderation.proposals(storeId!), title: t("common:proposals") },
+            { path: routes.moderation.publications(storeId!), title: t("common:publications") },
           ],
-          redirectAfterProposalCreation: routes.moderation.publications(siteId!),
-          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.site(siteId!),
+          redirectAfterProposalCreation: routes.moderation.publications(storeId!),
+          redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.store(storeId!),
         },
       },
     ],
-    [isFromContextMenu, publicationId, publicationTitle, siteId, t],
+    [isFromContextMenu, publicationId, publicationTitle, storeId, t],
   )
 
   return { menuItems }

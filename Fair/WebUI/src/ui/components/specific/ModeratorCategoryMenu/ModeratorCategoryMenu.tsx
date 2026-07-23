@@ -2,7 +2,7 @@ import { memo, useCallback } from "react"
 import { FloatingPortal } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 
-import { useSiteRolesContext } from "app"
+import { useStoreRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { SimpleMenu } from "ui/components"
@@ -16,7 +16,7 @@ export type ModeratorCategoryMenuProps = {
 
 export const ModeratorCategoryMenu = memo(({ categoryId, categoryTitle }: ModeratorCategoryMenuProps) => {
   const { menuItems } = useModeratorCategoryMenuItems(categoryId, categoryTitle)
-  const { isModerator } = useSiteRolesContext()
+  const { isModerator } = useStoreRolesContext()
 
   const menu = useSubmenu({ placement: "bottom-end" })
   useScrollOrResize(() => menu.setOpen(false), menu.isOpen)

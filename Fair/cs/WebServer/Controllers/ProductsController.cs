@@ -31,7 +31,7 @@ public class ProductsController
 
 		searchQueryValidator.Validate(query);
 
-		return productsService.SearchLite(query, SiteConstants.SearchLitePageSize, cancellationToken);
+		return productsService.SearchLite(query, StoreConstants.SearchLitePageSize, cancellationToken);
 	}
 
 	[HttpGet("{productId}")]

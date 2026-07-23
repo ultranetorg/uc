@@ -43,15 +43,15 @@ public class UsersController
 		return usersService.GetDetails(name);
 	}
 
-	[HttpHead("{userId}/sites/{siteId}")]
-	public IActionResult SiteExists(string userId, string siteId)
+	[HttpHead("{userId}/stores/{storeId}")]
+	public IActionResult StoreExists(string userId, string storeId)
 	{
-		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {SiteId}", nameof(UsersController), nameof(SiteExists), userId, siteId);
+		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {StoreId}", nameof(UsersController), nameof(StoreExists), userId, storeId);
 
 		autoIdValidator.Validate(userId, nameof(User));
-		autoIdValidator.Validate(siteId, nameof(Store));
+		autoIdValidator.Validate(storeId, nameof(Store));
 
-		return usersService.SiteExists(userId, siteId) ? Ok() : NotFound();
+		return usersService.StoreExists(userId, storeId) ? Ok() : NotFound();
 	}
 
 	[HttpGet("{userId}/reviews")]

@@ -5,13 +5,13 @@ import { categoriesKeys } from "./categoriesKeys"
 
 const api = getFairApi()
 
-export const useGetCategoriesTree = (siteId?: string, depth?: number) => {
-  const queryFn = () => api.getCategoriesTree(siteId!, depth)
+export const useGetCategoriesTree = (storeId?: string, depth?: number) => {
+  const queryFn = () => api.getCategoriesTree(storeId!, depth)
 
   const { isPending, error, data, isFetching, refetch } = useQuery({
-    queryKey: categoriesKeys.tree(siteId!, depth),
+    queryKey: categoriesKeys.tree(storeId!, depth),
     queryFn: queryFn,
-    enabled: !!siteId && depth !== undefined,
+    enabled: !!storeId && depth !== undefined,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchOnMount: false,

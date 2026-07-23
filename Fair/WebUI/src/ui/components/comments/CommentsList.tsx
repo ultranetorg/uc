@@ -57,14 +57,7 @@ export const CommentsList = memo(
             />
           )}
           {comments.map(r => (
-            <Comment
-              key={r.id}
-              id={r.id}
-              text={r.text}
-              rating={r.rating}
-              account={r.creatorAccount}
-              created={r.created}
-            />
+            <Comment key={r.id} id={r.id} text={r.text} rating={r.rating} account={r.creatorUser} created={r.created} />
           ))}
           {/* <ButtonOutline className="mx-auto h-9" label={showMoreCommentsLabel} /> */}
         </>

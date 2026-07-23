@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchAccounts } from "entities"
 import { AccountBase } from "types"
@@ -17,7 +17,7 @@ export type AddModeratorPanelListProps = {
 
 export const AddModeratorPanelList = memo(
   ({ value: selectedModerators = [], onChange }: AddModeratorPanelListProps) => {
-    const { site } = useSiteContext()
+    const { store } = useStoreContext()
     const { t } = useTranslation("createProposal")
 
     const [search, setSearch] = useState("")
@@ -29,9 +29,9 @@ export const AddModeratorPanelList = memo(
       () =>
         users
           .filter(x => selectedModerators.every(a => a.id !== x.id)) // Do not display moderators that have already been selected
-          .filter(x => site?.moderatorsIds.every(m => m !== x.id)) // Do not display moderators who are already moderators
+          .filter(x => store?.moderatorsIds.every(m => m !== x.id)) // Do not display moderators who are already moderators
           .map(x => ({ label: x.nickname ?? x.id, value: x.id, avatarId: x.id })) || [],
-      [users, selectedModerators, site?.moderatorsIds],
+      [users, selectedModerators, store?.moderatorsIds],
     )
 
     const handleAccountSelect = useCallback(

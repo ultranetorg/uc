@@ -2,15 +2,15 @@ import { useCallback, useEffect } from "react"
 import { Navigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-import { useSearchQueryContext, useSiteContext } from "app"
+import { useSearchQueryContext, useStoreContext } from "app"
 import { useSearchPaginatedPublications } from "entities"
-import { useResolveSiteId, useSiteTitle, useUrlParamsState } from "hooks"
+import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { NextPagination } from "ui/components"
 import { PublicationsList, SearchPageHeader } from "ui/components/specific"
 import { routes } from "utils"
 
 export const SearchPage = () => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("search")
 
   const [state, setState] = useUrlParamsState({
@@ -20,11 +20,11 @@ export const SearchPage = () => {
     },
   })
 
-  const { site } = useSiteContext()
+  const { store } = useStoreContext()
   const { query: searchQuery, setQuery: setSearchQuery } = useSearchQueryContext()
 
   const pageTitle = state.query || searchQuery
-  useSiteTitle(site?.title, pageTitle ? `Search - ${pageTitle}` : undefined)
+  useStoreTitle(store?.title, pageTitle ? `Search - ${pageTitle}` : undefined)
 
   const {
     isPending,
@@ -34,7 +34,7 @@ export const SearchPage = () => {
     hasNext,
     isFetchingNext,
     onPageChange,
-  } = useSearchPaginatedPublications(siteId, state.query || searchQuery)
+  } = useSearchPaginatedPublications(storeId, state.query || searchQuery)
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -53,7 +53,7 @@ export const SearchPage = () => {
   }, [searchQuery, setSearchQuery, setState, state])
 
   if (!searchQuery && !state.query) {
-    return <Navigate to={routes.site(siteId!)} />
+    return <Navigate to={routes.store(storeId!)} />
   }
 
   return (
@@ -63,7 +63,7 @@ export const SearchPage = () => {
         allAuthorsLabel={t("allAuthors")}
         allCategoriesLabel={t("allCategories")}
       />
-      <PublicationsList publications={publications} isLoading={isPending || !publications} siteId={siteId!} />
+      <PublicationsList publications={publications} isLoading={isPending || !publications} storeId={storeId!} />
       <NextPagination
         hasNext={hasNext && !isFetchingNext}
         page={page}
