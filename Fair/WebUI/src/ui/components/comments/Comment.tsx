@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import avatarFallback from "assets/fallback/user-10.png"
 import { useResolveStoreId } from "hooks"
-import { AccountBaseAvatar } from "types"
+import { UserBaseAvatar } from "types"
 import { ImageFallback, LinkFullscreen, RatingBar } from "ui/components"
 import { buildUserAvatarByIdUrl, formatDate, routes } from "utils"
 
@@ -23,7 +23,7 @@ export type CommentContextMenuProps = {
 
 export type CommentProps = {
   style?: CommentStyle
-  account: AccountBaseAvatar
+  user: UserBaseAvatar
   id: string
   created: number
   rating?: number
@@ -33,11 +33,11 @@ export type CommentProps = {
 }
 
 export const Comment = memo(
-  ({ style = "default", account, id, created, rating, text, publication, contextMenu: ContextMenu }: CommentProps) => {
+  ({ style = "default", user, id, created, rating, text, publication, contextMenu: ContextMenu }: CommentProps) => {
     const storeId = useResolveStoreId()
     const { t } = useTranslation()
 
-    const displayName = account.nickname ?? account.id
+    const displayName = user.nickname ?? user.id
 
     return style === "default" ? (
       <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
@@ -45,23 +45,17 @@ export const Comment = memo(
           <div className="flex gap-4.5">
             <div className="size-13 overflow-hidden rounded-full">
               <ImageFallback
-                src={buildUserAvatarByIdUrl(account.id)}
+                src={buildUserAvatarByIdUrl(user.id)}
                 fallbackSrc={avatarFallback}
                 className="size-full object-cover"
               />
             </div>
             <div className="flex flex-1 flex-col justify-center gap-2">
               <div className="flex items-center justify-between">
-                <LinkFullscreen
-                  to={routes.reviewer(storeId!, account.id)}
-                  className={NAME_CLASSNAME}
-                  title={displayName}
-                >
+                <LinkFullscreen to={routes.reviewer(storeId!, user.id)} className={NAME_CLASSNAME} title={displayName}>
                   {displayName}
                 </LinkFullscreen>
-                {ContextMenu && (
-                  <ContextMenu id={id} reviewerId={account.id} reviewerName={account.nickname} text={text} />
-                )}
+                {ContextMenu && <ContextMenu id={id} reviewerId={user.id} reviewerName={user.nickname} text={text} />}
               </div>
               <span className={DATE_CLASSNAME}>{formatDate(created)}</span>
             </div>
@@ -75,7 +69,7 @@ export const Comment = memo(
         <div className="flex items-center gap-2">
           <div className="size-10 overflow-hidden rounded-full">
             <ImageFallback
-              src={buildUserAvatarByIdUrl(account.id)}
+              src={buildUserAvatarByIdUrl(user.id)}
               fallbackSrc={avatarFallback}
               className="size-full object-cover"
             />

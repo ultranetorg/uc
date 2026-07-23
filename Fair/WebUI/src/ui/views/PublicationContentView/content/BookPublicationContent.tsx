@@ -34,7 +34,7 @@ export const BookPublicationContent = memo(
     }, [bookFields.publicationDate, productOrPublication.updated])
 
     const authorName = bookFields.author ?? productOrPublication.authorTitle
-    const publisherAccountName = productOrPublication.authorTitle
+    const authorTitle = productOrPublication.authorTitle
     const publisherName = bookFields.publisher ?? productOrPublication.authorTitle
 
     return (
@@ -63,7 +63,7 @@ export const BookPublicationContent = memo(
             <div className="flex items-center gap-4">
               <span className={LABEL_CLASSNAME}>{t("publisher")}:</span>
               <LinkFullscreen to={routes.publisher(storeId, productOrPublication.authorId)}>
-                <AuthorImageTitle title={publisherAccountName} authorFileId={productOrPublication.authorId} />
+                <AuthorImageTitle title={authorTitle} authorFileId={productOrPublication.authorId} />
               </LinkFullscreen>
             </div>
 

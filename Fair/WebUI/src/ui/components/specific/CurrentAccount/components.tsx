@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 import { CheckCircleFillSvg, SvgXSm } from "assets"
 import avatarFallbackXl from "assets/fallback/user-8.png"
 import avatarFallback3xl from "assets/fallback/user-10.png"
-import { AccountBase, PropsWithClassName } from "types"
+import { UserBase, PropsWithClassName } from "types"
 import { buildUserAvatarByNameUrl, MakeOptional, shortenAddress } from "utils"
 
 export interface MenuItemProps {
@@ -30,7 +30,7 @@ type AccountBaseProps = {
   onRemove: () => void
 }
 
-export type AccountProps = MakeOptional<AccountBase, "id"> & AccountBaseProps & { avatarVersion?: number }
+export type AccountProps = MakeOptional<UserBase, "id"> & AccountBaseProps & { avatarVersion?: number }
 
 export const Account = memo(
   ({ nickname, address, addressShort, selected, avatarVersion, onSelect, onRemove }: AccountProps) => {
@@ -74,8 +74,7 @@ export const Account = memo(
   },
 )
 
-export type CurrentAccountButtonProps = PropsWithClassName &
-  MakeOptional<AccountBase, "id"> & { avatarVersion?: number }
+export type CurrentAccountButtonProps = PropsWithClassName & MakeOptional<UserBase, "id"> & { avatarVersion?: number }
 
 export const CurrentAccountButton = memo(
   forwardRef<HTMLDivElement, CurrentAccountButtonProps>(({ className, id, address, nickname, avatarVersion }, ref) => (

@@ -1,6 +1,4 @@
 import {
-  AccountBase,
-  AccountSearchLite,
   AuthorBaseAvatar,
   AuthorDetails,
   Category,
@@ -36,14 +34,16 @@ import {
   PublisherProposal,
   Review,
   ReviewProposal,
+  StatusResult,
   Store,
   StoreBase,
   StoreLiteSearch,
-  StatusResult,
   TotalItemsResult,
   User,
   UserAuthors,
+  UserBase,
   UserDetails,
+  UserSearchLite,
   UserUnregistrationProposal,
 } from "types"
 
@@ -62,13 +62,13 @@ export type FairApi = {
   getStoreFiles(storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
   searchStoreUsers(storeId: string, query?: string, limit?: number): Promise<User[]>
 
-  searchAccounts(query?: string, limit?: number): Promise<AccountBase[]>
+  searchAccounts(query?: string, limit?: number): Promise<UserBase[]>
   searchAuthors(query?: string, limit?: number): Promise<AuthorBaseAvatar[]>
   searchStores(query?: string, page?: number): Promise<TotalItemsResult<StoreBase>>
   searchLiteStores(query?: string): Promise<StoreLiteSearch[]>
   searchPublications(storeId: string, query?: string, page?: number): Promise<PublicationExtended[]>
   searchLitePublication(storeId: string, query?: string): Promise<PublicationBase[]>
-  searchLiteAccounts(query?: string): Promise<AccountSearchLite[]>
+  searchLiteAccounts(query?: string): Promise<UserSearchLite[]>
   searchLiteProducts(query?: string): Promise<ProductSearchResultBase[]>
   searchProducts(query?: string, page?: number, pageSize?: number): Promise<ProductSearchResult[]>
 

@@ -1,7 +1,7 @@
 import { TFunction } from "i18next"
 import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
-import { AccountBase, AuthorBaseAvatar, CreateProposalData, CreateProposalDataOption } from "types"
+import { UserBase, AuthorBaseAvatar, CreateProposalData, CreateProposalDataOption } from "types"
 
 export const validateUniqueCategoryTitle = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
@@ -68,8 +68,8 @@ export const validateStoreAuthorsRemoval = (
   }
 }
 
-const normalizeAccounts = (accounts?: AccountBase[]) =>
-  (accounts ?? [])
+const normalizeUsers = (users?: UserBase[]) =>
+  (users ?? [])
     .map(x => x.id)
     .sort()
     .join("")
@@ -84,7 +84,7 @@ export const validateStoreModeratorChange = (
   if (!options || lastEditedIndex >= options.length) return
 
   const hasDuplicates = options.some((opt, i) =>
-    options.some((other, j) => i !== j && normalizeAccounts(other.moderators) === normalizeAccounts(opt.moderators)),
+    options.some((other, j) => i !== j && normalizeUsers(other.moderators) === normalizeUsers(opt.moderators)),
   )
 
   if (hasDuplicates) {

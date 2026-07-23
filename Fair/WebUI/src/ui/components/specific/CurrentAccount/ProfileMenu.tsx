@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { SvgChevronRight, SvgPencilSm, SvgPerson2, SvgPersonSquare } from "assets"
 import avatarFallback from "assets/fallback/user-22.5.png"
 import { useSubmenu } from "hooks"
-import { AccountBaseAvatar, PropsWithStyle } from "types"
+import { UserBaseAvatar, PropsWithStyle } from "types"
 import { ButtonGhost, CopyAddressButton, ImageFallback } from "ui/components"
 import { buildUserAvatarByNameUrl } from "utils"
 
@@ -21,7 +21,7 @@ type ProfileMenuBaseProps = {
   onAvatarDelete: () => void
 } & AccountSwitcherBaseProps
 
-export type ProfileMenuProps = PropsWithStyle & Omit<AccountBaseAvatar, "id"> & ProfileMenuBaseProps
+export type ProfileMenuProps = PropsWithStyle & Omit<UserBaseAvatar, "id"> & ProfileMenuBaseProps
 
 export const ProfileMenu = memo(
   forwardRef<HTMLDivElement, ProfileMenuProps>(

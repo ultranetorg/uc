@@ -1,4 +1,4 @@
-export type AccountBase = {
+export type UserBase = {
   id: string
   nickname: string
   address: string

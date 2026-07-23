@@ -1,6 +1,6 @@
-import { AccountBase } from "./AccountBase"
+import { UserBase } from "./UserBase"
 
 export type Moderator = {
-  user: AccountBase
+  user: UserBase
   bannedTill: number
 }

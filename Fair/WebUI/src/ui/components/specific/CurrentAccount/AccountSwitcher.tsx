@@ -2,12 +2,12 @@ import { forwardRef, memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SvgPlusCircleMd } from "assets"
-import { AccountBase, PropsWithStyle } from "types"
+import { UserBase, PropsWithStyle } from "types"
 import { shortenAddress } from "utils"
 
 import { Account } from "./components"
 
-export type AccountSwitcherItem = Omit<AccountBase, "id">
+export type AccountSwitcherItem = Omit<UserBase, "id">
 
 export interface AccountSwitcherBaseProps {
   selectedUserName?: string

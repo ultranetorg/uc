@@ -1,8 +1,6 @@
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { LIMIT_DEFAULT } from "constants/"
 import {
-  AccountBase,
-  AccountSearchLite,
   AuthorBaseAvatar,
   AuthorDetails,
   Category,
@@ -38,14 +36,16 @@ import {
   PublisherProposal,
   Review,
   ReviewProposal,
+  StatusResult,
   Store,
   StoreBase,
   StoreLiteSearch,
-  StatusResult,
   TotalItemsResult,
   User,
   UserAuthors,
+  UserBase,
   UserDetails,
+  UserSearchLite,
   UserUnregistrationProposal,
 } from "types"
 
@@ -99,7 +99,7 @@ const searchStoreUsers = (storeId: string, query?: string, limit?: number): Prom
     res.json(),
   )
 
-const searchAccounts = (query?: string, limit?: number): Promise<AccountBase[]> =>
+const searchAccounts = (query?: string, limit?: number): Promise<UserBase[]> =>
   fetch(`${BASE_URL}/accounts?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res => res.json())
 
 const searchAuthors = (query?: string, limit?: number): Promise<AuthorBaseAvatar[]> =>
@@ -123,7 +123,7 @@ const searchPublications = async (storeId: string, query?: string, page?: number
 const searchLitePublication = (storeId: string, query?: string): Promise<PublicationBase[]> =>
   fetch(`${BASE_URL}/stores/${storeId}/publications/search?query=${query}`).then(res => res.json())
 
-const searchLiteAccounts = (query?: string): Promise<AccountSearchLite[]> =>
+const searchLiteAccounts = (query?: string): Promise<UserSearchLite[]> =>
   fetch(`${BASE_URL}/accounts/search?query=${query}`).then(res => res.json())
 
 const searchLiteProducts = (query: string): Promise<ProductSearchResultBase[]> =>

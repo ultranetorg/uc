@@ -1,6 +1,6 @@
 import { CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
 import {
-  AccountBase,
+  UserBase,
   AuthorBaseAvatar,
   CreateProposalData,
   CreateProposalDataOption,
@@ -11,7 +11,7 @@ import { getFairOperationType } from "utils"
 
 const mapAuthorsToIds = (accounts?: AuthorBaseAvatar[]): string[] => accounts?.map(x => x.id) ?? []
 
-const mapAccountsToIds = (accounts?: AccountBase[]): string[] => accounts?.map(x => x.id) ?? []
+const mapUsersToIds = (accounts?: UserBase[]): string[] => accounts?.map(x => x.id) ?? []
 
 const mapOptionOperation = (type: OperationType, data: CreateProposalData, option: CreateProposalDataOption) => {
   switch (type) {
@@ -52,9 +52,9 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
     case "store-avatar-change":
       return { file: option.fileId }
     case "store-moderator-addition":
-      return { candidates: mapAccountsToIds(option.moderators) }
+      return { candidates: mapUsersToIds(option.moderators) }
     case "store-moderator-removal":
-      return { moderator: mapAccountsToIds(option.moderators)[0] }
+      return { moderator: mapUsersToIds(option.moderators)[0] }
     case "store-name-change":
       return { name: option.name }
     case "store-info-updation":

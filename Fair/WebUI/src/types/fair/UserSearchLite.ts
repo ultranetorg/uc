@@ -1,4 +1,4 @@
-export type AccountSearchLite = {
+export type UserSearchLite = {
   id: string
   nickname?: string
 }

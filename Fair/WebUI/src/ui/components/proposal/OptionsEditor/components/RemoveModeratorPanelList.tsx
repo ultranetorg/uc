@@ -5,14 +5,14 @@ import { useDebounceValue } from "usehooks-ts"
 import { useStoreContext } from "app"
 import { SEARCH_DELAY } from "config"
 import { useSearchAccounts } from "entities"
-import { AccountBase } from "types"
+import { UserBase } from "types"
 import { DropdownItem } from "ui/components/proposal/DropdownSearchMember"
 
 import { MembersPanelList } from "./MembersPanelList"
 
 export type RemoveModeratorPanelListProps = {
-  value: AccountBase[]
-  onChange: (value: AccountBase[]) => void
+  value: UserBase[]
+  onChange: (value: UserBase[]) => void
 }
 
 export const RemoveModeratorPanelList = memo(
@@ -46,7 +46,7 @@ export const RemoveModeratorPanelList = memo(
 
     const handleSearchItemSelect = useCallback(
       (item: DropdownItem) => {
-        const accountToAdd: AccountBase = {
+        const accountToAdd: UserBase = {
           id: item.value,
           nickname: item.label,
           address: "",
