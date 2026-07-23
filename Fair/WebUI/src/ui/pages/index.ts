@@ -3,11 +3,11 @@ export * from "./hooks"
 
 export * from "./Category"
 export * from "./Publication"
+export * from "./Start"
 export * from "./Stores"
 
 export * from "./AboutPage"
 export * from "./AuthorPage"
-export * from "./IndexPage"
 export * from "./ProfilePage"
 export * from "./PublisherPage"
 export * from "./ReviewerPage"

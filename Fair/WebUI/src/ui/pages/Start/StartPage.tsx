@@ -10,8 +10,8 @@ import { NextPagination, MultilineText, SearchDropdown, SearchDropdownItem } fro
 import { ProductsGrid, ProductsGridEmpty, ProductsGridItem } from "ui/components/specific"
 import { routes } from "utils"
 
-export const IndexPage = () => {
-  const { t } = useTranslation("indexPage")
+export const StartPage = () => {
+  const { t } = useTranslation("startPage")
   const navigate = useNavigate()
 
   useStoreTitle()

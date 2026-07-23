@@ -271,15 +271,6 @@ export const enUS = {
     backToHome: "Back to Home",
     refreshPage: "Refresh page",
   },
-  indexPage: {
-    description:
-      "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
-    emptyStoresList: "Stores added to Favorites will appear in this list",
-    notice: "Press Enter to view all search results.",
-    noResults: "We didn’t find anything. Try a different or shorter search.",
-    placeholder: "Enter product name or store...",
-    title: "Explore Multiple\nDecentralized Stores",
-  },
   moderation: {
     createDiscussion: "Create discussion",
     discussions: "Discussions",
@@ -408,6 +399,15 @@ export const enUS = {
     allAuthors: "All authors",
     allCategories: "All categories",
     searchResults: "Search Results",
+  },
+  startPage: {
+    description:
+      "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
+    emptyStoresList: "Stores added to Favorites will appear in this list",
+    notice: "Press Enter to view all search results.",
+    noResults: "We didn’t find anything. Try a different or shorter search.",
+    placeholder: "Enter product name or store...",
+    title: "Explore Multiple\nDecentralized Stores",
   },
   storePage: {
     about: "About",

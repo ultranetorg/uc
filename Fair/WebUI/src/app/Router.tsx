@@ -1,7 +1,7 @@
 import { createBrowserRouter, createHashRouter, Outlet, RouteObject, RouterProvider } from "react-router-dom"
 
 import { BaseLayout } from "ui/layouts"
-import { IndexPage } from "ui/pages"
+import { StartPage } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
 import { EntityRoute } from "./EntityRoute"
@@ -34,7 +34,7 @@ const routes: RouteObject[] = [
         index: true,
         element: (
           <BaseLayout>
-            <IndexPage />
+            <StartPage />
           </BaseLayout>
         ),
       },
