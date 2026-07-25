@@ -25,17 +25,19 @@ public partial class EnterPasswordForm : Form
 		Close();
 	}
 
-	public bool Ask(string information, IWin32Window owner)
+	public static string Ask(string information, IWin32Window owner, string defaultpassword = null)
 	{
-		info.Text = information;
+		var f = new EnterPasswordForm(defaultpassword);
 
-		if(ShowDialog(owner) == DialogResult.OK)
+		f.info.Text = information;
+
+		if(f.ShowDialog(owner) == DialogResult.OK)
 		{
-			return true;
+			return f.password.Text;
 		}
 		else
 		{
-			return false;
+			return null;
 		}
 	}
 }

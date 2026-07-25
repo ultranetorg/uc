@@ -15,8 +15,8 @@ public class Platform// : IBinarySerializable
 	{
 		Current = new Platform();
 
-		if(RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))	Current.Family = Family.Unix; else
-		if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))	Current.Family = Family.Unix; else
+		if(RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))	Current.Family = Family.Linux; else
+		if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))	Current.Family = Family.Linux; else
 		if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))		Current.Family = Family.macOS; else
 		if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 		{
@@ -220,7 +220,7 @@ public enum Family : byte
 	Android	= 1,
 	iOS		= 2,
 	macOS	= 3,
-	Unix	= 4,
+	Linux	= 4,
 	Darwin	= 5,
 	UOS		= 6,
 	Windows	= 7,

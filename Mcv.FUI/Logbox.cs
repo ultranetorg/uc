@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Concurrent;
+using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
@@ -6,32 +7,34 @@ namespace Uccs.Mcv.FUI;
 
 public partial class Logbox : TextBox, ILogView
 {
-	Log log;
-
-	public bool ShowSender { get;set; } = false;
-	public bool ShowSubject { get;set; } = true;
-	public int BufferWidth => MaxLength;
+	public bool						ShowSender { get;set; } = false;
+	public bool						ShowSubject { get;set; } = true;
+	public int						BufferWidth => MaxLength;
+	ConcurrentQueue<LogMessage>		Messages;
+	Log								_Log;
 
 	public Log Log 
 	{
-		get => log;
+		get => _Log;
 		set
 		{
 			if(Log != null)
 			{
-				log.Reported -= OnReported;
+				_Log.RemoveListener(Messages);
+				_Log.Reported -= OnReported;
 			}
 
-			log = value;
+			_Log = value;
 
-			if(log != null)
+			if(_Log != null)
 			{
-				foreach(var i in Log.Messages)
+				Messages = _Log.AddListener();
+
+				foreach(var i in Messages)
 					OnReported(i);
 
-				log.Reported += OnReported;
+				_Log.Reported += OnReported;
 			}
-
 		}
 	}
 
@@ -45,68 +48,60 @@ public partial class Logbox : TextBox, ILogView
 
 	protected override void OnHandleDestroyed(EventArgs e)
 	{
-		if(log != null)
+		if(Log != null)
 		{
-			log.Reported -= OnReported;
+			Log = null;
 		}
 
 		base.OnHandleDestroyed(e);
 	}
 
-	public void OnReported(LogMessage m)
+	public void OnReported(LogMessage message)
 	{
-  		var a =	new Action(() =>{
- 									StringBuilder t = new ();
+	 	StringBuilder t = new ();
 
-									t.Append(' ', 4 * m.Log.Depth);
-  
- 									if(m.Severity != Uccs.Log.Severity.Info && m.Severity != Uccs.Log.Severity.SubLog)
- 									{
-										t.Append("!!! ");
-										t.Append(m.Severity);
-										t.Append(" : ");
-									}
- 
-  									if(ShowSender && m.Sender != null)
- 									{	
-										t.Append(m.Sender + " : ");
- 										t.Append(" : ");
-									}
- 
- 									if(ShowSubject && m.Subject != null)
- 									{
- 										t.Append(m.Subject); 
- 
- 										if(m.Text != null)
- 											t.Append(" : "); 
- 									}
- 									
- 									if(m.Text != null)
- 										t.Append(m.Text[0]);
-
-									t.Append(Environment.NewLine);
- 
- 									if(m.Text != null)
- 									{
-  										foreach(var i in m.Text.Skip(1))
-  										{
-  											t.Append(' ', 4 * m.Log.Depth + 4);
-											t.Append(i);
-											t.Append(Environment.NewLine);
-  										}
- 									}
-
-									AppendText(t.ToString());
-
-  									//if(Lines.Length > 100 && Lines.Length > 1100)
-  									//{
-									//	Lines = Lines.Skip(1000).ToArray();
-  									//}
-  								});
+ 		while(Messages.TryDequeue(out var m))
+ 		{
+	 		if(m.Severity != Uccs.Log.Severity.Info && m.Severity != Uccs.Log.Severity.SubLog)
+	 		{
+				t.Append("!!! ");
+				t.Append(m.Severity);
+				t.Append(" : ");
+			}
+	 
+	  		if(ShowSender && m.Sender != null)
+	 		{	
+				t.Append(m.Sender + " : ");
+	 			t.Append(" : ");
+			}
+	 
+	 		if(ShowSubject && m.Subject != null)
+	 		{
+	 			t.Append(m.Subject); 
+	 
+	 			if(m.Text != null)
+	 				t.Append(" : "); 
+	 		}
+	 									
+	 		if(m.Text != null)
+	 			t.Append(m.Text[0]);
+	
+			t.Append(Environment.NewLine);
+	 
+	 		if(m.Text != null)
+	 		{
+	  			foreach(var i in m.Text.Skip(1))
+	  			{
+	  				t.Append(' ', 4);
+					t.Append(i);
+					t.Append(Environment.NewLine);
+	  			}
+	 		}
+ 		}
   
   		if(InvokeRequired)
-  			BeginInvoke(a);
+  			BeginInvoke(() => AppendText(t.ToString()));
   		else
-  			a();
+  			AppendText(t.ToString());
 	}
 }

@@ -84,6 +84,9 @@ public partial class WalletsPage : Page
 			//KeysPanel.Enabled = !w.Locked;
 			Locked.Visible = w.Locked;
 
+			if(w.Locked)
+				Locked.BringToFront();
+
 			LoadKeys(w);
 		}
 		else
@@ -248,21 +251,33 @@ public partial class WalletsPage : Page
 	}
 
 	private void ShowSecret_Click(object sender, EventArgs e)
-	{
-		TextForm.ShowDialog(this,
-							"Secret(Private) Key", 
-							"Your private key is the most sensitive part of your account.\r\n" +
-							"It provides full access to your assets and personal data.\r\n" +
-							"If someone obtains your private key, they can permanently steal your funds or impersonate you.\r\n" +
-							"There is no way to recover lost or stolen assets caused by sharing your key.\r\n\r\n" +
-							"Important Guidelines:\r\n\r\n" +
-							"Never share your private key or recovery phrase with anyone — not even support staff.\r\n" +
-							"Do not upload or store your key in cloud storage, email, or messaging apps.\r\n" +
-							"Keep it offline, encrypted, and backed up in a secure location.\r\n" +
-							"Only use your key in trusted applications and official websites.\r\n\r\n" +
-							"Remember:\r\n\r\n" +
-							"Once exposed, a private key cannot be made safe again. Always keep it secret and secure.", 
-							CurrentAccout.Key.Secret.ToHex());
+	{	
+		var p = EnterPasswordForm.Ask("", this);
+		
+		if(p != null)
+		{
+			if(p == CurrentAccout.Wallet.Password)
+			{
+				TextForm.ShowDialog(this,
+									"Secret(Private) Key", 
+									"Your private key is the most sensitive part of your account.\r\n" +
+									"It provides full access to your assets and personal data.\r\n" +
+									"If someone obtains your private key, they can permanently steal your funds or impersonate you.\r\n" +
+									"There is no way to recover lost or stolen assets caused by sharing your key.\r\n\r\n" +
+									"Important Guidelines:\r\n\r\n" +
+									"Never share your private key or recovery phrase with anyone — not even support staff.\r\n" +
+									"Do not upload or store your key in cloud storage, email, or messaging apps.\r\n" +
+									"Keep it offline, encrypted, and backed up in a secure location.\r\n" +
+									"Only use your key in trusted applications and official websites.\r\n\r\n" +
+									"Remember:\r\n\r\n" +
+									"Once exposed, a private key cannot be made safe again. Always keep it secret and secure.", 
+									CurrentAccout.Key.Secret.ToHex());
+			}
+			else
+			{
+				ShowError("Access denied");
+			}
+		}
 	}
 
 	private void DeleteKey_Click(object sender, EventArgs e)

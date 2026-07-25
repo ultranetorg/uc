@@ -221,7 +221,6 @@ partial class WalletsPage
 		// 
 		// KeysPanel
 		// 
-		KeysPanel.Controls.Add(Locked);
 		KeysPanel.Controls.Add(Keys);
 		KeysPanel.Controls.Add(DeleteKey);
 		KeysPanel.Controls.Add(ImportKey);
@@ -229,6 +228,7 @@ partial class WalletsPage
 		KeysPanel.Controls.Add(ShowSecret);
 		KeysPanel.Controls.Add(CreateKey);
 		KeysPanel.Controls.Add(CopyPublic);
+		KeysPanel.Controls.Add(Locked);
 		KeysPanel.Location = new Point(0, 272);
 		KeysPanel.Name = "KeysPanel";
 		KeysPanel.Size = new Size(800, 328);

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Net;
+using System.Text;
 
 namespace Uccs;
 
@@ -14,13 +15,28 @@ public class LogMessage
 	public string[]		Text { get; set; }
 	public Log			Log;
 
+	string				_Full;
+
 	public override string ToString()
 	{
-		return	$"{(Severity != Uccs.Log.Severity.Info ? ("!!! " + Severity + " : ") : null)}" +
-				$"{(Sender != null ? Sender.GetType().Name + " : " : null)}" +
-				$"{(Subject != null ? Subject : null)}" +
-				(Subject != null && Text != null ? " : " : null) +
-				$"{(Text != null ?  string.Join("; ", Text) : null)}";
+		if(_Full == null)
+		{
+			var b = new StringBuilder();
+	
+			if(Severity != Uccs.Log.Severity.Info)	b.Append("!!! " + Severity + " : ");
+			if(Sender == null)						b.Append(Sender.GetType().Name + " : ");
+			if(Subject == null)						b.Append(Subject);
+			if(Subject != null && Text != null)		b.Append(" : ");
+			
+			if(Text.Length == 1)
+				b.Append(Text[0]);
+			else
+				b.Append(string.Join("; ", Text));
+	
+			_Full = b.ToString();	
+		}
+
+		return _Full;
 	}
 }
 
@@ -31,53 +47,47 @@ public class Log
 		None, Info, Warning, Error, SubLog
 	}
 
-	public ConcurrentQueue<LogMessage>	Messages = new ();
-	public ReportedDelegate				Reported;
-	public Log							Parent;
-	string								Name;
-	public List<Type>					TypesForExpanding { get; } = [];
+	public ConcurrentQueue<LogMessage>			Messages = new ();
+	List<ConcurrentQueue<LogMessage>>			Listeners = new ();
+	string										Name;
+	public ReportedDelegate						Reported;
+	public List<Type>							TypesForExpanding { get; } = [];
 
-	public int Depth
+	public ConcurrentQueue<LogMessage> AddListener()
 	{
-		get
+		lock(Listeners)
 		{
-			var r = this;
-			int d = 0;
-		
-			while(r.Parent != null)
-			{
-				r = r.Parent;
-				d++;
-			}
-
-			return d;
-		}
+			Listeners.Add(new(Messages));
+			return Listeners.Last();
+		}	
 	}
 
-	public Log SubLog(string name)
+	public void RemoveListener(ConcurrentQueue<LogMessage> queue)
 	{
-		Report(null, name, Severity.SubLog, null);
-
-		var l = new Log{Name = name, Parent = this};
-
-		return l;
+		lock(Listeners)
+		{
+			Listeners.Remove(queue);
+		}	
 	}
 
 	protected void Report(object sender, string subject, Severity severity,  IEnumerable<string> a)
 	{
 		var m = new LogMessage{Log = this, Severity = severity, Sender = sender, Subject = subject, Text = a?.ToArray()};
 
-		var r = this;
+		Messages.Enqueue(m);
 		
-		while(r.Parent != null)
-			r = r.Parent;
-		
-		r.Messages.Enqueue(m);
+		if(Messages.Count > 10000)
+			Messages.TryDequeue(out _);
 
-		if(r.Messages.Count > 10000)
-			r.Messages.TryDequeue(out _);
-		
-		r.Reported?.Invoke(m);
+		lock(Listeners)
+		{
+			foreach(var i in Listeners)
+			{
+				i.Enqueue(m);
+			}
+		}
+
+		Reported?.Invoke(m);
 	}
 
 	public void Report(string a)

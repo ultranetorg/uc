@@ -40,7 +40,7 @@ public class AuthenticateApc : Apc
 	public string			Net { get; set; } /// fair.rdn
 	public string			User { get; set; } /// optional
 	public byte[]			Logo { get; set; }
-	public PublicKey	Key { get; set; }/// suggested
+	public PublicKey		Key { get; set; }/// suggested
 }
 
 public class AuthorizeApc : Apc

@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
@@ -165,37 +166,6 @@ public abstract class JsonServer
 		Thread.Start();
 	}
 
-	public void Stop()
-	{
-		Flow.Abort();
-		Listener?.Stop();
-	}
-
-	public void WaitStop()
-	{
-		Thread?.Join();
-	}
-
-	protected void RespondError(HttpListenerResponse response, string mime, string text, HttpStatusCode code)
-	{
-		try
-		{
-
-			var buffer = Encoding.UTF8.GetBytes(text);
-						
-			response.StatusCode = (int)code;
-			response.ContentType = mime;
-			response.ContentLength64 = buffer.Length;
-			response.OutputStream.Write(buffer, 0, buffer.Length);
-		}
-		catch(InvalidOperationException)
-		{
-		}
-		catch(HttpListenerException)
-		{
-		}
-	}
-
 	void ProcessRequest(object obj)
 	{
 		var context = obj as HttpListenerContext;
@@ -212,8 +182,7 @@ public abstract class JsonServer
                 return;
             }
 
-			var p = Listener.Prefixes.First(i => rq.Url.ToString().StartsWith(i));
-			var call = rq.Url.LocalPath.Substring(new Uri(p).LocalPath.Length);
+			var call = rq.Url.LocalPath.Substring(new Uri(Listener.Prefixes.First().Replace('+', 'x')).LocalPath.Length);
 
 			if(Restricted.Any(i => i.Equals(call, StringComparison.InvariantCultureIgnoreCase)))
 			{
@@ -226,9 +195,16 @@ public abstract class JsonServer
 				
 				var k = HttpUtility.ParseQueryString(rq.Url.Query).Get(Apc.CredentialsKeyword);
 
-				if(string.IsNullOrWhiteSpace(k) || !Bytes.Equal(Apc.HashifyAdminPassword(k), Settings.AdminPasswordHash))
+				if(string.IsNullOrWhiteSpace(k))
 				{
-					RespondError(rp, "text/plain", "Password mismatch", HttpStatusCode.Unauthorized);
+					RespondError(rp, "text/plain", "Password required", HttpStatusCode.Unauthorized);
+					rp.Close();
+					return;
+				}
+
+				if(!Bytes.Equal(Apc.HashifyAdminPassword(k), Settings.AdminPasswordHash))
+				{
+					RespondError(rp, "text/plain", "Wrong password", HttpStatusCode.Unauthorized);
 					rp.Close();
 					return;
 				}
@@ -261,7 +237,7 @@ public abstract class JsonServer
 		catch(Exception ex) when (Environment.GetEnvironmentVariable("UO_Environment") != "Development")
 		{
 			RespondError(rp, "text/plain", ex.ToString(), HttpStatusCode.InternalServerError);
-			Flow.Log?.ReportError(this, "Request Processing Error", ex);
+			Flow.Log?.ReportError(this, $"{rq.Url.AbsolutePath} Processing Error ", ex);
 		}
 
 		try
@@ -271,17 +247,6 @@ public abstract class JsonServer
 		catch(Exception)
 		{
 		}
-	}
-
-	public void RespondJson(HttpListenerResponse response, object t)	
-	{
-		var output = response.OutputStream;
-		var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, Options));
-						
-		response.ContentType = "text/json" ;
-		response.ContentLength64 = buffer.Length;
-
-		output.Write(buffer, 0, buffer.Length);
 	}
 
 	protected virtual void Route(HttpListenerContext context, string call)
@@ -348,6 +313,53 @@ public abstract class JsonServer
 				RespondJson(context.Response, r);
 			}
 		}
+	}
+
+	public void RespondJson(HttpListenerResponse response, object t)	
+	{
+		var output = response.OutputStream;
+		var buffer = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(t, Options));
+						
+		response.ContentType = "text/json" ;
+		response.ContentLength64 = buffer.Length;
+
+		output.Write(buffer, 0, buffer.Length);
+	}
+
+	protected void RespondError(HttpListenerResponse response, string mime, string text, HttpStatusCode code)
+	{
+		try
+		{
+
+			var buffer = Encoding.UTF8.GetBytes(text);
+						
+			response.StatusCode = (int)code;
+			response.ContentType = mime;
+			response.ContentLength64 = buffer.Length;
+			response.OutputStream.Write(buffer, 0, buffer.Length);
+		}
+		catch(InvalidOperationException)
+		{
+		}
+		catch(HttpListenerException)
+		{
+		}
+	}
+
+	public void Stop()
+	{
+		Flow.Abort();
+		Listener?.Stop();
+	}
+
+	public void WaitStop()
+	{
+		Thread?.Join();
+	}
+
+	protected void Restrict(Type type)
+	{
+		Restricted.Add(Apc.NameOf(type));
 	}
 }
 

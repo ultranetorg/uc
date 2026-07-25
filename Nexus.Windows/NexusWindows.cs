@@ -158,9 +158,11 @@ public class Program: ApplicationContext
 												{
 													try
 													{
-														if(f.Ask($"A password required to unlock '{wallet}' wallet", uiparent as IWin32Window))
+														var p = EnterPasswordForm.Ask($"A password required to unlock '{wallet}' wallet", uiparent as IWin32Window);
+														
+														if(p != null)
 														{
-															nexus.Vault.FindWallet(wallet).Unlock(f.Password);
+															nexus.Vault.FindWallet(wallet).Unlock(p);
 														}
 
 														break;

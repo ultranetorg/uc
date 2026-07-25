@@ -265,6 +265,9 @@ public class StringHnswTableExecution<E> : HnswExecution<string, E>  where E : S
 
   	public E Index(string text)
   	{
+		if(string.IsNullOrWhiteSpace(text))
+			throw new IntegrityException();
+
  		text = text.ToLowerInvariant();
  
  		var e =	Find(text);
@@ -289,6 +292,9 @@ public class StringHnswTableExecution<E> : HnswExecution<string, E>  where E : S
 	
   	public E Affect(string text)
   	{
+		if(string.IsNullOrWhiteSpace(text))
+			throw new IntegrityException();
+
  		text = text.ToLowerInvariant();
  
   		var e =	Find(text);

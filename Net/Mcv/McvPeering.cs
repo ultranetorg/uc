@@ -312,7 +312,10 @@ public abstract class McvPeering : HomoPeering
 							using(var w = new WriteBatch())
 							{
 								foreach(var i in Mcv.Tables.Where(i => i.IsIndex))
+								{	
+									i.Clear();
 									i.Index(w, r);
+								}
 						
 								Mcv.Rocks.Write(w);
 							}
@@ -324,11 +327,12 @@ public abstract class McvPeering : HomoPeering
 								if(vs == null)
 									goto resync;
 
-								foreach(var v in vs.Votes.Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.User == i.Member)).GroupBy(i => i.Try).MaxBy(i => i.Key))
-								{	
-									v.Restore();
-								//	vs.Update();
-								}
+								if(vs.Votes.Any())
+									foreach(var v in vs.Votes.Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.User == i.Member)).GroupBy(i => i.Try).MaxBy(i => i.Key))
+									{	
+										v.Restore();
+									//	vs.Update();
+									}
 							}
 
 							Mcv.NextVotingRound.ReUpdate();

@@ -19,10 +19,24 @@ public class FairNode : McvNode
 															"Windows OS is currently supported only.",
 															"Please, follow the link below to install."];
 	
-	public static readonly string[]	WelcomeMessage = ["Welcome to the ULTRANET",
-													 "and to the Fair Network",
-													 "Now, find UOS icon in the tray, open its menu and select \"Identity and Activity\" option",
-													 "There you can manage your crypto wallets and accounts that are used to identify yourself when participating in Fair network and other decentralized platforms"];
+	public static readonly string[]	ReadyMessage = ["Welcome to the ULTRANET",
+													"and to the Fair Network",
+													"Now, find UOS icon in the tray, open its menu and select \"Identity and Activity\" option",
+													"There you can manage your crypto wallets and keys that are used to identify yourself when participating in RDN, Fair and other decentralized platforms"];
+
+	public static readonly string[]	AuthorMessage =  ["This is decentralized platform of autonomous transparent community-governed stores",
+													  "Anyone can become the author, create product pages and publish it in the stores",
+													  "Author has full control over its content and behavior",
+													  "Follow this link to learn how to become an author, publish your products and participate in stores governance."];
+
+	public static readonly string[]	WelcomeMessage =  [	..AuthorMessage[..^1],
+														"The stores can also be created by anyone which act as aggregators for product listings",
+														"Unlike authors, a creator of the store has no full control over it - it's completely governed by all its members",
+														"A member of the store is a author who has products published in this store",
+														"Each time a next member joins the store existing ones lose part of his leverage",
+														"Members vote for its governance policy, elect/recall moderators and thus has full control over their store",
+														"Moderators responsible for publishing product updates and other routine operations to maintaining store content clean and tidy"
+														];
 
 	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
 	{
