@@ -5,7 +5,7 @@ import { isNumber } from "lodash"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublicationProposals } from "entities"
-import { useResolveSiteId, useUrlParamsState } from "hooks"
+import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getPublicationsItemRenderer } from "ui/renderers"
 import { parseInteger, routes } from "utils"
@@ -13,7 +13,7 @@ import { parseInteger, routes } from "utils"
 export const PublicationsTab = () => {
   const { t } = useTranslation("tabPublications")
   const navigate = useNavigate()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -25,7 +25,7 @@ export const PublicationsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { data: publications } = useGetPublicationProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: publications } = useGetPublicationProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0
       ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_20)
@@ -46,8 +46,8 @@ export const PublicationsTab = () => {
   const itemRenderer = useMemo(() => getPublicationsItemRenderer(t), [t])
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.moderation.moderatorPublication(siteId!, id)),
-    [navigate, siteId],
+    (id: string) => navigate(routes.moderation.moderatorPublication(storeId!, id)),
+    [navigate, storeId],
   )
 
   const handlePageChange = useCallback(

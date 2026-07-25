@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/sites/{siteId}/publications/unpublished")]
+[Route("api/stores/{storeId}/publications/unpublished")]
 public class UnpublishedPublicationsController
 (
 	ILogger<UnpublishedPublicationsController> logger,
@@ -13,26 +13,26 @@ public class UnpublishedPublicationsController
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
-	public PublicationDetailsModel GetDetails(string siteId, string publicationId)
+	public PublicationDetailsModel GetDetails(string storeId, string publicationId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PublicationId}", nameof(UnpublishedPublicationsController), nameof(GetDetails), siteId, publicationId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PublicationId}", nameof(UnpublishedPublicationsController), nameof(GetDetails), storeId, publicationId);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
-		return unpublishedPublicationsService.GetDetails(siteId, publicationId);
+		return unpublishedPublicationsService.GetDetails(storeId, publicationId);
 	}
 
 	[HttpGet]
-	public IEnumerable<UnpublishedPublicationModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<UnpublishedPublicationModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(GetAll), siteId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(GetAll), storeId, pagination);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<UnpublishedPublicationModel> products = unpublishedPublicationsService.GetAll(siteId, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<UnpublishedPublicationModel> products = unpublishedPublicationsService.GetAll(storeId, pageValue, pageSizeValue, cancellationToken);
 
 		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
 	}

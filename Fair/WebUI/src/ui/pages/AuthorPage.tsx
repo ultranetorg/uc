@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useGetAuthor } from "entities"
-import { useParams, useSiteTitle } from "hooks"
+import { useParams, useStoreTitle } from "hooks"
 import { AuthorProfile } from "ui/components/author"
 import { ProductStoresModal } from "ui/components/specific"
 import { AuthorProductsView } from "ui/views"
@@ -16,7 +16,7 @@ export const AuthorPage = () => {
   const { isPending, data: author, error } = useGetAuthor(authorId)
   if (error) throw error
 
-  useSiteTitle(author?.title ? `Author - ${author?.title}` : undefined)
+  useStoreTitle(author?.title ? `Author - ${author?.title}` : undefined)
 
   const handleProductStoresClick = useCallback((id: string) => setSelectedProductId(id), [])
 

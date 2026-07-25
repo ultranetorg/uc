@@ -5,7 +5,7 @@ import { Link, Navigate } from "react-router-dom"
 import { useAuthenticationContext } from "app"
 import { SvgProfilePageClose } from "assets"
 import { ProfileTabs } from "ui/components/profile"
-import { useCloseFullscreen, useEscapeKey, useLocationState, useSiteTitle } from "hooks"
+import { useCloseFullscreen, useEscapeKey, useLocationState, useStoreTitle } from "hooks"
 import { routes } from "utils"
 
 export const ProfilePage = () => {
@@ -17,7 +17,7 @@ export const ProfilePage = () => {
 
   const { selectedUserName } = useAuthenticationContext()
 
-  useSiteTitle(`Profile - ${selectedUserName}`)
+  useStoreTitle(`Profile - ${selectedUserName}`)
 
   const close = useCloseFullscreen()
 

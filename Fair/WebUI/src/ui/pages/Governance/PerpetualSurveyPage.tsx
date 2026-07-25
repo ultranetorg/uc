@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next"
 import { startCase } from "lodash"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { useSignInContext, useSiteContext, useSiteRolesContext } from "app"
-import { sitesKeys, useGetPerpetualSurveyDetails } from "entities"
+import { useSignInContext, useStoreContext, useStoreRolesContext } from "app"
+import { storesKeys, useGetPerpetualSurveyDetails } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { OperationType, PerpetualVoting, SiteApprovalPolicyChange } from "types"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { OperationType, PerpetualVoting, StoreApprovalPolicyChange } from "types"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 import { routes, showToast } from "utils"
@@ -18,29 +18,29 @@ export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurveyPage")
   const { perpetualSurveyId } = useParams()
   const queryClient = useQueryClient()
-  const siteId = useResolveSiteId()
-  const { site } = useSiteContext()
+  const storeId = useResolveStoreId()
+  const { store } = useStoreContext()
 
   const { startSignIn } = useSignInContext()
-  const { publisherIds } = useSiteRolesContext()
+  const { publisherIds } = useStoreRolesContext()
   const { mutate } = useTransactMutationWithStatus()
 
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()
 
-  const { data: survey, isFetching, refetch } = useGetPerpetualSurveyDetails(siteId, perpetualSurveyId)
+  const { data: survey, isFetching, refetch } = useGetPerpetualSurveyDetails(storeId, perpetualSurveyId)
 
-  const operation = (survey?.options[0].operation as SiteApprovalPolicyChange)?.operation
+  const operation = (survey?.options[0].operation as StoreApprovalPolicyChange)?.operation
   const title = operation !== undefined ? t(`operations:${operation}`) : undefined
 
-  useSiteTitle(site?.title, `Perpetual Survey - ${startCase(title)}`)
+  useStoreTitle(store?.title, `Perpetual Survey - ${startCase(title)}`)
 
   const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({
-      "site-avatar-change": [sitesKeys.policies(siteId!)],
-      "site-name-change": [sitesKeys.policies(siteId!)],
-      "site-text-change": [sitesKeys.policies(siteId!)],
+      "store-avatar-change": [storesKeys.policies(storeId!)],
+      "store-name-change": [storesKeys.policies(storeId!)],
+      "store-info-updation": [storesKeys.policies(storeId!)],
     }),
-    [siteId],
+    [storeId],
   )
 
   const handleExpand = useCallback(
@@ -57,7 +57,7 @@ export const PerpetualSurveyPage = () => {
       }
 
       const publisherId = publisherIds![0]
-      const operation = new PerpetualVoting(siteId!, Number(perpetualSurveyId), publisherId, Number(choiceId))
+      const operation = new PerpetualVoting(storeId!, Number(perpetualSurveyId), publisherId, Number(choiceId))
       mutate(operation, {
         onSuccess: () => {
           const invalidateKeys =
@@ -79,7 +79,7 @@ export const PerpetualSurveyPage = () => {
       publisherIds,
       queryClient,
       refetch,
-      siteId,
+      storeId,
       startSignIn,
       survey?.options,
       t,
@@ -91,7 +91,7 @@ export const PerpetualSurveyPage = () => {
 
     setItems(prevItems => {
       return survey.options.map((x, i) => {
-        const operation = x.operation as SiteApprovalPolicyChange
+        const operation = x.operation as StoreApprovalPolicyChange
 
         const prevItem = prevItems?.find(item => item.value === i)
 
@@ -118,8 +118,8 @@ export const PerpetualSurveyPage = () => {
         <Breadcrumbs
           fullPath={true}
           items={[
-            { path: routes.site(siteId!), title: t("home") },
-            { title: t("common:perpetualSurveys"), path: routes.governance.surveys(siteId!) },
+            { path: routes.store(storeId!), title: t("home") },
+            { title: t("common:perpetualSurveys"), path: routes.governance.surveys(storeId!) },
             { title: title! },
           ]}
         />

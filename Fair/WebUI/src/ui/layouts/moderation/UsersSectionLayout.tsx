@@ -5,8 +5,8 @@ import { useDebounceValue } from "usehooks-ts"
 import { capitalize } from "lodash"
 
 import { SEARCH_DELAY } from "config"
-import { useSearchSiteUsers } from "entities"
-import { useParams, useResolveSiteId } from "hooks"
+import { useSearchStoreUsers } from "entities"
+import { useParams, useResolveStoreId } from "hooks"
 import { DropdownSearchAccountsItem, DropdownSearchAccount } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
@@ -14,13 +14,13 @@ import { routes } from "utils"
 export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
   const { tabKey, userId } = useParams()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("usersPage")
 
   const [query, setQuery] = useState("")
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
-  const { data: searchUsers } = useSearchSiteUsers(siteId!, debouncedQuery)
+  const { data: searchUsers } = useSearchStoreUsers(storeId!, debouncedQuery)
 
   const items = useMemo<DropdownSearchAccountsItem[]>(
     () =>
@@ -43,9 +43,9 @@ export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
   const handleSelectUser = useCallback(
     (item: DropdownSearchAccountsItem) => {
       setQuery("")
-      navigate(routes.moderation.user(siteId!, item.value))
+      navigate(routes.moderation.user(storeId!, item.value))
     },
-    [navigate, siteId],
+    [navigate, storeId],
   )
 
   return (
@@ -55,7 +55,7 @@ export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
         breadcrumbTitle={!userId ? t("title") : userId}
         parentBreadcrumbs={
           userId !== undefined
-            ? { path: routes.moderation.users(siteId!, "users"), title: t("common:users") }
+            ? { path: routes.moderation.users(storeId!, "users"), title: t("common:users") }
             : undefined
         }
         components={

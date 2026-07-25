@@ -1,8 +1,8 @@
 import { memo, ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useSiteContext } from "app"
-import { useResolveSiteId } from "hooks"
+import { useStoreContext } from "app"
+import { useResolveStoreId } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { routes } from "utils"
 
@@ -15,8 +15,8 @@ export type ModerationHeaderProps = {
 
 export const ModerationHeader = memo(
   ({ title, breadcrumbTitle, parentBreadcrumbs, components }: ModerationHeaderProps) => {
-    const siteId = useResolveSiteId()
-    const { site } = useSiteContext()
+    const storeId = useResolveStoreId()
+    const { store } = useStoreContext()
     const { t } = useTranslation()
 
     return (
@@ -25,7 +25,7 @@ export const ModerationHeader = memo(
           <Breadcrumbs
             fullPath={true}
             items={[
-              { path: routes.site(siteId!), title: t("common:home") },
+              { path: routes.store(storeId!), title: t("common:home") },
               ...(parentBreadcrumbs
                 ? Array.isArray(parentBreadcrumbs)
                   ? parentBreadcrumbs
@@ -34,9 +34,9 @@ export const ModerationHeader = memo(
               { title: breadcrumbTitle ?? title },
             ]}
           />
-          {site && (
+          {store && (
             <span className="text-2xs font-medium leading-5">
-              {site.moderatorsIds.length} {t("common:moderators", { count: site.moderatorsIds.length })}
+              {store.moderatorsIds.length} {t("common:moderators", { count: store.moderatorsIds.length })}
             </span>
           )}
         </div>

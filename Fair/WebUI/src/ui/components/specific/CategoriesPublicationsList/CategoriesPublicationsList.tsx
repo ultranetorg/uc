@@ -4,7 +4,7 @@ import { CategoryPublicationsList } from "./CategoryPublicationsList"
 import { CategoriesPublicationsListChildrenProps } from "./types"
 
 type CategoriesPublicationsListBaseProps = {
-  siteId: string
+  storeId: string
   isPending: boolean
   categoriesPublications?: CategoryPublicationsType[]
 }
@@ -13,7 +13,7 @@ export type CategoriesPublicationsListProps = CategoriesPublicationsListBaseProp
   CategoriesPublicationsListChildrenProps
 
 export const CategoriesPublicationsList = ({
-  siteId,
+  storeId,
   isPending,
   categoriesPublications,
   ...rest
@@ -23,7 +23,7 @@ export const CategoriesPublicationsList = ({
   ) : (
     <>
       {categoriesPublications.map(x => (
-        <CategoryPublicationsList key={x.id} siteId={siteId} {...x} {...rest} />
+        <CategoryPublicationsList key={x.id} storeId={storeId} {...x} {...rest} />
       ))}
     </>
   )

@@ -4,7 +4,7 @@ import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { routes } from "utils"
 
 type PageHeaderBaseProps = {
-  siteId: string
+  storeId: string
   title: string
   totalItems?: number
   parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
@@ -14,12 +14,12 @@ type PageHeaderBaseProps = {
 export type PageHeaderProps = PropsWithChildren & PageHeaderBaseProps
 
 export const PageHeader = memo(
-  ({ children, siteId, title, totalItems, parentBreadcrumbs: parentBreadcrumbs, homeLabel }: PageHeaderProps) => (
+  ({ children, storeId, title, totalItems, parentBreadcrumbs: parentBreadcrumbs, homeLabel }: PageHeaderProps) => (
     <div className="flex flex-col gap-2">
       <Breadcrumbs
         fullPath={true}
         items={[
-          { path: routes.site(siteId), title: homeLabel },
+          { path: routes.store(storeId), title: homeLabel },
           ...(parentBreadcrumbs ? (Array.isArray(parentBreadcrumbs) ? parentBreadcrumbs : [parentBreadcrumbs]) : []),
           { title: title },
         ]}

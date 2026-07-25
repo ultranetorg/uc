@@ -4,25 +4,25 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useGetModeratorDiscussion = (siteId?: string, discussionId?: string) => {
-  const queryFn = () => api.getModeratorDiscussion(siteId!, discussionId!)
+export const useGetModeratorDiscussion = (storeId?: string, discussionId?: string) => {
+  const queryFn = () => api.getModeratorDiscussion(storeId!, discussionId!)
 
   const { isFetching, error, data } = useQuery({
-    queryKey: ["moderator", "sites", siteId, "discussions", discussionId],
+    queryKey: ["moderator", "stores", storeId, "discussions", discussionId],
     queryFn: queryFn,
-    enabled: !!siteId && !!discussionId,
+    enabled: !!storeId && !!discussionId,
   })
 
   return { isFetching, error: error ?? undefined, data }
 }
 
-export const useGetModeratorDiscussions = (siteId?: string, page?: number, pageSize?: number, search?: string) => {
-  const queryFn = () => api.getModeratorDiscussions(siteId!, page, pageSize, search)
+export const useGetModeratorDiscussions = (storeId?: string, page?: number, pageSize?: number, search?: string) => {
+  const queryFn = () => api.getModeratorDiscussions(storeId!, page, pageSize, search)
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["moderator", "sites", siteId, "discussions", { page, pageSize, search }],
+    queryKey: ["moderator", "stores", storeId, "discussions", { page, pageSize, search }],
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storeId,
   })
 
   return { isPending, error: error ?? undefined, data }

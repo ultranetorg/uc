@@ -2,7 +2,7 @@
 
 public class CategoryModel(Category category) : CategoryParentBaseModel(category)
 {
-	public string SiteId { get; init; }
+	public string StoreId { get; init; }
 
 	public ProductType Type { get; init; }
 

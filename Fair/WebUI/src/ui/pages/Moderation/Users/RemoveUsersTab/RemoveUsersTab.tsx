@@ -2,11 +2,11 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useOperationPolicy, useSiteContext, useSitePoliciesContext } from "app"
+import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserUnregistrationProposals } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveSiteId, useUrlParamsState } from "hooks"
+import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
@@ -14,10 +14,10 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 import { getRemoveUsersTabItemRenderer } from "./removeUsersTabItemRenderer"
 
 export const UsersRemovalsTab = () => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { voterId } = useOperationPolicy("user-registration")
-  const { site } = useSiteContext()
-  const { policies } = useSitePoliciesContext()
+  const { store } = useStoreContext()
+  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -30,7 +30,7 @@ export const UsersRemovalsTab = () => {
   const [page, setPage] = useState(state.page)
   const [loadingItem, setLoadingItem] = useState<{ id: string; action: "approve" | "reject" } | undefined>()
 
-  const { data: users, refetch } = useGetUserUnregistrationProposals(siteId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: users, refetch } = useGetUserUnregistrationProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const { mutate } = useTransactMutationWithStatus()
@@ -90,8 +90,8 @@ export const UsersRemovalsTab = () => {
   const handleReject = useCallback((id: string, name: string) => vote(id, name, "reject"), [vote])
 
   const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("user-unregistration", site, policies),
-    [policies, site],
+    () => calculateVotesRequiredToWinProposal("user-unregistration", store, policies),
+    [policies, store],
   )
 
   const itemRenderer = useMemo(

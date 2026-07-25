@@ -10,7 +10,7 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { useSiteRolesContext } from "app"
+import { useStoreRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
@@ -27,7 +27,7 @@ export type ModeratorCategoryContextMenuProps = PropsWithClassName & ModeratorCa
 
 export const ModeratorCategoryContextMenu = memo(
   ({ className, categoryId, categoryTitle }: ModeratorCategoryContextMenuProps) => {
-    const { isModerator } = useSiteRolesContext()
+    const { isModerator } = useStoreRolesContext()
     const { menuItems } = useModeratorCategoryMenuItems(categoryId, categoryTitle)
 
     const [isExpanded, setExpanded] = useState(false)

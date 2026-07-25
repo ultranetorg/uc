@@ -1,4 +1,4 @@
 export * from "./useGetProductDetails"
-export * from "./useGetProductSites"
+export * from "./useGetProductStores"
 export * from "./useSearchLiteProducts"
 export * from "./useSearchPaginatedProducts"

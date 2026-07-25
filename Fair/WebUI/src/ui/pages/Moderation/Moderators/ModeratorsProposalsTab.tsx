@@ -3,20 +3,20 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useSiteContext, useSitePoliciesContext } from "app"
+import { useStoreContext, useStorePoliciesContext } from "app"
 import { useGetModeratorProposals } from "entities"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useResolveSiteId, useUrlParamsState } from "hooks"
+import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
 
 import { getModeratorsProposalsItemRenderer } from "./moderatorProposalsItemRenderer"
 
 export const ModeratorsProposalsTab = () => {
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const navigate = useNavigate()
-  const { site } = useSiteContext()
-  const { policies } = useSitePoliciesContext()
+  const { store } = useStoreContext()
+  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("moderatorsProposalsTab")
 
   const [state, setState] = useUrlParamsState({
@@ -29,7 +29,7 @@ export const ModeratorsProposalsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { data: proposals } = useGetModeratorProposals(siteId, "", page, DEFAULT_PAGE_SIZE_20)
+  const { data: proposals } = useGetModeratorProposals(storeId, "", page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
     proposals?.totalItems && proposals.totalItems > 0 ? Math.ceil(proposals.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
@@ -51,15 +51,15 @@ export const ModeratorsProposalsTab = () => {
   )
 
   const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("site-authors-removal", site, policies),
-    [policies, site],
+    () => calculateVotesRequiredToWinProposal("store-authors-removal", store, policies),
+    [policies, store],
   )
 
   const itemRenderer = useMemo(() => getModeratorsProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.moderation.moderatorProposal(siteId!, id)),
-    [navigate, siteId],
+    (id: string) => navigate(routes.moderation.moderatorProposal(storeId!, id)),
+    [navigate, storeId],
   )
 
   const handlePageChange = useCallback(

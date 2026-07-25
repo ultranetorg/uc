@@ -5,7 +5,7 @@ import { ImageFallback, LinkFullscreen } from "ui/components"
 import { buildFileUrl, routes } from "utils"
 
 export type ModerationPublicationHeaderProps = {
-  siteId: string
+  storeId: string
   title?: string
   logoId?: string
   authorId: string
@@ -14,7 +14,7 @@ export type ModerationPublicationHeaderProps = {
 }
 
 export const ModerationPublicationHeader = memo(
-  ({ siteId, title, logoId, authorId, authorTitle, components }: ModerationPublicationHeaderProps) => (
+  ({ storeId, title, logoId, authorId, authorTitle, components }: ModerationPublicationHeaderProps) => (
     <div className="flex min-w-0 items-center justify-between gap-4">
       <div className="size-17 overflow-hidden rounded-2xl" title={title}>
         <ImageFallback src={buildFileUrl(logoId)} fallback={<SvgSoftwareLogo className="size-17" />} />
@@ -25,7 +25,7 @@ export const ModerationPublicationHeader = memo(
             {title}
           </span>
         )}
-        <LinkFullscreen to={routes.publisher(siteId, authorId)} className="w-fit" title={authorTitle}>
+        <LinkFullscreen to={routes.publisher(storeId, authorId)} className="w-fit" title={authorTitle}>
           <span className="truncate text-2sm font-medium leading-5">{authorTitle}</span>
         </LinkFullscreen>
       </div>

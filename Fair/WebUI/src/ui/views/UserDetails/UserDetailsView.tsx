@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import avatarFallback from "assets/fallback/user-30.png"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback } from "ui/components"
@@ -14,19 +14,19 @@ import { PublishersList } from "./PublishersList"
 const LABEL_CLASSNAME = "text-2base font-medium leading-5 first-letter:uppercase"
 
 export type UserDetailsViewProps = {
-  siteId: string
+  storeId: string
   user?: UserAuthors
   reviews?: TotalItemsResult<Review>
 }
 
-export const UserDetailsView = memo(({ siteId, user, reviews }: UserDetailsViewProps) => {
-  const { site } = useSiteContext()
+export const UserDetailsView = memo(({ storeId, user, reviews }: UserDetailsViewProps) => {
+  const { store } = useStoreContext()
   const { t } = useTranslation("userDetailsView")
 
   if (!user || !reviews) return <div>Loading</div>
 
-  const isPublisher = isUserPublisher(site, user)
-  const isModerator = isUserModerator(site, user)
+  const isPublisher = isUserPublisher(store, user)
+  const isModerator = isUserModerator(store, user)
 
   return (
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
@@ -58,7 +58,11 @@ export const UserDetailsView = memo(({ siteId, user, reviews }: UserDetailsViewP
       </div>
       <div className="flex flex-col gap-5 p-6">
         <span className={LABEL_CLASSNAME}>{t("common:publishers")}</span>
-        {user.authors.length > 0 ? <PublishersList siteId={siteId} authors={user.authors} /> : <>{t("noPublishers")}</>}
+        {user.authors.length > 0 ? (
+          <PublishersList storeId={storeId} authors={user.authors} />
+        ) : (
+          <>{t("noPublishers")}</>
+        )}
       </div>
       <div className="flex flex-col gap-5 p-6">
         <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>

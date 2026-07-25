@@ -1,11 +1,11 @@
 import { forwardRef, memo } from "react"
 import { TFunction } from "i18next"
 
-import { AccountBase, PropsWithStyle } from "types"
+import { UserBase, PropsWithStyle } from "types"
 
 import { MenuItem } from "./components"
 
-export type AccountSwitcherItem = Omit<AccountBase, "id">
+export type AccountSwitcherItem = Omit<UserBase, "id">
 
 export interface AccountSwitcherBaseProps {
   t: TFunction

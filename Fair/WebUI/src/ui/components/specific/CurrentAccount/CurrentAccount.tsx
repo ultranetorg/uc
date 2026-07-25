@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuthenticationContext, useSignInContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveSiteId, useScrollOrResize, useSubmenu } from "hooks"
+import { useResolveStoreId, useScrollOrResize, useSubmenu } from "hooks"
 import { UserAvatarChange } from "types"
 import { FileUpload, FileUploadHandle, TextModal } from "ui/components"
 import { fileToBase64, routes, showToast } from "utils"
@@ -19,7 +19,7 @@ const STICKY_CLASSNAME = "sticky bottom-2 z-20"
 
 export const CurrentAccount = () => {
   const navigate = useNavigate()
-  const siteId = useResolveSiteId()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation("currentAccount")
   const { mutate } = useTransactMutationWithStatus()
 
@@ -114,11 +114,11 @@ export const CurrentAccount = () => {
       accountsMenu.setOpen(false)
       profileMenu.setOpen(false)
 
-      if (siteId) {
-        navigate(routes.site(siteId))
+      if (storeId) {
+        navigate(routes.store(storeId))
       }
     },
-    [accountsMenu, navigate, profileMenu, selectUser, siteId],
+    [accountsMenu, navigate, profileMenu, selectUser, storeId],
   )
 
   const handleNicknameCreate = useCallback(() => alert("handleNicknameCreate"), [])

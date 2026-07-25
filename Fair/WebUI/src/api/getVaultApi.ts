@@ -11,7 +11,7 @@ const authenticate = async (baseUrl: string, user: string, account: string): Pro
       Application: VAULT.APPLICATION,
       Net: VAULT.NETWORK,
       User: user,
-      Account: account,
+      Key: account,
     }),
   })
   const data = await response.json()

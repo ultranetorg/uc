@@ -4,13 +4,13 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useGetUnpublishedSiteProduct = (siteId?: string, unpublishedProductId?: string) => {
-  const queryFn = () => api.getUnpublishedSiteProduct(siteId!, unpublishedProductId!)
+export const useGetUnpublishedStoreProduct = (storeId?: string, unpublishedProductId?: string) => {
+  const queryFn = () => api.getUnpublishedStoreProduct(storeId!, unpublishedProductId!)
 
   const { isLoading, isFetching, isError, data } = useQuery({
-    queryKey: ["sites", siteId, "products", "unpublished", unpublishedProductId],
+    queryKey: ["stores", storeId, "products", "unpublished", unpublishedProductId],
     queryFn: queryFn,
-    enabled: !!siteId && !!unpublishedProductId,
+    enabled: !!storeId && !!unpublishedProductId,
   })
 
   return { isLoading, isFetching, isError, data }

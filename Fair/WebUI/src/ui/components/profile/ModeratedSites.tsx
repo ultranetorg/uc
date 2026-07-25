@@ -1,1 +1,1 @@
-export const ModeratedSites = () => <>ModeratedSites</>
+export const ModeratedStores = () => <>ModeratedStores</>

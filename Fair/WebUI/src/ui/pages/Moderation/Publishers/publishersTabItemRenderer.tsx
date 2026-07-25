@@ -6,18 +6,18 @@ import { truncate } from "lodash"
 import { Publisher } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { renderAuthor } from "ui/renderers/utils"
-import { sitesKeys } from "entities"
+import { storesKeys } from "entities"
 import { routes } from "utils"
 
 export const getPublishersTabItemRenderer =
-  (t: TFunction, siteId: string, pathname: string) =>
+  (t: TFunction, storeId: string, pathname: string) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const publisher = item as unknown as Publisher
 
     switch (column.type) {
       case "author":
         return (
-          <Link to={routes.moderation.publisher(siteId, publisher.author.id)}> {renderAuthor(publisher.author)}</Link>
+          <Link to={routes.moderation.publisher(storeId, publisher.author.id)}> {renderAuthor(publisher.author)}</Link>
         )
 
       case "banned":
@@ -27,16 +27,16 @@ export const getPublishersTabItemRenderer =
         return (
           <div className="flex justify-end">
             <Link
-              to={routes.moderation.createProposal(siteId)}
+              to={routes.moderation.createProposal(storeId)}
               state={{
-                parentBreadcrumbs: [{ path: routes.moderation.publishers(siteId), title: t("common:proposals") }],
+                parentBreadcrumbs: [{ path: routes.moderation.publishers(storeId), title: t("common:proposals") }],
                 previousPath: pathname,
                 title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
-                type: "site-authors-removal",
+                type: "store-authors-removal",
                 authors: [publisher.author],
-                redirectAfterProposalCreation: routes.moderation.publishers(siteId, "proposals"),
+                redirectAfterProposalCreation: routes.moderation.publishers(storeId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: sitesKeys.publishers(siteId),
+                invalidateQueryKeys: storesKeys.publishers(storeId),
               }}
             >
               <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />

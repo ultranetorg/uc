@@ -1,4 +1,4 @@
-import { AccountBase, AuthorBaseAvatar } from "types"
+import { UserBase, AuthorBaseAvatar } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 
 import {
@@ -114,12 +114,12 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   ),
   "moderators-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <AddModeratorPanelList value={value as AccountBase[]} onChange={onChange} />
+      <AddModeratorPanelList value={value as UserBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "moderators-removals": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
-      <RemoveModeratorPanelList value={value as AccountBase[]} onChange={onChange} />
+      <RemoveModeratorPanelList value={value as UserBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   "review-status": ({ field, value, onChange }) => (

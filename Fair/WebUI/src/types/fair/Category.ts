@@ -3,7 +3,7 @@ import { CategoryPathItem } from "./CategoryPathItem"
 import { ProductType } from "./ProductType"
 
 export type Category = {
-  siteId: string
+  storeId: string
   type: ProductType
   parentId: string
   path?: CategoryPathItem[]

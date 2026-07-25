@@ -36,7 +36,10 @@ public class ReviewEdit : VotableOperation
 	 public override bool ValidateProposal(FairExecution execution, out string error)
 	{
 		if(!IsReviewOwner(execution, Review, User, out var r, out error))
+		{
+			error = "Not a review owner";
 			return false;
+		}
 
 		var p = execution.Publications.Find(r.Publication);
 

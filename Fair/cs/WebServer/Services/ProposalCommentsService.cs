@@ -10,21 +10,21 @@ public class ProposalCommentsService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<ProposalCommentModel> GetProposalComments([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string proposalId,
+	public TotalItemsResult<ProposalCommentModel> GetProposalComments([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string proposalId,
 		[NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ProposalCommentsService)}.{nameof(ProposalCommentsService.GetProposalComments)} method called with {{SiteId}}, {{ProposalId}}, {{Page}}, {{PageSize}}", siteId, proposalId, page, pageSize);
+		logger.LogDebug($"GET {nameof(ProposalCommentsService)}.{nameof(ProposalCommentsService.GetProposalComments)} method called with {{StoreId}}, {{ProposalId}}, {{Page}}, {{PageSize}}", storeId, proposalId, page, pageSize);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(proposalId);
 		Guard.Against.Negative(page, nameof(page));
 		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
 
-		AutoId siteEntityId = AutoId.Parse(siteId);
+		AutoId storeEntityId = AutoId.Parse(storeId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
 
 		Proposal proposal = mcv.Proposals.Latest(proposalEntityId);
-		if(proposal == null || proposal.Store != siteEntityId)
+		if(proposal == null || proposal.Store != storeEntityId)
 		{
 			throw new EntityNotFoundException(nameof(Proposal).ToLower(), proposalId);
 		}

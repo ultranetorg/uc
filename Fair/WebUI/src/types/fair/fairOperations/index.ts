@@ -2,7 +2,7 @@ export * from "./BaseFairOperation"
 
 export * from "./AccountNicknameChange"
 export * from "./FairOperationType"
-export * from "./FavoriteSiteChange"
+export * from "./FavoriteStoreChange"
 export * from "./FileCreation"
 export * from "./FileDeletion"
 export * from "./PerpetualVoting"

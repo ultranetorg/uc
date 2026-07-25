@@ -1,19 +1,19 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useGetSiteModerators } from "entities"
-import { useResolveSiteId } from "hooks"
+import { useGetStoreModerators } from "entities"
+import { useResolveStoreId } from "hooks"
 import { Table, TableEmptyState } from "ui/components"
 import { useOperationPolicy } from "app"
 
 import { moderatorsTabItemRenderer } from "./moderatorsTabItemRenderer"
 
 export const ModeratorsTab = () => {
-  const siteId = useResolveSiteId()
-  const { voterId } = useOperationPolicy("site-moderator-removal")
+  const storeId = useResolveStoreId()
+  const { voterId } = useOperationPolicy("store-moderator-removal")
   const { t } = useTranslation("moderatorsPage")
 
-  const { data: moderators } = useGetSiteModerators(siteId)
+  const { data: moderators } = useGetStoreModerators(storeId)
 
   const columns = useMemo(
     () => [
@@ -38,7 +38,7 @@ export const ModeratorsTab = () => {
     [t, voterId],
   )
 
-  const itemRenderer = useMemo(() => moderatorsTabItemRenderer(t, siteId!), [siteId, t])
+  const itemRenderer = useMemo(() => moderatorsTabItemRenderer(t, storeId!), [storeId, t])
 
   const items = useMemo(
     () =>

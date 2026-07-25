@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import { useSiteTitle } from "hooks"
+import { useStoreTitle } from "hooks"
 import { ButtonPrimary, ErrorInfo } from "ui/components"
 import { routes } from "utils"
 
 export const NotFoundPage = () => {
   const { t } = useTranslation("error")
 
-  useSiteTitle("Error - Page Not Found")
+  useStoreTitle("Error - Page Not Found")
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8">

@@ -1,15 +1,15 @@
 import { createBrowserRouter, createHashRouter, Outlet, RouteObject, RouterProvider } from "react-router-dom"
 
 import { BaseLayout } from "ui/layouts"
-import { IndexPage } from "ui/pages"
+import { StartPage } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
 import { EntityRoute } from "./EntityRoute"
 import { RouteErrorBoundary } from "./RouteErrorBoundary"
 import { SignInProvider } from "./SignInProvider"
-import { SitePoliciesProvider } from "./SitePoliciesProvider"
-import { SiteProvider } from "./SiteProvider"
-import { SiteRolesProvider } from "./SiteRolesProvider"
+import { StorePoliciesProvider } from "./StorePoliciesProvider"
+import { StoreProvider } from "./StoreProvider"
+import { StoreRolesProvider } from "./StoreRolesProvider"
 import { UserProvider } from "./UserProvider"
 
 const { VITE_APP_SERVERLESS_BUILD: SERVERLESS_BUILD } = import.meta.env
@@ -21,9 +21,9 @@ const routes: RouteObject[] = [
       <AuthenticationProvider>
         <SignInProvider>
           <UserProvider>
-            <SiteProvider>
+            <StoreProvider>
               <Outlet />
-            </SiteProvider>
+            </StoreProvider>
           </UserProvider>
         </SignInProvider>
       </AuthenticationProvider>
@@ -34,18 +34,18 @@ const routes: RouteObject[] = [
         index: true,
         element: (
           <BaseLayout>
-            <IndexPage />
+            <StartPage />
           </BaseLayout>
         ),
       },
       {
         path: ":appEntity/*",
         element: (
-          <SiteRolesProvider>
-            <SitePoliciesProvider>
+          <StoreRolesProvider>
+            <StorePoliciesProvider>
               <EntityRoute />
-            </SitePoliciesProvider>
-          </SiteRolesProvider>
+            </StorePoliciesProvider>
+          </StoreRolesProvider>
         ),
         errorElement: <RouteErrorBoundary />,
       },

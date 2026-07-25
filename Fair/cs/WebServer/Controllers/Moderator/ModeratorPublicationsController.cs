@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/moderator/sites/{siteId}/publications")]
+[Route("api/moderator/stores/{storeId}/publications")]
 public class ModeratorPublicationsController
 (
 	ILogger<ModeratorPublicationsController> logger,
@@ -13,15 +13,15 @@ public class ModeratorPublicationsController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<PublicationProposalModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<PublicationProposalModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {Pagination}, {Search}", nameof(ModeratorPublicationsController), nameof(GetAll), siteId, pagination, search);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorPublicationsController), nameof(GetAll), storeId, pagination, search);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<PublicationProposalModel> result = moderatorProposalService.GetPublicationsProposalsNotOptimized(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<PublicationProposalModel> result = moderatorProposalService.GetPublicationsProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
 	}

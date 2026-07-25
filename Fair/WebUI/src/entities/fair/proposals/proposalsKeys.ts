@@ -1,4 +1,4 @@
 export const proposalsKeys = {
-  moderators: (siteId: string) => ["sites", siteId, "proposals", "moderator"] as const,
-  publishers: (siteId: string) => ["sites", siteId, "proposals", "publisher"] as const,
+  moderators: (storeId: string) => ["stores", storeId, "proposals", "moderator"] as const,
+  publishers: (storeId: string) => ["stores", storeId, "proposals", "publisher"] as const,
 }

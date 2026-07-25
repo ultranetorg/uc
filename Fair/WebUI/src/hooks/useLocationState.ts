@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom"
 export type AppLocationState = {
   backgroundLocation?: Location
   defaultTabKey?: string
-  siteId?: string
+  storeId?: string
 }
 
 /** Типизированный доступ к `location.state` (никогда не возвращает null). */

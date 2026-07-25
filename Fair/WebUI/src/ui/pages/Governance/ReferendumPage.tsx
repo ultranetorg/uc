@@ -1,27 +1,27 @@
 import { useTranslation } from "react-i18next"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { useGetAuthorReferendum } from "entities"
-import { useParams, useResolveSiteId, useSiteTitle } from "hooks"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
 
 export const ReferendumPage = () => {
   const { referendumId } = useParams()
-  const { site } = useSiteContext()
-  const siteId = useResolveSiteId()
+  const { store } = useStoreContext()
+  const storeId = useResolveStoreId()
   const { t } = useTranslation()
 
-  const { isFetching, data: proposal } = useGetAuthorReferendum(siteId, referendumId)
+  const { isFetching, data: proposal } = useGetAuthorReferendum(storeId, referendumId)
 
-  useSiteTitle(site?.title, proposal?.title ? `Referendum - ${proposal?.title}` : "Referendum")
+  useStoreTitle(store?.title, proposal?.title ? `Referendum - ${proposal?.title}` : "Referendum")
 
   return (
     <ProposalView
-      parentBreadcrumbs={{ title: t("common:publisherReferendums"), path: routes.governance.referendums(siteId!) }}
+      parentBreadcrumbs={{ title: t("common:publisherReferendums"), path: routes.governance.referendums(storeId!) }}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={routes.governance.referendums(siteId!)}
+      previousPath={routes.governance.referendums(storeId!)}
     />
   )
 }

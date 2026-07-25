@@ -5,13 +5,13 @@ import { categoriesKeys } from "./categoriesKeys"
 
 const api = getFairApi()
 
-export const useGetCategoriesRoot = (siteId?: string) => {
-  const queryFn = () => api.getCategoriesRoot(siteId!)
+export const useGetCategoriesRoot = (storeId?: string) => {
+  const queryFn = () => api.getCategoriesRoot(storeId!)
 
   const { isPending, error, data, isFetching, refetch } = useQuery({
-    queryKey: categoriesKeys.root(siteId!),
+    queryKey: categoriesKeys.root(storeId!),
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storeId,
   })
 
   return { isPending, error: error ?? undefined, data, isFetching, refetch }

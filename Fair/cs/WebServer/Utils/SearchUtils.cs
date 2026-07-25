@@ -4,11 +4,11 @@ namespace Uccs.Fair;
 
 internal class SearchUtils
 {
-	internal static bool IsMatch(Store site, string? title)
+	internal static bool IsMatch(Store store, string? title)
 	{
 		return string.IsNullOrEmpty(title)
-			|| site.Title.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1
-			|| site.Name.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
+			|| store.Title.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1
+			|| store.Name.IndexOf(title, StringComparison.OrdinalIgnoreCase) != -1;
 	}
 
 	internal static bool IsMatch(Proposal proposal, string? search)

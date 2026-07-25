@@ -11,7 +11,7 @@ import {
 } from "@floating-ui/react"
 import { t } from "i18next"
 
-import { useSiteRolesContext, useUserContext } from "app"
+import { useStoreRolesContext, useUserContext } from "app"
 import { SvgThreeDotsVertical } from "assets"
 import { useScrollOrResize } from "hooks"
 import { CommentContextMenuProps, SimpleMenu, SimpleMenuItem } from "ui/components"
@@ -25,7 +25,7 @@ type CommentContextMenuBaseProps = {
 export type CommentContextMenu = CommentContextMenuProps & CommentContextMenuBaseProps
 
 export const CommentContextMenu = memo(({ id, text, reviewerId, reviewerName, onEditReview }: CommentContextMenu) => {
-  const { isModerator } = useSiteRolesContext()
+  const { isModerator } = useStoreRolesContext()
   const { user } = useUserContext()
   const { menuItems: moderatorMenuItems } = useModeratorUserMenuItems(reviewerId, reviewerName)
 

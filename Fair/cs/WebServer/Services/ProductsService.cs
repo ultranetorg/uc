@@ -198,13 +198,13 @@ public class ProductsService
 			};
 
 			if (model is ProductSearchResultModel full)
-				full.SitesPublications = LoadSitePublications(item.Publications, cancellationToken).ToArray();
+				full.StoresPublications = LoadStorePublications(item.Publications, cancellationToken).ToArray();
 
 			yield return model;
 		}
 	}
 
-	IEnumerable<SitePublicationModel> LoadSitePublications(IEnumerable<AutoId> publicationsIds, CancellationToken cancellationToken)
+	IEnumerable<StorePublicationModel> LoadStorePublications(IEnumerable<AutoId> publicationsIds, CancellationToken cancellationToken)
 	{
 		foreach(var publicationId in publicationsIds)
 		{
@@ -213,11 +213,11 @@ public class ProductsService
 
 
 			Publication publication = mcv.Publications.Latest(publicationId);
-			Store site = mcv.Stores.Latest(publication.Store);
-			yield return new SitePublicationModel
+			Store store = mcv.Stores.Latest(publication.Store);
+			yield return new StorePublicationModel
 			{
-				SiteId = site.Id.ToString(),
-				SiteTitle = site.Title,
+				StoreId = store.Id.ToString(),
+				StoreTitle = store.Title,
 				PublicationId = publication.Id.ToString()
 			};
 		}

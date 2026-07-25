@@ -3,50 +3,34 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
-[Route("api/author/sites/{siteId}/perpetual-surveys")]
+[Route("api/author/stores/{storeId}/perpetual-surveys")]
 public class AuthorPerpetualSurveysController
 (
 	ILogger<AuthorPerpetualSurveysController> logger,
 	AutoIdValidator autoIdValidator,
 	PerpetualSurveysService proposalsService
-	//IPaginationValidator paginationValidator
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<PerpetualSurveyModel> Get(string siteId, CancellationToken cancellationToken)
+	public IEnumerable<PerpetualSurveyModel> Get(string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.Get), siteId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.Get), storeId);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
-		return proposalsService.GetPerpetualReferendums(siteId, cancellationToken);
+		return proposalsService.GetPerpetualReferendums(storeId, cancellationToken);
 	}
 
 	[HttpGet("{perpetualSurveyId}")]
-	public PerpetualSurveyDetailsModel GetDetails(string siteId, int perpetualSurveyId)
+	public PerpetualSurveyDetailsModel GetDetails(string storeId, int perpetualSurveyId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PerpetualSurveyId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetDetails), siteId, perpetualSurveyId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PerpetualSurveyId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetDetails), storeId, perpetualSurveyId);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		ValidatePerpetualSurveyId(perpetualSurveyId);
 
-		return proposalsService.GetPerpetualReferendumDetails(siteId, perpetualSurveyId);
+		return proposalsService.GetPerpetualReferendumDetails(storeId, perpetualSurveyId);
 	}
-
-	//[HttpGet("{perpetualSurveyId}/comments")]
-	//public IEnumerable<ProposalCommentModel> GetComments(string siteId, int perpetualSurveyId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
-	//{
-	//	logger.LogInformation("GET {ControllerName}.{ActionName} method called with {SiteId}, {PerpetualSurveyId}, {Pagination}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetComments), siteId, perpetualSurveyId, pagination);
-
-	//	autoIdValidator.Validate(siteId, nameof(Site).ToLower());
-	//	ValidatePerpetualSurveyId(perpetualSurveyId);
-	//	paginationValidator.Validate(pagination);
-
-	//	(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-	//	var comments = proposalsService.GetPerpetualReferendumComments(siteId, perpetualSurveyId, page, pageSize, cancellationToken);
-
-	//	return this.OkPaged(comments.Items, page, pageSize, comments.TotalItems);
-	//}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	static void ValidatePerpetualSurveyId(int perpetualSurveyId)
@@ -57,3 +41,18 @@ public class AuthorPerpetualSurveysController
 		}
 	}
 }
+
+//[HttpGet("{perpetualSurveyId}/comments")]
+//public IEnumerable<ProposalCommentModel> GetComments(string storeId, int perpetualSurveyId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+//{
+//	logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PerpetualSurveyId}, {Pagination}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetComments), storeId, perpetualSurveyId, pagination);
+
+//	autoIdValidator.Validate(storeId, nameof(Store).ToLower());
+//	ValidatePerpetualSurveyId(perpetualSurveyId);
+//	paginationValidator.Validate(pagination);
+
+//	(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+//	var comments = proposalsService.GetPerpetualReferendumComments(storeId, perpetualSurveyId, page, pageSize, cancellationToken);
+
+//	return this.OkPaged(comments.Items, page, pageSize, comments.TotalItems);
+//}

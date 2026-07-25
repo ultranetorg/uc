@@ -1,7 +1,7 @@
 import { Publication, PublicationExtended } from "types"
 
 type PublicationBaseProps = {
-  siteId: string
+  storeId: string
 }
 
 export type PublicationCardProps = PublicationBaseProps &

@@ -6,11 +6,14 @@ namespace Uccs.Fair;
 public class UsersController
 (
 	ILogger<UsersController> logger,
-	UserNameValidator userNameValidator,
 	AutoIdValidator autoIdValidator,
 	PaginationValidator paginationValidator,
-	UsersService usersService,
-	ReviewsService reviewsService
+	SearchQueryValidator searchQueryValidator,
+	UserNameValidator userNameValidator,
+	LimitValidator limitValidator,
+	ReviewsService reviewsService,
+	SearchService searchService,
+	UsersService usersService
 ) : BaseController
 {
 	[HttpGet("{name}")]
@@ -43,15 +46,15 @@ public class UsersController
 		return usersService.GetDetails(name);
 	}
 
-	[HttpHead("{userId}/sites/{siteId}")]
-	public IActionResult SiteExists(string userId, string siteId)
+	[HttpHead("{userId}/stores/{storeId}")]
+	public IActionResult StoreExists(string userId, string storeId)
 	{
-		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {SiteId}", nameof(UsersController), nameof(SiteExists), userId, siteId);
+		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {StoreId}", nameof(UsersController), nameof(StoreExists), userId, storeId);
 
 		autoIdValidator.Validate(userId, nameof(User));
-		autoIdValidator.Validate(siteId, nameof(Store));
+		autoIdValidator.Validate(storeId, nameof(Store));
 
-		return usersService.SiteExists(userId, siteId) ? Ok() : NotFound();
+		return usersService.StoreExists(userId, storeId) ? Ok() : NotFound();
 	}
 
 	[HttpGet("{userId}/reviews")]
@@ -86,5 +89,16 @@ public class UsersController
 		userNameValidator.Validate(name);
 
 		return usersService.GetAvatarByName(name);
+	}
+
+	[HttpGet]
+	public IEnumerable<UserBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(UsersController), nameof(Search), query, limit);
+
+		searchQueryValidator.Validate(query);
+		limitValidator.Validate(limit);
+
+		return searchService.SearchUser(query, limit ?? SearchConstants.SearchUsersLimit, cancellationToken);
 	}
 }

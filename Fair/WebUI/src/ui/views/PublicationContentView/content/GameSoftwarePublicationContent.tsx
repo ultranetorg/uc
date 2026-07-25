@@ -4,7 +4,7 @@ import { Trans } from "react-i18next"
 
 import { SvgImageSlash } from "assets"
 import { CommentContextMenuProps, Slider, TagsList, TextModal } from "ui/components"
-import { Description, SiteLink, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
+import { Description, StoreLink, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
 import { CommentContextMenu, ReviewsList } from "ui/components/specific"
 
 import { ContentProps } from "../types"
@@ -27,7 +27,7 @@ const platformOrder = ["windows", "macos", "linux"]
 export const GameSoftwarePublicationContent = memo(
   ({
     t,
-    siteId,
+    storeId,
     productOrPublication,
     isPendingReviews,
     reviews,
@@ -68,7 +68,7 @@ export const GameSoftwarePublicationContent = memo(
 
     const sliderItems = useMemo(() => buildMediaItems(productOrPublication.fields), [productOrPublication.fields])
 
-    const officialSite = useMemo(() => getUrlFrom(productOrPublication.fields!, "uri"), [productOrPublication.fields])
+    const officialStore = useMemo(() => getUrlFrom(productOrPublication.fields!, "uri"), [productOrPublication.fields])
 
     const price = useMemo(() => getValueFrom(productOrPublication.fields!, "price"), [productOrPublication.fields])
 
@@ -151,7 +151,7 @@ export const GameSoftwarePublicationContent = memo(
         </div>
         <div className="flex w-87.5 flex-col gap-8">
           <SoftwareInfo
-            siteId={siteId}
+            storeId={storeId}
             productOrPublication={productOrPublication}
             supportedPlatforms={supportedPlatforms}
             price={price}
@@ -174,7 +174,7 @@ export const GameSoftwarePublicationContent = memo(
             downloadFromWebLabel={t("downloadFromWeb")}
             onVersionChange={handleVersionChange}
           />
-          {officialSite && <SiteLink to={officialSite} label={t("common:officialSite")} className="capitalize" />}
+          {officialStore && <StoreLink to={officialStore} label={t("common:officialStore")} className="capitalize" />}
           {eulaText && (
             <button
               type="button"

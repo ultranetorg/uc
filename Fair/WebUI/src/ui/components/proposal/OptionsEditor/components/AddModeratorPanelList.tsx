@@ -2,41 +2,41 @@ import { memo, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useSiteContext } from "app"
+import { useStoreContext } from "app"
 import { SEARCH_DELAY } from "config"
-import { useSearchAccounts } from "entities"
-import { AccountBase } from "types"
+import { useSearchUsers } from "entities"
+import { UserBase } from "types"
 import { DropdownItem } from "ui/components/proposal/DropdownSearchMember"
 
 import { MembersPanelList } from "./MembersPanelList"
 
 export type AddModeratorPanelListProps = {
-  value: AccountBase[]
-  onChange: (value: AccountBase[]) => void
+  value: UserBase[]
+  onChange: (value: UserBase[]) => void
 }
 
 export const AddModeratorPanelList = memo(
   ({ value: selectedModerators = [], onChange }: AddModeratorPanelListProps) => {
-    const { site } = useSiteContext()
+    const { store } = useStoreContext()
     const { t } = useTranslation("createProposal")
 
     const [search, setSearch] = useState("")
     const [debouncedSearch] = useDebounceValue(search, SEARCH_DELAY)
 
-    const { data: users = [] } = useSearchAccounts(debouncedSearch)
+    const { data: users = [] } = useSearchUsers(debouncedSearch)
 
     const dropdownSearchItems = useMemo<DropdownItem[]>(
       () =>
         users
           .filter(x => selectedModerators.every(a => a.id !== x.id)) // Do not display moderators that have already been selected
-          .filter(x => site?.moderatorsIds.every(m => m !== x.id)) // Do not display moderators who are already moderators
+          .filter(x => store?.moderatorsIds.every(m => m !== x.id)) // Do not display moderators who are already moderators
           .map(x => ({ label: x.nickname ?? x.id, value: x.id, avatarId: x.id })) || [],
-      [users, selectedModerators, site?.moderatorsIds],
+      [users, selectedModerators, store?.moderatorsIds],
     )
 
     const handleAccountSelect = useCallback(
       (item: DropdownItem) => {
-        const accountToAdd: AccountBase = {
+        const accountToAdd: UserBase = {
           id: item.value,
           nickname: item.label,
           address: "",

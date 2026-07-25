@@ -6,13 +6,13 @@ import { proposalsKeys } from "./proposalsKeys"
 
 const api = getFairApi()
 
-export const useGetPublisherProposals = (siteId?: string, search?: string, page?: number, pageSize?: number) => {
-  const queryFn = () => api.getPublisherProposals(siteId!, search, page, pageSize)
+export const useGetPublisherProposals = (storeId?: string, search?: string, page?: number, pageSize?: number) => {
+  const queryFn = () => api.getPublisherProposals(storeId!, search, page, pageSize)
 
   const { isPending, isFetching, error, data } = useQuery({
-    queryKey: [...proposalsKeys.publishers(siteId!), { page, pageSize }],
+    queryKey: [...proposalsKeys.publishers(storeId!), { page, pageSize }],
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storeId,
   })
 
   return { isPending, isFetching, error: error ?? undefined, data }

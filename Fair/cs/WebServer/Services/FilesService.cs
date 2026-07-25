@@ -12,25 +12,25 @@ public class FilesService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<FileModel> GetAuthorFiles([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<FileModel> GetAuthorFiles([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {AuthorId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetAuthorFiles), siteId, authorId, page, pageSize);
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {StoreId}, {AuthorId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetAuthorFiles), storeId, authorId, page, pageSize);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(authorId);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId siteAutoId = AutoId.Parse(siteId);
-		AutoId authorAutoId = AutoId.Parse(authorId);
+		AutoId storeEntityId = AutoId.Parse(storeId);
+		AutoId authorEntityId = AutoId.Parse(authorId);
 
-		Store site = mcv.Stores.Latest(siteAutoId);
-		if(site == null)
+		Store store = mcv.Stores.Latest(storeEntityId);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		Author author = mcv.Authors.Latest(authorAutoId);
+		Author author = mcv.Authors.Latest(authorEntityId);
 		if(author == null)
 		{
 			throw new EntityNotFoundException(nameof(Author).ToLower(), authorId);
@@ -39,23 +39,23 @@ public class FilesService
 		return LoadFilesNotOptimized(author.Files, page, pageSize, cancellationToken);
 	}
 
-	public TotalItemsResult<FileModel> GetSiteFiles([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<FileModel> GetStoreFiles([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetSiteFiles), siteId, page, pageSize);
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetStoreFiles), storeId, page, pageSize);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(siteId);
+		AutoId id = AutoId.Parse(storeId);
 
-		Store site = mcv.Stores.Latest(id);
-		if(site == null)
+		Store store = mcv.Stores.Latest(id);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		return LoadFilesNotOptimized(site.Files, page, pageSize, cancellationToken);
+		return LoadFilesNotOptimized(store.Files, page, pageSize, cancellationToken);
 	}
 
 	TotalItemsResult<FileModel> LoadFilesNotOptimized(IEnumerable<AutoId> filesIds, int page, int pageSize, CancellationToken cancellationToken)

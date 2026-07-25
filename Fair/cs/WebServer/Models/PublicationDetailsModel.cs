@@ -2,7 +2,7 @@
 
 public class PublicationDetailsModel : ProductDetailsModel
 {
-	public string SiteId { get; init; }
+	public string StoreId { get; init; }
 
 	// NOTE: Fields can be null for unpublished publication. Unpublished publication have no category.
 	public IEnumerable<CategoryPathItem>? Path { get; init; }

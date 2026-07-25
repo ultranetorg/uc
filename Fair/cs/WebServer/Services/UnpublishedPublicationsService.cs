@@ -10,37 +10,37 @@ public class UnpublishedPublicationsService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<UnpublishedPublicationModel> GetAll([NotNull][NotEmpty] string siteId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<UnpublishedPublicationModel> GetAll([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {SiteId}, {Page}, {PageSize}", nameof(UnpublishedPublicationsService), nameof(GetAll), siteId, page, pageSize);
+		logger.LogDebug("GET {ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UnpublishedPublicationsService), nameof(GetAll), storeId, page, pageSize);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(siteId);
-		Store site = mcv.Stores.Latest(id);
-		if(site == null)
+		AutoId id = AutoId.Parse(storeId);
+		Store store = mcv.Stores.Latest(id);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
-		if(site.UnpublishedPublications.Length == 0)
+		if(store.UnpublishedPublications.Length == 0)
 		{
 			return TotalItemsResult<UnpublishedPublicationModel>.Empty;
 		}
 
-		IEnumerable<AutoId> publicationsIds = site.UnpublishedPublications.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<AutoId> publicationsIds = store.UnpublishedPublications.Skip(page * pageSize).Take(pageSize);
 		IEnumerable<AutoId> reversed = publicationsIds.Reverse();
-		List<UnpublishedPublicationModel> result = LoadUnpublishedPublications(site, reversed, pageSize, cancellationToken);
+		List<UnpublishedPublicationModel> result = LoadUnpublishedPublications(store, reversed, pageSize, cancellationToken);
 
 		return new TotalItemsResult<UnpublishedPublicationModel>
 		{
 			Items = result,
-			TotalItems = site.UnpublishedPublications.Length
+			TotalItems = store.UnpublishedPublications.Length
 		};
 	}
 
-	List<UnpublishedPublicationModel> LoadUnpublishedPublications(Store site, IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
+	List<UnpublishedPublicationModel> LoadUnpublishedPublications(Store store, IEnumerable<AutoId> publicationsIds, int pageSize, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return [];
@@ -51,7 +51,7 @@ public class UnpublishedPublicationsService
 			if(cancellationToken.IsCancellationRequested)
 				return result;
 
-			if(HasProductPublicationProposalForPublication(site, publicationId))
+			if(HasProductPublicationProposalForPublication(store, publicationId))
 			{
 				continue;
 			}
@@ -78,22 +78,22 @@ public class UnpublishedPublicationsService
 		return result;
 	}
 
-	public PublicationDetailsModel GetDetails([NotNull][NotEmpty] string siteId, [NotNull][NotEmpty] string publicationId)
+	public PublicationDetailsModel GetDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string publicationId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {SiteId}, {PublicationId}", nameof(UnpublishedPublicationsService), nameof(GetDetails), siteId, publicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {PublicationId}", nameof(UnpublishedPublicationsService), nameof(GetDetails), storeId, publicationId);
 
-		Guard.Against.NullOrEmpty(siteId);
+		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(publicationId);
 
-		AutoId entitySiteId = AutoId.Parse(siteId);
-		Store site = mcv.Stores.Latest(entitySiteId);
-		if(site == null)
+		AutoId storeEntityId = AutoId.Parse(storeId);
+		Store store = mcv.Stores.Latest(storeEntityId);
+		if(store == null)
 		{
-			throw new EntityNotFoundException(nameof(Store).ToLower(), siteId);
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
 		AutoId entityPublicationId = AutoId.Parse(publicationId);
-		if(!site.UnpublishedPublications.Contains(entityPublicationId))
+		if(!store.UnpublishedPublications.Contains(entityPublicationId))
 		{
 			throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 		}
@@ -104,7 +104,7 @@ public class UnpublishedPublicationsService
 			throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 		}
 
-		//if(HasProductPublicationProposalForPublication(site, entityPublicationId))
+		//if(HasProductPublicationProposalForPublication(store, entityPublicationId))
 		//{
 		//	throw new EntityNotFoundException(nameof(Publication).ToLower(), publicationId);
 		//}
@@ -128,9 +128,9 @@ public class UnpublishedPublicationsService
 		};
 	}
 
-	bool HasProductPublicationProposalForPublication(Store site, AutoId publicationId)
+	bool HasProductPublicationProposalForPublication(Store store, AutoId publicationId)
 	{
-		return site.Proposals.Any(x =>
+		return store.Proposals.Any(x =>
 		{
 			Proposal proposal = mcv.Proposals.Latest(x);
 			if(proposal.OptionClass != FairOperationClass.PublicationPublish)

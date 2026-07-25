@@ -8,13 +8,13 @@ import {
   validateUniqueCategoryType,
   validateUniqueFileId,
   validateUniqueParentCategory,
-  validateUniqueSiteNickname as validateUniqueSiteName,
+  validateUniqueStoreName,
 } from "./validations"
 
-const atLeastOneSiteTextField = (_: unknown, formValues: CreateProposalData) =>
+const atLeastOneStoreInfoField = (_: unknown, formValues: CreateProposalData) =>
   (formValues.options || []).every(
     opt =>
-      ((opt.siteTitle ?? "") as string).trim().length > 0 ||
+      ((opt.storeTitle ?? "") as string).trim().length > 0 ||
       ((opt.slogan ?? "") as string).trim().length > 0 ||
       ((opt.description ?? "") as string).trim().length > 0,
   )
@@ -163,9 +163,9 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
 
-    // Site
+    // Store
     {
-      operationType: "site-authors-removal",
+      operationType: "store-authors-removal",
       fields: [
         {
           valueType: "authors-removals",
@@ -174,7 +174,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "site-avatar-change",
+      operationType: "store-avatar-change",
       fields: [
         {
           valueType: "file",
@@ -185,7 +185,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "site-moderator-addition",
+      operationType: "store-moderator-addition",
       fields: [
         {
           valueType: "moderators-additions",
@@ -195,7 +195,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "site-moderator-removal",
+      operationType: "store-moderator-removal",
       fields: [
         {
           valueType: "moderators-removals",
@@ -205,7 +205,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "site-name-change",
+      operationType: "store-name-change",
       fields: [
         {
           valueType: "string",
@@ -216,31 +216,31 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
             minLength: { value: 5, message: t("validation:minLength", { count: 5 }) },
             maxLength: { value: 32, message: t("validation:maxLength", { count: 32 }) },
             pattern: { value: /^[a-z0-9_]+$/, message: t("validation:onlyLowercaseLatinNumbersAndUnderscores") },
-            validate: validateUniqueSiteName(t),
+            validate: validateUniqueStoreName(t),
           },
         },
       ],
     },
     {
-      operationType: "site-text-change",
+      operationType: "store-info-updation",
       fields: [
         {
           valueType: "string",
-          name: "siteTitle",
+          name: "storeTitle",
           placeholder: t("placeholders:enterTitle"),
-          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
+          rules: { required: false, validate: { atLeastOneField: atLeastOneStoreInfoField } },
         },
         {
           valueType: "string",
           name: "slogan",
           placeholder: t("placeholders:enterSlogan"),
-          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
+          rules: { required: false, validate: { atLeastOneField: atLeastOneStoreInfoField } },
         },
         {
           valueType: "string-multiline",
           name: "description",
           placeholder: t("placeholders:enterDescription"),
-          rules: { required: false, validate: { atLeastOneField: atLeastOneSiteTextField } },
+          rules: { required: false, validate: { atLeastOneField: atLeastOneStoreInfoField } },
         },
       ],
     },

@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/author/sites/{siteId}/referendums")]
+[Route("api/author/stores/{storeId}/referendums")]
 public class AuthorReferendumsController
 (
 	ILogger<AuthorReferendumsController> logger,
@@ -13,27 +13,27 @@ public class AuthorReferendumsController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<ProposalModel> GetAll(string siteId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<ProposalModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{SiteId}}, {{Pagination}}, {{Search}}", siteId, pagination, search);
+		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.GetAll)} method called with {{StoreId}}, {{Pagination}}, {{Search}}", storeId, pagination, search);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		paginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ProposalModel> referendums = proposalsService.GetReferendums(siteId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ProposalModel> referendums = proposalsService.GetReferendums(storeId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(referendums.Items, page, pageSize, referendums.TotalItems);
 	}
 
 	[HttpGet("{referendumId}")]
-	public ProposalDetailsModel Get(string siteId, string referendumId)
+	public ProposalDetailsModel Get(string storeId, string referendumId)
 	{
-		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{SiteId}}, {{ReferendumId}}", siteId, referendumId);
+		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{StoreId}}, {{ReferendumId}}", storeId, referendumId);
 
-		autoIdValidator.Validate(siteId, nameof(Store).ToLower());
+		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		autoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
 
-		return proposalsService.GetReferendum(siteId, referendumId);
+		return proposalsService.GetReferendum(storeId, referendumId);
 	}
 }

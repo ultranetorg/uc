@@ -12,7 +12,7 @@ import {
 
 export const getCardComponentForCategory = (
   productType: ProductType,
-): ComponentType<{ siteId: string } & (Publication | PublicationExtended)> => {
+): ComponentType<{ storeId: string } & (Publication | PublicationExtended)> => {
   switch (productType) {
     case "book":
       return BookPublicationCard

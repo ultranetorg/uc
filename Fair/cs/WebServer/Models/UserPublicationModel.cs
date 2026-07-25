@@ -4,8 +4,8 @@ public class UserPublicationModel
 {
 	public string Id { get; set; }
 
-	public string SiteId { get; set; }
-	public string SiteTitle { get; set; }
+	public string StoreId { get; set; }
+	public string StoreTitle { get; set; }
 
 	public string CategoryId { get; set; }
 	public string CategoryTitle { get; set; }
@@ -16,12 +16,12 @@ public class UserPublicationModel
 	//
 	public string Url { get; set; }
 
-	public UserPublicationModel(Publication publication, Store site, Category category, Product product)
+	public UserPublicationModel(Publication publication, Store store, Category category, Product product)
 	{
 		Id = publication.Id.ToString();
 
-		SiteId = site.Id.ToString();
-		SiteTitle = site.Title;
+		StoreId = store.Id.ToString();
+		StoreTitle = store.Title;
 
 		CategoryId = category.Id.ToString();
 		CategoryTitle = category.Title;

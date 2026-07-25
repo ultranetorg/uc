@@ -4,25 +4,25 @@ import { getFairApi } from "api"
 
 const api = getFairApi()
 
-export const useGetChangedPublication = (siteId?: string, changedPublicationId?: string) => {
-  const queryFn = () => api.getChangedPublication(siteId!, changedPublicationId!)
+export const useGetChangedPublication = (storeId?: string, changedPublicationId?: string) => {
+  const queryFn = () => api.getChangedPublication(storeId!, changedPublicationId!)
 
   const { isLoading, isFetching, isError, data } = useQuery({
-    queryKey: ["sites", siteId, "publications", "changed", changedPublicationId],
+    queryKey: ["stores", storeId, "publications", "changed", changedPublicationId],
     queryFn: queryFn,
-    enabled: !!siteId && !!changedPublicationId,
+    enabled: !!storeId && !!changedPublicationId,
   })
 
   return { isLoading, isFetching, isError, data }
 }
 
-export const useGetChangedPublications = (siteId?: string, page?: number, pageSize?: number) => {
-  const queryFn = () => api.getChangedPublications(siteId!, page, pageSize)
+export const useGetChangedPublications = (storeId?: string, page?: number, pageSize?: number) => {
+  const queryFn = () => api.getChangedPublications(storeId!, page, pageSize)
 
   const { isFetching, isError, data } = useQuery({
-    queryKey: ["sites", siteId, "publications", "changed", { page, pageSize }],
+    queryKey: ["stores", storeId, "publications", "changed", { page, pageSize }],
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storeId,
   })
   return { isFetching, isError, data }
 }

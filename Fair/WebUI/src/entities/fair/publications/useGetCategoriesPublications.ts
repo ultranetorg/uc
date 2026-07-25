@@ -6,13 +6,13 @@ import { publicationsKeys } from "./publicationsKeys"
 
 const api = getFairApi()
 
-export const useGetCategoriesPublications = (siteId?: string) => {
-  const queryFn = () => api.getCategoriesPublications(siteId!)
+export const useGetCategoriesPublications = (storeId?: string) => {
+  const queryFn = () => api.getCategoriesPublications(storeId!)
 
   const { isPending, isError, data } = useQuery({
-    queryKey: publicationsKeys.categoriesPublications(siteId!),
+    queryKey: publicationsKeys.categoriesPublications(storeId!),
     queryFn: queryFn,
-    enabled: !!siteId,
+    enabled: !!storeId,
   })
 
   return { isPending, isError, data }

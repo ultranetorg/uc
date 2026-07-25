@@ -17,7 +17,7 @@ import { useCreateProposalContext } from "ui/views"
 import { getEditorOperationsFields } from "./constants"
 import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
-import { validateSiteAuthorsRemoval, validateSiteModeratorChange, validateSiteTextChange } from "./validations"
+import { validateStoreAuthorsRemoval, validateStoreModeratorChange, validateStoreInfoUpdation } from "./validations"
 
 const validationMap: Record<
   string,
@@ -29,11 +29,11 @@ const validationMap: Record<
     lastEditedIndex: number,
   ) => void
 > = {
-  "site-author-addition": validateSiteAuthorsRemoval,
-  "site-authors-removal": validateSiteAuthorsRemoval,
-  "site-moderator-addition": validateSiteModeratorChange,
-  "site-moderator-removal": validateSiteModeratorChange,
-  "site-text-change": validateSiteTextChange,
+  "store-author-addition": validateStoreAuthorsRemoval,
+  "store-authors-removal": validateStoreAuthorsRemoval,
+  "store-moderator-addition": validateStoreModeratorChange,
+  "store-moderator-removal": validateStoreModeratorChange,
+  "store-info-updation": validateStoreInfoUpdation,
 }
 
 export type OptionsEditorProps = {

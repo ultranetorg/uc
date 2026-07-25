@@ -1,6 +1,6 @@
 import { CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
 import {
-  AccountBase,
+  UserBase,
   AuthorBaseAvatar,
   CreateProposalData,
   CreateProposalDataOption,
@@ -11,7 +11,7 @@ import { getFairOperationType } from "utils"
 
 const mapAuthorsToIds = (accounts?: AuthorBaseAvatar[]): string[] => accounts?.map(x => x.id) ?? []
 
-const mapAccountsToIds = (accounts?: AccountBase[]): string[] => accounts?.map(x => x.id) ?? []
+const mapUsersToIds = (accounts?: UserBase[]): string[] => accounts?.map(x => x.id) ?? []
 
 const mapOptionOperation = (type: OperationType, data: CreateProposalData, option: CreateProposalDataOption) => {
   switch (type) {
@@ -46,19 +46,19 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
       // @ts-expect-error fix
       return { review: data.reviewId, status: option.status }
 
-    // Site
-    case "site-authors-removal":
+    // Store
+    case "store-authors-removal":
       return { authors: mapAuthorsToIds(option.authors) }
-    case "site-avatar-change":
+    case "store-avatar-change":
       return { file: option.fileId }
-    case "site-moderator-addition":
-      return { candidates: mapAccountsToIds(option.moderators) }
-    case "site-moderator-removal":
-      return { moderator: mapAccountsToIds(option.moderators)[0] }
-    case "site-name-change":
+    case "store-moderator-addition":
+      return { candidates: mapUsersToIds(option.moderators) }
+    case "store-moderator-removal":
+      return { moderator: mapUsersToIds(option.moderators)[0] }
+    case "store-name-change":
       return { name: option.name }
-    case "site-text-change":
-      return { title: option.siteTitle, slogan: option.slogan, description: option.description }
+    case "store-info-updation":
+      return { title: option.storeTitle, slogan: option.slogan, description: option.description }
 
     // User
     case "user-unregistration":

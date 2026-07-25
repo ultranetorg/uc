@@ -1,6 +1,6 @@
 import { ProductSearchResultBase } from "./ProductSearchResultBase"
-import { SitePublication } from "./SitePublication"
+import { StorePublication } from "./StorePublication"
 
 export type ProductSearchResult = {
-  sitesPublications: SitePublication[]
+  storesPublications: StorePublication[]
 } & ProductSearchResultBase

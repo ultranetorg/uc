@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react"
 
 import { useOperationPolicy } from "app"
-import { useResolveSiteId } from "hooks"
+import { useResolveStoreId } from "hooks"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 
 import { ProposalViewContentProps } from "./types"
@@ -10,13 +10,13 @@ import { renderDescription } from "./utils"
 export const DefaultContent = memo(
   ({ t, pageState, proposal, isReferendum, voteStatus, votedValue, onVoteClick }: ProposalViewContentProps) => {
     const { voterId } = useOperationPolicy(proposal.operation)
-    const siteId = useResolveSiteId()
+    const storeId = useResolveStoreId()
 
     const items = useMemo<OptionsCollapsesListItem[]>(
       () =>
         proposal.options.map((x, i) => ({
           title: x.title ?? t("operations:" + x.operation.$type),
-          description: renderDescription(siteId!, x),
+          description: renderDescription(storeId!, x),
           value: i,
           votePercents:
             proposal.votesRequiredToWin > 0
@@ -25,7 +25,7 @@ export const DefaultContent = memo(
           voted: i === votedValue,
           votesCount: proposal.yes[i].length,
         })),
-      [proposal.options, proposal.votesRequiredToWin, proposal.yes, siteId, t, votedValue],
+      [proposal.options, proposal.votesRequiredToWin, proposal.yes, storeId, t, votedValue],
     )
 
     return (

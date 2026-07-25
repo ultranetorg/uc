@@ -2,5 +2,5 @@
 
 public class ProductSearchResultModel : ProductSearchResultBaseModel
 {
-	public IEnumerable<SitePublicationModel> SitesPublications { get; set; }
+	public IEnumerable<StorePublicationModel> StoresPublications { get; set; }
 }
