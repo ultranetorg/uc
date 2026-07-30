@@ -4,6 +4,10 @@ namespace Uccs.Net;
 
 public class UtilityCommand : McvCommand
 {
+	public UtilityCommand()
+	{
+	}
+
 	public UtilityCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}

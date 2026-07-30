@@ -74,7 +74,7 @@ public class PublicationUpdation : VotableOperation
 													});
 
 			if(p.IsPublished)
-				execution.ProductTitles.Deindex(p);
+				execution.PublicationTitles.Deindex(p);
 		}
 	
 		p.ProductVersion = Version;
@@ -92,7 +92,7 @@ public class PublicationUpdation : VotableOperation
 			Store.ChangedPublications = Store.ChangedPublications.Remove(p.Id);
 
 		if(p.IsPublished)
-			execution.ProductTitles.Index(p);
+			execution.PublicationTitles.Index(p);
 
 		execution.RewardForModeration(Store, a, out Error);
 	}

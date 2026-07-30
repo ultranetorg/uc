@@ -44,7 +44,7 @@ public enum Token : uint
 	Slogan,
 	Software,
 	Tags,
-	Title,
+	//Title,
 	Type,
 	UILanguages,
 	URI,
@@ -331,8 +331,11 @@ public class ProductVersion  : IBinarySerializable
 
 public class Product : IBinarySerializable, ITableEntry
 {
+	public const int			TitleLengthMaximum = 128;
+
 	public AutoId				Id { get; set; }
 	public AutoId				Author { get; set; }
+	public string				Title { get; set; }
 	public ProductType			Type { get; set; }
 	public ProductVersion[]		Versions { get; set; }
 	public Time					Updated { get; set; }
@@ -363,11 +366,12 @@ public class Product : IBinarySerializable, ITableEntry
 		return	new Product(Mcv)
 				{
 					Id = Id,
+					Title = Title,
 					Author = Author,
 					Type = Type,
 					Versions = Versions,
 					Updated = Updated,
-					Publications = Publications
+					Publications = Publications,
 				};
 	}
 
@@ -388,6 +392,7 @@ public class Product : IBinarySerializable, ITableEntry
 	public void Write(Writer writer)
 	{
 		writer.Write(Id);
+		writer.WriteUtf8(Title);
 		writer.Write(Author);
 		writer.Write(Type);
 		writer.Write(Updated);
@@ -398,6 +403,7 @@ public class Product : IBinarySerializable, ITableEntry
 	public void Read(Reader reader)
 	{
 		Id				= reader.Read<AutoId>();
+		Title			= reader.ReadUtf8();
 		Author			= reader.Read<AutoId>();
 		Type			= reader.Read<ProductType>();
 		Updated			= reader.Read<Time>();
@@ -434,11 +440,11 @@ public class Product : IBinarySerializable, ITableEntry
 																	ProductType.Game => Game,
 																	ProductType.Movie => Movie,
 																	ProductType.Software => Software,
+																	ProductType.Music => Music,
 																	_ => throw new IntegrityException()
 																};
 
 	public static readonly Field[] Book =	[
-												new (Token.Title, FieldType.StringUtf8, length: 128),
 												new (Token.DescriptionMinimal,	[
 																					new (Token.Language,FieldType.LanguageCode, length: 8),
 																					new (Token.Value, FieldType.TextUtf8, length: 1024),
@@ -451,7 +457,6 @@ public class Product : IBinarySerializable, ITableEntry
 											];
 
 	public static readonly Field[] Game =	[
-												new (Token.Title, FieldType.StringUtf8, length: 128),
 												new (Token.DescriptionMinimal,  [
 																					new (Token.Language,FieldType.LanguageCode, length: 8),
 																					new (Token.Value, FieldType.TextUtf8, length: 1024),
@@ -463,7 +468,17 @@ public class Product : IBinarySerializable, ITableEntry
 											];
 
 	public static readonly Field[] Movie =	[
-												new (Token.Title, FieldType.StringUtf8, length: 128),
+												new (Token.DescriptionMinimal,  [
+																					new (Token.Language,FieldType.LanguageCode, length: 8),
+																					new (Token.Value, FieldType.TextUtf8, length: 1024),
+																				]),
+												new (Token.DescriptionMaximal,  [
+																					new (Token.Language,FieldType.LanguageCode, length: 8),
+																					new (Token.Value,   FieldType.TextUtf8, length: int.MaxValue),
+																				]),
+											];
+
+	public static readonly Field[] Music =	[
 												new (Token.DescriptionMinimal,  [
 																					new (Token.Language,FieldType.LanguageCode, length: 8),
 																					new (Token.Value, FieldType.TextUtf8, length: 1024),
@@ -479,8 +494,6 @@ public class Product : IBinarySerializable, ITableEntry
 													[
 														new (Token.Version, FieldType.StringUtf8, length: 16)
 													]),
-													new (Token.Title,		FieldType.StringUtf8, length: 128),
-													//new (Token.Slogan,	FieldType.StringUtf8, FieldFlag.Optional, length: 256),
 													new (Token.URI,			FieldType.URI, length: 1024),
 													new (Token.Tags,		FieldType.StringUtf8, FieldFlag.Optional, length: 128),
 													new (Token.UILanguages, flags : FieldFlag.Optional, fields: 

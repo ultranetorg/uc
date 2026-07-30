@@ -92,7 +92,7 @@ public class StoreCreation : FairOperation
 
 		User.ModeratedStores = [..User.ModeratedStores, s.Id];
 
-		execution.StoreTitles.Index(s.Id, Title);
+		execution.StoreTitles.Index(Title, null, s.Id);
 
 		execution.Prolong(User, s, Time.FromYears(Years));
 		execution.PayOperationEnergy(User);

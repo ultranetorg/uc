@@ -4,6 +4,10 @@ namespace Uccs.Rdn.CLI;
 
 public class EconomyCommand : RdnCommand
 {
+	public EconomyCommand()
+	{
+	}
+
 	public EconomyCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}

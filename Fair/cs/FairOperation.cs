@@ -104,6 +104,7 @@ public abstract class FairOperation : Operation
 	public const string			NotPublished = "Not published";
 	public const string			NotSupported = "Not supported";
 	public const string			NotApproved = "Not approved";
+	public const string			TypeMismatch = "Type mismatch";
 
 	public new FairUser			User { get => base.User as FairUser; set => base.User = value; }
 

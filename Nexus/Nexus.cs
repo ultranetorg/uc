@@ -34,7 +34,7 @@ public class Nexus : IProgram
 		if(!mutex.WaitOne(0, false))
 			throw new Exception("Another instance is already running");
 
-		new FileLog(Flow.Log, GetType().Name, Settings.Profile, flow);
+		new LogFile(Flow.Log, GetType().Name, Settings.Profile, flow);
 
 		if(Directory.Exists(Settings.Profile))
 			foreach(var i in Directory.EnumerateFiles(Settings.Profile, $"{GetType().Name}.{Cli.FailureExt}"))

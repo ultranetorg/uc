@@ -12,6 +12,10 @@ public class LinkCommand : RdnCommand
 	{
 	}
 
+	public LinkCommand()
+	{
+	}
+
 	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

@@ -166,13 +166,29 @@ public class ProductSearchResult
 
 public class ProductSearchApc : FairApc
 {
-	public AutoId		Store { get; set; }
+	public ProductType	Type { get; set; }
 	public string		Query { get; set; }
 	public int			Skip { get; set; }
 	public int			Take { get; set; } = 10;
 
 	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		return node.Mcv.ProductTitles.Search(Store, Query, Skip, Take);
+		return node.Mcv.ProductTitles.Search(Query, Type, Skip, Take);
+	}
+}
+
+
+public class PublicationSearchResult
+{
+	public AutoId		Publication { get; set; }
+	public string		ProductTitle { get; set; }
+	public AutoId		Author { get; set; }
+	public string		AuthorTitle { get; set; }
+	public AutoId		Logo { get; set; }
+	public int			Rank;
+
+	public override string ToString()
+	{
+		return $"{GetType().Name} {Publication}, {nameof(ProductTitle)}={ProductTitle}, {nameof(Author)}={Author}, {nameof(AuthorTitle)}={AuthorTitle}, {nameof(Logo)}={Logo}";
 	}
 }

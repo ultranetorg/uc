@@ -19,20 +19,20 @@ public class Simhash : IMetric<string>
 
 	public int ComputeDistance(string a, string b)
 	{
-		return HammingDistance(Hashify(a), Hashify(b));
-	}
-
-	public int ComputeDistance(ulong a, ulong b)
-	{
-		return HammingDistance(a, b);
+		return HammingDistance(Generate(a), Generate(b));
 	}
 
 	public static ulong Generate(string content, int width = 3)
 	{
 		return Generate(Tokenize(content, width));
 	}
+	
+	public static ulong GenerateFromChars_Slow(string content)
+	{
+		return Generate(content.ToCharArray().Select(i => i.ToString()));
+	}
 
-	public static ulong Generate(IEnumerable<string> tokens)
+	static ulong Generate(IEnumerable<string> tokens)
 	{
 		ulong[] v = new ulong[8];
 
@@ -72,13 +72,8 @@ public class Simhash : IMetric<string>
 
 		return h;
 	}
-	
-	public static ulong GenerateFromWord(string content)
-	{
-		return Generate(content.ToCharArray().Select(i => i.ToString()));
-	}
 
-	public static IEnumerable<string> Slide(string content, int width = 4)
+	static IEnumerable<string> Slide(string content, int width = 4)
 	{
 		for(int i = 0; i < content.Length + 1 - width; i++)
 		{
@@ -87,7 +82,7 @@ public class Simhash : IMetric<string>
 		}
 	}
 
-	public static string Scrub(string content)
+	static string Scrub(string content)
 	{
 		MatchCollection matches = Regex.Matches(content, @"[\w\u4e00-\u9fcc]+");
 		string ans = "";
@@ -100,7 +95,7 @@ public class Simhash : IMetric<string>
 		return ans;
 	}
 
- 	public static IEnumerable<string> Tokenize(string content, int width)
+ 	static IEnumerable<string> Tokenize(string content, int width)
  	{
  		content = content.ToLower();
  		content = Scrub(content);

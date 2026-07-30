@@ -42,8 +42,8 @@ public class StoreInfoUpdation : VotableOperation
 	{
 		if(Title != null)
 		{
-			execution.StoreTitles.Deindex(Store.Id, Store.Title);
-			execution.StoreTitles.Index(Store.Id, Title);
+			execution.StoreTitles.Deindex(Store.Title, null, Store.Id);
+			execution.StoreTitles.Index(Title, null, Store.Id);
 
 			Store.Title = Title;
 		}

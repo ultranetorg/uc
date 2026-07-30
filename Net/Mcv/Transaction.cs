@@ -57,7 +57,7 @@ public class Transaction : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"User={User}, Nonce={Nonce}, {Status}, Operations={Operations.FirstOrDefault()?.ToString() ?? $"{{{Operations.Length}}}"}, Expiration={Expiration}, Signature={Signature?.ToHexPrefix()}";
+		return $"{nameof(User)}={User}, {nameof(Nonce)}={Nonce}, {Status}, {nameof(Operations)}={(Operations != null ? (Operations.Length == 1 ?  $"{Operations.First()}" : $"{{{Operations.Length}}}") : null)}, {nameof(Expiration)}={Expiration}, {nameof(Signature)}={Signature?.ToHexPrefix()}";
 	}
 
 	public void Sign(McvNet net, SecretKey signer)

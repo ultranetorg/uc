@@ -17,6 +17,7 @@ public class ProductCommand : FairCommand
 
 		const string author = nameof(author);
 		const string type = nameof(type);
+		const string title = nameof(title);
 
 		a.Description = "Creates a product entity under the specified author";
 		a.Arguments =	[
@@ -28,7 +29,7 @@ public class ProductCommand : FairCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new ProductCreation {Author = AutoId.Parse(GetString(author)), Type = GetEnum<ProductType>(type)};
+								return new ProductCreation {Title = GetString(title),  Author = GetAutoId(author), Type = GetEnum<ProductType>(type)};
 							};
 		return a;
 	}

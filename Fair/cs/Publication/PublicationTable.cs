@@ -67,7 +67,7 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
 		r.Versions = r.Versions.Replace(v, new ProductVersion {Id = v.Id, Fields = v.Fields, Refs = v.Refs - 1});
 		
 		if(p.IsPublished)
-			Execution.ProductTitles.Deindex(p);
+			Execution.PublicationTitles.Deindex(p);
 
 		if(p.Flags.HasFlag(PublicationFlags.RequestedByAuthor))
 		{ 

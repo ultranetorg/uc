@@ -14,8 +14,9 @@ public class FairRound : Round
 	public TableState<AutoId, ProposalComment>					ProposalComments;
 	public TableState<AutoId, File>								Files;
 	public TableState<RawId, Word>								Words;
-	public HnswTableState<string, ProductTitleHnswEntity>		ProductTitles;
-	public HnswTableState<string, StringToOneHnswEntity>		StoreTitles;
+	public NgramTableState<StoreNgramId>						StoreTitles;
+	public NgramTableState<ProductNgramId>						ProductTitles;
+	public NgramTableState<PublicationNgramId>					PublicationTitles;
 
 	public FairRound(FairMcv mcv) : base(mcv)
 	{
@@ -29,8 +30,9 @@ public class FairRound : Round
 		ProposalComments	= new (mcv.ProposalComments);
 		Files				= new (mcv.Files);
 		Words				= new (mcv.Words);
-		ProductTitles		= new (mcv.ProductTitles);
 		StoreTitles			= new (mcv.StoreTitles);
+		ProductTitles		= new (mcv.ProductTitles);
+		PublicationTitles	= new (mcv.PublicationTitles);
 	}
 
 	public override Execution CreateExecution(Transaction transaction)
@@ -55,8 +57,9 @@ public class FairRound : Round
 		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
 		if(table == Mcv.Files)				return Files.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
-		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
 		if(table == Mcv.StoreTitles)		return StoreTitles.Affected;
+		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
+		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 
 		return base.AffectedByTable(table);
 	}
@@ -73,8 +76,9 @@ public class FairRound : Round
 		if(table == Mcv.ProposalComments)	return ProposalComments as S;
 		if(table == Mcv.Files)				return Files as S;
 		if(table == Mcv.Words)				return Words as S;
+		if(table == Mcv.StoreTitles)		return StoreTitles as S;
 		if(table == Mcv.ProductTitles)		return ProductTitles as S;
-		if(table == Mcv.StoreTitles)			return StoreTitles as S;
+		if(table == Mcv.PublicationTitles)	return PublicationTitles as S;
 
 		return base.FindState<S>(table);
 	}
@@ -95,8 +99,9 @@ public class FairRound : Round
 		ProposalComments.Absorb(e.ProposalComments);
 		Files.Absorb(e.Files);
 		Words.Absorb(e.Words);
-		ProductTitles.Absorb(e.ProductTitles);
 		StoreTitles.Absorb(e.StoreTitles);
+		ProductTitles.Absorb(e.ProductTitles);
+		PublicationTitles.Absorb(e.PublicationTitles);
 	}
 
 	public override void WriteGraphState(Writer writer)

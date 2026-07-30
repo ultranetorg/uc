@@ -14,6 +14,10 @@ public class PackageCommand : NexusCommand
 	{
 	}
 
+	public PackageCommand()
+	{
+	}
+
 	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

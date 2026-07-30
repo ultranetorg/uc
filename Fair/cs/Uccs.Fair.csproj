@@ -21,6 +21,7 @@
     <NoWarn>1701;1702;8632</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Roaring.Net" Version="1.4.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>

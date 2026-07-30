@@ -2,9 +2,9 @@
 
 public static class PublicationUtils
 {
-	public static string? GetTitle(Publication publication, Product product) => FindProductField(publication, product, Token.Title)?.AsUtf8;
+	public static string? GetTitle(Publication publication, Product product) => product.Title;
 
-	public static string? GetLatestTitle(Product product) => FindLatestField(product, Token.Title)?.AsUtf8;
+	public static string? GetLatestTitle(Product product) => product.Title;
 
 	public static AutoId? GetLogo(Publication publication, Product product) => FindProductField(publication, product, Token.Logo)?.AsAutoId;
 

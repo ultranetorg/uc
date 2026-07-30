@@ -5,12 +5,16 @@ namespace Uccs.Net;
 
 public class AutoId : EntityId
 {
-	public override int					B { get; set; } /// bucket
+	public override int					B  => _B; /// bucket
 	public int							I { get; set; }
+	public ulong						ToULong() => ((ulong)(uint)B << 32) | (uint)I;
+	public static AutoId				FromULong(ulong l) => new ((int)(l >> 32), (int)l);
 
 	public static readonly AutoId		LastCreated = new () {I = -1};
 	public static readonly AutoId		God = new() { I = -2};
 	public static readonly AutoId		NewUser = new () {I = -3};
+
+	public int							_B;
 
 	public AutoId()
 	{
@@ -18,7 +22,7 @@ public class AutoId : EntityId
 
 	public AutoId(int b , int e)
 	{
-		B = b;
+		_B = b;
 		I = e;
 	}
 
@@ -75,7 +79,7 @@ public class AutoId : EntityId
 
 	public override void Read(Reader reader)
 	{
-		B	= reader.Read7BitEncodedInt();
+		_B	= reader.Read7BitEncodedInt();
 		I	= reader.Read7BitEncodedInt();
 	}
 

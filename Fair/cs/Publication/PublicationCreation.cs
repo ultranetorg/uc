@@ -38,7 +38,7 @@ public class PublicationCreation : VotableOperation
 		if(ProductExists(execution, Product, out var a, out var r, out error) == false)
 			return false;
 
-		if(r.Versions == null)
+		if(r.Versions.Length == 0)
 		{
 			error = NotReady;
 			return false;
@@ -53,14 +53,6 @@ public class PublicationCreation : VotableOperation
 		if(Store.UnpublishedPublications.Any(i => execution.Publications.Find(i).Product == Product))
 		{	
 			error = AlreadyExists;
-			return false;
-		}
-
-		var t = r.Versions.LastOrDefault()?.Fields.FirstOrDefault(f => f.Name == Token.Title);
-
-		if(t == null)
-		{	
-			error = NotReady;
 			return false;
 		}
 

@@ -22,6 +22,10 @@ public class DomainCommand : RdnCommand
 	{
 	}
 
+	public DomainCommand()
+	{
+	}
+
 	public CommandAction Migrate_M()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

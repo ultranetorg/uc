@@ -2,7 +2,7 @@
 
 public abstract class EntityId : IBinarySerializable, IEquatable<EntityId>, IComparable<EntityId>//, ITableKey
 {
-	public abstract int				B { get; set; }
+	public abstract int				B { get; }
 
 	public abstract int				CompareTo(EntityId other);
 	public abstract bool			Equals(EntityId other);

@@ -4,6 +4,10 @@ namespace Uccs.Rdn.CLI;
 
 public class ReleaseCommand : RdnCommand
 {
+	public ReleaseCommand()
+	{
+	}
+
 	//public const string Keyword = "release";
 
 	public ReleaseCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)

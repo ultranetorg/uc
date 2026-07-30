@@ -8,6 +8,10 @@ public class BatchCommand : McvCommand
 	{
 	}
 
+	public BatchCommand() : base()
+	{
+	}
+
 	public CommandAction Default()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

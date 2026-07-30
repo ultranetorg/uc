@@ -198,7 +198,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		}
 	}
 
-	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 1 << HnswId.LevelBits, int maxConnections = 5, int efConstruction = 64, int searchthreshold = 199, int minDiversity = 100) : base(mcv)
+	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 1 << HnswId.LevelBits, int maxConnections = 24, int efConstruction = 128, int searchthreshold = 30, int minDiversity = 100) : base(mcv)
 	{
 		Metric = metric;
 		MaxLevel = maxLevel;
@@ -231,19 +231,19 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		return resultNodes.Skip(skip).Take(take);
 	}
 
-	public IEnumerable<E> EfSearch(D query, E entry, int level, int ef, Func<E, bool> criteria, Func<HnswId, E> find)
+	public IEnumerable<E> EfSearch(D query, E entry, int level, int top, Func<E, bool> criteria, Func<HnswId, E> find)
 	{
 		var visited = new HashSet<HnswId>();
 		var candidates = new PriorityQueue<E, int>();
 
-		// Сортировка по расстоянию (меньше — лучше)
+		/// Сортировка по расстоянию (меньше — лучше)
 		var topCandidates = new SortedSet<(int dist, E node)>(Comparer<(int dist, E node)>.Create((a, b) =>	{
 																												int cmp = a.dist.CompareTo(b.dist);
 																												
 																												if(cmp != 0) 
 																													return cmp;
 
-																												// Учитываем Id, чтобы избежать конфликтов
+																												/// Учитываем Id, чтобы избежать конфликтов
 																												return a.node.Id.CompareTo(b.node.Id);
 																											}));
 
@@ -254,7 +254,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		if(criteria == null || criteria(entry))
 			topCandidates.Add((entryDist, entry));
 
-		while(candidates.Count > 0 && topCandidates.Count < ef)
+		while(candidates.Count > 0 && topCandidates.Count < top)
 		{
 			candidates.TryDequeue(out var current, out _);
 
@@ -279,7 +279,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 					topCandidates.Add(candidate);
 
 				// Обрезаем, если превысили ef
-				while(topCandidates.Count > ef)
+				while(topCandidates.Count > top)
 					topCandidates.Remove(topCandidates.Max); // Удаляем наихудшего
 			}
 		}

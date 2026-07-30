@@ -27,8 +27,9 @@ public class SearchService
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		List<ProductSearchResult> searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
-		return searchResult.Count != 0 ? LoadPublications(searchResult, cancellationToken) : [];
+		throw new NotImplementedException("UPDATE NEEDED");
+		///List<ProductSearchResult> searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+		///return searchResult.Count != 0 ? LoadPublications(searchResult, cancellationToken) : [];
 	}
 
 	IEnumerable<PublicationExtendedModel> LoadPublications(List<ProductSearchResult> searchResult, CancellationToken cancellationToken)
@@ -61,8 +62,9 @@ public class SearchService
 
 		AutoId id = AutoId.Parse(storeId);
 
-		List<ProductSearchResult> result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
-		return LoadPublicationsBase(result, cancellationToken);
+		throw new NotImplementedException("UPDATE NEEDED");
+		///List<ProductSearchResult> result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
+		///return LoadPublicationsBase(result, cancellationToken);
 	}
 
 	IEnumerable<PublicationBaseModel> LoadPublicationsBase(List<ProductSearchResult> result, CancellationToken cancellationToken)

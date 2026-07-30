@@ -15,7 +15,6 @@ public class MetaId : EntityId
 	public override int B
 	{
 		get => Type; 
-		set => throw new NotSupportedException();
 	}
 
 	public MetaId()

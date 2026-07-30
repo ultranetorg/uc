@@ -64,7 +64,7 @@ public class TypedId<T> : AutoId where T : unmanaged, Enum
 
 	public override void Read(Reader reader)
 	{
-		B		= reader.Read7BitEncodedInt();
+		_B		= reader.Read7BitEncodedInt();
 		I		= reader.Read7BitEncodedInt();
 		Type	= reader.Read<T>();
 	}

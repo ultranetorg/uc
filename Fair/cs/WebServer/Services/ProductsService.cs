@@ -164,7 +164,7 @@ public class ProductsService
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.NegativeOrZero(limit);
 
-		var result = mcv.ProductTitles.Search(query, 0, limit);
+		var result = mcv.ProductTitles.Search(query, ProductType.Software, 0, limit);
 		return MapTo<ProductSearchResultBaseModel>(result, cancellationToken);
 	}
 
@@ -176,7 +176,7 @@ public class ProductsService
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		var result = mcv.ProductTitles.Search(query, page * pageSize, pageSize);
+		var result = mcv.ProductTitles.Search(query, ProductType.Software, page * pageSize, pageSize);
 		return MapTo<ProductSearchResultModel>(result, cancellationToken);
 	}
 

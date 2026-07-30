@@ -11,7 +11,6 @@ public class RawId : EntityId
 	public override int B
 	{
 		get => BytesToBucket(Bytes); 
-		set => throw new NotSupportedException();
 	}
 
 	public RawId()

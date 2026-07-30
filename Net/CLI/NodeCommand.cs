@@ -13,6 +13,10 @@ public abstract class NodeCommand : McvCommand
 	{
 	}
 
+	protected NodeCommand()
+	{
+	}
+
 	public CommandAction Attach_a()
 	{
 		attach = new CommandAction(this, MethodBase.GetCurrentMethod());

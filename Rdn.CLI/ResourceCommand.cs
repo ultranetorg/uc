@@ -27,6 +27,10 @@ public class ResourceCommand : RdnCommand
 	{
 	}
 
+	public ResourceCommand()
+	{
+	}
+
 	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

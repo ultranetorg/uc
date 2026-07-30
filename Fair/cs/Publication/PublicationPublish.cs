@@ -29,7 +29,7 @@ public class PublicationPublish : VotableOperation
 		return (other as PublicationPublish).Publication == Publication;
 	}
 	
-	 public override bool ValidateProposal(FairExecution execution, out string error)
+	public override bool ValidateProposal(FairExecution execution, out string error)
 	{
 		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
@@ -54,6 +54,20 @@ public class PublicationPublish : VotableOperation
 			error = DoesNotBelogToStore;
 			return false;
 		}
+
+		//while(c.Type == ProductType.None)
+		//{
+		//	if(c.Parent != null)
+		//		c = execution.Categories.Find(c.Parent);
+		//	else
+		//		break;
+		//}
+
+		//if(c.Type != execution.Products.Find(p.Product).Type)
+		//{
+		//	error = TypeMismatch;
+		//	return false;
+		//}
 
 		//var r = execution.Products.Find(p.Product);
 		//
@@ -92,7 +106,7 @@ public class PublicationPublish : VotableOperation
 
 		Store.UnpublishedPublications = Store.UnpublishedPublications.Remove(p.Id);
 
-		execution.ProductTitles.Index(p);
+		execution.PublicationTitles.Index(p);
 
 		var a = execution.Authors.Affect(r.Author);
 		execution.RewardForModeration(Store, a, out Error);

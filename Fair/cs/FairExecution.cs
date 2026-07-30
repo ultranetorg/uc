@@ -16,8 +16,9 @@ public class FairExecution : Execution
 	public ProposalCommentExecution		ProposalComments;
 	public FileExecution				Files;
 	public WordExecution				Words;
+	public StoreTitleNgramExecution		StoreTitles;
 	public ProductTitleExecution		ProductTitles;
-	public StoreTitleExecution			StoreTitles;
+	public PublicationTitleExecution	PublicationTitles;
 
 	public bool							SkipPowCheck;
 
@@ -33,8 +34,9 @@ public class FairExecution : Execution
 		ProposalComments	= new(this);
 		Files				= new(this);
 		Words				= new(this);
-		ProductTitles		= new(this);
 		StoreTitles			= new(this);
+		ProductTitles		= new(this);
+		PublicationTitles	= new(this);
 	}
 
 	public FairExecution CreateChild()
@@ -57,8 +59,9 @@ public class FairExecution : Execution
 		e.ProposalComments	= new(this){Parent = ProposalComments};
 		e.Files				= new(this){Parent = Files};
 		e.Words				= new(this){Parent = Words};
-		e.ProductTitles		= new(this){Parent = ProductTitles};
 		e.StoreTitles		= new(this){Parent = StoreTitles};
+		e.ProductTitles		= new(this){Parent = ProductTitles};
+		e.PublicationTitles	= new(this){Parent = PublicationTitles};
 
 		return e;
 	}
@@ -71,18 +74,19 @@ public class FairExecution : Execution
 		foreach(var i in execution.AffectedMetas)
 			AffectedMetas[i.Key] = i.Value;
 
-		Authors			.Absorb(execution.Authors);
-		Products		.Absorb(execution.Products);
-		Stores			.Absorb(execution.Stores);
-		Categories		.Absorb(execution.Categories);
-		Publications	.Absorb(execution.Publications);
-		Reviews			.Absorb(execution.Reviews);
-		Proposals		.Absorb(execution.Proposals);
-		ProposalComments.Absorb(execution.ProposalComments);
-		Files			.Absorb(execution.Files);
-		Words			.Absorb(execution.Words);
-		ProductTitles	.Absorb(execution.ProductTitles);
-		StoreTitles		.Absorb(execution.StoreTitles);
+		Authors				.Absorb(execution.Authors);
+		Products			.Absorb(execution.Products);
+		Stores				.Absorb(execution.Stores);
+		Categories			.Absorb(execution.Categories);
+		Publications		.Absorb(execution.Publications);
+		Reviews				.Absorb(execution.Reviews);
+		Proposals			.Absorb(execution.Proposals);
+		ProposalComments	.Absorb(execution.ProposalComments);
+		Files				.Absorb(execution.Files);
+		Words				.Absorb(execution.Words);
+		StoreTitles			.Absorb(execution.StoreTitles);
+		ProductTitles		.Absorb(execution.ProductTitles);
+		PublicationTitles	.Absorb(execution.PublicationTitles);
 
 		foreach(var i in execution.EnergySpenders) /// This  may add a duplicated clone but we expect this is ok
 			EnergySpenders.Add(i);
@@ -134,8 +138,9 @@ public class FairExecution : Execution
 		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
 		if(table == Mcv.Files)				return Files.Affected;
 		if(table == Mcv.Words)				return Words.Affected;
+		if(table == Mcv.StoreTitles)		return StoreTitles.Affected;
 		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
-		if(table == Mcv.StoreTitles)			return StoreTitles.Affected;
+		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 
 		return base.AffectedByTable(table);
 	}
@@ -235,23 +240,24 @@ public class FairExecution : Execution
 
 	public void Unpublish(Store store, AutoId publication, out string error)
 	{
-		if(store.UnpublishedPublications.Contains(publication))
+		error = null;
+
+		var p = Publications.Affect(publication);
+
+		if(!p.IsPublished)
 		{
 			error = FairOperation.NotPublished;
 			return;
 		}
 
-		error = null;
+		PublicationTitles.Deindex(p);
 
-		var p = Publications.Affect(publication);
 		var	c = Categories.Affect(p.Category);
 		var r = Products.Find(p.Product);
 
 		p.Category						= null;
 		c.Publications					= c.Publications.Remove(publication);
 		store.UnpublishedPublications	= [..store.UnpublishedPublications, p.Id];
-		
-		ProductTitles.Deindex(p);
 	}
 
 

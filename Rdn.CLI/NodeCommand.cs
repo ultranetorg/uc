@@ -4,6 +4,10 @@ namespace Uccs.Rdn;
 
 public class NodeCommand : Net.NodeCommand
 {
+	public NodeCommand()
+	{
+	}
+
 	public NodeCommand(McvCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
 	}
