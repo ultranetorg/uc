@@ -13,6 +13,7 @@ import {
   Policy,
   ProductAuthor,
   ProductDetails,
+  ProductPublication,
   ProductSearchResult,
   ProductSearchResultBase,
   ProductStore,
@@ -160,6 +161,11 @@ export type FairApi = {
 
   getProductDetails(productId: string): Promise<ProductDetails>
   getProductStores(productId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<ProductStore>>
+  getProductPublications(
+    productId: string,
+    page?: number,
+    pageSize?: number,
+  ): Promise<TotalItemsResult<ProductPublication>>
 
   getPublicationDetailsDiff(publicationId: string, version: number): Promise<PublicationDetailsDiff>
 

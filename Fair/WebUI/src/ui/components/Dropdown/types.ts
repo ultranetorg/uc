@@ -30,5 +30,8 @@ type DropdownBaseProps<IsMulti extends boolean> = {
 }
 
 export type DropdownProps<IsMulti extends boolean> = PropsWithClassName &
-  Pick<CustomSelectProps<IsMulti>, "formatOptionLabel"> &
+  Pick<
+    CustomSelectProps<IsMulti>,
+    "formatOptionLabel" | "menuIsOpen" | "onMenuOpen" | "onMenuClose" | "menuPlacement"
+  > &
   DropdownBaseProps<IsMulti>
