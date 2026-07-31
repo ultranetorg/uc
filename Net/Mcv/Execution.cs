@@ -63,10 +63,10 @@ public class Execution : ITableExecution
 		return null;
 	}
 
-	public virtual ITableEntry Affect(byte table, EntityId id)
+	public virtual IBaseTableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Users.Id == table)		return FindUser(id as AutoId) != null ? AffectUser(id as AutoId) : null;
-		if(Mcv.Friends.Id == table)		return Friends.Find(id as AutoId) != null ? Friends.Affect(id as AutoId) : null;
+		if(Mcv.Users.Id == table)		return FindUser(id as AutoId) != null ?		(IBaseTableEntry)AffectUser(id as AutoId) : null;
+		if(Mcv.Friends.Id == table)		return Friends.Find(id as AutoId) != null ? (IBaseTableEntry)Friends.Affect(id as AutoId) : null;
 
 		return null;
 	}

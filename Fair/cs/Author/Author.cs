@@ -41,7 +41,7 @@ public class UriReference : IBinarySerializable
 }
 
 
-public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry, IExpirable
+public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry<AutoId>, IExpirable
 {
 	//public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 	public const int				WeblinkLength = 1024;
@@ -76,7 +76,6 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 	public int						Bandwidth { get; set; }
 	public int						BandwidthExpiration { get; set; }
 
-	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
 	Mcv								Mcv;
 
@@ -150,29 +149,6 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public void WriteMain(Writer writer)
 	{
-		Write(writer);
-		
-		writer.Write(Products);
-		writer.Write(Stores);
-		writer.Write(References);
-	}
-
-	public void ReadMain(Reader reader)
-	{
-		Read(reader);
-		
-		Products	= reader.ReadArray<AutoId>();
-		Stores		= reader.ReadArray<AutoId>();
-		References	= reader.ReadArray<UriReference>();
-	}
-
-	public void Cleanup(Round lastInCommit)
-	{
-	}
-
-	public void Write(Writer writer)
-	{
-		writer.Write(Id);
 		writer.WriteUtf8(Name);
 		writer.WriteUtf8(Title);
 		writer.WriteUtf8(Description);
@@ -189,11 +165,14 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		writer.Write(Files);
 
 		((IEnergyHolder)this).WriteEnergyHolder(writer);
+		
+		writer.Write(Products);
+		writer.Write(Stores);
+		writer.Write(References);
 	}
 
-	public void Read(Reader reader)
+	public void ReadMain(Reader reader)
 	{
-		Id						= reader.Read<AutoId>();
 		Name					= reader.ReadUtf8();
 		Title					= reader.ReadUtf8();
 		Description				= reader.ReadUtf8();
@@ -210,5 +189,25 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 		Files					= reader.ReadArray<AutoId>();
 		
 		((IEnergyHolder)this).ReadEnergyHolder(reader);
+		
+		Products	= reader.ReadArray<AutoId>();
+		Stores		= reader.ReadArray<AutoId>();
+		References	= reader.ReadArray<UriReference>();
+	}
+
+	public void Cleanup(Round lastInCommit)
+	{
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Id);
+		WriteMain(writer);
+	}
+
+	public void Read(Reader reader)
+	{
+		Id = reader.Read<AutoId>();
+		ReadMain(reader);
 	}
 }

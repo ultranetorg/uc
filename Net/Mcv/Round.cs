@@ -42,8 +42,8 @@ public abstract class Round : IBinarySerializable
 	public Transaction[]								ConsensusTransactions;
 	public AutoId[]										ConsensusMemberLeavers;
 	public AutoId[]										ConsensusViolators;
-	public PublicKey[]								ConsensusFundJoiners = [];
-	public PublicKey[]								ConsensusFundLeavers = [];
+	public PublicKey[]									ConsensusFundJoiners = [];
+	public PublicKey[]									ConsensusFundLeavers = [];
 	public long											ConsensusOperationCost;
 	//public int											ConsensusOverloadRound;
 	public byte[][]										ConsensusIncomingTransfers;
@@ -53,7 +53,7 @@ public abstract class Round : IBinarySerializable
 	public bool											Confirmed = false;
 	public byte[]										Hash;
 
-	public List<PublicKey>							Funds;
+	public List<PublicKey>								Funds;
 	public long[]										Spacetimes;
 	public long[]										Bandwidths;
 

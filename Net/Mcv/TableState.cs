@@ -14,7 +14,7 @@ public abstract class TableStateBase
 	}
 }
 
-public class TableState<ID, E> : TableStateBase where ID : EntityId, new() where E : class, ITableEntry
+public class TableState<ID, E> : TableStateBase where ID : EntityId, new() where E : class, ITableEntry<ID>
 {
 	public Dictionary<ID, E>	Affected = [];
 	public Table<ID, E>			Table;
@@ -44,7 +44,7 @@ public interface ITableExecution
 	public AutoId	LastCreatedId { get; set; }
 }
 
-public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution where ID : EntityId, new() where E : class, ITableEntry
+public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution where ID : EntityId, new() where E : class, ITableEntry<ID>
 {
 	public Execution				Execution;
 	public TableExecution<ID, E>	Parent;

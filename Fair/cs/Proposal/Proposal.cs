@@ -39,7 +39,7 @@ public class ProposalOption : Option
 }
 
 
-public class Proposal : IBinarySerializable, ITableEntry
+public class Proposal : IBinarySerializable, ITableEntry<AutoId>
 {
 	public AutoId				Id { get; set; }
 	public AutoId				Store { get; set; }
@@ -56,7 +56,6 @@ public class Proposal : IBinarySerializable, ITableEntry
 	public ProposalOption[]		Options { get; set; }
 	public AutoId[]				Comments;
 
-	public EntityId				Key => Id;
 	public bool					Deleted { get; set; }
 	FairMcv						Mcv;
 		

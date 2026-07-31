@@ -9,7 +9,7 @@ public enum FairMime : byte
 	None, ImageJpg, ImagePng
 }
 
-public class File : IBinarySerializable, ITableEntry
+public class File : IBinarySerializable, ITableEntry<AutoId>
 {
 	public AutoId			Id { get; set; }
 	public EntityAddress	Owner { get; set; }
@@ -17,7 +17,6 @@ public class File : IBinarySerializable, ITableEntry
     public int				Refs { get; set; }
 	public byte[]			Data { get; set; }
 
-	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 

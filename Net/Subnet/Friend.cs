@@ -8,7 +8,7 @@ public enum IccTransferStatus : byte
 	None, FormedAndPending, Confirmed
 }
 
-public class Friend : IBinarySerializable, ITableEntry
+public class Friend : IBinarySerializable, ITableEntry<AutoId>
 {
 	public const int								NameLengthMin = 1;
 	public const int								NameLengthMax = 256;
@@ -24,7 +24,6 @@ public class Friend : IBinarySerializable, ITableEntry
 	public IccTransferStatus						OutStatus { get; set; }
 	public OrderedDictionary<byte[], BigInteger>	Balances { get; set; }
 
-	public EntityId									Key => Id;
 	public bool										Deleted { get; set; }
 	Mcv												Mcv;
 

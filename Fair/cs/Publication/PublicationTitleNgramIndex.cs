@@ -99,19 +99,6 @@ public class PublicationTitleNgramIndex : NgramTable<PublicationNgramId>
 		return new PublicationTitleExecution(execution as FairExecution);
 	}
 
-	public override void Index(WriteBatch batch, Round lastincommit)
-	{
-		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
-
-		foreach(var i in Mcv.Publications.GraphEntities)
-		{
-			if(i.IsPublished)
-				e.PublicationTitles.Index(i);
-		}
-		
-		Commit(batch, e.PublicationTitles.Affected.Values, null, null);
-	}
-
 	public List<PublicationSearchResult> Search(string query, AutoId[] categories, int skip, int take)
 	{
 		var o = new List<PublicationSearchResult>();

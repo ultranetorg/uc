@@ -312,10 +312,10 @@ public abstract class McvPeering : HomoPeering
 							using(var w = new WriteBatch())
 							{
 								foreach(var i in Mcv.Tables.Where(i => i.IsIndex))
-								{	
 									i.Clear();
+
+								foreach(var i in Mcv.Tables)
 									i.Index(w, r);
-								}
 						
 								Mcv.Rocks.Write(w);
 							}
@@ -1305,7 +1305,7 @@ public abstract class McvPeering : HomoPeering
 				else if(!x.All(i => i))
 					Debugger.Break();
 
-				var es = cs.Select(i => new {i.m, e = i.c.Current.Buckets.OrderBy(i => i.Id).SelectMany(i => i.Entries.OrderBy(i => i.Key)).ToArray().GetEnumerator()}).ToArray();
+				var es = cs.Select(i => new {i.m, e = i.c.Current.Buckets.OrderBy(i => i.Id).SelectMany(i => i.BaseEntries).ToArray().GetEnumerator()}).ToArray();
 
 				while(true)
 				{

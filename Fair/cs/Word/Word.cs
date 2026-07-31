@@ -66,12 +66,11 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 	}
 }
 
-public class Word : IBinarySerializable, ITableEntry
+public class Word : IBinarySerializable, ITableEntry<RawId>
 {
 	public RawId				Id { get; set; }
 	public EntityFieldAddress	Reference { get; set; }
 
-	public EntityId				Key => Id;
 	public bool					Deleted { get; set; }
 	FairMcv						Mcv;
 

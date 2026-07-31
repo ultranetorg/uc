@@ -55,10 +55,8 @@ public abstract class EntityId : IBinarySerializable, IEquatable<EntityId>, ICom
 
 }
 
-public interface ITableEntry
+public interface IBaseTableEntry
 {
-	EntityId	Key { get; }
-	//bool		New { get; set; }
 	bool		Deleted { get; }
 
 	object		Clone();
@@ -76,4 +74,9 @@ public interface ITableEntry
 								
 		return s.ToArray();
 	}
+}
+
+public interface ITableEntry<ID> : IBaseTableEntry where ID : EntityId
+{
+	ID			Id { get; set; }
 }

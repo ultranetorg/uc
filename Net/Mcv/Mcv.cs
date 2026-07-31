@@ -644,7 +644,7 @@ public abstract class Mcv /// Mutual chain voting
 				{
 					File.AppendAllText(f, b.Id + " - " + b.Hash.ToHex() + " - " + b.Export().ToHex() + Environment.NewLine);
 					
-					foreach(var e in b.Entries.OrderBy(i => i.Key))
+					foreach(var e in b.BaseEntries.OrderBy(i => (i  as ITableEntry<EntityId>).Id))
 						File.AppendAllText(f, JsonSerializer.Serialize(e, e.GetType(), jo) + Environment.NewLine);
 				}
 			}
@@ -675,7 +675,7 @@ public abstract class Mcv /// Mutual chain voting
 			foreach(var t in Tables)
 			{	
 				var a = round.AffectedByTable(t);
-				t.Commit(b, a.Values as IEnumerable<ITableEntry>, round.FindState<TableStateBase>(t), round);
+				t.Commit(b, (IEnumerable<IBaseTableEntry>)a.Values, round.FindState<TableStateBase>(t), round);
 				a.Clear();
 			}
 

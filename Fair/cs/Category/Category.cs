@@ -7,7 +7,7 @@ public enum ProductType : byte
 	None, Software, Movie, Music, Book, Game
 }
 
-public class Category : IBinarySerializable, ITableEntry
+public class Category : IBinarySerializable, ITableEntry<AutoId>
 {
 	public AutoId			Id { get; set; }
 	public AutoId			Store { get; set; }
@@ -18,7 +18,6 @@ public class Category : IBinarySerializable, ITableEntry
 	public AutoId[]			Publications { get; set; }
 	public AutoId			Avatar  { get; set; }
 
-	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 

@@ -5,7 +5,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using Roaring.Net.CRoaring;
 
-public class Ngram<ID> : IBinarySerializable, ITableEntry where ID : EntityId, new()
+public class Ngram<ID> : IBinarySerializable, ITableEntry<ID> where ID : EntityId, new()
 {
 	public ID				Id { get; set; }
 	public Roaring64Bitmap	Entities { get; set; }
@@ -81,13 +81,13 @@ public abstract class NgramTable<ID> : Table<ID, Ngram<ID>>, IDisposable where I
 
 	public abstract ID			CreateId(ulong ngramSpan, object more);
 
-	public NgramTable(Mcv chain, int q = 3, bool useSortedForm = true) : base(chain)
+	public NgramTable(Mcv chain, int q = 3, bool sorted = false) : base(chain)
 	{
 		if(q is < 1 or > 4)
 			throw new ArgumentOutOfRangeException(nameof(q), "Q must be between 1 and 4 for ulong-packed key implementation.");
 
 		Q = q;
-		Sorted = useSortedForm;
+		Sorted = sorted;
 	}
 
 	public override Ngram<ID> Create()

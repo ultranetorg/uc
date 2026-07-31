@@ -32,7 +32,7 @@ public abstract class TableBase
 	public abstract ClusterBase					FindCluster(short id);
 	public abstract BucketBase					FindBucket(int id);
 	public abstract void						Clear();
-	public abstract void						Commit(WriteBatch batch, IEnumerable<ITableEntry> entries, TableStateBase executed, Round lastconfirmedround);
+	public abstract void						Commit(WriteBatch batch, IEnumerable<IBaseTableEntry> entries, TableStateBase executed, Round lastconfirmedround);
 	public virtual void							Index(WriteBatch batch, Round lastincommit){}
 	public static short							ClusterFromBucket(int id) => (short)(id >> ClusterBase.Length);
 
@@ -40,19 +40,19 @@ public abstract class TableBase
 	{
 		public const int							Length = 20;
 
-		public int									Id;
-		public int									Size;
- 		public int									NextI { get; set; }
-		public byte[]								Hash { get; set; }
-		public abstract IEnumerable<ITableEntry>	Entries { get; }
+		public int										Id;
+		public int										Size;
+ 		public int										NextI { get; set; }
+		public byte[]									Hash { get; set; }
+		public abstract IEnumerable<IBaseTableEntry>	BaseEntries { get; }
 
-		public abstract void						Commit(WriteBatch batch);
-		public abstract void						Import(WriteBatch batch, byte[] main);
-		public abstract byte[]						Export();
+		public abstract void							Commit(WriteBatch batch);
+		public abstract void							Import(WriteBatch batch, byte[] main);
+		public abstract byte[]							Export();
 
 		public void Cleanup(Round lastInCommit)
 		{
-			foreach(var i in Entries)
+			foreach(var i in BaseEntries)
 			{
 				i.Cleanup(lastInCommit);
 			}
@@ -110,7 +110,7 @@ public abstract class TableBase
 	}
 }
 
-public abstract class Table<ID, E> : TableBase where E : class, ITableEntry where ID : EntityId, new()
+public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> where ID : EntityId, new()
 {
 	public class Bucket : BucketBase
 	{
@@ -124,9 +124,10 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 			}
 		}
 
-		Table<ID, E>						Table;
-		public override IEnumerable<E>		Entries => _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
-		ImmutableSortedDictionary<ID, Item>	_Entries = ImmutableSortedDictionary<ID, Item>.Empty;
+		Table<ID, E>										Table;
+		ImmutableSortedDictionary<ID, Item>					_Entries = ImmutableSortedDictionary<ID, Item>.Empty;
+		public IEnumerable<E>								Entries => _Entries.Select(i => i.Value?.Entity ?? Find(i.Key));
+		public override IEnumerable<IBaseTableEntry>		BaseEntries => Entries;
 
 		public Bucket(Table<ID, E> table, int id)
 		{
@@ -161,6 +162,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 			e.Main ??= Table.Rocks.Get(id.Raw, Table.EntityColumn);
 			e.Entity = Table.Create();
+			e.Entity.Id = id;
 			e.Entity.ReadMain(new Reader(e.Main, Table.Mcv.Net.Constructor));
 
 			return e.Entity;
@@ -168,8 +170,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 		public void Add(WriteBatch batch, E entity)
 		{
-			_Entries = _Entries.SetItem(entity.Key as ID, new Item {Entity = entity});
-			batch.Put(entity.Key.Raw, entity.ToMain(Table.Mcv.Net.Constructor), Table.EntityColumn);
+			_Entries = _Entries.SetItem(entity.Id, new Item {Entity = entity});
+			batch.Put(entity.Id.Raw, entity.ToMain(Table.Mcv.Net.Constructor), Table.EntityColumn);
 		}
 
 		public void Remove(WriteBatch batch, ID id)
@@ -385,7 +387,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		public E				Current => Entity.Current;
 		object					IEnumerator.Current => Entity.Current;
 
-		HashSet<E>				Unique = new HashSet<E>(EqualityComparer<E>.Create((a, b) => a.Key == b.Key, i => i.Key.GetHashCode()));
+		HashSet<E>				Unique = new HashSet<E>(EqualityComparer<E>.Create((a, b) => a.Id == b.Id, i => i.Id.GetHashCode()));
 		IEnumerator<Round>		Round;
 		IEnumerator<E>			Entity;
 		Table<ID, E>			Table;
@@ -500,7 +502,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 						continue;
 					}
 							
-					Entity = Bucket.Current.Entries.GetEnumerator();
+					Entity = Bucket.Current.Entries.GetEnumerator() as IEnumerator<E>;
 				}
 
 				if(Entity.MoveNext())
@@ -595,7 +597,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 		}
 	}
 
-	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase assosiated,  Round lastInCommit)
+	public override void Commit(WriteBatch batch, IEnumerable<IBaseTableEntry> entities, TableStateBase assosiated,  Round lastInCommit)
 	{
 		if(!entities.Any())
 			return;
@@ -605,15 +607,15 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry wher
 
 		foreach(var i in entities.Cast<E>())
 		{
-			var c = GetCluster(ClusterFromBucket(i.Key.B));
-			var b = c.GetBucket(i.Key.B);
+			var c = GetCluster(ClusterFromBucket(i.Id.B));
+			var b = c.GetBucket(i.Id.B);
 
 			if(!i.Deleted)
 				b.Add(batch, i);
 			else
-				b.Remove(batch, i.Key as ID);
+				b.Remove(batch, i.Id);
 
-			if(i.Key is AutoId id)
+			if(i.Id is AutoId id)
 				if(b.NextI < id.I + 1)
 					b.NextI = id.I + 1;
 

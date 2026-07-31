@@ -16,6 +16,31 @@ public class StoreTable : Table<AutoId, Store>
 	{
 		return new Store(Mcv);
 	}
+
+	public override void Index(WriteBatch batch, Round lastincommit)
+	{
+		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
+
+		foreach(var i in Mcv.Stores.GraphEntities.Where(i => i.Name != null))
+		{
+			var w = e.Words.Affect(Word.GetId(i.Name));
+
+			w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.StoreName};
+		}
+
+		Mcv.Words.Commit(batch, e.Words.Affected.Values, null, lastincommit);
+
+		Mcv.StoreTitles.Clear();
+
+		e = new FairExecution(Mcv, new FairRound(Mcv), null);
+
+		foreach(var i in Mcv.Stores.GraphEntities)
+		{
+			e.StoreTitles.Index(i.Title, null, i.Id);
+		}
+	
+		Mcv.StoreTitles.Commit(batch, e.StoreTitles.Affected.Values, null, lastincommit);
+	}
 }
 
 public class StoreExecution : TableExecution<AutoId, Store>

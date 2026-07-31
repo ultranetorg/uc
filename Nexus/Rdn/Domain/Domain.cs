@@ -18,7 +18,7 @@ public enum DomainChildPolicy : byte
 	///Programmatic	= 0b11111111, 
 }
 
-public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirable
+public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, IExpirable
 {
 	public const int				NameLengthMin = 1;
 	public const int				NameLengthMax = 256;
@@ -37,7 +37,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 	
 	public DomainChildPolicy		ParentPolicy { get; set; }
 
-	public EntityId					Key => Id;
 	public bool						Deleted { get; set; }
 	Mcv								Mcv;
 
@@ -76,12 +75,56 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 
 	public void WriteMain(Writer writer)
 	{
-		Write(writer);
+		var f = DomainFlag.None;
+		
+		if(Owner != null)		f |= DomainFlag.Owned;
+		if(Free)				f |= DomainFlag.Free;
+
+		writer.Write((byte)f);
+		writer.WriteUtf8(Address);
+		writer.Write7BitEncodedInt64(Space);
+
+		if(f.HasFlag(DomainFlag.Owned))
+		{
+			writer.Write(Owner);
+			writer.Write(Expiration);
+		}
+
+		if(IsChild(Address))
+		{
+			writer.Write((byte)ParentPolicy);
+		}
 	}
 
 	public void ReadMain(Reader reader)
 	{
-		Read(reader);
+		var f		= (DomainFlag)reader.ReadByte();
+		Address		= reader.ReadUtf8();
+		Space		= reader.Read7BitEncodedInt64();
+		Free		= f.HasFlag(DomainFlag.Free);
+
+		if(f.HasFlag(DomainFlag.Owned))
+		{
+			Owner		= reader.Read<AutoId>();
+			Expiration	= reader.ReadInt16();
+		}
+
+		if(IsChild(Address))
+		{
+			ParentPolicy = (DomainChildPolicy)reader.ReadByte();
+		}
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Id);
+		WriteMain(writer);
+	}
+
+	public void Read(Reader reader)
+	{
+		Id	= reader.Read<AutoId>();
+		ReadMain(reader);
 	}
 
 	public void Cleanup(Round lastInCommit)
@@ -130,73 +173,5 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry, IExpirab
 		return	domain == null || /// available
 				domain != null && domain.Owner != null && time.Days >= domain.Expiration; /// not renewed by current owner
 				
-	}
-
-//	public static bool CanBid(Domain domain, Time time)
-//	{
-// 		if(!domain.IsExpired(time))
-// 		{
-//			if(domain.LastWinner == null) /// first bid
-//			{
-//				return true;
-//			}
-//			//else if(time - domain.FirstBidTime < AuctionMinimalDuration || time - domain.LastBidTime < Prolongation)
-//			else if(time < domain.AuctionEnd)
-//			{
-//				return true;
-//			}
-// 		} 
-// 		else
-// 		{
-//			return true;
-//		}
-//
-//		return false;
-//	}
-
-	public void Write(Writer writer)
-	{
-		writer.Write(Id);
-
-		var f = DomainFlag.None;
-		
-		//if(LastWinner != null)	f |= DomainFlag.Auction;
-		if(Owner != null)		f |= DomainFlag.Owned;
-		if(Free)				f |= DomainFlag.Free;
-
-		writer.Write((byte)f);
-		writer.WriteUtf8(Address);
-		writer.Write7BitEncodedInt64(Space);
-
-		if(f.HasFlag(DomainFlag.Owned))
-		{
-			writer.Write(Owner);
-			writer.Write(Expiration);
-		}
-
-		if(IsChild(Address))
-		{
-			writer.Write((byte)ParentPolicy);
-		}
-	}
-
-	public void Read(Reader reader)
-	{
-		Id			= reader.Read<AutoId>();
-		var f		= (DomainFlag)reader.ReadByte();
-		Address		= reader.ReadUtf8();
-		Space		= reader.Read7BitEncodedInt64();
-		Free		= f.HasFlag(DomainFlag.Free);
-
-		if(f.HasFlag(DomainFlag.Owned))
-		{
-			Owner		= reader.Read<AutoId>();
-			Expiration	= reader.ReadInt16();
-		}
-
-		if(IsChild(Address))
-		{
-			ParentPolicy = (DomainChildPolicy)reader.ReadByte();
-		}
 	}
 }

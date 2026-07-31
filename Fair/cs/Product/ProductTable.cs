@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using RocksDbSharp;
+
+namespace Uccs.Fair;
 
 public class ProductTable : Table<AutoId, Product>
 {

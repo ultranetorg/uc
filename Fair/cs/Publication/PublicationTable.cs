@@ -16,6 +16,19 @@ public class PublicationTable : Table<AutoId, Publication>
 	{
 		return new Publication(Mcv);
 	}
+
+	public override void Index(WriteBatch batch, Round lastincommit)
+	{
+		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
+
+		foreach(var i in Mcv.Publications.GraphEntities)
+		{
+			if(i.IsPublished)
+				e.PublicationTitles.Index(i);
+		}
+		
+		Mcv.PublicationTitles.Commit(batch, e.PublicationTitles.Affected.Values, null, lastincommit);
+	}
 }
 
 public class PublicationExecution : TableExecution<AutoId, Publication>

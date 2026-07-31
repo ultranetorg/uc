@@ -329,7 +329,7 @@ public class ProductVersion  : IBinarySerializable
 	}
 }
 
-public class Product : IBinarySerializable, ITableEntry
+public class Product : IBinarySerializable, ITableEntry<AutoId>
 {
 	public const int			TitleLengthMaximum = 128;
 
@@ -343,7 +343,6 @@ public class Product : IBinarySerializable, ITableEntry
 
 	public int					Length => Versions.Sum(i => i.Size); /// Data.Type.Length + Data.ContentType.Length  - not fully precise
 
-	public EntityId				Key => Id;
 	public bool					Deleted { get; set; }
 	FairMcv						Mcv;
 

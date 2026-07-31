@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ProposalComment : IBinarySerializable, ITableEntry
+public class ProposalComment : IBinarySerializable, ITableEntry<AutoId>
 {
 	public AutoId			Id { get; set; }
 	public AutoId			Proposal { get; set; }
@@ -8,7 +8,6 @@ public class ProposalComment : IBinarySerializable, ITableEntry
     public string			Text { get; set; }
     public Time	    		Created { get; set; }
 
-	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 

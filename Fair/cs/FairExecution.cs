@@ -111,10 +111,10 @@ public class FairExecution : Execution
 		return base.FindExecution(table);
 	}
 
-	public override ITableEntry Affect(byte table, EntityId id)
+	public override IBaseTableEntry Affect(byte table, EntityId id)
 	{
-		if(table == Mcv.Authors.Id)				return Authors.Find(id as AutoId)				!= null	? Authors.Affect(id as AutoId) : null;
-		if(table == Mcv.Stores.Id)				return Stores.Find(id as AutoId)					!= null	? Stores.Affect(id as AutoId) : null;
+		if(table == Mcv.Authors.Id)				return Authors.Find(id as AutoId)				!= null	? (IBaseTableEntry)Authors.Affect(id as AutoId) : null;
+		if(table == Mcv.Stores.Id)				return Stores.Find(id as AutoId)				!= null	? (IBaseTableEntry)Stores.Affect(id as AutoId) : null;
 		//if(table == Mcv.Products.Id)			return Products.Find(id as AutoId)				!= null	? Products.Affect(id as AutoId) : null;
 		//if(table == Mcv.Categories.Id)		return Categories.Find(id as AutoId)			!= null	? Categories.Affect(id as AutoId) : null;
 		//if(table == Mcv.Publications.Id)		return Publications.Find(id as AutoId)			!= null	? Publications.Affect(id as AutoId) : null;

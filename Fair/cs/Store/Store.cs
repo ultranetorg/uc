@@ -124,7 +124,7 @@ public class Restiction
 	}
 }
 
-public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry, IExpirable
+public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry<AutoId>, IExpirable
 {
 	public const int					PoWLength = 32;
 
@@ -165,7 +165,6 @@ public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpac
 	
 	public int							PublicationsCount { get; set; }
 
-	public EntityId						Key => Id;
 	public bool							Deleted { get; set; }
 	FairMcv								Mcv;
 
@@ -229,6 +228,11 @@ public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpac
 	public Store(FairMcv mcv)
 	{
 		Mcv = mcv;
+	}
+
+	public override string ToString()
+	{
+		return $"{Id}, {Title}";
 	}
 
 	public object Clone()

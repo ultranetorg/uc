@@ -23,10 +23,10 @@ public class RdnExecution : Execution
 		return base.FindExecution(table);
 	}
 
-	public override ITableEntry Affect(byte table, EntityId id)
+	public override IBaseTableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Domains.Id == table)		return Domains.Find(id as AutoId) != null ? Domains.Affect(id as AutoId) : null;
-		if(Mcv.Resources.Id == table)	return Resources.Find(id as AutoId) != null ? Resources.Affect(id as AutoId) : null;
+		if(Mcv.Domains.Id == table)		return Domains.Find(id as AutoId) != null ?		(IBaseTableEntry)Domains.Affect(id as AutoId) : null;
+		if(Mcv.Resources.Id == table)	return Resources.Find(id as AutoId) != null ?	(IBaseTableEntry)Resources.Affect(id as AutoId) : null;
 
 		return base.Affect(table, id);
 	}

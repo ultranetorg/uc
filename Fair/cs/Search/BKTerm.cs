@@ -3,13 +3,12 @@ using System.Text;
 
 namespace Uccs.Fair;
 
-public abstract class BKTerm : IBinarySerializable, ITableEntry
+public abstract class BKTerm : IBinarySerializable, ITableEntry<RawId>
 {
 	public RawId							Id { get; set; }
 	public string							Word => _Text ??= Encoding.UTF8.GetString(Id.Bytes);
 	public SortedDictionary<byte, RawId>	Children { get; set; }
 
-	public EntityId							Key => Id;
 	public bool								Deleted { get; set; }
 	protected FairMcv						Mcv;
 	string									_Text;

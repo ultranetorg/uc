@@ -10,14 +10,13 @@ public interface IMetric<D>
     int		ComputeDistance(D a, D b);
 }
 
-public abstract class HnswNode<D> : ITableEntry, IBinarySerializable
+public abstract class HnswNode<D> : ITableEntry<HnswId>, IBinarySerializable
 {
 	public HnswId									Id { get; set; }
 	public SortedDictionary<int, HnswId[]>			Connections { get; set; }
 
 	public abstract D								Data { get; }
 	public byte										Level => Id.Level;
-	public EntityId									Key => Id;
 	public bool										Deleted { get;  set; }
 
 	bool											ConnectionsCloned = false;
@@ -208,7 +207,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		MinDiversity = minDiversity;
 	}
 
-	public override void Commit(WriteBatch batch, IEnumerable<ITableEntry> entities, TableStateBase assosiated, Round lastInCommit)
+	public override void Commit(WriteBatch batch, IEnumerable<IBaseTableEntry> entities, TableStateBase assosiated, Round lastInCommit)
 	{
 		base.Commit(batch, entities, assosiated, lastInCommit);
 	}

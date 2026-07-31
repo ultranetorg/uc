@@ -8,7 +8,7 @@ public enum PublicationFlags : byte
 	//ApprovedByModerator	= 0b0000_0010,
 }
 
-public class Publication : IBinarySerializable, ITableEntry
+public class Publication : IBinarySerializable, ITableEntry<AutoId>
 {
 	public AutoId							Id { get; set; }
 	public AutoId							Store { get; set; }
@@ -21,7 +21,6 @@ public class Publication : IBinarySerializable, ITableEntry
 	public byte								Rating { get; set; }
 	public long								AuthorRank { get; set; }
 
-	public EntityId							Key => Id;
 	public bool								Deleted { get; set; }
 	FairMcv									Mcv;
 

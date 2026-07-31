@@ -25,7 +25,7 @@ public enum ReviewStatus : byte
 //	}
 //}
 
-public class Review : IBinarySerializable, ITableEntry
+public class Review : IBinarySerializable, ITableEntry<AutoId>
 {
 	public AutoId			Id { get; set; }
 	public AutoId			Publication { get; set; }
@@ -35,7 +35,6 @@ public class Review : IBinarySerializable, ITableEntry
     public string			Text { get; set; }
     public Time	    		Created { get; set; }
 
-	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 	FairMcv					Mcv;
 

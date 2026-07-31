@@ -60,7 +60,7 @@ public class ResourceLink : IBinarySerializable
 	}
 }
 
-public class Resource : ITableEntry
+public class Resource : ITableEntry<AutoId>, IBinarySerializable
 {
 	public AutoId				Id { get; set; }
 	public AutoId				Domain { get; set; }
@@ -73,7 +73,6 @@ public class Resource : ITableEntry
 
 	bool						OutboundsCloned;
 	bool						InboundsCloned;
-	public EntityId				Key => Id;
 	public bool					Deleted { get; set; }
 	RdnMcv						Mcv;
 
@@ -112,7 +111,6 @@ public class Resource : ITableEntry
 
 	public void WriteMain(Writer writer)
 	{
-		writer.Write(Id);
 		writer.Write7BitEncodedInt(Domain.I);
 		writer.WriteUtf8(Name);
 		writer.Write(Updated);
@@ -127,7 +125,6 @@ public class Resource : ITableEntry
 
 	public void ReadMain(Reader reader)
 	{
-		Id		= reader.Read<AutoId>();
 		Domain	= new (Id.B, reader.Read7BitEncodedInt());
 		Name	= reader.ReadUtf8();
 		Updated	= reader.Read<Time>();
@@ -138,6 +135,18 @@ public class Resource : ITableEntry
 
 		Outbounds	= reader.ReadArray<ResourceLink>();
 		Inbounds	= reader.ReadArray<AutoId>();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Id);
+		WriteMain(writer);
+	}
+
+	public void Read(Reader reader)
+	{
+		Id	= reader.Read<AutoId>();
+		ReadMain(reader);
 	}
 
 	public void Cleanup(Round lastInCommit)

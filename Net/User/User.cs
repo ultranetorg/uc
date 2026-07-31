@@ -82,11 +82,11 @@ public interface IEnergyHolder : IHolder
 	}
 }
 
-public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry
+public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry<AutoId>
 {
 	public AutoId			Id { get; set; }
 	public string			Name { get; set; }
-	public PublicKey	Owner { get; set; }
+	public PublicKey		Owner { get; set; }
 	public int				LastNonce { get; set; } = -1;
 	public int				LastOutward { get; set; } = -1;
 	public long				AverageUptime { get; set; }
