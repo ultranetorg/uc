@@ -11,7 +11,7 @@ public abstract class NetCommand : Command
 	public static readonly ArgumentType		INT			= new (nameof(INT),			"Positive integer number",												["1", "78"]);
 	public static readonly ArgumentType		HEX			= new (nameof(HEX),			"Array of bytes in form of hexadecimal string",							["0105BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37"]);
 	public static readonly ArgumentType		HOST		= new (nameof(HOST),		"Host name",															["1.2.3.4"]);
-	public static readonly ArgumentType		NAME		= new (nameof(NAME),		$"An single-line string of [a-z 0-9 _] symbols from {Operation.NemaLengthMin} to {Operation.NemaLengthMax} length",		
+	public static readonly ArgumentType		NAME		= new (nameof(NAME),		$"An single-line string of [a-z 0-9 _] symbols from {Operation.NameLengthMin} to {Operation.NemaLengthMax} length",		
 																																							["satoshi", "nakamoto", "hagardjuna"]);
 	public static readonly ArgumentType		PASSWORD	= new (nameof(PASSWORD),	"Text string of any no. chars and longer than 1 char",					["MyStrongSecret!@#$%^&*()"]);
 	public static readonly ArgumentType		PATH		= new (nameof(PATH),		"A path to local file or directory in native format",					[@"C:\User\readme.txt", @"C:\User\Admin", @"D:\Documents"]);

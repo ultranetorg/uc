@@ -19,7 +19,7 @@ public class DomainMigration : RdnOperation, IOutwardOperation
 
 	public override bool IsValid(McvNet net)
 	{
-		if(!Domain.Valid(Name))
+		if(!Domain.IsAddressValid(Name))
 			return false;
 
 		if(!Domain.PriorityTlds.Contains(Tld))

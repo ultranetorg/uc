@@ -6,11 +6,15 @@ public class ProductCreation : FairOperation
 	public AutoId				Author { get; set; }
 	public string				Title { get; set; }
 
-	public override bool		IsValid(McvNet net) => !string.IsNullOrWhiteSpace(Title) && Title.Length is > 0 and <= Product.TitleLengthMaximum; // !Changes.HasFlag(ProductChanges.Description) || (Data.Length <= Product.DescriptionLengthMax);
 	public override string		Explanation => $"{Author}";
 
 	public ProductCreation()
 	{
+	}
+
+	public override bool IsValid(McvNet net)
+	{
+		return IsTitleValid(Title);
 	}
 
 	public override void Read(Reader reader)

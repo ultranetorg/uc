@@ -44,56 +44,52 @@ public abstract class NgramExecution<ID> : NgramTableState<ID> where ID : Entity
  		return Affected[id] = a;
 	}
 
-  	public void Index(string text, object more, AutoId to)
-  	{
-		if(string.IsNullOrWhiteSpace(text))
-			throw new IntegrityException();
-
-        ReadOnlySpan<char> span = text.AsSpan();
-
+	public void Do(ReadOnlySpan<char> span, Action<ReadOnlySpan<char>> process)
+	{
 		if(span.Length < Q)
 		{
 			Span<char> padded = stackalloc char[Q];
-			span.CopyTo(padded);
-			padded[span.Length..].Fill('_');
-    
+			Table.PadLessQ(span, padded);
+
 			// PackNGram сам переведет все символы в нижний регистр
-			Index(padded, more, to);
-			
+			process(padded);
+
 			return;
 		}
 
-        for(int i = 0; i <= span.Length - Q; i++)
-        {
-            Index(span.Slice(i, Q), more, to);
-        }
-  	}
-	
-  	public void Deindex(string text, object more, AutoId id)
-  	{
-		if(string.IsNullOrWhiteSpace(text))
-			throw new IntegrityException();
-
-        ReadOnlySpan<char> span = text.AsSpan();
-
-		if(span.Length < Q)
+		// 1. Индексируем префиксы всех длин от 1 до Q-1 (например, и '^a_', и '^al' для "alexander" при Q=3)
+		for(int len = 1; len < Q; len++)
 		{
-			Span<char> padded = stackalloc char[Q];
-			span.CopyTo(padded);
-			padded[span.Length..].Fill('_');
-    
-			Deindex(padded, more, id);
-			
-			return;
+			Span<char> prefixPadded = stackalloc char[Q];
+			prefixPadded[0] = '^';
+			span.Slice(0, len).CopyTo(prefixPadded[1..]);
+
+			if(len + 1 < Q)
+			{
+				prefixPadded[(len + 1)..].Fill('_');
+			}
+
+			process(prefixPadded);
 		}
 
-        for(int i = 0; i <= span.Length - Q; i++)
-        {
-            Deindex(span.Slice(i, Q), more, id);
-        }
+		// 2. Основные скользящие N-граммы
+		for(int i = 0; i <= span.Length - Q; i++)
+		{
+			process(span.Slice(i, Q));
+		}
+	}
+
+	public void Index(string text, object more, AutoId id)
+	{
+		Do(text, s => Add(s, more, id));
+	}
+
+	public void Deindex(string text, object more, AutoId id)
+  	{
+		Do(text, s => Remove(s, more, id));
   	}
 
-	Ngram<ID> Index(ReadOnlySpan<char> ngramSpan, object more, AutoId entity)
+	Ngram<ID> Add(ReadOnlySpan<char> ngramSpan, object more, AutoId entity)
 	{
 		var id = Table.CreateId(Table.PackNGram(ngramSpan), more);
 
@@ -114,11 +110,11 @@ public abstract class NgramExecution<ID> : NgramTableState<ID> where ID : Entity
 		}
 
 		e.Entities.Add(entity.ToULong());
-
+			
 		return e;
 	}
 
-	void Deindex(ReadOnlySpan<char> ngramSpan, object more, AutoId entity)
+	void Remove(ReadOnlySpan<char> ngramSpan, object more, AutoId entity)
 	{
 		var id = Table.CreateId(Table.PackNGram(ngramSpan), more);
 
@@ -144,8 +140,8 @@ public abstract class NgramExecution<ID> : NgramTableState<ID> where ID : Entity
 		if(text.Length < Q)
 		{
 			Span<char> padded = stackalloc char[Q];
-			text.CopyTo(padded);
-			padded[text.Length..].Fill('_');
+			Table.PadLessQ(text, padded);
+
 			k = Table.PackNGram(padded);
 		}
 		else

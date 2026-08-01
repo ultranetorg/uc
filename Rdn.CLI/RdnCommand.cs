@@ -4,7 +4,7 @@ public abstract class RdnCommand : McvCommand
 {
 	public static readonly ArgumentType		DA		= new (nameof(DA),	"Domain address, a text of [a..z 0..9 _ .] symbols",		["company", "application.company", "x_y_z.application.company"]);
 	public static readonly ArgumentType		DN		= new (nameof(DN),	"Domain name, a text of [a..z 0..9 _] symbols",				["ultranetorg", "company", "a123"]);
-	public static readonly ArgumentType		DCP		= new (nameof(DCP),	"Domain child policy",										Enum.GetNames<DomainChildPolicy>().Where(i => i != DomainChildPolicy.None.ToString()).ToArray());
+	public static readonly ArgumentType		DCP		= new (nameof(DCP),	"Domain child policy",										Enum.GetNames<OwnershipPolicy>().Where(i => i != OwnershipPolicy.None.ToString()).ToArray());
 	public static readonly ArgumentType		TLD		= new (nameof(TLD),	"Top-level  web domain",									Domain.PriorityTlds);
 	public static readonly ArgumentType		RA		= new (nameof(RA),	$"Resource address including domain",						[@"/company/application", "rdn/author/product"]);
 	public static readonly ArgumentType		RLT		= new (nameof(RLT),	"Resource link type",										Enum.GetNames<ResourceLinkType>().Where(i => i != ResourceLinkType.None.ToString()).ToArray());

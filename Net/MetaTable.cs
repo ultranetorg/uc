@@ -96,7 +96,6 @@ public class MetaEntity : IBinarySerializable, ITableEntry<MetaId>
 	public MetaId		Id { get; set; }
 	public byte[]		Value { get; set; }
 
-	//public EntityId		Key => Id;
 	public bool			Deleted { get; set; }
 
 	Mcv					Mcv;

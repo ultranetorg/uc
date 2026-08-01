@@ -47,11 +47,13 @@ public class StoreNameChange : VotableOperation
 		if(Store.Name != null)
 		{
 			execution.Words.Unregister(Store.Name);
+			execution.Free(Store, Store, execution.Net.EntityLength);
 		}
 
 		if(Name != null)
 		{
 			execution.Words.Register(Name, EntityTextField.StoreName, Store.Id);
+			execution.Allocate(Store, Store, execution.Net.EntityLength);
 		}
 
 		Store.Name = Name;	

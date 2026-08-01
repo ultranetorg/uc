@@ -331,8 +331,6 @@ public class ProductVersion  : IBinarySerializable
 
 public class Product : IBinarySerializable, ITableEntry<AutoId>
 {
-	public const int			TitleLengthMaximum = 128;
-
 	public AutoId				Id { get; set; }
 	public AutoId				Author { get; set; }
 	public string				Title { get; set; }

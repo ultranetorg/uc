@@ -130,13 +130,13 @@ public class DomainTransfer : RdnOperation
 			//	return;
 			//}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullOwnership && !Domain.IsOwner(p, User, execution.Time))
+			if(e.OwnershipPolicy == OwnershipPolicy.FullOwnership && !Domain.IsOwner(p, User, execution.Time))
 			{
 				Error = Denied;
 				return;
 			}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && (!Domain.IsOwner(e, User, execution.Time) || e.IsExpired(execution.Time)))
+			if(e.OwnershipPolicy == OwnershipPolicy.FullFreedom && (!Domain.IsOwner(e, User, execution.Time) || e.IsExpired(execution.Time)))
 			{
 				Error = Denied;
 				return;
@@ -153,7 +153,7 @@ public class DomainTransfer : RdnOperation
 public class DomainPolicyUpdation : RdnOperation
 {
 	public new AutoId			Id { get; set; }
-	public DomainChildPolicy	Policy { get; set; }
+	public OwnershipPolicy	Policy { get; set; }
 
 	public override string		Explanation => $"{Id} {Policy}";
 	
@@ -163,7 +163,7 @@ public class DomainPolicyUpdation : RdnOperation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		if(!Enum.IsDefined(Policy) || Policy == DomainChildPolicy.None)
+		if(!Enum.IsDefined(Policy) || Policy == OwnershipPolicy.None)
 			return false;
 
 		return true;
@@ -172,7 +172,7 @@ public class DomainPolicyUpdation : RdnOperation
 	public override void Read(Reader reader)
 	{
 		Id		= reader.Read<AutoId>();
-		Policy	= reader.Read<DomainChildPolicy>();
+		Policy	= reader.Read<OwnershipPolicy>();
 	}
 
 	public override void Write(Writer writer)
@@ -201,14 +201,14 @@ public class DomainPolicyUpdation : RdnOperation
 				return;
 			}
 
-			if(e.ParentPolicy == DomainChildPolicy.FullFreedom && !e.IsExpired(execution.Time))
+			if(e.OwnershipPolicy == OwnershipPolicy.FullFreedom && !e.IsExpired(execution.Time))
 			{
 				Error = NotAvailable;
 				return;
 			}
 
 			e = execution.Domains.Affect(e.Address);
-			e.ParentPolicy = Policy;
+			e.OwnershipPolicy = Policy;
 		}
 		else
 		{

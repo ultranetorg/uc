@@ -30,11 +30,6 @@ public enum ResourceLinkType : byte
 	//AntimalwareAnalysis,
 }
 
-public enum ResourceLinkChanges : byte
-{
-	None, Dependency
-}
-
 public class ResourceLink : IBinarySerializable
 {
 	public AutoId			Destination { get; set; }

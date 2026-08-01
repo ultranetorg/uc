@@ -22,12 +22,14 @@ public class ProposalComment : IBinarySerializable, ITableEntry<AutoId>
 
 	public object Clone()
 	{
-		return new ProposalComment(Mcv) {Id			= Id,
-										Proposal	= Proposal,
-										Creator		= Creator,
-										Text		= Text,
-										Created		= Created
-										};
+		return	new ProposalComment(Mcv)
+				{
+					Id = Id,
+					Proposal = Proposal,
+					Creator = Creator,
+					Text = Text,
+					Created = Created
+				};
 	}
 
 	public void ReadMain(Reader reader)

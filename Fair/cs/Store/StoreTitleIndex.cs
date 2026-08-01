@@ -11,6 +11,8 @@ public class StoreSearchResult
 	public string		Text { get; set; }
 	public AutoId		Entity { get; set; }
 
+	public int			_Distance;
+
 	public override string ToString()
 	{
 		return $"{Text}, {Entity}";

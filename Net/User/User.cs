@@ -102,7 +102,6 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public int				Bandwidth { get; set; }
 	public int				BandwidthExpiration { get; set; }
 
-	public EntityId			Key => Id;
 	public bool				Deleted { get; set; }
 
 	Mcv						Mcv;

@@ -10,7 +10,7 @@ public enum DomainFlag : byte
 	//ChildNet	= 0b__100000, 
 }
 
-public enum DomainChildPolicy : byte
+public enum OwnershipPolicy : byte
 {
 	None, 
 	FullOwnership	= 1, 
@@ -26,16 +26,15 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 	public const char				Subdomain = '~';
 
 	public static readonly string[] PriorityTlds = ["com", "org", "net", "info", "biz"];
+	static readonly Regex			NameRegex = new ($@"^[a-z0-9\.]+[a-z0-9{Subdomain}{National}]*$", RegexOptions.Compiled);
 
 	public AutoId					Id { get; set; }
 	public string					Address { get; set; }
 	public AutoId					Owner { get; set; }
-	public bool						Free { get; set; }
-	
 	public short					Expiration { get; set; }
+	public bool						Free { get; set; }
 	public long						Space { get; set; }
-	
-	public DomainChildPolicy		ParentPolicy { get; set; }
+	public OwnershipPolicy			OwnershipPolicy { get; set; }
 
 	public bool						Deleted { get; set; }
 	Mcv								Mcv;
@@ -57,19 +56,34 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 
 	public override string ToString()
 	{
-		return $"{Address}, {Id}, Owner={Owner}, {Expiration}";
+		return $"{Address}, {Id}, {nameof(Free)}={Free}, {nameof(Owner)}={Owner}, {nameof(Space)}={Space}, {nameof(Expiration)}={Expiration}";
+	}
+
+	public static bool IsAddressValid(string name)
+	{
+		if(name == null)
+			return false;
+
+		if(name.Length < NameLengthMin || name.Length > NameLengthMax)
+			return false;
+
+		if(NameRegex.Match(name).Success == false)
+			return false;
+
+		return true;
 	}
 
 	public object Clone()
 	{
-		return new Domain(Mcv)
+		return	new Domain(Mcv)
 				{	
-					Id = Id,
-					Address = Address,
-					Owner = Owner,
-					Expiration = Expiration,
-					Free = Free,
-					Space = Space,
+					Id				= Id,
+					Address			= Address,
+					Owner			= Owner,
+					Expiration		= Expiration,
+					Free			= Free,
+					Space			= Space,
+					OwnershipPolicy	= OwnershipPolicy
 				};
 	}
 
@@ -92,7 +106,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 
 		if(IsChild(Address))
 		{
-			writer.Write((byte)ParentPolicy);
+			writer.Write((byte)OwnershipPolicy);
 		}
 	}
 
@@ -111,7 +125,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 
 		if(IsChild(Address))
 		{
-			ParentPolicy = (DomainChildPolicy)reader.ReadByte();
+			OwnershipPolicy = (OwnershipPolicy)reader.ReadByte();
 		}
 	}
 
@@ -129,20 +143,6 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 
 	public void Cleanup(Round lastInCommit)
 	{
-	}
-
-	public static bool Valid(string name)
-	{
-		if(name == null)
-			return false;
-
-		if(name.Length < NameLengthMin || name.Length > NameLengthMax)
-			return false;
-
-		if(Regex.Match(name, $@"^[a-z0-9\.]+[a-z0-9{Subdomain}{National}]*$").Success == false)
-			return false;
-
-		return true;
 	}
 			
 	public static string GetRoot(string name)

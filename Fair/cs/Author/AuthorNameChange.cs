@@ -39,17 +39,19 @@ public class AuthorNameChange : FairOperation
 			return;
 		}
 
+		a = execution.Authors.Affect(Author);
+
 		if(a.Name != null)
 		{
 			execution.Words.Unregister(a.Name);
+			execution.Free(a, a, execution.Net.EntityLength);
 		}
 
 		if(Name != null)
 		{
 			execution.Words.Register(Name, EntityTextField.AuthorName, a.Id);
+			execution.Allocate(a, a, execution.Net.EntityLength);
 		}
-
-		a = execution.Authors.Affect(Author);
 		
 		a.Name = Name;	
 		

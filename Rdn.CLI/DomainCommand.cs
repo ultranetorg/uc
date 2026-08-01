@@ -6,7 +6,7 @@ public class DomainCommand : RdnCommand
 {
 	public static readonly Argument Eligible = ByArgument("Name of the user eligible to change the domain");
 	public static readonly Argument Years = new ("years", YEARS, "Number of years in [1..10] range");
-	public static readonly Argument Policy = new ("policy", DCP, $"{DomainChildPolicy.FullOwnership} - the owner of the parent domain can later revoke/change ownership of subdomain, {DomainChildPolicy.FullFreedom} - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy");
+	public static readonly Argument Policy = new ("policy", DCP, $"{OwnershipPolicy.FullOwnership} - the owner of the parent domain can later revoke/change ownership of subdomain, {OwnershipPolicy.FullFreedom} - the owner of the parent domain can NOT later revoke/change ownership of the subdomain or change policy");
 
 	new AutoId Id(string nameaddress)
 	{
@@ -100,7 +100,7 @@ public class DomainCommand : RdnCommand
 									return	new DomainRegistration
 											{
 												Address	= Address,
-												Policy	= GetEnum(Policy.Name, DomainChildPolicy.FullOwnership),
+												Policy	= GetEnum(Policy.Name, OwnershipPolicy.FullOwnership),
 												Years	= byte.Parse(GetString(Years.Name)),
 												Owner	= f.User.Id
 											};
@@ -124,7 +124,7 @@ public class DomainCommand : RdnCommand
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new DomainPolicyUpdation {Id		= Id(AddressKeyword),
-																 Policy	= GetEnum(Policy.Name, DomainChildPolicy.FullOwnership)};
+																 Policy	= GetEnum(Policy.Name, OwnershipPolicy.FullOwnership)};
 							};
 		return a;
 	}

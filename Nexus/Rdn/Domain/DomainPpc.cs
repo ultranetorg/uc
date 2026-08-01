@@ -25,7 +25,7 @@ public class DomainPpc : RdnPpc<DomainPpr>
 
 	public override Result Execute()
 	{
-		if(Identifier.Addres != null && !Domain.Valid(Identifier.Addres))	
+		if(Identifier.Addres != null && !Domain.IsAddressValid(Identifier.Addres))	
 			throw new RequestException(RequestError.IncorrectRequest);
 
 		RequireGraph();

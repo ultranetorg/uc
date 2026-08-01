@@ -92,13 +92,14 @@ public class StoreTitleNgramIndex : NgramTable<StoreNgramId>
 
 	public StoreSearchResult[] Search(string query, int skip, int take)
 	{
-		var result = base.Search(query, null, Latest, skip, take)
+		return Search(query, null, Latest, skip, take)
 						 .Select(i => Mcv.Stores.Latest(AutoId.FromULong(i)))
-						 .OrderByDescending(i => JaroWinkler.GetSimilarityFixed(query, i.Title));
-
-		return result.Select(i =>	{
-										return new StoreSearchResult {Entity = i.Id, Text = i.Title};
-									}).ToArray();
+						 .OrderBy(i => ComputeDistance(i.Title, query)).ThenBy(i => i.Title.Length)
+						 //.OrderByDescending(i => JaroWinkler.GetSimilarityFixed(i.Title, query))
+						//.OrderBy(i => FastBigramFuzzySearch.ComputeDistance(i.Title, query))
+						 .Select(i =>	{
+											return new StoreSearchResult {Entity = i.Id, Text = i.Title, _Distance = ComputeDistance(i.Title, query)};
+										}).ToArray();
 	}
 }
 

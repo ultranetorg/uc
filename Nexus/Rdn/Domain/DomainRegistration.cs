@@ -5,7 +5,7 @@ public class DomainRegistration : RdnOperation
 	public string				Address {get; set;}
 	public byte					Years {get; set;}
 	public AutoId				Owner  {get; set;}
-	public DomainChildPolicy	Policy {get; set;}
+	public OwnershipPolicy	Policy {get; set;}
 
 	public override string		Explanation => $"{Address} for {Years} years";
 	
@@ -15,10 +15,10 @@ public class DomainRegistration : RdnOperation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		if(!Domain.Valid(Address))
+		if(!Domain.IsAddressValid(Address))
 			return false;
 		
-		if(Years < Mcv.EntityRentYearsMin || Years > Mcv.EntityRentYearsMax)
+		if(!IsRentTimeValid(Years))
 			return false;
 
 		if(Domain.IsChild(Address) && (Owner == null || !Enum.IsDefined(Policy)))
@@ -35,7 +35,7 @@ public class DomainRegistration : RdnOperation
 		if(Domain.IsChild(Address))
 		{
 			Owner = reader.Read<AutoId>();
-			Policy	= reader.Read<DomainChildPolicy>();
+			Policy	= reader.Read<OwnershipPolicy>();
 		}
 	}
 
@@ -110,7 +110,7 @@ public class DomainRegistration : RdnOperation
 			if(!RequireDomainAccess(execution, Domain.GetParent(Address), out var p))
 				return;
 
-			if(Policy < DomainChildPolicy.FullOwnership || DomainChildPolicy.FullFreedom < Policy)
+			if(Policy < OwnershipPolicy.FullOwnership || OwnershipPolicy.FullFreedom < Policy)
 			{
 				Error = NotAvailable;
 				return;
@@ -121,7 +121,7 @@ public class DomainRegistration : RdnOperation
 			var start = d.Expiration < execution.Time.Days ? execution.Time.Days : d.Expiration;
 
 			d.Owner			= o.Id;
-			d.ParentPolicy	= Policy;
+			d.OwnershipPolicy	= Policy;
 			d.Expiration	= (short)(start + Time.FromYears(Years).Days);
 
 			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
