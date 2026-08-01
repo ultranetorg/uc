@@ -2,7 +2,7 @@
 
 public class UserNameChange : Operation
 {
-	public string		Name { get; set; }
+	public string				Name { get; set; }
 
 	public override string		Explanation => $"{Name}";
 	
@@ -12,7 +12,7 @@ public class UserNameChange : Operation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return IsNameValid(Name);
+		return User.IsNameValid(Name);
 	}
 
 	public override void Read(Reader reader)

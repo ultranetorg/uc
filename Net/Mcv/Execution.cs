@@ -280,12 +280,12 @@ public class Execution : ITableExecution
 
 		if(u == null)
 		{	
-			if(!Operation.IsNameValid(name))
-			{
-				Transaction.Error = Operation.InvalidName;
-				return null;
-			}
-		
+//			if(!User.IsNameValid(name))
+//			{
+//				Transaction.Error = Operation.InvalidName;
+//				return null;
+//			}
+//		
 			u = CreateUser(name);
 		}
 		else

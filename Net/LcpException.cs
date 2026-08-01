@@ -11,9 +11,8 @@ public enum LcpError : byte
 
 public class LcpException : CodeException
 {
-	public override int		ErrorCode { get => (int)Error; set => Error = (LcpError)value; }
+	public override int		Code { get => (int)Error; set => Error = (LcpError)value; }
 	public LcpError			Error { get; protected set; }
-	public override string	Message => Error.ToString();
 
 	public LcpException()
 	{

@@ -81,9 +81,8 @@ public enum VaultError : uint
 
 public class NodeException : CodeException
 {
-	public override int				ErrorCode { get => (int)Error; set => Error = (NodeError)value; }
+	public override int				Code { get => (int)Error; set => Error = (NodeError)value; }
 	public NodeError				Error { get; protected set; }
-	public override string			Message => Error.ToString();
 
 	public NodeException()
 	{
@@ -97,9 +96,8 @@ public class NodeException : CodeException
 
 public class RequestException : CodeException
 {
-	public override int				ErrorCode { get => (int)Error; set => Error = (RequestError)value; }
+	public override int				Code { get => (int)Error; set => Error = (RequestError)value; }
 	public RequestError				Error { get; protected set; }
-	public override string			Message => Error.ToString();
 
 	public RequestException()
 	{
@@ -113,9 +111,8 @@ public class RequestException : CodeException
 
 public class EntityException : CodeException
 {
-	public override int				ErrorCode { get => (int)Error; set => Error = (EntityError)value; }
+	public override int				Code { get => (int)Error; set => Error = (EntityError)value; }
 	public EntityError				Error { get; protected set; }
-	public override string			Message => Error.ToString();
 
 	public EntityException()
 	{
@@ -129,9 +126,8 @@ public class EntityException : CodeException
 
 public class VaultException : CodeException
 {
-	public override int				ErrorCode { get => (int)Error; set => Error = (VaultError)value; }
+	public override int				Code { get => (int)Error; set => Error = (VaultError)value; }
 	public VaultError				Error { get; protected set; }
-	public override string			Message => Error.ToString();
 
 	public VaultException()
 	{

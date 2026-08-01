@@ -13,9 +13,8 @@ public enum IccpError : byte
 
 public class IccpException : CodeException
 {
-	public override int		ErrorCode { get => (int)Error; set => Error = (IccpError)value; }
+	public override int		Code { get => (int)Error; set => Error = (IccpError)value; }
 	public IccpError		Error { get; protected set; }
-	public override string	Message => Error.ToString();
 
 	public IccpException()
 	{

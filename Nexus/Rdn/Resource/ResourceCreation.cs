@@ -6,9 +6,11 @@ public class ResourceCreation : RdnOperation
 	public ResourceChanges		Changes { get; set; }
 	public ResourceData			Data { get; set; }
 
-	public override bool		IsValid(McvNet net) =>	(!Changes.HasFlag(ResourceChanges.SetData) || (Data.Value.Length <= ResourceData.LengthMax)) &&
-														!Changes.HasFlag(ResourceChanges.NullData);
-	public override string		Explanation => $"{Address}, [{Changes}]{(Data == null ? null : ", Data=" + Data)}";
+	public override bool		IsValid(McvNet net) =>	!string.IsNullOrWhiteSpace(Address.Resource) && Address.Resource.Length > 0 &&
+														(!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
+														(Changes == ResourceChanges.None || (Changes.HasFlag(ResourceChanges.SetData) || Changes.HasFlag(ResourceChanges.Dependable)));
+	
+	public override string		Explanation => $"{Address}, [{Changes.ToFlagsString()}]{(Data == null ? null : ", Data=" + Data)}";
 
 	public ResourceCreation()
 	{

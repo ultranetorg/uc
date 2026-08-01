@@ -1,12 +1,25 @@
 ﻿namespace Uccs.Nexus;
 
-public class PackageException : Exception
+public enum PackageError : byte
 {
+	None,
+
+	IO,
+	IncorrectContentType,
+	NotSupportedReleaseAddressType
+}
+
+public class PackageException : CodeException
+{
+	public override int			Code { get => (int)Error; set => Error = (PackageError)value; }
+	public PackageError			Error { get; protected set; }
+
 	public PackageException()
 	{
 	}
 
-	public PackageException(string message) : base(message)
+	public PackageException(PackageError erorr, string message) : base($"{erorr} : {message}" )
 	{
+		Error = erorr;
 	}
 }

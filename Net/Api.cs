@@ -118,15 +118,15 @@ public class ApiTypeResolver : DefaultJsonTypeInfoResolver
 	public ApiTypeResolver()
 	{
 		Modifiers.Add(	ti =>
+					{
+						if (ti.Type.IsSubclassOf(typeof(CodeException)))
 						{
-							if (ti.Type.IsSubclassOf(typeof(CodeException)))
+							foreach(var i in ti.Properties.Where(i => i.Name != nameof(CodeException.Code) && i.Name != nameof(CodeException.Details)))
 							{
-								foreach(var i in ti.Properties.Where(i => i.Name != nameof(CodeException.ErrorCode)))
-								{
-									i.ShouldSerialize = (p, v) => false;
-								}
+								i.ShouldSerialize = (p, v) => false;
 							}
-						});
+						}
+					});
 	}
 
 	public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)

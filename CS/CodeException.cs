@@ -2,7 +2,10 @@
 
 public abstract class CodeException : Exception, ITypeCode, IBinarySerializable 
 {
-	public abstract int		ErrorCode { get; set; }
+	public abstract int		Code { get; set; }
+	public string 			Details { get; set; }
+
+	public override string Message  => Details;
 
 	static CodeException()
 	{
@@ -12,17 +15,20 @@ public abstract class CodeException : Exception, ITypeCode, IBinarySerializable
 	{
 	}
 
-	public CodeException(string message) : base(message)
+	public CodeException(string message)
 	{
+		Details = message;
 	}
 
-	public void Read(Reader reader)
+	public virtual void Read(Reader reader)
 	{
-		ErrorCode = reader.Read7BitEncodedInt();
+		Code = reader.Read7BitEncodedInt();
+		Details = reader.ReadUtf8();
 	}
 
-	public void Write(Writer writer)
+	public virtual void Write(Writer writer)
 	{
-		writer.Write7BitEncodedInt(ErrorCode);
+		writer.Write7BitEncodedInt(Code);
+		writer.WriteUtf8(Details);
 	}
 }

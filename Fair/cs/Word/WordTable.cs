@@ -18,7 +18,7 @@ public class WordTable : Table<RawId, Word>
 
 	public IEnumerable<AutoId> Search(EntityTextField field, string prefix, int count)
 	{
-		if(prefix.Length < 3)
+		if(prefix.Length < User.NameLengthMin)
 			yield break;
 
 		var pre = Word.GetId(prefix);
@@ -27,16 +27,19 @@ public class WordTable : Table<RawId, Word>
 
 		var found = new HashSet<AutoId>();
 
-		foreach(var r in (Mcv.LastConfirmedRound as FairRound).Words.Affected.Where(i => i.Value.Reference.Field == field && i.Key.Bytes.Take(pre.Bytes.Length).SequenceEqual(pre.Bytes)).Select(i => i.Value.Reference))
+		foreach(var i in (Mcv.LastConfirmedRound as FairRound).Words.Affected)
 		{
-			if(found.Add(r.Entity))
+			if(i.Value.Reference.Field == field && Bytes.EqualityComparer.Equals(i.Key.Bytes, pre.Bytes, pre.Bytes.Length))
 			{
-				yield return r.Entity;
-
-				n++;
-
-				if(n == count)
-					yield break;
+				if(found.Add(i.Value.Reference.Entity))
+				{
+					yield return i.Value.Reference.Entity;
+	
+					n++;
+	
+					if(n == count)
+						yield break;
+				}
 			}
 		}
 						
@@ -44,16 +47,19 @@ public class WordTable : Table<RawId, Word>
 
 		if(b != null)
 		{
-			foreach(var r in b.Entries.Where(i => i.Reference.Field == field && i.Id.Bytes.Take(pre.Bytes.Length).SequenceEqual(pre.Bytes)).Select(i => i.Reference))
+			foreach(var i in b.Entries)
 			{
-				if(found.Add(r.Entity))
+				if(i.Reference.Field == field && Bytes.EqualityComparer.Equals(i.Id.Bytes, pre.Bytes, pre.Bytes.Length))
 				{
-					yield return r.Entity;
+					if(found.Add(i.Reference.Entity))
+					{
+						yield return i.Reference.Entity;
 	
-					n++;
-		
-					if(n == count)
-						yield break;
+						n++;
+	
+						if(n == count)
+							yield break;
+					}
 				}
 			}
 		}

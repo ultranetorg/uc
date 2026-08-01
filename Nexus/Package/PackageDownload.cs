@@ -82,7 +82,7 @@ public class PackageDownload
 													
 												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_Software_VersionManifest))
 												{
-													throw new PackageException($"{package.Resource.Address} is not {ContentType.Package_Software_VersionManifest}");
+													throw new PackageException(PackageError.IncorrectContentType, $"{package.Resource.Address} is not {ContentType.Package_Software_VersionManifest}");
 												}
 
 												break;
@@ -114,7 +114,7 @@ public class PackageDownload
 											//	break;
 
 											default : 
-												throw new PackageException($"{package.Resource.Address} release address type is not supported");
+												throw new PackageException(PackageError.NotSupportedReleaseAddressType, $"{package.Resource.Address}");
 										};
 
 										Seeker = new SeedSeeker(node, package.Release.Address, flow);

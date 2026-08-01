@@ -34,6 +34,18 @@ public class BytesEqualityComparer : IEqualityComparer<byte[]>
 		return true;
 	}
 
+	public bool Equals(byte[] a, byte[] b, int length)
+	{
+		if(length > a.Length || length > b.Length)
+			return false;
+
+		for(int i = 0; i < length; i++)
+			if(a[i] != b[i])
+				return false;
+
+		return true;
+	}
+
 	public int GetHashCode(byte[] b)
 	{
 		return b[0].GetHashCode();

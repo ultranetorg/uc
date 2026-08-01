@@ -87,7 +87,14 @@ public class PackageBuildApc : Apc, INexusApc
 
 		lock(nexus.PackageHub.Lock)
 		{	
-			return new LocalReleaseApe(nexus.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow));
+			try
+			{
+				return new LocalReleaseApe(nexus.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow));
+			}
+			catch(IOException ex)
+			{
+				throw new PackageException(PackageError.IO, ex.Message);
+			}
 		}
 	}
 }

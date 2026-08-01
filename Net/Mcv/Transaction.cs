@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Uccs.Net;
+﻿namespace Uccs.Net;
 
 public enum TransactionStatus : byte
 {
@@ -14,7 +12,7 @@ public enum ActionOnResult : byte
 
 public class Transaction : IBinarySerializable
 {
-	public const int				TagLengthMax = 1024;
+	public const int				TagLengthMax = 256;
 
 	public TransactionId			Id;
 	public Operation[]				Operations = {};
@@ -31,9 +29,6 @@ public class Transaction : IBinarySerializable
 	
 	public int						EnergyConsumed;
 
-	//AccountAddress					_Signer;
-	//public AccountAddress			Signer { get => _Signer ??= Net.Cryptography.AccountFrom(Signature, Hashify()); set => _Signer = value; }
-	//public bool						IsSignerSet => _Signer != null;
 	public TransactionStatus		Status;
 	public int						Length;
 	public string					Error;
@@ -44,10 +39,10 @@ public class Transaction : IBinarySerializable
 	public byte[]					Session;
 	public ActionOnResult			ActionOnResult = ActionOnResult.DoNotCare;
 
-
 	public bool Valid(Mcv mcv)
 	{
-		return	(Tag == null || Tag.Length <= TagLengthMax) &&
+		return	Uccs.Net.User.IsNameValid(User) &&
+				(Tag == null || Tag.Length <= TagLengthMax) &&
 				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit;
 	}
 

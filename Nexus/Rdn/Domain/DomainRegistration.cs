@@ -5,7 +5,7 @@ public class DomainRegistration : RdnOperation
 	public string				Address {get; set;}
 	public byte					Years {get; set;}
 	public AutoId				Owner  {get; set;}
-	public OwnershipPolicy	Policy {get; set;}
+	public OwnershipPolicy		Policy {get; set;}
 
 	public override string		Explanation => $"{Address} for {Years} years";
 	
@@ -15,16 +15,9 @@ public class DomainRegistration : RdnOperation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		if(!Domain.IsAddressValid(Address))
-			return false;
-		
-		if(!IsRentTimeValid(Years))
-			return false;
-
-		if(Domain.IsChild(Address) && (Owner == null || !Enum.IsDefined(Policy)))
-			return false;
-
-		return true;
+		return	Domain.IsAddressValid(Address) &&
+				IsRentTimeValid(Years) &&
+				(Domain.IsRoot(Address) || (Owner != null && Enum.IsDefined(Policy)));
 	}
 
 	public override void Read(Reader reader)

@@ -67,13 +67,6 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public abstract void		Write(Writer w);
 	public abstract void		Read(Reader r);
 
-	public const int			NameLengthMin = 4;
-	public const int			NemaLengthMax = 32;
-
-	static readonly Regex		NameRegex = new ("^[a-z0-9_]+$", RegexOptions.Compiled);
-
-	public static bool			IsNameValid(string name) =>	name.Length is >= NameLengthMin and <= NemaLengthMax && NameRegex.Match(name).Success;
-
 	public Operation()
 	{
 	}

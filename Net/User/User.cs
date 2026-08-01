@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Uccs.Net;
 
@@ -106,8 +107,14 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 
 	Mcv						Mcv;
 
+	public static bool		IsNameValid(string name) =>	name.Length is >= NameLengthMin and <= NemaLengthMax && NameRegex.Match(name).Success;
 	public static byte[]	NameToBytes(string name) => Encoding.ASCII.GetBytes(name);
 	public static string	BytesToName(byte[] bytes) => Encoding.ASCII.GetString(bytes); 
+
+	public const int		NameLengthMin = 4;
+	public const int		NemaLengthMax = 32;
+
+	static readonly Regex	NameRegex = new ("^[a-z0-9_]+$", RegexOptions.Compiled);
 
 	public override string ToString()
 	{

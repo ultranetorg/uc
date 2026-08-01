@@ -72,6 +72,11 @@ public class Log
 
 	protected void Report(object sender, string subject, Severity severity,  IEnumerable<string> a)
 	{
+		if(a != null && a.First() == null)
+		{
+			throw new Exception();
+		}
+
 		var m = new LogMessage{Log = this, Severity = severity, Sender = sender, Subject = subject, Text = a?.ToArray()};
 
 		Messages.Enqueue(m);
