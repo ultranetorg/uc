@@ -11,9 +11,9 @@ public class UserCommand : McvCommand
 			if(Has(IdKeyword))
 				return GetAutoId(IdKeyword);
 			else if(Has(NameKeyword))
-				return Ppc(new UserPpc(Name)).User.Id;
+				return Ppc(new UserByNamePpc(Name)).User.Id;
 			else
-				throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+				throw new SyntaxException("Neither user 'id' nor 'name' arguments provided");
 		}
 	}
 
@@ -149,9 +149,9 @@ public class UserCommand : McvCommand
 								User u;
 
 								if(Has(IdKeyword))
-									u = Ppc(new UserPpc(Id)).User;
+									u = Ppc(new UserByIdPpc(Id)).User;
 								else if(Has(NameKeyword))
-									u = Ppc(new UserPpc(Name)).User;
+									u = Ppc(new UserByNamePpc(Name)).User;
 								else
 									throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
 

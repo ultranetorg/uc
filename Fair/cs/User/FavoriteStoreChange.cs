@@ -41,7 +41,7 @@ public class FavoriteStoreChange : FairOperation
 				return;
 			}
 
-			User.FavoriteStores = [..User.FavoriteStores, Store];
+			User.FavoriteStores = User.FavoriteStores.Add(Store);
 		} 
 		else
 		{

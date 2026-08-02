@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>
+public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>, IBinarySerializable
 {
 	public AutoId	Id { get; set; }
 
@@ -21,16 +21,39 @@ public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>
 			
 		return new ResourceByIdPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
 	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Id);
+	}
+
+	public void Read(Reader reader)
+	{
+		Id = reader.Read<AutoId>();
+	}
 }
 	
-public class ResourceByIdPpr : Result
+public class ResourceByIdPpr : Result, IBinarySerializable
 {
 	public Resource Resource { get; set; }
 	public Ura		Address { get; set; }
+
+	public void Read(Reader reader)
+	{
+		Address = reader.Read<Ura>();
+		Resource = reader.Read<Resource>();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Address);
+		writer.Write(Resource);
+	}
+
 }
 	
 
-public class ResourceByAddressPpc : RdnPpc<ResourceByAddressPpr>
+public class ResourceByAddressPpc : RdnPpc<ResourceByAddressPpr>, IBinarySerializable
 {
 	public Ura		Address { get; set; }
 
@@ -51,10 +74,30 @@ public class ResourceByAddressPpc : RdnPpc<ResourceByAddressPpr>
 			
 		return new ResourceByAddressPpr {Resource = r};
 	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Address);
+	}
+
+	public void Read(Reader reader)
+	{
+		Address = reader.Read<Ura>();
+	}
 }
 	
-public class ResourceByAddressPpr : Result
+public class ResourceByAddressPpr : Result, IBinarySerializable
 {
 	public Resource Resource { get; set; }
+
+	public void Read(Reader reader)
+	{
+		Resource = reader.Read<Resource>();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Resource);
+	}
 }
 	

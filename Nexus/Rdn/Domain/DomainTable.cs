@@ -56,33 +56,25 @@ public class DomainExecution : TableExecution<AutoId, Domain>
 
 	public Domain Find(string name)
 	{
-		var e = Affected.Values.FirstOrDefault(i => i.Address == name);
-
-		if(e != null)
-			return e.Deleted ? null : e;
+		var d = Affected.Values.FirstOrDefault(i => i.Address == name);
+		
+		if(d != null)
+			return d.Deleted ? null : d;
 
 		if(Parent != null)
 			return (Parent as DomainExecution).Find(name);
 
-		e = Execution.Round.Domains.Affected.Values.FirstOrDefault(i => i.Address == name);
-
-		if(e != null)
-			return e.Deleted ? null : e;
+		d = Execution.Round.Domains.Affected.Values.FirstOrDefault(i => i.Address == name);
+			
+		if(d != null)
+			return d.Deleted ? null : d;
 
 		return Table.Find(name);
 	}
 
 	public Domain Affect(string name)
 	{
-		if(Affected.Values.FirstOrDefault(i => i.Address == name) is Domain d)
-			return d;
-
-		if(Parent != null)
-			d = (Parent as DomainExecution).Find(name);
-		else if(Execution.Round.Domains.Affected.Values.FirstOrDefault(i => i.Address == name) is Domain x)
-			d = x;
-		else
-			d = Table.Find(name);
+		var d = Find(name);
 
 		if(d != null)
 			return Affected[d.Id] = d.Clone() as Domain;

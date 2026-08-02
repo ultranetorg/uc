@@ -78,7 +78,7 @@ public class DomainCommand : RdnCommand
 							AddressArgument(DA, "domain or subdomain to create"),
 							Policy,
 							Years,
-							new (@for, NAME, "Name of the account that will own the subdomain"),
+							new (@for, NAME, "Name of the suer that will own the subdomain"),
 							ByArgument("Name of the user that is going to take  or give a domain")
 						];
 
@@ -95,7 +95,7 @@ public class DomainCommand : RdnCommand
 								} 
 								else
 								{
-									var f = Ppc(new UserPpc(GetString(@for)));
+									var f = Ppc(new UserByNamePpc(GetString(@for)));
 	
 									return	new DomainRegistration
 											{
@@ -145,7 +145,7 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								var to = Ppc(new UserPpc(GetString(owner))).User;
+								var to = Ppc(new UserByNamePpc(GetString(owner))).User;
 
 								return new DomainTransfer
 										{

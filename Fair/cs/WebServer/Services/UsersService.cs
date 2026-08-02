@@ -94,12 +94,12 @@ public class UsersService
 			Name = account.Name,
 			Owner = account.Owner.ToString(),
 			AuthorsIds = account.Authors.Select(id => id.ToString()),
-			FavoriteStores = account.FavoriteStores.Length > 0 ? LoadUserStores(account.FavoriteStores) : [],
+			FavoriteStores = account.FavoriteStores.Count > 0 ? LoadUserStores(account.FavoriteStores) : [],
 			HasAvatar = account.Avatar != null
 		};
 	}
 
-	IEnumerable<StoreBaseModel> LoadUserStores(AutoId[] storesIds)
+	IEnumerable<StoreBaseModel> LoadUserStores(IEnumerable<AutoId> storesIds)
 	{
 		return storesIds.Select(id =>
 		{
@@ -127,11 +127,11 @@ public class UsersService
 			Id = user.Id.ToString(),
 			Name = user.Name,
 			Owner = user.Owner.ToString(),
-			Authors = user.Authors.Length != 0 ? LoadAuthors(user.Authors) : []
+			Authors = user.Authors.Count != 0 ? LoadAuthors(user.Authors) : []
 		};
 	}
 
-	IEnumerable<AuthorBaseAvatarModel> LoadAuthors(AutoId[] authorsIds)
+	IEnumerable<AuthorBaseAvatarModel> LoadAuthors(IEnumerable<AutoId> authorsIds)
 	{
 		return authorsIds.Select(id =>
 		{

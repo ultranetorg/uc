@@ -52,7 +52,7 @@ public class UserRegistration : VotableOperation
 
 		s.Users = [..s.Users, User.Id];
 
-		User.Stores = [..User.Stores, Store.Id];
+		User.Stores = User.Stores.Add(Store.Id);
 //
 //		if(Pow != null)
 //		{	

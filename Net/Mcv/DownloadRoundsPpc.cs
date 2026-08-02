@@ -2,11 +2,12 @@
 
 namespace Uccs.Net;
 
-public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
+public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>, IBinarySerializable
 {
+	public const int	SizeMaximum = 512 * 1024;
+	
 	public int			From { get; set; }
 	public int			SizeLimit { get; set; } = SizeMaximum;
-	public const int	SizeMaximum = 512 * 1024;
 	
 	public override Result Execute()
 	{
@@ -29,18 +30,30 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 					{	
 						LastNonEmptyRound	= Mcv.LastNonEmptyRound.Id,
 						LastConfirmedRound	= Mcv.LastConfirmedRound.Id,
-						BaseHash			= Mcv.GraphHash,
+						GraphHash			= Mcv.GraphHash,
 						Rounds				= [..rs.Select(i => i.Raw)]
 					};
 		}
 	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write7BitEncodedInt(From);
+		writer.Write7BitEncodedInt(SizeLimit);
+	}
+
+	public void Read(Reader reader)
+	{
+		From		= reader.Read7BitEncodedInt();
+		SizeLimit	= reader.Read7BitEncodedInt();
+	}
 }
 
-public class DownloadRoundsPpr : Result
+public class DownloadRoundsPpr : Result, IBinarySerializable
 {
 	public int			LastNonEmptyRound { get; set; }
 	public int			LastConfirmedRound { get; set; }
-	public byte[]		BaseHash{ get; set; }
+	public byte[]		GraphHash{ get; set; }
 	public byte[][]		Rounds { get; set; }
 
 	public Round[] Read(Mcv mcv, Constructor constructor)
@@ -53,6 +66,22 @@ public class DownloadRoundsPpr : Result
 											r.Restore(i);
 											return r;
 										})];
+	}
+
+	public void Read(Reader reader)
+	{
+		LastNonEmptyRound	= reader.Read7BitEncodedInt();
+		LastConfirmedRound	= reader.Read7BitEncodedInt();
+		GraphHash			= reader.ReadHash();
+		Rounds				= reader.ReadArray(() => reader.ReadBytes());
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write7BitEncodedInt(LastNonEmptyRound);
+		writer.Write7BitEncodedInt(LastConfirmedRound);
+		writer.Write(GraphHash);
+		writer.Write(Rounds, i => writer.WriteBytes(i));
 	}
 }
 

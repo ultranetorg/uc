@@ -46,7 +46,7 @@ public class ResourceCreation : RdnOperation
 		if(!RequireDomainAccess(execution, Address.Domain, out var d))
 			return;
 
-		var r = execution.Resources.Find(Address);
+		var r = execution.Resources.Find(d, Address);
 				
 		if(r != null)
 		{
@@ -54,7 +54,7 @@ public class ResourceCreation : RdnOperation
 			return;
 		}
 
-		r = execution.Resources.Affect(d, Address.Resource);
+		r = execution.Resources.Affect(d, Address);
 
 		if(Changes.HasFlag(ResourceChanges.SetData))
 		{

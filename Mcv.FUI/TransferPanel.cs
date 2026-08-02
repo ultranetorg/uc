@@ -112,11 +112,11 @@ public partial class TransferPanel : McvPanel
 				if(!AutoId.TryParse(From.Text, out var id))
 					return;
 
-				FromUser = Node.Peering.Call(new UserPpc {Id = id}, Node.Flow).User;
+				FromUser = Node.Peering.Call(new UserByIdPpc {Id = id}, Node.Flow).User;
 			} 
 			else
 			{
-				FromUser = Node.Peering.Call(new UserPpc {Name = From.Text}, Node.Flow).User;
+				FromUser = Node.Peering.Call(new UserByNamePpc {Name = From.Text}, Node.Flow).User;
 			}
 		}
 		catch(Exception ex)
@@ -163,7 +163,7 @@ public partial class TransferPanel : McvPanel
 	{
 		try
 		{
-			ToUser = Node.Peering.Call(new UserPpc {Name = To.Text}, Node.Flow).User;
+			ToUser = Node.Peering.Call(new UserByNamePpc {Name = To.Text}, Node.Flow).User;
 	
 			var s = Node.Peering.FindSession(FromUser.Name)
 					??

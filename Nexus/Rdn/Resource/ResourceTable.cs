@@ -65,21 +65,17 @@ public class ResourceExecution : TableExecution<AutoId, Resource>
 	{
 	}
 
-	public Resource Find(Ura address)
+	public Resource Find(Domain domain, Ura address)
 	{
-		var d = (Execution as RdnExecution).Domains.Find(address.Domain);
-
-        if(d == null)
-            return null;
-
-		var r = Affected.Values.FirstOrDefault(i => i.Domain == d.Id && i.Name == address.Resource);
+		var r = Affected.Values.FirstOrDefault(i => i.Domain == domain.Id && i.Name == address.Resource);
 		
 		if(r != null)
 			return r.Deleted ? null : r;
 
-		/// check Parent!!!
+		if(Parent != null)
+			return (Parent as ResourceExecution).Find(domain, address);
 
- 		r = Execution.Round.Resources.Affected.Values.FirstOrDefault(i => i.Domain == d.Id && i.Name == address.Resource);
+ 		r = Execution.Round.Resources.Affected.Values.FirstOrDefault(i => i.Domain == domain.Id && i.Name == address.Resource);
 		
 		if(r != null)
 			return r.Deleted ? null : r;
@@ -87,17 +83,18 @@ public class ResourceExecution : TableExecution<AutoId, Resource>
 		return Table.Find(address);
 	}
 
-  	public Resource Affect(Domain domain, string name)
+  	public Resource Affect(Domain domain, Ura adddres)
   	{
-		if(Affected.Values.FirstOrDefault(i => i.Domain == domain.Id && i.Name == name) is Resource r)
-			return r;
+		if(Affected.Values.FirstOrDefault(i => i.Domain == domain.Id && i.Name == adddres.Resource) is Resource r)
+			return r.Deleted ? null : r;
 
-		/// check Parent!!!
+		if(Parent != null)
+			return (Parent as ResourceExecution).Find(domain, adddres);
 
-		r = Execution.Round.Resources.Affected.Values.FirstOrDefault(i => i.Domain == domain.Id && i.Name == name);
+		r = Execution.Round.Resources.Affected.Values.FirstOrDefault(i => i.Domain == domain.Id && i.Name == adddres.Resource);
 
 		if(r == null)
-			r = Table.Find(new Ura(domain.Address, name));
+			r = Table.Find(adddres);
 
   		if(r == null)
   		{
@@ -105,7 +102,7 @@ public class ResourceExecution : TableExecution<AutoId, Resource>
 				{
 					Id		= LastCreatedId = new AutoId(domain.Id.B, Execution.GetNextEid(Table, domain.Id.B)),
 					Domain	= domain.Id,
-  					Name	= name
+  					Name	= adddres.Resource
 				};
   		} 
   		else
@@ -113,5 +110,4 @@ public class ResourceExecution : TableExecution<AutoId, Resource>
     
   		return Affected[r.Id] = r;
   	}
-
 }

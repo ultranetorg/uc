@@ -5,18 +5,6 @@ using RocksDbSharp;
 
 namespace Uccs.Net;
 
-public enum McvPpcClass : uint
-{
-	None = 0, 
-	SharePeers = PpcClass._Last + 1, 
-	Info,
-	SubnetPeers,
-	Vote, Time, Members, Funds, Pretransacting, PlaceTransactions, TransactionStatus, User, 
-	Stamp, TableStamp, DownloadCluster, DownloadBucket, DownloadRounds,
-	Cost,
-	_Last = 199
-}
-
 public enum Synchronization
 {
 	None, Downloading, Synchronized

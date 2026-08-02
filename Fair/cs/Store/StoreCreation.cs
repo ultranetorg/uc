@@ -87,7 +87,7 @@ public class StoreCreation : FairOperation
 													}).ToArray();
 
 
-		User.ModeratedStores = [..User.ModeratedStores, s.Id];
+		User.ModeratedStores = User.ModeratedStores.Add(s.Id);
 
 		execution.StoreTitles.Index(Title, null, s.Id);
 

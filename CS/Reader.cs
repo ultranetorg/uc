@@ -316,6 +316,11 @@ public class Reader : BinaryReader
 		return o;
 	}
 
+	public ImmutableSortedSet<T> ReadImmutableSortedSet<T>() where T : IBinarySerializable, new()
+	{
+		return ReadMany<T>().ToImmutableSortedSet();
+	}
+
 
 	//public void Read(Action a)
 	//{
@@ -326,6 +331,20 @@ public class Reader : BinaryReader
 	//		a();
 	//	}
 	//}
+
+
+	IEnumerable<T> ReadMany<T>() where T : IBinarySerializable, new()
+	{
+		var n = Read7BitEncodedInt();
+
+		for(int i = 0; i < n; i++)
+		{
+			var t = new T();
+			t.Read(this);
+			yield return t;
+		}
+	}
+
 
 	public T[] ReadArray<T>() where T : IBinarySerializable, new()
 	{

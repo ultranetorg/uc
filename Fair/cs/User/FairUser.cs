@@ -1,15 +1,17 @@
-﻿namespace Uccs.Fair;
+﻿using System.Collections.Immutable;
+
+namespace Uccs.Fair;
 
 public class FairUser : User
 {
-	public AutoId[]					Authors  { get; set; }
-	public AutoId[]					ModeratedStores  { get; set; }
-	public AutoId[]					Stores  { get; set; }
-	public AutoId[]					Reviews  { get; set; }
-	public AutoId[]					FavoriteStores  { get; set; }
-	public int						Approvals  { get; set; }
-	public int						Rejections  { get; set; }
-	public byte[]					Avatar  { get; set; }
+	public ImmutableSortedSet<AutoId>	Authors  { get; set; }
+	public ImmutableSortedSet<AutoId>	ModeratedStores  { get; set; }
+	public ImmutableSortedSet<AutoId>	Stores  { get; set; }
+	public ImmutableSortedSet<AutoId>	Reviews  { get; set; }
+	public ImmutableSortedSet<AutoId>	FavoriteStores  { get; set; }
+	public int							Approvals  { get; set; }
+	public int							Rejections  { get; set; }
+	public byte[]						Avatar  { get; set; }
 
 	public FairUser()
 	{
@@ -25,10 +27,10 @@ public class FairUser : User
 
 		a.Authors				= Authors;
 		a.ModeratedStores		= ModeratedStores;
-		a.Stores					= Stores;
+		a.Stores				= Stores;
 		a.Reviews				= Reviews;
 		a.Avatar				= Avatar;
-		a.FavoriteStores			= FavoriteStores;
+		a.FavoriteStores		= FavoriteStores;
 		a.Approvals				= Approvals;
 		a.Rejections			= Rejections;
 
@@ -42,24 +44,24 @@ public class FairUser : User
 		writer.Write(Authors);
 		writer.Write(ModeratedStores);
 		writer.Write(Stores);
-		writer.Write(FavoriteStores);
 		writer.Write(Reviews);
 		writer.WriteBytes(Avatar);
 		writer.Write7BitEncodedInt(Approvals);
 		writer.Write7BitEncodedInt(Rejections);
+		writer.Write(FavoriteStores);
 	}
 
 	public override void Read(Reader reader)
 	{
 		base.Read(reader);
 
-		Authors					= reader.ReadArray<AutoId>();
-		ModeratedStores			= reader.ReadArray<AutoId>();
-		Stores					= reader.ReadArray<AutoId>();
-		FavoriteStores			= reader.ReadArray<AutoId>();
-		Reviews					= reader.ReadArray<AutoId>();
+		Authors					= reader.ReadImmutableSortedSet<AutoId>();
+		ModeratedStores			= reader.ReadImmutableSortedSet<AutoId>();
+		Stores					= reader.ReadImmutableSortedSet<AutoId>();
+		Reviews					= reader.ReadImmutableSortedSet<AutoId>();
 		Avatar					= reader.ReadBytes();
 		Approvals				= reader.Read7BitEncodedInt();
 		Rejections				= reader.Read7BitEncodedInt();
+		FavoriteStores			= reader.ReadImmutableSortedSet<AutoId>();
 	}
 }

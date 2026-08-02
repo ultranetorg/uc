@@ -2,12 +2,25 @@
 
 namespace Uccs.Rdn;
 
-public class ResourceDeclaration
+public class ResourceDeclaration : IBinarySerializable
 {
 	public AutoId			Resource { get; set; }	
 	public Urr				Release { get; set; }	
-	public byte[]			Hash { get; set; }
-	public Availability		Availability { get; set; }	
+	public Availability		Availability { get; set; }
+
+	public void Read(Reader reader)
+	{
+		Resource = reader.Read<AutoId>();
+		Release = reader.ReadVirtual<Urr>();
+		Availability = reader.Read<Availability>();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Resource);
+		writer.WriteVirtual(Release);
+		writer.Write(Availability);
+	}
 }
 
 public class Seed

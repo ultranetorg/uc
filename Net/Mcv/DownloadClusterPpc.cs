@@ -1,8 +1,8 @@
 ﻿namespace Uccs.Net;
 
-public class DownloadClusterPpc : McvPpc<DownloadClusterPpr>
+public class DownloadClusterPpc : McvPpc<DownloadClusterPpr>, IBinarySerializable
 {
-	public int		Table { get; set; }
+	public byte		Table { get; set; }
 	public byte[]	Hash { get; set; }
 	public short	Cluster { get; set; }
 
@@ -26,9 +26,33 @@ public class DownloadClusterPpc : McvPpc<DownloadClusterPpr>
 			return new DownloadClusterPpr {Main = c.Export()};
 		}
 	}
+
+	public void Read(Reader reader)
+	{
+		Table = reader.ReadByte();
+		Hash =  reader.ReadHash();
+		Cluster = reader.ReadInt16();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Table);
+		writer.Write(Hash);
+		writer.Write(Cluster);
+	}
 }
 	
-public class DownloadClusterPpr : Result
+public class DownloadClusterPpr : Result, IBinarySerializable
 {
 	public byte[] Main { get; set; }
+
+	public void Read(Reader reader)
+	{
+		Main = reader.ReadBytes();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteBytes(Main);
+	}
 }

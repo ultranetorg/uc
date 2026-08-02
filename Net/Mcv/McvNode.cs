@@ -3,6 +3,19 @@ using DnsClient;
 
 namespace Uccs.Net;
 
+public enum McvPpcClass : uint
+{
+	None = 0, 
+	SharePeers = PpcClass._Last + 1, 
+	Info,
+	SubnetPeers,
+	Vote, Time, Members, Funds, Pretransacting, PlaceTransactions, TransactionStatus, 
+	UserById, UserByName,
+	Stamp, TableStamp, DownloadCluster, DownloadBucket, DownloadRounds,
+	Cost,
+	_Last = 199
+}
+
 public abstract class McvPpc<R> : Ppc<R> where R : Result
 {
 	public new McvPeering	Peering => base.Peering as McvPeering;

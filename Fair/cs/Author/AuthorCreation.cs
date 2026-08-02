@@ -38,7 +38,7 @@ public class AuthorCreation : FairOperation
 
 		var e = execution.Authors.Create(User.Name);
 
-		User.Authors = [..User.Authors, e.Id];
+		User.Authors = User.Authors.Add(e.Id);
 		
 		e.Owners				= [User.Id];
 		e.Title					= Title;

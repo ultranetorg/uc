@@ -1,4 +1,6 @@
-﻿namespace Uccs.Fair;
+﻿using System.Collections.Immutable;
+
+namespace Uccs.Fair;
 
 public class FairExecution : Execution
 {
@@ -159,11 +161,11 @@ public class FairExecution : Execution
 	{
 		var a = base.CreateUser(name) as FairUser;
 
-		a.Reviews = [];
-		a.ModeratedStores = [];
-		a.Authors = [];
-		a.Stores = [];
-		a.FavoriteStores = [];
+		a.Reviews			= ImmutableSortedSet<AutoId>.Empty;	
+		a.ModeratedStores	= ImmutableSortedSet<AutoId>.Empty;
+		a.Authors			= ImmutableSortedSet<AutoId>.Empty;
+		a.Stores			= ImmutableSortedSet<AutoId>.Empty;
+		a.FavoriteStores	= ImmutableSortedSet<AutoId>.Empty;
 
 		Words.Register(name, EntityTextField.UserName, a.Id);
 

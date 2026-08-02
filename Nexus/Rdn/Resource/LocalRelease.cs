@@ -3,7 +3,7 @@
 namespace Uccs.Rdn;
 
 [Flags]
-public enum Availability
+public enum Availability : byte
 {
 	None				= 0,
 	Full				= 0b_______1,
