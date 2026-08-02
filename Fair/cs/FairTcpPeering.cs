@@ -5,7 +5,8 @@ namespace Uccs.Fair;
 public enum FairPpcClass : uint
 {
 	None = 0, 
-	FairUser = McvPpcClass._Last + 1, 
+	FairUserById = McvPpcClass._Last + 1, 
+	FairUserByName,
 	FairMembers,
 
 	UserAuthors,

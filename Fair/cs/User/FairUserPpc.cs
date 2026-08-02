@@ -1,20 +1,14 @@
 ﻿namespace Uccs.Fair;
 
-public class FairUserPpc : McvPpc<FairUserPpr>
+public class FairUserByIdPpc : McvPpc<FairUserByIdPpr>, IBinarySerializable
 {
-	public AutoId		Id {get; set;}
-	public string		Name {get; set;}
+	public AutoId	Id {get; set;}
 
-	public FairUserPpc()
+	public FairUserByIdPpc()
 	{
 	}
 
-	public FairUserPpc(string identifier)
-	{
-		Name = identifier;
-	}
-
-	public FairUserPpc(AutoId id)
+	public FairUserByIdPpc(AutoId id)
 	{
 		Id = id;
 	}
@@ -23,23 +17,85 @@ public class FairUserPpc : McvPpc<FairUserPpr>
 	{
 		RequireGraph();
 
-		FairUser u;
+		var	u = Mcv.Users.Latest(Id) as FairUser
+				??
+				throw new EntityException(EntityError.NotFound);
+			
+		return new FairUserByIdPpr {User = u};
+	}
 
-		if(Id != null)
-			u = Mcv.Users.Latest(Id) as FairUser;
-		else if(Name != null)
-			u = Mcv.Users.Latest(Name) as FairUser;
-		else
-			throw new RequestException(RequestError.IncorrectRequest);
-			
-		if(u == null)
-			throw new EntityException(EntityError.NotFound);
-			
-		return new FairUserPpr {User = u};
+	public void Write(Writer writer)
+	{
+		writer.Write(Id);
+	}
+
+	public void Read(Reader reader)
+	{
+		Id = reader.Read<AutoId>();
 	}
 }
 
-public class FairUserPpr : Result
+public class FairUserByIdPpr : Result, IBinarySerializable
 {
 	public FairUser User {get; set;}
+
+	public void Read(Reader reader)
+	{
+		User = reader.Read<FairUser>();
+	}
+
+	public void Write(Writer writer)
+	{	
+		writer.Write(User);
+	}
+}
+
+public class FairUserByNamePpc : McvPpc<FairUserByNamePpr>, IBinarySerializable
+{
+	public string	Name {get; set;}
+
+	public FairUserByNamePpc()
+	{
+	}
+
+	public FairUserByNamePpc(string identifier)
+	{
+		Name = identifier;
+	}
+
+	public override Result Execute()
+	{
+		RequireGraph();
+
+		var	u = Mcv.Users.Latest(Name) as FairUser
+				??
+				throw new EntityException(EntityError.NotFound);
+			
+		return new FairUserByNamePpr {User = u};
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteASCII(Name);
+	}
+
+	public void Read(Reader reader)
+	{
+		Name = reader.ReadASCII();
+	}
+}
+
+public class FairUserByNamePpr : Result, IBinarySerializable
+{
+	public FairUser User {get; set;}
+
+	public void Read(Reader reader)
+	{
+		User = reader.Read<FairUser>();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(User);
+	}
 }

@@ -92,7 +92,7 @@ public class UserCommand : Net.UserCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Description = "Get information about the user specified";
+		a.Description = "Gets information about the specified user";
 		a.Arguments = [NameOrId("user to get information about")];
 
 		a.Execute = () =>	{
@@ -101,12 +101,12 @@ public class UserCommand : Net.UserCommand
 								User u;
 
 								if(Has(IdKeyword))
-									u = Ppc(new FairUserPpc(Id)).User;
+									u = Ppc(new FairUserByIdPpc(Id)).User;
 								else if(Has(NameKeyword))
-									u = Ppc(new FairUserPpc(Name)).User;
+									u = Ppc(new FairUserByNamePpc(Name)).User;
 								else
 									throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
-																					
+
 								Flow.Log.Dump(u);
 
 								return u;
