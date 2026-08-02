@@ -32,7 +32,7 @@ public class StampPpc : McvPpc<StampPpr>
 	}
 }
 
-public class StampPpr : Result
+public class StampPpr : Result, IBinarySerializable
 {
 	public class Cluster
 	{
@@ -51,4 +51,36 @@ public class StampPpr : Result
 	public int			LastCommitedRound { get; set; }
 	public byte[]		LastCommitedRoundHash { get; set; }
 	public Table[]		Tables { get; set; }
+
+	public void Write(Writer writer)
+	{
+		writer.WriteBytes(GraphState);
+		writer.Write(GraphHash);
+		writer.Write7BitEncodedInt(LastCommitedRound);
+		writer.Write(LastCommitedRoundHash);
+		writer.Write(Tables, i =>	{
+										writer.Write7BitEncodedInt(i.Id);
+										writer.Write(i.Clusters, i =>	{
+																			writer.Write(i.Id);
+																			writer.Write(i.Hash);
+																		});
+									});
+	}
+
+	public void Read(Reader reader)
+	{
+		GraphState				= reader.ReadBytes();
+		GraphHash				= reader.ReadHash();
+		LastCommitedRound		= reader.Read7BitEncodedInt();
+		LastCommitedRoundHash	= reader.ReadHash();
+		Tables					= reader.ReadArray(() =>	new Table
+															{
+																Id = reader.Read7BitEncodedInt(), 
+																Clusters = reader.ReadArray(() =>	new Cluster
+																									{
+																										Id = reader.ReadInt16(), 
+																										Hash = reader.ReadHash()
+																									})
+															});
+	}
 }

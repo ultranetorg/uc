@@ -2,7 +2,7 @@
 
 namespace Uccs.Net;
 
-public class Generator
+public class Generator : IBinarySerializable
 {
 	public AutoId			User { get; set; }
 	public Endpoint[]		GraphPpiEndpoints { get; set; } = [];
@@ -14,7 +14,7 @@ public class Generator
 		return $"{nameof(User)}={User}, {nameof(Since)}={Since}, {nameof(Till)}={Till}, {nameof(GraphPpiEndpoints)}={{{GraphPpiEndpoints.Length}}}";
 	}
 
-  	public virtual void WriteMember(Writer writer)
+  	public void WriteBase(Writer writer)
  	{
  		writer.Write(User);
 		writer.Write(GraphPpiEndpoints);
@@ -22,12 +22,22 @@ public class Generator
 		writer.Write7BitEncodedInt(Till);
  	}
  
- 	public virtual void ReadMember(Reader reader)
+ 	public void ReadBase(Reader reader)
  	{
 		User				= reader.Read<AutoId>();
 		GraphPpiEndpoints	= reader.ReadArray<Endpoint>();
  		Since				= reader.Read7BitEncodedInt();
  		Till				= reader.Read7BitEncodedInt();
+	}
+
+  	public virtual void Write(Writer writer)
+ 	{
+ 		WriteBase(writer);
+ 	}
+ 
+ 	public virtual void Read(Reader reader)
+ 	{
+		ReadBase(reader);
 	}
 
   	public virtual void WriteCandidate(Writer writer)

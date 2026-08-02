@@ -1,8 +1,8 @@
 ﻿namespace Uccs.Net;
 
-public class TableStampPpc : McvPpc<TableStampPpr>
+public class TableStampPpc : McvPpc<TableStampPpr>, IBinarySerializable
 {
-	public int		Table { get; set; }
+	public byte		Table { get; set; }
 	public short[]	Clusters { get; set; }
 
 	public override Result Execute()
@@ -37,22 +37,59 @@ public class TableStampPpc : McvPpc<TableStampPpr>
 			
 		}
 	}
+
+	public void Read(Reader reader)
+	{
+		Table = reader.ReadByte();
+		Clusters = reader.ReadArray(reader.ReadInt16);
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Table);
+		writer.Write(Clusters, writer.Write);
+	}
+
 }
 
-public class TableStampPpr : Result
+public class TableStampPpr : Result, IBinarySerializable
 {
+	public class Bucket
+	{
+		public int		Id { get; set; }
+		public byte[]	Hash { get; set; }
+	}
+
 	public class Cluster
 	{
 		public short	Id { get; set; }
 		public Bucket[]	Buckets { get; set; }
 	}
 
-	public class Bucket
+	public Cluster[]	Clusters { get; set; }
+
+	public void Write(Writer writer)
 	{
-		public int		Id { get; set; }
-		public byte[]	Hash { get; set; }
-		//public int		Length { get; set; }
+		writer.Write(Clusters, i =>	{
+										writer.Write(i.Id);
+										writer.Write(i.Buckets, i =>	{
+																			writer.Write7BitEncodedInt(i.Id);
+																			writer.Write(i.Hash);
+																		});
+									});
 	}
 
-	public Cluster[]	Clusters { get; set; }
+	public void Read(Reader reader)
+	{
+		Clusters = reader.ReadArray(() =>	new Cluster
+											{
+												Id = reader.ReadInt16(), 
+												Buckets = reader.ReadArray(() =>	new Bucket
+																					{
+																						Id = reader.Read7BitEncodedInt(), 
+																						Hash = reader.ReadHash()
+																					})
+											});
+	}
+
 }

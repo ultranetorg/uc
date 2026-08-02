@@ -333,7 +333,7 @@ public class Reader : BinaryReader
 	//}
 
 
-	IEnumerable<T> ReadMany<T>() where T : IBinarySerializable, new()
+	public IEnumerable<T> ReadMany<T>() where T : IBinarySerializable, new()
 	{
 		var n = Read7BitEncodedInt();
 

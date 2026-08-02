@@ -109,7 +109,7 @@ public class FairRound : Round
 		base.WriteGraphState(writer);
 
 		writer.Write(Candidates, i => i.WriteCandidate(writer));  
-		writer.Write(Members, i => i.WriteMember(writer));  
+		writer.Write(Members, i => i.Write(writer));  
 	}
 
 	public override void ReadGraphState(Reader reader)
@@ -117,6 +117,6 @@ public class FairRound : Round
 		base.ReadGraphState(reader);
 
 		Candidates	= reader.ReadList<Generator>(() => { var g = new Generator(); g.ReadCandidate(reader); return g;});
-		Members		= reader.ReadList<Generator>(() => { var g = new Generator(); g.ReadMember(reader); return g; });
+		Members		= reader.ReadList<Generator>();
 	}
 }

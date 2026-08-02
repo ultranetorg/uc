@@ -1,8 +1,7 @@
 ﻿namespace Uccs.Net;
 
-public class SharePeersPpc : PeerRequest
+public class SharePeersPpc : PeerRequest, IBinarySerializable
 {
-	//public bool					Broadcast { get; set; }
 	public HomoPeer[]			Peers { get; set; }
 
 	public override Result Execute()
@@ -16,5 +15,15 @@ public class SharePeersPpc : PeerRequest
 		}
 
 		return null;
+	}
+
+	public void Read(Reader reader)
+	{
+		Peers = reader.ReadArray<HomoPeer>();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Peers);
 	}
 }

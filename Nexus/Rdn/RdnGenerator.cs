@@ -11,15 +11,15 @@ public class RdnGenerator : Generator
 		return $"{base.ToString()}, SeedHubRdcIPs={{{SeedhubPpiEndpoints.Length}}}";
 	}
 
-	public override void WriteMember(Writer writer)
+	public override void Write(Writer writer)
 	{
-		base.WriteMember(writer);
+		base.Write(writer);
 		writer.Write(SeedhubPpiEndpoints);
 	}
 
-	public override void ReadMember(Reader reader)
+	public override void Read(Reader reader)
 	{
-		base.ReadMember(reader);
+		base.Read(reader);
 		SeedhubPpiEndpoints = reader.ReadArray<Endpoint>();
 	}
 

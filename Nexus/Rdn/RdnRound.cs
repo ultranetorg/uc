@@ -66,7 +66,7 @@ public class RdnRound : Round
 		base.WriteGraphState(writer);
 
 		writer.Write(Candidates, i => i.WriteCandidate(writer));  
-		writer.Write(Members, i => i.WriteMember(writer));  
+		writer.Write(Members);  
 	}
 
 	public override void ReadGraphState(Reader reader)
@@ -74,6 +74,6 @@ public class RdnRound : Round
 		base.ReadGraphState(reader);
 
 		Candidates	= reader.Read<RdnGenerator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
-		Members		= reader.Read<RdnGenerator>(m => m.ReadMember(reader)).Cast<Generator>().ToList();
+		Members		= reader.ReadMany<RdnGenerator>().Cast<Generator>().ToList();
 	}
 }

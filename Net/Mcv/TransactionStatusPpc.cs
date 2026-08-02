@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
+public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>, IBinarySerializable
 {
 	public byte[][]	Tags { get; set; }
 
@@ -11,43 +11,73 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 
 		var r = new TransactionStatusPpr
 				{								
-					Transactions = Tags.Select(s =>	{ 
-														Transaction t = null;
+					Transactions = [..Tags.Select(s =>	{ 
+															Transaction t = null;
 														
-														lock(Peering.CandidateTransactions)
-															t = Peering.CandidateTransactions.Find(i => i.Tag.SequenceEqual(s));
+															lock(Peering.CandidateTransactions)
+																t = Peering.CandidateTransactions.Find(i => i.Tag.SequenceEqual(s));
 														
-														if(t == null)
-															lock(Peering.ConfirmedTransactions)
-															{	
-																t = Peering.ConfirmedTransactions.Find(i => i.Tag.SequenceEqual(s));
+															if(t == null)
+																lock(Peering.ConfirmedTransactions)
+																{	
+																	t = Peering.ConfirmedTransactions.Find(i => i.Tag.SequenceEqual(s));
 
-																if(t != null)
-																	t.Inquired = DateTime.UtcNow;
-															}
+																	if(t != null)
+																		t.Inquired = DateTime.UtcNow;
+																}
 
-														return	new TransactionStatusPpr.Item
-																{
-																	Tag		= s,
-																	Status	= t?.Status ?? TransactionStatus.FailedOrNotFound,
-																	Error	= t?.OverallError
-																};
-													})
-										.ToArray()
+															return	new TransactionStatusPpr.Item
+																	{
+																		Tag		= s,
+																		Status	= t?.Status ?? TransactionStatus.FailedOrNotFound,
+																		Error	= t?.OverallError
+																	};
+														})]
 				};
 
 		return r;
 	}
+
+	public void Read(Reader reader)
+	{
+		Tags = reader.ReadArray(reader.ReadBytes);
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Tags, writer.WriteBytes);
+	}
+
 }
 
-public class TransactionStatusPpr : Result
+public class TransactionStatusPpr : Result, IBinarySerializable
 {
 	public class Item
 	{
 		public byte[]				Tag { get; set; }
-		public string				Error { get; set; }
 		public TransactionStatus	Status { get; set; }
+		public string				Error { get; set; }
 	}
 
 	public Item[]	Transactions { get; set; }
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Transactions, i =>	{
+											writer.WriteBytes(i.Tag);
+											writer.Write(i.Status);
+											writer.WriteASCII(i.Error);
+										});
+	}
+
+	public void Read(Reader reader)
+	{
+		Transactions = reader.ReadArray(() =>	new Item
+												{
+													Tag = reader.ReadBytes(), 
+													Status = reader.Read<TransactionStatus>(), 
+													Error = reader.ReadASCII(), 
+												});
+	}
+
 }

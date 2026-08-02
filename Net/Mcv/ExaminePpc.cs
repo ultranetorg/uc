@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class ExaminePpc : McvPpc<PretransactingPpr>
+public class ExaminePpc : McvPpc<PretransactingPpr>, IBinarySerializable
 {
 	public Operation[]	Operations { get; set; }
 	public string		User { get; set; }
@@ -32,10 +32,34 @@ public class ExaminePpc : McvPpc<PretransactingPpr>
 			//	throw new EntityException(EntityError.ExcutionFailed);
 		}
 	}
+
+	public void Read(Reader reader)
+	{
+		Operations = reader.ReadArrayVirtual<Operation>();
+		User = reader.ReadASCII();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteVirtual(Operations);
+		writer.WriteASCII(User);
+	}
 }
 
-public class ExaminePpr : Result
+public class ExaminePpr : Result, IBinarySerializable
 {
 	public long			SpacetimeConsumed { get; set; }
 	public long			EnergyConsumed { get; set; }
+
+	public void Read(Reader reader)
+	{
+		SpacetimeConsumed = reader.Read7BitEncodedInt64();
+		EnergyConsumed = reader.Read7BitEncodedInt64();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write7BitEncodedInt64(SpacetimeConsumed);
+		writer.Write7BitEncodedInt64(EnergyConsumed);
+	}
 }
