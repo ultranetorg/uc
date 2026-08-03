@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>, IBinarySerializable
+public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>
 {
 	public byte[][]	Tags { get; set; }
 
@@ -38,19 +38,19 @@ public class TransactionStatusPpc : McvPpc<TransactionStatusPpr>, IBinarySeriali
 		return r;
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Tags = reader.ReadArray(reader.ReadBytes);
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Tags, writer.WriteBytes);
 	}
 
 }
 
-public class TransactionStatusPpr : Result, IBinarySerializable
+public class TransactionStatusPpr : Result
 {
 	public class Item
 	{
@@ -61,7 +61,7 @@ public class TransactionStatusPpr : Result, IBinarySerializable
 
 	public Item[]	Transactions { get; set; }
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Transactions, i =>	{
 											writer.WriteBytes(i.Tag);
@@ -70,7 +70,7 @@ public class TransactionStatusPpr : Result, IBinarySerializable
 										});
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Transactions = reader.ReadArray(() =>	new Item
 												{

@@ -356,11 +356,11 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(request.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new Writer(s, Constructor), request);
+			new Writer(s, Constructor).WriteVirtual(request);
 			
 			s.Position = 0;
 			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new Reader(s, Constructor));
+			rq = new Reader(s, Constructor).ReadVirtual<PeerRequest>();
 			rq.Peering = this;
 		}
 
@@ -374,11 +374,11 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		if(rq.Peer == null) /// self call, cloning needed
 		{
 			var s = new MemoryStream();
-			BinarySerializator.Serialize(new Writer(s, Constructor), rq);
+			new Writer(s, Constructor).WriteVirtual(request);
 			
 			s.Position = 0;
 			
-			rq = BinarySerializator.Deserialize<PeerRequest>(new Reader(s, Constructor));
+			rq = new Reader(s, Constructor).ReadVirtual<PeerRequest>();
 			rq.Peering = this;
 		}
 

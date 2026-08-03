@@ -27,11 +27,31 @@ public class StorePpc : FairPpc<StorePpr>
 			
 		return new StorePpr {Store = e};
 	}
+
+	public override void Read(Reader reader)
+	{
+		Id = reader.Read<AutoId>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Id);
+	}
 }
 
 public class StorePpr : Result
 {
 	public Store	Store {get; set;}
+
+	public override void Read(Reader reader)
+	{
+		Store = reader.Read<Store>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Store);
+	}
 }
 
 public class StoreByNamePpc : FairPpc<StoreByNamePpr>
@@ -66,9 +86,29 @@ public class StoreByNamePpc : FairPpc<StoreByNamePpr>
 			
 		return new StorePpr {Store = a};
 	}
+	
+	public override void Read(Reader reader)
+	{
+		Name = reader.ReadASCII();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteASCII(Name);
+	}
 }
 
 public class StoreByNamePpr : Result
 {
 	public Store	Store {get; set;}
+
+	public override void Read(Reader reader)
+	{
+		Store = reader.Read<Store>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Store);
+	}
 }

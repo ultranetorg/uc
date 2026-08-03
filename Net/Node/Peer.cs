@@ -177,7 +177,7 @@ public abstract class Peer : IBinarySerializable
 static readonly long checker = 0xFEDCBA987654321;
 #endif
 
-	protected void Write(PacketType type, int id, object packet)
+	protected void Write<T>(PacketType type, int id, T packet) where T : class, IBinarySerializable, ITypeCode
 	{
 		lock(Writer)
 		{
@@ -185,7 +185,7 @@ static readonly long checker = 0xFEDCBA987654321;
 			Writer.Write(id);
 			
 			WriteStream.SetLength(0);
-			BinarySerializator.Serialize(PacketWriter, packet);
+			PacketWriter.WriteVirtual(packet);
 
 			if(WriteStream.Length > PacketLengthMaximum)
 				throw new IntegrityException("PacketLengthMaximum exceeded");
@@ -199,7 +199,7 @@ static readonly long checker = 0xFEDCBA987654321;
 		}
 	}
 
-	protected T Read<T>(out int id) where T : class, ITypeCode
+	protected T Read<T>(out int id) where T : class, IBinarySerializable, ITypeCode
 	{
 		id = Reader.ReadInt32();
 		var n = Reader.ReadInt32();
@@ -215,7 +215,7 @@ static readonly long checker = 0xFEDCBA987654321;
 		while(s < n);
 
 		ReadStream.Position = 0;
-		var o = BinarySerializator.Deserialize<T>(new Reader(ReadStream, Peering.Constructor));
+		var o = new Reader(ReadStream, Peering.Constructor).ReadVirtual<T>();
 
 		///var o = BinarySerializator.Deserialize<T>(new Reader(Reader.ReadBytes(l), Peering.Constructor));
 

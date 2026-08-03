@@ -13,9 +13,25 @@ public class DomainCommand : RdnCommand
 		if(Has(IdKeyword))
 			return GetAutoId(IdKeyword);
 		else if(Has(nameaddress))
-			return Ppc(new DomainPpc(GetString(nameaddress))).Domain.Id;
+			return Ppc(new DomainByAddressPpc(GetString(nameaddress))).Domain.Id;
 		else
 			throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
+	}
+
+	Domain GetDomain()
+	{
+		if(Has(IdKeyword))
+		{	
+			var r = Ppc(new DomainByIdPpc(GetAutoId(IdKeyword)));
+			return r.Domain;
+		}
+		else if(Has(AddressKeyword))
+		{	
+			var r = Ppc(new DomainByAddressPpc(GetString(AddressKeyword)));
+			return r.Domain;
+		}
+		else
+			throw new SyntaxException("Neither 'id' nor 'name' arguments provided");
 	}
 
 	public DomainCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
@@ -169,11 +185,11 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 				
-								var rp = Ppc(new DomainPpc(Id(AddressKeyword)));
+								var d = GetDomain();
 
-								Flow.Log.Dump(rp.Domain);
+								Flow.Log.Dump(d);
 					
-								return rp.Domain;
+								return d;
 							};
 
 		return a;

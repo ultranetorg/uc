@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class TableStampPpc : McvPpc<TableStampPpr>, IBinarySerializable
+public class TableStampPpc : McvPpc<TableStampPpr>
 {
 	public byte		Table { get; set; }
 	public short[]	Clusters { get; set; }
@@ -38,13 +38,13 @@ public class TableStampPpc : McvPpc<TableStampPpr>, IBinarySerializable
 		}
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Table = reader.ReadByte();
 		Clusters = reader.ReadArray(reader.ReadInt16);
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Table);
 		writer.Write(Clusters, writer.Write);
@@ -52,7 +52,7 @@ public class TableStampPpc : McvPpc<TableStampPpr>, IBinarySerializable
 
 }
 
-public class TableStampPpr : Result, IBinarySerializable
+public class TableStampPpr : Result
 {
 	public class Bucket
 	{
@@ -68,7 +68,7 @@ public class TableStampPpr : Result, IBinarySerializable
 
 	public Cluster[]	Clusters { get; set; }
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Clusters, i =>	{
 										writer.Write(i.Id);
@@ -79,7 +79,7 @@ public class TableStampPpr : Result, IBinarySerializable
 									});
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Clusters = reader.ReadArray(() =>	new Cluster
 											{

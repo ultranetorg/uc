@@ -2,12 +2,16 @@
 
 namespace Uccs.Net;
 
-public abstract class Argumentation : ITypeCode
+public abstract class Argumentation : ITypeCode, IBinarySerializable
 {
+	public abstract void Read(Reader reader);
+	public abstract void Write(Writer writer);
 }
 
-public abstract class Result : ITypeCode
+public abstract class Result : ITypeCode, IBinarySerializable
 {
+	public abstract void Read(Reader reader);
+	public abstract void Write(Writer writer);
 }
 
 public abstract class LcpPacket

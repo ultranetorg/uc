@@ -1,6 +1,7 @@
-﻿namespace Uccs.Fair;
+﻿
+namespace Uccs.Fair;
 
-public class CategoryCategoriesPpc : FairPpc<CategoryCategoriesPPr>
+public class CategoryCategoriesPpc : FairPpc<CategoryCategoriesPpr>
 {
 	public AutoId		Category {get; set;}
 
@@ -22,11 +23,31 @@ public class CategoryCategoriesPpc : FairPpc<CategoryCategoriesPPr>
 		if(e == null)
 			throw new EntityException(EntityError.NotFound);
 			
-		return new CategoryCategoriesPPr {Categories = e.Categories};
+		return new CategoryCategoriesPpr {Categories = e.Categories};
+	}
+
+	public override void Read(Reader reader)
+	{
+		Category = reader.Read<AutoId>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Category);
 	}
 }
 
-public class CategoryCategoriesPPr : Result
+public class CategoryCategoriesPpr : Result
 {
 	public AutoId[] Categories {get; set;}
+
+	public override void Read(Reader reader)
+	{
+		Categories = reader.ReadArray<AutoId>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Categories);
+	}
 }

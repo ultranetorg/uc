@@ -19,9 +19,6 @@ public class UtilityTransfer : Operation
 
 	public UtilityTransfer(byte fromtable, AutoId from, byte totable, AutoId to, long energy, long energynext, long spacetime)
 	{
-		if(to == null)
-			throw new RequirementException("Destination account is null or invalid");
-
 		From		= new (fromtable, from);
 		To			= new (totable, to);
 

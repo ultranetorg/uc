@@ -7,9 +7,6 @@ public class StampPpc : McvPpc<StampPpr>
 		lock(Mcv.Lock)
 		{
 			RequireGraph();
-			
-			//if(Mcv.GraphState == null)
-			//	throw new NodeException(NodeError.TooEearly);
 
 			var r = new StampPpr
 					{
@@ -27,12 +24,21 @@ public class StampPpc : McvPpc<StampPpr>
 																												}).ToArray()
 																		 }).ToArray()
 					};
+
 			return r;
 		}
 	}
+
+	public override void Read(Reader reader)
+	{
+	}
+
+	public override void Write(Writer writer)
+	{
+	}
 }
 
-public class StampPpr : Result, IBinarySerializable
+public class StampPpr : Result
 {
 	public class Cluster
 	{
@@ -52,7 +58,7 @@ public class StampPpr : Result, IBinarySerializable
 	public byte[]		LastCommitedRoundHash { get; set; }
 	public Table[]		Tables { get; set; }
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteBytes(GraphState);
 		writer.Write(GraphHash);
@@ -67,7 +73,7 @@ public class StampPpr : Result, IBinarySerializable
 									});
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		GraphState				= reader.ReadBytes();
 		GraphHash				= reader.ReadHash();

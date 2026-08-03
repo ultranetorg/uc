@@ -2,7 +2,7 @@
 
 namespace Uccs.Net;
 
-public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>, IBinarySerializable
+public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>
 {
 	public const int	SizeMaximum = 512 * 1024;
 	
@@ -36,20 +36,20 @@ public class DownloadRoundsPpc : McvPpc<DownloadRoundsPpr>, IBinarySerializable
 		}
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(From);
 		writer.Write7BitEncodedInt(SizeLimit);
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		From		= reader.Read7BitEncodedInt();
 		SizeLimit	= reader.Read7BitEncodedInt();
 	}
 }
 
-public class DownloadRoundsPpr : Result, IBinarySerializable
+public class DownloadRoundsPpr : Result
 {
 	public int			LastNonEmptyRound { get; set; }
 	public int			LastConfirmedRound { get; set; }
@@ -68,7 +68,7 @@ public class DownloadRoundsPpr : Result, IBinarySerializable
 										})];
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		LastNonEmptyRound	= reader.Read7BitEncodedInt();
 		LastConfirmedRound	= reader.Read7BitEncodedInt();
@@ -76,7 +76,7 @@ public class DownloadRoundsPpr : Result, IBinarySerializable
 		Rounds				= reader.ReadArray(() => reader.ReadBytes());
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(LastNonEmptyRound);
 		writer.Write7BitEncodedInt(LastConfirmedRound);

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public class DeclareReleasePpc : RdnPpc<DeclareReleasePpr>, IBinarySerializable
+public class DeclareReleasePpc : RdnPpc<DeclareReleasePpr>
 {
 	public ResourceDeclaration[]	Resources { get; set; }
 
@@ -13,12 +13,12 @@ public class DeclareReleasePpc : RdnPpc<DeclareReleasePpr>, IBinarySerializable
 			return new DeclareReleasePpr {Results = Node.SeedHub.ProcessIncoming(Peer.EP, Resources).ToArray()};
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Resources = reader.ReadArray<ResourceDeclaration>();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Resources);
 	}
@@ -57,16 +57,16 @@ public class ReleaseDeclarationResult : IBinarySerializable
 	}
 }
 
-public class DeclareReleasePpr : Result, IBinarySerializable
+public class DeclareReleasePpr : Result
 {
 	public ReleaseDeclarationResult[]	Results { get; set; }
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Results = reader.ReadArray<ReleaseDeclarationResult>();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Results);
 	}

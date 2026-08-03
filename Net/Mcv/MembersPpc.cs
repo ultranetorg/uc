@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class MembersPpc : McvPpc<MembersPpr>, IBinarySerializable
+public class MembersPpc : McvPpc<MembersPpr>
 {
 	public override Result Execute()
 	{
@@ -15,25 +15,25 @@ public class MembersPpc : McvPpc<MembersPpr>, IBinarySerializable
 		}
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 	}
 }
 
-public class MembersPpr : Result, IBinarySerializable 
+public class MembersPpr : Result 
 {
 	public Generator[] Members { get; set; }
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Members = reader.ReadArray(() => {var g = new Generator(); g.ReadBase(reader); return g;});
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Members, i => i.WriteBase(writer));
 	}

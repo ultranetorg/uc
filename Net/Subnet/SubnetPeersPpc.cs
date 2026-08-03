@@ -1,4 +1,5 @@
-﻿namespace Uccs.Net;
+﻿
+namespace Uccs.Net;
 
 public class SubnetPeersPpc : McvPpc<SubnetPeersPpr>
 {
@@ -18,9 +19,29 @@ public class SubnetPeersPpc : McvPpc<SubnetPeersPpr>
 
 		return new SubnetPeersPpr {Endpoints = f.Peers};
 	}
+
+	public override void Read(Reader reader)
+	{
+		Name = reader.ReadASCII();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteASCII(Name);
+	}
 }
 
 public class SubnetPeersPpr : Result
 {
 	public Endpoint[] Endpoints { get; set; }
+
+	public override void Read(Reader reader)
+	{
+		Endpoints = reader.ReadArray<Endpoint>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Endpoints);
+	}
 }

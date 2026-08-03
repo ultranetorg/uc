@@ -52,18 +52,17 @@ public class IccpEntityAddress
 	public static byte[] ToBytes(byte table, EntityId id) => [table, ..id.Raw];
 }
 
-public abstract class IccpArgumentation : Argumentation, IBinarySerializable
+public abstract class IccpArgumentation : Argumentation
 {
-	public virtual void Read(Reader reader){}
-	public virtual void Write(Writer writer){}
+	public override void Read(Reader reader){}
+	public override void Write(Writer writer){}
 }
 
-public abstract class IccpResult : Result, IBinarySerializable
+public abstract class IccpResult : Result
 {
-	public abstract void Read(Reader reader);
-	public abstract void Write(Writer writer);
+	public override void Read(Reader reader){}
+	public override void Write(Writer writer){}
 }
-
 
 public class PeersIcca : IccpArgumentation
 {

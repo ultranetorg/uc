@@ -17,7 +17,7 @@ public class HomoRequestPacket: RequestPacket
 	public PeerRequest				Request { get ; set; }
 }
 
-public abstract class PeerRequest : ITypeCode
+public abstract class PeerRequest : Argumentation
 {
 	public HomoPeer			Peer;
 	public HomoPeering		Peering;

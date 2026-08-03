@@ -2,7 +2,7 @@
 
 namespace Uccs.Fair;
 
-public class UserAuthorsPpc : McvPpc<UserAuthorsPpr>, IBinarySerializable
+public class UserAuthorsPpc : McvPpc<UserAuthorsPpr>
 {
 	public AutoId		User {get; set;}
 
@@ -27,27 +27,27 @@ public class UserAuthorsPpc : McvPpc<UserAuthorsPpr>, IBinarySerializable
 		return new UserAuthorsPpr {Authors = e.Authors.ToArray()};
 	}
 
-	public void Write(Writer writer)
-	{
+	public override void Write(Writer writer)
+	{	
 		writer.Write(User);
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		User = reader.Read<AutoId>();
 	}
 }
 
-public class UserAuthorsPpr : Result, IBinarySerializable
+public class UserAuthorsPpr : Result
 {
 	public AutoId[] Authors {get; set;}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Authors = reader.ReadArray<AutoId>();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Authors);
 	}

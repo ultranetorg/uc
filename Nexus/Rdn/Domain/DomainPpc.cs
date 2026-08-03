@@ -1,52 +1,99 @@
 ﻿namespace Uccs.Rdn;
 
-public class DomainPpc : RdnPpc<DomainPpr>
+public class DomainByIdPpc : RdnPpc<DomainByIdPpr>
 {
-	public DomainIdentifier	Identifier { get; set; }
+	public AutoId	Id { get; set; }
 
-	public DomainPpc()
+	public DomainByIdPpc()
 	{
 	}
 
-	public DomainPpc(DomainIdentifier identifier)
+	public DomainByIdPpc(AutoId id)
 	{
-		Identifier = identifier;
-	}
-
-	public DomainPpc(string addres)
-	{
-		Identifier = new(addres);
-	}
-
-	public DomainPpc(AutoId id)
-	{
-		Identifier = new(id);
+		Id = id;
 	}
 
 	public override Result Execute()
 	{
-		if(Identifier.Addres != null && !Domain.IsAddressValid(Identifier.Addres))	
-			throw new RequestException(RequestError.IncorrectRequest);
-
-		RequireGraph();
-
-		Domain e;
-
-		if(Identifier.Addres != null)
-			e = Mcv.Domains.Latest(Identifier.Addres);
-		else if(Identifier.Id != null)
-			e = Mcv.Domains.Latest(Identifier.Id);
-		else
-			throw new RequestException(RequestError.IncorrectRequest);
+		var	r = Mcv.Domains.Latest(Id)
+				??
+				throw new EntityException(EntityError.NotFound);
 			
-		if(e == null)
-			throw new EntityException(EntityError.NotFound);
-			
-		return new DomainPpr {Domain = e};
+		return new DomainByIdPpr {Domain = r};
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Id);
+	}
+
+	public override void Read(Reader reader)
+	{
+		Id = reader.Read<AutoId>();
 	}
 }
-
-public class DomainPpr : Result
+	
+public class DomainByIdPpr : Result
 {
-	public Domain	Domain {get; set;}
+	public Domain Domain { get; set; }
+
+	public override void Read(Reader reader)
+	{
+		Domain = reader.Read<Domain>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Domain);
+	}
+
 }
+
+public class DomainByAddressPpc : RdnPpc<DomainByAddressPpr>
+{
+	public string		Address { get; set; }
+
+	public DomainByAddressPpc()
+	{
+	}
+
+	public DomainByAddressPpc(string address)
+	{
+		Address = address;
+	}
+
+	public override Result Execute()
+	{
+		var	r = Mcv.Domains.Latest(Address)
+				??
+				throw new EntityException(EntityError.NotFound);
+			
+		return new DomainByAddressPpr {Domain = r};
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteASCII(Address);
+	}
+
+	public override void Read(Reader reader)
+	{
+		Address = reader.ReadASCII();
+	}
+}
+	
+public class DomainByAddressPpr : Result
+{
+	public Domain Domain { get; set; }
+
+	public override void Read(Reader reader)
+	{
+		Domain = reader.Read<Domain>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Domain);
+	}
+}
+	

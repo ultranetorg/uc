@@ -5,8 +5,8 @@ namespace Uccs.Rdn;
 public enum RdnPpcClass : uint
 {
 	None = 0, 
-	Domain = McvPpcClass._Last + 1, 
-	RdnMembers,
+	RdnMembers = McvPpcClass._Last + 1, 
+	DomainByAddress, DomainById,
 	ResourceByAddress, ResourceById, QueryResource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease
 }
 

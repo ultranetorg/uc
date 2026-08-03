@@ -188,10 +188,10 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		var f = Flow.CreateNested(args.Timeout);
 		
 		var r = new Reader(new MemoryStream(args.Request), Node.Peering.Constructor);
-		var rq = BinarySerializator.Deserialize<PeerRequest>(r);
+		var rq = r.ReadVirtual<PeerRequest>();
 		
 		var w = new Writer(new MemoryStream(), Node.Peering.Constructor);
-		BinarySerializator.Serialize(w, Node.Peering.Call(rq, f, null));
+		w.WriteVirtual(Node.Peering.Call(rq, f, null));
 
 		return new RequestIccr {Response = (w.BaseStream as MemoryStream).ToArray()};
 	}

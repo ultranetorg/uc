@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>, IBinarySerializable
+public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>
 {
 	public AutoId	Id { get; set; }
 
@@ -22,38 +22,37 @@ public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>, IBinarySerializable
 		return new ResourceByIdPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Id);
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Id = reader.Read<AutoId>();
 	}
 }
 	
-public class ResourceByIdPpr : Result, IBinarySerializable
+public class ResourceByIdPpr : Result
 {
 	public Resource Resource { get; set; }
 	public Ura		Address { get; set; }
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Address = reader.Read<Ura>();
 		Resource = reader.Read<Resource>();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Address);
 		writer.Write(Resource);
 	}
 
 }
-	
 
-public class ResourceByAddressPpc : RdnPpc<ResourceByAddressPpr>, IBinarySerializable
+public class ResourceByAddressPpc : RdnPpc<ResourceByAddressPpr>
 {
 	public Ura		Address { get; set; }
 
@@ -75,27 +74,27 @@ public class ResourceByAddressPpc : RdnPpc<ResourceByAddressPpr>, IBinarySeriali
 		return new ResourceByAddressPpr {Resource = r};
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Address);
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Address = reader.Read<Ura>();
 	}
 }
 	
-public class ResourceByAddressPpr : Result, IBinarySerializable
+public class ResourceByAddressPpr : Result
 {
 	public Resource Resource { get; set; }
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Resource = reader.Read<Resource>();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Resource);
 	}

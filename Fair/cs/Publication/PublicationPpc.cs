@@ -27,9 +27,29 @@ public class PublicationPpc : FairPpc<PublicationPpr>
 			
 		return new PublicationPpr {Publication = e};
 	}
+
+	public override void Read(Reader reader)
+	{
+		Id = reader.Read<AutoId>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Id);
+	}
 }
 
 public class PublicationPpr : Result
 {
 	public Publication	Publication {get; set;}
+
+	public override void Read(Reader reader)
+	{
+		Publication = reader.Read<Publication>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Publication);
+	}
 }

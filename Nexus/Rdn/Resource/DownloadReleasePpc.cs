@@ -25,9 +25,36 @@ public class DownloadReleasePpc : RdnPpc<DownloadReleasePpr>
 			return new DownloadReleasePpr {Data = r.Find(File ?? "").Read(Offset, Length)};
 		}
 	}
+
+	public override void Read(Reader reader)
+	{
+		Address = reader.ReadVirtual<Urr>();
+		File	= reader.ReadUtf8();
+		Offset	= reader.Read7BitEncodedInt64();
+		Length	= reader.Read7BitEncodedInt64();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteVirtual(Address);
+		writer.WriteUtf8(File);
+		writer.Write7BitEncodedInt64(Offset);
+		writer.Write7BitEncodedInt64(Length);
+	}
+
 }
 
 public class DownloadReleasePpr : Result
 {
 	public byte[] Data { get; set; }
+
+	public override void Read(Reader reader)
+	{
+		Data = reader.ReadBytes();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteBytes(Data);
+	}
 }

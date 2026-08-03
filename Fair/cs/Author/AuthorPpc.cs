@@ -27,11 +27,31 @@ public class AuthorPpc : FairPpc<AuthorPpr>
 			
 		return new AuthorPpr {Author = e};
 	}
+
+	public override void Read(Reader reader)
+	{
+		Id = reader.Read<AutoId>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Id);
+	}
 }
 
 public class AuthorPpr : Result
 {
 	public Author	Author {get; set;}
+
+	public override void Read(Reader reader)
+	{
+		Author = reader.Read<Author>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Author);
+	}
 }
 
 public class AuthorByNamePpc : FairPpc<AuthorByNamePpr>
@@ -66,9 +86,29 @@ public class AuthorByNamePpc : FairPpc<AuthorByNamePpr>
 			
 		return new AuthorPpr {Author = a};
 	}
+
+	public override void Read(Reader reader)
+	{
+		Name = reader.ReadASCII();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.WriteASCII(Name);
+	}
 }
 
 public class AuthorByNamePpr : Result
 {
 	public Author	Author {get; set;}
+
+	public override void Read(Reader reader)
+	{
+		Author = reader.Read<Author>();
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Author);
+	}
 }

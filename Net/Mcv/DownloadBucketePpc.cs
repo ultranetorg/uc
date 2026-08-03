@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class DownloadBucketPpc : McvPpc<DownloadBucketPpr>, IBinarySerializable
+public class DownloadBucketPpc : McvPpc<DownloadBucketPpr>
 {
 	public byte		Table { get; set; }
 	public byte[]	Hash { get; set; }
@@ -27,14 +27,14 @@ public class DownloadBucketPpc : McvPpc<DownloadBucketPpr>, IBinarySerializable
 		}
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Table = reader.ReadByte();
 		Hash =  reader.ReadHash();
 		Bucket = reader.Read7BitEncodedInt();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Table);
 		writer.Write(Hash);
@@ -43,16 +43,16 @@ public class DownloadBucketPpc : McvPpc<DownloadBucketPpr>, IBinarySerializable
 
 }
 	
-public class DownloadBucketPpr : Result, IBinarySerializable
+public class DownloadBucketPpr : Result
 {
 	public byte[] Main { get; set; }
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Main = reader.ReadBytes();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteBytes(Main);
 	}

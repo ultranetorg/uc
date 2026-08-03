@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class FairUserByIdPpc : McvPpc<FairUserByIdPpr>, IBinarySerializable
+public class FairUserByIdPpc : McvPpc<FairUserByIdPpr>
 {
 	public AutoId	Id {get; set;}
 
@@ -24,33 +24,33 @@ public class FairUserByIdPpc : McvPpc<FairUserByIdPpr>, IBinarySerializable
 		return new FairUserByIdPpr {User = u};
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Id);
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Id = reader.Read<AutoId>();
 	}
 }
 
-public class FairUserByIdPpr : Result, IBinarySerializable
+public class FairUserByIdPpr : Result
 {
 	public FairUser User {get; set;}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		User = reader.Read<FairUser>();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{	
 		writer.Write(User);
 	}
 }
 
-public class FairUserByNamePpc : McvPpc<FairUserByNamePpr>, IBinarySerializable
+public class FairUserByNamePpc : McvPpc<FairUserByNamePpr>
 {
 	public string	Name {get; set;}
 
@@ -74,27 +74,27 @@ public class FairUserByNamePpc : McvPpc<FairUserByNamePpr>, IBinarySerializable
 		return new FairUserByNamePpr {User = u};
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.WriteASCII(Name);
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Name = reader.ReadASCII();
 	}
 }
 
-public class FairUserByNamePpr : Result, IBinarySerializable
+public class FairUserByNamePpr : Result
 {
 	public FairUser User {get; set;}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		User = reader.Read<FairUser>();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(User);
 	}

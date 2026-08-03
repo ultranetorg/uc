@@ -1,4 +1,5 @@
-﻿namespace Uccs.Net;
+﻿
+namespace Uccs.Net;
 
 public class VotePpc : PeerRequest
 {
@@ -42,5 +43,16 @@ public class VotePpc : PeerRequest
 				p.Statistics.RejectedVotes++;
 
 		return null;
+	}
+
+	public override void Read(Reader reader)
+	{
+		Vote = reader.Constructor.Construct(typeof(Vote), 0) as Vote;
+		Vote.Read(reader);
+	}
+
+	public override void Write(Writer writer)
+	{
+		writer.Write(Vote);
 	}
 }

@@ -77,45 +77,45 @@ public class CategoryCommand : FairCommand
 	//	return a;
 	//}
 
-	public CommandAction ListPublications_LP()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Description = "Get publications of the specified category";
-		a.Arguments = [IdArgument("category to get publications of")];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.PpcTimeout);
-				
-								var rp = Ppc(new CategoryPublicationsPpc(Id));
-
-								Flow.Log.DumpFixed(	rp.Publications.Select(i => Ppc(new PublicationPpc(i)).Publication), 
-													["Id",		"Product",		"Category"], 
-													[i => i.Id, i => i.Product, i => i.Category]);
-					
-								return rp.Publications;
-							};
-		return a;
-	}
-
-	public CommandAction ListCategories_LC()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Description = "Get subcategories of the specified category";
-		a.Arguments = [IdArgument("category to get subcategories from")];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.PpcTimeout);
-				
-								var rp = Ppc(new CategoryCategoriesPpc(Id));
-
-								Flow.Log.DumpFixed(	rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category),
-													["Id",		"Title",		"Categories"], 
-													[i => i.Id, i => i.Title,	i => i.Categories?.Length]);
-					
-								return rp.Categories;
-							};
-		return a;
-	}
+	//public CommandAction ListPublications_LP()
+	//{
+	//	var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+	//
+	//	a.Description = "Get publications of the specified category";
+	//	a.Arguments = [IdArgument("category to get publications of")];
+	//
+	//	a.Execute = () =>	{
+	//							Flow.CancelAfter(Cli.Settings.PpcTimeout);
+	//			
+	//							var rp = Ppc(new CategoryPublicationsPpc(Id));
+	//
+	//							Flow.Log.DumpFixed(	rp.Publications.Select(i => Ppc(new PublicationPpc(i)).Publication), 
+	//												["Id",		"Product",		"Category"], 
+	//												[i => i.Id, i => i.Product, i => i.Category]);
+	//				
+	//							return rp.Publications;
+	//						};
+	//	return a;
+	//}
+	//
+	//public CommandAction ListCategories_LC()
+	//{
+	//	var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+	//
+	//	a.Description = "Get subcategories of the specified category";
+	//	a.Arguments = [IdArgument("category to get subcategories from")];
+	//
+	//	a.Execute = () =>	{
+	//							Flow.CancelAfter(Cli.Settings.PpcTimeout);
+	//			
+	//							var rp = Ppc(new CategoryCategoriesPpc(Id));
+	//
+	//							Flow.Log.DumpFixed(	rp.Categories.Select(i => Ppc(new CategoryPpc(i)).Category),
+	//												["Id",		"Title",		"Categories"], 
+	//												[i => i.Id, i => i.Title,	i => i.Categories?.Length]);
+	//				
+	//							return rp.Categories;
+	//						};
+	//	return a;
+	//}
 }

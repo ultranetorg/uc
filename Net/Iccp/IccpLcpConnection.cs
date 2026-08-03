@@ -277,7 +277,7 @@ public class IccpLcpClientConnection : IccpLcpConnection
 		var s = new MemoryStream();
 		var w = new Writer(s, Iccp.Constructor);
 
-		BinarySerializator.Serialize(w, request);
+		w.WriteVirtual(request);
 
 		var rp = Call(	from,
 						to,
@@ -291,6 +291,6 @@ public class IccpLcpClientConnection : IccpLcpConnection
 		
 		var r = new Reader(new MemoryStream(rp.Response), Iccp.Constructor);
 		
-		return BinarySerializator.Deserialize<Result>(r);
+		return r.ReadVirtual<Result>();// BinarySerializator.Deserialize<Result>(r);
 	}
 }

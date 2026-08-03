@@ -18,10 +18,22 @@ public enum Role : long
 	Chain		= 0b00000010,
 }
 
-public class TransactionResult
+public class TransactionResult : IBinarySerializable
 {
 	public byte[]	Tag { set; get; }
 	public string	Error { set; get; }
+
+	public void Read(Reader reader)
+	{
+		Tag = reader.ReadBytes();
+		Error = reader.ReadASCII();
+	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteBytes(Tag);
+		writer.WriteASCII(Error);
+	}
 }
 
 public abstract class McvPeering : HomoPeering

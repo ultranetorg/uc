@@ -124,12 +124,6 @@ public class Nexus : IProgram
 
 	public void RunApi()
 	{
-		if(!HttpListener.IsSupported)
-		{
-			Environment.ExitCode = -1;
-			throw new RequirementException("Windows XP SP2, Windows Server 2003 or higher is required to use the application.");
-		}
-
 		if(ApiServer != null)
 			throw new NodeException(NodeError.AlreadyRunning);
 

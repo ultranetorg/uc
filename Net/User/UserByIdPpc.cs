@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class UserByIdPpc : McvPpc<UserByIdPpr>, IBinarySerializable
+public class UserByIdPpc : McvPpc<UserByIdPpr>
 {
 	public AutoId	Id {get; set;}
 
@@ -24,27 +24,27 @@ public class UserByIdPpc : McvPpc<UserByIdPpr>, IBinarySerializable
 		return new UserByIdPpr {User = u};
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Id);
 	}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		Id = reader.Read<AutoId>();
 	}
 }
 
-public class UserByIdPpr : Result, IBinarySerializable
+public class UserByIdPpr : Result
 {
 	public User User {get; set;}
 
-	public void Read(Reader reader)
+	public override void Read(Reader reader)
 	{
 		User = reader.Read<User>();
 	}
 
-	public void Write(Writer writer)
+	public override void Write(Writer writer)
 	{	
 		writer.Write(User);
 	}
