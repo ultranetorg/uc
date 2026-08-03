@@ -15,6 +15,7 @@ import {
   Policy,
   ProductAuthor,
   ProductDetails,
+  ProductPublication,
   ProductSearchResult,
   ProductSearchResultBase,
   ProductStore,
@@ -379,6 +380,16 @@ const getProductStores = async (
   return await toTotalItemsResult(res)
 }
 
+const getProductPublications = async (
+  productId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<ProductPublication>> => {
+  const params = buildUrlParams({ page, pageSize }, { pageSize: x => x !== 10, page: x => !!x && x > 0 })
+  const res = await fetch(`${BASE_URL}/products/${productId}/publications` + params)
+  return await toTotalItemsResult(res)
+}
+
 const getPublicationDetailsDiff = (publicationId: string, version: number): Promise<PublicationDetailsDiff> =>
   fetch(`${BASE_URL}/publications/${publicationId}/diff?to=${version}`).then(res => res.json())
 
@@ -513,6 +524,7 @@ const api: FairApi = {
 
   getProductDetails,
   getProductStores,
+  getProductPublications,
 
   getPublicationDetailsDiff,
   getModeratorProposals,

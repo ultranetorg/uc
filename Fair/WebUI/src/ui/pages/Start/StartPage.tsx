@@ -1,14 +1,19 @@
-import { KeyboardEvent, useCallback, useMemo, useState } from "react"
+import { KeyboardEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
 import { SEARCH_DELAY } from "config"
-import { useSearchLiteProducts, useSearchPaginatedProducts } from "entities"
+import { useGetProductPublications, useSearchLiteProducts, useSearchPaginatedProducts } from "entities"
 import { useStoreTitle, useUrlParamsState } from "hooks"
+import { ProductPublication } from "types"
 import { NextPagination, MultilineText, SearchDropdown, SearchDropdownItem } from "ui/components"
 import { ProductsGrid, ProductsGridEmpty, ProductsGridItem } from "ui/components/specific"
 import { routes } from "utils"
+
+import { CategoryDropdown } from "./CategoryDropdown"
+
+const PUBLICATIONS_PAGE_SIZE = 10
 
 export const StartPage = () => {
   const { t } = useTranslation("startPage")
@@ -26,6 +31,8 @@ export const StartPage = () => {
   const [query, setQuery] = useState(state.query)
   const [liteQuery, setLiteQuery] = useState("")
   const [debouncedLiteQuery] = useDebounceValue(liteQuery, SEARCH_DELAY)
+  const [clickedProductId, setClickedProductId] = useState<string | undefined>()
+  const [additionalPublications, setAdditionalPublications] = useState<Record<string, ProductPublication[]>>({})
 
   const { data: search, isPending: isSearchPending } = useSearchLiteProducts(debouncedLiteQuery)
   const searchItems = useMemo(() => search?.map(x => ({ value: x.publicationId, label: x.productTitle })), [search])
@@ -40,14 +47,22 @@ export const StartPage = () => {
   } = useSearchPaginatedProducts(query)
   const productsItems = useMemo<ProductsGridItem[]>(
     () =>
-      products.map<ProductsGridItem>(x => ({
-        publicationId: x.publicationId,
-        productTitle: x.productTitle,
-        authorTitle: x.authorTitle,
-        avatarId: x.avatarId,
-      })),
-    [products],
+      products.map<ProductsGridItem>(x => {
+        const additional = additionalPublications[x.productId] ?? []
+
+        return {
+          productId: x.productId,
+          publicationId: x.publicationId,
+          productTitle: x.productTitle,
+          authorTitle: x.authorTitle,
+          avatarId: x.avatarId,
+          storesRatings: [...x.publications, ...additional],
+          hasMorePublications: additional.length > 0 ? false : x.hasMorePublications,
+        }
+      }),
+    [products, additionalPublications],
   )
+  const { data: productPublications } = useGetProductPublications(clickedProductId, 1, PUBLICATIONS_PAGE_SIZE)
 
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
@@ -89,6 +104,14 @@ export const StartPage = () => {
     [query, setState, onPaginationPageChange],
   )
 
+  const handleShowAllClick = useCallback((productId: string) => setClickedProductId(productId), [])
+
+  useEffect(() => {
+    if (!clickedProductId || !productPublications) return
+
+    setAdditionalPublications(prev => ({ ...prev, [clickedProductId]: productPublications.items }))
+  }, [clickedProductId, productPublications])
+
   return (
     <div className="flex flex-col items-center gap-12 py-8">
       <div className="flex flex-col gap-4 text-center">
@@ -99,20 +122,31 @@ export const StartPage = () => {
           <MultilineText>{t("description")}</MultilineText>
         </h5>
       </div>
-      <SearchDropdown
-        className="w-full max-w-[820px]"
-        isLoading={isSearchPending}
-        inputValue={state.query}
-        items={searchItems}
-        noticeMessage={t("notice")}
-        placeholder={t("placeholder")}
-        onChange={handleChange}
-        onClearInputClick={handleClearInputClick}
-        onInputChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onSearchClick={handleSearchClick}
-      />
-      <ProductsGrid items={productsItems} />
+      <div className="flex w-full max-w-[780px] items-center gap-6">
+        {/* <CategoryDropdown
+          items={[
+            { label: "Products", value: "products" },
+            { label: "Stores", value: "stores" },
+          ]}
+          defaultValue="products"
+          className="w-25 shrink-0"
+        /> */}
+        <SearchDropdown
+          className="flex-1"
+          isLoading={isSearchPending}
+          inputValue={state.query}
+          items={searchItems}
+          noticeMessage={t("notice")}
+          placeholder={t("placeholder")}
+          onChange={handleChange}
+          onClearInputClick={handleClearInputClick}
+          onInputChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onSearchClick={handleSearchClick}
+        />
+        {/* <ButtonPrimary label="Search" className="h-13 w-36" /> */}
+      </div>
+      <ProductsGrid items={productsItems} onShowAllClick={handleShowAllClick} />
       {query && (
         <>
           {loadedPagesCount > 0 ? (
