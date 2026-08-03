@@ -2,5 +2,7 @@
 
 public class ProductSearchResultModel : ProductSearchResultBaseModel
 {
-	public IEnumerable<StorePublicationModel> StoresPublications { get; set; }
+	public IEnumerable<ProductPublicationModel> Publications { get; set; }
+
+	public bool HasMorePublications { get; set; }
 }

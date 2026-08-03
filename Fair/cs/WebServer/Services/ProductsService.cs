@@ -198,28 +198,54 @@ public class ProductsService
 			};
 
 			if (model is ProductSearchResultModel full)
-				full.StoresPublications = LoadStorePublications(item.Publications, cancellationToken).ToArray();
+			{
+				var publications = item.Publications.Take(SearchConstants.PublicationsPerProductLimit);
+				full.Publications = LoadPublications(publications, cancellationToken).ToArray();
+				full.HasMorePublications = item.Publications.Length > SearchConstants.PublicationsPerProductLimit;
+			}
 
 			yield return model;
 		}
 	}
 
-	IEnumerable<StorePublicationModel> LoadStorePublications(IEnumerable<AutoId> publicationsIds, CancellationToken cancellationToken)
+	IEnumerable<ProductPublicationModel> LoadPublications(IEnumerable<AutoId> publicationsIds, CancellationToken cancellationToken)
 	{
 		foreach(var publicationId in publicationsIds)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				yield break;
 
-
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Store store = mcv.Stores.Latest(publication.Store);
-			yield return new StorePublicationModel
+			yield return new ProductPublicationModel
 			{
+				PublicationId = publication.Id.ToString(),
 				StoreId = store.Id.ToString(),
 				StoreTitle = store.Title,
-				PublicationId = publication.Id.ToString()
+				Rating = publication.Rating,
 			};
 		}
+	}
+
+	public TotalItemsResult<ProductPublicationModel> GetProductPublications(string productId, int page, int pageSize, CancellationToken cancellationToken)
+	{
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductPublicationModel), productId, page, pageSize);
+
+		Guard.Against.NullOrEmpty(productId);
+		Guard.Against.Negative(page);
+		Guard.Against.NegativeOrZero(pageSize);
+
+		AutoId id = AutoId.Parse(productId);
+
+		Product product = mcv.Products.Latest(id);
+		if(product == null)
+		{
+			throw new EntityNotFoundException(nameof(Product).ToLower(), productId);
+		}
+
+		IEnumerable<AutoId> publicationsIds = product.Publications.Skip(page * pageSize).Take(pageSize);
+		IEnumerable<ProductPublicationModel> publications = LoadPublications(publicationsIds, cancellationToken);
+
+		return new TotalItemsResult<ProductPublicationModel> { Items = publications, TotalItems = product.Publications.Length };
 	}
 }

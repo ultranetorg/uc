@@ -24,6 +24,20 @@ public class ProductsController
 		return productsService.Search(query, page, pageSize, cancellationToken);
 	}
 
+	[HttpGet("{productId}/publications")]
+	public IEnumerable<ProductPublicationModel> GetProductPublications(string productId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	{
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(GetProductPublications), productId, pagination);
+
+		autoIdValidator.Validate(productId, nameof(Product).ToLower());
+		paginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		var result = productsService.GetProductPublications(productId, page, pageSize, cancellationToken);
+
+		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
+	}
+
 	[HttpGet("search")]
 	public IEnumerable<ProductSearchResultBaseModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
