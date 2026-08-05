@@ -7,30 +7,35 @@ export type CategoryTreeItem = {
   active?: boolean
 }
 
-export const buildCategoryPathItems = (category: Category): CategoryTreeItem[] => {
+export const buildCategoryPathItems = (category: Category, siblings?: CategoryBase[]): CategoryTreeItem[] => {
   const ancestors = category.path ?? []
+  const ancestorItems = ancestors.map((item, index) => ({ id: item.id, title: item.title, depth: index }))
+
+  if (category.categories.length > 0) {
+    return [
+      ...ancestorItems,
+      { id: category.id, title: category.title, depth: ancestors.length, active: true },
+      ...category.categories.map(item => ({ id: item.id, title: item.title, depth: ancestors.length + 1 })),
+    ]
+  }
+
+  // Category has no children of its own: keep its siblings visible and highlight it among them,
+  // instead of collapsing the level down to a single active leaf.
+  const levelItems = siblings && siblings.length > 0 ? siblings : [category]
 
   return [
-    ...ancestors.map((item, index) => ({ id: item.id, title: item.title, depth: index })),
-    { id: category.id, title: category.title, depth: ancestors.length, active: true },
-    ...category.categories.map(item => ({ id: item.id, title: item.title, depth: ancestors.length + 1 })),
+    ...ancestorItems,
+    ...levelItems.map(item => ({
+      id: item.id,
+      title: item.title,
+      depth: ancestors.length,
+      active: item.id === category.id,
+    })),
   ]
 }
 
 export const buildRootCategoryItems = (categories: CategoryBase[]): CategoryTreeItem[] =>
   categories.map(item => ({ id: item.id, title: item.title, depth: 0 }))
-
-export const buildCategoryTreeItems = (rootCategories: CategoryBase[], category: Category): CategoryTreeItem[] => {
-  const pathItems = buildCategoryPathItems(category)
-  const activeRootId = category.path?.[0]?.id ?? category.id
-  const hasActiveRoot = rootCategories.some(item => item.id === activeRootId)
-
-  const items = rootCategories.flatMap(item =>
-    item.id === activeRootId ? pathItems : [{ id: item.id, title: item.title, depth: 0 }],
-  )
-
-  return hasActiveRoot ? items : [...items, ...pathItems]
-}
 
 export const buildCategoryTree = (categories: CategoryParentBase[]): CategoryParentBaseWithChildren[] => {
   const map = new Map<string, CategoryParentBaseWithChildren>()

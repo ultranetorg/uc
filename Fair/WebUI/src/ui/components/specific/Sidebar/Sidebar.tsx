@@ -10,7 +10,7 @@ import { useParams } from "hooks"
 import { FavoriteStoreChange, PropsWithClassName, StoreBase } from "types"
 import { CategoryTree, StoresList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"
-import { buildCategoryTreeItems, buildRootCategoryItems, routes, showToast } from "utils"
+import { buildCategoryPathItems, buildRootCategoryItems, routes, showToast } from "utils"
 
 import { AllStoresButton } from "./components"
 
@@ -20,6 +20,20 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const { categoryId } = useParams<{ categoryId?: string }>()
   const { store, rootCategories } = useStoreContext()
   const { data: category } = useGetCategoryDetails(categoryId)
+
+  const isLeafCategory = !!category && category.categories.length === 0
+  const hasAncestors = !!category && (category.path?.length ?? 0) > 0
+  const { data: parentCategory } = useGetCategoryDetails(
+    isLeafCategory && hasAncestors ? category!.parentId : undefined,
+  )
+
+  const categorySiblings = !category
+    ? undefined
+    : isLeafCategory
+      ? hasAncestors
+        ? parentCategory?.categories
+        : rootCategories
+      : undefined
   const { user, refetch } = useUserContext()
   const [showPending, setShowPending] = useState(false)
   const [disabledIds, setDisabledIds] = useState<string[]>([])
@@ -74,15 +88,11 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
             disabledIds={disabledIds}
           />
         )}
-        {store && rootCategories && rootCategories.length > 0 && (
-          <CategoryTree
-            storeId={store.id}
-            items={
-              categoryId && category
-                ? buildCategoryTreeItems(rootCategories, category)
-                : buildRootCategoryItems(rootCategories)
-            }
-          />
+        {store && categoryId && category && (
+          <CategoryTree storeId={store.id} items={buildCategoryPathItems(category, categorySiblings)} />
+        )}
+        {store && !categoryId && rootCategories && rootCategories.length > 0 && (
+          <CategoryTree storeId={store.id} items={buildRootCategoryItems(rootCategories)} />
         )}
         <StoresList
           title={t("starredStores")}
