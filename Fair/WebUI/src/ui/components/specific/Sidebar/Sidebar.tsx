@@ -4,18 +4,22 @@ import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
 import { useStoreContext, useUserContext } from "app"
+import { useGetCategoryDetails } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
+import { useParams } from "hooks"
 import { FavoriteStoreChange, PropsWithClassName, StoreBase } from "types"
-import { StoresList } from "ui/components/sidebar"
+import { CategoryTree, StoresList } from "ui/components/sidebar"
 import { CurrentAccount } from "ui/components/specific"
-import { routes, showToast } from "utils"
+import { buildCategoryTreeItems, buildRootCategoryItems, routes, showToast } from "utils"
 
 import { AllStoresButton } from "./components"
 
 export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const { t } = useTranslation("storesPage")
 
-  const { store } = useStoreContext()
+  const { categoryId } = useParams<{ categoryId?: string }>()
+  const { store, rootCategories } = useStoreContext()
+  const { data: category } = useGetCategoryDetails(categoryId)
   const { user, refetch } = useUserContext()
   const [showPending, setShowPending] = useState(false)
   const [disabledIds, setDisabledIds] = useState<string[]>([])
@@ -68,6 +72,16 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
             emptyStateMessage={t("emptyStoresList")}
             onFavoriteClick={handleFavoriteAdd}
             disabledIds={disabledIds}
+          />
+        )}
+        {store && rootCategories && rootCategories.length > 0 && (
+          <CategoryTree
+            storeId={store.id}
+            items={
+              categoryId && category
+                ? buildCategoryTreeItems(rootCategories, category)
+                : buildRootCategoryItems(rootCategories)
+            }
           />
         )}
         <StoresList

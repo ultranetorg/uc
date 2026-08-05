@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useStoreContext } from "app"
 import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
 import { useResolveStoreId, useStoreTitle } from "hooks"
-import { BigCategoriesGrid } from "ui/components/store"
+// import { BigCategoriesGrid } from "ui/components/store"
 import { CategoriesPublicationsList, ModeratorStoreMenu } from "ui/components/specific"
 import { NoContent } from "ui/components"
 
@@ -29,7 +29,7 @@ export const StorePage = () => {
       <div className="flex flex-col gap-6">
         {categories.length && categoriesPublications.length ? (
           <>
-            <BigCategoriesGrid isLoading={isPending} storeId={storeId} items={categories} />
+            {/* <BigCategoriesGrid isLoading={isPending} storeId={storeId} items={categories} /> */}
             <CategoriesPublicationsList
               storeId={storeId!}
               isPending={isCategoriesPublicationsPending}

@@ -8,7 +8,8 @@ import { DEFAULT_PAGE_SIZE_24 } from "config"
 import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { NoContent, Pagination } from "ui/components"
-import { CategoriesList, PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
+import { PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
+// import { CategoriesList } from "ui/components/specific"
 import { parseInteger } from "utils"
 
 import { CategoryHeader } from "./CategoryHeader"
@@ -64,7 +65,7 @@ export const CategoryPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <CategoryHeader category={category} storeId={storeId!} view={view} onViewChange={handleViewChange} />
-      {category.categories.length > 0 && <CategoriesList storeId={storeId!} categories={category.categories} />}
+      {/* {category.categories.length > 0 && <CategoriesList storeId={storeId!} categories={category.categories} />} */}
       {publications.items.length !== 0 ? (
         view === "grid" ? (
           <PublicationsGrid

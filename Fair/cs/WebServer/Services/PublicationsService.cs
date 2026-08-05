@@ -273,10 +273,7 @@ public class PublicationsService
 			if (cancellationToken.IsCancellationRequested)
 				return;
 
-			if (resultCategory.Publications.Count > 0)
-			{
-				result.Add(resultCategory);
-			}
+			result.Add(resultCategory);
 		}
 	}
 

@@ -1,10 +1,11 @@
-import { memo, useMemo } from "react"
+import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Category } from "types"
-import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
+// import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ModeratorCategoryMenu, ToggleViewButton, ViewType } from "ui/components/specific"
-import { createBreadcrumbs, formatTitle } from "utils"
+import { formatTitle } from "utils"
+// import { createBreadcrumbs } from "utils"
 
 export type CategoryHeaderProps = {
   category: Category
@@ -13,17 +14,17 @@ export type CategoryHeaderProps = {
   onViewChange(view: ViewType): void
 }
 
-export const CategoryHeader = memo(({ category, storeId, view, onViewChange }: CategoryHeaderProps) => {
+export const CategoryHeader = memo(({ category, view, onViewChange }: CategoryHeaderProps) => {
   const { t } = useTranslation("category")
 
-  const breadcrumbsItems = useMemo<BreadcrumbsItemProps[]>(
-    () => createBreadcrumbs(storeId, category.path, category.title, t),
-    [category.path, category.title, storeId, t],
-  )
+  // const breadcrumbsItems = useMemo<BreadcrumbsItemProps[]>(
+  //   () => createBreadcrumbs(storeId, category.path, category.title, t),
+  //   [category.path, category.title, storeId, t],
+  // )
 
   return (
     <div className="flex flex-col gap-2">
-      <Breadcrumbs items={breadcrumbsItems} />
+      {/* <Breadcrumbs items={breadcrumbsItems} /> */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2 text-3.5xl font-semibold leading-10">
           <span className="text-gray-800" title={category.title}>

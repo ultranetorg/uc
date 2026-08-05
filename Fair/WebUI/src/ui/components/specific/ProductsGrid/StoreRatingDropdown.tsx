@@ -11,6 +11,7 @@ const getStoreRatingDropdownStyle = (isHover: boolean): StylesConfig<DropdownIte
   ...dropdownStyle,
   control: (base, props) => ({
     ...dropdownStyle.control?.(base, props),
+    transition: undefined,
     border: "none",
     fontSize: "13px",
     height: "auto",
@@ -132,6 +133,7 @@ const StoreRatingDropdownInner = ({
     },
     [onOpenChange],
   )
+
   const currentValue = items?.find(x => x.value === value)
 
   const handleChange = useCallback(
