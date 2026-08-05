@@ -1,7 +1,7 @@
 import { forwardRef, memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { ThreeDotsSvg } from "assets"
+import { SvgThreeDots } from "assets"
 import { PropsWithClassName } from "types"
 
 type MoreButtonBaseProps = {
@@ -23,7 +23,7 @@ export const MoreButton = memo(
         onClick={onClick}
         {...rest}
       >
-        <ThreeDotsSvg className="fill-gray-950" />
+        <SvgThreeDots className="fill-gray-950" />
       </div>
     )
   }),

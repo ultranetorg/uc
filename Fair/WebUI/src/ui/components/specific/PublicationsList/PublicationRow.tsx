@@ -5,13 +5,13 @@ import { SvgSoftwareLogo } from "assets/fallback"
 import { Publication, PublicationExtended } from "types"
 import { ImageFallback } from "ui/components"
 import { ModeratorPublicationContextMenu } from "ui/components/specific"
-import { buildFileUrl, formatRating } from "utils"
+import { buildFileUrl, formatAverageRating } from "utils"
 
 export type PublicationRowProps = Publication & Partial<Pick<PublicationExtended, "authorTitle">>
 
 export const PublicationRow = memo(
   ({ id, title, logoFileId, authorTitle, categoryTitle, rating }: PublicationRowProps) => {
-    const formattedRating = formatRating(rating)
+    const formattedRating = formatAverageRating(rating)
 
     return (
       <div

@@ -1,7 +1,7 @@
 import { forwardRef, memo, MouseEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { CheckCircleFillSvg, SvgXSm } from "assets"
+import { SvgCheckCircleFill, SvgXSm } from "assets"
 import avatarFallbackXl from "assets/fallback/user-8.png"
 import avatarFallback3xl from "assets/fallback/user-10.png"
 import { UserBase, PropsWithClassName } from "types"
@@ -66,7 +66,7 @@ export const Account = memo(
           </span>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          {selected && <CheckCircleFillSvg className="fill-[#292D32]" />}
+          {selected && <SvgCheckCircleFill className="fill-[#292D32]" />}
           <SvgXSm className="fill-gray-500 hover:fill-gray-800" onClick={handleRemove} />
         </div>
       </div>

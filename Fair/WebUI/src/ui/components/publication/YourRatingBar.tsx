@@ -1,6 +1,7 @@
 import { times } from "lodash"
 import { useState } from "react"
-import { SvgStarXs } from "assets/star-xs"
+
+import { SvgStarXs } from "assets"
 
 export type YourRatingBarProps = {
   value: number

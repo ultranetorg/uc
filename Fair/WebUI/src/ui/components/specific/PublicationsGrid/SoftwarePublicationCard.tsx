@@ -6,14 +6,14 @@ import { SvgStarXxs } from "assets"
 import { SvgSoftwareLogo } from "assets/fallback"
 import { ModeratorPublicationContextMenu } from "ui/components/specific"
 import { ImageFallback } from "ui/components"
-import { buildFileUrl, formatRating } from "utils"
+import { buildFileUrl, formatAverageRating } from "utils"
 
 import { PublicationCardProps } from "./types"
 
 export const SoftwarePublicationCard = memo(
   ({ id, title, logoFileId, authorTitle, categoryTitle, rating }: PublicationCardProps) => {
     const { isModerator } = useStoreRolesContext()
-    const formattedRating = formatRating(rating)
+    const formattedRating = formatAverageRating(rating)
 
     return (
       <div

@@ -5,7 +5,7 @@ import { SvgStarXxs } from "assets"
 
 import { DropdownItem, DropdownProps, dropdownStyle } from "ui/components"
 import { CustomSelect, DropdownIndicator } from "ui/components/Dropdown/components"
-import { formatRating } from "utils"
+import { formatAverageRating } from "utils"
 
 const getStoreRatingDropdownStyle = (isHover: boolean): StylesConfig<DropdownItem, boolean> => ({
   ...dropdownStyle,
@@ -66,7 +66,7 @@ const Option = (props: OptionProps<DropdownItem, false>) => {
   }
 
   const { rating, label } = props.data as StoreRatingDropdownItem
-  const formattedRating = rating > 0 ? formatRating(rating) : "N/A"
+  const formattedRating = rating > 0 ? formatAverageRating(rating) : "N/A"
 
   return (
     <components.Option {...props}>
@@ -88,7 +88,7 @@ const Option = (props: OptionProps<DropdownItem, false>) => {
 
 const SingleValue = (props: SingleValueProps<DropdownItem, false>) => {
   const { rating, label } = props.data as StoreRatingDropdownItem
-  const formattedRating = rating > 0 ? formatRating(rating) : "N/A"
+  const formattedRating = rating > 0 ? formatAverageRating(rating) : "N/A"
   return (
     <components.SingleValue {...props}>
       <div className="flex items-center justify-center rounded-sm">

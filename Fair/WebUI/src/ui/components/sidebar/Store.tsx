@@ -1,7 +1,7 @@
 import { memo, MouseEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { StarSvg } from "assets"
+import { SvgStar } from "assets"
 import { SvgStoreLogo } from "assets/fallback"
 import { ImageFallback } from "ui/components"
 import { buildFileUrl } from "utils"
@@ -40,7 +40,7 @@ export const Store = memo(
         </span>
         {disabled ||
           (disabledFavorite !== true && (
-            <StarSvg
+            <SvgStar
               className={twMerge(
                 "invisible size-5 group-hover:visible",
                 isStarred !== true

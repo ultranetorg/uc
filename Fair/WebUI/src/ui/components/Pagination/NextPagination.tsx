@@ -3,7 +3,7 @@ import { times } from "lodash"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
-import { ChevronLeftSvg, SvgChevronRight } from "assets"
+import { SvgChevronLeft, SvgChevronRight } from "assets"
 
 import { PaginationItem } from "./PaginationItem"
 
@@ -24,7 +24,7 @@ export const NextPagination = memo(({ className, hasNext, page, loadedPages, onP
   return (
     <div className={twMerge("flex gap-4", className)}>
       <PaginationItem disabled={page === 0} onClick={() => onPageChange(page - 1)}>
-        <ChevronLeftSvg />
+        <SvgChevronLeft />
       </PaginationItem>
       <div className="flex gap-1">
         {times(loadedPages, i => (
