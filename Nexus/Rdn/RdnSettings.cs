@@ -34,14 +34,15 @@ public class RdnNodeSettings : McvNodeSettings
 	public List<PublicKey>		ProposedFundJoiners = new();
 	public List<PublicKey>		ProposedFundLeavers = new();
 
-	public string[]					ProposedFriendAttachments { get; set; } = [];
+	public List<string>			ProposedFriendAttachments { get; set; } = [];
 
-	public SeedSettings				Seed { get; set; }
-	public SeedHubSettings			SeedHub { get; set; } = new ();
+	public SeedSettings			Seed { get; set; }
+	public SeedHubSettings		SeedHub { get; set; } = new ();
 
-	public new long					Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
+	public new long				Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
-	public string					DataPath { get; set; }
+	public string				DataPath { get; set; }
+	public const string			DataRelativePath = "Data";
 
 	public RdnNodeSettings()
 	{
@@ -56,23 +57,24 @@ public class RdnNodeSettings : McvNodeSettings
 		}
 	}
 
-	public RdnNodeSettings(string profile, Zone zone, NexusSettings nexusSettings) : base(profile)
+	public RdnNodeSettings(NexusSettings nexusSettings) : base(System.IO.Path.Join(nexusSettings.Profile, typeof(RdnNode).FullName))
 	{
 		if(!nexusSettings.Exists)
 			throw new Exception("NexusSettings not found");
 
 		if(!Exists)
 		{
-			SetDefaults(zone, nexusSettings);
+			SetDefaults(nexusSettings);
 			Save();
 		}
+		
+		DataPath ??= System.IO.Path.Join(RdnNode.ExeDirectory, DataRelativePath);
 	}
 
-	public void SetDefaults(Zone zone, NexusSettings settings)
+	public void SetDefaults(NexusSettings settings)
 	{
-		Peering		= new () {Endpoint = new (IPAddress.Any, Rdn.ByZone(zone).PpiPort)};
+		Peering		= new () {Endpoint = new (settings.Host, Rdn.ByZone(settings.Zone).PpiPort)};
 		Api			= new () {LocalIP = settings.Host};
-		DataPath	= System.IO.Path.Join(RdnNode.ExeDirectory, "Data");
+		Seed		= new();
 	}
-
 }

@@ -59,7 +59,7 @@ public abstract class McvPeering : HomoPeering
 	public IEnumerable<HomoPeer>			Graphs => Connections.Where(i => i.Permanent && i.Roles.IsSet(Role.Graph));
 	public bool								IsMember => Synchronization == Synchronization.Synchronized &&
 														Mcv.LastConfirmedRound != null && 
-														Mcv.LastConfirmedRound.Members.Any(i => Mcv.Settings.Generators.Any(j => j.Id == i.User));
+														Mcv.LastConfirmedRound.Members.Any(i => Mcv.Settings.Memberships.Any(j => j.GeneratorId == i.Generator));
 
 
 	public McvPeering(McvNode node, PeeringSettings settings, long roles, VaultApiClient vaultapi, Flow flow) : base(node, node.Name, node.Net, node.Database, settings, roles, flow)
@@ -82,7 +82,7 @@ public abstract class McvPeering : HomoPeering
 										{
 											lock(ConfirmedTransactions)
 											{
-												foreach(var i in r.ConsensusTransactions.Where(j => Mcv.Settings.Generators.Any(g => g.Id == j.Vote.Member)))
+												foreach(var i in r.ConsensusTransactions.Where(j => Mcv.Settings.Memberships.Any(g => g.GeneratorId == j.Vote.Generator)))
 												{
 													i.Inquired = DateTime.UtcNow;
 													ConfirmedTransactions.Add(i);
@@ -102,7 +102,7 @@ public abstract class McvPeering : HomoPeering
 										 };
 
 			Mcv.ConsensusFailed += r =>	{
-											foreach(var i in r.OrderedTransactions.Where(j => Mcv.Settings.Generators.Any(g => g.Id == j.Vote.Member)))
+											foreach(var i in r.OrderedTransactions.Where(j => Mcv.Settings.Memberships.Any(g => g.GeneratorId == j.Vote.Generator)))
 											{
 												i.Vote = null;
 												i.Status = TransactionStatus.Accepted;
@@ -175,7 +175,7 @@ public abstract class McvPeering : HomoPeering
 	{
 		lock(Mcv.Lock)
 		{
-			if(Settings.Endpoint != null && Settings.Endpoint.Equals(Net.Father0EP) && Mcv.Settings.Generators.Any(g => g.User == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
+			if(Settings.Endpoint != null && Settings.Endpoint.Equals(Net.Father0EP) && Mcv.Settings.Memberships.Any(g => g.Generator == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -328,7 +328,7 @@ public abstract class McvPeering : HomoPeering
 									goto resync;
 
 								if(vs.Votes.Any())
-									foreach(var v in vs.Votes.Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.User == i.Member)).GroupBy(i => i.Try).MaxBy(i => i.Key))
+									foreach(var v in vs.Votes.Where(i => Mcv.LastConfirmedRound.Members.Any(m => m.Since <= i.RoundId && m.Generator == i.Generator)).GroupBy(i => i.Try).MaxBy(i => i.Key))
 									{	
 										v.Restore();
 									//	vs.Update();
@@ -488,57 +488,70 @@ public abstract class McvPeering : HomoPeering
 	{
 		Statistics.Generating.Begin();
 	
-		if(Mcv.Settings.Generators == null || Mcv.Settings.Generators.Length == 0 || Synchronization != Synchronization.Synchronized)
+		if(Mcv.Settings.Memberships == null || Mcv.Settings.Memberships.Count == 0 || Synchronization != Synchronization.Synchronized)
 			return;
 	
 		var votes = new List<Vote>();
 	
-		foreach(var gs in Mcv.Settings.Generators)
+		foreach(var gs in Mcv.Settings.Memberships)
 		{
-			var s = FindSession(gs.User);
+			var s = FindSession(gs.Generator);
 
 			if(s == null)
 			{	
-				//Thread.Sleep(NodeGlobals.TimeoutOnError);
+				Thread.Sleep(NodeGlobals.TimeoutOnError);
 				continue;;
 			}
 			
-			if(gs.Id == null)
+			if(gs.GeneratorId == null)
 			{
-				var u = Mcv.Users.Latest(gs.User);
+				var u = Mcv.Users.Latest(gs.Generator);
 				
 				if(u != null)
-					gs.Id = u.Id;
+					gs.GeneratorId = u.Id;
 				else
 				{
-					//Thread.Sleep(NodeGlobals.TimeoutOnError);
+					Thread.Sleep(NodeGlobals.TimeoutOnError);
+					continue;
+				}	
+			}	
+
+			if(gs.BeneficiaryId == null)
+			{
+				var b = Mcv.Users.Latest(gs.Beneficiary);
+				
+				if(b != null)
+					gs.BeneficiaryId = b.Id;
+				else
+				{
+					Thread.Sleep(NodeGlobals.TimeoutOnError);
 					continue;
 				}	
 			}
 				
-			var m = Mcv.NextVotingRound.Senders.FirstOrDefault(i => i.User == gs.Id);
+			var m = Mcv.NextVotingRound.Senders.FirstOrDefault(i => i.Generator == gs.GeneratorId);
 	
 			if(m == null)
 			{
-				if(Mcv.LastConfirmedRound.Candidates.Any(i => i.User == gs.Id))
+				if(Mcv.LastConfirmedRound.Candidates.Any(i => i.Generator == gs.GeneratorId))
 					continue;
 
 				try
 				{
-					if(!CandidacyDeclarations.Contains(gs.Id))
+					if(!CandidacyDeclarations.Contains(gs.GeneratorId))
 					{
-						if(Mcv.Users.Latest(gs.Id).Energy < Net.DeclarationCost)
+						if(Mcv.Users.Latest(gs.GeneratorId).Energy < Net.DeclarationCost)
 							continue;
 						
-						CandidacyDeclarations.Add(gs.Id);
+						CandidacyDeclarations.Add(gs.GeneratorId);
 					
-						Transact([Mcv.CreateCandidacyDeclaration()], gs.User, 0, null, s.Session, ActionOnResult.RetryUntilConfirmed, Flow);
+						Transact([Mcv.CreateCandidacyDeclaration(gs.BeneficiaryId)], gs.Generator, 0, null, s.Session, ActionOnResult.RetryUntilConfirmed, Flow);
 					} 
 					else
 					{
 						lock(OutgoingTransactions)
-							if(!OutgoingTransactions.Any(i => i.User == gs.User && i.Operations.Any(o => o is CandidacyDeclaration)))
-								CandidacyDeclarations.Remove(gs.Id);
+							if(!OutgoingTransactions.Any(i => i.User == gs.Generator && i.Operations.Any(o => o is CandidacyDeclaration)))
+								CandidacyDeclarations.Remove(gs.GeneratorId);
 					}
 				}
 				catch(VaultException ex)
@@ -551,15 +564,15 @@ public abstract class McvPeering : HomoPeering
 			{
 				if(CandidacyDeclarations.Count > 0)
 				{
-					CandidacyDeclarations.Remove(gs.Id);
+					CandidacyDeclarations.Remove(gs.GeneratorId);
 			
 					lock(OutgoingTransactions)
-						OutgoingTransactions.RemoveAll(i => i.User == gs.User && i.Operations.Any(o => o is CandidacyDeclaration));
+						OutgoingTransactions.RemoveAll(i => i.User == gs.Generator && i.Operations.Any(o => o is CandidacyDeclaration));
 				}
 	
 				var r = round ?? Mcv.NextVotingRound;
 	
-				if(r.VotesOfTry.Any(i => i.Member == gs.Id))
+				if(r.VotesOfTry.Any(i => i.Generator == gs.GeneratorId))
 					continue;
 
 				if(round == null) /// when consensus is already reached
@@ -579,11 +592,11 @@ public abstract class McvPeering : HomoPeering
 
 					v.Try							= r.Try;
 					v.TargetHash					= r.Target.Hash;
-					v.Member						= m.User;
+					v.Generator						= m.Generator;
 					v.RoundId						= r.Id;
 					v.Time							= Time.Now(Mcv.Clock);
 					v.Violators						= [..r.ProposeViolators()];
-					v.Leavers						= [..r.ProposeMemberLeavers(gs.Id)];
+					v.Leavers						= [..r.ProposeMemberLeavers(gs.GeneratorId)];
 					v.FriendTransferRequests		= [..Mcv.FriendTransferRequests.Select(i => i.Hash)];
 					v.FriendTransferConfirmations	= [..Mcv.FriendTransferResults.Keys];
 					v.OutwardResults				= [..Mcv.OutwardResults];
@@ -600,7 +613,7 @@ public abstract class McvPeering : HomoPeering
 				{
 					var txs = CandidateTransactions.Where(i => i.Status == TransactionStatus.Accepted).ToArray();
 				
-					var must = round != null || r.Senders.Any(i => i.User == gs.Id) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
+					var must = round != null || r.Senders.Any(i => i.Generator == gs.GeneratorId) && Mcv.Tail.Any(i => i.Id > Mcv.LastConfirmedRound.Id && i.Payloads.Any());
 				
 					if(txs.Any() || must)
 					{
@@ -637,9 +650,9 @@ public abstract class McvPeering : HomoPeering
 				
 							var nearest = r.Senders.NearestBy(t.Signature);
 				
-							if(nearest.User != gs.Id)
+							if(nearest.Generator != gs.GeneratorId)
 							{
-								if(!Mcv.Settings.Generators.Any(i => i.Id == nearest.User))
+								if(!Mcv.Settings.Memberships.Any(i => i.GeneratorId == nearest.Generator))
 									CandidateTransactions.Remove(t);
 				
 								return true;
@@ -684,14 +697,15 @@ public abstract class McvPeering : HomoPeering
 				
 						if(v.Transactions.Any() || must)
 						{
-							v.Signature	= VaultApi.Call<byte[]>(new AuthorizeApc
-																{
-																	Cryptography= Net.Cryptography.Type,
-																	Net			= Net.Address,
-																	User		= gs.User,
-																	Session		= s.Session,
-																	Hash		= v.Hashify()
-																}, Flow);						
+							v.Signature	= VaultApi.Call<AuthorizationResult>(new AuthorizeApc
+																			 {
+																				Cryptography= Net.Cryptography.Type,
+																				Net			= Net.Address,
+																				User		= gs.Generator,
+																				Session		= s.Session,
+																				Hash		= v.Hashify()
+																			 }, 
+																			 Flow).Signature;
 							votes.Add(v);
 						}
 					}
@@ -875,7 +889,7 @@ public abstract class McvPeering : HomoPeering
 
 			var members = cr.Members;
 
-			IHomoPeer getppi(Generator member)
+			IHomoPeer getppi(Member member)
 			{
 				//var m = members.NearestBy(i => i.Address, nonce);
 
@@ -910,15 +924,15 @@ public abstract class McvPeering : HomoPeering
 							
 						t.Nonce		 = at.NextNonce;
 						t.Expiration = at.LastConfirmedRid + Net.P * 2;
-						t.Signature  = VaultApi.Call<byte[]>(new AuthorizeApc
-															 {
-																Cryptography	= Net.Cryptography.Type,
-																Net				= Net.Address,
-																User			= t.User,
-																Session			= t.Session,
-																Hash			= t.Hashify(Net),
-															 }, 
-															 t.Flow);
+						t.Signature  = VaultApi.Call<AuthorizationResult>(	new AuthorizeApc
+																			{
+																				Cryptography	= Net.Cryptography.Type,
+																				Net				= Net.Address,
+																				User			= t.User,
+																				Session			= t.Session,
+																				Hash			= t.Hashify(Net),
+																			}, 
+																			t.Flow).Signature;
 
 
 						var m = members.NearestBy(t.Signature);

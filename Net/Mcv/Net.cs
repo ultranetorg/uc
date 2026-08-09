@@ -114,40 +114,40 @@ public abstract class Net
 
 public abstract class McvNet : Net
 {
-	public int								P = 6; /// pitch
+	public int									P = 6; /// pitch
 
-	public const long						IdealRoundsPerSecond					= 1;
-	public const long						IdealRoundsPerDay						= IdealRoundsPerSecond * 60*60*24;
-	public const int						BandwidthRentMonthsMaximum				= 12;
-	public const int						BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
-	public virtual int						FreeSpaceMaximum						=> 0;
-	public Time								ECLifetime								= Time.FromYears(1);
-	public ushort							UserCreationPoWDifficulity				= 172;
-	public int								EntityLength							= 100;
-	public const int						OutwardsMaximum							= 1000;
+	public const long							IdealRoundsPerSecond					= 1;
+	public const long							IdealRoundsPerDay						= IdealRoundsPerSecond * 60*60*24;
+	public const int							BandwidthRentMonthsMaximum				= 12;
+	public const int							BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
+	public const int							OutwardsMaximum							= 1000;
+	public virtual int							FreeSpaceMaximum						=> 0;
+	public Time									ECLifetime								= Time.FromYears(1);
+	public ushort								UserCreationPoWDifficulity				= 172;
+	public int									EntityLength							= 100;
 
- 	public Cryptography						Cryptography							= Cryptography.Mcv;
-	public int								AffectedCountMaximum					= 100_000;
-	public Time								OutwardVerificationDurationLimit		= Time.FromHours(1);
-	public int								MembersLimit							= 1000;
-	public long								CandidatesMaximum						= 1000 * 10;
+ 	public Cryptography							Cryptography							= Cryptography.Mcv;
+	public int									AffectedCountMaximum					= 100_000;
+	public Time									OutwardVerificationDurationLimit		= Time.FromHours(1);
+	public int									MembersLimit							= 1000;
+	public long									CandidatesMaximum						= 1000 * 10;
 	
-	public long								TransactionsPerRoundMaximum				= 100_000;
-	public long								OperationsPerRoundMaximum				= 100_000;
+	public long									TransactionsPerRoundMaximum				= 100_000;
+	public long									OperationsPerRoundMaximum				= 100_000;
 	
-	public int								ExecutionCyclesPerTransactionLimit		= 200; /// Not more than 256, see OperationId.Oi
-	//public long								ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
-	public long								EnergyDailyEmission						=> OperationsPerRoundMaximum * IdealRoundsPerDay;
-	public long								EnergyHourlyEmission					=> OperationsPerRoundMaximum * IdealRoundsPerDay/24;
-	public long								EnergyEmission							=> EnergyDailyEmission * 365;
-	public long								SpacetimeDayEmission					= 1024L*1024L * IdealRoundsPerDay;
-	public long								DeclarationCost							=> 1000_000;
+	public int									ExecutionCyclesPerTransactionLimit		= 200; /// Not more than 256, see OperationId.Oi
+	//public long									ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
+	public long									EnergyDailyEmission						=> OperationsPerRoundMaximum * IdealRoundsPerDay;
+	public long									EnergyHourlyEmission					=> OperationsPerRoundMaximum * IdealRoundsPerDay/24;
+	public long									EnergyEmission							=> EnergyDailyEmission * 365;
+	public long									SpacetimeDayEmission					= 1024L*1024L * IdealRoundsPerDay;
+	public long									DeclarationCost							=> 1000_000;
 
 
-	public Endpoint							Father0EP;
-	public readonly string					Father0Name = "f000";
-	public readonly AutoId					Father0Id;
-	public readonly PublicKey			Father0Signer = new ("0000000AD6AFF35CF87E04E457A9395EAB7397D335C5B530F8CDBC9BD66EDF4D".FromHex());
+	public Endpoint								Father0EP;
+	public readonly string						Father0Name = "f000";
+	public readonly AutoId						Father0Id;
+	public readonly PublicKey					Father0Signer = new ("0000000AD6AFF35CF87E04E457A9395EAB7397D335C5B530F8CDBC9BD66EDF4D".FromHex());
 
 	public abstract Dictionary<string, byte>	Tables { get; }
 

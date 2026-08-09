@@ -286,7 +286,7 @@ public class LocalResourceApc : RdnApc
 public class LocalReleaseApe
 {
 	public Urr				Address { get; set; }
-	public Generator[]		DeclaredOn { get; set; }
+	public Member[]		DeclaredOn { get; set; }
 	public Availability		Availability { get; set; }
 	//public File[]			Files { get; set; }
 

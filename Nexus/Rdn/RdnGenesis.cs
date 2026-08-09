@@ -6,7 +6,7 @@ public class RdnGenesis : Genesis
 	{
 	}
 
-	protected override void Declare(Execution execution, Generator generator)
+	protected override void Declare(Execution execution, Member generator)
 	{
 		(generator as RdnGenerator).SeedhubPpiEndpoints = [execution.Net.Father0EP];
 	}

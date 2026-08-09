@@ -12,21 +12,28 @@ public class Settings
 		Serializator  = serializator;
 	}
 
-	protected object Load(string name, Type t, Xon x)
+	protected object Load(string name, Type t, Xon node)
 	{
+		if(t == typeof(bool))
+		{
+			return node != null;
+		}
+		else if(node == null)
+			return null;
+
 		if(t == typeof(byte[]))
 		{
-			return x.Get(t);
+			return node.Get(t);
 		}
 		else if(t.Name.EndsWith("Settings"))
 		{
 			var s = Activator.CreateInstance(t) as Settings;
-			s.Load(x);
+			s.Load(node);
 			return s;
 		}
 		else if(t.IsArray)
 		{
-			var m = x.Parent.Many(name.TrimEnd('s'));
+			var m = node.Parent.Many(name.TrimEnd('s'));
 			
 			//.Select(i => load(n, t.GetElementType(), i)).ToArray();
 
@@ -44,41 +51,35 @@ public class Settings
 		}
 		else if(t.GetInterfaces().Any(i => i == typeof(IList)))
 		{
-			var m = x.Parent.Many(name.TrimEnd('s'));
+			var m = node.Parent.Many(name.TrimEnd('s'));
 			
 			//.Select(i => load(n, t.GetElementType(), i)).ToArray();
-
-
+		
+		
 			var l = t.GetConstructor([]).Invoke(null) as IList;
 			var e = t.GetGenericArguments()[0];
 			var n = m.Count;
 			//var l = a.GetConstructor([typeof(int)]).Invoke([n]);
-
+		
 			for(int i=0; i<n; i++)
 			{
 				l.Add(Load(name.TrimEnd('s'), e, m[i]));
 			}
-
+		
 			return l;
 		}
 		else
-			return x.Get(t);
+			return node.Get(t);
 	}
 
 	public void Load(Type type, Xon xon)
 	{
 		foreach(var p in type.GetProperties().Where(i => i.CanRead && i.CanWrite && i.SetMethod.IsPublic))
 		{
-			var x = p.PropertyType.Name.EndsWith("Settings") ? xon.One(p.Name.TrimEnd('s')) : xon.One(p.Name);
-	
-			if(p.PropertyType == typeof(bool))
-			{
-				p.SetValue(this, x != null);
-			}
-			else if(x != null)
-			{
-				p.SetValue(this, Load(p.Name, p.PropertyType, x));
-			}
+			var v = Load(p.Name, p.PropertyType, xon.One(p.PropertyType.GetInterfaces().Any(i => i == typeof(IList)) ? p.Name.TrimEnd('s') : p.Name));
+			
+			if(v != null)
+				p.SetValue(this, v);
 		}
 	}
 	

@@ -256,7 +256,7 @@ public partial class WalletsPage : Page
 		
 		if(p != null)
 		{
-			if(p == CurrentAccout.Wallet.Password)
+			if(Nexus.Vault.Cryptography.HashifyPassword(p, CurrentAccout.Wallet.Salt) == CurrentAccout.Wallet.Password)
 			{
 				TextForm.ShowDialog(this,
 									"Secret(Private) Key", 

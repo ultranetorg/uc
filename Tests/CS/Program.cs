@@ -7,11 +7,11 @@ class Program
 	{
 		//PublicKeyTests.Main();
 		//PublicKeyTests.ReadWrite();
-		//SecretKeyTests.Main();
+		SecretKeyTests.Main();
 		//Array.Main();
 		//IdTests.Main();
 		//MoneyTests.Main();
-		XonTest.Basic();
+		//XonTest.Basic();
 		//ECTests.Move();
 		//Serialization.Main();
 		//PlatformExpressionTest.Main();

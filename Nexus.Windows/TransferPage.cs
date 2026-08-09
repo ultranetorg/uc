@@ -230,7 +230,8 @@ public partial class TransferPage : Page
 																	FromEntity.Text,
 																	Nexus.GetApplicationSession(FromNet.Text, f),
 																	t.Hashify(),
-																	f);
+																	f)
+																	.Signature;
 
 								Nexus.IccpLcpServer.Call(null, FromNet.Text, new TransactIcca {Transactions = [t]}, f);
 							}

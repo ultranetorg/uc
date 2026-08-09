@@ -174,8 +174,12 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
  				var p = new HomoPeer();
 				//p.EP = new IPAddress(i.Key());
 				p.Recent = false;
- 				p.LoadNode(new Reader(i.Value(), Net.Constructor));
- 				Peers.Add(p);
+				
+				using var r = new Reader(i.Value(), Net.Constructor);
+ 				
+				p.LoadNode(r);
+ 				
+				Peers.Add(p);
 			}
 		}
 		
@@ -355,7 +359,8 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 
 		if(request.Peer == null) /// self call, cloning needed
 		{
-			var s = new MemoryStream();
+			using var s = new MemoryStream();
+
 			new Writer(s, Constructor).WriteVirtual(request);
 			
 			s.Position = 0;
@@ -373,7 +378,8 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 
 		if(rq.Peer == null) /// self call, cloning needed
 		{
-			var s = new MemoryStream();
+			using var s = new MemoryStream();
+
 			new Writer(s, Constructor).WriteVirtual(request);
 			
 			s.Position = 0;

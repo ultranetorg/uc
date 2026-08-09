@@ -61,16 +61,9 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 
 	public static bool IsAddressValid(string name)
 	{
-		if(name == null)
-			return false;
-
-		if(name.Length < NameLengthMin || name.Length > NameLengthMax)
-			return false;
-
-		if(NameRegex.Match(name).Success == false)
-			return false;
-
-		return true;
+		return  !string.IsNullOrWhiteSpace(name) &&
+				name.Length is >= NameLengthMin && name.Length <= NameLengthMax &&
+				NameRegex.Match(name).Success;
 	}
 
 	public object Clone()

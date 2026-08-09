@@ -87,9 +87,9 @@ public partial class RdnMembersPanel : McvPanel
 								Invoke(() =>	{ 
 													foreach(var i in ms)
 													{
-														var li = Generators.Items.Add(i.User.ToString());
+														var li = Generators.Items.Add(i.Generator.ToString());
 	
-														if(Node.Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
+														if(Node.Mcv?.Settings.Memberships.Any(g => g.GeneratorId == i.Generator) ?? false)
 														{
 															li.Font = Bold;
 														}

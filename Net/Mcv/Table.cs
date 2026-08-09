@@ -80,7 +80,7 @@ public abstract class TableBase
 		public byte[] Export()
 		{
 			var s = new MemoryStream();
-			var w = new Writer(s, Table.Mcv.Net.Constructor);
+			using var w = new Writer(s, Table.Mcv.Net.Constructor);
 
 			w.Write7BitEncodedInt(Buckets.Count());
 
@@ -97,7 +97,7 @@ public abstract class TableBase
 		public void Import(WriteBatch batch, byte[] data)
 		{
 			var s = new MemoryStream(data);
-			var r = new Reader(s, Table.Mcv.Net.Constructor);
+			using var r = new Reader(s, Table.Mcv.Net.Constructor);
 			
 			var n = r.Read7BitEncodedInt();
 
@@ -138,7 +138,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 			if(meta != null)
 			{
-				var r = new Reader(meta, Table.Mcv.Net.Constructor);
+				using var r = new Reader(meta, Table.Mcv.Net.Constructor);
 	
 				Hash			= r.ReadHash();
 				Size			= r.Read7BitEncodedInt();
@@ -222,7 +222,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 		public override byte[] Export()
 		{
 			var s = new MemoryStream();
-			var w = new Writer(s, Table.Mcv.Net.Constructor);
+			using var w = new Writer(s, Table.Mcv.Net.Constructor);
 
 			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
@@ -247,41 +247,45 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 		public override void Import(WriteBatch batch, byte[] data)
 		{
-			var s = new MemoryStream(data);
-			var r = new Reader(s, Table.Mcv.Net.Constructor);
-
-			NextI = r.Read7BitEncodedInt();
-			var n = r.Read7BitEncodedInt();
-
-			Hash = Cryptography.Hash(data.AsSpan(0, (int)s.Position));
-			Size = 0;
-
-			var items = ImmutableSortedDictionary<ID, Item>.Empty.ToBuilder();
-
-			for(int i=0; i<n; i++)
+			using(var s = new MemoryStream(data))
 			{
-				var id = r.Read<ID>();
-				var main = r.ReadBytes();
+				var r = new Reader(s, Table.Mcv.Net.Constructor);
 
-				items.Add(id, new Item {Main = main});
+				NextI = r.Read7BitEncodedInt();
+				var n = r.Read7BitEncodedInt();
 
-				batch.Put(id.Raw, main, Table.EntityColumn);
+				Hash = Cryptography.Hash(data.AsSpan(0, (int)s.Position));
+				Size = 0;
 
-				Hash = Cryptography.Hash(Hash, main);
-				Size += main.Length;
+				var items = ImmutableSortedDictionary<ID, Item>.Empty.ToBuilder();
+
+				for(int i=0; i<n; i++)
+				{
+					var id = r.Read<ID>();
+					var main = r.ReadBytes();
+
+					items.Add(id, new Item {Main = main});
+
+					batch.Put(id.Raw, main, Table.EntityColumn);
+
+					Hash = Cryptography.Hash(Hash, main);
+					Size += main.Length;
+				}
+
+				_Entries = items.ToImmutable();
 			}
-
-			_Entries = items.ToImmutable();
 			
-			s = new MemoryStream();
-			var w = new Writer(s, Table.Mcv.Net.Constructor);
+			using(var s = new MemoryStream())
+			{
+				var w = new Writer(s, Table.Mcv.Net.Constructor);
 
-			w.Write(Hash);
-			w.Write7BitEncodedInt(Size);
-			w.Write7BitEncodedInt(NextI);
-			w.Write(_Entries.Keys);
+				w.Write(Hash);
+				w.Write7BitEncodedInt(Size);
+				w.Write7BitEncodedInt(NextI);
+				w.Write(_Entries.Keys);
 
-			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
+				batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
+			}
 		}
 	}
 
@@ -303,7 +307,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 					if(m != null)
 					{
-						var r = new Reader(m, Table.Mcv.Net.Constructor);
+						using var r = new Reader(m, Table.Mcv.Net.Constructor);
 	
 						r.ReadHash();
 						r.Read7BitEncodedInt();
@@ -326,7 +330,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 			if(m != null)
 			{
-				var r = new Reader(m, Table.Mcv.Net.Constructor);
+				using var r = new Reader(m, Table.Mcv.Net.Constructor);
 
 				Hash		= r.ReadHash();
 				MainLength	= r.Read7BitEncodedInt();
@@ -592,7 +596,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 		
 		if(s != null)
 		{
-			var r = new Reader(s, Mcv.Net.Constructor);
+			using var r = new Reader(s, Mcv.Net.Constructor);
 			Assosiated.Read(r);
 		}
 	}

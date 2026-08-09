@@ -2,7 +2,7 @@
 
 namespace Uccs.Rdn;
 
-public class RdnGenerator : Generator
+public class RdnGenerator : Member
 {
 	public Endpoint[] SeedhubPpiEndpoints { get; set; } = [];
 
@@ -35,7 +35,7 @@ public class RdnGenerator : Generator
 		SeedhubPpiEndpoints = reader.ReadArray<Endpoint>();
 	}
 
-	public override Generator Clone()
+	public override Member Clone()
 	{
 		var g = new RdnGenerator();
 

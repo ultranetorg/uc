@@ -37,7 +37,7 @@ public class WalletCommand : NexusCommand
 								var v = new Vault(Cli.NexusSettings.Zone, Cli.VaultSettings, Flow);
 								var w = v.CreateWallet(Name, GetString("password"), GetInt("accounts", (int)a.Arguments[1].Default));
 
-								VaultApi(new AddWalletApc {Name = GetString(NameKeyword), Raw = w.ToRaw()});
+								VaultApi(new ImportWalletApc {Name = GetString(NameKeyword), Raw = w.ToRaw()});
 
 								foreach(var i in w.Keys.Index())
 								{
@@ -150,7 +150,7 @@ public class WalletCommand : NexusCommand
 		a.Execute = () =>	{
 								var	b = File.ReadAllBytes(GetString(p));
 
-								VaultApi(new AddWalletApc {Name = GetString(NameKeyword, null), Raw = b});
+								VaultApi(new ImportWalletApc {Name = GetString(NameKeyword, null), Raw = b});
 		
 								return a;
 							};

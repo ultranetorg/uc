@@ -173,16 +173,6 @@ public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpac
 	public PerpetualSurvey				FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is StoreApprovalPolicyChange o && o.Operation == operation);
 	public sbyte						FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is StoreApprovalPolicyChange o && o.Operation == operation);
 
-	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
-	{
-		return  false; /// Moderators[0] == signer; /// TODO : Owner only
-	}
-
-	public bool IsExpired(Store a, Time time) 
-	{
-		return time.Days > a.Expiration;
-	}
-
 	static Store()
 	{
 		var p = Role.Publisher;
@@ -272,6 +262,16 @@ public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpac
 		((IEnergyHolder)this).Copy(a);
 
 		return a;
+	}
+
+	public bool IsPermitted(Execution executions, uint operation, AutoId signer)
+	{
+		return  false; /// Moderators[0] == signer;
+	}
+
+	public bool IsExpired(Store a, Time time) 
+	{
+		return time.Days > a.Expiration;
 	}
 
 	public void ReadMain(Reader reader)

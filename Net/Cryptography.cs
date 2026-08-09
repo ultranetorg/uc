@@ -175,7 +175,7 @@ public class McvCryptography : Cryptography
 		using var argon2 =	new Argon2id(Encoding.UTF8.GetBytes(password))
 							{
 								Salt = salt,
-								DegreeOfParallelism = Environment.ProcessorCount,
+								DegreeOfParallelism = 8,
 								MemorySize = MemorySizeInKb,
 								Iterations = Iterations
 							};

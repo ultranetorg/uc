@@ -10,7 +10,7 @@ public struct OperationId : IBinarySerializable, IEquatable<OperationId>, ICompa
 
 	byte[]			_Serial;
 
-	public OperationId(int ri, int ti, byte oi)
+	public OperationId(int ri, int ti, int oi)
 	{
 		Ri = ri;
 		Ti = ti;

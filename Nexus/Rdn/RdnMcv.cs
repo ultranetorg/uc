@@ -77,15 +77,19 @@ public class RdnMcv : Mcv
 		return new RdnVote(this);
 	}
 
-	public override Generator CreateGenerator()
+	public override Member CreateGenerator()
 	{
 		return new RdnGenerator();
 	}
 
-	public override CandidacyDeclaration CreateCandidacyDeclaration()
+	public override CandidacyDeclaration CreateCandidacyDeclaration(AutoId beneficiary)
 	{
-		return new RdnCandidacyDeclaration {GraphEPs		= GraphIPs,
-											SeedHubRdcIPs	= SeedHubIPs};
+		return	new RdnCandidacyDeclaration 
+				{
+					Beneficiary		= beneficiary,
+					GraphEndpoints		= GraphIPs,
+					SeedHubRdcIPs	= SeedHubIPs
+				};
 
 	}
 

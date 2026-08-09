@@ -116,7 +116,7 @@ public class FairRound : Round
 	{
 		base.ReadGraphState(reader);
 
-		Candidates	= reader.ReadList<Generator>(() => { var g = new Generator(); g.ReadCandidate(reader); return g;});
-		Members		= reader.ReadList<Generator>();
+		Candidates	= reader.ReadList<Member>(() => { var g = new Member(); g.ReadCandidate(reader); return g;});
+		Members		= reader.ReadList<Member>();
 	}
 }

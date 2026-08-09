@@ -99,7 +99,7 @@ public abstract class Urr : ITypeCode, IBinarySerializable, IEquatable<Urr>, ITe
 
  	public static Urr FromRaw(byte[] bytes)
  	{
- 		var r = new Reader(bytes);
+ 		using var r = new Reader(bytes);
  
  		return ReadVirtual(r);
  	}

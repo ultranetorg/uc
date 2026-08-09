@@ -166,7 +166,7 @@ public enum DeclarationStatus
 
 public class Declaration
 {
-	public Generator				Member;
+	public Member				Member;
 	public DeclarationStatus		Status;
 	public DateTime					Failed;
 }
@@ -286,7 +286,7 @@ public class LocalRelease
 									
 			if(d != null)
 			{
-				var r = new Reader(d);
+				using var r = new Reader(d);
 
 				//_Type			= r.Read7BitEncodedInt64();
 				_Availability	= (Availability)r.ReadByte();

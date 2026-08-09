@@ -99,15 +99,15 @@ public class SeedSeeker
 														{
 															Members = r.Members.ToArray();
 
-															var nearest = Members.OrderByHash(i => i.User.Raw, address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnGenerator>();
+															var nearest = Members.OrderByHash(i => i.Generator.Raw, address.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Cast<RdnGenerator>();
 		
 															do 
 															{
-																var m = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.User));
+																var m = nearest.FirstOrDefault(x => !Hubs.Any(y => y.Member == x.Generator));
 														
 												 				if(m != null)
 																{
-																	hlast = new Hub(this, address, m.User, m.SeedhubPpiEndpoints);
+																	hlast = new Hub(this, address, m.Generator, m.SeedhubPpiEndpoints);
 																	Hubs.Add(hlast);
 																}
 																else
@@ -117,7 +117,7 @@ public class SeedSeeker
 
 															do 
 															{
-																var h = Hubs.FirstOrDefault(x => !nearest.Any(y => y.User == x.Member));
+																var h = Hubs.FirstOrDefault(x => !nearest.Any(y => y.Generator == x.Member));
 	
 																if(h != null)
 																{

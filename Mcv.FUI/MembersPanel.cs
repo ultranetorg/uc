@@ -23,9 +23,9 @@ public partial class MembersPanel : McvPanel
 	
 		foreach(var i in Node.Peering.Call(new MembersPpc(), new Flow(5000)).Members)
 		{
-			var li = Generators.Items.Add(i.User.ToString());
+			var li = Generators.Items.Add(i.Generator.ToString());
 	
-			if(Node.Mcv?.Settings.Generators.Any(g => g.Id == i.User) ?? false)
+			if(Node.Mcv?.Settings.Memberships.Any(g => g.GeneratorId == i.Generator) ?? false)
 			{
 				li.Font = Bold;
 			}
@@ -64,7 +64,7 @@ public partial class MembersPanel : McvPanel
 	{
 		if(e.IsSelected)
 		{
-			foreach(var i in (e.Item.Tag as Generator).GraphPpiEndpoints)
+			foreach(var i in (e.Item.Tag as Member).GraphPpiEndpoints)
 			{
 				var bli = BaseRdcIPs.Items.Add(i.ToString());
 			}

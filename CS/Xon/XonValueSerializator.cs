@@ -123,7 +123,10 @@ public class XonBinaryValueSerializator : IXonValueSerializator
 		if(type.GetInterfaces().Any(i => i == typeof(IBinarySerializable)))
 		{
 			var o = Activator.CreateInstance(type) as IBinarySerializable;
-			o.Read(new Reader(new MemoryStream(v)));
+			using var r = new Reader(new MemoryStream(v));
+			
+			o.Read(r);
+			
 			return o;
 		}
 
@@ -175,7 +178,10 @@ public class XonTypedBinaryValueSerializator : XonBinaryValueSerializator, IXonB
 			if(type != null && type.GetInterfaces().Any(i => i == typeof(IBinarySerializable)))
 			{
 				var o = Activator.CreateInstance(type) as IBinarySerializable;
-				o.Read(new Reader(new MemoryStream(v)));
+				using var r = new Reader(v);
+			
+				o.Read(r);
+		
 				return o.ToString();
 			}
 
@@ -207,7 +213,7 @@ public class XonTypedBinaryValueSerializator : XonBinaryValueSerializator, IXonB
 
 	public void DeserializeHeader(byte[] header)
 	{
-		var r = new Reader(new MemoryStream(header));
+		using var r = new Reader(header);
 
 		var n = r.Read7BitEncodedInt();
 

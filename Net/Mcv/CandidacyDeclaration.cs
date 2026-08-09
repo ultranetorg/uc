@@ -4,9 +4,10 @@ namespace Uccs.Net;
 
 public class CandidacyDeclaration : Operation
 {
-	public Endpoint[]		GraphEPs  { get; set; }
+	public Endpoint[]		GraphEndpoints  { get; set; }
+	public AutoId			Beneficiary { get; set; }
 
-	public override string	Explanation => $"User={User?.Id}, Owner={User?.Owner}, GraphEPs={string.Join(',', (GraphEPs ?? []) as object[])}";
+	public override string	Explanation => $"{nameof(Beneficiary)}={Beneficiary}, {nameof(GraphEndpoints)}={(GraphEndpoints != null ? string.Join<Endpoint>(',', GraphEndpoints) : null)}";
 
 	public CandidacyDeclaration()
 	{
@@ -16,23 +17,25 @@ public class CandidacyDeclaration : Operation
 
 	public override void Read(Reader reader)
 	{
-		GraphEPs = reader.ReadArray<Endpoint>();
+		Beneficiary	= reader.Read<AutoId>();
+		GraphEndpoints	= reader.ReadArray<Endpoint>();
 	}
 
 	public override void Write(Writer writer)
 	{
-		writer.Write(GraphEPs);
+ 		writer.Write(Beneficiary);
+		writer.Write(GraphEndpoints);
 	}
 
 	public override void Execute(Execution execution)
 	{
-		if(execution.Round.Members.Any(i => i.User == User.Id))
+		if(execution.Round.Members.Any(i => i.Generator == User.Id))
 		{
 			Error = "Already member";
 			return;
 		}
 
-		var c = execution.Candidates.Find(i => i.User == User.Id);
+		var c = execution.Candidates.Find(i => i.Generator == User.Id);
 
 		if(c != null)
 		{
@@ -40,12 +43,16 @@ public class CandidacyDeclaration : Operation
 			return;
 		}
 
+		if(!UserExists(execution, Beneficiary, out _, out Error))
+			return;
+
 		User.Energy -= execution.Net.DeclarationCost;
 
 		c = execution.AffectCandidate(User.Id);
 		
-		c.User			= User.Id;
-		c.GraphPpiEndpoints	= GraphEPs;
+		c.Generator			= User.Id;
+		c.Beneficiary		= Beneficiary;
+		c.GraphPpiEndpoints	= GraphEndpoints;
 
 		execution.EnergySpenders.Add(User);
 	}

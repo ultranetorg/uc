@@ -105,14 +105,18 @@ public class FairMcv : Mcv
 		return new Vote(this);
 	}
 
-	public override Generator CreateGenerator()
+	public override Member CreateGenerator()
 	{
-		return new Generator();
+		return new Member();
 	}
 
-	public override CandidacyDeclaration CreateCandidacyDeclaration()
+	public override CandidacyDeclaration CreateCandidacyDeclaration(AutoId beneficiary)
 	{
-		return new CandidacyDeclaration {GraphEPs	= GraphIPs};
+		return	new CandidacyDeclaration
+				{
+					Beneficiary	= beneficiary,
+					GraphEndpoints	= GraphIPs
+				};
 	}
 
 	public override void FillVote(Vote vote)

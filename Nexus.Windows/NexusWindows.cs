@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using Microsoft.Win32;
 using Uccs.Net;
 using Uccs.Nexus.Windows.Properties;
+using Uccs.Rdn;
 
 namespace Uccs.Nexus.Windows;
 
@@ -105,7 +106,7 @@ public class Program: ApplicationContext
 			if(!IsProtocolRegistered())
 				RegisterProtocol();
 
-			Nexus.RunRdn(null, new RealClock());
+			Nexus.RunRdn(new RdnNodeSettings(ns), new RealClock());
 
 			f.Log.Report($"{nameof(Nexus.Vault.Settings.CreateFirstKeyIfEmpty)}={Nexus.Vault.Settings.CreateFirstKeyIfEmpty} && {nameof(Nexus.Vault.Wallets)}={Nexus.Vault.Wallets.Count}");
 

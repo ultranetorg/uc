@@ -11,7 +11,7 @@ internal class VaultApiServer : JsonServer
 	{
 		Vault = vault;
 		
-		Restricted.Add(Apc.NameOf(typeof(AddWalletApc)));
+		Restricted.Add(Apc.NameOf(typeof(ImportWalletApc)));
 		Restricted.Add(Apc.NameOf(typeof(WalletsApc)));
 		Restricted.Add(Apc.NameOf(typeof(WalletKeysApc)));
 		Restricted.Add(Apc.NameOf(typeof(UnlockWalletApc)));
@@ -39,7 +39,7 @@ public interface IVaultApc
 	public abstract object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow);
 }
 
-public class AddWalletApc : Apc, IVaultApc
+public class ImportWalletApc : Apc, IVaultApc
 {
 	public string	Name { get; set; }
 	public byte[]	Raw { get; set; }

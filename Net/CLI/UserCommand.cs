@@ -124,7 +124,7 @@ public class UserCommand : McvCommand
 	
 								var id = Id;
 
-								var m = rp.Members.FirstOrDefault(i => i.User == id)
+								var m = rp.Members.FirstOrDefault(i => i.Generator == id)
 										??
 										throw new EntityException(EntityError.NotFound);
 

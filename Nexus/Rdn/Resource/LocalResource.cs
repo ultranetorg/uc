@@ -43,7 +43,7 @@ public class LocalResource
 									
 		if(d != null)
 		{
-			var r = new Reader(d);
+		 	using var r = new Reader(d);
 
 			Data = r.ReadNullable<ResourceData>();
 		}

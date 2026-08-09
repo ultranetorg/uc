@@ -13,7 +13,7 @@ public class Genesis : Operation
 		return true;
 	}
 	
-	protected virtual void Declare(Execution execution, Generator generator)
+	protected virtual void Declare(Execution execution, Member generator)
 	{
 	}
 
@@ -42,7 +42,8 @@ public class Genesis : Operation
 
 		var	c = execution.AffectCandidate(a.Id);
 
-		c.User			= a.Id;
+		c.Generator			= a.Id;
+		c.Beneficiary		= a.Id;
 		c.GraphPpiEndpoints	= [execution.Net.Father0EP];
 
 		Declare(execution, c);

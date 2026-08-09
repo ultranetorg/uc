@@ -2,7 +2,7 @@
 
 public class UserOwnerChange : Operation
 {
-	public PublicKey		Owner { get; set; }
+	public PublicKey			Owner { get; set; }
 
 	public override string		Explanation => $"{Owner}";
 	

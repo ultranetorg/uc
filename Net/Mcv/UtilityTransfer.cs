@@ -75,7 +75,7 @@ public class UtilityTransfer : Operation
 				return;
 			}
 
-			if(!h.IsSpendingAuthorized(execution, User.Id))
+			if(!h.IsPermitted(execution, execution.Net.Constructor.TypeToCode(GetType()), User.Id))
 			{
 				Error = Denied;
 				return;

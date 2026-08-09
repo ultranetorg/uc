@@ -289,7 +289,7 @@ public class IccpLcpClientConnection : IccpLcpConnection
 						flow) as RequestIccr;
 
 		
-		var r = new Reader(new MemoryStream(rp.Response), Iccp.Constructor);
+		using var r = new Reader(rp.Response, Iccp.Constructor);
 		
 		return r.ReadVirtual<Result>();// BinarySerializator.Deserialize<Result>(r);
 	}

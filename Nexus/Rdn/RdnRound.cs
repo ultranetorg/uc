@@ -73,7 +73,7 @@ public class RdnRound : Round
 	{
 		base.ReadGraphState(reader);
 
-		Candidates	= reader.Read<RdnGenerator>(m => m.ReadCandidate(reader)).Cast<Generator>().ToList();
-		Members		= reader.ReadMany<RdnGenerator>().Cast<Generator>().ToList();
+		Candidates	= reader.Read<RdnGenerator>(m => m.ReadCandidate(reader)).Cast<Member>().ToList();
+		Members		= reader.ReadMany<RdnGenerator>().Cast<Member>().ToList();
 	}
 }

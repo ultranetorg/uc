@@ -22,12 +22,12 @@ public abstract class Round : IBinarySerializable
 	public List<OutwardTransaction>						OutwardTransactions;
 	public OrderedDictionary<IccpTransaction, string>	IccTransactions;
 
-	public List<Generator>								Candidates;
-	public List<Generator>								Members;
-	public IEnumerable<Generator>						Senders => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id && Id <= i.Till) ?? [];
-	public IEnumerable<Generator>						Voters => Id < Mcv.JoinToVote ? [new Generator {User = AutoId.God}] 
+	public List<Member>								Candidates;
+	public List<Member>								Members;
+	public IEnumerable<Member>						Senders => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id && Id <= i.Till) ?? [];
+	public IEnumerable<Member>						Voters => Id < Mcv.JoinToVote ? [new Member {Generator = AutoId.God}] 
 																						 : 
-																						 Senders.OrderByHash(i => i.User.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+																						 Senders.OrderByHash(i => i.Generator.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
 	public List<Vote>									Votes = [];
 	public List<AutoId>									Forkers = [];
@@ -35,7 +35,7 @@ public abstract class Round : IBinarySerializable
 	public List<Vote>									Payloads = [];
 	public List<Vote>									Selected = [];
 
-	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Member).SelectMany(i => i.Transactions);
+	public IEnumerable<Transaction>						OrderedTransactions => Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions);
 	public IEnumerable<Transaction>						Transactions => Confirmed ? ConsensusTransactions : OrderedTransactions;
 
 	public Time											ConsensusTime;
@@ -162,14 +162,14 @@ public abstract class Round : IBinarySerializable
 	 		{	
 				Mcv.Check(i);
 
-				if(i.Status == VoteStatus.OK || i.Member == AutoId.God)
+				if(i.Status == VoteStatus.OK || i.Generator == AutoId.God)
 				{	
 					VotesOfTry.Add(i);
 					
 					if(i.Transactions.Any())
 						Payloads.Add(i);
 
-					if(Voters.Any(j => j.User == i.Member))
+					if(Voters.Any(j => j.Generator == i.Generator))
 						Selected.Add(i);
 				}
 			}
@@ -268,7 +268,7 @@ public abstract class Round : IBinarySerializable
 			}
 		}
 
-		var txs = Payloads.OrderBy(i => i.Member).SelectMany(i => i.Transactions).ToArray();
+		var txs = Payloads.OrderBy(i => i.Generator).SelectMany(i => i.Transactions).ToArray();
 
 		Execute(txs);
 
@@ -289,7 +289,7 @@ public abstract class Round : IBinarySerializable
 			var svotes = Id < Mcv.JoinToVote ? [] : Selected.ToArray();
 
 			ConsensusMemberLeavers = svotes	.SelectMany(i => i.Leavers).Distinct()
-											.Where(x => Members.Any(j => j.User == x) && svotes.Count(b => b.Leavers.Contains(x)) >= min)
+											.Where(x => Members.Any(j => j.Generator == x) && svotes.Count(b => b.Leavers.Contains(x)) >= min)
 											.Order().ToArray();
 
 			ConsensusViolators = svotes	.SelectMany(i => i.Violators).Distinct()
@@ -334,9 +334,9 @@ public abstract class Round : IBinarySerializable
 		if(prevs.Any(i => i == null)) /// if just synchronized
 			return [];
 
-		var l = Target.Senders.Where(i => !Target.VotesOfTry.Any(v => v.Member == i.User) && /// did not sent a vote
-										  !prevs.Any(r => r.VotesOfTry.Any(v => v.Member == generator && v.Leavers.Contains(i.User)))) /// not yet proposed in prev [Pitch-1] rounds
-							 .Select(i => i.User);
+		var l = Target.Senders.Where(i => !Target.VotesOfTry.Any(v => v.Generator == i.Generator) && /// did not sent a vote
+										  !prevs.Any(r => r.VotesOfTry.Any(v => v.Generator == generator && v.Leavers.Contains(i.Generator)))) /// not yet proposed in prev [Pitch-1] rounds
+							 .Select(i => i.Generator);
 		return l;
 	}
 
@@ -490,7 +490,7 @@ public abstract class Round : IBinarySerializable
 			
 			foreach(var (j, o) in t.Operations.Index())
 			{	
-				o.Id = new (Id, i, (byte)j);
+				o.Id = new (Id, i, j);
 				RegisterForeign(o, ConsensusTime);
 			}
 		}
@@ -504,15 +504,15 @@ public abstract class Round : IBinarySerializable
 
 		Members = [..Members];
 
-		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.User == i)))
+		foreach(var i in ConsensusViolators.Select(i => Members.Find(j => j.Generator == i)))
 		{
-			e.AffectUser(i.User).AverageUptime = 0;
+			e.AffectUser(i.Generator).AverageUptime = 0;
 			Members.Remove(i);
 		}
 
-		foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.User == i)))
+		foreach(var i in ConsensusMemberLeavers.Select(i => Members.Find(j => j.Generator == i)))
 		{
-			var a = e.AffectUser(i.User);
+			var a = e.AffectUser(i.Generator);
 			
 			a.AverageUptime = (a.AverageUptime + Id - i.Since)/(a.AverageUptime == 0 ? 1 : 2);
 			
@@ -531,7 +531,7 @@ public abstract class Round : IBinarySerializable
 
 		foreach(var i in e.Candidates.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
-			var c = e.AffectCandidate(i.User);
+			var c = e.AffectCandidate(i.Generator);
 			
 			c.Since = Id + Mcv.JoinToVote;
 			c.Till = int.MaxValue - Mcv.JoinToVote;
@@ -552,7 +552,7 @@ public abstract class Round : IBinarySerializable
 			if(d > 0) /// day switched
 			{
 				
-				foreach(var i in Members.Select(i => e.AffectUser(i.User)))
+				foreach(var i in Members.Select(i => e.AffectUser(i.Beneficiary)))
 				{
 					i.EnergyNext += d * Net.EnergyDailyEmission / Members.Count;
 					i.Spacetime	 += d * (Net.SpacetimeDayEmission + e.Spaces.Skip(ConsensusTime.Days).Take(d).Sum()) / Members.Count;
@@ -744,9 +744,10 @@ public abstract class Round : IBinarySerializable
 	{
 		Raw = raw;
 
-		var r = new Reader(raw, Net.Constructor);
+		using var r = new Reader(raw, Net.Constructor);
 
 		Read(r);
+
 		Hash = r.ReadHash();
 	}
 }

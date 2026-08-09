@@ -10,7 +10,7 @@ public class Vote : IBinarySerializable
 	byte[]								_RawPayload;
 	Mcv									Mcv;
 
-	public AutoId						Member;
+	public AutoId						Generator;
 	public int							RoundId;
 	public int							Try; /// revote if consensus not reached
 	public Time							Time;
@@ -87,7 +87,7 @@ public class Vote : IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{RoundId}, {Member}, Try={Try}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, {nameof(TargetHash)}={TargetHash?.ToHex()}, {nameof(Violators)}={{{Violators.Length}}}, {nameof(Leavers)}={{{Leavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
+		return $"{RoundId}, {Generator}, Try={Try}, T/O={Transactions.Length}/{Transactions.Sum(i => i.Operations.Length)}, {nameof(TargetHash)}={TargetHash?.ToHex()}, {nameof(Violators)}={{{Violators.Length}}}, {nameof(Leavers)}={{{Leavers.Length}}}, Time={Time}, BroadcastConfirmed={BroadcastConfirmed}";
 	}
 	
 	public void AddTransaction(Transaction t)
@@ -109,7 +109,7 @@ public class Vote : IBinarySerializable
 		w.Write((byte)Mcv.Net.Zone);
 		w.WriteUtf8(Mcv.Net.Address);
 		w.Write7BitEncodedInt(RoundId);
-		w.Write(Member);
+		w.Write(Generator);
 		w.WriteBytes(RawPayload);
 
 		return s.Hash;
@@ -158,7 +158,7 @@ public class Vote : IBinarySerializable
 	public void Write(Writer writer)
 	{
 		writer.Write7BitEncodedInt(RoundId);
-		writer.Write(Member);
+		writer.Write(Generator);
 		writer.Write(Signature);
 		writer.WriteBytes(RawPayload);
 	}
@@ -166,7 +166,7 @@ public class Vote : IBinarySerializable
 	public void Read(Reader reader)
 	{
 		RoundId		= reader.Read7BitEncodedInt();
-		Member		= reader.Read<AutoId>();
+		Generator	= reader.Read<AutoId>();
 		Signature	= reader.ReadSignature();
 		_RawPayload	= reader.ReadBytes();
 	}
@@ -175,7 +175,8 @@ public class Vote : IBinarySerializable
 	{
 		if(!Restored)
 		{
-			ReadPayload(new Reader(RawPayload, Mcv.Net.Constructor));
+			using var r = new Reader(RawPayload, Mcv.Net.Constructor);
+			ReadPayload(r);
 		}
 	}
 
@@ -187,7 +188,7 @@ public class Vote : IBinarySerializable
 		foreach(var t in Transactions)
 		{	
 			log.ReportWarning(this, $"----Transaction {t}" );
-			log.ReportWarning(this, $"----NearestBy {round.Senders.NearestBy(t.Signature).User}");
+			log.ReportWarning(this, $"----NearestBy {round.Senders.NearestBy(t.Signature).Generator}");
 			log.ReportWarning(this, $"----Signature {t.Signature.ToHex()}" );
 			log.ReportWarning(this, $"----Hash {t.Hashify(Mcv.Net).ToHex()}" );
 			//log.ReportWarning(this, $"----Zone {t.Net.Zone}");

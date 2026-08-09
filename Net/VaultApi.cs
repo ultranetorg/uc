@@ -19,6 +19,12 @@ public class AuthenticationResult
 	public byte[]			Session { get; set; }
 }
 
+public class AuthorizationResult
+{
+	public PublicKey	Signer { get; set; }
+	public byte[]		Signature { get; set; }
+}
+
 public class VaultApiClient : JsonApiClient
 {
 	public VaultApiClient(string address, HttpClient http = null, int timeout = 30) : base(address, http, timeout)

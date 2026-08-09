@@ -1,5 +1,6 @@
 ﻿
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace Uccs.Nexus;
 
@@ -154,7 +155,8 @@ public class Wallet
 	public List<WalletKey>		Keys = new();
 	public List<byte[]>			AuthenticationHashes = new();
 	public byte[]				Encrypted;
-	public string				Password;
+	public byte[]				Password;
+	public byte[]				Salt;
 	public Vault				Vault;
 
 	public bool					Locked => Encrypted != null;
@@ -167,7 +169,7 @@ public class Wallet
 		Name = name ?? Default;
 		Vault = vault;
 
-		var r = new Reader(data);
+		using var r = new Reader(data);
 		
 		AuthenticationHashes = r.ReadList(() => r.ReadBytes(Cryptography.HashLength));
 		Encrypted			 = r.ReadBytes();
@@ -177,7 +179,8 @@ public class Wallet
 	{
 		Name = name ?? Default;
 		Vault = vault;
-		Password = password;
+		Salt = RandomNumberGenerator.GetBytes(32);
+		Password = Vault.Cryptography.HashifyPassword(password, Salt);
 		Keys = keys.Select(i => new WalletKey(this, i.Value, i.Key)).ToList();
 	}
 
@@ -191,7 +194,7 @@ public class Wallet
 
 		ew.Write(Keys);
 
-		return Vault.Encrypt(es.ToArray(), Password);
+		return Encrypt(es.ToArray());
 	}
 
 	public byte[] ToRaw()
@@ -246,6 +249,7 @@ public class Wallet
 
 		Keys.Clear();
 		Password = null;
+		Salt = null;
 	}
 
 	//public void Access(object uiparent)
@@ -261,14 +265,14 @@ public class Wallet
 		if(Encrypted == null)
 			return;
 
-		Password = password;
+		var de = Decrypt(Encrypted, password);
 
-		var de = Vault.Decrypt(Encrypted, password);
-
-		var r = new Reader(de);
+		using var r = new Reader(de);
 
 		Keys = r.ReadList(() => { var a = new WalletKey(this); a.Read(r); return a; });
 
+		Salt = RandomNumberGenerator.GetBytes(32);
+		Password = Vault.Cryptography.HashifyPassword(password, Salt);
 		Encrypted = null;
 	}
 
@@ -290,5 +294,70 @@ public class Wallet
 		Save();
 
 		File.Delete(old);
+	}
+
+	byte[] Encrypt(byte[] data)
+	{
+        byte[] iv = RandomNumberGenerator.GetBytes(16);
+
+		using(Aes aesAlg = Aes.Create())
+		{
+			aesAlg.Key = Password;
+			aesAlg.IV = iv;
+
+			var e = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+			
+			byte[] en;
+			
+			using(var msEncrypt = new MemoryStream())
+			{
+				using(var es = new CryptoStream(msEncrypt, e, CryptoStreamMode.Write))
+				{
+					es.Write(data, 0, data.Length);
+				}
+				en = msEncrypt.ToArray();
+			}
+
+			var s = new MemoryStream();
+			var w = new Writer(s);
+			
+			w.Write(1);
+			w.WriteBytes(Salt);
+			w.WriteBytes(iv);
+			w.WriteBytes(en);
+
+			return s.ToArray();
+		}
+	}
+
+	byte[] Decrypt(byte[] data, string password)
+	{
+		using var r = new Reader(data);
+			
+		var v  = r.ReadInt32();
+
+		if(v != 1)
+			throw new VaultException(VaultError.NotSupported);
+
+		var s = r.ReadBytes();
+		var iv = r.ReadBytes();
+		var en = r.ReadBytes();
+
+		using var aesAlg = Aes.Create();
+		
+		aesAlg.Key = Vault.Cryptography.HashifyPassword(password, s);
+		aesAlg.IV = iv;
+
+		ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+		byte[] de;
+
+		using var msDecrypt = new MemoryStream(en);
+		using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+		using var msPlain = new MemoryStream();
+
+		csDecrypt.CopyTo(msPlain);
+		de = msPlain.ToArray();
+
+		return de;
 	}
 }

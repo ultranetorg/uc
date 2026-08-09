@@ -84,10 +84,10 @@ public class Nexus : IProgram
 	
 	public void RunRdn(RdnNodeSettings rdnsettings, IClock clock)
 	{
-		var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
-		Directory.CreateDirectory(d);
+		//var d = Path.Join(Settings.Profile, Rdn.Rdn.ByZone(Settings.Zone).Address);
+		//Directory.CreateDirectory(d);
 		
-		RdnNode	= new RdnNode(Settings.Zone, d, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), d));
+		RdnNode	= new RdnNode(Settings.Zone, Settings, rdnsettings, clock, Flow.CreateNested(new Log(), rdnsettings.Profile));
 		
 		if(RdnNode.ResourceHub != null)
 		{
@@ -220,7 +220,8 @@ public class Nexus : IProgram
 	
 			//lock(RdnNode.ResourceHub.Lock)
 			{
-				var m = new Reader(r.Data.Value).Read<ProductManifest>();
+				using var rd = new Reader(r.Data.Value);
+				var m = rd.Read<ProductManifest>();
 	
 				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
 			}

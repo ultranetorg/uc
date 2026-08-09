@@ -26,7 +26,8 @@ public class EntityFieldAddress : IBinarySerializable, IComparable<EntityFieldAd
 
 	public EntityFieldAddress(byte[] raw)
 	{
-		Read(new Reader(raw));
+		using var r = new Reader(raw);
+		Read(r);
 	}
 
 	public override string ToString()

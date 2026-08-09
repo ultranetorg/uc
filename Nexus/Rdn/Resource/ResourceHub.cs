@@ -330,10 +330,10 @@ public class ResourceHub
 
 						if(l != null && l.Availability != Availability.None)
 						{
-							foreach(var m in mr.Members	.OrderByHash(i => i.User.Raw, l.Address.MemberOrderKey)
+							foreach(var m in mr.Members	.OrderByHash(i => i.Generator.Raw, l.Address.MemberOrderKey)
 														.Take(MembersPerDeclaration)
 														.Where(m =>	{
-																		var d = l.DeclaredOn.Find(dm => dm.Member.User == m.User);
+																		var d = l.DeclaredOn.Find(dm => dm.Member.Generator == m.Generator);
 																		return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
 																	})
 														.Cast<RdnGenerator>())
@@ -404,7 +404,7 @@ public class ResourceHub
 				{
 					foreach(var r in i.Value.Select(i => i.Value))
 					{
-						var d = r.DeclaredOn.Find(j => j.Member.User == i.Key.User);
+						var d = r.DeclaredOn.Find(j => j.Member.Generator == i.Key.Generator);
 
 						if(d == null)
 							r.DeclaredOn.Add(new Declaration {Member = i.Key, Status = DeclarationStatus.InProgress});
@@ -441,7 +441,7 @@ public class ResourceHub
 												{
 													foreach(var r in drr.Results)
 													{	
-														var x = Find(r.Address).DeclaredOn.Find(j => j.Member.User == i.Key.User);
+														var x = Find(r.Address).DeclaredOn.Find(j => j.Member.Generator == i.Key.Generator);
 
 														if(r.Result == DeclarationResult.Accepted)
 															x.Status = DeclarationStatus.Accepted;
@@ -454,10 +454,10 @@ public class ResourceHub
 															Find(r.Address).DeclaredOn.Remove(x);
 													}
 
-													tasks.Remove(i.Key.User);
+													tasks.Remove(i.Key.Generator);
 												}
 											});
-					tasks[i.Key.User] = t;
+					tasks[i.Key.Generator] = t;
 				}
 			}
 				

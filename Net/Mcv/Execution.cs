@@ -4,21 +4,21 @@ public class Execution : ITableExecution
 {
 	public Dictionary<MetaId, MetaEntity>		AffectedMetas = new();
 	public Dictionary<AutoId, User>				AffectedUsers = new();
-	public Dictionary<AutoId, Generator>		AffectedCandidates = new();
+	public Dictionary<AutoId, Member>		AffectedCandidates = new();
 	
 	public FrientExecution						Friends;
 
 	Dictionary<int, int>[]						_NextEids;
 	long[]										_Spaces;
 	long[]										_Bandwidths;
-	List<Generator>								_Candidates;
+	List<Member>								_Candidates;
 	List<OutwardTransaction>					_OutwardTransactions;
 	OrderedDictionary<IccpTransaction, string>	_IccTransaction;
 	
 	public Dictionary<int, int>[]				NextEids => _NextEids ??= [..Mcv.Tables.Select(i => new Dictionary<int, int>())];
 	public long[]								Spaces  { get => _Spaces ?? Round.Spacetimes; set => _Spaces = value; }
 	public long[]								Bandwidths { get => _Bandwidths ?? Round.Bandwidths; set => _Bandwidths = value; }
-	public List<Generator>						Candidates { get => _Candidates ?? Round.Candidates; set => _Candidates = value; }
+	public List<Member>						Candidates { get => _Candidates ?? Round.Candidates; set => _Candidates = value; }
 	public List<OutwardTransaction>				OutwardTransactions { get => _OutwardTransactions ?? Round.OutwardTransactions; set => _OutwardTransactions = value; }
 	public OrderedDictionary<IccpTransaction, string>	IccTransactions { get => _IccTransaction ?? Round.IccTransactions; set => _IccTransaction = value; }
 
@@ -349,8 +349,9 @@ public class Execution : ITableExecution
 
 		var a = Mcv.Users.Create();
 
-		a.Id	= LastCreatedId = new AutoId(b, e);
-		a.Name	= name;
+		a.Id			= LastCreatedId = new AutoId(b, e);
+		a.Name			= name;
+		//a.Permissions	= [new Permission {Operations = [], Users = [a.Id]}];
 
 		AffectedUsers[a.Id] = a;
 
@@ -380,18 +381,18 @@ public class Execution : ITableExecution
 		return a;
 	}
 
-	public Generator AffectCandidate(AutoId id)
+	public Member AffectCandidate(AutoId generator)
 	{
-		if(AffectedCandidates.TryGetValue(id, out Generator a))
+		if(AffectedCandidates.TryGetValue(generator, out Member a))
 			return a;
 
 		_Candidates ??= [..Round.Candidates];
 
-		var c = Candidates.Find(i => i.User == id);
+		var c = Candidates.Find(i => i.Generator == generator);
 
 		if(c == null)
 		{
-			c = AffectedCandidates[id] = Mcv.CreateGenerator();
+			c = AffectedCandidates[generator] = Mcv.CreateGenerator();
 
 			Candidates.Add(c);
 		
@@ -400,7 +401,7 @@ public class Execution : ITableExecution
 		}
 		else
 		{
-			c = AffectedCandidates[id] = c.Clone();
+			c = AffectedCandidates[generator] = c.Clone();
 		}
 
 		return c;

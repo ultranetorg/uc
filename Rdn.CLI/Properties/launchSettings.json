@@ -4,10 +4,6 @@
       "commandName": "WSL2",
       "distributionName": ""
     },
-    "empty": {
-      "commandName": "Project",
-      "remoteDebugEnabled": false
-    },
     "Localzone: node run peer": {
       "commandName": "Project",
       "commandLineArgs": "node run peer zone=Localzone profile=a:\\UOTMP\\CLI-78.47.204.100 "
@@ -43,6 +39,11 @@
     "domain m": {
       "commandName": "Project",
       "commandLineArgs": "domain m",
+      "remoteDebugEnabled": false
+    },
+    "node run": {
+      "commandName": "Project",
+      "commandLineArgs": "node run",
       "remoteDebugEnabled": false
     }
   }

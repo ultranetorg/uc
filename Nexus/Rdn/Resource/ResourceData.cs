@@ -163,7 +163,9 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 
 	public T Read<T>() where T : IBinarySerializable, new()
 	{
-		return new Reader(Value).Read<T>();
+		using var r = new Reader(Value);
+
+		return r.Read<T>();
 	}
 
 	public T Parse<T>()
@@ -214,7 +216,9 @@ public class ResourceDataJsonConverter : JsonConverter<ResourceData>
 {
 	public override ResourceData Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		return new ResourceData(new Reader(reader.GetString().FromHex()));
+		using var r = new Reader(reader.GetString().FromHex());
+		
+		return new ResourceData(r);
 	}
 
 	public override void Write(Utf8JsonWriter writer, ResourceData value, JsonSerializerOptions options)

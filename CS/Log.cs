@@ -21,12 +21,24 @@ public class LogMessage
 	{
 		if(_Full == null)
 		{
-			var b = new StringBuilder();
-	
-			if(Severity != Uccs.Log.Severity.Info)	b.Append("!!! " + Severity + " : ");
-			if(Sender == null)						b.Append(Sender.GetType().Name + " : ");
-			if(Subject == null)						b.Append(Subject);
-			if(Subject != null && Text != null)		b.Append(" : ");
+			var b = new StringBuilder(256);
+
+			if(Severity != Uccs.Log.Severity.Info)
+			{
+				b.Append("!!! ");
+				b.Append(Severity);
+				b.Append(" : ");
+			}
+			if(Sender != null)
+			{
+				b.Append(Sender.GetType().Name);
+				b.Append(" : ");
+			}
+			if(Subject != null)
+			{
+				b.Append(Subject);
+				b.Append(Subject + " : ");
+			}
 			
 			if(Text.Length == 1)
 				b.Append(Text[0]);

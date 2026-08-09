@@ -25,22 +25,10 @@ public class RdnNode : McvNode
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
 	List<OutwardTransaction>		CurrentOutwards = [];
-	public string					DataPath;
 
-	public RdnNode(Zone zone, string profile, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), profile, nexussettings, flow)
+	public RdnNode(Zone zone, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), settings.Profile, nexussettings, flow)
 	{
-		base.Settings = settings ?? new RdnNodeSettings(profile);
-
-		if(settings == null && !File.Exists(Settings.Path))
-		{
-			Settings.Peering	= new () {Endpoint = new (IPAddress.Any, Net.PpiPort)};
-			Settings.Api		= new () {LocalIP = nexussettings.Host};
-			Settings.Seed		= new ();
-
-			Settings.Save();
-		}
-
-		DataPath = Settings.DataPath ?? System.IO.Path.Join(ExeDirectory, nameof(Rdn));;	
+		base.Settings = settings;
 
 		if(Flow.Log != null)
 			new LogFile(Flow.Log, GetType().Name, Settings.Profile, flow);
@@ -52,9 +40,9 @@ public class RdnNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new RdnMcv(Net, Settings.Mcv, DataPath, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], [Settings.Peering.Endpoint], clock ?? new RealClock());
+			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.Endpoint], [Settings.Peering.Endpoint], clock ?? new RealClock());
 
-			if(Settings.Mcv.Generators.Any())
+			if(Settings.Mcv.Memberships.Any())
 			{
 				SeedHub = new SeedHub(Mcv);
 			}
@@ -108,7 +96,7 @@ public class RdnNode : McvNode
 													(ApiServer != null ? "A" : null) +
 													(Settings.Mcv != null ? "G" : null) +
 													(Settings.Mcv?.Chain != null  ? "C" : null) +
-													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.Senders.Any(i => Settings.Mcv.Generators.Any(g => g.Id == i.User)) ? "M" : null) +
+													(Peering.Synchronization == Synchronization.Synchronized && Mcv.NextVotingRound.Senders.Any(i => Settings.Mcv.Memberships.Any(g => g.GeneratorId == i.Generator)) ? "M" : null) +
 													(Settings.Seed != null  ? "S" : null),
 													Peering.Connections.Count() < Settings.Peering.PermanentMin ? "Low Peers" : null,
 													Mcv != null ? $"{Peering.Synchronization}{(Peering.SynchronizationInfo != null ? $"-{Peering.SynchronizationInfo}" : null)}/{Mcv.LastConfirmedRound?.Id}/{Mcv.LastConfirmedRound?.Hash.ToHexPrefix()}" : null,

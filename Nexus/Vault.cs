@@ -108,13 +108,20 @@ public class Vault
 		if(string.IsNullOrWhiteSpace(name) || name.Length > 256 || name.Any(i => System.IO.Path.GetInvalidFileNameChars().Contains(i)))
 			throw new VaultException(VaultError.InvalidWalletName);
 
+		if(Wallets.Any(i => i.Name == name))
+			throw new VaultException(VaultError.AlreadyExists);
+
 		var w = new Wallet(this, name, Enumerable.Range(0, accounts).ToDictionary(i => SecretKey.Create(), i => (string)null), password);
+
+		Wallets.Add(w);
+
 		return w;
 	}
 
 	public Wallet CreateWallet(string name, IDictionary<SecretKey, string> keys, string password)
 	{
 		var w = new Wallet(this, name, keys, password);
+
 		return w;
 	}
 
@@ -142,8 +149,6 @@ public class Vault
 			throw new VaultException(VaultError.AlreadyExists);
 
 		var w = CreateWallet(name, keys, password);
-		
-		w.Password = password;
 
 		w.Save();
 
@@ -178,78 +183,6 @@ public class Vault
 		return Wallets.Any(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
 	}
 
-	public byte[] Encrypt(byte[] data, string password)
-	{
-        byte[] ps = RandomNumberGenerator.GetBytes(32);
-        byte[] iv = RandomNumberGenerator.GetBytes(16);
-
-		using(Aes aesAlg = Aes.Create())
-		{
-			aesAlg.Key = Cryptography.HashifyPassword(password, ps);
-			aesAlg.IV = iv;
-
-			var e = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-			
-			byte[] en;
-			
-			using(var msEncrypt = new MemoryStream())
-			{
-				using(var es = new CryptoStream(msEncrypt, e, CryptoStreamMode.Write))
-				{
-					es.Write(data, 0, data.Length);
-				}
-				en = msEncrypt.ToArray();
-			}
-
-			var s = new MemoryStream();
-			var w = new Writer(s);
-			
-			w.Write(1);
-			w.WriteBytes(ps);
-			w.WriteBytes(iv);
-			w.WriteBytes(en);
-
-			return s.ToArray();
-		}
-	}
-
-	public byte[] Decrypt(byte[] data, string password)
-	{
-		var r = new Reader(data);
-			
-		var v  = r.ReadInt32();
-
-		if(v != 1)
-			throw new VaultException(VaultError.NotSupported);
-
-		var ps = r.ReadBytes();
-		var iv = r.ReadBytes();
-		var en = r.ReadBytes();
-
-		using(Aes aesAlg = Aes.Create())
-		{
-			aesAlg.Key = Cryptography.HashifyPassword(password, ps);
-			aesAlg.IV = iv;
-
-			ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-			byte[] de;
-
-			using(var msDecrypt = new MemoryStream(en))
-			{
-				using(var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-				{
-					using(var msPlain = new MemoryStream())
-					{
-						csDecrypt.CopyTo(msPlain);
-						de = msPlain.ToArray();
-					}
-				}
-			}
-
-			return de;
-		}
-	}
-
 	public AuthenticationResult Authenticate(string application, string net, string user, byte[] logo, PublicKey account)
 	{
 		var c = AuthenticationRequested?.Invoke(application, logo, net, user, account);
@@ -272,7 +205,7 @@ public class Vault
 			throw new VaultException(VaultError.Rejected);
 	}
 
-	public byte[] Authorize(CryptographyType cryptography, string net, string operation, string user, byte[] session, byte[] Hash, Flow flow)
+	public AuthorizationResult Authorize(CryptographyType cryptography, string net, string operation, string user, byte[] session, byte[] Hash, Flow flow)
 	{
 		if(string.IsNullOrWhiteSpace(net) || session.Length != Cryptography.HashLength)
 			throw new VaultException(VaultError.IncorrectArgumets);
@@ -304,12 +237,16 @@ public class Vault
 		if(au.Trust == Trust.AskEveryTime)
 			AuthorizationRequested(acc.Address, au, operation);
 
-		return cryptography switch 
-							{
-								CryptographyType.No		=> Cryptography.No.Sign(acc.Key, Hash),
-								CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Key, Hash),
-								CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Key, Hash),
-								_ => throw new VaultException(VaultError.UnknownCtyptography)
-							};
+		return	new AuthorizationResult
+				{
+					Signer = acc.Address, 
+					Signature = cryptography switch 
+					{
+						CryptographyType.No		=> Cryptography.No.Sign(acc.Key, Hash),
+						CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Key, Hash),
+						CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Key, Hash),
+						_ => throw new VaultException(VaultError.UnknownCtyptography)
+					}
+				};
 	}
 }

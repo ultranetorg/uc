@@ -18,8 +18,10 @@ public enum OperationClass : uint
 	User						= 001,
 		UserCreation			= 001_000_001, 
 		UserOwnerChange			= 001_000_002, 
-		UserNameChange			= 001_000_003, 
-		UserBandwidthAllocation	= 001_000_004,
+		UserPermissionAddition	= 001_000_003, 
+		UserPermissionRemoval	= 001_000_004, 
+		UserNameChange			= 001_000_005, 
+		UserBandwidthAllocation	= 001_000_006,
 
 	Friend						= 002, 
 		FriendAttachment		= 002_000_001,

@@ -18,7 +18,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 		if(Mcv != null)
 		{
 			Mcv.FriendTransferFormed += (e, f) =>	{
-											 			foreach(var i in node.Settings.Mcv.Generators.Where(i => e.Round.Members.Any(j => j.User == i.Id)))
+											 			foreach(var i in node.Settings.Mcv.Memberships.Where(i => e.Round.Members.Any(j => j.Generator == i.GeneratorId)))
 											 			{
 															Task.Run(() =>	{
 											 									Call(Net, f.Name, new TransferRequestIcca {Hash = f.LastOutgoingTransfer.Hash
@@ -187,10 +187,10 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	{
 		var f = Flow.CreateNested(args.Timeout);
 		
-		var r = new Reader(new MemoryStream(args.Request), Node.Peering.Constructor);
+		using var r = new Reader(args.Request, Node.Peering.Constructor);
 		var rq = r.ReadVirtual<PeerRequest>();
 		
-		var w = new Writer(new MemoryStream(), Node.Peering.Constructor);
+		using var w = new Writer(new MemoryStream(), Node.Peering.Constructor);
 		w.WriteVirtual(Node.Peering.Call(rq, f, null));
 
 		return new RequestIccr {Response = (w.BaseStream as MemoryStream).ToArray()};
@@ -343,7 +343,8 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	public void Read(byte[] holder, out byte table, out AutoId name)
 	{
 		table = holder[0];
-		name = new Reader(holder[1..]).Read<AutoId>();
+		using var r = new Reader(holder[1..]);
+		name = r.Read<AutoId>();
 	}
 
 	public virtual Result Transact(string from, TransactIcca args)

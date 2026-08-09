@@ -133,7 +133,7 @@ public class FieldValue : IBinarySerializable
 		{
 			var a = new AutoId();
 			
-			var reader = new Reader(Value);
+			using var reader = new Reader(Value);
 			a.Read(reader);
 			
 			return a;

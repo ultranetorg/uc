@@ -170,7 +170,7 @@ public class McvSummaryApc : McvApc
 		if(node.Mcv != null)
 		{
 			f.Add("Synchronization",		$"{node.Peering.Synchronization}");
-			f.Add("Generators",				$"{string.Join(", ", (object[])node.Mcv.Settings.Generators)}");
+			f.Add("Generators",				$"{string.Join(", ", node.Mcv.Settings.Memberships)}");
 			f.Add("Size",					$"{node.Mcv.Size}");
 
 			f.Add("Members",				$"{node.Mcv.LastConfirmedRound?.Members.Count}");
@@ -203,7 +203,7 @@ public class ChainReportApc : McvApc
 																	Hash = i.Hash,
 																	Votes = i.Votes.Select(b => new Return.Vote
 																								{	
-																									Generator = node.Mcv.Users.Latest(b.Member).Name,
+																									Generator = node.Mcv.Users.Latest(b.Generator).Name,
 																									IsPayload = b.Transactions.Any(),
 																									/*Confirmed = i.Confirmed && i.Transactions.Any() && i.ConfirmedPayloads.Contains(b)*/
 																								}),
@@ -244,14 +244,14 @@ public class VotesReportApc : McvApc
 	{
 		lock(node.Mcv.Lock)
 			return new VotesReportResponse{Votes = node.Mcv	.FindRound(RoundId)?.Votes
-															.OrderBy(i => i.Member)
+															.OrderBy(i => i.Generator)
 															.Take(Limit)
 															.Select(i => new VotesReportResponse.Vote
 																		 {
 																			Try = i.Try,
 																			ParentSummary = i.TargetHash,
 																			Signature = i.Signature,
-																			Generator = node.Mcv.Users.Latest(i.Member).Name
+																			Generator = node.Mcv.Users.Latest(i.Generator).Name
 																		 })
 															.ToArray()}; 
 	}

@@ -6,7 +6,7 @@ namespace Uccs.Net;
 
 public interface IHolder
 {
-	bool		IsSpendingAuthorized(Execution executions, AutoId signer);
+	bool		IsPermitted(Execution executions, uint operation, AutoId signer);
 }
 
 public interface ISpacetimeHolder : IHolder
@@ -83,11 +83,32 @@ public interface IEnergyHolder : IHolder
 	}
 }
 
+//public class Permission : IBinarySerializable
+//{
+//	public bool					Users { get; set; }
+//	public AutoId[]				Users { get; set; }
+//	public uint[]				Operations { get; set; }
+//
+//	public void Read(Reader reader)
+//	{
+//		Users 		= reader.ReadArray<AutoId>();
+//		Operations 	= reader.ReadArray(() => reader.ReadUInt32());
+//	}
+//
+//	public void Write(Writer writer)
+//	{
+//		writer.Write(Users);
+//		writer.Write(Operations, i => writer.Write(i));
+//	}
+//}
+
+
 public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry<AutoId>
 {
 	public AutoId			Id { get; set; }
 	public string			Name { get; set; }
 	public PublicKey		Owner { get; set; }
+	//public Permission[]		Permissions { get; set; }
 	public int				LastNonce { get; set; } = -1;
 	public int				LastOutward { get; set; } = -1;
 	public long				AverageUptime { get; set; }
@@ -118,7 +139,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 
 	public override string ToString()
 	{
-		return $"{Name}, {Id}, {Owner}, ECThis={Energy}, ECNext={EnergyNext}, BD={Spacetime}, LTNid={LastNonce}, AverageUptime={AverageUptime}";
+		return $"{Name}, {Id}, {Owner}, {nameof(Energy)}={Energy}, {nameof(EnergyNext)}={EnergyNext}, {nameof(Spacetime)}={Spacetime}, {nameof(LastNonce)}={LastNonce}, {nameof(AverageUptime)}={AverageUptime}";
 	}
 
 	public static long ParseSpacetime(string t)
@@ -133,16 +154,18 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		return long.Parse(t, NumberStyles.AllowThousands);
 	}
 
-	public bool IsSpendingAuthorized(Execution executions, AutoId signer)
+	public bool IsPermitted(Execution executions, uint operation, AutoId signer)
 	{
 		return Id == signer;
+		//return Permissions.Any(i => (i.Operations.Length == 0 || i.Operations.Contains(operation)) && i.Users.Contains(signer));
 	}
 
 	public virtual void Write(Writer writer)
 	{
 		writer.Write(Id);
-		writer.Write(Owner);
 		writer.WriteASCII(Name);
+		writer.Write(Owner);
+	//	writer.Write(Permissions);
 
 		writer.Write7BitEncodedInt64(Spacetime);
 		writer.Write7BitEncodedInt(LastNonce);
@@ -155,8 +178,9 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public virtual void Read(Reader reader)
 	{
 		Id					= reader.Read<AutoId>();
-		Owner				= reader.Read<PublicKey>();
 		Name				= reader.ReadASCII();
+		Owner				= reader.Read<PublicKey>();
+	//	Permissions			= reader.ReadArray<Permission>();
 
 		Spacetime 			= reader.Read7BitEncodedInt64();
 		LastNonce			= reader.Read7BitEncodedInt();
@@ -180,8 +204,9 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		var a = Mcv.Users.Create();
 
 		a.Id					= Id;
-		a.Owner					= Owner;
 		a.Name					= Name;
+		a.Owner					= Owner;
+	//	a.Permissions			= Permissions;
 		a.Spacetime				= Spacetime;
 		a.LastNonce				= LastNonce;
 		a.LastOutward			= LastOutward;

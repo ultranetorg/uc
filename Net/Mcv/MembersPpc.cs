@@ -26,11 +26,11 @@ public class MembersPpc : McvPpc<MembersPpr>
 
 public class MembersPpr : Result 
 {
-	public Generator[] Members { get; set; }
+	public Member[] Members { get; set; }
 
 	public override void Read(Reader reader)
 	{
-		Members = reader.ReadArray(() => {var g = new Generator(); g.ReadBase(reader); return g;});
+		Members = reader.ReadArray(() => {var g = new Member(); g.ReadBase(reader); return g;});
 	}
 
 	public override void Write(Writer writer)

@@ -63,7 +63,7 @@ public class SeedHub
 
 			lock(Mcv.Lock)
 			{ 
-				if(!Mcv.NextVotingRound.Senders.OrderByHash(i => i.User.Raw, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Generators.Any(g => g.Id == i.User)))
+				if(!Mcv.NextVotingRound.Senders.OrderByHash(i => i.Generator.Raw, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Memberships.Any(g => g.GeneratorId == i.Generator)))
 				{
 					yield return new (rzd, DeclarationResult.NotNearest);
 					continue;

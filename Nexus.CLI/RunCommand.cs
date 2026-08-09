@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Uccs.Net;
+using Uccs.Rdn;
 
 namespace Uccs.Nexus.CLI;
 
@@ -26,12 +27,9 @@ public class RunCommand : NexusCommand
 		a.Execute = () =>	{
 								var b = Cli.Boot;
 
-								var ns = new NexusSettings(b.Zone, b.Profile);
-								var vs = new VaultSettings(ns);
-
-								Cli.Nexus = new Nexus(b, ns, vs, new Flow(nameof(Nexus), new Log()){WorkDirectory = b.Profile});
+								Cli.Nexus = new Nexus(b, Cli.NexusSettings, Cli.VaultSettings, new Flow(nameof(Nexus), new Log()){WorkDirectory = b.Profile});
 								Cli.Nexus.Vault.AuthenticationRequested += OnAuth;
-								Cli.Nexus.RunRdn(null, new RealClock());
+								Cli.Nexus.RunRdn(new RdnNodeSettings(Cli.NexusSettings), new RealClock());
 
 								Report($"UOS {nameof(Nexus)}");
 								Report($"Name    : {Cli.Nexus.Settings.Name}");

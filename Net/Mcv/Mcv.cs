@@ -102,8 +102,8 @@ public abstract class Mcv /// Mutual chain voting
 	protected abstract void							GenesisInitilize(Round vote);
 	public abstract Round							CreateRound();
 	public abstract Vote							CreateVote();
-	public abstract Generator						CreateGenerator();
-	public abstract CandidacyDeclaration			CreateCandidacyDeclaration();
+	public abstract Member							CreateGenerator();
+	public abstract CandidacyDeclaration			CreateCandidacyDeclaration(AutoId beneficiary);
 	public virtual void								FillVote(Vote vote){}
 
 	Genesis											Genesis;
@@ -161,7 +161,7 @@ public abstract class Mcv /// Mutual chain voting
 				var v = CreateVote(); 
 
 				v.RoundId	 = i;
-				v.Member	 = AutoId.God;
+				v.Generator	 = AutoId.God;
 				v.Time		 = Time.Zero;
 				v.TargetHash = i < Net.P ? Net.Cryptography.ZeroHash : GetRound(i - Net.P).Summarize();
 
@@ -206,7 +206,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(GraphState != null)
 		{
-			var r = new Reader(GraphState, Net.Constructor);
+			using var r = new Reader(GraphState, Net.Constructor);
 	
 			LastCommitedRound = CreateRound();
 			LastCommitedRound.ReadGraphState(r);
@@ -223,7 +223,7 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(Settings.Chain != null)
 		{
-			var rd = new Reader(new MemoryStream(Rocks.Get(ChainStateKey)), Net.Constructor);
+			using var rd = new Reader(Rocks.Get(ChainStateKey), Net.Constructor);
 		
 			var lcr = FindRound(rd.Read7BitEncodedInt());
 				
@@ -311,7 +311,7 @@ public abstract class Mcv /// Mutual chain voting
 					if(vote.Transactions.Any())
 						r.Payloads.Add(vote);
 	
-					if(r.Id >= JoinToVote && r.Voters.Any(j => j.User == vote.Member))
+					if(r.Id >= JoinToVote && r.Voters.Any(j => j.Generator == vote.Generator))
 						r.Selected.Add(vote);
 				}
 			}
@@ -380,18 +380,18 @@ public abstract class Mcv /// Mutual chain voting
 
 		var r = GetRound(vote.RoundId);
 
-		if(r.Forkers.Contains(vote.Member))
+		if(r.Forkers.Contains(vote.Generator))
 		{	
 			vote.Status = VoteStatus.Violator;
 			return;
 		}
 	
-		var e = r.VotesOfTry.FirstOrDefault(i => i.Member == vote.Member);
+		var e = r.VotesOfTry.FirstOrDefault(i => i.Generator == vote.Generator);
 				
 		if(e != null) /// FORK
 		{
 			r.VotesOfTry.Remove(e);
-			r.Forkers.Add(e.Member);
+			r.Forkers.Add(e.Generator);
 	
 			vote.Status = VoteStatus.Fork; /// Let others know about incident
 			return;
@@ -399,13 +399,13 @@ public abstract class Mcv /// Mutual chain voting
 
 		//if(r.Id >= JoinToVote)
 		{
-			if(!r.Senders.Any(i => i.User == vote.Member))
+			if(!r.Senders.Any(i => i.Generator == vote.Generator))
 			{	
 				vote.Status = VoteStatus.NotMemeber;
 				return;
 			}
 	
-			var u = Users.Latest(vote.Member);
+			var u = Users.Latest(vote.Generator);
 							
 			if(!Net.Cryptography.Verify(u.Owner, vote.Hash, vote.Signature))
 			{
@@ -429,12 +429,11 @@ public abstract class Mcv /// Mutual chain voting
 				return;
 			}
 		
-			if(vote.Transactions.Any(t => r.Senders.NearestBy(t.Signature).User != vote.Member))
+			if(vote.Transactions.Any(t => r.Senders.NearestBy(t.Signature).Generator != vote.Generator))
 			{	
 				vote.Status = VoteStatus.InvalidTransaction;
 				return;
 			}
-
 		}
 
 		vote.Status = VoteStatus.OK;

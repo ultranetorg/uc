@@ -21,7 +21,7 @@ public class RdnCli : McvCli
 
 		Net				= Rdn.ByZone(Boot.Zone);
 		NexusSettings	= new NexusSettings(Boot.Zone, Boot.Profile);
-		Settings		= new RdnNodeSettings(Path.Join(Boot.Profile, typeof(RdnNode).FullName), Boot.Zone, NexusSettings);
+		Settings		= new RdnNodeSettings(NexusSettings);
 
 		Execute(Boot.Profile, Boot.Commnand);
 	}
