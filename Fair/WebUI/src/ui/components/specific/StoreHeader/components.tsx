@@ -5,7 +5,7 @@ import { ControlledMenu, FocusableItem, SubMenu, useClick } from "@szhsin/react-
 import { useStoreContext } from "app"
 import { Button } from "ui/components"
 import { formatTitle, routes } from "utils"
-import { GridSvg } from "assets"
+import { SvgGrid } from "assets"
 
 function LinkItem({ to, children, ...rest }: { to: string; children: ReactNode }) {
   return (
@@ -69,7 +69,7 @@ export const CategoriesButton = memo(({ storeId }: CategoriesButtonProps) => {
       {/* @ts-expect-error aaa */}
       <Button
         className="gap-2"
-        image={<GridSvg className="stroke-zinc-700" />}
+        image={<SvgGrid className="stroke-zinc-700" />}
         label={!isPending && categories ? <>Categories</> : <>⌛</>}
         ref={ref}
         {...anchorProps}
@@ -81,7 +81,7 @@ export const CategoriesButton = memo(({ storeId }: CategoriesButtonProps) => {
     // <Menu
     //   menuButton={
     //     <MenuButton className="flex w-32 gap-2" ref={ref} {...anchorProps}>
-    //       <GridSvg className="stroke-zinc-700" /> {!isPending && categories ? <>Categories</> : <>⌛</>}
+    //       <SvgGrid className="stroke-zinc-700" /> {!isPending && categories ? <>Categories</> : <>⌛</>}
     //     </MenuButton>
     //   }
     // >

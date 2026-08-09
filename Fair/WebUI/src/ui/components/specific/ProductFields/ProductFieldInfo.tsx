@@ -1,8 +1,7 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SvgChevronRight } from "assets"
-import { HomeSvg } from "assets/home"
+import { SvgHome, SvgChevronRight } from "assets"
 import { kebabToCamel } from "utils"
 
 import { FieldData } from "./FieldData"
@@ -38,7 +37,7 @@ const BreadcrumbNode = ({ node, onSelect }: ProductFieldInfoProps) => {
 const FieldBreadcrumbs = ({ node, onSelect }: ProductFieldInfoProps) => {
   return (
     <div className="flex items-center border-b bg-gray-200 px-4 py-1 text-sm">
-      <HomeSvg
+      <SvgHome
         className="size-4 cursor-pointer stroke-gray-600 hover:stroke-gray-900"
         onClick={() => onSelect(undefined)}
       />

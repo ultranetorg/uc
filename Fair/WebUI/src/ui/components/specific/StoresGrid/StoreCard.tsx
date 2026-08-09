@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { StarSvg } from "assets"
+import { SvgStar } from "assets"
 import { SvgStoreLogo } from "assets/fallback"
 import { buildFileUrl } from "utils"
 import { ImageFallback } from "ui/components/ImageFallback"
@@ -29,7 +29,7 @@ export const StoreCard = memo(({ title, description, imageFileId, isStarred = fa
       )}
     </div>
     {showStar && (
-      <StarSvg
+      <SvgStar
         className={twMerge(
           "invisible absolute right-3 top-3 group-hover:visible",
           isStarred !== true ? "stroke-gray-400" : "fill-favorite stroke-favorite",

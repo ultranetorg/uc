@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { CheckCircleFillSvg, SvgChevronDown2Sm } from "assets"
+import { SvgCheckCircleFill, SvgChevronDown2Sm } from "assets"
 import { ButtonPrimary } from "ui/components"
 
 export type OptionCollapseProps = {
@@ -59,7 +59,7 @@ export const OptionCollapse = ({
         onClick={handleExpand}
       >
         <div className="flex items-center gap-2 overflow-hidden">
-          {showResults && voted && <CheckCircleFillSvg className="z-10 fill-gray-800" />}
+          {showResults && voted && <SvgCheckCircleFill className="z-10 fill-gray-800" />}
           <span className={twMerge("z-10 truncate leading-6", !showResults ? "text-2base font-semibold" : "text-2sm")}>
             {title}
           </span>

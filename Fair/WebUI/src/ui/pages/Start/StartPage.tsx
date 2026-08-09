@@ -11,8 +11,6 @@ import { NextPagination, MultilineText, SearchDropdown, SearchDropdownItem } fro
 import { ProductsGrid, ProductsGridEmpty, ProductsGridItem } from "ui/components/specific"
 import { routes } from "utils"
 
-import { CategoryDropdown } from "./CategoryDropdown"
-
 const PUBLICATIONS_PAGE_SIZE = 10
 
 export const StartPage = () => {

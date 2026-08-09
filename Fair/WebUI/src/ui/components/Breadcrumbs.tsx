@@ -1,7 +1,7 @@
 import React, { memo } from "react"
 import { Link } from "react-router-dom"
 
-import { SvgChevronRight, ThreeDotsSvg } from "assets"
+import { SvgChevronRight, SvgThreeDots } from "assets"
 import { formatTitle } from "utils"
 
 export type BreadcrumbsItemProps = {
@@ -52,7 +52,7 @@ export const Breadcrumbs = memo(({ fullPath = true, items }: BreadcrumbsProps) =
               <SvgChevronRight className="stroke-gray-400" />
               {fullPath !== true && (
                 <>
-                  <ThreeDotsSvg className="fill-gray-400" />
+                  <SvgThreeDots className="fill-gray-400" />
                   <SvgChevronRight className="stroke-gray-400" />
                 </>
               )}

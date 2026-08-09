@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { times } from "lodash"
 
-import { SvgStarXs } from "assets/star-xs"
+import { SvgStarXs } from "assets"
 import { formatRating } from "utils"
 
 export type RatingBarProps = {

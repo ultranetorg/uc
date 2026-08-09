@@ -4,13 +4,13 @@ import { useStoreRolesContext } from "app"
 import { SvgStarXxs } from "assets"
 import { TEST_BOOK_SRC } from "testConfig"
 import { ModeratorPublicationContextMenu } from "ui/components/specific"
-import { formatRating } from "utils"
+import { formatAverageRating } from "utils"
 
 import { PublicationCardProps } from "./types"
 
 export const BookPublicationCard = memo(({ id, title, categoryTitle, rating }: PublicationCardProps) => {
   const { isModerator } = useStoreRolesContext()
-  const formattedRating = formatRating(rating)
+  const formattedRating = formatAverageRating(rating)
 
   return (
     <div className="relative h-112.5 w-67.75 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
