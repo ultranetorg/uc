@@ -2,11 +2,9 @@
 
 public class ProposalCommentTable : Table<AutoId, ProposalComment>
 {
-	public override string			Name => FairTable.ProposalComment.ToString();
-	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public ProposalCommentTable(FairMcv rds) : base(rds)
+	public ProposalCommentTable(FairMcv mcv) : base(mcv, FairTable.ProposalComment.ToString())
 	{
 	}
 	

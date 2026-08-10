@@ -15,7 +15,7 @@ public class StoreNameChange : VotableOperation
 
 	public override void Read(Reader reader)
 	{
-		Name	= reader.ReadUtf8();
+		Name = reader.ReadUtf8();
 	}
 
 	public override void Write(Writer writer)
@@ -36,7 +36,7 @@ public class StoreNameChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var e = execution.Words.Find(Word.GetId(Name));
+		var e = execution.Words.Find(NameTable.GetId(Name));
 
 		if(e != null)
 		{

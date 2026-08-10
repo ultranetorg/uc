@@ -1,26 +1,28 @@
-﻿namespace Uccs.Net;
+﻿using System.Collections.Immutable;
+
+namespace Uccs.Net;
 
 public class Execution : ITableExecution
 {
 	public Dictionary<MetaId, MetaEntity>		AffectedMetas = new();
 	public Dictionary<AutoId, User>				AffectedUsers = new();
-	public Dictionary<AutoId, Member>		AffectedCandidates = new();
+	//public Dictionary<AutoId, Member>			AffectedCandidates = new();
 	
 	public FrientExecution						Friends;
 
 	Dictionary<int, int>[]						_NextEids;
-	long[]										_Spaces;
-	long[]										_Bandwidths;
+	long[]										AffectedSpaces;
+	long[]										AffectedBandwidths;
+	List<OutwardTransaction>					AffectedOutwardTransactions;
+	OrderedDictionary<IccpTransaction, string>	AffectedIccTransaction;
 	List<Member>								_Candidates;
-	List<OutwardTransaction>					_OutwardTransactions;
-	OrderedDictionary<IccpTransaction, string>	_IccTransaction;
 	
 	public Dictionary<int, int>[]				NextEids => _NextEids ??= [..Mcv.Tables.Select(i => new Dictionary<int, int>())];
-	public long[]								Spaces  { get => _Spaces ?? Round.Spacetimes; set => _Spaces = value; }
-	public long[]								Bandwidths { get => _Bandwidths ?? Round.Bandwidths; set => _Bandwidths = value; }
-	public List<Member>						Candidates { get => _Candidates ?? Round.Candidates; set => _Candidates = value; }
-	public List<OutwardTransaction>				OutwardTransactions { get => _OutwardTransactions ?? Round.OutwardTransactions; set => _OutwardTransactions = value; }
-	public OrderedDictionary<IccpTransaction, string>	IccTransactions { get => _IccTransaction ?? Round.IccTransactions; set => _IccTransaction = value; }
+	public long[]								Spaces  { get => AffectedSpaces ?? Round.Spacetimes; set => AffectedSpaces = value; }
+	public long[]								Bandwidths { get => AffectedBandwidths ?? Round.Bandwidths; set => AffectedBandwidths = value; }
+	public List<Member>							Candidates { get => _Candidates ?? Round.Candidates; }
+	public List<OutwardTransaction>				OutwardTransactions { get => AffectedOutwardTransactions ?? Round.OutwardTransactions; set => AffectedOutwardTransactions = value; }
+	public OrderedDictionary<IccpTransaction, string>	IccTransactions { get => AffectedIccTransaction ?? Round.IccTransactions; set => AffectedIccTransaction = value; }
 
 	public Time									Time => Round.ConsensusTime;
 	public McvNet								Net;
@@ -45,14 +47,24 @@ public class Execution : ITableExecution
 		Friends = new(this);
 	}
 
+	public void AffectBandwidths()
+	{
+		AffectedBandwidths ??= [..Round.Bandwidths];
+	}
+
+	public void AffectSpaces()
+	{
+		AffectedSpaces ??= [..Round.Spacetimes];
+	}
+
 	public void AffectOutwards()
 	{
-		_OutwardTransactions ??= [..Round.OutwardTransactions];
+		AffectedOutwardTransactions ??= [..Round.OutwardTransactions];
 	}
 
 	public void AffectIccTransactions()
 	{
-		_IccTransaction ??= new (Round.IccTransactions);
+		AffectedIccTransaction ??= new (Round.IccTransactions);
 	}
 
 	public virtual ITableExecution FindExecution(byte table)
@@ -76,16 +88,6 @@ public class Execution : ITableExecution
 		if(table == Mcv.Users)	return AffectedUsers;
 
 		throw new IntegrityException();
-	}
-
-	public void AffectBandwidths()
-	{
-		_Bandwidths ??= [..Round.Bandwidths];
-	}
-
-	public void AffectSpaces()
-	{
-		_Spaces ??= [..Round.Spacetimes];
 	}
 
 	public Dictionary<K, E> AffectedByTable<K, E>(TableBase table)
@@ -383,27 +385,24 @@ public class Execution : ITableExecution
 
 	public Member AffectCandidate(AutoId generator)
 	{
-		if(AffectedCandidates.TryGetValue(generator, out Member a))
-			return a;
-
 		_Candidates ??= [..Round.Candidates];
 
-		var c = Candidates.Find(i => i.Generator == generator);
+		var i = Candidates.FindIndex(i => i.Generator == generator);
 
-		if(c == null)
+		if(i == -1)
 		{
-			c = AffectedCandidates[generator] = Mcv.CreateGenerator();
+			var c = Mcv.CreateGenerator();
 
 			Candidates.Add(c);
 		
 			if(Candidates.Count > Mcv.Net.CandidatesMaximum)
 				Candidates.RemoveAt(0);
+
+			return c;
 		}
 		else
 		{
-			c = AffectedCandidates[generator] = c.Clone();
+			 return Candidates[i] = Candidates[i].Clone();
 		}
-
-		return c;
 	}
 }

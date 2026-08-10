@@ -75,12 +75,11 @@ public class Ngram<ID> : IBinarySerializable, ITableEntry<ID> where ID : EntityI
 public abstract class NgramTable<ID> : Table<ID, Ngram<ID>>, IDisposable where ID : EntityId, new()
 {
     public readonly int            Q;
-    public readonly bool        Sorted;
-    public override bool        IsIndex => true;
+    public readonly bool		  Sorted;
 
     public abstract ID            CreateId(ulong ngramSpan, object more);
 
-    public NgramTable(Mcv chain, int q = 3, bool sorted = true) : base(chain)
+    public NgramTable(Mcv chain, string name, bool index, int q = 3, bool sorted = true) : base(chain, name, index)
     {
         if(q is < 1 or > 4)
             throw new ArgumentOutOfRangeException(nameof(q), "Q must be between 1 and 4 for ulong-packed key implementation.");

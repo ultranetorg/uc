@@ -4,14 +4,14 @@ namespace Uccs.Fair;
 
 public class FairUser : User
 {
-	public ImmutableSortedSet<AutoId>	Authors  { get; set; }
-	public ImmutableSortedSet<AutoId>	ModeratedStores  { get; set; }
-	public ImmutableSortedSet<AutoId>	Stores  { get; set; }
-	public ImmutableSortedSet<AutoId>	Reviews  { get; set; }
-	public ImmutableSortedSet<AutoId>	FavoriteStores  { get; set; }
-	public int							Approvals  { get; set; }
-	public int							Rejections  { get; set; }
-	public byte[]						Avatar  { get; set; }
+	public ImmutableList<AutoId>	Authors  { get; set; }
+	public ImmutableList<AutoId>	ModeratedStores  { get; set; }
+	public ImmutableList<AutoId>	Stores  { get; set; }
+	public ImmutableList<AutoId>	Reviews  { get; set; }
+	public ImmutableList<AutoId>	FavoriteStores  { get; set; }
+	public int						Approvals  { get; set; }
+	public int						Rejections  { get; set; }
+	public byte[]					Avatar  { get; set; }
 
 	public FairUser()
 	{
@@ -55,13 +55,13 @@ public class FairUser : User
 	{
 		base.Read(reader);
 
-		Authors					= reader.ReadImmutableSortedSet<AutoId>();
-		ModeratedStores			= reader.ReadImmutableSortedSet<AutoId>();
-		Stores					= reader.ReadImmutableSortedSet<AutoId>();
-		Reviews					= reader.ReadImmutableSortedSet<AutoId>();
+		Authors					= reader.ReadImmutableList<AutoId>();
+		ModeratedStores			= reader.ReadImmutableList<AutoId>();
+		Stores					= reader.ReadImmutableList<AutoId>();
+		Reviews					= reader.ReadImmutableList<AutoId>();
 		Avatar					= reader.ReadBytes();
 		Approvals				= reader.Read7BitEncodedInt();
 		Rejections				= reader.Read7BitEncodedInt();
-		FavoriteStores			= reader.ReadImmutableSortedSet<AutoId>();
+		FavoriteStores			= reader.ReadImmutableList<AutoId>();
 	}
 }

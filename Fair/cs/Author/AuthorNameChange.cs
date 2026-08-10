@@ -31,7 +31,7 @@ public class AuthorNameChange : FairOperation
 		if(!CanAccessAuthor(execution, Author, out var a, out Error))
 			return;
 
-		var e = execution.Words.Find(Word.GetId(Name));
+		var e = execution.Words.Find(NameTable.GetId(Name));
 
 		if(e != null)
 		{

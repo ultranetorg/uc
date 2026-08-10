@@ -4,11 +4,9 @@ namespace Uccs.Net;
 
 public class FriendTable : Table<AutoId, Friend>
 {
-	public override string			Name => McvTable.Subnet.ToString();
-
 	public int						KeyToBid(string domain) => EntityId.BytesToBucket(Encoding.ASCII.GetBytes(domain.PadRight(3, '\0'), 0, 3));
 
-	public FriendTable(Mcv rds) : base(rds)
+	public FriendTable(Mcv rds) : base(rds, McvTable.Friend.ToString())
 	{
 	}
 	

@@ -74,12 +74,12 @@ public class StoreByNamePpc : FairPpc<StoreByNamePpr>
 
 		RequireGraph();
 
-		var	w = Mcv.Words.Latest(Word.GetId(Name));
+		var	w = Mcv.Names.Latest(NameTable.GetId(Name));
 		
-		if(w == null || w.Reference.Field != EntityTextField.StoreName)
+		if(w == null || w.Entity.Field != EntityTextField.StoreName)
 			throw new EntityException(EntityError.NotFound);
 
-		var	a = Mcv.Stores.Latest(w.Reference.Entity);
+		var	a = Mcv.Stores.Latest(w.Entity.Id);
 			
 		if(a == null)
 			throw new IntegrityException();

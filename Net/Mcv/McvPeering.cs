@@ -108,6 +108,8 @@ public abstract class McvPeering : HomoPeering
 												i.Status = TransactionStatus.Accepted;
 											}
 
+											r.ReUpdate(); /// do it after reseting transactions because it affects "r.OrderedTransactions"
+
 											MainWakeup.Set(); /// send next try vote
 										};
 		}
@@ -1248,8 +1250,9 @@ public abstract class McvPeering : HomoPeering
 				v.Peering = this;
 				i.Send(v);
 			}
-			catch(NodeException)
+			catch(Exception ex)
 			{
+				i.Disconnect();
 			}
 		}
 	}

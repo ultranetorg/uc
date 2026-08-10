@@ -29,7 +29,7 @@ public class FileCreation : FairOperation
 
 	public override bool IsValid(McvNet net)
 	{
-		if(Data.Length > (net as Fair).FileLengthMaximum && !Enum.IsDefined(Mime))
+		if(Data.Length > Fair.FileLengthMaximum && !Enum.IsDefined(Mime))
 			return false;
 
 		if(Mime == FairMime.ImageJpg || Mime == FairMime.ImagePng)

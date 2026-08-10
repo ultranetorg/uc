@@ -2,11 +2,9 @@
 
 public class ProposalTable : Table<AutoId, Proposal>
 {
-	public override string			Name => FairTable.Proposal.ToString();
-	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public ProposalTable(FairMcv rds) : base(rds)
+	public ProposalTable(FairMcv mcv) : base(mcv, FairTable.Proposal.ToString())
 	{
 	}
 	

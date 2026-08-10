@@ -4,11 +4,9 @@ namespace Uccs.Fair;
 
 public class ReviewTable : Table<AutoId, Review>
 {
-	public override string			Name => FairTable.Review.ToString();
-	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public ReviewTable(FairMcv rds) : base(rds)
+	public ReviewTable(FairMcv rds) : base(rds, FairTable.Review.ToString())
 	{
 	}
 	

@@ -11,7 +11,7 @@ public delegate void SubnetDelegate(Execution execution, Friend friend);
 
 public enum McvTable : byte
 {
-	Meta, User, Subnet, _Last = Subnet
+	Meta, User, Friend, _Last = Friend
 }
 
 public enum VoteStatus
@@ -240,6 +240,7 @@ public abstract class Mcv /// Mutual chain voting
 				{
 					var r = FindRound(i);
 				
+					r.Restore(r.Raw);
 					Tail.Insert(0, r);
 				
 					r.Confirmed = false;
@@ -519,10 +520,10 @@ public abstract class Mcv /// Mutual chain voting
 				//if(!r.Target.Hash.SequenceEqual(h))
 				{
 					round.Try++;
-
-					//r.ReUpdate();
-
 					round.Target.Hash = null;
+
+					//round.ReUpdate();
+
 				}
 
 				ConsensusFailed(round); /// -> set MainWakeup -> Generate -> here to revote
@@ -669,18 +670,19 @@ public abstract class Mcv /// Mutual chain voting
 
 		using var b = new WriteBatch();
 
-		if(round.IsLastInCommit)
+		if(round.IsFull)
 		{
 			foreach(var t in Tables)
 			{	
 				var a = round.AffectedByTable(t);
 				t.Commit(b, (IEnumerable<IBaseTableEntry>)a.Values, round.FindState<TableStateBase>(t), round);
-				a.Clear();
 			}
+			
+			round.ClearAffected();
 
 			LastCommitedRound = round;
 					
-			var s = new MemoryStream();
+			using var s = new MemoryStream();
 			var w = new Writer(s, Net.Constructor);
 	
 			LastCommitedRound.WriteGraphState(w);

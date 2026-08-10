@@ -53,7 +53,7 @@ public class RawId : EntityId
 
 	public override bool Equals(EntityId a)
 	{
-		return a is RawId e && Bytes.SequenceEqual(e.Bytes);
+		return a is RawId e && Uccs.Bytes.EqualityComparer.Equals(Bytes, e.Bytes);
 	}
 
 	public override int CompareTo(EntityId a)

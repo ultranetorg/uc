@@ -82,10 +82,9 @@ public class PublicationNgramId : EntityId
 
 public class PublicationTitleNgramIndex : NgramTable<PublicationNgramId>
 {
-	public override string			Name => FairTable._PublicationTitle.ToString();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 	
-	public PublicationTitleNgramIndex(Mcv mcv) : base(mcv)
+	public PublicationTitleNgramIndex(Mcv mcv) : base(mcv, FairTable.PublicationTitle.ToString(), true)
 	{
 	}
 

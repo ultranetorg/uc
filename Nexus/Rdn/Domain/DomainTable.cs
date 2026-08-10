@@ -4,11 +4,9 @@ namespace Uccs.Rdn;
 
 public class DomainTable : Table<AutoId, Domain>
 {
-	public override string			Name => RdnTable.Domain.ToString();
-
 	public int						KeyToBid(string domain) => EntityId.BytesToBucket(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
 
-	public DomainTable(RdnMcv rds) : base(rds)
+	public DomainTable(RdnMcv rds) : base(rds, RdnTable.Domain.ToString())
 	{
 	}
 	

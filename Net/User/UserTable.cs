@@ -4,11 +4,9 @@ namespace Uccs.Net;
 
 public class UserTable : Table<AutoId, User>
 {
-	public override string Name => McvTable.User.ToString();
-
 	public static int	KeyToBucket(string name) => EntityId.BytesToBucket(Encoding.UTF8.GetBytes(name.PadRight(3, '\0'), 0, 3));
 
-	public UserTable(Mcv chain) : base(chain)
+	public UserTable(Mcv chain) : base(chain, McvTable.User.ToString())
 	{
 	}
 

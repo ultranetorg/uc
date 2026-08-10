@@ -20,10 +20,10 @@ public abstract class TableBase
 	public string								EntityColumnName	=> Name + nameof(EntityColumn);
 	public string								MetaColumnName		=> Name + nameof(MetaColumn);
 	
-	public abstract string						Name { get; }
+	public string								Name { get; protected set; }
+	public bool									IsIndex { get; protected set; }
 	public int									Size => Clusters.Sum(i => i.MainLength);
 	public byte									Id => (byte)Array.IndexOf(Mcv.Tables, this);
-	public virtual bool							IsIndex => false;
 	public abstract IEnumerable<ClusterBase>	Clusters { get; }
 	protected RocksDb							Rocks;
 	protected Mcv								Mcv;
@@ -182,7 +182,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 		public override void Commit(WriteBatch batch)
 		{
-			var bs = new Blake2Stream();
+			using var bs = new Blake2Stream();
 			var w = new Writer(bs, Table.Mcv.Net.Constructor);
 			
 			w.Write7BitEncodedInt(NextI); /// hash this too
@@ -208,7 +208,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 				Size += i.Value.Main.Length;
 			}
 
-			var s = new MemoryStream();
+			using var s = new MemoryStream();
 			w = new Writer(s, Table.Mcv.Net.Constructor);
 
 			w.Write(Hash);
@@ -569,9 +569,11 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 	public abstract E				Create();
 	public virtual TableStateBase	CreateAssosiated() => new TableState<ID, E>(this);
 
-	public Table(Mcv chain)
+	public Table(Mcv chain, string name, bool index = false)
 	{
 		Mcv = chain;
+		Name = name;
+		IsIndex = index;
 		Rocks = Mcv.Rocks;
 		Clusters = new List<Cluster>();
 

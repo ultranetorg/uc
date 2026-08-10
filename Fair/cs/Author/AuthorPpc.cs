@@ -74,12 +74,12 @@ public class AuthorByNamePpc : FairPpc<AuthorByNamePpr>
 
 		RequireGraph();
 
-		var	w = Mcv.Words.Latest(Word.GetId(Name));
+		var	w = Mcv.Names.Latest(NameTable.GetId(Name));
 		
-		if(w == null || w.Reference.Field != EntityTextField.AuthorName)
+		if(w == null || w.Entity.Field != EntityTextField.AuthorName)
 			throw new EntityException(EntityError.NotFound);
 
-		var	a = Mcv.Authors.Latest(w.Reference.Entity);
+		var	a = Mcv.Authors.Latest(w.Entity.Id);
 			
 		if(a == null)
 			throw new IntegrityException();

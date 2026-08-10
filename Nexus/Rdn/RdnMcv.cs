@@ -7,7 +7,7 @@ public enum RdnTable : byte
 {
 	Meta = McvTable.Meta, 
 	User = McvTable.User,
-	Subnet = McvTable.Subnet,
+	Subnet = McvTable.Friend,
 	Domain,
 	Resource, 
 }

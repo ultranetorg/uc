@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace Uccs.Net;
 
@@ -16,16 +18,22 @@ public abstract class Round : IBinarySerializable
 	//public long										PerVoteTransactionsLimit		=> Mcv.Net.TransactionsPerRoundMaximum / Members.Count;
 	//public long										PerVoteBandwidthAllocationLimit	=> Mcv.Net.BandwidthAllocationPerRoundMaximum / Members.Count;
 
-	public bool											IsLastInCommit => AffectedCount >= Net.AffectedCountMaximum;
-	public virtual int									AffectedCount => AffectedMetas.Count + AffectedUsers.Count + Mcv.Tables.Sum(i => AffectedByTable(i).Count);
+	public bool											IsFull => AffectedCount >= Net.AffectedCountMaximum;
+	public virtual int									AffectedCount => Mcv.Tables.Sum(i => AffectedByTable(i).Count);
 
+	public Dictionary<int, int>[]						NextEids;
+	public ImmutableDictionary<MetaId, MetaEntity>		AffectedMetas = ImmutableDictionary<MetaId, MetaEntity>.Empty;
+	public ImmutableDictionary<AutoId, User>			AffectedUsers = ImmutableDictionary<AutoId, User>.Empty;
+	public TableState<AutoId, Friend>					Friends;
+	public long[]										Spacetimes;
+	public long[]										Bandwidths;
+	public List<Member>									Candidates;
 	public List<OutwardTransaction>						OutwardTransactions;
 	public OrderedDictionary<IccpTransaction, string>	IccTransactions;
+	public List<Member>									Members;
 
-	public List<Member>								Candidates;
-	public List<Member>								Members;
-	public IEnumerable<Member>						Senders => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id && Id <= i.Till) ?? [];
-	public IEnumerable<Member>						Voters => Id < Mcv.JoinToVote ? [new Member {Generator = AutoId.God}] 
+	public IEnumerable<Member>							Senders => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id && Id <= i.Till) ?? [];
+	public IEnumerable<Member>							Voters => Id < Mcv.JoinToVote ? [new Member {Generator = AutoId.God}] 
 																						 : 
 																						 Senders.OrderByHash(i => i.Generator.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
 
@@ -54,13 +62,7 @@ public abstract class Round : IBinarySerializable
 	public byte[]										Hash;
 
 	public List<PublicKey>								Funds;
-	public long[]										Spacetimes;
-	public long[]										Bandwidths;
 
-	public Dictionary<MetaId, MetaEntity>				AffectedMetas = [];
-	public Dictionary<AutoId, User>						AffectedUsers = [];
-	public TableState<AutoId, Friend>					Friends;
-	public Dictionary<int, int>[]						NextEids;
 
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
@@ -117,7 +119,7 @@ public abstract class Round : IBinarySerializable
 	public Round(Mcv c)
 	{
 		Mcv = c;
-		NextEids = Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
+		NextEids	= Mcv.Tables.Select(i => new Dictionary<int, int>()).ToArray();
 		Friends		= new (c.Friends);
 	}
 
@@ -176,13 +178,20 @@ public abstract class Round : IBinarySerializable
 		}
 	}
 
-	public virtual System.Collections.IDictionary AffectedByTable(TableBase table)
+	public virtual IDictionary AffectedByTable(TableBase table)
 	{
 		if(table == Mcv.Users)		return AffectedUsers;
 		if(table == Mcv.Metas)		return AffectedMetas;
 		if(table == Mcv.Friends)	return Friends.Affected;
 
 		throw new IntegrityException();
+	}
+
+	public virtual void ClearAffected()
+	{
+		AffectedMetas = ImmutableDictionary<MetaId, MetaEntity>.Empty;
+		AffectedUsers = ImmutableDictionary<AutoId, User>.Empty;
+		Friends.Affected.Clear();
 	}
 
 	public virtual S FindState<S>(TableBase table) where S : TableStateBase
@@ -192,9 +201,9 @@ public abstract class Round : IBinarySerializable
 		return null;
 	}
 
-	public Dictionary<K, E> AffectedByTable<K, E>(TableBase table)
+	public IDictionary<K, E> AffectedByTable<K, E>(TableBase table)
 	{
-		return AffectedByTable(table) as Dictionary<K, E>;
+		return AffectedByTable(table) as IDictionary<K, E>;
 	}
 	
 	public virtual void Elect(Vote[] votes, int gq)
@@ -365,8 +374,8 @@ public abstract class Round : IBinarySerializable
 				o.Error = null;
 		}
 
-		AffectedMetas		= Id == 0 ? [] : new (Previous.AffectedMetas);
-		AffectedUsers		= Id == 0 ? [] : new (Previous.AffectedUsers);
+		AffectedMetas		= Id == 0 ? ImmutableDictionary<MetaId, MetaEntity>.Empty : Previous.AffectedMetas;
+		AffectedUsers		= Id == 0 ? ImmutableDictionary<AutoId, User>.Empty : Previous.AffectedUsers;
 		Candidates			= Id == 0 ? [] : Previous.Candidates; /// cloned in Execution.AffectCandidate
 		Members				= Id == 0 ? [] : Previous.Members;
 		Funds				= Id == 0 ? [] : Previous.Funds;
@@ -447,11 +456,15 @@ public abstract class Round : IBinarySerializable
 
 	public virtual void Absorb(Execution execution)
 	{
-		foreach(var i in execution.AffectedMetas)
-			AffectedMetas[i.Key] = i.Value;
+		AffectedMetas = AffectedMetas.SetItems(execution.AffectedMetas);
 
-		foreach(var i in execution.AffectedUsers)
-			AffectedUsers[i.Key] = i.Value;
+		//foreach(var i in execution.AffectedMetas)
+		//	AffectedMetas.se = AffectedMetas[i.Key] = i.Value;
+
+		AffectedUsers = AffectedUsers.SetItems(execution.AffectedUsers);
+
+		//foreach(var i in execution.AffectedUsers)
+		//	AffectedUsers[i.Key] = i.Value;
 
 		for(int t=0; t<Mcv.Tables.Length; t++)
 			foreach(var i in execution.NextEids[t])
@@ -536,7 +549,7 @@ public abstract class Round : IBinarySerializable
 			c.Since = Id + Mcv.JoinToVote;
 			c.Till = int.MaxValue - Mcv.JoinToVote;
 			
-			e.Candidates.Remove(i);
+			e.Candidates.Remove(c);
 			Members.Add(c);
 		}
 

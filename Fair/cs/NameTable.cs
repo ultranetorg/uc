@@ -1,19 +1,14 @@
 ﻿namespace Uccs.Fair;
 
-public class WordTable : Table<RawId, Word>
+public class NameTable : TextTable<TextToField<EntityTextField>> 
 {
-	public override string			Name => FairTable._Word.ToString();
-	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
-	public new FairMcv				Mcv => base.Mcv as FairMcv;
-	public override bool			IsIndex => true;
-
-	public WordTable(FairMcv mcv) : base(mcv)
+	public NameTable(Mcv mcv) : base(mcv, FairTable.Name.ToString(), true)
 	{
 	}
 	
-	public override Word Create()
+	public override TextToField<EntityTextField> Create()
 	{
-		return new Word(Mcv);
+		return new TextToField<EntityTextField>(Mcv);
 	}
 
 	public IEnumerable<AutoId> Search(EntityTextField field, string prefix, int count)
@@ -21,19 +16,19 @@ public class WordTable : Table<RawId, Word>
 		if(prefix.Length < User.NameLengthMin)
 			yield break;
 
-		var pre = Word.GetId(prefix);
+		var pre = GetId(prefix);
 
 		int n = 0;
 
 		var found = new HashSet<AutoId>();
 
-		foreach(var i in (Mcv.LastConfirmedRound as FairRound).Words.Affected)
+		foreach(var i in (Mcv.LastConfirmedRound as FairRound).Names.Affected)
 		{
-			if(i.Value.Reference.Field == field && Bytes.EqualityComparer.Equals(i.Key.Bytes, pre.Bytes, pre.Bytes.Length))
+			if(i.Value.Entity.Field == field && Bytes.EqualityComparer.Equals(i.Key.Bytes, pre.Bytes, pre.Bytes.Length))
 			{
-				if(found.Add(i.Value.Reference.Entity))
+				if(found.Add(i.Value.Entity.Id))
 				{
-					yield return i.Value.Reference.Entity;
+					yield return i.Value.Entity.Id;
 	
 					n++;
 	
@@ -49,11 +44,11 @@ public class WordTable : Table<RawId, Word>
 		{
 			foreach(var i in b.Entries)
 			{
-				if(i.Reference.Field == field && Bytes.EqualityComparer.Equals(i.Id.Bytes, pre.Bytes, pre.Bytes.Length))
+				if(i.Entity.Field == field && Bytes.EqualityComparer.Equals(i.Id.Bytes, pre.Bytes, pre.Bytes.Length))
 				{
-					if(found.Add(i.Reference.Entity))
+					if(found.Add(i.Entity.Id))
 					{
-						yield return i.Reference.Entity;
+						yield return i.Entity.Id;
 	
 						n++;
 	
@@ -63,7 +58,7 @@ public class WordTable : Table<RawId, Word>
 				}
 			}
 		}
-
+	}
 //		if(pre.Bytes.Length == 2)
 //		{
 //			var c = FindCluster(ClusterFromBucket(pre.B));
@@ -107,23 +102,23 @@ public class WordTable : Table<RawId, Word>
 //				}
 //			}
 //		}
-	}
- }
+//	}
+}
 
-public class WordExecution : TableExecution<RawId, Word>
+public class NameExecution : TextExecution<TextToField<EntityTextField>>
 {
-	public WordExecution(FairExecution execution) : base(execution.Mcv.Words, execution)
+	public NameExecution(FairExecution execution) : base(execution.Mcv.Names, execution)
 	{
 	}
 
-	public override Word Affect(RawId id)
+	public override TextToField<EntityTextField> Affect(StringId id)
 	{
 		if(Affected.TryGetValue(id, out var a))
 			return a;
 			
 		if(Parent != null)
 			a = Parent.Find(id);
-		else if(!(Execution.Round as FairRound).Words.Affected.TryGetValue(id, out a))
+		else if(!(Execution.Round as FairRound).Names.Affected.TryGetValue(id, out a))
 			a = Table.Find(id);
 
 		if(a == null)
@@ -137,21 +132,21 @@ public class WordExecution : TableExecution<RawId, Word>
 		} 
 		else
 		{
-			return Affected[id] = a.Clone() as Word;
+			return Affected[id] = a.Clone() as TextToField<EntityTextField>;
 		}
 	}
 
 	public void Register(string word, EntityTextField field, AutoId entity)
 	{
-		var id = Word.GetId(word);
+		var id = TextTable<TextToField<EntityTextField>>.GetId(word);
 		var w = Affect(id);
 	
-		w.Reference = new EntityFieldAddress {Entity = entity, Field = field};
+		w.Entity = new EntityFieldAddress<EntityTextField> {Id = entity, Field = field};
 	}
 
 	public void Unregister(string word)
 	{
-		var id = Word.GetId(word);
+		var id = TextTable<TextToField<EntityTextField>>.GetId(word);
 		var w = Affect(id);
 
 		w.Deleted = true;

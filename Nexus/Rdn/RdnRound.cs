@@ -32,6 +32,14 @@ public class RdnRound : Round
 		return base.AffectedByTable(table);
 	}
 
+	public override void ClearAffected()
+	{
+		base.ClearAffected();
+		
+		Domains.Affected.Clear();
+		Resources.Affected.Clear();
+	}
+
 	public override S FindState<S>(TableBase table)
 	{
 		if(table == Mcv.Domains)	return Domains as S;

@@ -4,11 +4,10 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 {
 	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
-	public override bool			IsIndex => true;
 
 	public override abstract E		Create();
 
-	public BKTreeTable(FairMcv mcv) : base(mcv)
+	public BKTreeTable(FairMcv mcv, string name, bool index) : base(mcv, name, index)
 	{
 	}
 
@@ -18,7 +17,7 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 
 		if(root == null)
 		{
-			var t = affect(Word.GetId(word));
+			var t = affect(NameTable.GetId(word));
 			root = affect(new RawId([0]));
 			root.Children[0] = t.Id;
 			
@@ -36,7 +35,7 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 
 			if(!current.Children.ContainsKey(dist))
 			{
-				var t = affect(Word.GetId(word));
+				var t = affect(NameTable.GetId(word));
 
 				current = affect(current.Id);
 				current.Children = new SortedDictionary<byte, RawId>(current.Children);

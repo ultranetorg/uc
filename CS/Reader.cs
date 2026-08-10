@@ -321,6 +321,11 @@ public class Reader : BinaryReader
 		return ReadMany<T>().ToImmutableSortedSet();
 	}
 
+	public ImmutableList<T> ReadImmutableList<T>() where T : IBinarySerializable, new()
+	{
+		return ReadMany<T>().ToImmutableList();
+	}
+
 
 	//public void Read(Action a)
 	//{

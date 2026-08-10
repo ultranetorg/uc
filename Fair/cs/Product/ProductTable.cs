@@ -4,11 +4,9 @@ namespace Uccs.Fair;
 
 public class ProductTable : Table<AutoId, Product>
 {
-	public override string			Name => FairTable.Product.ToString();
-	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public ProductTable(FairMcv rds) : base(rds)
+	public ProductTable(FairMcv mcv) : base(mcv, FairTable.Product.ToString())
 	{
 ///		List<ProductEntry> load(string t)
 ///		{

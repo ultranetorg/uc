@@ -73,10 +73,9 @@ public class StoreNgramId : EntityId
 
 public class StoreTitleNgramIndex : NgramTable<StoreNgramId>
 {
-	public override string			Name => FairTable._StoreTitle.ToString();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 	
-	public StoreTitleNgramIndex(Mcv mcv) : base(mcv)
+	public StoreTitleNgramIndex(Mcv mcv) : base(mcv, FairTable.StoreTitle.ToString(), true)
 	{
 	}
 

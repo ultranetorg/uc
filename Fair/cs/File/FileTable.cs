@@ -2,11 +2,9 @@
 
 public class FileTable : Table<AutoId, File>
 {
-	public override string			Name => FairTable.File.ToString();
-	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public FileTable(FairMcv rds) : base(rds)
+	public FileTable(FairMcv mcv) : base(mcv, FairTable.File.ToString())
 	{
 	}
 	

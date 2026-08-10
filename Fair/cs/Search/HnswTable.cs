@@ -82,7 +82,6 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 
 	public new HnswTableState<D, E>				Assosiated => base.Assosiated as HnswTableState<D, E>;
 
-	public override bool						IsIndex => true;
 	public new FairMcv							Mcv => base.Mcv as FairMcv;
 	public IEnumerable<FairRound>				Tail => Mcv.Tail.Cast<FairRound>();
 
@@ -197,7 +196,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 		}
 	}
 
-	public HnswTable(Mcv mcv, IMetric<D> metric, int maxLevel = 1 << HnswId.LevelBits, int maxConnections = 24, int efConstruction = 128, int searchthreshold = 30, int minDiversity = 100) : base(mcv)
+	public HnswTable(Mcv mcv, string name, bool index, IMetric<D> metric, int maxLevel = 1 << HnswId.LevelBits, int maxConnections = 24, int efConstruction = 128, int searchthreshold = 30, int minDiversity = 100) : base(mcv, name, index)
 	{
 		Metric = metric;
 		MaxLevel = maxLevel;

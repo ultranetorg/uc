@@ -4,25 +4,25 @@ namespace Uccs.Fair;
 
 public class FairExecution : Execution
 {
-	public new Fair						Net => base.Net as Fair;
-	public new FairMcv					Mcv => base.Mcv as FairMcv;
-	public new FairRound				Round => base.Round as FairRound;
+	public new Fair										Net => base.Net as Fair;
+	public new FairMcv									Mcv => base.Mcv as FairMcv;
+	public new FairRound								Round => base.Round as FairRound;
 
-	public AuthorExecution				Authors;
-	public ProductExecution				Products;
-	public StoreExecution				Stores;
-	public CategoryExecution			Categories;
-	public PublicationExecution			Publications;
-	public ReviewExecution				Reviews;
-	public ProposalExecution			Proposals;
-	public ProposalCommentExecution		ProposalComments;
-	public FileExecution				Files;
-	public WordExecution				Words;
-	public StoreTitleNgramExecution		StoreTitles;
-	public ProductTitleExecution		ProductTitles;
-	public PublicationTitleExecution	PublicationTitles;
+	public AuthorExecution								Authors;
+	public ProductExecution								Products;
+	public StoreExecution								Stores;
+	public CategoryExecution							Categories;
+	public PublicationExecution							Publications;
+	public ReviewExecution								Reviews;
+	public ProposalExecution							Proposals;
+	public ProposalCommentExecution						ProposalComments;
+	public FileExecution								Files;
+	public NameExecution								Words;
+	public StoreTitleNgramExecution						StoreTitles;
+	public ProductTitleExecution						ProductTitles;
+	public PublicationTitleExecution					PublicationTitles;
 
-	public bool							SkipPowCheck;
+	public bool											SkipPowCheck;
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -108,7 +108,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Proposals.Id)			return Proposals;
 		if(table == Mcv.ProposalComments.Id)	return ProposalComments;
 		if(table == Mcv.Files.Id)				return Files;
-		if(table == Mcv.Words.Id)				return Words;
+		if(table == Mcv.Names.Id)				return Words;
 
 		return base.FindExecution(table);
 	}
@@ -139,7 +139,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Proposals)			return Proposals.Affected;
 		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
 		if(table == Mcv.Files)				return Files.Affected;
-		if(table == Mcv.Words)				return Words.Affected;
+		if(table == Mcv.Names)				return Words.Affected;
 		if(table == Mcv.StoreTitles)		return StoreTitles.Affected;
 		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
@@ -161,11 +161,11 @@ public class FairExecution : Execution
 	{
 		var a = base.CreateUser(name) as FairUser;
 
-		a.Reviews			= ImmutableSortedSet<AutoId>.Empty;	
-		a.ModeratedStores	= ImmutableSortedSet<AutoId>.Empty;
-		a.Authors			= ImmutableSortedSet<AutoId>.Empty;
-		a.Stores			= ImmutableSortedSet<AutoId>.Empty;
-		a.FavoriteStores	= ImmutableSortedSet<AutoId>.Empty;
+		a.Reviews			= ImmutableList<AutoId>.Empty;	
+		a.ModeratedStores	= ImmutableList<AutoId>.Empty;
+		a.Authors			= ImmutableList<AutoId>.Empty;
+		a.Stores			= ImmutableList<AutoId>.Empty;
+		a.FavoriteStores	= ImmutableList<AutoId>.Empty;
 
 		Words.Register(name, EntityTextField.UserName, a.Id);
 

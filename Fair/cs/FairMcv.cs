@@ -20,8 +20,16 @@ public enum FairTable : byte
 {
 	Meta = McvTable.Meta, 
 	User = McvTable.User,
-	Subnet = McvTable.Subnet,
-	Author, Product, Store, Category, Publication, Review, Proposal, ProposalComment, File, _Word, _StoreTitle, _ProductTitle, _PublicationTitle
+	Subnet = McvTable.Friend,
+	Author, Product, Store, Category, Publication, Review, Proposal, ProposalComment, File, 
+	Name, StoreTitle, ProductTitle, PublicationTitle
+}
+
+public enum EntityTextField : byte
+{
+	UserName, 
+	AuthorName, 
+	StoreName, 
 }
 
 public class FairMcv : Mcv
@@ -35,7 +43,7 @@ public class FairMcv : Mcv
 	public ProposalTable				Proposals;
 	public ProposalCommentTable			ProposalComments;
 	public FileTable					Files;
-	public WordTable					Words;
+	public NameTable					Names;
 	public StoreTitleNgramIndex			StoreTitles;
 	public ProductTitleNgramIndex		ProductTitles;
 	public PublicationTitleNgramIndex	PublicationTitles;
@@ -87,12 +95,12 @@ public class FairMcv : Mcv
 		Proposals = new (this);
 		ProposalComments = new (this);
 		Files = new (this);
-		Words = new (this);
+		Names = new (this);
 		StoreTitles = new (this);
 		ProductTitles = new (this);
 		PublicationTitles = new (this);
 
-		Tables = [Metas, Users, Friends, Authors, Products, Stores, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Words, StoreTitles, ProductTitles, PublicationTitles];
+		Tables = [Metas, Users, Friends, Authors, Products, Stores, Categories, Publications, Reviews, Proposals, ProposalComments, Files, Names, StoreTitles, ProductTitles, PublicationTitles];
 	}
 
 	public override Round CreateRound()

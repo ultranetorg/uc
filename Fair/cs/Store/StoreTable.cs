@@ -4,11 +4,9 @@ namespace Uccs.Fair;
 
 public class StoreTable : Table<AutoId, Store>
 {
-	public override string			Name => FairTable.Store.ToString();
-	public IEnumerable<FairRound>	Tail => Mcv.Tail.Cast<FairRound>();
 	public new FairMcv				Mcv => base.Mcv as FairMcv;
 
-	public StoreTable(FairMcv mcv) : base(mcv)
+	public StoreTable(FairMcv mcv) : base(mcv, FairTable.Store.ToString())
 	{
 	}
 	
@@ -23,12 +21,12 @@ public class StoreTable : Table<AutoId, Store>
 
 		foreach(var i in Mcv.Stores.GraphEntities.Where(i => i.Name != null))
 		{
-			var w = e.Words.Affect(Word.GetId(i.Name));
+			var w = e.Words.Affect(NameTable.GetId(i.Name));
 
-			w.Reference = new EntityFieldAddress {Entity = i.Id, Field = EntityTextField.StoreName};
+			w.Entity = new EntityFieldAddress<EntityTextField> {Id = i.Id, Field = EntityTextField.StoreName};
 		}
 
-		Mcv.Words.Commit(batch, e.Words.Affected.Values, null, lastincommit);
+		Mcv.Names.Commit(batch, e.Words.Affected.Values, null, lastincommit);
 
 		Mcv.StoreTitles.Clear();
 

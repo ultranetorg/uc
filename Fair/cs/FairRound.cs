@@ -13,7 +13,7 @@ public class FairRound : Round
 	public TableState<AutoId, Proposal>							Proposals;
 	public TableState<AutoId, ProposalComment>					ProposalComments;
 	public TableState<AutoId, File>								Files;
-	public TableState<RawId, Word>								Words;
+	public TableState<StringId, TextToField<EntityTextField>>	Names;
 	public NgramTableState<StoreNgramId>						StoreTitles;
 	public NgramTableState<ProductNgramId>						ProductTitles;
 	public NgramTableState<PublicationNgramId>					PublicationTitles;
@@ -29,7 +29,7 @@ public class FairRound : Round
 		Proposals			= new (mcv.Proposals);
 		ProposalComments	= new (mcv.ProposalComments);
 		Files				= new (mcv.Files);
-		Words				= new (mcv.Words);
+		Names				= new (mcv.Names);
 		StoreTitles			= new (mcv.StoreTitles);
 		ProductTitles		= new (mcv.ProductTitles);
 		PublicationTitles	= new (mcv.PublicationTitles);
@@ -56,12 +56,30 @@ public class FairRound : Round
 		if(table == Mcv.Proposals)			return Proposals.Affected;
 		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
 		if(table == Mcv.Files)				return Files.Affected;
-		if(table == Mcv.Words)				return Words.Affected;
+		if(table == Mcv.Names)				return Names.Affected;
 		if(table == Mcv.StoreTitles)		return StoreTitles.Affected;
 		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
 
 		return base.AffectedByTable(table);
+	}
+
+	public override void ClearAffected()
+	{
+		base.ClearAffected();
+		
+		Authors.Affected.Clear();
+		Products.Affected.Clear();
+		Stores.Affected.Clear();
+		Categories.Affected.Clear();
+		Publications.Affected.Clear();
+		Reviews.Affected.Clear();
+		Proposals.Affected.Clear();
+		Files.Affected.Clear();
+		Names.Affected.Clear();
+		StoreTitles.Affected.Clear();
+		ProductTitles.Affected.Clear();
+		PublicationTitles.Affected.Clear();
 	}
 
 	public override S FindState<S>(TableBase table)
@@ -75,7 +93,7 @@ public class FairRound : Round
 		if(table == Mcv.Proposals)			return Proposals as S;
 		if(table == Mcv.ProposalComments)	return ProposalComments as S;
 		if(table == Mcv.Files)				return Files as S;
-		if(table == Mcv.Words)				return Words as S;
+		if(table == Mcv.Names)				return Names as S;
 		if(table == Mcv.StoreTitles)		return StoreTitles as S;
 		if(table == Mcv.ProductTitles)		return ProductTitles as S;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles as S;
@@ -98,7 +116,7 @@ public class FairRound : Round
 		Proposals.Absorb(e.Proposals);
 		ProposalComments.Absorb(e.ProposalComments);
 		Files.Absorb(e.Files);
-		Words.Absorb(e.Words);
+		Names.Absorb(e.Words);
 		StoreTitles.Absorb(e.StoreTitles);
 		ProductTitles.Absorb(e.ProductTitles);
 		PublicationTitles.Absorb(e.PublicationTitles);
