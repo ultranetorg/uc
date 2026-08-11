@@ -2,12 +2,12 @@
 
 namespace Uccs.Fair;
 
-public class LimitValidator
+public static class LimitValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Validate(int? limit)
+	public static void Validate(int? limit)
 	{
-		if(limit.HasValue && !Pagination.AllowedLimits.Contains(limit.Value))
+		if(limit != null && !Pagination.AllowedLimits.Contains(limit.Value))
 		{
 			throw new InvalidPaginationParametersException();
 		}

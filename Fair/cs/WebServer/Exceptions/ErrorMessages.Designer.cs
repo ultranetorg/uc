@@ -97,6 +97,15 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid category specified..
+        /// </summary>
+        internal static string InvalidCategory {
+            get {
+                return ResourceManager.GetString("InvalidCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid depth {0} specified..
         /// </summary>
         internal static string InvalidDepthFormat1 {
@@ -133,6 +142,15 @@ namespace Uccs.Fair {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid product type {0} specified..
+        /// </summary>
+        internal static string InvalidProductTypeFormat1 {
+            get {
+                return ResourceManager.GetString("InvalidProductTypeFormat1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An incorrect publication version specified..
         /// </summary>
         internal static string InvalidPublicationVersion {
@@ -156,6 +174,15 @@ namespace Uccs.Fair {
         internal static string InvalidPublicationVersionFormat2 {
             get {
                 return ResourceManager.GetString("InvalidPublicationVersionFormat2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid search params specified..
+        /// </summary>
+        internal static string InvalidSearchParams {
+            get {
+                return ResourceManager.GetString("InvalidSearchParams", resourceCulture);
             }
         }
         

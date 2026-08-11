@@ -1,15 +1,20 @@
 import { getFairApi } from "api"
-import { DEFAULT_PAGE_SIZE } from "config"
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useNextPaginationQuery } from "hooks"
-import { PublicationExtended } from "types"
+import { ProductType, PublicationExtended } from "types"
 
 const api = getFairApi()
 
-export const useSearchPaginatedPublications = (storeId?: string, query?: string) => {
+export const useSearchPaginatedPublications = (
+  storeId?: string,
+  query?: string,
+  categoriesIds?: string[],
+  type?: ProductType,
+) => {
   return useNextPaginationQuery<PublicationExtended>({
-    queryKey: ["stores", storeId, "publications", { query }],
-    queryFn: page => api.searchPublications(storeId!, query, page),
-    pageSize: DEFAULT_PAGE_SIZE,
+    queryFn: page => api.searchPublications(storeId!, query, categoriesIds, type, page),
+    queryKey: ["stores", storeId, "publications", { query, categoriesIds, type }],
+    pageSize: DEFAULT_PAGE_SIZE_20,
     enabled: !!query,
   })
 }

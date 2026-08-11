@@ -6,11 +6,6 @@ namespace Uccs.Fair;
 public class UsersController
 (
 	ILogger<UsersController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
-	SearchQueryValidator searchQueryValidator,
-	UserNameValidator userNameValidator,
-	LimitValidator limitValidator,
 	ReviewsService reviewsService,
 	SearchService searchService,
 	UsersService usersService
@@ -21,7 +16,7 @@ public class UsersController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(GetUser), name);
 
-		userNameValidator.Validate(name);
+		UserNameValidator.Validate(name);
 
 		return usersService.GetUserByName(name);
 	}
@@ -31,7 +26,7 @@ public class UsersController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}", nameof(UsersController), nameof(GetUserAuthors), userId);
 
-		autoIdValidator.Validate(userId, nameof(User));
+		AutoIdValidator.Validate(userId, nameof(User));
 
 		return usersService.GetUserAuthors(userId);
 	}
@@ -41,7 +36,7 @@ public class UsersController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(GetDetails), name);
 
-		userNameValidator.Validate(name);
+		UserNameValidator.Validate(name);
 
 		return usersService.GetDetails(name);
 	}
@@ -51,8 +46,8 @@ public class UsersController
 	{
 		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {StoreId}", nameof(UsersController), nameof(StoreExists), userId, storeId);
 
-		autoIdValidator.Validate(userId, nameof(User));
-		autoIdValidator.Validate(storeId, nameof(Store));
+		AutoIdValidator.Validate(userId, nameof(User));
+		AutoIdValidator.Validate(storeId, nameof(Store));
 
 		return usersService.StoreExists(userId, storeId) ? Ok() : NotFound();
 	}
@@ -62,8 +57,8 @@ public class UsersController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}, {Pagination}", nameof(UsersController), nameof(GetReviews), userId, pagination);
 
-		autoIdValidator.Validate(userId, nameof(User));
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(userId, nameof(User));
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<ReviewModel> result = reviewsService.GetUserReviewsNotOptimized(userId, page, pageSize, cancellationToken);
@@ -76,7 +71,7 @@ public class UsersController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {UserId}", nameof(UsersController), nameof(GetAvatarById), userId);
 
-		autoIdValidator.Validate(userId, nameof(User));
+		AutoIdValidator.Validate(userId, nameof(User));
 
 		return usersService.GetAvatarById(userId);
 	}
@@ -86,7 +81,7 @@ public class UsersController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Name}", nameof(UsersController), nameof(GetAvatarByName), name);
 
-		userNameValidator.Validate(name);
+		UserNameValidator.Validate(name);
 
 		return usersService.GetAvatarByName(name);
 	}
@@ -96,8 +91,8 @@ public class UsersController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(UsersController), nameof(Search), query, limit);
 
-		searchQueryValidator.Validate(query);
-		limitValidator.Validate(limit);
+		SearchQueryValidator.Validate(query);
+		LimitValidator.Validate(limit);
 
 		return searchService.SearchUser(query, limit ?? SearchConstants.SearchUsersLimit, cancellationToken);
 	}

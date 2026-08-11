@@ -2,10 +2,10 @@
 
 namespace Uccs.Fair;
 
-public class AccountAddressValidator
+public static class AccountAddressValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Validate(string accountAddress)
+	public static void Validate(string accountAddress)
 	{
 		if(!Regexes.AccountAddress.IsMatch(accountAddress))
 		{

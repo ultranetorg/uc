@@ -7,9 +7,7 @@ namespace Uccs.Fair;
 public class ProposalsController
 (
 	ILogger<ProposalsController> logger,
-	ModeratorProposalsService proposalsService,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator
+	ModeratorProposalsService proposalsService
 ) : BaseController
 {
 	[HttpGet("moderators")]
@@ -17,8 +15,8 @@ public class ProposalsController
 	{
 		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(GetModeratorProposals)} method called with {{StoreId}}, {{Search}}, {{Pagination}}", storeId, search, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<ModeratorProposalModel> discussions = proposalsService.GetModeratorProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
@@ -31,8 +29,8 @@ public class ProposalsController
 	{
 		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(PublisherProposalModel)} method called with {{StoreId}}, {{Search}}, {{Pagination}}", storeId, search, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<PublisherProposalModel> discussions = proposalsService.GetPublisherProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
@@ -45,8 +43,8 @@ public class ProposalsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ProposalsController), nameof(GetUserRegistrations), storeId, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<ProposalModel> discussions = proposalsService.GetUserRegistrations(storeId, page, pageSize, cancellationToken);
@@ -59,8 +57,8 @@ public class ProposalsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ProposalsController), nameof(GetUserUnregistrations), storeId, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<UserUnregistrationProposalModel> discussions = proposalsService.GetUserUnregistrations(storeId, page, pageSize, cancellationToken);

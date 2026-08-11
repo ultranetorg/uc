@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -7,8 +7,6 @@ namespace Uccs.Fair;
 public class UnpublishedPublicationsController
 (
 	ILogger<UnpublishedPublicationsController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
 	UnpublishedPublicationsService unpublishedPublicationsService
 ) : BaseController
 {
@@ -17,8 +15,8 @@ public class UnpublishedPublicationsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PublicationId}", nameof(UnpublishedPublicationsController), nameof(GetDetails), storeId, publicationId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
 		return unpublishedPublicationsService.GetDetails(storeId, publicationId);
 	}
@@ -28,8 +26,8 @@ public class UnpublishedPublicationsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(GetAll), storeId, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<UnpublishedPublicationModel> products = unpublishedPublicationsService.GetAll(storeId, pageValue, pageSizeValue, cancellationToken);
