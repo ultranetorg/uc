@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -6,13 +6,9 @@ namespace Uccs.Fair;
 public class PublicationsController
 (
 	ILogger<PublicationsController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
-	SearchQueryValidator searchQueryValidator,
 	PublicationsService publicationsService,
 	ProductsService productsService,
-	SearchService searchService,
-	VersionValidator versionValidator
+	SearchService searchService
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
@@ -20,7 +16,7 @@ public class PublicationsController
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetDetails)} method called with {{PublicationId}}", publicationId);
 
-		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
 		return publicationsService.GetDetails(publicationId);
 	}
@@ -30,7 +26,7 @@ public class PublicationsController
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetVersionLatest)} method called with {{PublicationId}}", publicationId);
 
-		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
 		return publicationsService.GetVersions(publicationId);
 	}
@@ -40,8 +36,8 @@ public class PublicationsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}, {Version}", nameof(PublicationsController), nameof(GetDiff), publicationId, version);
 
-		autoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
-		versionValidator.Validate(publicationId, version);
+		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
+		VersionValidator.Validate(publicationId, version);
 
 		return productsService.GetDiff(publicationId, version);
 	}
@@ -51,22 +47,28 @@ public class PublicationsController
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetCategoriesPublications)} method called with {{StoreId}}", storeId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
 		return publicationsService.GetCategoriesPublicationsNotOptimized(storeId, cancellationToken);
 	}
 
 	[HttpGet("~/api/stores/{storeId}/publications")]
-	public IEnumerable<PublicationExtendedModel> Search(string storeId, [FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
+	public IEnumerable<PublicationExtendedModel> Search(string storeId, [FromQuery] string? query, [FromQuery] string[]? categoriesIds, [FromQuery] ProductType? type, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Query}, {Page}", nameof(PublicationsController), nameof(PublicationsController.Search), storeId, query, page);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Query}, {CategoriesIds}, {Type}, {Page}",
+			nameof(PublicationsController), nameof(PublicationsController.Search), storeId, query, categoriesIds, type, page);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		searchQueryValidator.Validate(query);
-		paginationValidator.Validate(page);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		SearchQueryValidator.Validate(query);
 
-		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
-		return searchService.SearchPublications(storeId, query, pageValue, pageSizeValue, cancellationToken);
+		CategoriesIdsValidator.Validate(categoriesIds);
+		ProductTypeValidator.Validate(type);
+		SearchParamsValidator.Validate(categoriesIds, type);
+
+		PaginationValidator.Validate(page);
+
+		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page, 20);
+		return searchService.SearchPublications(storeId, query, categoriesIds, type, pageValue, pageSizeValue, cancellationToken);
 	}
 
 	[HttpGet("~/api/stores/{storeId}/publications/search")]
@@ -74,8 +76,8 @@ public class PublicationsController
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.SearchLite)} method called with {{StoreId}}, {{Query}}", storeId, query);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		searchQueryValidator.Validate(query);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		SearchQueryValidator.Validate(query);
 
 		return searchService.SearchLitePublications(storeId, query, 0, StoreConstants.SearchLitePageSize, cancellationToken);
 	}
@@ -85,8 +87,8 @@ public class PublicationsController
 	{
 		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetCategoryPublications)} method called with {{CategoryId}}, {{Page}}", categoryId, page);
 
-		autoIdValidator.Validate(categoryId, nameof(Category).ToLower());
-		paginationValidator.Validate(page);
+		AutoIdValidator.Validate(categoryId, nameof(Category).ToLower());
+		PaginationValidator.Validate(page);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page, CategoriesPublications.DefaultCategoryPageSize);
 		TotalItemsResult<PublicationExtendedModel> publications = publicationsService.GetCategoryPublicationsNotOptimized(categoryId, pageValue, pageSizeValue, cancellationToken);

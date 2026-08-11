@@ -4,7 +4,7 @@ import { ErrorResult, TotalItemsResult, PaginationResult } from "types"
 
 import { ApiError } from "./ApiError"
 
-type ParamsTypes = string | number | undefined
+type ParamsTypes = string | number | string[] | undefined
 
 type FilterRules<T extends Record<string, ParamsTypes>> = {
   [K in keyof T]?: (value: T[K]) => boolean
@@ -22,10 +22,15 @@ export const buildUrlParams = <T extends Record<string, ParamsTypes>>(
       value !== undefined &&
       value !== "" &&
       !(typeof value === "number" && isNaN(value)) &&
+      !(Array.isArray(value) && value.length === 0) &&
       (filterFn ? filterFn(value) : true)
 
     if (shouldInclude) {
-      params.append(String(key), String(value))
+      if (Array.isArray(value)) {
+        value.forEach(item => params.append(String(key), item))
+      } else {
+        params.append(String(key), String(value))
+      }
     }
   }
 

@@ -3,7 +3,7 @@ import { useEffect, useMemo } from "react"
 import { useGetCategoriesTree } from "entities"
 import { useResolveStoreId } from "hooks"
 import { Dropdown, DropdownProps } from "ui/components"
-import { buildCategoryTree } from "utils"
+import { buildCategoryTreeAndTypes } from "utils"
 
 import { categoriesToDropdownItems, keepSpacesFormatOptionLabel } from "./utils"
 
@@ -29,7 +29,7 @@ export const DropdownSearchCategory = ({
   const items = useMemo(() => {
     if (!categories) return undefined
 
-    const categoryTree = buildCategoryTree(categories)
+    const { tree: categoryTree } = buildCategoryTreeAndTypes(categories)
     return categoriesToDropdownItems(categoryTree, 0, "  ", hasRoot)
   }, [categories, hasRoot])
 

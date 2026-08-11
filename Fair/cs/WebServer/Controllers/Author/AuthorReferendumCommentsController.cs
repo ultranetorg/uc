@@ -7,8 +7,6 @@ namespace Uccs.Fair;
 public class AuthorReferendumCommentsController
 (
 	ILogger<AuthorReferendumCommentsController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
 	ProposalCommentsService proposalCommentsService
 ) : BaseController
 {
@@ -17,9 +15,9 @@ public class AuthorReferendumCommentsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ReferendumId}, {Pagination}", nameof(AuthorReferendumCommentsController), nameof(AuthorReferendumCommentsController.GetDiscussionComments), storeId, referendumId, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		autoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<ProposalCommentModel> reviews = proposalCommentsService.GetProposalComments(storeId, referendumId, page, pageSize, cancellationToken);

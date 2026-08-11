@@ -7,7 +7,6 @@ namespace Uccs.Fair;
 public class AuthorPerpetualSurveysController
 (
 	ILogger<AuthorPerpetualSurveysController> logger,
-	AutoIdValidator autoIdValidator,
 	PerpetualSurveysService proposalsService
 ) : BaseController
 {
@@ -16,7 +15,7 @@ public class AuthorPerpetualSurveysController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.Get), storeId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
 		return proposalsService.GetPerpetualReferendums(storeId, cancellationToken);
 	}
@@ -26,7 +25,7 @@ public class AuthorPerpetualSurveysController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PerpetualSurveyId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetDetails), storeId, perpetualSurveyId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		ValidatePerpetualSurveyId(perpetualSurveyId);
 
 		return proposalsService.GetPerpetualReferendumDetails(storeId, perpetualSurveyId);
@@ -47,7 +46,7 @@ public class AuthorPerpetualSurveysController
 //{
 //	logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PerpetualSurveyId}, {Pagination}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetComments), storeId, perpetualSurveyId, pagination);
 
-//	autoIdValidator.Validate(storeId, nameof(Store).ToLower());
+//	AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 //	ValidatePerpetualSurveyId(perpetualSurveyId);
 //	paginationValidator.Validate(pagination);
 

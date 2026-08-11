@@ -7,8 +7,6 @@ namespace Uccs.Fair;
 public class AuthorFilesController
 (
 	ILogger<AuthorFilesController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
 	FilesService filesService
 ) : BaseController
 {
@@ -17,9 +15,9 @@ public class AuthorFilesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {AuthorId}, {Pagination}", nameof(AuthorFilesController), nameof(GetAll), storeId, authorId, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		autoIdValidator.Validate(authorId, nameof(Author).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(authorId, nameof(Author).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<FileModel> referendums = filesService.GetAuthorFiles(storeId, authorId, page, pageSize, cancellationToken);

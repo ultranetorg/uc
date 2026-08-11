@@ -23,7 +23,7 @@ type DropdownBaseProps<IsMulti extends boolean> = {
   items?: DropdownItem[]
   styles?: StylesConfig<DropdownItem, boolean>
   placeholder?: string
-  defaultValue?: string
+  defaultValue?: string | null
   size?: DropdownSize
   value?: (IsMulti extends true ? string[] : string) | undefined
   onChange?: (item: IsMulti extends true ? DropdownItem[] : DropdownItem) => void

@@ -6,11 +6,6 @@ namespace Uccs.Fair;
 public class StoresController
 (
 	ILogger<StoresController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
-	StoreSearchQueryValidator storeSearchQueryValidator,
-	SearchQueryValidator searchQueryValidator,
-	LimitValidator limitValidator,
 	StoresService storesService,
 	UsersService usersService,
 	SearchService searchService
@@ -29,8 +24,8 @@ public class StoresController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {StoreId}, {Pagination}", nameof(StoresController), nameof(GetUsers), storeId, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store));
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store));
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<UserModel> result = usersService.GetStoreUsers(storeId, page, pageSize, cancellationToken);
@@ -43,9 +38,9 @@ public class StoresController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {StoreId}, {Query}, {Limit}", nameof(StoresController), nameof(SearchStoreUsers), storeId, query, limit);
 
-		autoIdValidator.Validate(storeId, nameof(Store));
-		storeSearchQueryValidator.Validate(query);
-		limitValidator.Validate(limit);
+		AutoIdValidator.Validate(storeId, nameof(Store));
+		StoreSearchQueryValidator.Validate(query);
+		LimitValidator.Validate(limit);
 
 		return searchService.SearchStoreUsers(storeId, query, limit ?? SearchConstants.SearchUsersLimit, cancellationToken);
 	}
@@ -55,8 +50,8 @@ public class StoresController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(StoresController), nameof(GetPublishers), storeId, search, pagination);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<PublisherModel> publishers = storesService.GetPublishers(storeId, page, pageSize, search, cancellationToken);
@@ -69,7 +64,7 @@ public class StoresController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(GetModerators), storeId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
 		return storesService.GetModerators(storeId, cancellationToken);
 	}
@@ -79,7 +74,7 @@ public class StoresController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(GetPolicies), storeId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
 		return storesService.GetPolicies(storeId);
 	}
@@ -89,8 +84,8 @@ public class StoresController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Page}", nameof(StoresController), nameof(Search), query, page);
 
-		paginationValidator.Validate(page);
-		storeSearchQueryValidator.Validate(query);
+		PaginationValidator.Validate(page);
+		StoreSearchQueryValidator.Validate(query);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(page);
 		TotalItemsResult<StoreBaseModel> result = searchService.SearchStores(query, pageValue, pageSizeValue, cancellationToken);
@@ -103,7 +98,7 @@ public class StoresController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}", nameof(StoresController), nameof(SearchLite), query);
 
-		searchQueryValidator.Validate(query);
+		SearchQueryValidator.Validate(query);
 
 		return searchService.SearchLiteStores(query, 0, StoreConstants.SearchLitePageSize, cancellationToken);
 	}
@@ -113,7 +108,7 @@ public class StoresController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(GetDetails), storeId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
 		return storesService.GetDetails(storeId);
 	}

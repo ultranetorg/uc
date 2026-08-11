@@ -5,16 +5,17 @@ public enum ErrorCodes
 	// General
 	Base = 1000,
 
-	InvalidEntityId = Base + 1,
-	EntityNotFound = Base + 2,
+	InvalidEntityId,
+	EntityNotFound,
 
-	InvalidPaginationParameters = Base + 3,
-	InvalidDepth = Base + 4,
-	InvalidSearchQuery = Base + 5,
-	
-	InvalidProductVersion = Base + 6,
+	InvalidPaginationParameters,
+	InvalidDepth,
+	InvalidSearchQuery,
+	InvalidSearchParams,
 
-	InvalidAccountAddress = Base + 7,
-
-	InvalidEntityParameter = Base + 8,
+	InvalidProductVersion,
+	InvalidProductType,
+	InvalidAccountAddress,
+	InvalidCategoryException,
+	InvalidEntityParameter,
 }

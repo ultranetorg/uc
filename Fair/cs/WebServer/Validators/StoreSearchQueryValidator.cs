@@ -1,10 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Runtime.CompilerServices;
 
 namespace Uccs.Fair;
 
-public class StoreSearchQueryValidator
+public static class StoreSearchQueryValidator
 {
-	public void Validate(string value)
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void Validate(string value)
 	{
 		// TODO: implement.
 	}

@@ -9,9 +9,10 @@ export type PublicationsListProps = {
   isLoading?: boolean
   storeId?: string
   publications?: (Publication | PublicationExtended)[]
+  showPublicationType?: boolean
 }
 
-export const PublicationsList = ({ isLoading, storeId, publications }: PublicationsListProps) => {
+export const PublicationsList = ({ isLoading, storeId, publications, showPublicationType }: PublicationsListProps) => {
   if (isLoading || !publications) {
     return <div>Loading</div>
   }
@@ -20,7 +21,7 @@ export const PublicationsList = ({ isLoading, storeId, publications }: Publicati
     <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300">
       {publications.map(x => (
         <Link className="block" to={routes.publication(storeId!, x.id)} key={x.id}>
-          <PublicationRow {...x} />
+          <PublicationRow {...x} showPublicationType={showPublicationType} />
         </Link>
       ))}
     </div>

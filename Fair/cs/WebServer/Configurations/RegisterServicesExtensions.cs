@@ -6,7 +6,6 @@ public static class RegisterServicesExtensions
 	{
 		RegisterFairNode(services, node);
 		RegisterServicesInternal(services, node);
-		RegisterValidators(services);
 
 		return services;
 	}
@@ -35,18 +34,5 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<UnpublishedPublicationsService>();
 		services.AddSingleton<UnpublishedStoreProductsService>();
 		services.AddSingleton<UsersService>();
-	}
-
-	private static void RegisterValidators(IServiceCollection services)
-	{
-		services.AddSingleton<AccountAddressValidator>();
-		services.AddSingleton<DepthValidator>();
-		services.AddSingleton<AutoIdValidator>();
-		services.AddSingleton<LimitValidator>();
-		services.AddSingleton<PaginationValidator>();
-		services.AddSingleton<SearchQueryValidator>();
-		services.AddSingleton<StoreSearchQueryValidator>();
-		services.AddSingleton<UserNameValidator>();
-		services.AddSingleton<VersionValidator>();
 	}
 }

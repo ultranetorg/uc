@@ -2,10 +2,10 @@
 
 namespace Uccs.Fair;
 
-public class AutoIdValidator
+public static class AutoIdValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Validate(string autoId, string entityName)
+	public static void Validate(string autoId, string entityName)
 	{
 		bool isParsed = AutoId.TryParse(autoId, out _);
 		if (!isParsed)
