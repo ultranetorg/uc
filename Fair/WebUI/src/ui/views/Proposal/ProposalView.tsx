@@ -129,7 +129,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
 
           const invalidateKeys = invalidateQueryKeysByOperationType[proposal!.operation]
           if (invalidateKeys) {
-            invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
+            invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x, refetchType: "all" }))
           }
 
           navigate(previousPath ?? routes.moderation.proposals(storeId!))

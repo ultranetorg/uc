@@ -63,7 +63,7 @@ export const PerpetualSurveyPage = () => {
           const invalidateKeys =
             invalidateQueryKeysByOperationType[survey?.options[0].operation.operation as OperationType]
           if (invalidateKeys) {
-            invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x }))
+            invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x, refetchType: "all" }))
           }
 
           showToast(t("toast:perpetualVoted", { publisher: publisherId }))

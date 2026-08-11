@@ -9,7 +9,21 @@ import { Router, SearchQueryProvider } from "./app"
 import "./i18n"
 import "./styles/index.css"
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: true } } })
+// Все запросы выполняются только явно: первичная загрузка при монтировании (с учётом enabled)
+// и ручные refetch() / invalidateQueries(). Любые неявные фоновые обновления отключены.
+// Опрос по интервалу задаётся точечно в конкретном хуке через refetchInterval.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchInterval: false,
+      retry: false,
+    },
+  },
+})
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

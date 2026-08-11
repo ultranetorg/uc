@@ -10,8 +10,6 @@ export const useGetVaultUrl = () => {
   const { isLoading, error, data } = useQuery({
     queryKey: ["urls", "vault"],
     queryFn: queryFn,
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
   })
 
   return { data, isLoading, error: error ?? undefined }
