@@ -77,7 +77,7 @@ public class Resource : ITableEntry<AutoId>, IBinarySerializable
 
 	public override string ToString()
 	{
-		return $"{Id}, {Name}, {Flags}, Data={{{Data}}}, Outbounds={{{Outbounds.Length}}}, Inbounds={{{Inbounds.Length}}}";
+		return $"{Id}, {Name}, {Flags}, {nameof(Data)}={{{Data}}}, {nameof(Outbounds)}={{{Outbounds.Length}}}, {nameof(Inbounds)}={{{Inbounds.Length}}}";
 	}
 
 	public Resource()
@@ -106,7 +106,7 @@ public class Resource : ITableEntry<AutoId>, IBinarySerializable
 
 	public void WriteMain(Writer writer)
 	{
-		writer.Write7BitEncodedInt(Domain.I);
+		writer.Write(Domain);
 		writer.WriteUtf8(Name);
 		writer.Write(Updated);
 		writer.Write(Flags);
@@ -120,7 +120,7 @@ public class Resource : ITableEntry<AutoId>, IBinarySerializable
 
 	public void ReadMain(Reader reader)
 	{
-		Domain	= new (Id.B, reader.Read7BitEncodedInt());
+		Domain	= reader.Read<AutoId>();;
 		Name	= reader.ReadUtf8();
 		Updated	= reader.Read<Time>();
 		Flags	= reader.Read<ResourceFlags>();

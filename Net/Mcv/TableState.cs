@@ -14,12 +14,12 @@ public abstract class TableStateBase
 	}
 }
 
-public class TableState<ID, E> : TableStateBase where ID : EntityId, new() where E : class, ITableEntry<ID>
+public class TableState<ID, E, T> : TableStateBase where ID : EntityId, new() where E : class, ITableEntry<ID> where  T : Table<ID, E>
 {
 	public Dictionary<ID, E>	Affected = [];
-	public Table<ID, E>			Table;
+	public T					Table;
 
-	public TableState(Table<ID, E> table)
+	public TableState(T table)
 	{
 		Table = table;
 	}
@@ -27,12 +27,12 @@ public class TableState<ID, E> : TableStateBase where ID : EntityId, new() where
 	public override void StartRoundExecution(Round round)
 	{
 		if(round.Id > 0)
-			Affected = new (round.Previous.FindState<TableState<ID, E>>(Table).Affected);
+			Affected = new (round.Previous.FindState<TableState<ID, E, T>>(Table).Affected);
 	}
 
 	public override void Absorb(TableStateBase execution)
 	{
-		var e = execution as TableState<ID, E>;
+		var e = execution as TableState<ID, E, T>;
 
 		foreach(var i in e.Affected)	
 			Affected[i.Key] = i.Value;
@@ -44,13 +44,15 @@ public interface ITableExecution
 	public AutoId	LastCreatedId { get; set; }
 }
 
-public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution where ID : EntityId, new() where E : class, ITableEntry<ID>
+public abstract class TableExecution<ID, E, T> : TableState<ID, E, T>, ITableExecution where ID : EntityId, new() 
+																						where E : class, ITableEntry<ID> 
+																						where T : Table<ID, E>
 {
 	public Execution				Execution;
-	public TableExecution<ID, E>	Parent;
+	public TableExecution<ID, E, T>	Parent;
 	public AutoId					LastCreatedId { get; set; }
 
-	protected TableExecution(Table<ID, E> table, Execution execution) : base(table)
+	protected TableExecution(T table, Execution execution) : base(table)
 	{
 		Execution = execution;
 	}
@@ -70,7 +72,7 @@ public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution
 		if(Parent != null)
 			return Parent.Find(id);
 
-		Execution.Round.FindState<TableState<ID, E>>(Table).Affected.TryGetValue(id, out a);
+		Execution.Round.FindState<TableState<ID, E, T>>(Table).Affected.TryGetValue(id, out a);
 
 		if(a != null)
 			return a.Deleted ? null : a;
@@ -87,7 +89,7 @@ public abstract class TableExecution<ID, E> : TableState<ID, E>, ITableExecution
 
 		if(Parent != null)
 			a = Parent.Find(id);
-		else if(!Execution.Round.FindState<TableState<ID, E>>(Table).Affected.TryGetValue(id, out a))
+		else if(!Execution.Round.FindState<TableState<ID, E, T>>(Table).Affected.TryGetValue(id, out a))
 			a = Table.Find(id);
 
 		return Affected[id] = a.Clone() as E;

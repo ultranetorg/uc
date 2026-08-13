@@ -30,7 +30,7 @@ public class PublicationTable : Table<AutoId, Publication>
 	}
 }
 
-public class PublicationExecution : TableExecution<AutoId, Publication>
+public class PublicationExecution : TableExecution<AutoId, Publication, PublicationTable>
 {
 	new FairExecution Execution => base.Execution as FairExecution;
 
@@ -40,12 +40,10 @@ public class PublicationExecution : TableExecution<AutoId, Publication>
  
 	public Publication Create(Store store)
 	{
-		Execution.IncrementCount((int)FairMetaEntityType.PublicationsCount);
-
-		int e = Execution.GetNextEid(Table, store.Id.B);
+		Execution.IncrementMetaInt(FairMetaEntityType.PublicationsCount);
 
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(store.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(Execution.IncrementMetaInt(FairMetaEntityType.PublicationsIdCounter));
 		a.Reviews = [];
 			
 		return Affected[a.Id] = a;

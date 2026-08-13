@@ -13,7 +13,7 @@ public class ProposalTable : Table<AutoId, Proposal>
 		return new Proposal(Mcv);
 	}
 }
-public class ProposalExecution : TableExecution<AutoId, Proposal>
+public class ProposalExecution : TableExecution<AutoId, Proposal, ProposalTable>
 {
 	new FairExecution Execution => base.Execution as FairExecution;
 
@@ -23,18 +23,17 @@ public class ProposalExecution : TableExecution<AutoId, Proposal>
 
 	public Proposal Create(Store store)
 	{
-		Execution.IncrementCount((int)FairMetaEntityType.ProposalCount);
-
-		int e = Execution.GetNextEid(Table, store.Id.B);
+		Execution.IncrementMetaInt(FairMetaEntityType.ProposalCount);
 
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(store.Id.B, e);
-		a.Neither = [];
-		a.Any = [];
-		a.Ban = [];
-		a.Banish = [];
-		a.Any = [];
-		a.Comments = [];
+
+		a.Id = LastCreatedId = new AutoId(Execution.IncrementMetaInt(FairMetaEntityType.ProposalIdCounter));
+		a.Neither			= [];
+		a.Any				= [];
+		a.Ban				= [];
+		a.Banish			= [];
+		a.Any				= [];
+		a.Comments			= [];
 
 		LastCreatedId = a.Id;
 

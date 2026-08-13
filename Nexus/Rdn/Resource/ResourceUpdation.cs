@@ -7,7 +7,7 @@ public class ResourceUpdation : RdnOperation
 	public ResourceData			Data { get; set; }
 
 	public override bool		IsValid(McvNet net) => (!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
-													(!Changes.HasFlag(ResourceChanges.SetData) || !Changes.HasFlag(ResourceChanges.NullData));
+														(!Changes.HasFlag(ResourceChanges.SetData) || !Changes.HasFlag(ResourceChanges.NullData));
 	public override string		Explanation => $"{Resource}, [{Changes}], {(Data == null ? null : $", Data={{{Data}}}")}";
 
 	public ResourceUpdation()
@@ -57,7 +57,7 @@ public class ResourceUpdation : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var rs = new HashSet<int>();
+		var rs = new HashSet<AutoId>();
 
 		if(RequireSignerResource(execution, Resource, out var d, out var x) == false)
 			return;
@@ -68,10 +68,8 @@ public class ResourceUpdation : RdnOperation
 		{
 			var r = execution.Resources.Affect(resource);
 
-			if(rs.Contains(r.Id.I))
+			if(!rs.Add(r.Id))
 				return;
-			else
-				rs.Add(r.Id.I);
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{
@@ -129,10 +127,9 @@ public class ResourceUpdation : RdnOperation
 			{
 				if(r.Outbounds != null)
 				{
-					foreach(var i in r.Inbounds)
+					foreach(var i in r.Outbounds.Where(i => i.Type == ResourceLinkType.Organizational))
 					{
-						if(i == d.Id)
-							execute(i);
+						execute(i.Destination);
 					}
 				}
 			} 

@@ -5,7 +5,7 @@ namespace Uccs.Net;
 public class TextToField<E> : IBinarySerializable, ITableEntry<StringId> where E : unmanaged, Enum
 {
 	public StringId					Id { get; set; }
-	public EntityFieldAddress<E>	Entity { get; set; }
+	public EntityField<E>			Entity { get; set; }
 
 	public bool						Deleted { get; set; }
 	Mcv								Mcv;
@@ -21,7 +21,7 @@ public class TextToField<E> : IBinarySerializable, ITableEntry<StringId> where E
 
 	public override string ToString()
 	{
-		return $"{Id}, {Encoding.UTF8.GetString(Id.Bytes)}, Reference={Entity}";
+		return $"{Id}, Entity={Entity}";
 	}
 
 	public object Clone()
@@ -51,7 +51,7 @@ public class TextToField<E> : IBinarySerializable, ITableEntry<StringId> where E
 
 	public void Read(Reader reader)
 	{
-		Entity	= reader.Read<EntityFieldAddress<E>>();
+		Entity	= reader.Read<EntityField<E>>();
 	}
 
 	public void Write(Writer writer)

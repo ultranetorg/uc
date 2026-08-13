@@ -68,6 +68,9 @@ public class ResourceCreation : RdnOperation
 			r.Flags	|= ResourceFlags.Dependable;
 		}
 
+
+		execution.ResourceNames.Register(Address.Domain, Address.Resource, r.Id);
+		
 		d = execution.Domains.Affect(d.Id);
 		execution.Allocate(User, d, execution.Net.EntityLength + r.DataLength);
 		execution.PayOperationEnergy(User);

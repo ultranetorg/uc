@@ -1,10 +1,12 @@
 ﻿using System.Text;
+using RocksDbSharp;
 
 namespace Uccs.Rdn;
 
 public class DomainTable : Table<AutoId, Domain>
 {
-	public int						KeyToBid(string domain) => EntityId.BytesToBucket(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
+	public new RdnMcv		Mcv => base.Mcv as RdnMcv;
+	public int				KeyToBid(string domain) => EntityId.BytesToBucket(Encoding.UTF8.GetBytes(domain.PadRight(3, '\0'), 0, 3));
 
 	public DomainTable(RdnMcv rds) : base(rds, RdnTable.Domain.ToString())
 	{
@@ -17,9 +19,12 @@ public class DomainTable : Table<AutoId, Domain>
 	
  	public Domain Find(string name)
  	{
-		var bid = KeyToBid(name);
+		var e = Mcv.Names.Find(NameIndex.GetId(name))?.Entities.Find(i => i.Field == EntityTextField.DomainName);
 
-		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Address == name);
+		if(e == null)
+			return null;
+
+		return Find(e.Id);
  	}
 
 	public virtual Domain Latest(string name)
@@ -31,9 +36,25 @@ public class DomainTable : Table<AutoId, Domain>
 
 		return Find(name);
 	}
+	
+	public override void Index(WriteBatch batch, Round lastincommit)
+	{
+		var e = new RdnExecution(Mcv, new RdnRound(Mcv), null);
+
+		foreach(var cl in Clusters)
+			foreach(var b in cl.Buckets)
+				foreach(var i in b.Entries)
+				{
+					var w = e.Names.Affect(NameIndex.GetId(i.Address));
+
+					w.Entities = [..w.Entities, new EntityField<EntityTextField>{Id = i.Id, Field = EntityTextField.DomainName}];
+				}
+	
+		Mcv.Names.Commit(batch, e.Names.Affected.Values, null, lastincommit);
+	}
 }
 
-public class DomainExecution : TableExecution<AutoId, Domain>
+public class DomainExecution : TableExecution<AutoId, Domain,DomainTable>
 {
 	new DomainTable										Table => base.Table as DomainTable;
 	new RdnExecution									Execution=> base.Execution as RdnExecution;
@@ -78,13 +99,10 @@ public class DomainExecution : TableExecution<AutoId, Domain>
 			return Affected[d.Id] = d.Clone() as Domain;
 		else
 		{
-			var b = Table.KeyToBid(name);
-			
-			int e = Execution.GetNextEid(Table, b);
-
 			d = new Domain(Execution.Mcv);
-			d.Id = LastCreatedId = new AutoId(b, e);
-			d.Address = name;
+
+			d.Id = LastCreatedId	= new AutoId(Execution.IncrementMetaInt(RdnMetaEntityType.DomainIdCounter));
+			d.Address				= name;
 
 			return Affected[d.Id] = d;
 		}

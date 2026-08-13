@@ -202,8 +202,6 @@ public class ProposalVoting : FairOperation
 					o.Operation.User	= p.As == Role.User ? execution.AffectUser(p.By) : null;
 
 					var e = execution.CreateChild();
-	 		
-					e.SkipPowCheck = true;
 
 					if(o.Operation.ValidateProposal(e, out _))
 					{

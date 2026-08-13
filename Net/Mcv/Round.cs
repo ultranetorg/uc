@@ -24,7 +24,7 @@ public abstract class Round : IBinarySerializable
 	public Dictionary<int, int>[]						NextEids;
 	public ImmutableDictionary<MetaId, MetaEntity>		AffectedMetas = ImmutableDictionary<MetaId, MetaEntity>.Empty;
 	public ImmutableDictionary<AutoId, User>			AffectedUsers = ImmutableDictionary<AutoId, User>.Empty;
-	public TableState<AutoId, Friend>					Friends;
+	public TableState<AutoId, Friend, FriendTable>		Friends;
 	public long[]										Spacetimes;
 	public long[]										Bandwidths;
 	public List<Member>									Candidates;
@@ -456,20 +456,12 @@ public abstract class Round : IBinarySerializable
 
 	public virtual void Absorb(Execution execution)
 	{
-		AffectedMetas = AffectedMetas.SetItems(execution.AffectedMetas);
-
-		//foreach(var i in execution.AffectedMetas)
-		//	AffectedMetas.se = AffectedMetas[i.Key] = i.Value;
-
-		AffectedUsers = AffectedUsers.SetItems(execution.AffectedUsers);
-
-		//foreach(var i in execution.AffectedUsers)
-		//	AffectedUsers[i.Key] = i.Value;
-
 		for(int t=0; t<Mcv.Tables.Length; t++)
 			foreach(var i in execution.NextEids[t])
 				NextEids[t][i.Key] = i.Value;
 
+		AffectedMetas		= AffectedMetas.SetItems(execution.AffectedMetas);
+		AffectedUsers		= AffectedUsers.SetItems(execution.AffectedUsers);
 		Candidates			= execution.Candidates;
 		Spacetimes			= execution.Spaces;
 		Bandwidths			= execution.Bandwidths;

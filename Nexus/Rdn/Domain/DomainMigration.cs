@@ -102,8 +102,13 @@ public class DomainMigration : RdnOperation, IOutwardOperation
 	public void SuccessExecute(Execution execution, OutwardTransaction task)
 	{
 		var e = execution as RdnExecution;
-		var a = e.Domains.Affect(Name);
+		var d = e.Domains.Affect(Name);
 
-		a.Owner = task.User;
+		if(d.Owner != null) /// Somebody has already migrated this domain
+			return;
+
+		d.Owner = task.User;
+	
+		(execution as RdnExecution).Names.Register(d.Address, EntityTextField.DomainName, d.Id);
 	}
 }

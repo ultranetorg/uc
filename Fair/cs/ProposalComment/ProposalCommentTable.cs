@@ -14,7 +14,7 @@ public class ProposalCommentTable : Table<AutoId, ProposalComment>
 	}
  }
 
-public class ProposalCommentExecution : TableExecution<AutoId, ProposalComment>
+public class ProposalCommentExecution : TableExecution<AutoId, ProposalComment, ProposalCommentTable>
 {
 	public ProposalCommentExecution(FairExecution execution) : base(execution.Mcv.ProposalComments, execution)
 	{
@@ -22,12 +22,10 @@ public class ProposalCommentExecution : TableExecution<AutoId, ProposalComment>
 
 	public ProposalComment Create(Proposal proposal)
 	{
-		Execution.IncrementCount((int)FairMetaEntityType.ProposalCommentsCount);
-
-		int e = Execution.GetNextEid(Table, proposal.Id.B);
+		Execution.IncrementMetaInt(FairMetaEntityType.ProposalCommentsCount);
 
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(proposal.Id.B, e);
+		a.Id = LastCreatedId = new AutoId(Execution.IncrementMetaInt(FairMetaEntityType.ProposalCommentsIdCounter));
 
 		return Affected[a.Id] = a;
 	}

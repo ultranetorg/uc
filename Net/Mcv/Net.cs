@@ -155,6 +155,6 @@ public abstract class McvNet : Net
 	{
 		Constructor.Register<Operation>(Assembly.GetExecutingAssembly(), typeof(OperationClass), i => i);
 
-		Father0Id = new (UserTable.KeyToBucket(Father0Name), 0);
+		Father0Id = new (1);
 	}
 }

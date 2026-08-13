@@ -31,7 +31,7 @@ public class AuthorNameChange : FairOperation
 		if(!CanAccessAuthor(execution, Author, out var a, out Error))
 			return;
 
-		var e = execution.Words.Find(NameTable.GetId(Name));
+		var e = execution.Names.Find(NameTable.GetId(Name));
 
 		if(e != null)
 		{
@@ -43,13 +43,13 @@ public class AuthorNameChange : FairOperation
 
 		if(a.Name != null)
 		{
-			execution.Words.Unregister(a.Name);
+			execution.Names.Unregister(a.Name);
 			execution.Free(a, a, execution.Net.EntityLength);
 		}
 
 		if(Name != null)
 		{
-			execution.Words.Register(Name, EntityTextField.AuthorName, a.Id);
+			execution.Names.Register(Name, EntityTextField.AuthorName, a.Id);
 			execution.Allocate(a, a, execution.Net.EntityLength);
 		}
 		

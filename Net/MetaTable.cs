@@ -1,33 +1,35 @@
 ﻿namespace Uccs.Net;
 
-public enum MetaEntityType : int
+public enum MetaEntityType : uint
 {
 	None,
-	UserCount,
-	_Last = 1000
+	UserIdCounter	= 000_000_001,
+	FriendIdCounter	= 000_000_002,
+	UserCount		= 001_000_001,
+	_Last			= 009_999_999
 }
 
 public class MetaId : EntityId
 {
-	public int			Type;
-	public byte[]		Index;
+	public uint			Type;
+	public byte[]		Index; /// optional
 	
 	public override int B
 	{
-		get => Type; 
+		get => (int)Type; 
 	}
 
 	public MetaId()
 	{
 	}
 
-	public MetaId(int type, byte[] index)
+	public MetaId(uint type, byte[] index)
 	{
 		Type = type;
 		Index = index;
 	}
 
-	public MetaId(int type)
+	public MetaId(uint type)
 	{
 		Type = type;
 		Index = [];
@@ -40,18 +42,18 @@ public class MetaId : EntityId
 
 	public override int GetHashCode()
 	{
-		return Type;
+		return (int)Type;
 	}
 
 	public override void Read(Reader reader)
 	{
-		Type = reader.Read7BitEncodedInt();
+		Type = (uint)reader.Read7BitEncodedInt();
 		Index = reader.ReadBytes() ?? [];
 	}
 
 	public override void Write(Writer writer)
 	{
-		writer.Write7BitEncodedInt(Type);
+		writer.Write7BitEncodedInt((int)Type);
 		writer.WriteBytes(Index);
 	}
 
@@ -62,7 +64,7 @@ public class MetaId : EntityId
 
 	public override bool Equals(EntityId a)
 	{
-		return a is MetaId e && Type == e.Type && Index.SequenceEqual(e.Index);
+		return a is MetaId e && Type == e.Type && Bytes.EqualityComparer.Equals(Index, e.Index);
 	}
 
 	public override int CompareTo(EntityId a)
@@ -95,6 +97,8 @@ public class MetaEntity : IBinarySerializable, ITableEntry<MetaId>
 {
 	public MetaId		Id { get; set; }
 	public byte[]		Value { get; set; }
+
+	public int			AsInt => BitConverter.ToInt32(Value);
 
 	public bool			Deleted { get; set; }
 

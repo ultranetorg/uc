@@ -17,12 +17,10 @@ public class FairExecution : Execution
 	public ProposalExecution							Proposals;
 	public ProposalCommentExecution						ProposalComments;
 	public FileExecution								Files;
-	public NameExecution								Words;
+	public NameExecution								Names;
 	public StoreTitleNgramExecution						StoreTitles;
 	public ProductTitleExecution						ProductTitles;
 	public PublicationTitleExecution					PublicationTitles;
-
-	public bool											SkipPowCheck;
 
 	public FairExecution(FairMcv mcv, FairRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
@@ -35,7 +33,7 @@ public class FairExecution : Execution
 		Proposals			= new(this);
 		ProposalComments	= new(this);
 		Files				= new(this);
-		Words				= new(this);
+		Names				= new(this);
 		StoreTitles			= new(this);
 		ProductTitles		= new(this);
 		PublicationTitles	= new(this);
@@ -60,7 +58,7 @@ public class FairExecution : Execution
 		e.Proposals			= new(this){Parent = Proposals};
 		e.ProposalComments	= new(this){Parent = ProposalComments};
 		e.Files				= new(this){Parent = Files};
-		e.Words				= new(this){Parent = Words};
+		e.Names				= new(this){Parent = Names};
 		e.StoreTitles		= new(this){Parent = StoreTitles};
 		e.ProductTitles		= new(this){Parent = ProductTitles};
 		e.PublicationTitles	= new(this){Parent = PublicationTitles};
@@ -85,7 +83,7 @@ public class FairExecution : Execution
 		Proposals			.Absorb(execution.Proposals);
 		ProposalComments	.Absorb(execution.ProposalComments);
 		Files				.Absorb(execution.Files);
-		Words				.Absorb(execution.Words);
+		Names				.Absorb(execution.Names);
 		StoreTitles			.Absorb(execution.StoreTitles);
 		ProductTitles		.Absorb(execution.ProductTitles);
 		PublicationTitles	.Absorb(execution.PublicationTitles);
@@ -108,7 +106,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Proposals.Id)			return Proposals;
 		if(table == Mcv.ProposalComments.Id)	return ProposalComments;
 		if(table == Mcv.Files.Id)				return Files;
-		if(table == Mcv.Names.Id)				return Words;
+		if(table == Mcv.Names.Id)				return Names;
 
 		return base.FindExecution(table);
 	}
@@ -139,7 +137,7 @@ public class FairExecution : Execution
 		if(table == Mcv.Proposals)			return Proposals.Affected;
 		if(table == Mcv.ProposalComments)	return ProposalComments.Affected;
 		if(table == Mcv.Files)				return Files.Affected;
-		if(table == Mcv.Names)				return Words.Affected;
+		if(table == Mcv.Names)				return Names.Affected;
 		if(table == Mcv.StoreTitles)		return StoreTitles.Affected;
 		if(table == Mcv.ProductTitles)		return ProductTitles.Affected;
 		if(table == Mcv.PublicationTitles)	return PublicationTitles.Affected;
@@ -167,7 +165,7 @@ public class FairExecution : Execution
 		a.Stores			= ImmutableList<AutoId>.Empty;
 		a.FavoriteStores	= ImmutableList<AutoId>.Empty;
 
-		Words.Register(name, EntityTextField.UserName, a.Id);
+		Names.Register(name, EntityTextField.UserName, a.Id);
 
 		return a;
 	}

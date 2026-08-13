@@ -7,7 +7,6 @@ namespace Uccs.Net;
 
 public abstract class TableBase
 {
-	public const int							BucketsCountMax = 1 << BucketBase.Length;
 	public const int							ClustersCountMax = 1 << ClusterBase.Length;
 	const int									ClustersCacheLimit = 1000;
 
@@ -38,11 +37,11 @@ public abstract class TableBase
 
 	public abstract class BucketBase
 	{
-		public const int							Length = 20;
+		public const int								Length = 20;
+		public const int								CountMax = 1 << Length;
 
 		public int										Id;
 		public int										Size;
- 		public int										NextI { get; set; }
 		public byte[]									Hash { get; set; }
 		public abstract IEnumerable<IBaseTableEntry>	BaseEntries { get; }
 
@@ -142,14 +141,13 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 	
 				Hash			= r.ReadHash();
 				Size			= r.Read7BitEncodedInt();
-				NextI			= r.Read7BitEncodedInt();
 				_Entries		= r.ReadImmutableSortedDictionary(r.Read<ID>, () => new Item());
 			}
 		}
 
 		public override string ToString()
 		{
-			return $"{Id}, Entries={{{_Entries?.Count}}}, Hash={Hash?.ToHex()}, NextE={NextI}";
+			return $"{Id}, Entries={{{_Entries?.Count}}}, Hash={Hash?.ToHex()}";
 		}
 
 		public E Find(ID id)
@@ -185,7 +183,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 			using var bs = new Blake2Stream();
 			var w = new Writer(bs, Table.Mcv.Net.Constructor);
 			
-			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
 
 			Hash = bs.Hash;
@@ -213,7 +210,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 			w.Write(Hash);
 			w.Write7BitEncodedInt(Size);
-			w.Write7BitEncodedInt(NextI);
 			w.Write(_Entries.Keys);
 
 			batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
@@ -224,7 +220,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 			var s = new MemoryStream();
 			using var w = new Writer(s, Table.Mcv.Net.Constructor);
 
-			w.Write7BitEncodedInt(NextI); /// hash this too
 			w.Write7BitEncodedInt(_Entries.Count);
 
 			foreach(var i in _Entries)
@@ -251,7 +246,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 			{
 				var r = new Reader(s, Table.Mcv.Net.Constructor);
 
-				NextI = r.Read7BitEncodedInt();
 				var n = r.Read7BitEncodedInt();
 
 				Hash = Cryptography.Hash(data.AsSpan(0, (int)s.Position));
@@ -281,7 +275,6 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 				w.Write(Hash);
 				w.Write7BitEncodedInt(Size);
-				w.Write7BitEncodedInt(NextI);
 				w.Write(_Entries.Keys);
 
 				batch.Put(EntityId.BucketToBytes(Id), s.ToArray(), Table.BucketColumn);
@@ -291,11 +284,11 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 	public class Cluster : ClusterBase
 	{
-		Table<ID, E>						Table;
-		List<Bucket>						_Buckets;
+		new Table<ID, E>		Table => base.Table as Table<ID, E>;
+		List<Bucket>			_Buckets;
 
-		public static byte[]				ToBytes(short id) => [(byte)id, (byte)(id >> 8)];
-		public static short					FromBytes(byte[] id) => (short)(id[0] | id[1] << 8);
+		public static byte[]	ToBytes(short id) => [(byte)id, (byte)(id >> 8)];
+		public static short		FromBytes(byte[] id) => (short)(id[0] | id[1] << 8);
 
 		public override List<Bucket> Buckets
 		{ 
@@ -323,7 +316,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 		public Cluster(Table<ID, E> table, short id) : base(table)
 		{
-			Table = table;
+			base.Table = table;
 			Id = id;
 
 			var m = Table.Rocks.Get(ToBytes(Id), Table.ClusterColumn);
@@ -567,7 +560,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 	public EntityEnumeration		TailGraphEntities => new (() => new TailGraphEnumerator(this));
 
 	public abstract E				Create();
-	public virtual TableStateBase	CreateAssosiated() => new TableState<ID, E>(this);
+	public virtual TableStateBase	CreateAssosiated() => new TableState<ID, E, Table<ID, E>>(this);
 
 	public Table(Mcv chain, string name, bool index = false)
 	{
@@ -621,9 +614,9 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 			else
 				b.Remove(batch, i.Id);
 
-			if(i.Id is AutoId id)
-				if(b.NextI < id.I + 1)
-					b.NextI = id.I + 1;
+			//if(i.Id is AutoId id)
+			//	if(b.NextI < id.I + 1)
+			//		b.NextI = id.I + 1;
 
 			bs.Add(b);
 			cs.Add(c);
@@ -642,7 +635,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 		{
 			Assosiated = assosiated;
 	
-			var s = new MemoryStream();
+			using var s = new MemoryStream();
 			var w = new Writer(s, Mcv.Net.Constructor);
 			
 			Assosiated.Write(w);

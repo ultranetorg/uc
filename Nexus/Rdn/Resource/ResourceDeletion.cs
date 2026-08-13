@@ -53,5 +53,7 @@ public class ResourceDeletion : RdnOperation
 				sr.RemoveOutbound(r.Id);
 			}
 		}
+
+		execution.ResourceNames.Unregister(d.Address, r.Name);
 	}
 }

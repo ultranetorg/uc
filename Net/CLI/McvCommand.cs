@@ -10,9 +10,9 @@ public abstract class McvCommand : NetCommand
 	public static readonly ArgumentType		BOOL	= new ("BOOL",	@"Yes or No",							["yes, no"]);
 	public static readonly ArgumentType		YEARS	= new ("YEARS",	@"Number of years, in [1..10] range",	["5"]);
 	public static readonly ArgumentType		ET		= new ("ET",	@"Entity Type",							[McvTable.User, McvTable.Friend]);
-	public static readonly ArgumentType		EA		= new ("EA",	@"Entity address as {TableName}/{EID}",	[EntityAddress.Format(McvTable.User, new AutoId(1111, 22)), 
-																											 EntityAddress.Format(McvTable.User, new AutoId(333, 444444)), 
-																											 EntityAddress.Format(McvTable.User, new AutoId(1234567, 890))]);
+	public static readonly ArgumentType		EA		= new ("EA",	@"Entity address as {TableName}/{EID}",	[EntityAddress.Format(McvTable.User, new AutoId(1111)), 
+																											 EntityAddress.Format(McvTable.User, new AutoId(333)), 
+																											 EntityAddress.Format(McvTable.User, new AutoId(1234567))]);
 
 	public static Argument					ByArgument(string description = "Name of the user") => new (ByKeyword, NAME, description);
 

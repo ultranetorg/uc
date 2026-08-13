@@ -1,10 +1,11 @@
 ﻿using System.Text;
+using RocksDbSharp;
 
 namespace Uccs.Net;
 
-public class UserTable : Table<AutoId, User>
+public abstract class UserTable : Table<AutoId, User>
 {
-	public static int	KeyToBucket(string name) => EntityId.BytesToBucket(Encoding.UTF8.GetBytes(name.PadRight(3, '\0'), 0, 3));
+	public abstract User Find(string nickname);
 
 	public UserTable(Mcv chain) : base(chain, McvTable.User.ToString())
 	{
@@ -15,18 +16,11 @@ public class UserTable : Table<AutoId, User>
 		return new User(Mcv);
 	}
 
-	public User FindEntry(string nickname)
+	public User Latest(string name)
 	{
-		var bid = KeyToBucket(nickname);
-
-		return FindBucket(bid)?.Entries.FirstOrDefault(i => i.Name == nickname);
-	}
-
-	public User Latest(string nickname)
-	{
-		if(Mcv.LastConfirmedRound.AffectedUsers.Values.FirstOrDefault(i => i.Name == nickname) is User e && !e.Deleted)
+		if(Mcv.LastConfirmedRound.AffectedUsers.Values.FirstOrDefault(i => i.Name == name) is User e && !e.Deleted)
 			return e;
 
-		return FindEntry(nickname);
+		return Find(name);
 	}
 }

@@ -19,16 +19,16 @@ public class StoreTable : Table<AutoId, Store>
 	{
 		var e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
-		foreach(var i in Mcv.Stores.GraphEntities.Where(i => i.Name != null))
-		{
-			var w = e.Words.Affect(NameTable.GetId(i.Name));
+		foreach(var cl in Clusters)
+			foreach(var b in cl.Buckets)
+				foreach(var i in b.Entries.Where(i => i.Name != null))
+				{
+					var w = e.Names.Affect(NameTable.GetId(i.Name));
 
-			w.Entity = new EntityFieldAddress<EntityTextField> {Id = i.Id, Field = EntityTextField.StoreName};
-		}
+					w.Entity = new EntityField<EntityTextField> {Id = i.Id, Field = EntityTextField.StoreName};
+				}
 
-		Mcv.Names.Commit(batch, e.Words.Affected.Values, null, lastincommit);
-
-		Mcv.StoreTitles.Clear();
+		Mcv.Names.Commit(batch, e.Names.Affected.Values, null, lastincommit);
 
 		e = new FairExecution(Mcv, new FairRound(Mcv), null);
 
@@ -41,7 +41,7 @@ public class StoreTable : Table<AutoId, Store>
 	}
 }
 
-public class StoreExecution : TableExecution<AutoId, Store>
+public class StoreExecution : TableExecution<AutoId, Store, StoreTable>
 {
 	public StoreExecution(FairExecution execution) : base(execution.Mcv.Stores, execution)
 	{
@@ -49,14 +49,11 @@ public class StoreExecution : TableExecution<AutoId, Store>
 
 	public Store Create(User signer)
 	{
-		Execution.IncrementCount((int)FairMetaEntityType.StoreCount);
-
-		var b = UserTable.KeyToBucket(signer.Name);
-		int e = Execution.GetNextEid(Table, b);
+		Execution.IncrementMetaInt(FairMetaEntityType.StoreCount);
 
 		var s = Table.Create();
 		
-		s.Id = LastCreatedId = new AutoId(b, e);
+		s.Id = LastCreatedId = new AutoId(Execution.IncrementMetaInt(FairMetaEntityType.StoreIdCounter));
 		s.Categories = [];
 		s.Moderators = [];
 		s.Publishers = [];

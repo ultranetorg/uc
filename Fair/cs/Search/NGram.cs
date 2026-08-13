@@ -324,7 +324,7 @@ public abstract class NgramTable<ID> : Table<ID, Ngram<ID>>, IDisposable where I
 	}
 }
 
-public class NgramTableState<ID> : TableState<ID, Ngram<ID>> where ID : EntityId, new()
+public class NgramTableState<ID> : TableState<ID, Ngram<ID>, NgramTable<ID>> where ID : EntityId, new()
 {
 	public new NgramTable<ID> Table => base.Table as NgramTable<ID>;
 

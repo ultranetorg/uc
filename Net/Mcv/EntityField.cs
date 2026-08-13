@@ -1,21 +1,21 @@
 namespace Uccs.Net;
 
-public class EntityFieldAddress<E> : IBinarySerializable, IComparable<EntityFieldAddress<E>> where E : unmanaged, Enum
+public class EntityField<E> : IBinarySerializable, IComparable<EntityField<E>> where E : unmanaged, Enum
 {
 	public AutoId	Id { get; set; }
 	public E		Field { get; set; }
 
-	public EntityFieldAddress()
+	public EntityField()
 	{
 	}
 
-	public EntityFieldAddress(AutoId entity, E field)
+	public EntityField(AutoId entity, E field)
 	{
 		Id = entity;
 		Field = field;
 	}
 
-	public EntityFieldAddress(byte[] raw)
+	public EntityField(byte[] raw)
 	{
 		using var r = new Reader(raw);
 		Read(r);
@@ -26,9 +26,9 @@ public class EntityFieldAddress<E> : IBinarySerializable, IComparable<EntityFiel
 		return $"{Id}/{Field}";
 	}
 
-	public static EntityFieldAddress<E> Parse(string t)
+	public static EntityField<E> Parse(string t)
 	{
-		var e = new EntityFieldAddress<E>();
+		var e = new EntityField<E>();
 		
 		var i = t.IndexOf('/');
 		
@@ -50,7 +50,7 @@ public class EntityFieldAddress<E> : IBinarySerializable, IComparable<EntityFiel
 		writer.Write(Id);
 	}
 
-	public int CompareTo(EntityFieldAddress<E> x)
+	public int CompareTo(EntityField<E> x)
 	{
 		var c = Id.CompareTo(Id);
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Runtime.CompilerServices;
 
 namespace Uccs.Net;
 
@@ -118,28 +118,54 @@ public class Execution : ITableExecution
 		return a;
 	}
 
-	public void IncrementCount(int type)
+	public int IncrementMetaInt<E>(E type) where E : unmanaged, Enum
 	{
-		var m = AffectMeta(new MetaId(type, []));
-		m.Value = m.Value == null ? [1, 0, 0, 0] : BitConverter.GetBytes(BitConverter.ToInt32(m.Value) + 1);
+		var m = AffectMeta(new MetaId(Unsafe.As<E, uint>(ref type)));
+
+		if(m.Value == null)
+		{
+			m.Value = [1, 0, 0, 0];
+			return 1;
+		} 
+		else
+		{
+			var i = BitConverter.ToInt32(m.Value) + 1;
+			m.Value = BitConverter.GetBytes(i);
+			return i;
+		}
 	}
 
-	public int GetNextEid(TableBase table,  int b)
+	public int GetMetaInt<E>(E type) where E : unmanaged, Enum
 	{
-		int e = 0;
+		var id = new MetaId(Unsafe.As<E, uint>(ref type));
 
-		NextEids[table.Id].TryGetValue(b, out e);
+		if(AffectedMetas.TryGetValue(id, out var a))
+			return a.AsInt;
 
-		if(e == 0)
-			Round.NextEids[table.Id].TryGetValue(b, out e);
+		if(Parent != null)
+			Parent.AffectedMetas.TryGetValue(id, out a);
+		else if(!Round.AffectedMetas.TryGetValue(id, out a))
+			a = Mcv.Metas.Find(id);
 		
-		if(e == 0)
-			e = table.FindBucket(b)?.NextI ?? 0;
-
-		NextEids[table.Id][b] = e + 1;
-
-		return e;
+		return a.AsInt;
 	}
+
+	//public int GetNextEid(TableBase table,  int b)
+	//{
+	//	int e = 0;
+	//
+	//	NextEids[table.Id].TryGetValue(b, out e);
+	//
+	//	if(e == 0)
+	//		Round.NextEids[table.Id].TryGetValue(b, out e);
+	//	
+	//	if(e == 0)
+	//		e = table.FindBucket(b)?.NextI ?? 0;
+	//
+	//	NextEids[table.Id][b] = e + 1;
+	//
+	//	return e;
+	//}
 	
 	public void TransferEnergyIfNeeded(IEnergyHolder a)
 	{
@@ -278,7 +304,7 @@ public class Execution : ITableExecution
 		else if(Round.AffectedUsers.Values.FirstOrDefault(i => i.Name == name) is User x)
 			u = x;
 		else
-			u = Mcv.Users.FindEntry(name);
+			u = Mcv.Users.Find(name);
 
 		if(u == null)
 		{	
@@ -340,24 +366,23 @@ public class Execution : ITableExecution
 		if(Round.AffectedUsers.Values.FirstOrDefault(i => i.Name == name) is User x)
 			return x;
 
-		return Mcv.Users.FindEntry(name);
+		return Mcv.Users.Find(name);
 	}
 
 	public virtual User CreateUser(string name)
 	{
-		var b = UserTable.KeyToBucket(name);
-			
-		int e = GetNextEid(Mcv.Users, b);
+		//var b = UserTable.KeyToBucket(name);
+		//int e = GetNextEid(Mcv.Users, b);
 
 		var a = Mcv.Users.Create();
 
-		a.Id			= LastCreatedId = new AutoId(b, e);
+		a.Id			= LastCreatedId = new AutoId(IncrementMetaInt(MetaEntityType.UserIdCounter));
 		a.Name			= name;
 		//a.Permissions	= [new Permission {Operations = [], Users = [a.Id]}];
 
 		AffectedUsers[a.Id] = a;
 
-		IncrementCount((int)MetaEntityType.UserCount);
+		IncrementMetaInt(MetaEntityType.UserCount);
 
 		return a;
 	}

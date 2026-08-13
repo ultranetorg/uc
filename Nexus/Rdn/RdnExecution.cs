@@ -2,31 +2,46 @@
 
 public class RdnExecution : Execution
 {
-	public new Rdn				Net => base.Net as Rdn;
-	public new RdnMcv			Mcv => base.Mcv as RdnMcv;
-	public new RdnRound			Round => base.Round as RdnRound;
+	public new Rdn					Net => base.Net as Rdn;
+	public new RdnMcv				Mcv => base.Mcv as RdnMcv;
+	public new RdnRound				Round => base.Round as RdnRound;
 
-	public DomainExecution		Domains;
-	public ResourceExecution	Resources;
+	public DomainExecution			Domains;
+	public ResourceExecution		Resources;
+	public NameExecution			Names;
+	public ResourceNameExecution	ResourceNames;
 
 	public RdnExecution(RdnMcv mcv, RdnRound round, Transaction transaction) : base(mcv, round, transaction)
 	{
 		Domains = new(this);
 		Resources = new(this);
+		Names = new(this);
+		ResourceNames = new(this);
+	}
+
+	public override User CreateUser(string name)
+	{
+		var a = base.CreateUser(name);
+	
+		Names.Register(name, EntityTextField.UserName, a.Id);
+
+		return a;
 	}
 
 	public override ITableExecution FindExecution(byte table)
 	{
-		if(table == Mcv.Domains.Id)		return Domains;
-		if(table == Mcv.Resources.Id)	return Resources;
+		if(table == Mcv.Domains.Id)				return Domains;
+		if(table == Mcv.Resources.Id)			return Resources;
+		if(table == Mcv.Names.Id)			return Names;
+		if(table == Mcv.ResourceNames.Id)		return ResourceNames;
 
 		return base.FindExecution(table);
 	}
 
 	public override IBaseTableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Domains.Id == table)		return Domains.Find(id as AutoId) != null ?		(IBaseTableEntry)Domains.Affect(id as AutoId) : null;
-		if(Mcv.Resources.Id == table)	return Resources.Find(id as AutoId) != null ?	(IBaseTableEntry)Resources.Affect(id as AutoId) : null;
+		if(Mcv.Domains.Id == table)			return Domains.Find(id as AutoId) != null ?		(IBaseTableEntry)Domains.Affect(id as AutoId) : null;
+		if(Mcv.Resources.Id == table)		return Resources.Find(id as AutoId) != null ?	(IBaseTableEntry)Resources.Affect(id as AutoId) : null;
 
 		return base.Affect(table, id);
 	}

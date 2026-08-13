@@ -36,7 +36,7 @@ public class StoreNameChange : VotableOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var e = execution.Words.Find(NameTable.GetId(Name));
+		var e = execution.Names.Find(NameTable.GetId(Name));
 
 		if(e != null)
 		{
@@ -46,13 +46,13 @@ public class StoreNameChange : VotableOperation
 
 		if(Store.Name != null)
 		{
-			execution.Words.Unregister(Store.Name);
+			execution.Names.Unregister(Store.Name);
 			execution.Free(Store, Store, execution.Net.EntityLength);
 		}
 
 		if(Name != null)
 		{
-			execution.Words.Register(Name, EntityTextField.StoreName, Store.Id);
+			execution.Names.Register(Name, EntityTextField.StoreName, Store.Id);
 			execution.Allocate(Store, Store, execution.Net.EntityLength);
 		}
 

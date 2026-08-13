@@ -675,7 +675,7 @@ public abstract class Mcv /// Mutual chain voting
 			foreach(var t in Tables)
 			{	
 				var a = round.AffectedByTable(t);
-				t.Commit(b, (IEnumerable<IBaseTableEntry>)a.Values, round.FindState<TableStateBase>(t), round);
+				t.Commit(b, (IEnumerable<IBaseTableEntry>)a.Values, null, round);
 			}
 			
 			round.ClearAffected();

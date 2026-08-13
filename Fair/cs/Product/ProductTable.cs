@@ -35,7 +35,7 @@ public class ProductTable : Table<AutoId, Product>
 	}
 }
 
-public class ProductExecution : TableExecution<AutoId, Product>
+public class ProductExecution : TableExecution<AutoId, Product, ProductTable>
 {
 	public ProductExecution(FairExecution execution) : base(execution.Mcv.Products, execution)
 	{
@@ -43,13 +43,11 @@ public class ProductExecution : TableExecution<AutoId, Product>
 
 	public Product Create(Author author)
 	{
-		Execution.IncrementCount((int)FairMetaEntityType.ProductsCount);
-
-		int e = Execution.GetNextEid(Table, author.Id.B);
+		Execution.IncrementMetaInt(FairMetaEntityType.ProductsCount);
 
   		var	p = new Product();
 
-		p.Id = LastCreatedId = new AutoId(author.Id.B, e);
+		p.Id = LastCreatedId = new AutoId(Execution.IncrementMetaInt(FairMetaEntityType.ProductsIdCounter));
 		p.Versions = []; 
 		p.Publications = [];
 

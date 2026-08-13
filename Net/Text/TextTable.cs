@@ -33,9 +33,9 @@ public abstract class TextTable<E> : Table<StringId, E> where E : class, ITableE
 	}
  }
 
-public class TextExecution<E> : TableExecution<StringId, E> where E : class, ITableEntry<StringId>
+public class TextExecution<E, T> : TableExecution<StringId, E, T> where E : class, ITableEntry<StringId> where T : TextTable<E>
 {
-	public TextExecution(TextTable<E> table, Execution execution) : base(table, execution)
+	public TextExecution(T table, Execution execution) : base(table, execution)
 	{
 	}
 }

@@ -5,30 +5,29 @@ namespace Uccs.Net;
 
 public class AutoId : EntityId
 {
-	public override int					B  => _B; /// bucket
-	public int							I { get; set; }
-	public ulong						ToULong() => ((ulong)(uint)B << 32) | (uint)I;
-	public static AutoId				FromULong(ulong l) => new ((int)(l >> 32), (int)l);
+	public long							I { get; set; }
+	public override int					B  => (int)(I % TableBase.BucketBase.CountMax); /// bucket
 
-	public static readonly AutoId		LastCreated = new () {I = -1};
-	public static readonly AutoId		God = new() { I = -2};
+	public static readonly AutoId		God = new() { I = -1};
+	public static readonly AutoId		LastCreated = new () {I = -2};
 	public static readonly AutoId		NewUser = new () {I = -3};
+	public static readonly AutoId		FreeConst  = new () {I = -4};
 
-	public int							_B;
+	public ulong						ToULong() => (ulong)I;
+	public static AutoId				FromULong(ulong l) => new ((long)l);
 
 	public AutoId()
 	{
 	}
 
-	public AutoId(int b , int e)
+	public AutoId(long e)
 	{
-		_B = b;
 		I = e;
 	}
 
 	public override string ToString()
 	{
-		return $"{B}-{I}";
+		return $"{I}";
 	}
 
 	public override int GetHashCode()
@@ -38,55 +37,38 @@ public class AutoId : EntityId
 
 	public static bool TryParse(string t, out AutoId entity)
 	{
-		var i = t.IndexOf('-');
-
-		entity = null;
-
-		if(i == -1)
-			return false;
-
-		int e = 0;
-		
-		var r = int.TryParse(t.AsSpan(0, i), out var b) && int.TryParse(t.AsSpan(i + 1), out e);
+		var r = long.TryParse(t, out var e);
 
 		if(r)
 		{
-			if(b < 0 || b >= TableBase.BucketsCountMax)
-				return false;
-
-			if(e < 0)
-				return false;
-
-			entity = new AutoId(b, e);
+			entity = new AutoId(e);
+			return true;
 		}
-
-		return r;
+		else
+		{ 
+			entity = null;
+			return false;
+		}
 	}
 
 	public static AutoId Parse(string t)
 	{
-		var i = t.IndexOf('-');
-
-		return new AutoId(int.Parse(t.AsSpan(0, i)), int.Parse(t.AsSpan(i + 1)));
+		return new AutoId(long.Parse(t));
 	}
 
 	public static AutoId Parse(ReadOnlySpan<char> t)
 	{
-		var i = t.IndexOf('-');
-
-		return new AutoId(int.Parse(t.Slice(0, i)), int.Parse(t.Slice(i + 1)));
+		return new AutoId(long.Parse(t));
 	}
 
 	public override void Read(Reader reader)
 	{
-		_B	= reader.Read7BitEncodedInt();
-		I	= reader.Read7BitEncodedInt();
+		I = reader.Read7BitEncodedInt64();
 	}
 
 	public override void Write(Writer writer)
 	{
-		writer.Write7BitEncodedInt(B);
-		writer.Write7BitEncodedInt(I);
+		writer.Write7BitEncodedInt64(I);
 	}
 
 	public override bool Equals(object obj)
@@ -96,7 +78,7 @@ public class AutoId : EntityId
 
 	public override bool Equals(EntityId a)
 	{
-		return a is AutoId e && B == a.B && I == e.I;
+		return a is AutoId e && I == e.I;
 	}
 
 	public override int CompareTo(EntityId a)
@@ -106,22 +88,12 @@ public class AutoId : EntityId
 
 	public int CompareTo(AutoId a)
 	{
-		var c = B.CompareTo(a.B);
-		
-		if(c != 0)
-			return c;
-		
-		c = I.CompareTo(a.I);
-		
-		if(c != 0)
-			return c;
-
-		return 0;
+		return I.CompareTo(a.I);
 	}
 
-	public static bool operator == (AutoId left, AutoId right)
+	public static bool operator == (AutoId l, AutoId r)
 	{
-		return left is null && right is null || left is not null && left.Equals((object)right); /// object cast is IMPORTANT!!
+		return l is null && r is null || l is not null && l.Equals((object)r); /// object cast is IMPORTANT!!
 	}
 
 	public static bool operator != (AutoId left, AutoId right)

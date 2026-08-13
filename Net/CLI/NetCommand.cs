@@ -6,7 +6,7 @@ public abstract class NetCommand : Command
 {
 	public static readonly ArgumentType		PUBKEY		= new (nameof(PUBKEY),		"Public key, in Bech32 form",											["plsar7tfrq83mvfaw0m6u0l9jmsxhkjvk5zzanaqrhavfygl5w2sq3cyyk9btes", "gya27t2jsxdfa3gdywck9cdtwe6lhc59qwwrq2jdq6plz3k9hhjsqx0yuc6btes", "uh39t57ujhn4skcdhkg24mavdp4jsghtvv0uxeg2596et7h6vmnsqrntezqbtes", "vlrvxjhwz96gckyk9etxft3980agmy8s38u45gscp93ajk8rje5qqkgeww3btes"]);
 	public static readonly ArgumentType		COMMAND		= new (nameof(COMMAND),		"CLI command string",													["node peers"]);
-	public static readonly ArgumentType		EID			= new (nameof(EID),			"Entity Id",															[new AutoId(1111, 22), new AutoId(12345,6789), new AutoId(987, 6543321)]);
+	public static readonly ArgumentType		EID			= new (nameof(EID),			"Entity Id",															[new AutoId(1111), new AutoId(2222222), new AutoId(1234556789)]);
 	public static readonly ArgumentType		IP			= new (nameof(IP),			"IP Address",															["123.234.55.66"]);
 	public static readonly ArgumentType		INT			= new (nameof(INT),			"Positive integer number",												["1", "78"]);
 	public static readonly ArgumentType		HEX			= new (nameof(HEX),			"Array of bytes in form of hexadecimal string",							["0105BCE1C336874FBEBE40D2510EC035D0251FE855399EAD76E22BD18E2EBC6E37"]);

@@ -105,7 +105,7 @@ public class NameTable : TextTable<TextToField<EntityTextField>>
 //	}
 }
 
-public class NameExecution : TextExecution<TextToField<EntityTextField>>
+public class NameExecution : TextExecution<TextToField<EntityTextField>, NameTable>
 {
 	public NameExecution(FairExecution execution) : base(execution.Mcv.Names, execution)
 	{
@@ -123,7 +123,7 @@ public class NameExecution : TextExecution<TextToField<EntityTextField>>
 
 		if(a == null)
 		{
-			Execution.IncrementCount((int)FairMetaEntityType.WordsCount);
+			Execution.IncrementMetaInt(FairMetaEntityType.NamesCount);
 
 			a = Table.Create();
 			a.Id = id;
@@ -141,7 +141,7 @@ public class NameExecution : TextExecution<TextToField<EntityTextField>>
 		var id = TextTable<TextToField<EntityTextField>>.GetId(word);
 		var w = Affect(id);
 	
-		w.Entity = new EntityFieldAddress<EntityTextField> {Id = entity, Field = field};
+		w.Entity = new EntityField<EntityTextField> {Id = entity, Field = field};
 	}
 
 	public void Unregister(string word)

@@ -14,7 +14,7 @@ public class CategoryTable : Table<AutoId, Category>
 	}
 }
 
-public class CategoryExecution : TableExecution<AutoId, Category>
+public class CategoryExecution : TableExecution<AutoId, Category, CategoryTable>
 {
 	public CategoryExecution(FairExecution execution) : base(execution.Mcv.Categories, execution)
 	{
@@ -22,14 +22,12 @@ public class CategoryExecution : TableExecution<AutoId, Category>
 
 	public Category Create(Store store)
 	{
-		Execution.IncrementCount((int)FairMetaEntityType.CategoriesCount);
-
-		int e = Execution.GetNextEid(Table, store.Id.B);
+		Execution.IncrementMetaInt(FairMetaEntityType.CategoriesCount);
 
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(store.Id.B, e);
-		a.Categories = [];
-		a.Publications = [];
+		a.Id			= LastCreatedId = new AutoId(Execution.IncrementMetaInt(FairMetaEntityType.CategoriesIdCounter));
+		a.Categories	= [];
+		a.Publications	= [];
 
 		return Affected[a.Id] = a;
 	}

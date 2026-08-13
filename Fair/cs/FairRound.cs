@@ -2,21 +2,21 @@
 
 public class FairRound : Round
 {
-	public new FairMcv											Mcv => base.Mcv as FairMcv;
+	public new FairMcv														Mcv => base.Mcv as FairMcv;
 
-	public TableState<AutoId, Author>							Authors;
-	public TableState<AutoId, Product>							Products;
-	public TableState<AutoId, Store>							Stores;
-	public TableState<AutoId, Category>							Categories;
-	public TableState<AutoId, Publication>						Publications;
-	public TableState<AutoId, Review>							Reviews;
-	public TableState<AutoId, Proposal>							Proposals;
-	public TableState<AutoId, ProposalComment>					ProposalComments;
-	public TableState<AutoId, File>								Files;
-	public TableState<StringId, TextToField<EntityTextField>>	Names;
-	public NgramTableState<StoreNgramId>						StoreTitles;
-	public NgramTableState<ProductNgramId>						ProductTitles;
-	public NgramTableState<PublicationNgramId>					PublicationTitles;
+	public TableState<AutoId, Author, AuthorTable>							Authors;
+	public TableState<AutoId, Product, ProductTable>						Products;
+	public TableState<AutoId, Store, StoreTable >							Stores;
+	public TableState<AutoId, Category, CategoryTable>						Categories;
+	public TableState<AutoId, Publication, PublicationTable>				Publications;
+	public TableState<AutoId, Review, ReviewTable>							Reviews;
+	public TableState<AutoId, Proposal, ProposalTable>						Proposals;
+	public TableState<AutoId, ProposalComment, ProposalCommentTable>		ProposalComments;
+	public TableState<AutoId, File, FileTable>								Files;
+	public TableState<StringId, TextToField<EntityTextField>, NameTable>	Names;
+	public NgramTableState<StoreNgramId>									StoreTitles;
+	public NgramTableState<ProductNgramId>									ProductTitles;
+	public NgramTableState<PublicationNgramId>								PublicationTitles;
 
 	public FairRound(FairMcv mcv) : base(mcv)
 	{
@@ -116,7 +116,7 @@ public class FairRound : Round
 		Proposals.Absorb(e.Proposals);
 		ProposalComments.Absorb(e.ProposalComments);
 		Files.Absorb(e.Files);
-		Names.Absorb(e.Words);
+		Names.Absorb(e.Names);
 		StoreTitles.Absorb(e.StoreTitles);
 		ProductTitles.Absorb(e.ProductTitles);
 		PublicationTitles.Absorb(e.PublicationTitles);

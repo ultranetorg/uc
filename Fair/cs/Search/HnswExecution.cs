@@ -276,13 +276,13 @@ public class StringHnswTableExecution<E> : HnswExecution<string, E>  where E : S
   		{
 			var b = DataToBucket(text);
 
-  			var id = new HnswId(b, Execution.GetNextEid(Table, b));
-  	
-  			e = Create(id);
-  	
-  			e.Text  = text;
-  			
-  			Add(e);
+			throw new NotImplementedException();
+  			///var id = new HnswId(b, Execution.GetNextEid(Table, b));
+  			///e = Create(id);
+  			///
+  			///e.Text  = text;
+  			///
+  			///Add(e);
   		}
   		else
  			e = Affect(e.Id);

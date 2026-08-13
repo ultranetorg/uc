@@ -1,4 +1,6 @@
-﻿namespace Uccs.Rdn;
+﻿using RocksDbSharp;
+
+namespace Uccs.Rdn;
 
 public class ResourceTable : Table<AutoId, Resource>
 {
@@ -25,17 +27,12 @@ public class ResourceTable : Table<AutoId, Resource>
 	
 	public Resource Find(Ura address)
 	{
-        var d = Mcv.Domains.Find(address.Domain);
+		var r = Mcv.ResourceNames.Find(Mcv.ResourceNames.GetId(address.Domain, address.Resource));
 
-        if(d == null)
-            return null;
+		if(r == null)
+			return null;
 
- 		//var r = (Mcv.LastConfirmedRound as RdnRound).Resources.Affected.Values.FirstOrDefault(i => i.Domain == d.Id && i.Name == address.Resource);
-		//
-		//if(r != null)
-		//	return r.Deleted ? null : r;
-
-  		return FindBucket(d.Id.B)?.Entries.FirstOrDefault(i => i.Domain == d.Id && i.Name == address.Resource);
+		return Find(r.Entity);
 	}
 
 	public virtual Resource Latest(Ura name)
@@ -52,9 +49,25 @@ public class ResourceTable : Table<AutoId, Resource>
 
 		return Find(name);
 	}
+	
+	public override void Index(WriteBatch batch, Round lastincommit)
+	{
+		var e = new RdnExecution(Mcv, new RdnRound(Mcv), null);
+
+		foreach(var cl in Clusters)
+			foreach(var b in cl.Buckets)
+				foreach(var i in b.Entries)
+				{
+					var w = e.ResourceNames.Affect(Mcv.ResourceNames.GetId(Mcv.Domains.Find(i.Domain).Address, i.Name));
+
+					w.Entity  = i.Id;
+				}
+	
+		Mcv.ResourceNames.Commit(batch, e.ResourceNames.Affected.Values, null, lastincommit);
+	}
  }
 
-public class ResourceExecution : TableExecution<AutoId, Resource>
+public class ResourceExecution : TableExecution<AutoId, Resource, ResourceTable>
 {
 	new ResourceTable		Table => base.Table as ResourceTable;
 	new RdnExecution		Execution=> base.Execution as RdnExecution;
@@ -98,7 +111,7 @@ public class ResourceExecution : TableExecution<AutoId, Resource>
   		{
   			r = new Resource()
 				{
-					Id		= LastCreatedId = new AutoId(domain.Id.B, Execution.GetNextEid(Table, domain.Id.B)),
+					Id		= LastCreatedId = new AutoId(Execution.IncrementMetaInt(RdnMetaEntityType.RescourceIdCounter)),
 					Domain	= domain.Id,
   					Name	= adddres.Resource
 				};

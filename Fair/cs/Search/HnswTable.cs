@@ -80,8 +80,6 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	public readonly int							SearchThreshold;
 	public readonly int							MinDiversity;
 
-	public new HnswTableState<D, E>				Assosiated => base.Assosiated as HnswTableState<D, E>;
-
 	public new FairMcv							Mcv => base.Mcv as FairMcv;
 	public IEnumerable<FairRound>				Tail => Mcv.Tail.Cast<FairRound>();
 
@@ -321,7 +319,7 @@ public abstract class HnswTable<D, E> : Table<HnswId, E> where E : HnswNode<D>
 	}
 }
 
-public class HnswTableState<D, E> : TableState<HnswId, E> where E : HnswNode<D>
+public class HnswTableState<D, E> : TableState<HnswId, E, HnswTable<D, E>> where E : HnswNode<D>
 {
 	public new HnswTable<D, E>		Table => base.Table as HnswTable<D, E>;
 

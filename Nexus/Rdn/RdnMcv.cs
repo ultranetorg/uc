@@ -7,15 +7,26 @@ public enum RdnTable : byte
 {
 	Meta = McvTable.Meta, 
 	User = McvTable.User,
-	Subnet = McvTable.Friend,
+	Friend = McvTable.Friend,
 	Domain,
 	Resource, 
+	Name,
+	ResourceName,
+}
+
+public enum RdnMetaEntityType : uint
+{
+	None,
+	DomainIdCounter	= MetaEntityType._Last + 1,
+	RescourceIdCounter,
 }
 
 public class RdnMcv : Mcv
 {
 	public DomainTable				Domains;
 	public ResourceTable			Resources;
+	public NameIndex				Names;
+	public ResourceNameIndex		ResourceNames;
 	Endpoint[]						GraphIPs;
 	Endpoint[]						SeedHubIPs;
 
@@ -59,12 +70,14 @@ public class RdnMcv : Mcv
 		Rocks = RocksDb.Open(dbo, databasepath, cfs);
 
 		Metas = new (this);
-		Users = new (this);
+		Users = new RdnUserTable(this);
+		Friends = new (this);
 		Domains = new (this);
 		Resources = new (this);
-		Friends = new (this);
+		Names = new (this);
+		ResourceNames = new (this);
 
-		Tables = [Metas, Users, Friends, Domains, Resources];
+		Tables = [Metas, Users, Friends, Domains, Resources, Names, ResourceNames];
 	}
 
 	public override Round CreateRound()
@@ -87,7 +100,7 @@ public class RdnMcv : Mcv
 		return	new RdnCandidacyDeclaration 
 				{
 					Beneficiary		= beneficiary,
-					GraphEndpoints		= GraphIPs,
+					GraphEndpoints	= GraphIPs,
 					SeedHubRdcIPs	= SeedHubIPs
 				};
 

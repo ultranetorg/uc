@@ -3,9 +3,20 @@ using RocksDbSharp;
 
 namespace Uccs.Fair;
 
-public enum FairMetaEntityType : int
+public enum FairMetaEntityType : uint
 {
-	AuthorsCount = MetaEntityType._Last + 1,
+	AuthorsIdCounter = MetaEntityType._Last + 1,
+	ProductsIdCounter,
+	StoreIdCounter,
+	CategoriesIdCounter,
+	PublicationsIdCounter,
+	ReviewsIdCounter,
+	ProposalIdCounter,
+	ProposalCommentsIdCounter,
+	NameIdCounter,
+	FileIdCounter,
+
+	AuthorsCount,
 	ProductsCount,
 	StoreCount,
 	CategoriesCount,
@@ -13,7 +24,7 @@ public enum FairMetaEntityType : int
 	ReviewsCount,
 	ProposalCount,
 	ProposalCommentsCount,
-	WordsCount,
+	NamesCount,
 }
 
 public enum FairTable : byte
@@ -29,6 +40,7 @@ public enum EntityTextField : byte
 {
 	UserName, 
 	AuthorName, 
+	ProductName, 
 	StoreName, 
 }
 

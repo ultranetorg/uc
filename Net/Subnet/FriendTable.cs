@@ -33,7 +33,7 @@ public class FriendTable : Table<AutoId, Friend>
 	}
 }
 
-public class FrientExecution : TableExecution<AutoId, Friend>
+public class FrientExecution : TableExecution<AutoId, Friend, FriendTable>
 {
 	new FriendTable			Table => base.Table as FriendTable;
 		
@@ -75,12 +75,12 @@ public class FrientExecution : TableExecution<AutoId, Friend>
 			return Affected[d.Id] = d.Clone() as Friend;
 		else
 		{
-			var b = Table.KeyToBid(name);
-			
-			int e = Execution.GetNextEid(Table, b);
+			//var b = Table.KeyToBid(name);
+			//
+			//int e = Execution.GetNextEid(Table, b);
 
 			d = new Friend(Execution.Mcv);
-			d.Id = LastCreatedId = new AutoId(b, e);
+			d.Id = LastCreatedId = new AutoId(Execution.IncrementMetaInt(MetaEntityType.FriendIdCounter));
 			d.Name = name;
 
 			return Affected[d.Id] = d;

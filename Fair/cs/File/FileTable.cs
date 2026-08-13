@@ -14,7 +14,7 @@ public class FileTable : Table<AutoId, File>
 	}
  }
 
-public class FileExecution : TableExecution<AutoId, File>
+public class FileExecution : TableExecution<AutoId, File, FileTable>
 {
 	public FileExecution(FairExecution execution) : base(execution.Mcv.Files, execution)
 	{
@@ -22,10 +22,8 @@ public class FileExecution : TableExecution<AutoId, File>
 
 	public File Create(AutoId owner)
 	{
-		int e = Execution.GetNextEid(Table, owner.B);
-
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(owner.B, e);
+		a.Id = LastCreatedId = new AutoId(Execution.IncrementMetaInt(FairMetaEntityType.FileIdCounter));
 
 		return Affected[a.Id] = a;
 	}

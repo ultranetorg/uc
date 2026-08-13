@@ -23,16 +23,16 @@ public class AuthorTable : Table<AutoId, Author>
 			foreach(var b in cl.Buckets)
 				foreach(var i in b.Entries.Where(i => i.Name != null))
 				{
-					var w = e.Words.Affect(NameTable.GetId(i.Name));
+					var w = e.Names.Affect(NameTable.GetId(i.Name));
 
-					w.Entity = new EntityFieldAddress<EntityTextField> {Id = i.Id, Field = EntityTextField.AuthorName};
+					w.Entity = new EntityField<EntityTextField>{Id = i.Id, Field = EntityTextField.AuthorName};
 				}
 	
-		Mcv.Names.Commit(batch, e.Words.Affected.Values, e.Words, null);
+		Mcv.Names.Commit(batch, e.Names.Affected.Values, null, lastincommit);
 	}
 }
 
-public class AuthorExecution : TableExecution<AutoId, Author>
+public class AuthorExecution : TableExecution<AutoId, Author, AuthorTable>
 {
 	public static Dictionary<string, Dictionary<string, int>>	Webdomains = [];
 
@@ -66,18 +66,15 @@ public class AuthorExecution : TableExecution<AutoId, Author>
 
 	public Author Create(string name)
 	{
-		var b = UserTable.KeyToBucket(name);
-		int e = Execution.GetNextEid(Table, b);
-
 		var a = Table.Create();
-		a.Id = LastCreatedId = new AutoId(b, e);
+		a.Id = LastCreatedId = new AutoId(Execution.IncrementMetaInt(FairMetaEntityType.AuthorsIdCounter));
 		a.Products = [];
 		a.Owners = [];
 		a.Stores = [];
 		a.References = [];
 		a.Files = [];
 
-		Execution.IncrementCount((int)FairMetaEntityType.AuthorsCount);
+		Execution.IncrementMetaInt(FairMetaEntityType.AuthorsCount);
 
 		return Affected[a.Id] = a;
 	}

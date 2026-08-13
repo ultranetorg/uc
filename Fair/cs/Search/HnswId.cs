@@ -6,7 +6,7 @@ public class HnswId : AutoId
 
 	public const int				LevelBits = 4;
 
-	public static readonly HnswId	Entry = new HnswId(0, 0);
+	public static readonly HnswId	Entry = new HnswId(AutoId.FreeConst.I);
 	public static byte				BucketToLevel(int bucket) => (byte)(bucket >> TableBase.BucketBase.Length-LevelBits);
 	public static byte				ClusterToLevel(short cluster) => (byte)(cluster >> TableBase.ClusterBase.Length-LevelBits);
 
@@ -14,7 +14,7 @@ public class HnswId : AutoId
 	{
 	}
 
-	public HnswId(int b, int e) : base(b, e)
+	public HnswId(long a) : base(a)
 	{
 	}
 

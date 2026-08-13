@@ -4,14 +4,18 @@ namespace Uccs.Rdn;
 
 public class RdnRound : Round
 {
-	public new RdnMcv						Mcv => base.Mcv as RdnMcv;
-	public TableState<AutoId, Domain>		Domains;
-	public TableState<AutoId, Resource>		Resources;
+	public new RdnMcv															Mcv => base.Mcv as RdnMcv;
+	public TableState<AutoId, Domain, DomainTable>								Domains;
+	public TableState<AutoId, Resource, ResourceTable>							Resources;
+	public TableState<StringId, TextToFields<EntityTextField>, NameIndex>		Names;
+	public TableState<StringId, TextToEntity, ResourceNameIndex>				ResourceNames;
 
 	public RdnRound(RdnMcv mcv) : base(mcv)
 	{
-		Domains		= new (mcv.Domains);
-		Resources	= new (mcv.Resources);
+		Domains			= new (mcv.Domains);
+		Resources		= new (mcv.Resources);
+		Names			= new (mcv.Names);
+		ResourceNames	= new (mcv.ResourceNames);
 	}
 
 	public override Execution CreateExecution(Transaction transaction)
@@ -26,8 +30,10 @@ public class RdnRound : Round
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Domains)	return Domains.Affected;
-		if(table == Mcv.Resources)	return Resources.Affected;
+		if(table == Mcv.Domains)		return Domains.Affected;
+		if(table == Mcv.Resources)		return Resources.Affected;
+		if(table == Mcv.Names)			return Names.Affected;
+		if(table == Mcv.ResourceNames)	return ResourceNames.Affected;
 
 		return base.AffectedByTable(table);
 	}
@@ -38,12 +44,16 @@ public class RdnRound : Round
 		
 		Domains.Affected.Clear();
 		Resources.Affected.Clear();
+		Names.Affected.Clear();
+		ResourceNames.Affected.Clear();
 	}
 
 	public override S FindState<S>(TableBase table)
 	{
-		if(table == Mcv.Domains)	return Domains as S;
-		if(table == Mcv.Resources)	return Resources as S;
+		if(table == Mcv.Domains)		return Domains as S;
+		if(table == Mcv.Resources)		return Resources as S;
+		if(table == Mcv.Names)	return Names as S;
+		if(table == Mcv.ResourceNames)	return ResourceNames as S;
 
 		return base.FindState<S>(table);
 	}
@@ -56,7 +66,8 @@ public class RdnRound : Round
 
 		Domains.Absorb(e.Domains);
 		Resources.Absorb(e.Resources);
-
+		Names.Absorb(e.Names);
+		ResourceNames.Absorb(e.ResourceNames);
 	}
 
 	public override void FinishExecution()

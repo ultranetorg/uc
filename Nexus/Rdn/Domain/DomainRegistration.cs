@@ -113,13 +113,14 @@ public class DomainRegistration : RdnOperation
 			
 			var start = d.Expiration < execution.Time.Days ? execution.Time.Days : d.Expiration;
 
-			d.Owner			= o.Id;
+			d.Owner				= o.Id;
 			d.OwnershipPolicy	= Policy;
-			d.Expiration	= (short)(start + Time.FromYears(Years).Days);
+			d.Expiration		= (short)(start + Time.FromYears(Years).Days);
 
 			execution.PayForName(new string(' ', Domain.NameLengthMax), Years);
 		}
 
+		execution.Names.Register(Address, EntityTextField.DomainName, d.Id);
 		execution.PayOperationEnergy(User);
 	}
 }
