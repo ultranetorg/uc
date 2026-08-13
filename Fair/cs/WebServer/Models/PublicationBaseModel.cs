@@ -19,6 +19,6 @@ public class PublicationBaseModel
 	public PublicationBaseModel(Publication publication, Product product)
 	{
 		Id = publication.Id.ToString();
-		Title = PublicationUtils.GetTitle(publication, product);
+		Title = product.Title;
 	}
 }

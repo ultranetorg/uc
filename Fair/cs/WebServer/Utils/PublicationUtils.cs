@@ -2,7 +2,7 @@
 
 public static class PublicationUtils
 {
-	public static string? GetTitle(Publication publication, Product product) => product.Title;
+	//public static string? GetTitle(Product product) => product.Title;
 
 	public static string? GetLatestTitle(Product product) => product.Title;
 

@@ -23,7 +23,7 @@ public class PublicationImageBaseModel
 	public PublicationImageBaseModel(Publication publication, Product product, string? categoryTitle, AutoId? imageId)
 	{
 		Id = publication.Id.ToString();
-		Title = PublicationUtils.GetTitle(publication, product);
+		Title = product.Title;
 		CategoryTitle = categoryTitle;
 		ImageId = imageId?.ToString();
 	}

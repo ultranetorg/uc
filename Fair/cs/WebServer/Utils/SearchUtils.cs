@@ -143,7 +143,8 @@ internal class SearchUtils
 
 	internal static bool IsMatch(Publication publication, Product product, string query)
 	{
-		string productTitle = PublicationUtils.GetTitle(publication, product);
+		string productTitle = product.Title;
+
 		if(string.IsNullOrEmpty(productTitle))
 		{
 			return false;

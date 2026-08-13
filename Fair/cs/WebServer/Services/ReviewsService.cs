@@ -75,7 +75,7 @@ public class ReviewsService
 				var model = new ReviewModel(review, account)
 				{
 					PublicationId = publication.Id.ToString(),
-					PublicationTitle = PublicationUtils.GetTitle(publication, product)
+					PublicationTitle = product.Title
 				};
 				result.Add(model);
 			}

@@ -92,7 +92,7 @@ public class ProductsService
 		{
 			Id = publication.Id.ToString(),
 			Type = product.Type,
-			Title = PublicationUtils.GetTitle(publication, product),
+			Title = product.Title,
 			LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
 			Updated = product.Updated.Hours,
 			Fields = fields,

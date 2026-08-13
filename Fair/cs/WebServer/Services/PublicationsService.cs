@@ -39,7 +39,7 @@ public class PublicationsService
 			Id = publication.Id.ToString(),
 			StoreId = publication.Store.ToString(),
 			Type = product.Type,
-			Title = PublicationUtils.GetTitle(publication, product),
+			Title = product.Title,
 			LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
 			Updated = product.Updated.Hours,
 			Fields = mappedFields,
@@ -352,7 +352,7 @@ public class PublicationsService
 		{
 			Id = publication.Id.ToString(),
 			Type = product.Type,
-			Title = PublicationUtils.GetTitle(publication, product),
+			Title = product.Title,
 			LogoId = fileId?.ToString(),
 			Updated = product.Updated.Hours,
 			AuthorId = author.Id.ToString(),
@@ -436,7 +436,7 @@ public class PublicationsService
 			{
 				Id = publication.Id.ToString(),
 				Type = product.Type,
-				Title = PublicationUtils.GetTitle(publication, product),
+				Title = product.Title,
 				LogoId = fileId?.ToString(),
 				Updated = product.Updated.Hours,
 				AuthorId = author.Id.ToString(),

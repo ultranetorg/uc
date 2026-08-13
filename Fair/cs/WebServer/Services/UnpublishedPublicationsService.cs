@@ -118,7 +118,7 @@ public class UnpublishedPublicationsService
 		{
 			Id = publication.Id.ToString(),
 			Type = product.Type,
-			Title = PublicationUtils.GetTitle(publication, product),
+			Title = product.Title,
 			LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
 			Updated = product.Updated.Hours,
 			Fields = mappedFields,

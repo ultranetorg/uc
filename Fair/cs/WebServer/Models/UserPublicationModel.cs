@@ -27,7 +27,7 @@ public class UserPublicationModel
 		CategoryTitle = category.Title;
 
 		ProductId = product.Id.ToString();
-		ProductTitle = PublicationUtils.GetTitle(publication, product);
+		ProductTitle = product.Title;
 
 		Url = PublicationUtils.GetUrl(publication);
 	}
