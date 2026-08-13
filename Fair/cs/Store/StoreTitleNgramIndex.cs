@@ -9,7 +9,7 @@ namespace Uccs.Fair;
 public class StoreNgramId : EntityId
 {
 	public ulong			Chars { get; set; }
-	public override int		B  => (int)(Chars);
+	public override int		Bucket  => (int)(Chars);
 
 	public StoreNgramId()
 	{
@@ -27,7 +27,7 @@ public class StoreNgramId : EntityId
 
 	public override int GetHashCode()
 	{
-		return B;
+		return Bucket;
 	}
 
 	public override void Read(Reader reader)

@@ -38,7 +38,7 @@ public class NameTable : TextTable<TextToField<EntityTextField>>
 			}
 		}
 						
-		var b = FindBucket(pre.B);
+		var b = FindBucket(pre.Bucket);
 
 		if(b != null)
 		{

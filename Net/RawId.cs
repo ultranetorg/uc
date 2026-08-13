@@ -8,7 +8,7 @@ public class RawId : EntityId
 {
 	public byte[]		Bytes { get ; set; }
 	
-	public override int B
+	public override int Bucket
 	{
 		get => BytesToBucket(Bytes); 
 	}

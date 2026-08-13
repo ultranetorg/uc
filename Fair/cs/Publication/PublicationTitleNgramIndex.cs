@@ -10,7 +10,7 @@ public class PublicationNgramId : EntityId
 {
 	public AutoId			Category { get; set; }
 	public ulong			Chars { get; set; }
-	public override int		B  => (int)(Chars);
+	public override int		Bucket  => (int)(Chars);
 
 	public PublicationNgramId()
 	{
@@ -29,7 +29,7 @@ public class PublicationNgramId : EntityId
 
 	public override int GetHashCode()
 	{
-		return B;
+		return Bucket;
 	}
 
 	public override void Read(Reader reader)
@@ -133,8 +133,7 @@ public class PublicationTitleNgramIndex : NgramTable<PublicationNgramId>
 								return JaroWinkler.GetSimilarityFixed(query, y.ProductTitle) - JaroWinkler.GetSimilarityFixed(query, x.ProductTitle);
 							});
 
-		// TODO Maximion Implement proper pagination.
-		return o.Skip(skip).Take(take).ToList();
+		return o;
 	}
 }
 

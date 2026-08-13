@@ -14,7 +14,7 @@ public class MetaId : EntityId
 	public uint			Type;
 	public byte[]		Index; /// optional
 	
-	public override int B
+	public override int Bucket
 	{
 		get => (int)Type; 
 	}

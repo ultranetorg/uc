@@ -606,8 +606,8 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 
 		foreach(var i in entities.Cast<E>())
 		{
-			var c = GetCluster(ClusterFromBucket(i.Id.B));
-			var b = c.GetBucket(i.Id.B);
+			var c = GetCluster(ClusterFromBucket(i.Id.Bucket));
+			var b = c.GetBucket(i.Id.Bucket);
 
 			if(!i.Deleted)
 				b.Add(batch, i);
@@ -691,7 +691,7 @@ public abstract class Table<ID, E> : TableBase where E : class, ITableEntry<ID> 
 	
 	public virtual E Find(ID id)
 	{
-		return FindBucket(id.B)?.Find(id);
+		return FindBucket(id.Bucket)?.Find(id);
 	}
 
 	public virtual E Latest(ID id)

@@ -3,7 +3,7 @@
 public class ULongId : EntityId
 {
 	public ulong		Long { get; set; }
-	public override int B  => (int)(Long);
+	public override int Bucket  => (int)(Long);
 
 	public ULongId()
 	{
@@ -21,7 +21,7 @@ public class ULongId : EntityId
 
 	public override int GetHashCode()
 	{
-		return B;
+		return Bucket;
 	}
 
 	public override void Read(Reader reader)

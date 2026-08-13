@@ -113,7 +113,7 @@ public class RdnMcv : Mcv
 		if(d == null)
 			yield break;
 		
-		var b = Resources.FindBucket(d.Id.B);
+		var b = Resources.FindBucket(d.Id.Bucket);
 		
 		if(b == null)
 			yield break;

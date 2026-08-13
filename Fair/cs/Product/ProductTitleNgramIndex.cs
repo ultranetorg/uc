@@ -10,7 +10,7 @@ public class ProductNgramId : EntityId
 {
 	public ProductType		Type { get; set; }
 	public ulong			Chars { get; set; }
-	public override int		B  => (int)(Chars);
+	public override int		Bucket  => (int)(Chars);
 
 	public ProductNgramId()
 	{
@@ -29,7 +29,7 @@ public class ProductNgramId : EntityId
 
 	public override int GetHashCode()
 	{
-		return B;
+		return Bucket;
 	}
 
 	public override void Read(Reader reader)

@@ -2,7 +2,7 @@
 
 public class HnswId : AutoId
 {
-	public byte						Level => BucketToLevel(B); /// 3 bit = 8 levels
+	public byte						Level => BucketToLevel(Bucket); /// 3 bit = 8 levels
 
 	public const int				LevelBits = 4;
 

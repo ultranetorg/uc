@@ -6,7 +6,7 @@ namespace Uccs.Net;
 public class AutoId : EntityId
 {
 	public long							I { get; set; }
-	public override int					B  => (int)(I % TableBase.BucketBase.CountMax); /// bucket
+	public override int					Bucket  => (int)(I % TableBase.BucketBase.CountMax); /// bucket
 
 	public static readonly AutoId		God = new() { I = -1};
 	public static readonly AutoId		LastCreated = new () {I = -2};
@@ -32,7 +32,7 @@ public class AutoId : EntityId
 
 	public override int GetHashCode()
 	{
-		return B;
+		return Bucket;
 	}
 
 	public static bool TryParse(string t, out AutoId entity)
