@@ -19,6 +19,7 @@ import {
   ProductSearchResult,
   ProductSearchResultBase,
   ProductStore,
+  ProductType,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -114,8 +115,14 @@ const searchStores = async (query?: string, page?: number): Promise<TotalItemsRe
 const searchLiteStores = (query?: string): Promise<StoreLiteSearch[]> =>
   fetch(`${BASE_URL}/stores/search?query=${query}`).then(res => res.json())
 
-const searchPublications = async (storeId: string, query?: string, page?: number): Promise<PublicationExtended[]> => {
-  const params = buildUrlParams({ query, page })
+const searchPublications = async (
+  storeId: string,
+  query?: string,
+  categoriesIds?: string[],
+  type?: ProductType,
+  page?: number,
+): Promise<PublicationExtended[]> => {
+  const params = buildUrlParams({ query, categoriesIds, type, page })
   const res = await fetch(`${BASE_URL}/stores/${storeId}/publications` + params)
   return res.json()
 }

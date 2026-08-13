@@ -73,10 +73,10 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
         if (!isRequiredVoting && Array.isArray(location.state?.invalidateQueryKeys)) {
           if (isArrayOfArrays(location.state.invalidateQueryKeys)) {
             location.state.invalidateQueryKeys.each((x: readonly unknown[]) =>
-              queryClient.invalidateQueries({ queryKey: x }),
+              queryClient.invalidateQueries({ queryKey: x, refetchType: "all" }),
             )
           } else {
-            queryClient.invalidateQueries({ queryKey: location.state.invalidateQueryKeys })
+            queryClient.invalidateQueries({ queryKey: location.state.invalidateQueryKeys, refetchType: "all" })
           }
         }
 

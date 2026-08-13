@@ -9,6 +9,7 @@ export const enUS = {
     anbb: "A / N / B / B",
     anbbFull: "Any / Neither / Ban / Banish",
     answers: "answers",
+    apply: "Apply",
     approve: "approve",
     ar: "A / R",
     arFull: "Approved / Rejected",
@@ -17,6 +18,8 @@ export const enUS = {
     ban: "Ban",
     banish: "Banish",
     category: "category",
+    categories_one: "{{count}} category",
+    categories_other: "{{count}} categories",
     cancel: "Cancel",
     close: "close",
     comments: "comments",
@@ -69,6 +72,7 @@ export const enUS = {
     remove: "remove",
     reject: "reject",
     removals: "removals",
+    resetAll: "reset all",
     review: "review",
     reviews: "reviews",
     reviewer: "Reviewer",
@@ -260,7 +264,6 @@ export const enUS = {
     filters: "Filters",
     grid: "Grid View",
     list: "List View",
-    resetAll: "Reset all",
   },
   createPublication: {
     productNotFound: "We didn’t find anything. Try a different or shorter search.",
@@ -395,8 +398,7 @@ export const enUS = {
     text: "Text",
     reviewModalTitle: "Review text",
   },
-  search: {
-    allAuthors: "All authors",
+  searchPage: {
     allCategories: "All categories",
     searchResults: "Search Results",
   },

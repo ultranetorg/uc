@@ -2,10 +2,10 @@
 
 namespace Uccs.Fair;
 
-public class PaginationValidator
+public static class PaginationValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Validate(PaginationRequest pagination)
+	public static void Validate(PaginationRequest pagination)
 	{
 		if (pagination.Page.HasValue && pagination.Page.Value < 0)
 		{
@@ -18,9 +18,9 @@ public class PaginationValidator
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Validate(int? page)
+	public static void Validate(int? page)
 	{
-		if (page.HasValue && page.Value < 0)
+		if (page != null && page.Value < 0)
 		{
 			throw new InvalidPaginationParametersException();
 		}

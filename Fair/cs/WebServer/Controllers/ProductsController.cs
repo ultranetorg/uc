@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -6,9 +6,6 @@ namespace Uccs.Fair;
 public class ProductsController
 (
 	ILogger<ProductsController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
-	SearchQueryValidator searchQueryValidator,
 	ProductsService productsService
 ) : BaseController
 {
@@ -17,8 +14,8 @@ public class ProductsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Query}, {Pagination}", nameof(ProductsController), nameof(ProductsController.Search), query, pagination);
 
-		searchQueryValidator.Validate(query);
-		paginationValidator.Validate(pagination);
+		SearchQueryValidator.Validate(query);
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		return productsService.Search(query, page, pageSize, cancellationToken);
@@ -29,8 +26,8 @@ public class ProductsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(GetProductPublications), productId, pagination);
 
-		autoIdValidator.Validate(productId, nameof(Product).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		var result = productsService.GetProductPublications(productId, page, pageSize, cancellationToken);
@@ -43,7 +40,7 @@ public class ProductsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Query}", nameof(ProductsController), nameof(ProductsController.SearchLite), query);
 
-		searchQueryValidator.Validate(query);
+		SearchQueryValidator.Validate(query);
 
 		return productsService.SearchLite(query, StoreConstants.SearchLitePageSize, cancellationToken);
 	}
@@ -53,7 +50,7 @@ public class ProductsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}", nameof(ProductsController), nameof(GetDetails), productId);
 
-		autoIdValidator.Validate(productId, nameof(Product).ToLower());
+		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
 
 		return productsService.GetDetails(productId);
 	}
@@ -63,8 +60,8 @@ public class ProductsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(GetDetails), productId, pagination);
 
-		autoIdValidator.Validate(productId, nameof(Product).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<ProductStoreModel> productStores = productsService.GetProductStores(productId, page, pageSize, cancellationToken);

@@ -27,7 +27,6 @@ export function useNextPaginationQuery<T>({
     initialPageParam: 0,
     enabled,
     getNextPageParam: (lastPage, allPages) => (!lastPage || lastPage.length < pageSize ? undefined : allPages.length),
-    refetchOnWindowFocus: false,
   })
 
   const loadedPages = query.data?.pages ?? []

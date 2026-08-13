@@ -17,6 +17,7 @@ import {
   ProductSearchResult,
   ProductSearchResultBase,
   ProductStore,
+  ProductType,
   Proposal,
   ProposalComment,
   ProposalDetails,
@@ -66,7 +67,13 @@ export type FairApi = {
   searchAuthors(query?: string, limit?: number): Promise<AuthorBaseAvatar[]>
   searchStores(query?: string, page?: number): Promise<TotalItemsResult<StoreBase>>
   searchLiteStores(query?: string): Promise<StoreLiteSearch[]>
-  searchPublications(storeId: string, query?: string, page?: number): Promise<PublicationExtended[]>
+  searchPublications(
+    storeId: string,
+    query?: string,
+    categoriesIds?: string[],
+    type?: ProductType,
+    page?: number,
+  ): Promise<PublicationExtended[]>
   searchLitePublication(storeId: string, query?: string): Promise<PublicationBase[]>
   searchLiteProducts(query?: string): Promise<ProductSearchResultBase[]>
   searchProducts(query?: string, page?: number, pageSize?: number): Promise<ProductSearchResult[]>

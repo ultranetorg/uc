@@ -7,8 +7,6 @@ namespace Uccs.Fair;
 public class ModeratorDiscussionsController
 (
 	ILogger<ModeratorDiscussionsController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
 	ProposalService proposalsService
 ) : BaseController
 {
@@ -17,8 +15,8 @@ public class ModeratorDiscussionsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDiscussionsController)}.{nameof(ModeratorDiscussionsController.Get)} method called with {{StoreId}}, {{Pagination}}, {{Search}}", storeId, pagination, search);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<ProposalModel> discussions = proposalsService.GetDiscussions(storeId, page, pageSize, search, cancellationToken);
@@ -31,8 +29,8 @@ public class ModeratorDiscussionsController
 	{
 		logger.LogInformation($"GET {nameof(ModeratorDiscussionsController)}.{nameof(ModeratorDiscussionsController.Get)} method called with {{StoreId}}, {{DiscussionId}}", storeId, discussionId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		autoIdValidator.Validate(discussionId, nameof(Proposal).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(discussionId, nameof(Proposal).ToLower());
 
 		return proposalsService.GetDiscussion(storeId, discussionId);
 	}

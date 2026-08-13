@@ -61,14 +61,13 @@ export const useTransactMutationWithStatus = () => {
     queryKey: ["operations", "tag", tag],
     enabled: !!node.data && !!tag,
     queryFn: () => api.outgoingTransaction(node.data!, tag!),
+    // Явный опрос статуса транзакции: включается только после mutate и останавливается сам.
     refetchInterval: query =>
       query.state.data?.status === TransactionStatus.Confirmed ||
       query.state.data?.status === TransactionStatus.FailedOrNotFound ||
       (query.state.data?.status === TransactionStatus.None && query.state.data?.error !== null)
         ? false
         : 1000,
-    retry: false,
-    refetchOnWindowFocus: false,
   })
 
   useEffect(() => {

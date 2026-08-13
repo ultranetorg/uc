@@ -2,10 +2,10 @@
 
 namespace Uccs.Fair;
 
-public class SearchQueryValidator
+public static class SearchQueryValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Validate(string searchQuery)
+	public static void Validate(string searchQuery)
 	{
 		if (string.IsNullOrEmpty(searchQuery))
 		{

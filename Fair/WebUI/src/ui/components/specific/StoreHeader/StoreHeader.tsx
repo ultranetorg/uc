@@ -1,4 +1,4 @@
-import { KeyboardEvent, useCallback, useMemo, useState } from "react"
+import { KeyboardEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useMatch, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
@@ -10,30 +10,30 @@ import { useResolveStoreId } from "hooks"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 import { routes } from "utils"
 
-import { CategoriesDropdownButton } from "./CategoriesDropdownButton"
 import { GovernanceDropdownButton } from "./GovernanceDropdownButton"
 import { LogoDropdownButton } from "./LogoDropdownButton"
 import { ModerationDropdownButton } from "./ModerationDropdownButton"
-import { UserProfileButton } from "./UserProfileButton"
-import { toSimpleMenuItems } from "./utils"
 import { PublisherMembersDropdownButton } from "./PublisherMembersDropdownButton"
+import { UserProfileButton } from "./UserProfileButton"
 
 export const StoreHeader = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:storeId/s")
-  const { store, rootCategories } = useStoreContext()
+  const { store } = useStoreContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
   const { t } = useTranslation("storePage")
   const { user } = useUserContext()
 
-  const { setQuery: setStoreQuery } = useSearchQueryContext()
+  const { query: storeQuery, setQuery: setStoreQuery } = useSearchQueryContext()
 
-  const [query, setQuery] = useState("")
-  const categoriesItems = useMemo(
-    () => (rootCategories && storeId ? toSimpleMenuItems(rootCategories, storeId) : undefined),
-    [rootCategories, storeId],
-  )
+  const [query, setQuery] = useState(storeQuery)
+
+  // Keeps the input in sync when the active query comes from outside a header interaction,
+  // e.g. landing on the search page via a link that already carries a query param.
+  useEffect(() => {
+    setQuery(storeQuery)
+  }, [storeQuery])
 
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
@@ -93,13 +93,12 @@ export const StoreHeader = () => {
         publishersCount={store.authorsIds.length}
       />
       <div className="flex w-135 items-center justify-between gap-4">
-        {categoriesItems && categoriesItems.length > 0 && (
-          <CategoriesDropdownButton label={t("categories")} className="w-[105px]" items={categoriesItems} />
-        )}
         <SearchDropdown
+          key={storeQuery}
           size="medium"
           className="grow"
           isLoading={isFetching}
+          inputValue={storeQuery}
           items={items}
           onChange={handleChange}
           onClearInputClick={handleClearInputClick}

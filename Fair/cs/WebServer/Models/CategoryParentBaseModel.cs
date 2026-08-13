@@ -3,4 +3,6 @@
 public class CategoryParentBaseModel(Category category) : CategoryBaseModel(category)
 {
 	public string ParentId { get; set; } = category.Parent?.ToString();
+
+	public ProductType? Type { get; } = category.Type;
 }

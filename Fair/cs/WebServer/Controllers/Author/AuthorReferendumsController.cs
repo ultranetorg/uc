@@ -7,8 +7,6 @@ namespace Uccs.Fair;
 public class AuthorReferendumsController
 (
 	ILogger<AuthorReferendumsController> logger,
-	AutoIdValidator autoIdValidator,
-	PaginationValidator paginationValidator,
 	ProposalService proposalsService
 ) : BaseController
 {
@@ -17,8 +15,8 @@ public class AuthorReferendumsController
 	{
 		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.GetAll)} method called with {{StoreId}}, {{Pagination}}, {{Search}}", storeId, pagination, search);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		paginationValidator.Validate(pagination);
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
 		TotalItemsResult<ProposalModel> referendums = proposalsService.GetReferendums(storeId, page, pageSize, search, cancellationToken);
@@ -31,8 +29,8 @@ public class AuthorReferendumsController
 	{
 		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{StoreId}}, {{ReferendumId}}", storeId, referendumId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		autoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
 
 		return proposalsService.GetReferendum(storeId, referendumId);
 	}

@@ -1,11 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
 public class FilesController
 (
 	ILogger<FilesController> logger,
-	AutoIdValidator autoIdValidator,
 	FilesService filesService
 ) : BaseController
 {
@@ -14,7 +13,7 @@ public class FilesController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {FileId}", nameof(FilesController), nameof(Get), fileId);
 
-		autoIdValidator.Validate(fileId, nameof(Uccs.Fair.File).ToLower());
+		AutoIdValidator.Validate(fileId, nameof(Uccs.Fair.File).ToLower());
 
 		return filesService.GetFile(fileId);
 	}

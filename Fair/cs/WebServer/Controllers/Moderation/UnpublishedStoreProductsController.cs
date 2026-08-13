@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
@@ -6,7 +6,6 @@ namespace Uccs.Fair;
 public class UnpublishedStoreProductsController
 (
 	ILogger<UnpublishedStoreProductsController> logger,
-	AutoIdValidator autoIdValidator,
 	UnpublishedStoreProductsService unpublishedStoreProductsService
 ) : BaseController
 {
@@ -18,8 +17,8 @@ public class UnpublishedStoreProductsController
 	{
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ProductId}", nameof(UnpublishedStoreProductsController), nameof(GetDetails), storeId, productId);
 
-		autoIdValidator.Validate(storeId, nameof(Store).ToLower());
-		autoIdValidator.Validate(productId, nameof(Product).ToLower());
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
 
 		return unpublishedStoreProductsService.GetDetails(storeId, productId);
 	}

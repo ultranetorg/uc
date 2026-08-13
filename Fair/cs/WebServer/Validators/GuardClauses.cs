@@ -5,6 +5,7 @@ namespace Uccs.Fair;
 
 public static class GuardClauses
 {
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static int? DepthValid(this IGuardClause guardClause, int? input, [CallerArgumentExpression("input")] string? parameterName = null)
 	{
 		if(input is null || input >= 1 && input <= 16)

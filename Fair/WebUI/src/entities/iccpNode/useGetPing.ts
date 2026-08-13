@@ -10,9 +10,8 @@ export const useGetPing = (iccpNodeUrl?: string, refetchInterval?: number | fals
   const { isPending, data, refetch } = useQuery({
     queryKey: ["ping"],
     queryFn: queryFn,
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
     enabled: !!iccpNodeUrl,
+    // Явный опрос: интервал включается вызывающим кодом, по умолчанию выключен.
     refetchInterval: refetchInterval,
   })
 

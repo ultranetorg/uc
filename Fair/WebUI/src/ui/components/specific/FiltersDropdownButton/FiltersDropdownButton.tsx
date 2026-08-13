@@ -22,7 +22,7 @@ export type FiltersDropdownButtonProps = {
   resetAllLabel: string
 }
 
-export const FiltersDropdownButton = memo(({ label, resetAllLabel }: FiltersDropdownButtonProps) => {
+export const FiltersDropdownButton = memo(({ label }: FiltersDropdownButtonProps) => {
   const [isExpanded, setExpanded] = useState(false)
 
   const { context, floatingStyles, refs } = useFloating({
@@ -68,7 +68,6 @@ export const FiltersDropdownButton = memo(({ label, resetAllLabel }: FiltersDrop
             ref={refs.setFloating}
             style={{ ...floatingStyles, pointerEvents: "auto" }}
             onResetClick={() => console.log("reset")}
-            resetAllLabel={resetAllLabel}
             {...getFloatingProps()}
           />
         </FloatingPortal>

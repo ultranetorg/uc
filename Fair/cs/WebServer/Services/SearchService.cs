@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
@@ -10,42 +11,79 @@ public class SearchService
 	FairMcv mcv
 )
 {
-	public IEnumerable<PublicationExtendedModel> SearchPublications([NotNull, NotEmpty] string storeId, [NotNull, NotEmpty] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public IEnumerable<PublicationExtendedModel> SearchPublications([NotNull, NotEmpty] string storeId, [NotNull, NotEmpty] string query, string[]? categoriesIds, ProductType? type, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchPublications), storeId, query, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {CategoriesIds}, {Type}, {Page}, {PageSize}",
+			nameof(SearchService), nameof(SearchService.SearchPublications), storeId, query, categoriesIds, type, page, pageSize);
 
 		Guard.Against.NullOrEmpty(storeId);
 		Guard.Against.NullOrEmpty(query);
 		Guard.Against.Negative(page);
 		Guard.Against.NegativeOrZero(pageSize);
 
-		AutoId id = AutoId.Parse(storeId);
+		AutoId[] effectiveCategoriesIds = GetEffectiveCategories(storeId, categoriesIds, type);
 
+		List<AutoId> allStoreCategories = new List<AutoId>(effectiveCategoriesIds.Length * 4);
+		GetAllNestedFilteredCategoriesNotOptimized(allStoreCategories, effectiveCategoriesIds, ProductType.None, type, cancellationToken);
+
+		List<PublicationSearchResult> searchResults = mcv.PublicationTitles.Search(query, allStoreCategories, page * pageSize, pageSize);
+		return searchResults.Count != 0 ? LoadPublications(searchResults, type, cancellationToken) : [];
+	}
+
+	AutoId[] GetEffectiveCategories(string storeId, string[]? categoriesIds, ProductType? productType)
+	{
+		if (categoriesIds.Length != 0)
+		{
+			return categoriesIds.Select(AutoId.Parse).ToArray();
+		}
+
+		AutoId id = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(id);
 		if(store == null)
 		{
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		throw new NotImplementedException("UPDATE NEEDED");
-		///List<ProductSearchResult> searchResult = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
-		///return searchResult.Count != 0 ? LoadPublications(searchResult, cancellationToken) : [];
+		return store.Categories;
 	}
 
-	IEnumerable<PublicationExtendedModel> LoadPublications(List<ProductSearchResult> searchResult, CancellationToken cancellationToken)
+	IEnumerable<PublicationExtendedModel> LoadPublications(List<PublicationSearchResult> searchResult, ProductType? typeToSearch, CancellationToken cancellationToken)
 	{
 		foreach(var search in searchResult)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				yield break;
 
-			Publication publication = mcv.Publications.Latest(search.Publications[0]);
+			Publication publication = mcv.Publications.Latest(search.Publication);
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
 			Category category = mcv.Categories.Latest(publication.Category);
+			ProductType? type = typeToSearch == null ? GetTypeFromCategory(category) : typeToSearch;
 
-			yield return new PublicationExtendedModel(publication, product, author, category);
+			yield return new PublicationExtendedModel(publication, product, author, category)
+			{
+				Type = type,
+			};
 		}
+	}
+
+	ProductType? GetTypeFromCategory(Category category)
+	{
+		if (category.Type != ProductType.None)
+		{
+			return category.Type;
+		}
+
+		while (category.Parent != null)
+		{
+			category = mcv.Categories.Latest(category.Parent);
+			if (category.Type != ProductType.None)
+			{
+				return category.Type;
+			}
+		}
+
+		return ProductType.None;
 	}
 
 	public IEnumerable<PublicationBaseModel> SearchLitePublications(string storeId, string query, int page, int pageSize, CancellationToken cancellationToken)
@@ -62,21 +100,78 @@ public class SearchService
 
 		AutoId id = AutoId.Parse(storeId);
 
-		throw new NotImplementedException("UPDATE NEEDED");
-		///List<ProductSearchResult> result = mcv.ProductTitles.Search(id, query, page * pageSize, pageSize);
-		///return LoadPublicationsBase(result, cancellationToken);
+		Store store = mcv.Stores.Latest(id);
+		if(store == null)
+		{
+			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
+		}
+
+		List<AutoId> allStoreCategories = new List<AutoId>(store.Categories.Length * 4);
+		GetAllNestedCategoriesNotOptimized(allStoreCategories, store.Categories, cancellationToken);
+
+		List<PublicationSearchResult> searchResults = mcv.PublicationTitles.Search(query, allStoreCategories, page * pageSize, pageSize);
+		return searchResults.Count != 0 ? LoadPublicationsBase(searchResults, cancellationToken) : [];
 	}
 
-	IEnumerable<PublicationBaseModel> LoadPublicationsBase(List<ProductSearchResult> result, CancellationToken cancellationToken)
+	IEnumerable<PublicationBaseModel> LoadPublicationsBase(List<PublicationSearchResult> result, CancellationToken cancellationToken)
 	{
 		foreach(var item in result)
 		{
 			if (cancellationToken.IsCancellationRequested)
 				yield break;
 
-			Publication publication = mcv.Publications.Latest(item.Publications[0]);
-			Product product = mcv.Products.Latest(item.Product);
+			Publication publication = mcv.Publications.Latest(item.Publication);
+			Product product = mcv.Products.Latest(publication.Product);
 			yield return new PublicationBaseModel(publication, product);
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	void GetAllNestedFilteredCategoriesNotOptimized(List<AutoId> result, IEnumerable<AutoId> categoriesIds, ProductType inheritedType, ProductType? searchCategoryType, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return;
+
+		foreach (var id in categoriesIds)
+		{
+			if(cancellationToken.IsCancellationRequested)
+				return;
+
+			Category category = mcv.Categories.Latest(id);
+			if(category == null)
+			{
+				continue;
+			}
+
+			ProductType effectiveType = category.Type != ProductType.None ? category.Type : inheritedType;
+
+			if(category.Categories.Length > 0)
+			{
+				GetAllNestedFilteredCategoriesNotOptimized(result, category.Categories, effectiveType, searchCategoryType, cancellationToken);
+			}
+			if(searchCategoryType == null || effectiveType == searchCategoryType)
+			{
+				result.Add(id);
+			}
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	void GetAllNestedCategoriesNotOptimized(List<AutoId> result, AutoId[] categoriesIds, CancellationToken cancellationToken)
+	{
+		if(cancellationToken.IsCancellationRequested)
+			return;
+
+		result.Capacity += categoriesIds.Length;
+		result.AddRange(categoriesIds);
+
+		foreach (var id in categoriesIds)
+		{
+			Category category = mcv.Categories.Latest(id);
+			if(category != null && category.Categories.Length > 0)
+			{
+				GetAllNestedCategoriesNotOptimized(result, category.Categories, cancellationToken);
+			}
 		}
 	}
 

@@ -10,8 +10,6 @@ export const useGetNexusUrl = () => {
   const { isLoading, error, data } = useQuery({
     queryKey: ["urls", "nexus"],
     queryFn: queryFn,
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
   })
 
   return { data, isLoading, error: error ?? undefined }

@@ -2,10 +2,10 @@
 
 namespace Uccs.Fair;
 
-public class UserNameValidator
+public static class UserNameValidator
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public void Validate(string name)
+	public static void Validate(string name)
 	{
 		if(name.Length < ValidationConstants.UserNameMinLength || name.Length > ValidationConstants.UserNameMaxLength || !Regexes.UserName.IsMatch(name))
 		{

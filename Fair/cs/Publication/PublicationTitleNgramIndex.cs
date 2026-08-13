@@ -98,7 +98,7 @@ public class PublicationTitleNgramIndex : NgramTable<PublicationNgramId>
 		return new PublicationTitleExecution(execution as FairExecution);
 	}
 
-	public List<PublicationSearchResult> Search(string query, AutoId[] categories, int skip, int take)
+	public List<PublicationSearchResult> Search(string query, IEnumerable<AutoId> categories, int skip, int take)
 	{
 		var o = new List<PublicationSearchResult>();
 
@@ -133,7 +133,8 @@ public class PublicationTitleNgramIndex : NgramTable<PublicationNgramId>
 								return JaroWinkler.GetSimilarityFixed(query, y.ProductTitle) - JaroWinkler.GetSimilarityFixed(query, x.ProductTitle);
 							});
 
-		return o;
+		// TODO Maximion Implement proper pagination.
+		return o.Skip(skip).Take(take).ToList();
 	}
 }
 
