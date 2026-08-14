@@ -4,5 +4,5 @@ public class UserRegistrationModel(UserRegistration operation) : BaseVotableOper
 {
 	public string UserId { get; } = operation.User.Id.ToString();
 
-	public string Address { get; } = operation.User.Owner.ToString();
+	public string Address { get; } = operation.User.Key.ToString();
 }

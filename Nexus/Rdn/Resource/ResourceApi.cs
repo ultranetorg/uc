@@ -94,9 +94,9 @@ public class CancelResourceDownloadApc : RdnApc
 		{
 			var lrs = node.ResourceHub.Find(Release);
 
-			if(lrs.Activity is FileDownload f)
+			if(lrs?.Activity is FileDownload f)
 				f.Stop();
-			else if(lrs.Activity is DirectoryDownload d)
+			else if(lrs?.Activity is DirectoryDownload d)
 				d.Stop();
 		}
 

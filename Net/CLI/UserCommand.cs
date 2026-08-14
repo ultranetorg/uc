@@ -45,26 +45,6 @@ public class UserCommand : McvCommand
 		return a;
 	}
 
-	public CommandAction Name_N()
-	{
-		const string name = nameof(name);
-
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Description = "Sets a new name for the user";
-		a.Arguments	  =	[
-							new (name, NAME, "New user name"),
-							ByArgument()
-						];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.PpcTimeout);
-
-								return new UserNameChange {Name = GetString(name)};
-							};
-		return a;
-	}
-
 	public CommandAction Security_S()
 	{
 		const string owner = nameof(owner);

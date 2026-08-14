@@ -149,46 +149,39 @@ public class CostApc : FairApc
 
 public class ProductSearchResult
 {
-	public AutoId		Product { get; set; }
-	public string		ProductTitle { get; set; }
-	public AutoId		Author { get; set; }
-	public string		AuthorTitle { get; set; }
-	public AutoId		Avatar { get; set; }
-	public AutoId[]		Publications { get; set; }
-	public int			Rank;
+	public Product		Product { get; set; }
+	public Author		Author { get; set; }
 
 	public override string ToString()
 	{
-		return $"{GetType().Name} {Product}, ProductTitle={ProductTitle}, Author={Author}, AuthorTitle={AuthorTitle}, Avatar={Avatar}, Publications={{{Publications.Length}}}";
+		return $"{Product.Id}, Product={Product.Title}, Author={Author.Title}";
 	}
 }
 
-
-public class ProductSearchApc : FairApc
-{
-	public ProductType	Type { get; set; }
-	public string		Query { get; set; }
-	public int			Skip { get; set; }
-	public int			Take { get; set; } = 10;
-
-	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		return node.Mcv.ProductTitles.Search(Query, Type, Skip, Take);
-	}
-}
+//
+//public class ProductSearchApc : FairApc
+//{
+//	public ProductType	Type { get; set; }
+//	public string		Query { get; set; }
+//	public int			Skip { get; set; }
+//	public int			Take { get; set; } = 10;
+//
+//	public override object Execute(FairNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+//	{
+//		return node.Mcv.ProductTitles.Search(Query, Type, Skip, Take);
+//	}
+//}
 
 
 public class PublicationSearchResult
 {
-	public AutoId		Publication { get; set; }
-	public string		ProductTitle { get; set; }
-	public AutoId		Author { get; set; }
-	public string		AuthorTitle { get; set; }
-	public AutoId		Logo { get; set; }
-	public int			Rank;
+	public Publication	Publication { get; set; }
+	public Product		Product { get; set; }
+	public Author		Author { get; set; }
+	public Category		Category { get; set; }
 
 	public override string ToString()
 	{
-		return $"{GetType().Name} {Publication}, {nameof(ProductTitle)}={ProductTitle}, {nameof(Author)}={Author}, {nameof(AuthorTitle)}={AuthorTitle}, {nameof(Logo)}={Logo}";
+		return $"{Publication.Id}, {nameof(Product)}={Product.Title}, {nameof(Author)}={Author.Title}, {nameof(Category)}={Category.Title}";
 	}
 }

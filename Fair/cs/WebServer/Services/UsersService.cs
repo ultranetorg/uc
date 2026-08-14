@@ -72,7 +72,7 @@ public class UsersService
 		{
 			Id = account.Id.ToString(),
 			Name = account.Name,
-			Owner = account.Owner.ToString()
+			Owner = account.Key.ToString()
 		};
 	}
 
@@ -92,7 +92,7 @@ public class UsersService
 		{
 			Id = account.Id.ToString(),
 			Name = account.Name,
-			Owner = account.Owner.ToString(),
+			Owner = account.Key.ToString(),
 			AuthorsIds = account.Authors.Select(id => id.ToString()),
 			FavoriteStores = account.FavoriteStores.Count > 0 ? LoadUserStores(account.FavoriteStores) : [],
 			HasAvatar = account.Avatar != null
@@ -126,7 +126,7 @@ public class UsersService
 		{
 			Id = user.Id.ToString(),
 			Name = user.Name,
-			Owner = user.Owner.ToString(),
+			Owner = user.Key.ToString(),
 			Authors = user.Authors.Count != 0 ? LoadAuthors(user.Authors) : []
 		};
 	}

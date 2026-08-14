@@ -2,36 +2,37 @@ using System.Text.RegularExpressions;
 
 namespace Uccs.Fair;
 
-public class AuthorNameChange : FairOperation
+public class ProductRenaming : FairOperation
 {
-	public AutoId				Author { get; set; }
+	public AutoId				Product { get; set; }
 	public string				Name { get; set; }
 
-	public override bool		IsValid(McvNet net) => Uccs.Net.User.IsNameValid(Name);
-	public override string		Explanation => $"{Author}, {Name}";
+	public override string		Explanation => $"{Product}, {Name}";
 
-	public AuthorNameChange()
+	public override bool		IsValid(McvNet net) => Uccs.Net.User.IsNameValid(Name);
+
+	public ProductRenaming()
 	{
 	}
 
 	public override void Read(Reader reader)
 	{
-		Author	= reader.Read<AutoId>();
+		Product	= reader.Read<AutoId>();
 		Name	= reader.ReadUtf8();
 	}
 
 	public override void Write(Writer writer)
 	{
-		writer.Write(Author);
+		writer.Write(Product);
 		writer.WriteUtf8(Name);
 	}
 
 	public override void Execute(FairExecution execution)
 	{
-		if(!CanAccessAuthor(execution, Author, out var a, out Error))
+		if(!CanAccessProduct(execution, Product, out var a, out var p, out Error))
 			return;
 
-		var e = execution.Names.Find(NameTable.GetId(Name));
+		var e = execution.Names.Find(NameIndex.GetId(Name));
 
 		if(e != null)
 		{
@@ -39,21 +40,22 @@ public class AuthorNameChange : FairOperation
 			return;
 		}
 
-		a = execution.Authors.Affect(Author);
+		p = execution.Products.Affect(p.Id);
+		a = execution.Authors.Affect(a.Id);
 
-		if(a.Name != null)
+		if(p.Name != null)
 		{
-			execution.Names.Unregister(a.Name);
+			execution.Names.Unregister(p.Name);
 			execution.Free(a, a, execution.Net.EntityLength);
 		}
 
 		if(Name != null)
 		{
-			execution.Names.Register(Name, EntityTextField.AuthorName, a.Id);
+			execution.Names.Register(Name, EntityTextField.ProductName, p.Id);
 			execution.Allocate(a, a, execution.Net.EntityLength);
 		}
 		
-		a.Name = Name;	
+		p.Name = Name;	
 		
 		execution.PayOperationEnergy(a);
 	}

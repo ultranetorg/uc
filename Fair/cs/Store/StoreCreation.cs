@@ -47,7 +47,7 @@ public class StoreCreation : FairOperation
 
 		s.Policies =   [new (FairOperationClass.StoreModeratorAddition,	Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),	
 						new (FairOperationClass.StoreModeratorRemoval,	Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),
-						new (FairOperationClass.StoreNameChange,		Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
+						new (FairOperationClass.StoreRenaming,			Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.StoreInfoUpdation,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.StoreAvatarChange,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.StoreAuthorsRemoval,	Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),

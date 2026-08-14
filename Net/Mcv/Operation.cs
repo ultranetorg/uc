@@ -107,7 +107,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 		if(!UserExists(executions, id, out account, out error))
 			return false;
 
-		if(account.Owner != User.Owner)
+		if(account.Key != User.Key)
 		{
 			error = Denied;
 			return false;

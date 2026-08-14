@@ -7,6 +7,20 @@ public class ProductCommand : FairCommand
 {
 	Argument		Eligible => ByArgument("Name of the user eligible to change the product");
 
+	new AutoId Id
+	{
+		get
+		{
+			if(Has(IdKeyword))
+				return GetAutoId(IdKeyword);
+			else if(Has(NameKeyword))
+				///return Ppc(new ProductByNamePpc(GetString(NameKeyword))).Author.Id;
+				throw new NotImplementedException();
+			else
+				throw new SyntaxException("Neither author 'id' nor 'name' arguments provided");
+		}
+	}
+
 	public ProductCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
@@ -48,6 +62,31 @@ public class ProductCommand : FairCommand
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
 								return new ProductDeletion {Product = Id};
+							};
+		return a;
+	}
+	
+	public CommandAction Name_N()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+		
+		const string newname = nameof(newname);
+
+		a.Description = "Sets a name for the specified product";
+		a.Arguments =  [
+							NameOrId("product to set name for"),
+							new (newname, NAME, "New name"),
+							Eligible
+						];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+
+								return	new ProductRenaming
+										{
+											Product = Id,
+											Name = GetString(newname)
+										}; 
 							};
 		return a;
 	}

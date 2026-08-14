@@ -187,7 +187,7 @@ public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpac
 		
 		Restrictions = [new (FairOperationClass.StoreModeratorAddition,	m|p,	vc	 |o),	
 						new (FairOperationClass.StoreModeratorRemoval,	m|p,	vc	   |i),
-						new (FairOperationClass.StoreNameChange,		m|p,	vc|va|o),
+						new (FairOperationClass.StoreRenaming,			m|p,	vc|va|o),
 						new (FairOperationClass.StoreInfoUpdation,		m|p, 	vc|va|o),
 						new (FairOperationClass.StoreAvatarChange,		m|p, 	vc|va|o),
 						new (FairOperationClass.StoreAuthorsRemoval,	m|p,	vc|va|o),

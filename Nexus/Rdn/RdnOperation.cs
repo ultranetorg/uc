@@ -5,25 +5,28 @@ public enum RdnOperationClass : uint
 	RdnGenesis					= OperationClass.Genesis, 
 	RdnCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
-	Domain							= 100,
-		DomainRegistration			= 100_000_001, 
-		DomainMigration				= 100_000_002, 
-		DomainRenewal				= 100_000_003,
-		DomainTransfer				= 100_000_004,
-		DomainPolicyUpdation		= 100_000_005,
-		//DomainBid					= 100_000_003, 
+	User							= 100,
+		UserRenaming				= 100_000_001, 
 
-	Resource						= 101,
-		ResourceCreation			= 101_000_001, 
-		ResourceUpdation			= 101_000_002, 
-		ResourceDeletion			= 101_000_003, 
+	Domain							= 101,
+		DomainRegistration			= 101_000_001, 
+		DomainMigration				= 101_000_002, 
+		DomainRenewal				= 101_000_003,
+		DomainTransfer				= 101_000_004,
+		DomainPolicyUpdation		= 101_000_005,
+		//DomainBid					= 101_000_003, 
 
-		ResourceLink				= 101_001, 
-			ResourceLinkCreation	= 101_001_001, 
-			ResourceLinkDeletion	= 101_001_002,
+	Resource						= 102,
+		ResourceCreation			= 102_000_001, 
+		ResourceUpdation			= 102_000_002, 
+		ResourceDeletion			= 102_000_003, 
 
-	Analysis						= 102,
-		AnalysisResultUpdation		= 102_000_001
+		ResourceLink				= 102_001, 
+			ResourceLinkCreation	= 102_001_001, 
+			ResourceLinkDeletion	= 102_001_002,
+
+	Analysis						= 103,
+		AnalysisResultUpdation		= 103_000_001
 }
 
 public abstract class RdnOperation : Operation

@@ -55,7 +55,7 @@ public class FairMcv : Mcv
 	public ProposalTable				Proposals;
 	public ProposalCommentTable			ProposalComments;
 	public FileTable					Files;
-	public NameTable					Names;
+	public NameIndex					Names;
 	public StoreTitleNgramIndex			StoreTitles;
 	public ProductTitleNgramIndex		ProductTitles;
 	public PublicationTitleNgramIndex	PublicationTitles;

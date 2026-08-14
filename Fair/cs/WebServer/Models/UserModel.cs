@@ -21,6 +21,6 @@ public class UserModel
 	{
 		Id = user.Id.ToString();
 		Name = user.Name;
-		Owner = user.Owner.ToString();
+		Owner = user.Key.ToString();
 	}
 }

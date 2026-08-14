@@ -27,6 +27,6 @@ public class UserOwnerChange : Operation
 
 	public override void Execute(Execution execution)
 	{
-		User.Owner = Owner;
+		User.Key = Owner;
 	}
 }

@@ -109,28 +109,23 @@ public class ProductTitleNgramIndex : NgramTable<ProductNgramId>
 			foreach(var i in result)
 			{
 				var p  = Mcv.Products.Latest(AutoId.FromULong(i));
-				var auth = Mcv.Authors.Latest(p.Author);
+				var a = Mcv.Authors.Latest(p.Author);
 			
 				r.Add(	new ProductSearchResult
 						{
-							Product			= p.Id,
-							ProductTitle	= p.Title,
-							Author			= auth.Id,
-							AuthorTitle		= auth.Title,
-							Avatar			= p.Versions.LastOrDefault()?.Fields.FirstOrDefault(i => i.Name == Token.Logo)?.AsAutoId,
-							Publications	= p.Publications,
-							Rank			= auth.VerifiedWebdomainRank
+							Product		= p,
+							Author		= a,
 						});
 			}
 		}
 
 		r.Sort((x, y) =>	{
-								var r = x.Rank.CompareTo(y.Rank);
+								var r = x.Author.VerifiedWebdomainRank.CompareTo(y.Author.VerifiedWebdomainRank);
 								
 								if(r != 0)
 									return r;
 								
-								return JaroWinkler.GetSimilarityFixed(query, y.ProductTitle) - JaroWinkler.GetSimilarityFixed(query, x.ProductTitle);
+								return ComputeDistance(query, y.Product.Title) - ComputeDistance(query, x.Product.Title);
 							});
 
 		return r;

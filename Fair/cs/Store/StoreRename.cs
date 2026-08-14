@@ -2,14 +2,15 @@ using System.Text.RegularExpressions;
 
 namespace Uccs.Fair;
 
-public class StoreNameChange : VotableOperation
+public class StoreRenaming : VotableOperation
 {
 	public string				Name { get; set; }
 
 	public override bool		IsValid(McvNet net) => Uccs.Net.User.IsNameValid(Name);
+
 	public override string		Explanation => $"{Name}";
 
-	public StoreNameChange()
+	public StoreRenaming()
 	{
 	}
 
@@ -30,20 +31,20 @@ public class StoreNameChange : VotableOperation
 
 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
+		var e = execution.Names.Find(NameIndex.GetId(Name));
+
+		if(e != null)
+		{
+			error = NotAvailable;
+			return false;
+		}
+
 		error = null;
 		return true;
  	}
 
 	public override void Execute(FairExecution execution)
 	{
-		var e = execution.Names.Find(NameTable.GetId(Name));
-
-		if(e != null)
-		{
-			Error = NotAvailable;
-			return;
-		}
-
 		if(Store.Name != null)
 		{
 			execution.Names.Unregister(Store.Name);

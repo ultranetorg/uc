@@ -35,7 +35,7 @@ public class Genesis : Operation
 
 		var a = execution.CreateUser(execution.Net.Father0Name);
 
-		a.Owner = execution.Net.Father0Signer;
+		a.Key = execution.Net.Father0Signer;
 		
 		a.Energy		+= execution.Net.EnergyEmission;
 		a.Spacetime		+= execution.Net.SpacetimeDayEmission;

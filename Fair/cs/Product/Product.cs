@@ -333,6 +333,7 @@ public class Product : IBinarySerializable, ITableEntry<AutoId>
 {
 	public AutoId				Id { get; set; }
 	public AutoId				Author { get; set; }
+	public string				Name { get; set; }
 	public string				Title { get; set; }
 	public ProductType			Type { get; set; }
 	public ProductVersion[]		Versions { get; set; }
@@ -363,8 +364,9 @@ public class Product : IBinarySerializable, ITableEntry<AutoId>
 		return	new Product(Mcv)
 				{
 					Id = Id,
-					Title = Title,
 					Author = Author,
+					Name = Name,
+					Title = Title,
 					Type = Type,
 					Versions = Versions,
 					Updated = Updated,
@@ -389,8 +391,9 @@ public class Product : IBinarySerializable, ITableEntry<AutoId>
 	public void Write(Writer writer)
 	{
 		writer.Write(Id);
-		writer.WriteUtf8(Title);
 		writer.Write(Author);
+		writer.WriteASCII(Name);
+		writer.WriteUtf8(Title);
 		writer.Write(Type);
 		writer.Write(Updated);
 		writer.Write(Versions);
@@ -400,8 +403,9 @@ public class Product : IBinarySerializable, ITableEntry<AutoId>
 	public void Read(Reader reader)
 	{
 		Id				= reader.Read<AutoId>();
-		Title			= reader.ReadUtf8();
 		Author			= reader.Read<AutoId>();
+		Name			= reader.ReadASCII();
+		Title			= reader.ReadUtf8();
 		Type			= reader.Read<ProductType>();
 		Updated			= reader.Read<Time>();
 		Versions		= reader.ReadArray<ProductVersion>();

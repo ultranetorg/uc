@@ -23,7 +23,7 @@ public class SearchService
 
 		AutoId[] effectiveCategoriesIds = GetEffectiveCategories(storeId, categoriesIds, type);
 
-		List<AutoId> allStoreCategories = new List<AutoId>(effectiveCategoriesIds.Length * 4);
+		HashSet<AutoId> allStoreCategories = new HashSet<AutoId>(effectiveCategoriesIds.Length * 4);
 		GetAllNestedFilteredCategoriesNotOptimized(allStoreCategories, effectiveCategoriesIds, ProductType.None, type, cancellationToken);
 
 		List<PublicationSearchResult> searchResults = mcv.PublicationTitles.Search(query, allStoreCategories, page * pageSize, pageSize);
@@ -32,7 +32,7 @@ public class SearchService
 
 	AutoId[] GetEffectiveCategories(string storeId, string[]? categoriesIds, ProductType? productType)
 	{
-		if (categoriesIds.Length != 0)
+		if(categoriesIds.Length != 0)
 		{
 			return categoriesIds.Select(AutoId.Parse).ToArray();
 		}
@@ -69,15 +69,15 @@ public class SearchService
 
 	ProductType? GetTypeFromCategory(Category category)
 	{
-		if (category.Type != ProductType.None)
+		if(category.Type != ProductType.None)
 		{
 			return category.Type;
 		}
 
-		while (category.Parent != null)
+		while(category.Parent != null)
 		{
 			category = mcv.Categories.Latest(category.Parent);
-			if (category.Type != ProductType.None)
+			if(category.Type != ProductType.None)
 			{
 				return category.Type;
 			}
@@ -106,7 +106,7 @@ public class SearchService
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		List<AutoId> allStoreCategories = new List<AutoId>(store.Categories.Length * 4);
+		HashSet<AutoId> allStoreCategories = new HashSet<AutoId>(store.Categories.Length * 4);
 		GetAllNestedCategoriesNotOptimized(allStoreCategories, store.Categories, cancellationToken);
 
 		List<PublicationSearchResult> searchResults = mcv.PublicationTitles.Search(query, allStoreCategories, page * pageSize, pageSize);
@@ -117,7 +117,7 @@ public class SearchService
 	{
 		foreach(var item in result)
 		{
-			if (cancellationToken.IsCancellationRequested)
+			if(cancellationToken.IsCancellationRequested)
 				yield break;
 
 			Publication publication = mcv.Publications.Latest(item.Publication);
@@ -127,12 +127,12 @@ public class SearchService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	void GetAllNestedFilteredCategoriesNotOptimized(List<AutoId> result, IEnumerable<AutoId> categoriesIds, ProductType inheritedType, ProductType? searchCategoryType, CancellationToken cancellationToken)
+	void GetAllNestedFilteredCategoriesNotOptimized(HashSet<AutoId> result, IEnumerable<AutoId> categoriesIds, ProductType inheritedType, ProductType? searchCategoryType, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return;
 
-		foreach (var id in categoriesIds)
+		foreach(var id in categoriesIds)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				return;
@@ -157,15 +157,17 @@ public class SearchService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	void GetAllNestedCategoriesNotOptimized(List<AutoId> result, AutoId[] categoriesIds, CancellationToken cancellationToken)
+	void GetAllNestedCategoriesNotOptimized(HashSet<AutoId> result, AutoId[] categoriesIds, CancellationToken cancellationToken)
 	{
 		if(cancellationToken.IsCancellationRequested)
 			return;
 
-		result.Capacity += categoriesIds.Length;
-		result.AddRange(categoriesIds);
+		//result.Capacity += categoriesIds.Length;
 
-		foreach (var id in categoriesIds)
+		foreach(var i in categoriesIds)
+			result.Add(i);
+
+		foreach(var id in categoriesIds)
 		{
 			Category category = mcv.Categories.Latest(id);
 			if(category != null && category.Categories.Length > 0)

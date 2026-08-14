@@ -1,8 +1,8 @@
 ﻿namespace Uccs.Fair;
 
-public class NameTable : TextTable<TextToField<EntityTextField>> 
+public class NameIndex : TextTable<TextToField<EntityTextField>> 
 {
-	public NameTable(Mcv mcv) : base(mcv, FairTable.Name.ToString(), true)
+	public NameIndex(Mcv mcv) : base(mcv, FairTable.Name.ToString(), true)
 	{
 	}
 	
@@ -105,7 +105,7 @@ public class NameTable : TextTable<TextToField<EntityTextField>>
 //	}
 }
 
-public class NameExecution : TextExecution<TextToField<EntityTextField>, NameTable>
+public class NameExecution : TextExecution<TextToField<EntityTextField>, NameIndex>
 {
 	public NameExecution(FairExecution execution) : base(execution.Mcv.Names, execution)
 	{

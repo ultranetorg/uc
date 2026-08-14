@@ -4,10 +4,10 @@ namespace Uccs.Fair;
 
 public enum FairOperationClass : uint
 {
-	User							= 001,
-		FairUser					= 001_001,
-			UserAvatarChange		= 001_001_001,
-			FavoriteStoreChange		= 001_001_002,
+	User							= 100,
+		UserRenaming				= 100_000_001, 
+		UserAvatarChange			= 100_000_002,
+		FavoriteStoreChange			= 100_000_003,
 
 	Author							= 101, 
 		AuthorCreation				= 101_000_001, 
@@ -15,15 +15,16 @@ public enum FairOperationClass : uint
 		AuthorModerationReward		= 101_000_003,
 		AuthorOwnerAddition			= 101_000_004,
 		AuthorOwnerRemoval			= 101_000_005,
-		AuthorNameChange			= 101_000_006,
-		AuthorAvatarChange			= 100_000_007,
-		AuthorInfoUpdation			= 100_000_008,
-		PublisherLimitsUpdation		= 100_000_009,
-		AuthorVerification			= 100_000_010,
+		AuthorRenaming				= 101_000_006,
+		AuthorAvatarChange			= 101_000_007,
+		AuthorInfoUpdation			= 101_000_008,
+		PublisherLimitsUpdation		= 101_000_009,
+		AuthorVerification			= 101_000_010,
 	
 	Product							= 102, 
 		ProductCreation				= 102_000_001, 
-		ProductUpdation				= 102_000_002, 
+		ProductUpdation				= 102_000_002,
+		ProductRenaming				= 102_000_003,
 		ProductDeletion				= 102_000_999,
 	
 	Store							= 103,
@@ -35,7 +36,7 @@ public enum FairOperationClass : uint
 		StoreAuthorsRemoval			= 103_000_006,
 		StoreInfoUpdation			= 103_000_007,
 		StoreAvatarChange			= 103_000_008,
-		StoreNameChange				= 103_000_009,
+		StoreRenaming				= 103_000_009,
 		UserRegistration			= 103_000_010,
 		UserUnregistration			= 103_000_011,
 		StoreDeletion				= 103_000_999,
@@ -71,9 +72,9 @@ public enum FairOperationClass : uint
 			ProposalCommentCreation		= 103_006_001,
 			ProposalCommentEdit			= 103_006_002,
 	
-	File								= 104, 
-		FileCreation					= 104_000_001, 
-		FileDeletion					= 104_000_999,
+	File							= 104, 
+		FileCreation				= 104_000_001, 
+		FileDeletion				= 104_000_999,
 } 
 
 public abstract class StoreOperation : FairOperation

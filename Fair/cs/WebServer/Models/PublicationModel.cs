@@ -1,7 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationModel(Publication publication, Product product, Category category)
-	: PublicationBaseModel(publication, product)
+public class PublicationModel(Publication publication, Product product, Category category) : PublicationBaseModel(publication, product)
 {
 	public string? LogoFileId { get; } = PublicationUtils.GetLogo(publication, product)?.ToString();
 	public string CategoryId { get; } = category.Id.ToString();

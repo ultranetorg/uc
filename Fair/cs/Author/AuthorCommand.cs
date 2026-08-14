@@ -46,22 +46,22 @@ public class AuthorCommand : FairCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
-		const string name = "name";
+		const string newname = nameof(newname);
 
-		a.Description = "Sets an nickname for the specified author";
+		a.Description = "Sets a name for the specified author";
 		a.Arguments =  [
 							NameOrId("author to set name for"),
-							new (name, NAME, "New name"),
+							new (newname, NAME, "New name"),
 							Eligible
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return	new AuthorNameChange
+								return	new AuthorRenaming
 										{
 											Author = Id,
-											Name = GetString(name)
+											Name = GetString(newname)
 										}; 
 							};
 		return a;

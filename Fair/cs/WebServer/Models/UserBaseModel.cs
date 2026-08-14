@@ -11,5 +11,5 @@ public class UserBaseModel(FairUser account)
 	public string Nickname { get; } = account.Name;
 
 	[JsonPropertyOrder(-2)]
-	public string Address { get; } = account.Owner.ToString();
+	public string Address { get; } = account.Key.ToString();
 }

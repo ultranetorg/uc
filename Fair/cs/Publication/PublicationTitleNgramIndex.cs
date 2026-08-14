@@ -102,35 +102,35 @@ public class PublicationTitleNgramIndex : NgramTable<PublicationNgramId>
 	{
 		var o = new List<PublicationSearchResult>();
 
-		foreach(var c in categories)
+		foreach(var i in categories)
 		{
-			var result = Search(query, c, Latest, skip, take);
+			var result = Search(query, i, Latest, skip, take);
 	
-			foreach(var i in result)
+			var c = Mcv.Categories.Latest(i);
+
+			foreach(var j in result)
 			{
-				var p = Mcv.Publications.Latest(AutoId.FromULong(i));
+				var p = Mcv.Publications.Latest(AutoId.FromULong(j));
 				var r = Mcv.Products.Latest(p.Product);
 				var a = Mcv.Authors.Latest(r.Author);
 			
 				o.Add(	new PublicationSearchResult
 						{
-							Publication		= p.Id,
-							ProductTitle	= r.Title,
-							Author			= a.Id,
-							AuthorTitle		= a.Title,
-							Logo			= r.Versions.LastOrDefault()?.Fields.FirstOrDefault(i => i.Name == Token.Logo)?.AsAutoId,
-							Rank			= a.VerifiedWebdomainRank
+							Publication		= p,
+							Author			= a,
+							Product			= r,
+							Category		= c
 						});
 			}
 		}
 
 		o.Sort((x, y) =>	{
-								var r = x.Rank.CompareTo(y.Rank);
+								var r = x.Author.VerifiedWebdomainRank.CompareTo(y.Author.VerifiedWebdomainRank);
 								
 								if(r != 0)
 									return r;
 								
-								return JaroWinkler.GetSimilarityFixed(query, y.ProductTitle) - JaroWinkler.GetSimilarityFixed(query, x.ProductTitle);
+								return ComputeDistance(query, y.Product.Title) - ComputeDistance(query, x.Product.Title);
 							});
 
 		return o;

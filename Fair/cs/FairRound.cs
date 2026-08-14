@@ -13,7 +13,7 @@ public class FairRound : Round
 	public TableState<AutoId, Proposal, ProposalTable>						Proposals;
 	public TableState<AutoId, ProposalComment, ProposalCommentTable>		ProposalComments;
 	public TableState<AutoId, File, FileTable>								Files;
-	public TableState<StringId, TextToField<EntityTextField>, NameTable>	Names;
+	public TableState<StringId, TextToField<EntityTextField>, NameIndex>	Names;
 	public NgramTableState<StoreNgramId>									StoreTitles;
 	public NgramTableState<ProductNgramId>									ProductTitles;
 	public NgramTableState<PublicationNgramId>								PublicationTitles;

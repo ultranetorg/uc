@@ -292,7 +292,7 @@ public class Execution : ITableExecution
 	public virtual User AffectSigner()
 	{
  		if(Round.Id == 0)
- 			return new User {Name = Mcv.GodName, Owner = Mcv.God.PuplicKey};
+ 			return new User {Name = Mcv.GodName, Key = Mcv.God.PuplicKey};
 
 		var name = Transaction.User;
 
@@ -318,7 +318,7 @@ public class Execution : ITableExecution
 		}
 		else
 		{	
-			if(Transaction.Signature != null && !Net.Cryptography.Verify(u.Owner, Transaction.Hashify(Net), Transaction.Signature)) /// Transaction.Signature == null means synchronization
+			if(Transaction.Signature != null && !Net.Cryptography.Verify(u.Key, Transaction.Hashify(Net), Transaction.Signature)) /// Transaction.Signature == null means synchronization
 			{
 				Transaction.Error = Operation.Denied;
 				return null;

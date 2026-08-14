@@ -49,7 +49,7 @@ public class AnalysisResultUpdation : RdnOperation
 			return;
 		}
 
-		var aix = Array.IndexOf(c.Analyzers, User.Owner);
+		var aix = Array.IndexOf(c.Analyzers, User.Key);
 
 		if(aix == -1)
 		{

@@ -79,6 +79,6 @@ public class UserCreation : Operation
 			return;
 		}
 
-		User.Owner = Owner;
+		User.Key = Owner;
 	}
 }

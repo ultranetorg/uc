@@ -1,32 +1,32 @@
-﻿using System.Reflection;
+﻿namespace Uccs.Fair;
 
-namespace Uccs.Fair;
+using System.Reflection;
 
 public class UserCommand : Net.UserCommand
 {
 	public UserCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}
-	
-//	public CommandAction Nickname()
-//	{
-//		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-//		
-//		var nickname = "nickname";
-//
-//		a.Name = "n";
-//		a.Description = "Sets a nickname for the specified account";
-//		a.Arguments =  [new (null, EID,  "Id of account", ArgumentFlag.First),
-//						new (nickname, NAME,  "New nickname"),
-//						SignerArgument()];
-//
-//		a.Execute = () =>	{
-//								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
-//
-//								return new AccountNicknameChange {Nickname = GetString(nickname)}; 
-//							};
-//		return a;
-//	}
+
+	public CommandAction Name_N()
+	{
+		const string newname = nameof(newname);
+
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Sets a new name for the user";
+		a.Arguments	  =	[
+							new (newname, NAME, "New user name"),
+							ByArgument()
+						];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
+
+								return new UserRenaming {Name = GetString(newname)};
+							};
+		return a;
+	}
 
 	public CommandAction ListAuthors_LA()
 	{

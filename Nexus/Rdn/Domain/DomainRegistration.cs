@@ -49,7 +49,7 @@ public class DomainRegistration : RdnOperation
 		/// 
 		/// ?
 		/// 
-		if(execution.AffectSigner().Owner == null)
+		if(execution.AffectSigner().Key == null)
 		{
 			Error = NotAllowedForNewUser;
 			return;

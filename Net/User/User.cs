@@ -107,7 +107,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 {
 	public AutoId			Id { get; set; }
 	public string			Name { get; set; }
-	public PublicKey		Owner { get; set; }
+	public PublicKey		Key { get; set; }
 	//public Permission[]		Permissions { get; set; }
 	public int				LastNonce { get; set; } = -1;
 	public int				LastOutward { get; set; } = -1;
@@ -139,7 +139,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 
 	public override string ToString()
 	{
-		return $"{Name}, {Id}, {Owner}, {nameof(Energy)}={Energy}, {nameof(EnergyNext)}={EnergyNext}, {nameof(Spacetime)}={Spacetime}, {nameof(LastNonce)}={LastNonce}, {nameof(AverageUptime)}={AverageUptime}";
+		return $"{Name}, {Id}, {Key}, {nameof(Energy)}={Energy}, {nameof(EnergyNext)}={EnergyNext}, {nameof(Spacetime)}={Spacetime}, {nameof(LastNonce)}={LastNonce}, {nameof(AverageUptime)}={AverageUptime}";
 	}
 
 	public static long ParseSpacetime(string t)
@@ -164,7 +164,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	{
 		writer.Write(Id);
 		writer.WriteASCII(Name);
-		writer.Write(Owner);
+		writer.Write(Key);
 	//	writer.Write(Permissions);
 
 		writer.Write7BitEncodedInt64(Spacetime);
@@ -179,7 +179,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	{
 		Id					= reader.Read<AutoId>();
 		Name				= reader.ReadASCII();
-		Owner				= reader.Read<PublicKey>();
+		Key				= reader.Read<PublicKey>();
 	//	Permissions			= reader.ReadArray<Permission>();
 
 		Spacetime 			= reader.Read7BitEncodedInt64();
@@ -205,7 +205,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 
 		a.Id					= Id;
 		a.Name					= Name;
-		a.Owner					= Owner;
+		a.Key					= Key;
 	//	a.Permissions			= Permissions;
 		a.Spacetime				= Spacetime;
 		a.LastNonce				= LastNonce;
