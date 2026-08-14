@@ -6,6 +6,19 @@ using RocksDbSharp;
 
 namespace Uccs.Fair;
 
+public class ProductSearchResult
+{
+	public Product		Product { get; set; }
+	public Author		Author { get; set; }
+
+	public int			Distance;
+
+	public override string ToString()
+	{
+		return $"{Product.Id}, Product={Product.Title}, Author={Author.Title}";
+	}
+}
+
 public class ProductNgramId : EntityId
 {
 	public ProductType		Type { get; set; }
@@ -100,35 +113,35 @@ public class ProductTitleNgramIndex : NgramTable<ProductNgramId>
 
 	public List<ProductSearchResult> Search(string query, ProductType type, int skip, int take)
 	{
-		var r = new List<ProductSearchResult>();
+		var r = new SortedSet<ProductSearchResult>(Comparer<ProductSearchResult>.Create((a, b) =>	{
+																										var r = a.Author.VerifiedWebdomainRank.CompareTo(b.Author.VerifiedWebdomainRank);
+								
+																										if(r != 0)
+																											return r;
+								
+																										return b.Distance - a.Distance;
+																									}));
 
 		foreach(var t in type != ProductType.None ? Enum.GetValues<ProductType>().Skip(1) : [type])
 		{
-			var result = base.Search(query, t, Latest, skip, take);
+			var result = base.Search(query, t, Latest);
 		
 			foreach(var i in result)
 			{
-				var p  = Mcv.Products.Latest(AutoId.FromULong(i));
+				var p = Mcv.Products.Latest(AutoId.FromULong(i));
 				var a = Mcv.Authors.Latest(p.Author);
 			
 				r.Add(	new ProductSearchResult
 						{
 							Product		= p,
 							Author		= a,
+							Distance	= ComputeDistance(query, p.Title)
 						});
 			}
 		}
 
-		r.Sort((x, y) =>	{
-								var r = x.Author.VerifiedWebdomainRank.CompareTo(y.Author.VerifiedWebdomainRank);
-								
-								if(r != 0)
-									return r;
-								
-								return ComputeDistance(query, y.Product.Title) - ComputeDistance(query, x.Product.Title);
-							});
-
-		return r;
+						
+		return r.Skip(skip).Take(take).ToList();
 	}
 }
 

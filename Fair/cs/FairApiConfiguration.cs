@@ -147,16 +147,6 @@ public class CostApc : FairApc
 	}
 }
 
-public class ProductSearchResult
-{
-	public Product		Product { get; set; }
-	public Author		Author { get; set; }
-
-	public override string ToString()
-	{
-		return $"{Product.Id}, Product={Product.Title}, Author={Author.Title}";
-	}
-}
 
 //
 //public class ProductSearchApc : FairApc
@@ -173,15 +163,3 @@ public class ProductSearchResult
 //}
 
 
-public class PublicationSearchResult
-{
-	public Publication	Publication { get; set; }
-	public Product		Product { get; set; }
-	public Author		Author { get; set; }
-	public Category		Category { get; set; }
-
-	public override string ToString()
-	{
-		return $"{Publication.Id}, {nameof(Product)}={Product.Title}, {nameof(Author)}={Author.Title}, {nameof(Category)}={Category.Title}";
-	}
-}

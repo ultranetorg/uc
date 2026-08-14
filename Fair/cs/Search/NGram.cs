@@ -116,7 +116,7 @@ public abstract class NgramTable<ID> : Table<ID, Ngram<ID>>, IDisposable where I
 		return padded;
 	}
 
-    public ulong[] Search(string query, object more, Func<ID, Ngram<ID>> retrieve, int skip, int take, int minMatchPercent = 30)
+    public ulong[] Search(string query, object more, Func<ID, Ngram<ID>> retrieve, int minMatchPercent = 30)
     {
         if(minMatchPercent is < 1 or > 100)
             throw new ArgumentOutOfRangeException(nameof(minMatchPercent), "Percent must be between 1 and 100");

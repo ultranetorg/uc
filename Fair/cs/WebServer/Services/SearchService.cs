@@ -189,12 +189,12 @@ public class SearchService
 		Guard.Against.NegativeOrZero(pageSize);
 
 		var searchResult = mcv.StoreTitles.Search(query ?? "", page * pageSize, pageSize);
-		if(searchResult.Length == 0)
+		if(searchResult.Count == 0)
 		{
 			return TotalItemsResult<StoreBaseModel>.Empty;
 		}
 
-		List<StoreBaseModel> result = new List<StoreBaseModel>(searchResult.Length);
+		List<StoreBaseModel> result = new List<StoreBaseModel>(searchResult.Count);
 		LoadStores(searchResult, result, cancellationToken);
 
 		return new TotalItemsResult<StoreBaseModel>
@@ -204,15 +204,14 @@ public class SearchService
 		};
 	}
 
-	void LoadStores(StoreSearchResult[] searchResult, IList<StoreBaseModel> result, CancellationToken cancellationToken)
+	void LoadStores(IEnumerable<StoreSearchResult> searchResult, IList<StoreBaseModel> result, CancellationToken cancellationToken)
 	{
 		foreach(var search in searchResult)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				break;
 
-			Store store = mcv.Stores.Latest(search.Entity);
-			var model = new StoreBaseModel(store);
+			var model = new StoreBaseModel(search.Store);
 			result.Add(model);
 		}
 	}
@@ -230,7 +229,8 @@ public class SearchService
 
 		var result = mcv.StoreTitles.Search(query, page * pageSize, pageSize);
 
-		return result.Select(x => new StoreSearchLiteModel(x.Entity.ToString(), x.Text));
+		/// TODO elwray: no need for StoreSearchLiteModel,  StoreSearchResult contains entity itself
+		return result.Select(x => new StoreSearchLiteModel(x.Store.Id.ToString(), x.Store.Title));
 	}
 
 	public IEnumerable<UserModel> SearchStoreUsers([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)

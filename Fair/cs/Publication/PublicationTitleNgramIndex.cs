@@ -6,6 +6,21 @@ using RocksDbSharp;
 
 namespace Uccs.Fair;
 
+public class PublicationSearchResult
+{
+	public Publication	Publication { get; set; }
+	public Product		Product { get; set; }
+	public Author		Author { get; set; }
+	public Category		Category { get; set; }
+	
+	public int			Distance;
+
+	public override string ToString()
+	{
+		return $"{Publication.Id}, {nameof(Product)}={Product.Title}, {nameof(Author)}={Author.Title}, {nameof(Category)}={Category.Title}";
+	}
+}
+
 public class PublicationNgramId : EntityId
 {
 	public AutoId			Category { get; set; }
@@ -100,40 +115,39 @@ public class PublicationTitleNgramIndex : NgramTable<PublicationNgramId>
 
 	public List<PublicationSearchResult> Search(string query, IEnumerable<AutoId> categories, int skip, int take)
 	{
-		var o = new List<PublicationSearchResult>();
+		var r = new SortedSet<PublicationSearchResult>(Comparer<PublicationSearchResult>.Create((a, b) =>	{
+																												var r = a.Author.VerifiedWebdomainRank.CompareTo(b.Author.VerifiedWebdomainRank);
+								
+																												if(r != 0)
+																													return r;
+								
+																												return b.Distance - a.Distance;
+																											}));
 
 		foreach(var i in categories)
 		{
-			var result = Search(query, i, Latest, skip, take);
+			var result = Search(query, i, Latest);
 	
 			var c = Mcv.Categories.Latest(i);
 
 			foreach(var j in result)
 			{
-				var p = Mcv.Publications.Latest(AutoId.FromULong(j));
-				var r = Mcv.Products.Latest(p.Product);
-				var a = Mcv.Authors.Latest(r.Author);
+				var l = Mcv.Publications.Latest(AutoId.FromULong(j));
+				var p = Mcv.Products.Latest(l.Product);
+				var a = Mcv.Authors.Latest(p.Author);
 			
-				o.Add(	new PublicationSearchResult
+				r.Add((new PublicationSearchResult
 						{
-							Publication		= p,
+							Publication		= l,
 							Author			= a,
-							Product			= r,
-							Category		= c
-						});
+							Product			= p,
+							Category		= c,
+							Distance		= ComputeDistance(query, p.Title)
+						}));
 			}
 		}
 
-		o.Sort((x, y) =>	{
-								var r = x.Author.VerifiedWebdomainRank.CompareTo(y.Author.VerifiedWebdomainRank);
-								
-								if(r != 0)
-									return r;
-								
-								return ComputeDistance(query, y.Product.Title) - ComputeDistance(query, x.Product.Title);
-							});
-
-		return o;
+		return r.Skip(skip).Take(take).ToList();
 	}
 }
 

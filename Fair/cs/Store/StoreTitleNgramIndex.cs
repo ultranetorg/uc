@@ -6,6 +6,17 @@ using RocksDbSharp;
 
 namespace Uccs.Fair;
 
+public class StoreSearchResult
+{
+	public Store		Store { get; set; }
+	public int			Distance;
+
+	public override string ToString()
+	{
+		return $"{Store.Title}";
+	}
+}
+
 public class StoreNgramId : EntityId
 {
 	public ulong			Chars { get; set; }
@@ -89,16 +100,26 @@ public class StoreTitleNgramIndex : NgramTable<StoreNgramId>
 		return new StoreTitleNgramExecution(execution as FairExecution);
 	}
 
-	public StoreSearchResult[] Search(string query, int skip, int take)
+	public List<StoreSearchResult> Search(string query, int skip, int take)
 	{
-		return Search(query, null, Latest, skip, take)
-						 .Select(i => Mcv.Stores.Latest(AutoId.FromULong(i)))
-						 .OrderBy(i => ComputeDistance(i.Title, query)).ThenBy(i => i.Title.Length)
-						 //.OrderByDescending(i => JaroWinkler.GetSimilarityFixed(i.Title, query))
-						//.OrderBy(i => FastBigramFuzzySearch.ComputeDistance(i.Title, query))
-						 .Select(i =>	{
-											return new StoreSearchResult {Entity = i.Id, Text = i.Title, _Distance = ComputeDistance(i.Title, query)};
-										}).ToArray();
+		var r = new SortedSet<StoreSearchResult>(Comparer<StoreSearchResult>.Create((a, b) =>	{
+																									return a.Distance.CompareTo(b.Distance);
+																								}));
+
+		var result = base.Search(query, query, Latest);
+		
+		foreach(var i in result)
+		{
+			var s = Mcv.Stores.Latest(AutoId.FromULong(i));
+			
+			r.Add(	new StoreSearchResult
+					{
+						Store = s, 
+						Distance = ComputeDistance(query, s.Title)
+					});
+		}
+
+		return r.Skip(skip).Take(take).ToList();
 	}
 }
 
