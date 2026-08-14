@@ -187,24 +187,27 @@ public class ProductsService
 			if(cancellationToken.IsCancellationRequested)
 				yield break;
 
-			var model = new T
-			{
-				ProductId = item.Product.ToString(),
-				ProductTitle = item.ProductTitle,
-				AuthorId = item.Author.ToString(),
-				AuthorTitle = item.AuthorTitle,
-				PublicationId = item.Publications[0].ToString(),
-				AvatarId = item.Avatar?.ToString(),
-			};
+			/// TODO elwray
+			throw new NotImplementedException();
 
-			if (model is ProductSearchResultModel full)
-			{
-				var publications = item.Publications.Take(SearchConstants.PublicationsPerProductLimit);
-				full.Publications = LoadPublications(publications, cancellationToken).ToArray();
-				full.HasMorePublications = item.Publications.Length > SearchConstants.PublicationsPerProductLimit;
-			}
-
-			yield return model;
+			///var model = new T
+			///{
+			///	ProductId = item.Product.ToString(),
+			///	ProductTitle = item.ProductTitle,
+			///	AuthorId = item.Author.ToString(),
+			///	AuthorTitle = item.AuthorTitle,
+			///	PublicationId = item.Publications[0].ToString(),
+			///	AvatarId = item.Avatar?.ToString(),
+			///};
+			///
+			///if (model is ProductSearchResultModel full)
+			///{
+			///	var publications = item.Publications.Take(SearchConstants.PublicationsPerProductLimit);
+			///	full.Publications = LoadPublications(publications, cancellationToken).ToArray();
+			///	full.HasMorePublications = item.Publications.Length > SearchConstants.PublicationsPerProductLimit;
+			///}
+			///
+			///yield return model;
 		}
 	}
 

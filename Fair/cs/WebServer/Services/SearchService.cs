@@ -54,16 +54,19 @@ public class SearchService
 			if(cancellationToken.IsCancellationRequested)
 				yield break;
 
-			Publication publication = mcv.Publications.Latest(search.Publication);
-			Product product = mcv.Products.Latest(publication.Product);
-			Author author = mcv.Authors.Latest(product.Author);
-			Category category = mcv.Categories.Latest(publication.Category);
-			ProductType? type = typeToSearch == null ? GetTypeFromCategory(category) : typeToSearch;
+			/// TODO elwray
+			throw new NotImplementedException();
 
-			yield return new PublicationExtendedModel(publication, product, author, category)
-			{
-				Type = type,
-			};
+			//Publication publication = mcv.Publications.Latest(search.Publication);
+			//Product product = mcv.Products.Latest(publication.Product);
+			//Author author = mcv.Authors.Latest(product.Author);
+			//Category category = mcv.Categories.Latest(publication.Category);
+			//ProductType? type = typeToSearch == null ? GetTypeFromCategory(category) : typeToSearch;
+			//
+			//yield return new PublicationExtendedModel(publication, product, author, category)
+			//{
+			//	Type = type,
+			//};
 		}
 	}
 
@@ -120,9 +123,7 @@ public class SearchService
 			if(cancellationToken.IsCancellationRequested)
 				yield break;
 
-			Publication publication = mcv.Publications.Latest(item.Publication);
-			Product product = mcv.Products.Latest(publication.Product);
-			yield return new PublicationBaseModel(publication, product);
+			yield return new PublicationBaseModel(item.Publication, item.Product);
 		}
 	}
 
