@@ -221,12 +221,12 @@ public class Execution : ITableExecution
 
 		consumer.Space += space;
 
-		if(consumer.Free && consumer.Space > Net.FreeSpaceMaximum)
-			consumer.Free = false;
+		if(consumer.Space > Net.FreeSpaceMaximum)
+			payer.Free = false;
 	
 		var n = consumer.Expiration - now;
 
-		if(!consumer.Free)
+		if(!payer.Free)
 		{	
 			payer.Spacetime -= ToBD(space, (short)n);
 			SpacetimeSpenders.Add(payer);
@@ -241,11 +241,14 @@ public class Execution : ITableExecution
 	public void Prolong(ISpacetimeHolder payer, ISpaceConsumer consumer, Time duration)
 	{	
 		var now = Time.Days;
-		var start = now >= consumer.Expiration ? now : consumer.Expiration;
+		var start = Math.Max(now, consumer.Expiration);
 
 		consumer.Expiration = (short)(start + duration.Days);
 
-		if(!consumer.Free || duration.Years != 1)
+		if(consumer.Expiration - now >= Time.FromYears(2).Days) /// 2 years of activity means 1 year prolongation maximum
+			payer.Free = false;
+
+		if(!payer.Free)
 		{
 			payer.Spacetime -= ToBD(consumer.Space, duration);
 			SpacetimeSpenders.Add(payer);
@@ -279,7 +282,7 @@ public class Execution : ITableExecution
 		
 		if(d > 0)
 		{
-			if(!consumer.Free)
+			if(!beneficiary.Free)
 				beneficiary.Spacetime += ToBD(space, (short)(d - 1));
 	
 			AffectSpaces();

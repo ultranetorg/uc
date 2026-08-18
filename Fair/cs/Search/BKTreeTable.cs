@@ -17,7 +17,7 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 
 		if(root == null)
 		{
-			var t = affect(NameIndex.GetId(word));
+			var t = affect(new StringId(word));
 			root = affect(new RawId([0]));
 			root.Children[0] = t.Id;
 			
@@ -35,7 +35,7 @@ public abstract class BKTreeTable<E> : Table<RawId, E> where E : BKTerm
 
 			if(!current.Children.ContainsKey(dist))
 			{
-				var t = affect(NameIndex.GetId(word));
+				var t = affect(new StringId(word));
 
 				current = affect(current.Id);
 				current.Children = new SortedDictionary<byte, RawId>(current.Children);

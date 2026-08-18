@@ -8,9 +8,10 @@ public enum RdnTable : byte
 	Meta = McvTable.Meta, 
 	User = McvTable.User,
 	Friend = McvTable.Friend,
+	DomainName,
 	Domain,
 	Resource, 
-	Name,
+	UserName,
 	ResourceName,
 }
 
@@ -23,9 +24,10 @@ public enum RdnMetaEntityType : uint
 
 public class RdnMcv : Mcv
 {
+	public DomainNameTable			DomainNames;
 	public DomainTable				Domains;
 	public ResourceTable			Resources;
-	public NameIndex				Names;
+	public NameIndex				UserNames;
 	public ResourceNameIndex		ResourceNames;
 	Endpoint[]						GraphIPs;
 	Endpoint[]						SeedHubIPs;
@@ -69,15 +71,16 @@ public class RdnMcv : Mcv
 
 		Rocks = RocksDb.Open(dbo, databasepath, cfs);
 
-		Metas = new (this);
-		Users = new RdnUserTable(this);
-		Friends = new (this);
-		Domains = new (this);
-		Resources = new (this);
-		Names = new (this);
-		ResourceNames = new (this);
+		Metas			= new (this);
+		Users			= new RdnUserTable(this);
+		Friends			= new (this);
+		DomainNames = new (this);
+		Domains			= new (this);
+		Resources		= new (this);
+		UserNames		= new (this);
+		ResourceNames	= new (this);
 
-		Tables = [Metas, Users, Friends, Domains, Resources, Names, ResourceNames];
+		Tables = [Metas, Users, Friends, DomainNames, Domains, Resources, UserNames, ResourceNames];
 	}
 
 	public override Round CreateRound()

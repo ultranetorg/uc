@@ -5,16 +5,18 @@ namespace Uccs.Rdn;
 public class RdnRound : Round
 {
 	public new RdnMcv															Mcv => base.Mcv as RdnMcv;
+	public TableState<StringId, DomainName, DomainNameTable>				DomainNames;
 	public TableState<AutoId, Domain, DomainTable>								Domains;
 	public TableState<AutoId, Resource, ResourceTable>							Resources;
-	public TableState<StringId, TextToFields<EntityTextField>, NameIndex>		Names;
 	public TableState<StringId, TextToEntity, ResourceNameIndex>				ResourceNames;
+	public TableState<StringId, TextToEntity, NameIndex>						UserNames;
 
 	public RdnRound(RdnMcv mcv) : base(mcv)
 	{
+		DomainNames	= new (mcv.DomainNames);
 		Domains			= new (mcv.Domains);
 		Resources		= new (mcv.Resources);
-		Names			= new (mcv.Names);
+		UserNames		= new (mcv.UserNames);
 		ResourceNames	= new (mcv.ResourceNames);
 	}
 
@@ -30,10 +32,11 @@ public class RdnRound : Round
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.Domains)		return Domains.Affected;
-		if(table == Mcv.Resources)		return Resources.Affected;
-		if(table == Mcv.Names)			return Names.Affected;
-		if(table == Mcv.ResourceNames)	return ResourceNames.Affected;
+		if(table == Mcv.DomainNames)	return DomainNames.Affected;
+		if(table == Mcv.Domains)			return Domains.Affected;
+		if(table == Mcv.Resources)			return Resources.Affected;
+		if(table == Mcv.UserNames)			return UserNames.Affected;
+		if(table == Mcv.ResourceNames)		return ResourceNames.Affected;
 
 		return base.AffectedByTable(table);
 	}
@@ -42,18 +45,20 @@ public class RdnRound : Round
 	{
 		base.ClearAffected();
 		
+		DomainNames.Affected.Clear();
 		Domains.Affected.Clear();
 		Resources.Affected.Clear();
-		Names.Affected.Clear();
+		UserNames.Affected.Clear();
 		ResourceNames.Affected.Clear();
 	}
 
 	public override S FindState<S>(TableBase table)
 	{
-		if(table == Mcv.Domains)		return Domains as S;
-		if(table == Mcv.Resources)		return Resources as S;
-		if(table == Mcv.Names)	return Names as S;
-		if(table == Mcv.ResourceNames)	return ResourceNames as S;
+		if(table == Mcv.DomainNames)	return DomainNames as S;
+		if(table == Mcv.Domains)			return Domains as S;
+		if(table == Mcv.Resources)			return Resources as S;
+		if(table == Mcv.UserNames)			return UserNames as S;
+		if(table == Mcv.ResourceNames)		return ResourceNames as S;
 
 		return base.FindState<S>(table);
 	}
@@ -64,9 +69,10 @@ public class RdnRound : Round
 
 		var e = execution as RdnExecution;
 
+		DomainNames.Absorb(e.DomainNames);
 		Domains.Absorb(e.Domains);
 		Resources.Absorb(e.Resources);
-		Names.Absorb(e.Names);
+		UserNames.Absorb(e.UserNames);
 		ResourceNames.Absorb(e.ResourceNames);
 	}
 

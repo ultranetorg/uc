@@ -5,6 +5,9 @@ namespace Uccs.Net;
 
 public class StringId : RawId
 {
+	public string	Text => _Text ??= Encoding.UTF8.GetString(Bytes);
+	string			_Text;
+	
 	public StringId()
 	{
 	}
@@ -13,9 +16,14 @@ public class StringId : RawId
 	{
 	}
 
+	public StringId(string t) : base(Encoding.UTF8.GetBytes(t))
+	{
+		_Text = t;
+	}
+
 	public override string ToString()
 	{
-		return Encoding.UTF8.GetString(Bytes);
+		return Text;
 	}
 }
 
@@ -23,13 +31,6 @@ public abstract class TextTable<E> : Table<StringId, E> where E : class, ITableE
 {
 	public TextTable(Mcv mcv, string name, bool index) : base(mcv, name, index)
 	{
-	}
-
-	public static StringId GetId(string t)
-	{
-		var b = Encoding.UTF8.GetBytes(t);
-
-		return new StringId(b);
 	}
  }
 

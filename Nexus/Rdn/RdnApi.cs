@@ -253,7 +253,7 @@ public class CostApc : RdnApc
 	
 		return	new Return
 				{
-					RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnExecution.NameFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
+					RentDomain					= Years.Select(y => DomainLengths.Select(l => RdnExecution.NameSpacetimeFee(y, new string(' ', l)) * Rate).ToArray()).ToArray(),
 					
 					RentResource				= Years.Select(y => Execution.ToBD(rdn.Net.EntityLength, Time.FromYears(y)) * Rate).ToArray(),
 					RentResourceForever			= Execution.ToBD(rdn.Net.EntityLength, Mcv.Forever) * Rate,

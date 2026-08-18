@@ -25,7 +25,7 @@ public class UserRenaming : FairOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		var e = execution.Names.Find(NameIndex.GetId(Name));
+		var e = execution.Names.Find(Name);
 
 		if(e != null)
 		{

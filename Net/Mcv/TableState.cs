@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Uccs.Net;
 
 public abstract class TableStateBase

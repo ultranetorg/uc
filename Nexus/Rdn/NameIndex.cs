@@ -1,74 +1,65 @@
 ﻿namespace Uccs.Rdn;
 
-public enum EntityTextField : byte
-{
-	UserName, 
-	DomainName, 
-}
+//public enum EntityTextField : byte
+//{
+//	UserName, 
+//	DomainId,
+//	DomainNameOwnerUserId,
+//}
 
-public class NameIndex : TextTable<TextToFields<EntityTextField>> 
+public class NameIndex : TextTable<TextToEntity> 
 {
-	public NameIndex(Mcv mcv) : base(mcv, RdnTable.Name.ToString(), true)
+	public NameIndex(Mcv mcv) : base(mcv, RdnTable.UserName.ToString(), true)
 	{
 	}
 	
-	public override TextToFields<EntityTextField> Create()
+	public override TextToEntity Create()
 	{
-		return new TextToFields<EntityTextField>(Mcv);
+		return new TextToEntity(Mcv);
 	}
 }
 
-public class NameExecution : TextExecution<TextToFields<EntityTextField>, NameIndex>
+public class NameExecution : TextExecution<TextToEntity, NameIndex>
 {
-	public NameExecution(RdnExecution execution) : base(execution.Mcv.Names, execution)
+	public NameExecution(RdnExecution execution) : base(execution.Mcv.UserNames, execution)
 	{
 	}
 
-	public override TextToFields<EntityTextField> Affect(StringId id)
+	public TextToEntity Find(string t)
 	{
-		if(Affected.TryGetValue(id, out var a))
-			return a;
-			
-		if(Parent != null)
-			a = Parent.Find(id);
-		else if(!(Execution.Round as RdnRound).Names.Affected.TryGetValue(id, out a))
-			a = Table.Find(id);
+		return Find(new StringId(t));
+	}
+
+	public override TextToEntity Affect(StringId id)
+	{
+		var a = Find(id);
 
 		if(a == null)
 		{
 			a = Table.Create();
 			a.Id = id;
-			a.Entities = [];
 		
 			return Affected[id] = a;
 		} 
 		else
 		{
-			return Affected[id] = a.Clone() as TextToFields<EntityTextField>;
+			return Affected[id] = a.Clone() as TextToEntity;
 		}
 	}
 
-	public void Register(string name, EntityTextField field, AutoId entity)
+	public void Register(string name, AutoId entity)
 	{
-		var id = TextTable<TextToFields<EntityTextField>>.GetId(name);
+		var id = new StringId(name);
 		var w = Affect(id);
 	
-		w.Entities = [..w.Entities, new EntityField<EntityTextField>{Id = entity, Field = field}];
+		w.Entity = entity;
 	}
 
-	public void Unregister(string name, EntityTextField field)
+	public void Unregister(string name)
 	{
-		var id = TextTable<TextToFields<EntityTextField>>.GetId(name);
+		var id = new StringId(name);
 		var w = Affect(id);
 
-		if(w.Entities.Count > 1)
-		{
-			var e = w.Entities.Find(i => i.Field == field);
-			w.Entities = w.Entities.Remove(e);
-		} 
-		else
-		{
-			w.Deleted = true;
-		}
+		w.Deleted = true;
 	}
 }

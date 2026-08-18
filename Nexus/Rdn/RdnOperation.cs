@@ -6,27 +6,32 @@ public enum RdnOperationClass : uint
 	RdnCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
 	User							= 100,
-		UserRenaming				= 100_000_001, 
+		UserRenaming				= 100_000_001,
 
-	Domain							= 101,
-		DomainRegistration			= 101_000_001, 
-		DomainMigration				= 101_000_002, 
-		DomainRenewal				= 101_000_003,
-		DomainTransfer				= 101_000_004,
-		DomainPolicyUpdation		= 101_000_005,
-		//DomainBid					= 101_000_003, 
+	DomainName						= 101,
+		DomainNameAcquisition		= 101_000_001,
+		DomainNameMigration			, 
+		DomainNameRenewal			,
+		DomainNameTransfer			,
 
-	Resource						= 102,
-		ResourceCreation			= 102_000_001, 
-		ResourceUpdation			= 102_000_002, 
-		ResourceDeletion			= 102_000_003, 
+	Domain							= 102,
+		DomainCreation				= 102_000_001,
+		DomainRenamimg				, 
+		DomainRenewal				,
+		DomainTransfer				,
+		DomainPolicyUpdation		,
 
-		ResourceLink				= 102_001, 
-			ResourceLinkCreation	= 102_001_001, 
-			ResourceLinkDeletion	= 102_001_002,
+	Resource						= 103,
+		ResourceCreation			= 103_000_001,
+		ResourceUpdation			, 
+		ResourceDeletion			, 
 
-	Analysis						= 103,
-		AnalysisResultUpdation		= 103_000_001
+		ResourceLink				= 103_001, 
+			ResourceLinkCreation	= 103_001_001,
+			ResourceLinkDeletion	,
+
+	Analysis						= 104,
+		AnalysisResultUpdation		= 104_000_001
 }
 
 public abstract class RdnOperation : Operation
@@ -39,11 +44,46 @@ public abstract class RdnOperation : Operation
 	public const string		OtherTldHasPriority = "Other tld has priority";
 	public const string		Locked = "Locked";
 
+	public new RdnUser		User { get => base.User as RdnUser; set => base.User = value; }
+
 	public abstract void Execute(RdnExecution execution);
 
 	public override void Execute(Execution execution)
 	{
 		Execute(execution as RdnExecution);
+	}
+
+	public bool RequireDomainName(RdnExecution execution, string name, out DomainName domainname)
+	{
+		domainname = execution.DomainNames.Find(name);
+
+		if(domainname == null || domainname.Deleted)
+		{
+			Error = NotFound;
+			return false;
+		}
+
+		if((domainname as ISpaceConsumer).IsExpired(execution.Time))
+		{
+			Error = Expired;
+			return false;
+		}
+
+		return true;
+	}
+	
+	public bool RequireDomainNameAccess(RdnExecution execution, string name, out DomainName domainname)
+	{
+		if(!RequireDomainName(execution, name, out domainname))
+			return false;
+
+		if(domainname.Owner != User.Id)
+		{
+			Error = Denied;
+			return false;
+		}
+
+		return true;
 	}
 
 	public bool RequireDomain(RdnExecution execution, AutoId id, out Domain domain)
@@ -56,7 +96,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(domain.IsExpired(execution.Round.ConsensusTime))
+		if((domain as ISpaceConsumer).IsExpired(execution.Round.ConsensusTime))
 		{
 			Error = Expired;
 			return false;
@@ -75,7 +115,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if(domain.IsExpired(execution.Round.ConsensusTime))
+		if((domain as ISpaceConsumer).IsExpired(execution.Round.ConsensusTime))
 		{
 			Error = Expired;
 			return false;
@@ -98,7 +138,7 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerDomain(RdnExecution execution, AutoId id, out Domain domain)
+	public bool RequireDomainAccess(RdnExecution execution, AutoId id, out Domain domain)
 	{
 		if(!RequireDomain(execution, id, out domain))
 			return false;
@@ -129,12 +169,12 @@ public abstract class RdnOperation : Operation
 		return true;
 	}
 
-	public bool RequireSignerResource(RdnExecution execution, AutoId id, out Domain domain, out Resource resource)
+	public bool RequireResourceAccess(RdnExecution execution, AutoId id, out Domain domain, out Resource resource)
 	{
 		if(!RequireResource(execution, id, out domain, out resource))
 			return false; 
 
-		if(!RequireSignerDomain(execution, resource.Domain, out _))
+		if(!RequireDomainAccess(execution, resource.Domain, out _))
 			return false; 
 
 		return true; 

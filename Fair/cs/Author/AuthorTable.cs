@@ -23,9 +23,9 @@ public class AuthorTable : Table<AutoId, Author>
 			foreach(var b in cl.Buckets)
 				foreach(var i in b.Entries.Where(i => i.Name != null))
 				{
-					var w = e.Names.Affect(NameIndex.GetId(i.Name));
+					var w = e.Names.Affect(i.Name);
 
-					w.Entity = new EntityField<EntityTextField>{Id = i.Id, Field = EntityTextField.AuthorName};
+					w.Entity = new EntityField<EntityTextField> {Id = i.Id, Field = EntityTextField.AuthorName};
 				}
 	
 		Mcv.Names.Commit(batch, e.Names.Affected.Values, null, lastincommit);

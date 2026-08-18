@@ -5,8 +5,7 @@ namespace Uccs.Rdn;
 public enum DomainFlag : byte
 {
 	None, 
-	Owned		= 0b_______1, 
-	Free		= 0b______10, 
+	Free		= 0b_______1, 
 	//ChildNet	= 0b__100000, 
 }
 
@@ -18,32 +17,18 @@ public enum OwnershipPolicy : byte
 	///Programmatic	= 0b11111111, 
 }
 
-public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, IExpirable
+public class Domain : ITableEntry<AutoId>, IBinarySerializable, ISpaceConsumer
 {
-	public const int				NameLengthMin = 1;
-	public const int				NameLengthMax = 256;
-	public const char				National = '~';
-	public const char				Subdomain = '~';
-
-	public static readonly string[] PriorityTlds = ["com", "org", "net", "info", "biz"];
-	static readonly Regex			NameRegex = new ($@"^[a-z0-9\.]+[a-z0-9{Subdomain}{National}]*$", RegexOptions.Compiled);
-
 	public AutoId					Id { get; set; }
-	public string					Address { get; set; }
+	public string					Name { get; set; }
 	public AutoId					Owner { get; set; }
-	public short					Expiration { get; set; }
-	public bool						Free { get; set; }
-	public long						Space { get; set; }
 	public OwnershipPolicy			OwnershipPolicy { get; set; }
+
+	public long						Space { get; set; }
+	public short					Expiration { get; set; }
 
 	public bool						Deleted { get; set; }
 	Mcv								Mcv;
-
-	public static bool				IsRoot(string name) => !name.Contains('.'); 
-	public static bool				IsChild(string name) => name.Contains('.'); 
-	
-	public static string			GetParent(string name) => name.Substring(name.IndexOf('.') + 1); 
-	public static string			GetName(string name) => name.Substring(0, name.IndexOf('.'));
 
 	public Domain()
 	{
@@ -56,14 +41,7 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 
 	public override string ToString()
 	{
-		return $"{Address}, {Id}, {nameof(Free)}={Free}, {nameof(Owner)}={Owner}, {nameof(Space)}={Space}, {nameof(Expiration)}={Expiration}";
-	}
-
-	public static bool IsAddressValid(string name)
-	{
-		return  !string.IsNullOrWhiteSpace(name) &&
-				name.Length is >= NameLengthMin && name.Length <= NameLengthMax &&
-				NameRegex.Match(name).Success;
+		return $"{Name}, {Id}, {nameof(Owner)}={Owner}, {nameof(Space)}={Space}, {nameof(Expiration)}={Expiration}";
 	}
 
 	public object Clone()
@@ -71,12 +49,11 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 		return	new Domain(Mcv)
 				{	
 					Id				= Id,
-					Address			= Address,
+					Name			= Name,
 					Owner			= Owner,
-					Expiration		= Expiration,
-					Free			= Free,
+					OwnershipPolicy	= OwnershipPolicy,
 					Space			= Space,
-					OwnershipPolicy	= OwnershipPolicy
+					Expiration		= Expiration,
 				};
 	}
 
@@ -84,20 +61,13 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 	{
 		var f = DomainFlag.None;
 		
-		if(Owner != null)		f |= DomainFlag.Owned;
-		if(Free)				f |= DomainFlag.Free;
+		writer.Write(f);
+		writer.WriteASCII(Name);
+		writer.Write(Owner);
 
-		writer.Write((byte)f);
-		writer.WriteUtf8(Address);
-		writer.Write7BitEncodedInt64(Space);
+		(this as ISpaceConsumer).WriteSpaceConsumer(writer);
 
-		if(f.HasFlag(DomainFlag.Owned))
-		{
-			writer.Write(Owner);
-			writer.Write(Expiration);
-		}
-
-		if(IsChild(Address))
+		if(DomainName.IsSubdomain(Name))
 		{
 			writer.Write((byte)OwnershipPolicy);
 		}
@@ -105,18 +75,13 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 
 	public void ReadMain(Reader reader)
 	{
-		var f		= (DomainFlag)reader.ReadByte();
-		Address		= reader.ReadUtf8();
-		Space		= reader.Read7BitEncodedInt64();
-		Free		= f.HasFlag(DomainFlag.Free);
+		var f		= reader.Read<DomainFlag>();
+		Name		= reader.ReadASCII();
+		Owner		= reader.Read<AutoId>();
 
-		if(f.HasFlag(DomainFlag.Owned))
-		{
-			Owner		= reader.Read<AutoId>();
-			Expiration	= reader.ReadInt16();
-		}
+		(this as ISpaceConsumer).ReadSpaceConsumer(reader);
 
-		if(IsChild(Address))
+		if(DomainName.IsSubdomain(Name))
 		{
 			OwnershipPolicy = (OwnershipPolicy)reader.ReadByte();
 		}
@@ -143,28 +108,5 @@ public class Domain : IBinarySerializable, ISpaceConsumer, ITableEntry<AutoId>, 
 		var i = name.LastIndexOf('.');
 
 		return i == -1 ? name : name.Substring(i + 1);
-	}
-
-	public static bool IsOwner(Domain domain, User account, Time time)
-	{
-		return domain.Owner == account.Id && !domain.IsExpired(time);
-	}
-
-	public bool IsExpired(Time time)
-	{
-		return	//LastWinner != null && Owner == null && time > AuctionEnd + WinnerRegistrationPeriod ||  /// winner has not registered since the end of auction, restart the auction
-									  Owner != null && time.Days >= Expiration;	 /// owner has not renewed, restart the auction
-	}
-
-	public bool CanRenew(User owner, Time time, Time duration)
-	{
-		return  Owner == owner.Id && ((IExpirable)this).CanRenew(time, duration);
-	}
-
-	public static bool CanRegister(string name, Domain domain, Time time, User by)
-	{
-		return	domain == null || /// available
-				domain != null && domain.Owner != null && time.Days >= domain.Expiration; /// not renewed by current owner
-				
 	}
 }

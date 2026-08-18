@@ -38,7 +38,7 @@ public class AuthorRenewal : FairOperation
 		
 		a = execution.Authors.Affect(AuthorId);
 
-		if(!(a as IExpirable).CanRenew(execution.Time, Time.FromYears(Years)))
+		if(!(a as ISpaceConsumer).CanRenew(execution.Time, Time.FromYears(Years)))
 		{
 			Error = NotAvailable;
 			return;

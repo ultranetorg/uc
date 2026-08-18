@@ -124,7 +124,7 @@ public class Restiction
 	}
 }
 
-public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry<AutoId>, IExpirable
+public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry<AutoId>
 {
 	public const int					PoWLength = 32;
 

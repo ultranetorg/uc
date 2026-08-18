@@ -58,7 +58,7 @@ public class ResourceTable : Table<AutoId, Resource>
 			foreach(var b in cl.Buckets)
 				foreach(var i in b.Entries)
 				{
-					var w = e.ResourceNames.Affect(Mcv.ResourceNames.GetId(Mcv.Domains.Find(i.Domain).Address, i.Name));
+					var w = e.ResourceNames.Affect(Mcv.ResourceNames.GetId(Mcv.Domains.Find(i.Domain).Name, i.Name));
 
 					w.Entity  = i.Id;
 				}

@@ -11,12 +11,17 @@ public class NameIndex : TextTable<TextToField<EntityTextField>>
 		return new TextToField<EntityTextField>(Mcv);
 	}
 
+	public TextToField<EntityTextField> Latest(string text)
+	{
+		return Latest(new StringId(text));
+	}
+
 	public IEnumerable<AutoId> Search(EntityTextField field, string prefix, int count)
 	{
 		if(prefix.Length < User.NameLengthMin)
 			yield break;
 
-		var pre = GetId(prefix);
+		var pre = new StringId(prefix);
 
 		int n = 0;
 
@@ -111,6 +116,16 @@ public class NameExecution : TextExecution<TextToField<EntityTextField>, NameInd
 	{
 	}
 
+	public TextToField<EntityTextField> Find(string text)
+	{
+		return Find(new StringId(text));
+	}
+
+	public TextToField<EntityTextField> Affect(string text)
+	{
+		return Affect(new StringId(text));
+	}
+
 	public override TextToField<EntityTextField> Affect(StringId id)
 	{
 		if(Affected.TryGetValue(id, out var a))
@@ -138,16 +153,14 @@ public class NameExecution : TextExecution<TextToField<EntityTextField>, NameInd
 
 	public void Register(string word, EntityTextField field, AutoId entity)
 	{
-		var id = TextTable<TextToField<EntityTextField>>.GetId(word);
-		var w = Affect(id);
+		var w = Affect(new StringId(word));
 	
 		w.Entity = new EntityField<EntityTextField> {Id = entity, Field = field};
 	}
 
 	public void Unregister(string word)
 	{
-		var id = TextTable<TextToField<EntityTextField>>.GetId(word);
-		var w = Affect(id);
+		var w = Affect(new StringId(word));
 
 		w.Deleted = true;
 	}

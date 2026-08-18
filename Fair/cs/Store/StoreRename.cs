@@ -31,7 +31,7 @@ public class StoreRenaming : VotableOperation
 
 	public override bool ValidateProposal(FairExecution execution, out string error)
  	{
-		var e = execution.Names.Find(NameIndex.GetId(Name));
+		var e = execution.Names.Find(Name);
 
 		if(e != null)
 		{

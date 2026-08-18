@@ -38,7 +38,7 @@ class StoreRenewal : FairOperation
 		
 		s = execution.Stores.Affect(StoreId);
 
-		if(!(s as IExpirable).CanRenew(execution.Time, Time.FromYears(Years)))
+		if(!(s as ISpaceConsumer).CanRenew(execution.Time, Time.FromYears(Years)))
 		{
 			Error = NotAvailable;
 			return;

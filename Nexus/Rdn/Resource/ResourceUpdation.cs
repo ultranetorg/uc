@@ -59,7 +59,7 @@ public class ResourceUpdation : RdnOperation
 	{
 		var rs = new HashSet<AutoId>();
 
-		if(RequireSignerResource(execution, Resource, out var d, out var x) == false)
+		if(RequireResourceAccess(execution, Resource, out var d, out var x) == false)
 			return;
 
 		d = execution.Domains.Affect(d.Id);

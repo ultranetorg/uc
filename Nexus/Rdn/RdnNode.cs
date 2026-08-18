@@ -52,7 +52,7 @@ public class RdnNode : McvNode
 																						  !Mcv.OutwardResults.Any(a => a.User == i.User && a.Id == i.Id)))
 										{
 											Task.Run(() =>	{
-																if(t.Operation is DomainMigration m)
+																if(t.Operation is DomainNameMigration m)
 																{
 																	var approved = IsWebdomainOwner(m.Name + '.' + m.Tld, t.User);
 	

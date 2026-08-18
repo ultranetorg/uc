@@ -17,7 +17,7 @@ public class FairUserTable : UserTable
 
 	public override User Find(string name)
 	{
-		var e = Mcv.Names.Find(NameIndex.GetId(name))?.Entity;
+		var e = Mcv.Names.Find(new StringId(name))?.Entity;
 
 		return e != null && e.Field == EntityTextField.UserName ? Find(e.Id) : null;
 	}
@@ -30,7 +30,7 @@ public class FairUserTable : UserTable
 			foreach(var b in c.Buckets)
 				foreach(var i in b.Entries)
 				{
-					var w = e.Names.Affect(NameIndex.GetId(i.Name));
+					var w = e.Names.Affect(i.Name);
 
 					w.Entity = new EntityField<EntityTextField>{Id = i.Id, Field = EntityTextField.UserName};
 				}

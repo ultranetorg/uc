@@ -84,7 +84,7 @@ public class PublicKey : IComparable, IComparable<PublicKey>, IEquatable<PublicK
             throw new FormatException("Invalid address length");
 
         var f	= (KeyFormat)(char.ToLowerInvariant(address[address.Length-4]) << 8 | char.ToLowerInvariant(address[address.Length-3]));
-        var a	= (Algorithm)	 (char.ToLowerInvariant(address[address.Length-2]) << 8 | char.ToLowerInvariant(address[address.Length-1]));
+        var a	= (Algorithm) (char.ToLowerInvariant(address[address.Length-2]) << 8 | char.ToLowerInvariant(address[address.Length-1]));
 
         if(f != KeyFormat.Bech32t)
             throw new FormatException("Unsupported address format");

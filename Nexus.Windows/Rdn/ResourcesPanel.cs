@@ -62,7 +62,7 @@ public partial class ResourcesPanel : McvPanel
 			{
 				Ura.Parse(OnlineQuery.Text, out var d, out var r);
 
-				var domain = Node.Peering.Call(new DomainByAddressPpc(d), new Flow(5000));
+				var domain = Node.Peering.Call(new DomainByNamePpc(d), new Flow(5000));
 	
 				foreach(var i in Node.Peering.Call(new QueryResourcePpc {Domain = domain.Domain.Id, Query = r}, new Flow(5000)).Resources)
 				{

@@ -49,26 +49,29 @@ public class DomainByIdPpr : Result
 
 }
 
-public class DomainByAddressPpc : RdnPpc<DomainByAddressPpr>
+public class DomainByNamePpc : RdnPpc<DomainByNamePpr>
 {
 	public string		Address { get; set; }
 
-	public DomainByAddressPpc()
+	public DomainByNamePpc()
 	{
 	}
 
-	public DomainByAddressPpc(string address)
+	public DomainByNamePpc(string name)
 	{
-		Address = address;
+		Address = name;
 	}
 
 	public override Result Execute()
 	{
-		var	r = Mcv.Domains.Latest(Address)
+		var	r = Mcv.DomainNames.Latest(Address)
 				??
 				throw new EntityException(EntityError.NotFound);
-			
-		return new DomainByAddressPpr {Domain = r};
+		
+		if(r.Domain == null)
+			throw new EntityException(EntityError.NotFound);
+
+		return new DomainByNamePpr {Domain = Mcv.Domains.Latest(r.Domain)};
 	}
 
 	public override void Write(Writer writer)
@@ -82,7 +85,7 @@ public class DomainByAddressPpc : RdnPpc<DomainByAddressPpr>
 	}
 }
 	
-public class DomainByAddressPpr : Result
+public class DomainByNamePpr : Result
 {
 	public Domain Domain { get; set; }
 

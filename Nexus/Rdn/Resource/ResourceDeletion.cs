@@ -23,7 +23,7 @@ public class ResourceDeletion : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		if(RequireSignerResource(execution, Resource, out var d, out var r) == false)
+		if(RequireResourceAccess(execution, Resource, out var d, out var r) == false)
 			return;
 
 		if(r.IsLocked(execution))
@@ -54,6 +54,6 @@ public class ResourceDeletion : RdnOperation
 			}
 		}
 
-		execution.ResourceNames.Unregister(d.Address, r.Name);
+		execution.ResourceNames.Unregister(d.Name, r.Name);
 	}
 }

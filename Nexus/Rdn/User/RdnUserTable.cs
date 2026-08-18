@@ -10,9 +10,14 @@ public class RdnUserTable : UserTable
 	{
 	}
 
+	public override User Create()
+	{
+		return new RdnUser(Mcv);
+	}
+
 	public override User Find(string name)
 	{
-		var id = Mcv.Names.Find(NameIndex.GetId(name))?.Entities.Find(i => i.Field == EntityTextField.UserName)?.Id;
+		var id = Mcv.UserNames.Find(new StringId(name))?.Entity;
 
 		return id != null ? Find(id) : null;
 	}
@@ -25,11 +30,11 @@ public class RdnUserTable : UserTable
 			foreach(var b in c.Buckets)
 				foreach(var i in b.Entries)
 				{
-					var w = e.Names.Affect(NameIndex.GetId(i.Name));
+					var w = e.UserNames.Affect(new StringId(i.Name));
 
-					w.Entities = w.Entities.Add(new EntityField<EntityTextField> {Id = i.Id, Field = EntityTextField.UserName});
+					w.Entity = i.Id;
 				}
 	
-		Mcv.Names.Commit(batch, e.Names.Affected.Values, null, lastincommit);
+		Mcv.UserNames.Commit(batch, e.UserNames.Affected.Values, null, lastincommit);
 	}
 }

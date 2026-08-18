@@ -52,7 +52,7 @@ public abstract class NetCommand : Command
 																																	AddressArgument(type, entity),
 																																	IdArgument(entity)
 																																]);
-	public Argument							NameOrId(string entity, ArgumentType type = null) => new(null, null, "OR", arguments:	[
+	public Argument							NameOrIdOf(string entity, ArgumentType type = null) => new(null, null, "OR", arguments:	[
 																																		NameArgument(type ?? NAME, entity),
 																																		IdArgument(entity)
 																																	]);

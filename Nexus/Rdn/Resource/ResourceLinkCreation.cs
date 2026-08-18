@@ -36,7 +36,7 @@ public class ResourceLinkCreation : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		if(RequireSignerResource(execution, Source, out var sd, out var s) == false)
+		if(RequireResourceAccess(execution, Source, out var sd, out var s) == false)
 			return;
 
 		if(RequireResource(execution, Destination, out var dd, out var d) == false)

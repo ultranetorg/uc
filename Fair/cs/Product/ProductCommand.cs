@@ -74,7 +74,7 @@ public class ProductCommand : FairCommand
 
 		a.Description = "Sets a name for the specified product";
 		a.Arguments =  [
-							NameOrId("product to set name for"),
+							NameOrIdOf("product to set name for"),
 							new (newname, NAME, "New name"),
 							Eligible
 						];

@@ -323,7 +323,32 @@ public class Reader : BinaryReader
 
 	public ImmutableList<T> ReadImmutableList<T>() where T : IBinarySerializable, new()
 	{
-		return ReadMany<T>().ToImmutableList();
+		var b = ImmutableList.CreateBuilder<T>();
+
+		var n = Read7BitEncodedInt();
+
+		for(int i = 0; i < n; i++)
+		{
+			var t = new T();
+			t.Read(this);
+			b.Add(t);
+		}
+
+		return b.ToImmutableList();
+	}
+
+	public ImmutableList<T> ReadImmutableList<T>(Func<T> read)
+	{
+		var b = ImmutableList.CreateBuilder<T>();
+
+		var n = Read7BitEncodedInt();
+
+		for(int i = 0; i < n; i++)
+		{
+			b.Add(read());
+		}
+
+		return b.ToImmutableList();
 	}
 
 

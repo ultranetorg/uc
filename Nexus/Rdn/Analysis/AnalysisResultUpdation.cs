@@ -32,7 +32,7 @@ public class AnalysisResultUpdation : RdnOperation
 		//if(Require(round, null, Resource, out var d, out var r) == false)
 		//	return;
 
-		if(RequireResource(execution, Analysis, out var ad, out var ar) == false)
+		if(!RequireResource(execution, Analysis, out var ad, out var ar))
 			return;
 
 		if(ar.Data == null)

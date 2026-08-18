@@ -24,18 +24,20 @@ public class UserRenaming : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		var e = execution.Names.Find(NameIndex.GetId(Name));
+		var e = execution.UserNames.Find(Name);
 
-		if(e != null && e.Entities.Any(i => i.Field == EntityTextField.UserName))
+		if(e != null)
 		{
 			Error = NotAvailable;
 			return;
 		}
 
-		execution.Names.Unregister(User.Name, EntityTextField.UserName);
+		execution.UserNames.Unregister(User.Name);
 
 		User.Name = Name;
 	
-		execution.Names.Register(User.Name, EntityTextField.UserName, User.Id);
+		execution.UserNames.Register(User.Name, User.Id);
+
+		execution.PayOperationEnergy(User);
 	}
 }

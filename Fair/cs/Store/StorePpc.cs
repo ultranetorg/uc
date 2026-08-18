@@ -74,7 +74,7 @@ public class StoreByNamePpc : FairPpc<StoreByNamePpr>
 
 		RequireGraph();
 
-		var	w = Mcv.Names.Latest(NameIndex.GetId(Name));
+		var	w = Mcv.Names.Latest(Name);
 		
 		if(w == null || w.Entity.Field != EntityTextField.StoreName)
 			throw new EntityException(EntityError.NotFound);

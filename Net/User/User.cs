@@ -12,26 +12,58 @@ public interface IHolder
 public interface ISpacetimeHolder : IHolder
 {
 	long		Spacetime { get; set; }
+	bool		Free { get; set; }
+
+	public void WriteSpaceConsumer(Writer writer)
+	{
+		writer.Write7BitEncodedInt64(Spacetime);
+		writer.Write(Free);
+	}
+
+	public void ReadSpaceConsumer(Reader reader)
+	{
+		Spacetime	= reader.Read7BitEncodedInt64();
+		Free	 	= reader.ReadBoolean();
+	}
+
+	public void Copy(ISpacetimeHolder a)
+	{ 
+		a.Spacetime	= Spacetime;
+		a.Free		= Free;
+	}
 }
 
 public interface ISpaceConsumer
 {
 	long		Space { get; set; }
 	short		Expiration { get; set; }
-	bool		Free { get; set; }
 
 	public void WriteSpaceConsumer(Writer writer)
 	{
 		writer.Write7BitEncodedInt64(Space);
 		writer.Write(Expiration);
-		writer.Write(Free);
 	}
 
 	public void ReadSpaceConsumer(Reader reader)
 	{
 		Space	 	= reader.Read7BitEncodedInt64();
 		Expiration 	= reader.ReadInt16();
-		Free	 	= reader.ReadBoolean();
+	}
+
+	public void Copy(ISpaceConsumer a)
+	{ 
+		a.Space			= Space;
+		a.Expiration	= Expiration;
+	}
+
+	bool IsExpired(Time time) 
+	{
+		return time.Days > Expiration;
+	}
+
+	bool CanRenew(Time time, Time duration)
+	{
+		return Expiration + duration.Days - time.Days < Time.FromYears(Mcv.EntityRentYearsMax).Days;
 	}
 }
 
@@ -103,7 +135,7 @@ public interface IEnergyHolder : IHolder
 //}
 
 
-public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITableEntry<AutoId>
+public class User : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, ISpacetimeHolder
 {
 	public AutoId			Id { get; set; }
 	public string			Name { get; set; }
@@ -114,6 +146,7 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 	public long				AverageUptime { get; set; }
 	
 	public long				Spacetime { get; set; }
+	public bool				Free { get; set; }
 	
 	public long				Energy { get; set; }
 	public byte				EnergyThisPeriod { get; set; }
@@ -165,29 +198,29 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		writer.Write(Id);
 		writer.WriteASCII(Name);
 		writer.Write(Key);
-	//	writer.Write(Permissions);
 
 		writer.Write7BitEncodedInt64(Spacetime);
 		writer.Write7BitEncodedInt(LastNonce);
 		writer.Write7BitEncodedInt(LastOutward);
 		writer.Write7BitEncodedInt64(AverageUptime);
 
-		((IEnergyHolder)this).WriteEnergyHolder(writer);
+		(this as IEnergyHolder).WriteEnergyHolder(writer);
+		(this as ISpacetimeHolder).WriteSpaceConsumer(writer);
 	}
 
 	public virtual void Read(Reader reader)
 	{
 		Id					= reader.Read<AutoId>();
 		Name				= reader.ReadASCII();
-		Key				= reader.Read<PublicKey>();
-	//	Permissions			= reader.ReadArray<Permission>();
+		Key					= reader.Read<PublicKey>();
 
 		Spacetime 			= reader.Read7BitEncodedInt64();
 		LastNonce			= reader.Read7BitEncodedInt();
 		LastOutward			= reader.Read7BitEncodedInt();
 		AverageUptime		= reader.Read7BitEncodedInt64();
 
-		((IEnergyHolder)this).ReadEnergyHolder(reader);
+		(this as IEnergyHolder).ReadEnergyHolder(reader);
+		(this as ISpacetimeHolder).ReadSpaceConsumer(reader);
 	}
 
 	public User()
@@ -206,13 +239,13 @@ public class User : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ITable
 		a.Id					= Id;
 		a.Name					= Name;
 		a.Key					= Key;
-	//	a.Permissions			= Permissions;
 		a.Spacetime				= Spacetime;
 		a.LastNonce				= LastNonce;
 		a.LastOutward			= LastOutward;
 		a.AverageUptime			= AverageUptime;
 
-		((IEnergyHolder)this).Copy(a);
+		(this as IEnergyHolder).Copy(a);
+		(this as ISpacetimeHolder).Copy(a);
 
 		return a;
 	}

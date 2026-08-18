@@ -32,7 +32,7 @@ public class AuthorRenaming : FairOperation
 		if(!CanAccessAuthor(execution, Author, out var a, out Error))
 			return;
 
-		var e = execution.Names.Find(NameIndex.GetId(Name));
+		var e = execution.Names.Find(Name);
 
 		if(e != null)
 		{

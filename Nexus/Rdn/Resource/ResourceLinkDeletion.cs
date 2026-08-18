@@ -32,7 +32,7 @@ public class ResourceLinkDeletion : RdnOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		if(RequireSignerResource(execution, Source, out var sd, out var sr) == false)
+		if(RequireResourceAccess(execution, Source, out var sd, out var sr) == false)
 			return;
 
 		if(Index >= sr.Outbounds.Length)

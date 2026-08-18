@@ -19,63 +19,62 @@ public class DomainTable : Table<AutoId, Domain>
 	
  	public Domain Find(string name)
  	{
-		var e = Mcv.Names.Find(NameIndex.GetId(name))?.Entities.Find(i => i.Field == EntityTextField.DomainName);
-
-		if(e == null)
+		var e = Mcv.DomainNames.Find(name);
+	
+		if(e?.Domain == null)
 			return null;
-
-		return Find(e.Id);
+	
+		return Find(e.Domain);
  	}
 
 	public virtual Domain Latest(string name)
 	{
-		var e = (Mcv.LastConfirmedRound as RdnRound).Domains.Affected.Values.FirstOrDefault(i => i.Address == name);
-
+		var e = (Mcv.LastConfirmedRound as RdnRound).Domains.Affected.Values.FirstOrDefault(i => i.Name == name);
+	
 		if(e != null)
 			return e.Deleted ? null : e;
-
+	
 		return Find(name);
 	}
 	
-	public override void Index(WriteBatch batch, Round lastincommit)
-	{
-		var e = new RdnExecution(Mcv, new RdnRound(Mcv), null);
-
-		foreach(var cl in Clusters)
-			foreach(var b in cl.Buckets)
-				foreach(var i in b.Entries)
-				{
-					var w = e.Names.Affect(NameIndex.GetId(i.Address));
-
-					w.Entities = [..w.Entities, new EntityField<EntityTextField>{Id = i.Id, Field = EntityTextField.DomainName}];
-				}
-	
-		Mcv.Names.Commit(batch, e.Names.Affected.Values, null, lastincommit);
-	}
+	//public override void Index(WriteBatch batch, Round lastincommit)
+	//{
+	//	var e = new RdnExecution(Mcv, new RdnRound(Mcv), null);
+	//
+	//	foreach(var cl in Clusters)
+	//		foreach(var b in cl.Buckets)
+	//			foreach(var i in b.Entries)
+	//			{
+	//				var w = e.Names.Affect(Mcv.DomainAddresses.GetId(i.Address));
+	//
+	//				w.Entity = i.Id;
+	//			}
+	//
+	//	Mcv.UserNames.Commit(batch, e.Names.Affected.Values, null, lastincommit);
+	//}
 }
 
 public class DomainExecution : TableExecution<AutoId, Domain,DomainTable>
 {
-	new DomainTable										Table => base.Table as DomainTable;
-	new RdnExecution									Execution=> base.Execution as RdnExecution;
-	public static Dictionary<string, HashSet<string>>	Priority = [];
+	new DomainTable			Table => base.Table as DomainTable;
+	new RdnExecution		Execution=> base.Execution as RdnExecution;
 		
 	public DomainExecution(RdnExecution execution) : base(execution.Mcv.Domains, execution)
 	{
-		lock(Priority)
-			if(Priority.Count == 0)
-			{
-				foreach(var tld in Domain.PriorityTlds)
-				{
-					foreach(var i in File.ReadLines(Path.Join(execution.Mcv.Datapath, tld)))
-						(Priority.ContainsKey(tld) ? Priority[tld] : (Priority[tld] = [])).Add(i);
-				}
-			}
+	}
+
+	public Domain Create()
+	{
+		var d = new Domain(Execution.Mcv);
+
+		d.Id = new AutoId(Execution.IncrementMetaInt(RdnMetaEntityType.DomainIdCounter));
+
+		return Affected[d.Id] = d;
 	}
 
 	public Domain Find(string name)
 	{
-		var d = Affected.Values.FirstOrDefault(i => i.Address == name);
+		var d = Affected.Values.FirstOrDefault(i => i.Name == name);
 		
 		if(d != null)
 			return d.Deleted ? null : d;
@@ -83,28 +82,28 @@ public class DomainExecution : TableExecution<AutoId, Domain,DomainTable>
 		if(Parent != null)
 			return (Parent as DomainExecution).Find(name);
 
-		d = Execution.Round.Domains.Affected.Values.FirstOrDefault(i => i.Address == name);
+		d = Execution.Round.Domains.Affected.Values.FirstOrDefault(i => i.Name == name);
 			
 		if(d != null)
 			return d.Deleted ? null : d;
 
 		return Table.Find(name);
 	}
-
-	public Domain Affect(string name)
-	{
-		var d = Find(name);
-
-		if(d != null)
-			return Affected[d.Id] = d.Clone() as Domain;
-		else
-		{
-			d = new Domain(Execution.Mcv);
-
-			d.Id = LastCreatedId	= new AutoId(Execution.IncrementMetaInt(RdnMetaEntityType.DomainIdCounter));
-			d.Address				= name;
-
-			return Affected[d.Id] = d;
-		}
-	}
+//
+//	public Domain Affect(AutoId id)
+//	{
+//		var d = Find(name);
+//
+//		if(d != null)
+//			return Affected[d.Id] = d.Clone() as Domain;
+//		else
+//		{
+//			d = new Domain(Execution.Mcv);
+//
+//			d.Id = LastCreatedId	= new AutoId(Execution.IncrementMetaInt(RdnMetaEntityType.DomainIdCounter));
+//			d.Address				= name;
+//
+//			return Affected[d.Id] = d;
+//		}
+//	}
 }

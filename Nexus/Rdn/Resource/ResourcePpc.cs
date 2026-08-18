@@ -19,7 +19,7 @@ public class ResourceByIdPpc : RdnPpc<ResourceByIdPpr>
 				??
 				throw new EntityException(EntityError.NotFound);
 			
-		return new ResourceByIdPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Address, r.Name)};
+		return new ResourceByIdPpr {Resource = r, Address = new Ura(Mcv.Domains.Latest(r.Domain).Name, r.Name)};
 	}
 
 	public override void Write(Writer writer)

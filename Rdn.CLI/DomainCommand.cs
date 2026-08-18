@@ -13,7 +13,7 @@ public class DomainCommand : RdnCommand
 		if(Has(IdKeyword))
 			return GetAutoId(IdKeyword);
 		else if(Has(nameaddress))
-			return Ppc(new DomainByAddressPpc(GetString(nameaddress))).Domain.Id;
+			return Ppc(new DomainByNamePpc(GetString(nameaddress))).Domain.Id;
 		else
 			throw new SyntaxException("Neither domain 'id' nor 'name' arguments provided");
 	}
@@ -25,9 +25,9 @@ public class DomainCommand : RdnCommand
 			var r = Ppc(new DomainByIdPpc(GetAutoId(IdKeyword)));
 			return r.Domain;
 		}
-		else if(Has(AddressKeyword))
+		else if(Has(NameKeyword))
 		{	
-			var r = Ppc(new DomainByAddressPpc(GetString(AddressKeyword)));
+			var r = Ppc(new DomainByNamePpc(GetString(NameKeyword)));
 			return r.Domain;
 		}
 		else
@@ -42,70 +42,29 @@ public class DomainCommand : RdnCommand
 	{
 	}
 
-	public CommandAction Migrate_M()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Description = "Requests domain name acquisition by verifying web domain ownership";
-		a.Arguments =	[
-							NameArgument(DN, "root domain name to migrate"),
-							new ("wtld", TLD, "Web top-level domain (com, org, net, info, biz)"),
-							ByArgument("Name of the user for which TXT record must be created in DNS zone of specified web domain as a proof of ownership")
-						];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
-
-								return new DomainMigration(Name, GetString("wtld"));
-							};
-		return a;
-	}
-
-	public CommandAction Renew_R()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Description = "Extend domain ownership for the specified period. It's allowed only during the last year of current period.";
-		a.Arguments =	[
-							NameOrId("root domain to be renewed", DN),
-							Years,
-							Eligible
-						];
-
-		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
-
-								return new DomainRenewal() {Id		= Id(NameKeyword),
-															Years	= byte.Parse(GetString(Years.Name))};
-							};
-
-		return a;
-	}
-
-
-	public CommandAction Acquire_A()
+	public CommandAction Create_C()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		const string @for = nameof(@for);
 
-		a.Description = "Register a domain or subdomain";
+		a.Description = "Create a domain or subdomain";
 		a.Arguments =	[
-							AddressArgument(DA, "domain or subdomain to create"),
+							new (NameKeyword, DN, "domain or subdomain name to assign"),
 							Policy,
 							Years,
-							new (@for, NAME, "Name of the suer that will own the subdomain"),
-							ByArgument("Name of the user that is going to take  or give a domain")
+							new (@for, NAME, "Name of the user that will own the subdomain"),
+							ByArgument("Domain owner username")
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								if(Domain.IsRoot(Address))
+								if(DomainName.IsRoot(Name))
 								{
-									return	new DomainRegistration
+									return	new DomainCreation
 											{
-												Address	= Address,
+												Name	= Name,
 												Years	= byte.Parse(GetString(Years.Name))
 											};
 								} 
@@ -113,9 +72,9 @@ public class DomainCommand : RdnCommand
 								{
 									var f = Ppc(new UserByNamePpc(GetString(@for)));
 	
-									return	new DomainRegistration
+									return	new DomainCreation
 											{
-												Address	= Address,
+												Name	= Name,
 												Policy	= GetEnum(Policy.Name, OwnershipPolicy.FullOwnership),
 												Years	= byte.Parse(GetString(Years.Name)),
 												Owner	= f.User.Id
@@ -125,13 +84,63 @@ public class DomainCommand : RdnCommand
 		return a;
 	}
 
+	public CommandAction Name_N()
+	{
+		const string newname = nameof(newname);
+
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Assign a new name for the domain";
+		a.Arguments	  =	[
+							NameOrIdOf("domain to rename", DN),
+							new (newname, NAME, "New domain name"),
+							ByArgument()
+						];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
+
+								return	new DomainRenaming
+										{
+											Domain = Id(NameKeyword), 
+											NewName = GetString(newname)
+										};
+							};
+		return a;
+	}
+
+
+	public CommandAction Renewal_R()
+	{
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Extend domain ownership for the specified period. It's allowed only during the last year of current period.";
+		a.Arguments =	[
+							NameOrIdOf("root domain to renew", DN),
+							Years,
+							Eligible
+						];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+
+								return	new DomainRenewal()
+										{
+											Id		= Id(NameKeyword),
+											Years	= byte.Parse(GetString(Years.Name))
+										};
+							};
+
+		return a;
+	}
+
 	public CommandAction UpdatePolicy_UP()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Changes current policy of subdomain";
 		a.Arguments =	[
-							AddressOrId(DA, "domain to change policy for"),
+							NameOrIdOf("domain to change policy for", DN),
 							Policy,
 							Eligible
 						];
@@ -139,7 +148,7 @@ public class DomainCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								return new DomainPolicyUpdation {Id		= Id(AddressKeyword),
+								return new DomainPolicyUpdation {Id		= Id(NameKeyword),
 																 Policy	= GetEnum(Policy.Name, OwnershipPolicy.FullOwnership)};
 							};
 		return a;
@@ -153,7 +162,7 @@ public class DomainCommand : RdnCommand
 
 		a.Description = "Manages security for the specified domain";
 		a.Arguments =	[
-							AddressOrId(DA, "domain to manage security of"),
+							NameOrIdOf("domain to manage security of", DN),
 							new (owner, NAME, "Name of the new owner"),
 							Eligible
 						];
@@ -165,7 +174,7 @@ public class DomainCommand : RdnCommand
 
 								return new DomainTransfer
 										{
-											Id		= Id(AddressKeyword),
+											Id		= Id(NameKeyword),
 											Owner	= to.Id
 										};
 							};
@@ -179,7 +188,7 @@ public class DomainCommand : RdnCommand
 
 		a.Description = "Get domain entity information from MCV database";
 		a.Arguments =	[
-							AddressOrId(DA, "domain to get information about"),
+							NameOrIdOf("domain to get information about", DN),
 						];
 
 		a.Execute = () =>	{

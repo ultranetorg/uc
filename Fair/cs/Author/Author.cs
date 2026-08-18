@@ -41,7 +41,7 @@ public class UriReference : IBinarySerializable
 }
 
 
-public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry<AutoId>, IExpirable
+public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry<AutoId>
 {
 	//public static readonly short	RenewalPeriod = (short)Time.FromYears(1).Days;
 	public const int				WeblinkLength = 1024;

@@ -63,6 +63,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			NotReady = "Not ready";
 	public const string			PublicationsExist = "Existing publications must be removed first";
 	public const string			Rejected = "Rejected";
+	public const string			TooLongDuration = "Too long duration";
 	
 	public abstract bool		IsValid(McvNet net);
 	public abstract void		Execute(Execution execution);

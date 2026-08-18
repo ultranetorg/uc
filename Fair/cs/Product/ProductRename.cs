@@ -32,7 +32,7 @@ public class ProductRenaming : FairOperation
 		if(!CanAccessProduct(execution, Product, out var a, out var p, out Error))
 			return;
 
-		var e = execution.Names.Find(NameIndex.GetId(Name));
+		var e = execution.Names.Find(Name);
 
 		if(e != null)
 		{
