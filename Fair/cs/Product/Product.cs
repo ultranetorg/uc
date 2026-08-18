@@ -425,7 +425,7 @@ public class Product : IBinarySerializable, ITableEntry<AutoId>
 				var t = Enum.Parse<Token>(i.Name);
 				var d = definition.First(j => j.Name.ToString() == i.Name);
 
-				a.Add(new FieldValue(t, FieldValue.Parse(d.Type, i.Get<string>()), parse(d.Fields, i.Nodes)));
+				a.Add(new FieldValue(t, d.Type != FieldType.None ? FieldValue.Parse(d.Type, i.Get<string>()) : null, parse(d.Fields, i.Nodes)));
 			}
 
 			return a.ToArray();

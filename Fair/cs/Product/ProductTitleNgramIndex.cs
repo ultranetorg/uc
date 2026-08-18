@@ -15,7 +15,7 @@ public class ProductSearchResult
 
 	public override string ToString()
 	{
-		return $"{Product.Id}, Product={Product.Title}, Author={Author.Title}";
+		return $"{Product.Id}, Product={Product.Title}, Type={Product.Type}, Author={Author.Title}";
 	}
 }
 
@@ -119,10 +119,10 @@ public class ProductTitleNgramIndex : NgramTable<ProductNgramId>
 																										if(r != 0)
 																											return r;
 								
-																										return b.Distance - a.Distance;
+																										return a.Distance.CompareTo(b.Distance);
 																									}));
 
-		foreach(var t in type != ProductType.None ? Enum.GetValues<ProductType>().Skip(1) : [type])
+		foreach(var t in type == ProductType.None ? Enum.GetValues<ProductType>().Skip(1) : [type])
 		{
 			var result = base.Search(query, t, Latest);
 		

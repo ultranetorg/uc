@@ -121,7 +121,7 @@ public class PublicationTitleNgramIndex : NgramTable<PublicationNgramId>
 																												if(r != 0)
 																													return r;
 								
-																												return b.Distance - a.Distance;
+																												return a.Distance.CompareTo(b.Distance);
 																											}));
 
 		foreach(var i in categories)
