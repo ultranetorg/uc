@@ -109,7 +109,6 @@ public class DomainCommand : RdnCommand
 		return a;
 	}
 
-
 	public CommandAction Renewal_R()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

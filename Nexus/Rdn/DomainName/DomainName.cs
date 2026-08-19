@@ -4,8 +4,8 @@ using System.Text.RegularExpressions;
 
 public class DomainName : IBinarySerializable, ITableEntry<StringId>, IExpirable
 {
-	public const int				NameLengthMin = 1;
-	public const int				NameLengthMax = 256;
+	public const int				LengthMinimum = 1;
+	public const int				LengthMaximum = 256;
 	public const char				National = '~';
 	public const char				Subdomain = '.';
 	static readonly Regex			NameRegex = new ($@"^[a-z0-9\{Subdomain}]+[a-z0-9{Subdomain}{National}]*$", RegexOptions.Compiled);
@@ -37,13 +37,13 @@ public class DomainName : IBinarySerializable, ITableEntry<StringId>, IExpirable
 
 	public override string ToString()
 	{
-		return $"{Id}, {nameof(Domain)}={Domain}";
+		return $"{Id}, {nameof(Owner)}={Owner}, {nameof(Domain)}={Domain}, {nameof(Expiration)}={Expiration}";
 	}
 
-	public static bool IsAddressValid(string name)
+	public static bool IsValid(string name)
 	{
 		return  !string.IsNullOrWhiteSpace(name) &&
-				name.Length is >= NameLengthMin && name.Length <= NameLengthMax &&
+				name.Length is >= LengthMinimum and <= LengthMaximum &&
 				NameRegex.Match(name).Success;
 	}
 

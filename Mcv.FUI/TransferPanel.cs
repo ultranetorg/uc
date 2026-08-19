@@ -167,7 +167,7 @@ public partial class TransferPanel : McvPanel
 	
 			var s = Node.Peering.FindSession(FromUser.Name)
 					??
-					Node.Peering.CreateSession(Node.NexusSettings.Name, FromUser.Name);
+					Node.Peering.CreateSession(Node.NexusSettings.Name, FromUser.Name, null);
 	
 			var a = Asset.SelectedItem as Asset;
 	

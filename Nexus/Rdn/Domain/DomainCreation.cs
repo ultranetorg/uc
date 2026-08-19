@@ -15,7 +15,7 @@ public class DomainCreation : RdnOperation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return	DomainName.IsAddressValid(Name) &&
+		return	DomainName.IsValid(Name) &&
 				IsRentTimeValid(Years) &&
 				(DomainName.IsRoot(Name) || (Owner != null && Enum.IsDefined(Policy)));
 	}

@@ -42,14 +42,6 @@ public class RdnMcv : Mcv
 		SeedHubIPs = seedhubips;
 	}
 
-	protected override void GenesisInitilize(Round round)
-	{
-		#if IMMISSION
-		if(round.Id == 1)
-			(round as RdnRound).ConsensusEmissions = [new ForeignResult {OperationId = new(0, 0, 0), Approved = true}];
-		#endif
-	}
-
 	protected override void CreateTables(string databasepath)
 	{
 		var dbo	= new DbOptions().SetCreateIfMissing(true)
@@ -74,13 +66,17 @@ public class RdnMcv : Mcv
 		Metas			= new (this);
 		Users			= new RdnUserTable(this);
 		Friends			= new (this);
-		DomainNames = new (this);
+		DomainNames		= new (this);
 		Domains			= new (this);
 		Resources		= new (this);
 		UserNames		= new (this);
 		ResourceNames	= new (this);
 
 		Tables = [Metas, Users, Friends, DomainNames, Domains, Resources, UserNames, ResourceNames];
+	}
+
+	protected override void GenesisInitilize(Round round)
+	{
 	}
 
 	public override Round CreateRound()

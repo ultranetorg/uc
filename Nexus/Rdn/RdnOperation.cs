@@ -16,13 +16,14 @@ public enum RdnOperationClass : uint
 
 	Domain							= 102,
 		DomainCreation				= 102_000_001,
-		DomainRenamimg				, 
+		DomainRenaming				, 
 		DomainRenewal				,
 		DomainTransfer				,
 		DomainPolicyUpdation		,
 
 	Resource						= 103,
 		ResourceCreation			= 103_000_001,
+		ResourceRenaming			,
 		ResourceUpdation			, 
 		ResourceDeletion			, 
 

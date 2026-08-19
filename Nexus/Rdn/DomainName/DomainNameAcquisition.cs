@@ -13,7 +13,7 @@ public class DomainNameAcquisition : RdnOperation
 	
 	public override bool IsValid(McvNet net)
 	{ 
-		return	DomainName.IsAddressValid(Name) &&
+		return	DomainName.IsValid(Name) &&
 				IsRentTimeValid(Years) &&
 				!DomainNameTable.Priority.Any(i => i.Value.Contains(Name));
 	}

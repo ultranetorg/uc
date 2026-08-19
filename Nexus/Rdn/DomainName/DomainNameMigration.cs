@@ -19,15 +19,9 @@ public class DomainNameMigration : RdnOperation, IOutwardOperation
 
 	public override bool IsValid(McvNet net)
 	{
-		if(!(	DomainName.IsAddressValid(Name) &&
+		return	DomainName.IsValid(Name) &&
 				DomainName.IsRoot(Name) && 
-				DomainName.PriorityTlds.Contains(Tld)))
-			return false;
-
-
-		var existing = DomainNameTable.Priority.FirstOrDefault(i => i.Value.Contains(Name));
-
-		return existing.Key != null && existing.Key == Tld;
+				DomainNameTable.Priority.TryGetValue(Tld, out var n) && n.Contains(Name);
 	}
 	
 	public override void Read(Reader reader)

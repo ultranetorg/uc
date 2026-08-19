@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Uccs.Rdn;
+namespace Uccs.Rdn.CLI;
 
 public class UserCommand : Net.UserCommand
 {

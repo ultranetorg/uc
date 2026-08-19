@@ -76,6 +76,31 @@ public class ResourceCommand : RdnCommand
 		return a;
 	}
 
+	public CommandAction Name_N()
+	{
+		const string newname = nameof(newname);
+
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Assign a new name for the resource";
+		a.Arguments	  =	[
+							NameOrIdOf("resource to rename", RA),
+							new (newname, NAME, "New resource name"),
+							ByArgument()
+						];
+
+		a.Execute = () =>	{
+								Flow.CancelAfter(Cli.Settings.PpcTimeout);
+
+								return	new ResourceRenaming
+										{
+											Resource = GetResource().resource.Id, 
+											NewName = GetString(newname)
+										};
+							};
+		return a;
+	}
+
 	public CommandAction Update_U()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());

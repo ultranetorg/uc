@@ -420,7 +420,7 @@ public class EnforceSessionsApc : McvApc
 			throw new NodeException(NodeError.NoPeering);
 
 		lock(node.Peering.Lock)
-			node.Peering.CreateSession(Application, User);
+			node.Peering.CreateSession(Application, User, null);
 
 		return null;
 	}

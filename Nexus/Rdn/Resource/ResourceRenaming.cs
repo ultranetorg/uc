@@ -1,13 +1,13 @@
 ﻿namespace Uccs.Rdn;
 
-public class ResourceRenaming :RdnOperation
+public class ResourceRenaming : RdnOperation
 {
 	public AutoId				Resource { get; set; }
 	public string				NewName { get; set; }
 
 	public override string		Explanation => $"{nameof(Resource)}={Resource}, {nameof(NewName)}={NewName}";
 	
-	public override bool		IsValid(McvNet net) => Uccs.Net.User.IsNameValid(NewName);
+	public override bool		IsValid(McvNet net) => true;
 
 	public ResourceRenaming()
 	{
@@ -31,19 +31,13 @@ public class ResourceRenaming :RdnOperation
 		if(!RequireResourceAccess(execution, Resource, out var d, out var r))
 			return;
 
-		var e = execution.ResourceNames.Find(execution.Mcv.ResourceNames.GetId(d.Name, NewName));
-
-		if(e != null)
-		{
-			Error = NotAvailable;
-			return;
-		}
-
 		execution.ResourceNames.Unregister(d.Name, r.Name);
 
 		r = execution.Resources.Affect(r.Id);
 		r.Name = NewName;
 	
 		execution.ResourceNames.Register(d.Name, NewName, r.Id);
+
+		execution.PayOperationEnergy(User);
 	}
 }

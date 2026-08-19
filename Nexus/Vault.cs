@@ -183,9 +183,9 @@ public class Vault
 		return Wallets.Any(i => i.AuthenticationHashes.Contains(h, Bytes.EqualityComparer));
 	}
 
-	public AuthenticationResult Authenticate(string application, string net, string user, byte[] logo, PublicKey account)
+	public AuthenticationResult Authenticate(string application, string net, string user, byte[] logo, PublicKey key)
 	{
-		var c = AuthenticationRequested?.Invoke(application, logo, net, user, account);
+		var c = AuthenticationRequested?.Invoke(application, logo, net, user, key);
 	
 		if(c != null)
 		{
