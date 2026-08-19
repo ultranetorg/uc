@@ -35,7 +35,7 @@ public class RdnExecution : Execution
 
 	public override ITableExecution FindExecution(byte table)
 	{
-		if(table == Mcv.DomainNames.Id)		return DomainNames;
+		if(table == Mcv.DomainNames.Id)			return DomainNames;
 		if(table == Mcv.Domains.Id)				return Domains;
 		if(table == Mcv.Resources.Id)			return Resources;
 		if(table == Mcv.UserNames.Id)			return UserNames;

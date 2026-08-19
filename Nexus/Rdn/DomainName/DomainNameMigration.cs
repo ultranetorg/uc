@@ -63,11 +63,9 @@ public class DomainNameMigration : RdnOperation, IOutwardOperation
 											{
 												Id			= ++User.LastOutward,
 												User		= User.Id, 
-												//Generator	= Transaction.Vote.Member,  
 												Operation	= this,
 												Expiration	= execution.Time + execution.Net.OutwardVerificationDurationLimit
 											 });
-
 	
 		execution.PayOperationEnergy(User);
 		execution.PayOutwardEnergy(User);

@@ -63,7 +63,7 @@ public abstract class RdnOperation : Operation
 			return false;
 		}
 
-		if((domainname as ISpaceConsumer).IsExpired(execution.Time))
+		if((domainname as IExpirable).IsExpired(execution.Time))
 		{
 			Error = Expired;
 			return false;

@@ -246,6 +246,12 @@ public abstract class FairOperation : Operation
 			return false; 
 		}
 
+		if((store as IExpirable).IsExpired(execution.Time))
+		{
+			error = Expired;
+			return false;
+		}
+
 		error = null;
 		return true; 
 	}

@@ -2,7 +2,7 @@ namespace Uccs.Rdn;
 
 using System.Text.RegularExpressions;
 
-public class DomainName : IBinarySerializable, ITableEntry<StringId>, ISpaceConsumer
+public class DomainName : IBinarySerializable, ITableEntry<StringId>, IExpirable
 {
 	public const int				NameLengthMin = 1;
 	public const int				NameLengthMax = 256;
@@ -15,7 +15,6 @@ public class DomainName : IBinarySerializable, ITableEntry<StringId>, ISpaceCons
 	public AutoId					Owner { get; set; }
 	public AutoId					Domain { get; set; }
 
-	public long						Space { get; set; }
 	public short					Expiration { get; set; }
 
 	public bool						Deleted { get; set; }
@@ -57,7 +56,7 @@ public class DomainName : IBinarySerializable, ITableEntry<StringId>, ISpaceCons
 					Domain			= Domain,
 				};
 
-		((ISpaceConsumer)this).Copy(a);
+		(this as IExpirable).Copy(a);
 
 		return a;
 	}
@@ -67,7 +66,7 @@ public class DomainName : IBinarySerializable, ITableEntry<StringId>, ISpaceCons
 		writer.Write(Owner);
 		writer.WriteNullable(Domain);
 
-		(this as ISpaceConsumer).WriteSpaceConsumer(writer);
+		(this as IExpirable).WriteExpirable(writer);
 	}
 
 	public void ReadMain(Reader reader)
@@ -75,7 +74,7 @@ public class DomainName : IBinarySerializable, ITableEntry<StringId>, ISpaceCons
 		Owner	= reader.Read<AutoId>();
 		Domain	= reader.ReadNullable<AutoId>();
 
-		(this as ISpaceConsumer).ReadSpaceConsumer(reader);
+		(this as IExpirable).ReadExpirable(reader);
 	}
 
 	public void Write(Writer writer)

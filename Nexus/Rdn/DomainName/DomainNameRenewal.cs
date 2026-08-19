@@ -34,7 +34,7 @@ public class DomainNameRenewal : RdnOperation
 		if(!RequireDomainNameAccess(execution, Name, out var a))
 			return;
 
-		if(!(a as ISpaceConsumer).CanRenew(execution.Time, Time.FromYears(Years)))
+		if(!(a as IExpirable).CanRenew(execution.Time, Time.FromYears(Years)))
 		{
 			Error = NotAvailable;
 			return;

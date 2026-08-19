@@ -124,7 +124,7 @@ public class Restiction
 	}
 }
 
-public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer, ITableEntry<AutoId>
+public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
 {
 	public const int					PoWLength = 32;
 
@@ -267,11 +267,6 @@ public class Store : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpac
 	public bool IsPermitted(Execution executions, uint operation, AutoId signer)
 	{
 		return  false; /// Moderators[0] == signer;
-	}
-
-	public bool IsExpired(Store a, Time time) 
-	{
-		return time.Days > a.Expiration;
 	}
 
 	public void ReadMain(Reader reader)

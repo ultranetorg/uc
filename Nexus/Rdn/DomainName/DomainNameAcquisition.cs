@@ -42,21 +42,21 @@ public class DomainNameAcquisition : RdnOperation
 			if(!RequireDomainNameAccess(execution, DomainName.GetParent(Name), out var p))
 				return;
 
-		var a = execution.DomainNames.Find(Name);
+		var n = execution.DomainNames.Find(Name);
 
-		if(a != null && execution.Time.Days <= a.Expiration)
+		if(n != null && execution.Time.Days <= n.Expiration)
 		{
 			Error = NotAvailable;
 			return;
 		}
 
-		a ??= execution.DomainNames.Create(Name);
+		n = (n == null) ? execution.DomainNames.Create(Name) : execution.DomainNames.Affect(n.Id);
 
-		a.Owner = User.Id;
+		n.Owner = User.Id;
 		
-		User.DomainNames = User.DomainNames.Add(new StringId(Name));
+		User.DomainNames = User.DomainNames.Add(n.Id);
 
-		execution.PayForName(User, a, Years);
+		execution.PayForName(User, n, Years);
 		execution.PayOperationEnergy(User);
 	}
 }

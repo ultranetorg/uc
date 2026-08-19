@@ -144,7 +144,7 @@ public class Author : IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpa
 
 	public bool IsExpired(Time time) 
 	{
-		return	time.Days > Expiration;	 /// owner has not renewed, restart the auction
+		return time.Days > Expiration;	 /// owner has not renewed, restart the auction
 	}
 
 	public void WriteMain(Writer writer)

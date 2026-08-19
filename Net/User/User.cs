@@ -9,6 +9,36 @@ public interface IHolder
 	bool		IsPermitted(Execution executions, uint operation, AutoId signer);
 }
 
+public interface IExpirable
+{
+	short	Expiration { get; set; }
+
+	bool IsExpired(Time time) 
+	{
+		return time.Days > Expiration;
+	}
+
+	bool CanRenew(Time time, Time duration)
+	{
+		return Expiration + duration.Days - time.Days < Time.FromYears(Mcv.EntityRentYearsMax).Days;
+	}
+
+	public void WriteExpirable(Writer writer)
+	{
+		writer.Write(Expiration);
+	}
+
+	public void ReadExpirable(Reader reader)
+	{
+		Expiration  = reader.ReadInt16();
+	}
+
+	public void Copy(IExpirable a)
+	{ 
+		a.Expiration = Expiration;
+	}
+}
+
 public interface ISpacetimeHolder : IHolder
 {
 	long		Spacetime { get; set; }
@@ -33,10 +63,9 @@ public interface ISpacetimeHolder : IHolder
 	}
 }
 
-public interface ISpaceConsumer
+public interface ISpaceConsumer : IExpirable
 {
 	long		Space { get; set; }
-	short		Expiration { get; set; }
 
 	public void WriteSpaceConsumer(Writer writer)
 	{
@@ -54,16 +83,6 @@ public interface ISpaceConsumer
 	{ 
 		a.Space			= Space;
 		a.Expiration	= Expiration;
-	}
-
-	bool IsExpired(Time time) 
-	{
-		return time.Days > Expiration;
-	}
-
-	bool CanRenew(Time time, Time duration)
-	{
-		return Expiration + duration.Days - time.Days < Time.FromYears(Mcv.EntityRentYearsMax).Days;
 	}
 }
 
