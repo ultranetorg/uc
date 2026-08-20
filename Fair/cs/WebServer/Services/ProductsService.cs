@@ -157,57 +157,37 @@ public class ProductsService
 		};
 	}
 
-	public IEnumerable<ProductSearchResultBaseModel> SearchLite([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	public IEnumerable<ProductSearchResultModel> Search([NotNull][NotEmpty] string query, ProductType productType, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(ProductsService), nameof(ProductsService.SearchLite), query, limit);
+#if DEBUG
+		ArgumentNullException.ThrowIfNull(query);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(query);
-		Guard.Against.NegativeOrZero(limit);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {ProductType}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.Search), query, productType, page, pageSize);
+#endif
 
-		var result = mcv.ProductTitles.Search(query, ProductType.Software, 0, limit);
-		return MapTo<ProductSearchResultBaseModel>(result, cancellationToken);
+		var result = mcv.ProductTitles.Search(query, productType, page * pageSize, pageSize);
+		return MapTo(result, cancellationToken);
 	}
 
-	public IEnumerable<ProductSearchResultModel> Search([NotNull][NotEmpty] string query, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
-	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.Search), query, page, pageSize);
-
-		Guard.Against.NullOrEmpty(query);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
-
-		var result = mcv.ProductTitles.Search(query, ProductType.Software, page * pageSize, pageSize);
-		return MapTo<ProductSearchResultModel>(result, cancellationToken);
-	}
-
-	IEnumerable<T> MapTo<T>(IList<ProductSearchResult> results, CancellationToken cancellationToken) where T : ProductSearchResultBaseModel, new()
+	IEnumerable<ProductSearchResultModel> MapTo(IList<ProductSearchResult> results, CancellationToken cancellationToken)
 	{
 		foreach (var item in results)
 		{
 			if(cancellationToken.IsCancellationRequested)
 				yield break;
 
-			/// TODO elwray
-			throw new NotImplementedException();
-
-			///var model = new T
-			///{
-			///	ProductId = item.Product.ToString(),
-			///	ProductTitle = item.ProductTitle,
-			///	AuthorId = item.Author.ToString(),
-			///	AuthorTitle = item.AuthorTitle,
-			///	PublicationId = item.Publications[0].ToString(),
-			///	AvatarId = item.Avatar?.ToString(),
-			///};
-			///
-			///if (model is ProductSearchResultModel full)
-			///{
-			///	var publications = item.Publications.Take(SearchConstants.PublicationsPerProductLimit);
-			///	full.Publications = LoadPublications(publications, cancellationToken).ToArray();
-			///	full.HasMorePublications = item.Publications.Length > SearchConstants.PublicationsPerProductLimit;
-			///}
-			///
-			///yield return model;
+			yield return new ProductSearchResultModel
+			{
+				ProductId = item.Product.Id,
+				ProductLogoId = PublicationUtils.GetLatestLogo(item.Product),
+				ProductTitle = item.Product.Title,
+				ProductType = item.Product.Type,
+				AuthorTitle = item.Author.Title,
+				Publications = LoadPublications(item.Product.Publications, cancellationToken).ToArray(),
+				HasMorePublications = results.Count > SearchConstants.PublicationsPerProductLimit,
+			};
 		}
 	}
 
@@ -251,4 +231,15 @@ public class ProductsService
 
 		return new TotalItemsResult<ProductPublicationModel> { Items = publications, TotalItems = product.Publications.Length };
 	}
+
+	//public IEnumerable<ProductSearchResultBaseModel> SearchLite([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	//{
+	//	logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(ProductsService), nameof(ProductsService.SearchLite), query, limit);
+
+	//	Guard.Against.NullOrEmpty(query);
+	//	Guard.Against.NegativeOrZero(limit);
+
+	//	var result = mcv.ProductTitles.Search(query, ProductType.Software, 0, limit);
+	//	return MapTo<ProductSearchResultBaseModel>(result, cancellationToken);
+	//}
 }

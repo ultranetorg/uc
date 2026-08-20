@@ -163,6 +163,7 @@ export const GameSoftwarePublicationContent = memo(
             versionLabel={t("version")}
             osLabel={t("os")}
             ratingLabel={t("rating")}
+            naLabel={t("common:na")}
             noRatingsLabel={t("noRatings")}
             lastUpdatedLabel={t("lastUpdated")}
             licenseTypeLabel={t("licenseType")}

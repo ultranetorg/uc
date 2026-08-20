@@ -38,6 +38,7 @@ export type SoftwareInfoProps = {
   versionLabel: string
   osLabel: string
   ratingLabel: string
+  naLabel: string
   noRatingsLabel: string
   lastUpdatedLabel: string
   licenseTypeLabel: string
@@ -64,6 +65,7 @@ export const SoftwareInfo = memo(
     versionLabel,
     osLabel,
     ratingLabel,
+    naLabel,
     noRatingsLabel,
     lastUpdatedLabel,
     licenseTypeLabel,
@@ -175,12 +177,12 @@ export const SoftwareInfo = memo(
               className={twMerge(VALUE_CLASSNAME, "flex items-center gap-1")}
               title={formatAverageRating(productOrPublication.rating)}
             >
-              {productOrPublication.rating !== 0 ? (
+              {productOrPublication.rating > 0 ? (
                 <>
                   {formatAverageRating(productOrPublication.rating)} <SvgStarXxs className="fill-favorite" />
                 </>
               ) : (
-                noRatingsLabel
+                <span title={noRatingsLabel}>{naLabel}</span>
               )}
             </div>
           </div>

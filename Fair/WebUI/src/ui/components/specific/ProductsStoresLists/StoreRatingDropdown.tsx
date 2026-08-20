@@ -7,10 +7,14 @@ import { DropdownItem, DropdownProps, dropdownStyle } from "ui/components"
 import { CustomSelect, DropdownIndicator } from "ui/components/Dropdown/components"
 import { formatAverageRating } from "utils"
 
-const getStoreRatingDropdownStyle = (isHover: boolean): StylesConfig<DropdownItem, boolean> => ({
+const FLASH_BACKGROUND_COLOR = "#dddfeb"
+
+const getStoreRatingDropdownStyle = (isHover: boolean, isFlashing: boolean): StylesConfig<DropdownItem, boolean> => ({
   ...dropdownStyle,
   control: (base, props) => ({
     ...dropdownStyle.control?.(base, props),
+    backgroundColor: isFlashing ? FLASH_BACKGROUND_COLOR : "transparent",
+    transition: "background-color 700ms ease-in-out",
     border: "none",
     fontSize: "13px",
     height: "auto",
@@ -29,12 +33,16 @@ const getStoreRatingDropdownStyle = (isHover: boolean): StylesConfig<DropdownIte
     ...dropdownStyle.menu?.(base, props),
     marginBottom: "0",
   }),
+  menuPortal: base => ({
+    ...base,
+    zIndex: 20,
+  }),
   menuList: base => ({
     ...dropdownStyle.menuList?.(base, {} as never),
     maxHeight: "400px",
     overflowY: "auto",
   }),
-  singleValue: base => ({ ...base, color: "#737582" }),
+  singleValue: base => ({ ...base, color: "#2a2932" }),
   valueContainer: base => ({
     ...base,
     padding: "0",
@@ -60,7 +68,7 @@ const Option = (props: OptionProps<DropdownItem, false>) => {
   if (props.data.value === SHOW_ALL_VALUE) {
     return (
       <components.Option {...props}>
-        <span className="truncate text-2xs leading-4.5 text-gray-500">{props.data.label}</span>
+        <span className="truncate text-2xs leading-4.5 text-gray-800">{props.data.label}</span>
       </components.Option>
     )
   }
@@ -70,7 +78,7 @@ const Option = (props: OptionProps<DropdownItem, false>) => {
 
   return (
     <components.Option {...props}>
-      <div className="flex items-center text-2xs leading-4.5 text-gray-500 transition-colors duration-700 ease-out">
+      <div className="flex items-center text-2xs leading-4.5 text-gray-800 transition-colors duration-700 ease-out">
         <div className="flex min-w-10 max-w-10 items-center">
           {rating > 0 ? (
             <>
@@ -91,8 +99,8 @@ const SingleValue = (props: SingleValueProps<DropdownItem, false>) => {
   const formattedRating = rating > 0 ? formatAverageRating(rating) : "N/A"
   return (
     <components.SingleValue {...props}>
-      <div className="flex items-center justify-center rounded-sm">
-        <div className="flex items-center">
+      <div className="flex min-w-0 items-center justify-start rounded-sm">
+        <div className="flex flex-none items-center">
           {rating > 0 ? (
             <>
               {formattedRating} <SvgStarXxs className="fill-favorite" />
@@ -121,7 +129,10 @@ const StoreRatingDropdownInner = ({
   const [isOpen, setIsOpen] = useState(false)
   const [isHover, setHover] = useState(false)
 
-  const storeRatingDropdownStyle = useMemo(() => getStoreRatingDropdownStyle(isHover), [isHover])
+  const storeRatingDropdownStyle = useMemo(
+    () => getStoreRatingDropdownStyle(isHover, isFlashing),
+    [isHover, isFlashing],
+  )
 
   const options = useMemo(() => (onShowAllClick ? [...(items ?? []), showAllItem] : items), [items, onShowAllClick])
 
@@ -154,8 +165,7 @@ const StoreRatingDropdownInner = ({
 
   return (
     <div
-      className="group"
-      data-flashing={isFlashing}
+      className="group w-full min-w-0"
       onClick={e => {
         e.preventDefault()
         e.stopPropagation()
@@ -164,13 +174,11 @@ const StoreRatingDropdownInner = ({
       onMouseLeave={() => setHover(false)}
     >
       <CustomSelect<false>
-        className={twMerge(className)}
+        className={twMerge("w-full", className)}
         classNames={{
-          control: () =>
-            "pl-[20px] bg-gray-100 transition-colors duration-700 ease-out group-data-[flashing=true]:bg-gray-250 group-data-[flashing=true]:duration-0",
+          control: () => "pl-[6px]",
         }}
         components={{
-          //Control,
           ClearIndicator: () => null,
           IndicatorSeparator: null,
           DropdownIndicator,
@@ -186,6 +194,7 @@ const StoreRatingDropdownInner = ({
         onChange={handleChange}
         menuIsOpen={isOpen}
         menuPlacement="auto"
+        menuPortalTarget={document.body}
         onMenuOpen={() => handleOpenChange(true)}
         onMenuClose={() => handleOpenChange(false)}
         {...rest}

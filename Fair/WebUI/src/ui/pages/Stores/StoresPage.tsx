@@ -5,7 +5,7 @@ import { useDebounceValue } from "usehooks-ts"
 import { isNumber } from "lodash"
 
 import { useUserContext } from "app"
-import { DEFAULT_PAGE_SIZE, SEARCH_DELAY } from "config"
+import { SEARCH_DELAY } from "config"
 import { useGetDefaultStores, useSearchLiteStores, useSearchStores } from "entities"
 import { useStoreTitle, useUrlParamsState } from "hooks"
 import { Pagination, SearchDropdown, SearchDropdownItem } from "ui/components"
@@ -13,6 +13,8 @@ import { StoresGrid, StoresGridEmpty } from "ui/components/specific"
 import { parseInteger, routes } from "utils"
 
 import { PageHeader } from "./PageHeader"
+
+const DEFAULT_PAGE_SIZE = 30
 
 export const StoresPage = () => {
   const { t } = useTranslation("storesPage")
@@ -42,11 +44,11 @@ export const StoresPage = () => {
   const { data: defaultStores, isFetching: isDefaultStoresFetching } = useGetDefaultStores(!query)
   const { data: liteStores, isFetching: isLiteFetching } = useSearchLiteStores(debouncedLiteQuery)
   const liteItems = useMemo(() => liteStores?.map(x => ({ value: x.id, label: x.title })), [liteStores])
-  const { isFetching, data: stores } = useSearchStores(query, page)
+  const { isPending, data: stores } = useSearchStores(query, page)
   const pagesCount = stores?.totalItems && stores.totalItems > 0 ? Math.ceil(stores.totalItems / DEFAULT_PAGE_SIZE) : 0
 
   const isDefaultFetching = !query && (!defaultStores || isDefaultStoresFetching)
-  const isStoresFetching = query && (!stores || isFetching)
+  const isStoresFetching = query && (!stores || isPending)
 
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {

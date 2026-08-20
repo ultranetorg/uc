@@ -1,4 +1,4 @@
-import { ChangeEvent, InputHTMLAttributes, memo, ReactNode } from "react"
+import { ChangeEvent, forwardRef, InputHTMLAttributes, memo, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
@@ -9,35 +9,38 @@ export type InputBaseProps = {
   containerClassName?: string
   mode?: InputMode
   error?: boolean
-  iconBefore?: ReactNode
-  iconAfter?: ReactNode
+  elementBefore?: ReactNode
+  elementAfter?: ReactNode
   value?: string
   onChange: (value: string) => void
 }
 
 export type InputProps = Pick<
   InputHTMLAttributes<HTMLInputElement>,
-  "autoFocus" | "disabled" | "id" | "maxLength" | "placeholder" | "readOnly" | "onBlur"
+  "autoFocus" | "disabled" | "id" | "maxLength" | "placeholder" | "readOnly" | "onBlur" | "onKeyDown"
 > &
   PropsWithClassName &
   InputBaseProps
 
 export const Input = memo(
-  ({
-    containerClassName,
-    className,
-    autoFocus = false,
-    disabled = false,
-    mode = "primary",
-    error,
-    iconBefore,
-    iconAfter,
-    id,
-    placeholder,
-    value,
-    onChange,
-    ...rest
-  }: InputProps) => {
+  forwardRef<HTMLInputElement, InputProps>(function Input(
+    {
+      containerClassName,
+      className,
+      autoFocus = false,
+      disabled = false,
+      mode = "primary",
+      error,
+      elementBefore,
+      elementAfter,
+      id,
+      placeholder,
+      value,
+      onChange,
+      ...rest
+    },
+    ref,
+  ) {
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => onChange?.(e.target.value)
 
     return (
@@ -50,12 +53,13 @@ export const Input = memo(
           containerClassName,
         )}
       >
-        {iconBefore}
+        {elementBefore}
         <input
+          ref={ref}
           autoFocus={autoFocus}
           type="text"
           className={twMerge(
-            "w-full bg-transparent outline-none",
+            "min-w-0 flex-1 bg-transparent outline-none",
             mode === "secondary" && "placeholder-gray-500",
             disabled && "cursor-not-allowed text-gray-400 placeholder-gray-400",
             className,
@@ -67,8 +71,8 @@ export const Input = memo(
           disabled={disabled}
           {...rest}
         />
-        {iconAfter}
+        {elementAfter}
       </div>
     )
-  },
+  }),
 )

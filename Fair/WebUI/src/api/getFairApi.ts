@@ -17,7 +17,6 @@ import {
   ProductDetails,
   ProductPublication,
   ProductSearchResult,
-  ProductSearchResultBase,
   ProductStore,
   ProductType,
   Proposal,
@@ -130,11 +129,13 @@ const searchPublications = async (
 const searchLitePublication = (storeId: string, query?: string): Promise<PublicationBase[]> =>
   fetch(`${BASE_URL}/stores/${storeId}/publications/search?query=${query}`).then(res => res.json())
 
-const searchLiteProducts = (query: string): Promise<ProductSearchResultBase[]> =>
-  fetch(`${BASE_URL}/products/search?query=${query}`).then(res => res.json())
-
-const searchProducts = async (query?: string, page?: number, pageSize?: number): Promise<ProductSearchResult[]> => {
-  const params = buildUrlParams({ query, page, pageSize })
+const searchProducts = async (
+  query?: string,
+  productType?: ProductType,
+  page?: number,
+  pageSize?: number,
+): Promise<ProductSearchResult[]> => {
+  const params = buildUrlParams({ query, productType, page, pageSize })
   const res = await fetch(`${BASE_URL}/products` + params)
   return res.json()
 }
@@ -508,7 +509,6 @@ const api: FairApi = {
   searchUsers,
   searchAuthors,
   searchStores,
-  searchLiteProducts,
   searchProducts,
 
   getAuthor,

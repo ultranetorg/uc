@@ -44,6 +44,7 @@ export const enUS = {
     moderator_other: "moderators",
     moderatorProposals: "moderator proposals",
     moderators: "moderators",
+    na: "N/A",
     nabb: "N / A / B / B",
     nabbFull: "Neither / Any / Ban / Banish",
     neither: "Neither",
@@ -205,6 +206,10 @@ export const enUS = {
       },
     },
   },
+  searchInput: {
+    products: "Products",
+    stores: "Stores",
+  },
   toast: {
     avatarDeleted: "Avatar successfully deleted",
     avatarUploaded: "Avatar successfully uploaded",
@@ -229,6 +234,9 @@ export const enUS = {
     userRegistrationRequested: "User registration requested",
     userRegistrationRejected: `User "{{name}}" registration rejected`,
     voted: "You have successfully voted",
+  },
+  typeSelect: {
+    allTypes: "All types",
   },
 
   /* Menus */
@@ -400,6 +408,7 @@ export const enUS = {
   },
   searchPage: {
     allCategories: "All categories",
+    noResults: "We didn’t find anything. Try a different or shorter search or try to reset search filters.",
     searchResults: "Search Results",
   },
   startPage: {
@@ -407,8 +416,9 @@ export const enUS = {
       "Discover a decentralized digital content store that champions democratic moderation\nprinciples. Engage with creators and buyers in a lively and inclusive marketplace.",
     emptyStoresList: "Stores added to Favorites will appear in this list",
     notice: "Press Enter to view all search results.",
-    noResults: "We didn’t find anything. Try a different or shorter search.",
+    noResults: "We didn’t find anything. Try a different or shorter search or try to reset search filters.",
     placeholder: "Enter product name or store...",
+    searchResults: "Search Results",
     title: "Explore Multiple\nDecentralized Stores",
   },
   storePage: {

@@ -51,7 +51,7 @@ export const ProposalsView = memo(
               placeholder={t("searchProposal")}
               value={search}
               onChange={onSearchChange}
-              iconAfter={
+              elementAfter={
                 <>
                   {search && (
                     <div onClick={onSearchCancel} className="cursor-pointer">
