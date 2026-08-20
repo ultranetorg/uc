@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
 using RocksDbSharp;
@@ -785,6 +786,9 @@ public abstract class McvPeering : HomoPeering
 					continue;
 				}
 
+			if(t.Pow != null && Cryptography.Hash([..Mcv.GraphHash, ..t.Pow]).Sum(i => BitOperations.PopCount(i)) < Net.PoWDifficulity)
+				continue;
+
 			if(t.Operations.Any(o => !ValidateIncoming(o)))
 			{	
 				res.Error = "Invalid data";
@@ -922,10 +926,13 @@ public abstract class McvPeering : HomoPeering
 						foreach(var i in t.Operations)
 							i.PreTransact(Node, t.Flow);
 
-						var at = Call(new PretransactingPpc {User = t.User}, t.Flow);
+						var pre = Call(new PretransactingPpc {User = t.User}, t.Flow);
+
+						if(t.Boost == 0 && pre.Bandwidth == 0)
+							t.CreatePow(Node);
 							
-						t.Nonce		 = at.NextNonce;
-						t.Expiration = at.LastConfirmedRid + Net.P * 2;
+						t.Nonce		 = pre.NextNonce;
+						t.Expiration = pre.LastConfirmedRound + Net.P * 2;
 						t.Signature  = VaultApi.Call<AuthorizationResult>(	new AuthorizeApc
 																			{
 																				Cryptography	= Net.Cryptography.Type,

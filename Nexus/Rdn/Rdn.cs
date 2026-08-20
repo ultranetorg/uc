@@ -42,7 +42,7 @@ public class SimulationRdn : Rdn
 		Cryptography				= Cryptography.No;
 		AffectedCountMaximum		= 10;
 		ECLifetime					= Time.FromYears(100);
-		UserCreationPoWDifficulity	= 0;
+		PoWDifficulity				= 0;
 
 	}
 }
@@ -53,9 +53,9 @@ public class VirtualRdn : Rdn
 
 	public VirtualRdn()
 	{
-		Initials					= VirtualInitials;
- 		Father0EP					= new(VirtualInitials[0], PpiPort);
-		UserCreationPoWDifficulity	= 0;
+		Initials		= VirtualInitials;
+ 		Father0EP		= new(VirtualInitials[0], PpiPort);
+		PoWDifficulity	= 0;
 	}
 }
 public class Developer0Rdn : Rdn
@@ -89,8 +89,8 @@ public class TaRdn : Rdn
 	
 	public TaRdn()
 	{
-		Initials					= LocalInitials;
-		Father0EP					= new(Initials[0], PpiPort);
-		UserCreationPoWDifficulity	= 0;
+		Initials		= LocalInitials;
+		Father0EP		= new(Initials[0], PpiPort);
+		PoWDifficulity	= 0;
 	}
 }

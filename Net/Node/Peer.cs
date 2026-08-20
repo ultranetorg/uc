@@ -51,6 +51,10 @@ public abstract class Peer : IBinarySerializable
 	
 	protected List<RequestPacket>	OutRequests = new();
 
+	#if DEBUG
+	static readonly long			__Checker = 0xFEDCBA987654321;
+	#endif
+
 	protected abstract void			Listening();
 
 	public Peer()
@@ -173,10 +177,6 @@ public abstract class Peer : IBinarySerializable
 		ListenThread.Start();
 	}
 
-#if DEBUG
-static readonly long checker = 0xFEDCBA987654321;
-#endif
-
 	protected void Write<T>(PacketType type, int id, T packet) where T : class, IBinarySerializable, ITypeCode
 	{
 		lock(Writer)
@@ -194,7 +194,7 @@ static readonly long checker = 0xFEDCBA987654321;
 			Writer.Write(new ReadOnlySpan<byte>(WriteStream.GetBuffer(), 0, (int)WriteStream.Length));
 
 			#if DEBUG
-			Writer.Write(checker);
+			Writer.Write(__Checker);
 			#endif
 		}
 	}
@@ -220,7 +220,7 @@ static readonly long checker = 0xFEDCBA987654321;
 		///var o = BinarySerializator.Deserialize<T>(new Reader(Reader.ReadBytes(l), Peering.Constructor));
 
 		#if DEBUG
-		if(Reader.ReadInt64() != checker)
+		if(Reader.ReadInt64() != __Checker)
 			throw new IntegrityException();
 		#endif
 

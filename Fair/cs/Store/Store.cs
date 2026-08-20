@@ -126,8 +126,6 @@ public class Restiction
 
 public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, ISpacetimeHolder, ISpaceConsumer
 {
-	public const int					PoWLength = 32;
-
 	public AutoId						Id { get; set; }
 	public string						Name { get; set; }
 	public string						Title { get; set; }
@@ -135,7 +133,6 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 	public string						Description { get; set; }
 	public int							ModerationReward { get; set; }
 	public int							CandidateRequestFee { get; set; }
-	public int							PoWComplexity { get; set; }
 	public AutoId						Avatar  { get; set; }
 
 	public Policy[]						Policies { get; set; }
@@ -236,7 +233,6 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 					Description				= Description,
 					ModerationReward		= ModerationReward,
 					CandidateRequestFee		= CandidateRequestFee,
-					PoWComplexity			= PoWComplexity,
 					Avatar					= Avatar,
 					
 					Policies				= Policies,
@@ -293,7 +289,6 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 		Description					= reader.ReadUtf8();
 		ModerationReward			= reader.Read7BitEncodedInt();
 		CandidateRequestFee			= reader.Read7BitEncodedInt();
-		PoWComplexity				= reader.Read7BitEncodedInt();
 		Avatar						= reader.ReadNullable<AutoId>();
 		
 		Policies					= reader.ReadArray<Policy>();
@@ -327,7 +322,6 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 		writer.WriteUtf8(Description);
 		writer.Write7BitEncodedInt(ModerationReward);
 		writer.Write7BitEncodedInt(CandidateRequestFee);
-		writer.Write7BitEncodedInt(PoWComplexity);
 		writer.WriteNullable(Avatar);
 		
 		writer.Write(Policies);

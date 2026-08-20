@@ -47,7 +47,7 @@ public class SimulationFair : Fair
 		Cryptography				= Cryptography.No;
 		AffectedCountMaximum		= 10;
 		ECLifetime					= Time.FromYears(100);
-		UserCreationPoWDifficulity	= 0;
+		PoWDifficulity				= 0;
 
 	}
 }
@@ -58,9 +58,9 @@ public class VirtualFair : Fair
 
 	public VirtualFair()
 	{
-		Initials					= VirtualInitials;
- 		Father0EP					= new(Initials[0], PpiPort);
-		UserCreationPoWDifficulity	= 0;
+		Initials		= VirtualInitials;
+ 		Father0EP		= new(Initials[0], PpiPort);
+		PoWDifficulity	= 0;
 	}
 }
 
@@ -94,8 +94,8 @@ public class TaFair : Fair
 	
 	public TaFair()
 	{
-		Initials					= LocalInitials;
-		Father0EP					= new (LocalInitials[0], PpiPort);
-		UserCreationPoWDifficulity	= 0;
+		Initials		= LocalInitials;
+		Father0EP		= new (LocalInitials[0], PpiPort);
+		PoWDifficulity	= 0;
 	}
 }

@@ -41,7 +41,6 @@ public class StoreCreation : FairOperation
 		var s = execution.Stores.Create(User);
 
 		s.Title			= Title;
-		s.PoWComplexity	= 172;
 		s.Space			= execution.Net.EntityLength;
 		s.Moderators	= [new Moderator {User = User.Id}];
 

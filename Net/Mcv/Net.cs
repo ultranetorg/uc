@@ -121,9 +121,10 @@ public abstract class McvNet : Net
 	public const int							BandwidthRentMonthsMaximum				= 12;
 	public const int							BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
 	public const int							OutwardsMaximum							= 1000;
+	public const int							PoWLength								= 32;
 	public virtual int							FreeSpaceMaximum						=> 0;
 	public Time									ECLifetime								= Time.FromYears(1);
-	public ushort								UserCreationPoWDifficulity				= 172;
+	public ushort								PoWDifficulity							= 172;
 	public int									EntityLength							= 100;
 
  	public Cryptography							Cryptography							= Cryptography.Mcv;

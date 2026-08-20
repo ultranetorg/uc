@@ -14,8 +14,9 @@ public class PretransactingPpc : McvPpc<PretransactingPpr>
 
 			return  new PretransactingPpr
 					{
-						LastConfirmedRid	= Mcv.LastConfirmedRound.Id,
-						NextNonce			= u?.LastNonce + 1 ?? 0
+						LastConfirmedRound	= Mcv.LastConfirmedRound.Id,
+						NextNonce			= u?.LastNonce + 1 ?? 0,
+						Bandwidth			= u?.Bandwidth ?? 0
 					};
 		}
 	}
@@ -33,18 +34,21 @@ public class PretransactingPpc : McvPpc<PretransactingPpr>
 
 public class PretransactingPpr : Result
 {
-	public int			LastConfirmedRid { get; set; }
+	public int			LastConfirmedRound { get; set; }
 	public int			NextNonce { get; set; }
+	public int			Bandwidth { get; set; }
 
 	public override void Read(Reader reader)
 	{
-		LastConfirmedRid = reader.Read7BitEncodedInt();
-		NextNonce = reader.Read7BitEncodedInt();
+		LastConfirmedRound	= reader.Read7BitEncodedInt();
+		NextNonce			= reader.Read7BitEncodedInt();
+		Bandwidth			= reader.Read7BitEncodedInt();
 	}
 
 	public override void Write(Writer writer)
 	{
-		writer.Write7BitEncodedInt(LastConfirmedRid);
+		writer.Write7BitEncodedInt(LastConfirmedRound);
 		writer.Write7BitEncodedInt(NextNonce);
+		writer.Write7BitEncodedInt(Bandwidth);
 	}
 }

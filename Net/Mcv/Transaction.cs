@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Numerics;
+
+namespace Uccs.Net;
 
 public enum TransactionStatus : byte
 {
@@ -20,16 +22,15 @@ public class Transaction : IBinarySerializable
 	public int						Nonce { get; set; }
 	public int						Expiration { get; set; }
 	public byte[]					Signature { get; set; }
-
-	public Vote						Vote;
-	public Round					Round;
-	//public AutoId					Member;
-	public byte[]					Tag;
-	public long						Boost;
+	public byte[]					Tag { get; set; }
+	public long						Boost { get; set; }
+	public byte[]					Pow { get; set; }
 	
 	public int						EnergyConsumed;
 
 	public TransactionStatus		Status;
+	public Vote						Vote;
+	public Round					Round;
 	public int						Length;
 	public string					Error;
 	public string					OverallError => Error ?? Operations.FirstOrDefault(i => i.Error != null)?.Error;
@@ -43,6 +44,7 @@ public class Transaction : IBinarySerializable
 	{
 		return	Uccs.Net.User.IsNameValid(User) &&
 				(Tag == null || Tag.Length <= TagLengthMax) &&
+				(Pow == null || Pow.Length == McvNet.PoWLength) &&
 				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit;
 	}
 
@@ -174,11 +176,11 @@ public class Transaction : IBinarySerializable
 		writer.Write(Signature);
 	
 		writer.WriteUtf8(User);
-		//writer.Write(Member);
 		writer.Write7BitEncodedInt(Nonce);
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Boost);
 		writer.WriteBytes(Tag);
+		writer.WriteBytes(Pow);
 		writer.WriteVirtual(Operations);
 
 		#if DEBUG
@@ -192,11 +194,11 @@ public class Transaction : IBinarySerializable
 		Signature			= reader.ReadSignature();
 	
 		User				= reader.ReadUtf8();
-		//Member				= reader.Read<AutoId>();
 		Nonce				= reader.Read7BitEncodedInt();
 		Expiration			= reader.Read7BitEncodedInt();
 		Boost				= reader.Read7BitEncodedInt64();
 		Tag					= reader.ReadBytes();
+		Pow					= reader.ReadBytes();
 		Operations			= reader.ReadArray(() => {
 														var o = reader.ReadVirtual<Operation>();
 														o.Transaction = this;
@@ -208,4 +210,44 @@ public class Transaction : IBinarySerializable
 			throw new IntegrityException();
 		#endif
 	}
+
+	public void CreatePow(McvNode node)
+	{
+		Pow = null;
+			
+		if(node.Net.PoWDifficulity > 0)
+		{
+			var s = node.Peering.Call(new StampPpc {}, Flow);
+			
+			var ts = Enumerable	.Range(0, Environment.ProcessorCount)
+								.Select(i => node.CreateThread(() => { 
+																		var b = new byte[McvNet.PoWLength];
+																		var a = Blake2Fast.Blake2b.CreateHashAlgorithm(McvNet.PoWLength);
+																		var r = new Random();
+																	 
+																	 	while(Flow.Active && Pow == null)
+																	 	{
+																	 		r.NextBytes(b);
+																	 		var h = a.ComputeHash([..s.GraphHash, ..b]);
+																	 
+																	 		var f = h.Sum(i => BitOperations.PopCount(i));
+																	 
+																	 		if(f >= node.Net.PoWDifficulity)
+																	 		{
+																	 			Pow = b;
+																	 		}
+																	 	}
+																	 })).ToArray();
+			foreach(var i in ts)
+				i.Start();
+			
+			while(Pow == null)
+				Thread.Sleep(100);
+		} 
+		else /// simulation
+		{
+			Pow = new byte[32];
+		}
+	}
+
 }
