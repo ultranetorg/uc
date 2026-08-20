@@ -88,7 +88,7 @@ export const PublishersTab = () => {
           placeholder={t("placeholders:enterPublisherNameOrId")}
           className="placeholder:text-gray-500"
           containerClassName="max-w-120"
-          iconAfter={
+          elementAfter={
             <>
               {query && (
                 <div onClick={handleInputClear} className="cursor-pointer">

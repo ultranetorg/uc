@@ -1,8 +1,15 @@
 ﻿namespace Uccs.Fair;
 
-public class ProductSearchResultModel : ProductSearchResultBaseModel
+public class ProductSearchResultModel
 {
-	public IEnumerable<ProductPublicationModel> Publications { get; set; }
+	public AutoId ProductId { get; init; }
 
-	public bool HasMorePublications { get; set; }
+	public AutoId? ProductLogoId { get; init; }
+	public string ProductTitle { get; init; }
+	public ProductType ProductType { get; init; }
+
+	public string AuthorTitle { get; init; }
+
+	public IEnumerable<ProductPublicationModel> Publications { get; set; }
+	public bool HasMorePublications { get; init; }
 }

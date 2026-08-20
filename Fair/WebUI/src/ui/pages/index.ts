@@ -3,7 +3,6 @@ export * from "./hooks"
 
 export * from "./Category"
 export * from "./Publication"
-export * from "./Start"
 export * from "./Stores"
 
 export * from "./AboutPage"
@@ -12,4 +11,5 @@ export * from "./ProfilePage"
 export * from "./PublisherPage"
 export * from "./ReviewerPage"
 export * from "./SearchPage"
+export * from "./StartPage"
 export * from "./StorePage"
