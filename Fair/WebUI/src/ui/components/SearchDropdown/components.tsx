@@ -6,6 +6,7 @@ import Select, {
   OptionProps,
   Props,
 } from "react-select"
+import { twMerge } from "tailwind-merge"
 
 import { SvgSearchMd, SvgSpinner, SvgX } from "assets"
 import { HighlightText } from "ui/components"
@@ -31,8 +32,8 @@ export const IndicatorsContainer = ({
         <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
       </div>
     )}
-    <div onClick={onSearchClick} className="cursor-pointer p-1">
-      <SvgSearchMd className="stroke-gray-500 hover:stroke-gray-950" />
+    <div onClick={onSearchClick} className={twMerge("p-1", inputValue && "group cursor-pointer")}>
+      <SvgSearchMd className="stroke-gray-500 group-hover:stroke-gray-950" />
     </div>
   </div>
 )

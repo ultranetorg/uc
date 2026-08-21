@@ -9,8 +9,8 @@ import { FiltersPanel, ProductsList, StoresList } from "ui/components/specific"
 
 import { SearchInput, SearchScope } from "ui/components/specific/SearchInput"
 
-export const StartPage = () => {
-  const { t } = useTranslation("startPage")
+export const IndexPage = () => {
+  const { t } = useTranslation("indexPage")
 
   const [state, setState] = useUrlParamsState({
     query: {
