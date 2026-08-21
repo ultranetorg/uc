@@ -7,11 +7,11 @@ namespace Uccs.Net;
 
 public class SecretKey
 {
-	private readonly ECPrivKey		ECKey;
-	PublicKey						_Address;
+	readonly ECPrivKey				Private;
+	PublicKey						_Public;
 
 	public byte[]					Secret { get; protected set; }
-	public PublicKey				PuplicKey => _Address ??= new PublicKey(ECKey.CreateXOnlyPubKey().ToBytes(), Tag);
+	public PublicKey				PuplicKey => _Public ??= new PublicKey(Private.CreateXOnlyPubKey().ToBytes(), Tag);
 	public string					Tag { get; protected set; }
 			
 	readonly BIP340NonceFunction	Deterministic = new BIP340NonceFunction(new byte[32]);
@@ -19,7 +19,7 @@ public class SecretKey
 	public SecretKey(byte[] secret, string tag = null)
 	{
 		Secret = secret;
-		ECKey = ECPrivKey.Create(secret);
+		Private = ECPrivKey.Create(secret);
 		Tag = tag;
 	}
 
@@ -31,11 +31,11 @@ public class SecretKey
 		return new SecretKey(k){Tag = tag};
 	}
 
-	public byte[] Sign(byte[] hash, SigningFeatures deterministic)
+	public byte[] Sign(byte[] hash, SigningFeatures features)
 	{
 		SecpSchnorrSignature s;
 
-		while(!ECKey.TrySignBIP340(hash, deterministic.HasFlag(SigningFeatures.Deterministic) ? Deterministic  : null, out s))
+		while(!Private.TrySignBIP340(hash, features.HasFlag(SigningFeatures.Deterministic) ? Deterministic  : null, out s))
 			;
 
 		return s.ToBytes();
@@ -68,7 +68,6 @@ public class SecretKey
 		}
 	}
 }
-
 
 public class SecretKeyJsonConverter : JsonConverter<SecretKey>
 {

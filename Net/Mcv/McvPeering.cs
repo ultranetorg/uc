@@ -159,7 +159,7 @@ public abstract class McvPeering : HomoPeering
 				MinimalPeersReached = true;
 				Flow.Log?.Report(this, $"{nameof(MinimalPeersReached)} reached");
 	
-				if(Mcv != null)
+				if(Mcv != null && !NodeGlobals.DoNotSynchronize)
 					Synchronize();
 			}
 		}

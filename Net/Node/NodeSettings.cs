@@ -43,6 +43,7 @@ public class NodeGlobals
 	public static bool				ThrowOnCorrupted;
 	public static bool				ForceApproveOutwards;
 	public static bool				DumpRoundOnHashify;
+	public static bool				DoNotSynchronize;
 
 	public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
 	static IEnumerable<FieldInfo>	Fields => typeof(NodeGlobals).GetFields().Where(i => i.FieldType == typeof(bool));

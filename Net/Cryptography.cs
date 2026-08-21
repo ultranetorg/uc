@@ -26,8 +26,8 @@ public abstract class Cryptography
 	public virtual byte[]					ZeroSignature => new byte[SignatureLength];
 	public virtual byte[]					ZeroHash  => new byte[HashLength];
 
-	public abstract byte[]					Sign(SecretKey pk, byte[] hash, SigningFeatures deterministic);
-	public abstract bool					Verify(PublicKey address, byte[] hash, byte[] signature);
+	public abstract byte[]					Sign(SecretKey key, byte[] hash, SigningFeatures deterministic);
+	public abstract bool					Verify(PublicKey key, byte[] hash, byte[] signature);
     public abstract byte[]					HashifyPassword(string password, byte[] salt);
 
 	public abstract CryptographyType		Type {get; }
@@ -152,9 +152,9 @@ public class NoCryptography : Cryptography
 		return s;
 	}
 
-	public override bool Verify(PublicKey address, byte[] hash, byte[] signature)
+	public override bool Verify(PublicKey key, byte[] hash, byte[] signature)
 	{
-		return Bytes.EqualityComparer.Equals(hash.AsSpan(0, 16), signature.AsSpan(0, 16)) && Bytes.EqualityComparer.Equals(address.Bytes, signature.AsSpan(32, 32));
+		return Bytes.EqualityComparer.Equals(hash.AsSpan(0, 16), signature.AsSpan(0, 16)) && Bytes.EqualityComparer.Equals(key.Bytes, signature.AsSpan(32, 32));
 	}
 
 	public override byte[] HashifyPassword(string password, byte[] salt)
@@ -172,22 +172,19 @@ public class McvCryptography : Cryptography
 		return k.Sign(h, deterministic);
 	}
 
-	public override bool Verify(PublicKey address, byte[] hash, byte[] signature)
+	public override bool Verify(PublicKey key, byte[] hash, byte[] signature)
 	{
-		return SecretKey.Verify(address.Bytes, signature, hash);
+		return SecretKey.Verify(key.Bytes, signature, hash);
 	}
 
 	public override byte[] HashifyPassword(string password, byte[] salt)
 	{
-		const int MemorySizeInKb = 1024 * 1024;
-		const int Iterations = 4;
-
 		using var argon2 =	new Argon2id(Encoding.UTF8.GetBytes(password))
 							{
 								Salt = salt,
 								DegreeOfParallelism = 8,
-								MemorySize = MemorySizeInKb,
-								Iterations = Iterations
+								MemorySize = 1024 * 1024,
+								Iterations = 4
 							};
 
 		return argon2.GetBytes(HashLength);
