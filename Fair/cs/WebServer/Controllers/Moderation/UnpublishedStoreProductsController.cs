@@ -5,7 +5,9 @@ namespace Uccs.Fair;
 [Route("api/stores/{storeId}/products/unpublished")]
 public class UnpublishedStoreProductsController
 (
+#if DEBUG
 	ILogger<UnpublishedStoreProductsController> logger,
+#endif
 	UnpublishedStoreProductsService unpublishedStoreProductsService
 ) : BaseController
 {
@@ -15,7 +17,9 @@ public class UnpublishedStoreProductsController
 	[HttpGet("{productId}")]
 	public ProductDetailsModel GetDetails(string storeId, string productId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ProductId}", nameof(UnpublishedStoreProductsController), nameof(GetDetails), storeId, productId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ProductId}", nameof(UnpublishedStoreProductsController), nameof(UnpublishedStoreProductsController.GetDetails), storeId, productId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		AutoIdValidator.Validate(productId, nameof(Product).ToLower());

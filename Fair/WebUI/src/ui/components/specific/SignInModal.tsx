@@ -117,7 +117,7 @@ export const SignInModal = (props: SignInModalProps) => {
               value={userName}
               onChange={setUserName}
               maxLength={USER_NAME_MAX_LENGTH}
-              iconAfter={
+              elementAfter={
                 isFetching ? (
                   <SvgSpinner className="size-5 animate-spin fill-gray-300" />
                 ) : state == "sign-up" && signUpValidationProps?.type === "error" ? (

@@ -6,14 +6,18 @@ namespace Uccs.Fair;
 [Route("api/stores/{storeId}/publications/changed")]
 public class ModeratorChangedPublicationsController
 (
+#if DEBUG
 	ILogger<ModeratorChangedPublicationsController> logger,
+#endif
 	PublicationsService publicationsService
 ) : BaseController
 {
 	[HttpGet("{changedPublicationId}")]
 	public ChangedPublicationDetailsModel GetDetails(string storeId, string changedPublicationId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ChangedPublicationId}", nameof(ModeratorChangedPublicationsController), nameof(GetDetails), storeId, changedPublicationId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ChangedPublicationId}", nameof(ModeratorChangedPublicationsController), nameof(ModeratorChangedPublicationsController.GetDetails), storeId, changedPublicationId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		AutoIdValidator.Validate(changedPublicationId, nameof(EntityNames.ChangedPublicationEntityName).ToLower());
@@ -24,7 +28,9 @@ public class ModeratorChangedPublicationsController
 	[HttpGet]
 	public IEnumerable<ChangedPublicationModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ModeratorChangedPublicationsController), nameof(GetAll), storeId, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ModeratorChangedPublicationsController), nameof(ModeratorChangedPublicationsController.GetAll), storeId, pagination);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);

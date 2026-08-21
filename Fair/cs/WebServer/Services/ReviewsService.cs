@@ -1,22 +1,25 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class ReviewsService
 (
+#if DEBUG
 	ILogger<ReviewsService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(ReviewsService)}.{nameof(ReviewsService.GetPublicationReviewsNotOptimized)} method called with {{ReviewId}}, {{Page}}, {{PageSize}}", publicationId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(publicationId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(publicationId);
-		Guard.Against.Negative(page, nameof(page));
-		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}, {Page}, {PageSize}", nameof(ReviewsService), nameof(ReviewsService.GetPublicationReviewsNotOptimized), publicationId, page, pageSize);
+#endif
 
 		AutoId entityId = AutoId.Parse(publicationId);
 
@@ -31,11 +34,13 @@ public class ReviewsService
 
 	public TotalItemsResult<ReviewModel> GetUserReviewsNotOptimized([NotNull][NotEmpty] string userId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {Page}, {PageSize}", nameof(UsersService), nameof(GetUserReviewsNotOptimized), userId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(userId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(userId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {Page}, {PageSize}", nameof(ReviewsService), nameof(ReviewsService.GetUserReviewsNotOptimized), userId, page, pageSize);
+#endif
 
 		AutoId entityId = AutoId.Parse(userId);
 

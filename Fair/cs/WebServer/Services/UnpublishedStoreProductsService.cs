@@ -1,20 +1,23 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
 
 public class UnpublishedStoreProductsService
 (
+#if DEBUG
 	ILogger<UnpublishedStoreProductsService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public ProductDetailsModel GetDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string productId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProductId}", nameof(UnpublishedStoreProductsService), nameof(GetDetails), storeId, productId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(productId);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(productId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProductId}", nameof(UnpublishedStoreProductsService), nameof(UnpublishedStoreProductsService.GetDetails), storeId, productId);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(storeEntityId);

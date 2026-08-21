@@ -1,18 +1,21 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class StoresService
 (
+#if DEBUG
 	ILogger<StoresService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public IEnumerable<StoreBaseModel> GetDefaultStores(CancellationToken cancellationToken)
 	{
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called", nameof(StoresService), nameof(StoresService.GetDefaultStores));
+#endif
 
 		if (cancellationToken.IsCancellationRequested)
 			return [];
@@ -46,9 +49,11 @@ public class StoresService
 
 	public StoreModel GetDetails([NotEmpty] string storeId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(GetDetails), storeId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
-		Guard.Against.NullOrEmpty(storeId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(StoresService.GetDetails), storeId);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 
@@ -70,9 +75,11 @@ public class StoresService
 
 	public TotalItemsResult<PublisherModel> GetPublishers([NotEmpty][NotNull] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(StoresService), nameof(GetPublishers), storeId, page, pageSize, search);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
-		Guard.Against.NullOrEmpty(storeId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(StoresService), nameof(StoresService.GetPublishers), storeId, page, pageSize, search);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(id);
@@ -128,9 +135,11 @@ public class StoresService
 
 	public IEnumerable<ModeratorModel> GetModerators([NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(GetModerators), storeId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
-		Guard.Against.NullOrEmpty(storeId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(StoresService.GetModerators), storeId);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 
@@ -165,9 +174,11 @@ public class StoresService
 
 	public IEnumerable<PolicyModel> GetPolicies(string storeId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(GetPolicies), storeId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
-		Guard.Against.NullOrEmpty(storeId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(StoresService.GetPolicies), storeId);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 

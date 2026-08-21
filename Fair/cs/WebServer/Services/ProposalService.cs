@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class ProposalService
 (
+#if DEBUG
 	ILogger<ProposalService> logger,
+#endif
 	FairMcv mcv
 )
 {
@@ -25,10 +26,12 @@ public class ProposalService
 	/// <param name="discussionOrReferendums">`true` for Discussion, `false` for Referendum</param>
 	ProposalDetailsModel GetProposalDetails(string storeId, string proposalId, bool discussionOrReferendums)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposalDetails)} method called with {{StoreId}}, {{ProposalId}}, {{ProposalsOrReferendums}}", storeId, proposalId, discussionOrReferendums);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(proposalId);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(proposalId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProposalId}, {DiscussionOrReferendums}", nameof(ProposalService), nameof(ProposalService.GetProposalDetails), storeId, proposalId, discussionOrReferendums);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
@@ -109,11 +112,13 @@ public class ProposalService
 
 	TotalItemsResult<ProposalModel> GetProposals(string storeId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{StoreId}}, {{ProposalsOrReferendums}}, {{Page}}, {{PageSize}}, {{Search}}", storeId, discussionOrReferendums, page, pageSize, search);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page, nameof(page));
-		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {DiscussionOrReferendums}, {Page}, {PageSize}, {Search}", nameof(ProposalService), nameof(ProposalService.GetProposals), storeId, discussionOrReferendums, page, pageSize, search);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 
@@ -185,11 +190,13 @@ public class ProposalService
 
 	public TotalItemsResult<ProposalModel> GetProposals([NotEmpty][NotNull] string storeId, FairOperationClass? operationClass, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ProposalService)}.{nameof(ProposalService.GetProposals)} method called with {{StoreId}}, {{OperationClass}}, {{Page}}, {{PageSize}}", storeId, operationClass, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page, nameof(page));
-		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {OperationClass}, {Page}, {PageSize}", nameof(ProposalService), nameof(ProposalService.GetProposals), storeId, operationClass, page, pageSize);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 

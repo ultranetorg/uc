@@ -6,14 +6,18 @@ namespace Uccs.Fair;
 [Route("api/stores/{storeId}/publications/unpublished")]
 public class UnpublishedPublicationsController
 (
+#if DEBUG
 	ILogger<UnpublishedPublicationsController> logger,
+#endif
 	UnpublishedPublicationsService unpublishedPublicationsService
 ) : BaseController
 {
 	[HttpGet("{publicationId}")]
 	public PublicationDetailsModel GetDetails(string storeId, string publicationId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PublicationId}", nameof(UnpublishedPublicationsController), nameof(GetDetails), storeId, publicationId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PublicationId}", nameof(UnpublishedPublicationsController), nameof(UnpublishedPublicationsController.GetDetails), storeId, publicationId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
@@ -24,7 +28,9 @@ public class UnpublishedPublicationsController
 	[HttpGet]
 	public IEnumerable<UnpublishedPublicationModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(GetAll), storeId, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(UnpublishedPublicationsController), nameof(UnpublishedPublicationsController.GetAll), storeId, pagination);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);

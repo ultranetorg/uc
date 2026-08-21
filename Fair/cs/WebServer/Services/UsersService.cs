@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 using System.Runtime.CompilerServices;
-using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
@@ -9,17 +8,21 @@ namespace Uccs.Fair;
 
 public class UsersService
 (
+#if DEBUG
 	ILogger<UsersService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public TotalItemsResult<UserModel> GetStoreUsers([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UsersService), nameof(GetStoreUsers), storeId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UsersService), nameof(UsersService.GetStoreUsers), storeId, page, pageSize);
+#endif
 
 		AutoId entityId = AutoId.Parse(storeId);
 
@@ -52,9 +55,11 @@ public class UsersService
 
 	public UserModel GetUserByName([NotNull][NotEmpty] string name)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(GetUserByName), name);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(name);
 
-		Guard.Against.NullOrEmpty(name);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(UsersService.GetUserByName), name);
+#endif
 
 		FairUser user = (FairUser) mcv.Users.Latest(name);
 		if(user == null)
@@ -78,9 +83,11 @@ public class UsersService
 
 	public UserDetailsModel GetDetails([NotNull][NotEmpty] string name)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(GetDetails), name);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(name);
 
-		Guard.Against.NullOrEmpty(name);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(UsersService.GetDetails), name);
+#endif
 
 		FairUser account = (FairUser) mcv.Users.Latest(name);
 		if(account == null)
@@ -110,9 +117,11 @@ public class UsersService
 
 	public UserAuthorsModel GetUserAuthors([NotNull][NotEmpty] string userId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(GetUserAuthors), userId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(userId);
 
-		Guard.Against.NullOrEmpty(userId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(UsersService.GetUserAuthors), userId);
+#endif
 
 		AutoId userEntityId = AutoId.Parse(userId);
 
@@ -142,10 +151,12 @@ public class UsersService
 
 	public bool StoreExists([NotNull][NotEmpty] string userId, [NotNull][NotEmpty] string storeId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {StoreId}", nameof(UsersService), nameof(StoreExists), userId, storeId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(userId);
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
-		Guard.Against.NullOrEmpty(userId);
-		Guard.Against.NullOrEmpty(storeId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {StoreId}", nameof(UsersService), nameof(UsersService.StoreExists), userId, storeId);
+#endif
 
 		AutoId userEntityId = AutoId.Parse(userId);
 
@@ -161,9 +172,11 @@ public class UsersService
 
 	public FileContentResult GetAvatarById([NotNull][NotEmpty] string userId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(GetAvatarById), userId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(userId);
 
-		Guard.Against.NullOrEmpty(userId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(UsersService.GetAvatarById), userId);
+#endif
 
 		AutoId entityId = AutoId.Parse(userId);
 
@@ -178,9 +191,11 @@ public class UsersService
 
 	public FileContentResult GetAvatarByName([NotNull][NotEmpty] string name)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(GetAvatarById), name);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(name);
 
-		Guard.Against.NullOrEmpty(name);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(UsersService.GetAvatarByName), name);
+#endif
 
 		FairUser account = (FairUser)mcv.Users.Latest(name);
 		if(account == null || account.Avatar == null)

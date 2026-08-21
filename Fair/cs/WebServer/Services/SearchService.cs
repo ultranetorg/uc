@@ -1,25 +1,28 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class SearchService
 (
+#if DEBUG
 	ILogger<SearchService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public IEnumerable<PublicationExtendedModel> SearchPublications([NotNull, NotEmpty] string storeId, [NotNull, NotEmpty] string query, string[]? categoriesIds, ProductType? type, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(query);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
+
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {CategoriesIds}, {Type}, {Page}, {PageSize}",
 			nameof(SearchService), nameof(SearchService.SearchPublications), storeId, query, categoriesIds, type, page, pageSize);
-
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(query);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+#endif
 
 		AutoId[] effectiveCategoriesIds = GetEffectiveCategories(storeId, categoriesIds, type);
 
@@ -91,15 +94,17 @@ public class SearchService
 
 	public IEnumerable<PublicationBaseModel> SearchLitePublications(string storeId, string query, int page, int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLitePublications)} method called with {{StoreId}}, {{Query}}, {{Page}}, {{PageSize}}", storeId, query, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(query);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
+
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchLitePublications), storeId, query, page, pageSize);
+#endif
 
 		if(cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<PublicationBaseModel>();
-
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(query);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
 
 		AutoId id = AutoId.Parse(storeId);
 
@@ -180,13 +185,15 @@ public class SearchService
 
 	public TotalItemsResult<StoreBaseModel> SearchStores(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchStores)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
+#if DEBUG
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
+
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchStores), query, page, pageSize);
+#endif
 
 		if(cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<StoreBaseModel>.Empty;
-
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
 
 		var searchResult = mcv.StoreTitles.Search(query ?? "", page * pageSize, pageSize);
 		if(searchResult.Count == 0)
@@ -218,14 +225,16 @@ public class SearchService
 
 	public IEnumerable<StoreSearchLiteModel> SearchLiteStores([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"{nameof(SearchService)}.{nameof(SearchService.SearchLiteStores)} method called with {{Query}}, {{Page}}, {{PageSize}}", query, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(query);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
+
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchLiteStores), query, page, pageSize);
+#endif
 
 		if(cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<StoreSearchLiteModel>();
-
-		Guard.Against.NullOrEmpty(query);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
 
 		var result = mcv.StoreTitles.Search(query, page * pageSize, pageSize);
 
@@ -235,11 +244,13 @@ public class SearchService
 
 	public IEnumerable<UserModel> SearchStoreUsers([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Limit}", nameof(SearchService), nameof(SearchStoreUsers), storeId, query, limit);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(query);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(query);
-		Guard.Against.NegativeOrZero(limit);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchStoreUsers), storeId, query, limit);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 
@@ -279,12 +290,14 @@ public class SearchService
 
 	public IEnumerable<UserBaseAvatarModel> SearchUser([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchUser), query, limit);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(query);
+
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchUser), query, limit);
+#endif
 
 		if(cancellationToken.IsCancellationRequested)
 			return [];
-
-		Guard.Against.NullOrEmpty(query);
 
 		if(AutoId.TryParse(query, out AutoId entityId))
 		{
@@ -322,13 +335,15 @@ public class SearchService
 
 	public IEnumerable<AuthorBaseAvatarModel> SearchAuthors([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchAuthors), query, limit);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(query);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit);
+
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchAuthors), query, limit);
+#endif
 
 		if(cancellationToken.IsCancellationRequested)
 			return [];
-
-		Guard.Against.NullOrEmpty(query);
-		Guard.Against.NegativeOrZero(limit);
 
 		if(AutoId.TryParse(query, out AutoId entityId))
 		{

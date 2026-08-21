@@ -5,7 +5,9 @@ namespace Uccs.Fair;
 
 public class UsersController
 (
+#if DEBUG
 	ILogger<UsersController> logger,
+#endif
 	ReviewsService reviewsService,
 	SearchService searchService,
 	UsersService usersService
@@ -14,7 +16,9 @@ public class UsersController
 	[HttpGet("{name}")]
 	public UserModel GetUser(string name)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(GetUser), name);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(UsersController.GetUser), name);
+#endif
 
 		UserNameValidator.Validate(name);
 
@@ -24,7 +28,9 @@ public class UsersController
 	[HttpGet("{userId}/authors")]
 	public UserAuthorsModel GetUserAuthors(string userId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}", nameof(UsersController), nameof(GetUserAuthors), userId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}", nameof(UsersController), nameof(UsersController.GetUserAuthors), userId);
+#endif
 
 		AutoIdValidator.Validate(userId, nameof(User));
 
@@ -34,7 +40,9 @@ public class UsersController
 	[HttpGet("{name}/details")]
 	public UserDetailsModel GetDetails(string name)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(GetDetails), name);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(UsersController.GetDetails), name);
+#endif
 
 		UserNameValidator.Validate(name);
 
@@ -44,7 +52,9 @@ public class UsersController
 	[HttpHead("{userId}/stores/{storeId}")]
 	public IActionResult StoreExists(string userId, string storeId)
 	{
-		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {StoreId}", nameof(UsersController), nameof(StoreExists), userId, storeId);
+#if DEBUG
+		logger.LogInformation("HEAD {ControllerName}.{ActionName} called with {UserId}, {StoreId}", nameof(UsersController), nameof(UsersController.StoreExists), userId, storeId);
+#endif
 
 		AutoIdValidator.Validate(userId, nameof(User));
 		AutoIdValidator.Validate(storeId, nameof(Store));
@@ -55,7 +65,9 @@ public class UsersController
 	[HttpGet("{userId}/reviews")]
 	public IEnumerable<ReviewModel> GetReviews(string userId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}, {Pagination}", nameof(UsersController), nameof(GetReviews), userId, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}, {Pagination}", nameof(UsersController), nameof(UsersController.GetReviews), userId, pagination);
+#endif
 
 		AutoIdValidator.Validate(userId, nameof(User));
 		PaginationValidator.Validate(pagination);
@@ -69,7 +81,9 @@ public class UsersController
 	[HttpGet("by-id/{userId}/avatar")]
 	public FileContentResult GetAvatarById(string userId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {UserId}", nameof(UsersController), nameof(GetAvatarById), userId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {UserId}", nameof(UsersController), nameof(UsersController.GetAvatarById), userId);
+#endif
 
 		AutoIdValidator.Validate(userId, nameof(User));
 
@@ -79,7 +93,9 @@ public class UsersController
 	[HttpGet("by-name/{name}/avatar")]
 	public FileContentResult GetAvatarByName(string name)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Name}", nameof(UsersController), nameof(GetAvatarByName), name);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Name}", nameof(UsersController), nameof(UsersController.GetAvatarByName), name);
+#endif
 
 		UserNameValidator.Validate(name);
 
@@ -89,7 +105,9 @@ public class UsersController
 	[HttpGet]
 	public IEnumerable<UserBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(UsersController), nameof(Search), query, limit);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(UsersController), nameof(UsersController.Search), query, limit);
+#endif
 
 		SearchQueryValidator.Validate(query);
 		LimitValidator.Validate(limit);

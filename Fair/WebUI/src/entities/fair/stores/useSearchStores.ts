@@ -7,11 +7,11 @@ const api = getFairApi()
 export const useSearchStores = (query?: string, page?: number) => {
   const queryFn = () => api.searchStores(query, page)
 
-  const { isFetching, error, data } = useQuery({
+  const { isPending, error, data } = useQuery({
     queryKey: ["stores", { page, query }],
     queryFn: queryFn,
     enabled: !!query,
   })
 
-  return { isFetching, error: error ?? undefined, data }
+  return { isPending, error: error ?? undefined, data }
 }

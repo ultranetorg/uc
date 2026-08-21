@@ -1,19 +1,22 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
 
 public class CategoriesService
 (
+#if DEBUG
 	ILogger<CategoriesService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public IEnumerable<CategoryBaseModel> GetRoot([NotNull][NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(CategoriesService), nameof(GetRoot), storeId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
-		Guard.Against.NullOrEmpty(storeId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(CategoriesService), nameof(CategoriesService.GetRoot), storeId);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 
@@ -32,9 +35,11 @@ public class CategoriesService
 
 	public CategoryModel GetDetails([NotNull][NotEmpty] string categoryId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}", nameof(CategoriesService), nameof(GetDetails), categoryId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(categoryId);
 
-		Guard.Against.NullOrEmpty(categoryId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}", nameof(CategoriesService), nameof(CategoriesService.GetDetails), categoryId);
+#endif
 
 		AutoId id = AutoId.Parse(categoryId);
 
@@ -93,10 +98,12 @@ public class CategoriesService
 
 	public IEnumerable<CategoryParentBaseModel> GetTree([NotEmpty] string storeId, [NonNegativeValue] int? depth, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Depth}", nameof(CategoriesService), nameof(GetTree), storeId, depth);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		DepthValidator.ValidateResolved(depth);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.DepthValid(depth);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Depth}", nameof(CategoriesService), nameof(CategoriesService.GetTree), storeId, depth);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 

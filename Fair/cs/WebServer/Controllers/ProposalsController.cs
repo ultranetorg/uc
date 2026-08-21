@@ -6,14 +6,18 @@ namespace Uccs.Fair;
 [Route("api/stores/{storeId}/[controller]")]
 public class ProposalsController
 (
+#if DEBUG
 	ILogger<ProposalsController> logger,
+#endif
 	ModeratorProposalsService proposalsService
 ) : BaseController
 {
 	[HttpGet("moderators")]
 	public IEnumerable<ModeratorProposalModel> GetModeratorProposals(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(GetModeratorProposals)} method called with {{StoreId}}, {{Search}}, {{Pagination}}", storeId, search, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(ProposalsController), nameof(ProposalsController.GetModeratorProposals), storeId, search, pagination);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);
@@ -27,7 +31,9 @@ public class ProposalsController
 	[HttpGet("publishers")]
 	public IEnumerable<PublisherProposalModel> GetPublisherProposals(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(ProposalsController)}.{nameof(PublisherProposalModel)} method called with {{StoreId}}, {{Search}}, {{Pagination}}", storeId, search, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(ProposalsController), nameof(ProposalsController.GetPublisherProposals), storeId, search, pagination);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);
@@ -41,7 +47,9 @@ public class ProposalsController
 	[HttpGet("user-registrations")]
 	public IEnumerable<ProposalModel> GetUserRegistrations(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ProposalsController), nameof(GetUserRegistrations), storeId, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ProposalsController), nameof(ProposalsController.GetUserRegistrations), storeId, pagination);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);
@@ -55,7 +63,9 @@ public class ProposalsController
 	[HttpGet("user-unregistrations")]
 	public IEnumerable<UserUnregistrationProposalModel> GetUserUnregistrations(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ProposalsController), nameof(GetUserUnregistrations), storeId, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(ProposalsController), nameof(ProposalsController.GetUserUnregistrations), storeId, pagination);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);

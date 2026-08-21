@@ -1,7 +1,6 @@
 ﻿using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Ardalis.GuardClauses;
 
 namespace Uccs.Fair;
 
@@ -9,15 +8,19 @@ internal static class ProductFieldsUtils
 {
 	public static IEnumerable<FieldValueModel>? GetMappedFields([NotNull] Product product, [NotNull] Publication publication)
 	{
-		Guard.Against.Null(product);
-		Guard.Against.Null(publication);
+#if DEBUG
+		ArgumentNullException.ThrowIfNull(product);
+		ArgumentNullException.ThrowIfNull(publication);
+#endif
 
 		return GetMappedFieldsVersion(product, publication.ProductVersion);
 	}
 
 	public static IEnumerable<FieldValueModel>? GetLatestMappedFields([NotNull] Product product)
 	{
-		Guard.Against.Null(product);
+#if DEBUG
+		ArgumentNullException.ThrowIfNull(product);
+#endif
 
 		FieldValue[] fields = product.Versions.LastOrDefault()?.Fields;
 		if(fields == null)
@@ -31,8 +34,10 @@ internal static class ProductFieldsUtils
 
 	public static IEnumerable<FieldValueModel>? GetMappedFieldsVersion([NotNull] Product product, [NonNegativeValue] int fieldsVersion)
 	{
-		Guard.Against.Null(product);
-		Guard.Against.Negative(fieldsVersion);
+#if DEBUG
+		ArgumentNullException.ThrowIfNull(product);
+		ArgumentOutOfRangeException.ThrowIfNegative(fieldsVersion);
+#endif
 
 		FieldValue[] fields = product.Versions.FirstOrDefault(i => i.Id == fieldsVersion)?.Fields;
 		if(fields == null)

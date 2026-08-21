@@ -5,7 +5,9 @@ namespace Uccs.Fair;
 
 public class StoresController
 (
+#if DEBUG
 	ILogger<StoresController> logger,
+#endif
 	StoresService storesService,
 	UsersService usersService,
 	SearchService searchService
@@ -14,7 +16,9 @@ public class StoresController
 	[HttpGet("default")]
 	public IEnumerable<StoreBaseModel> Default(CancellationToken cancellationToken)
 	{
+#if DEBUG
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called without parameters", nameof(StoresController), nameof(StoresController.Default));
+#endif
 
 		return storesService.GetDefaultStores(cancellationToken);
 	}
@@ -22,7 +26,9 @@ public class StoresController
 	[HttpGet("{storeId}/users")]
 	public IEnumerable<UserModel> GetUsers(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {StoreId}, {Pagination}", nameof(StoresController), nameof(GetUsers), storeId, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {StoreId}, {Pagination}", nameof(StoresController), nameof(StoresController.GetUsers), storeId, pagination);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store));
 		PaginationValidator.Validate(pagination);
@@ -36,7 +42,9 @@ public class StoresController
 	[HttpGet("{storeId}/users/search")]
 	public IEnumerable<UserModel> SearchStoreUsers(string storeId, [FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {StoreId}, {Query}, {Limit}", nameof(StoresController), nameof(SearchStoreUsers), storeId, query, limit);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {StoreId}, {Query}, {Limit}", nameof(StoresController), nameof(StoresController.SearchStoreUsers), storeId, query, limit);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store));
 		StoreSearchQueryValidator.Validate(query);
@@ -48,7 +56,9 @@ public class StoresController
 	[HttpGet("{storeId}/publishers")]
 	public IEnumerable<PublisherModel> GetPublishers(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(StoresController), nameof(GetPublishers), storeId, search, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(StoresController), nameof(StoresController.GetPublishers), storeId, search, pagination);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);
@@ -62,7 +72,9 @@ public class StoresController
 	[HttpGet("{storeId}/moderators")]
 	public IEnumerable<ModeratorModel> GetModerators(string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(GetModerators), storeId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(StoresController.GetModerators), storeId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
@@ -72,7 +84,9 @@ public class StoresController
 	[HttpGet("{storeId}/policies")]
 	public IEnumerable<PolicyModel> GetPolicies(string storeId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(GetPolicies), storeId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(StoresController.GetPolicies), storeId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
@@ -82,7 +96,9 @@ public class StoresController
 	[HttpGet]
 	public IEnumerable<StoreBaseModel> Search([FromQuery] string? query, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Page}", nameof(StoresController), nameof(Search), query, page);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Page}", nameof(StoresController), nameof(StoresController.Search), query, page);
+#endif
 
 		PaginationValidator.Validate(page);
 		StoreSearchQueryValidator.Validate(query);
@@ -96,7 +112,9 @@ public class StoresController
 	[HttpGet("search")]
 	public IEnumerable<StoreSearchLiteModel> SearchLite([FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}", nameof(StoresController), nameof(SearchLite), query);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}", nameof(StoresController), nameof(StoresController.SearchLite), query);
+#endif
 
 		SearchQueryValidator.Validate(query);
 
@@ -106,7 +124,9 @@ public class StoresController
 	[HttpGet("{storeId}")]
 	public StoreModel GetDetails(string storeId)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(GetDetails), storeId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(StoresController), nameof(StoresController.GetDetails), storeId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 

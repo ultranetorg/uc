@@ -5,7 +5,9 @@ namespace Uccs.Fair;
 
 public class PublicationsController
 (
+#if DEBUG
 	ILogger<PublicationsController> logger,
+#endif
 	PublicationsService publicationsService,
 	ProductsService productsService,
 	SearchService searchService
@@ -14,7 +16,9 @@ public class PublicationsController
 	[HttpGet("{publicationId}")]
 	public PublicationDetailsModel GetDetails(string publicationId)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetDetails)} method called with {{PublicationId}}", publicationId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}", nameof(PublicationsController), nameof(PublicationsController.GetDetails), publicationId);
+#endif
 
 		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
@@ -24,7 +28,9 @@ public class PublicationsController
 	[HttpGet("{publicationId}/versions")]
 	public PublicationVersionInfo GetVersionLatest(string publicationId)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetVersionLatest)} method called with {{PublicationId}}", publicationId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}", nameof(PublicationsController), nameof(PublicationsController.GetVersionLatest), publicationId);
+#endif
 
 		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
@@ -34,7 +40,9 @@ public class PublicationsController
 	[HttpGet("{publicationId}/diff")]
 	public PublicationDetailsDiffModel GetDiff(string publicationId, [FromQuery(Name = "to")] int version)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}, {Version}", nameof(PublicationsController), nameof(GetDiff), publicationId, version);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}, {Version}", nameof(PublicationsController), nameof(PublicationsController.GetDiff), publicationId, version);
+#endif
 
 		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 		VersionValidator.Validate(publicationId, version);
@@ -45,7 +53,9 @@ public class PublicationsController
 	[HttpGet("~/api/stores/{storeId}/categories/publications")]
 	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublications(string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetCategoriesPublications)} method called with {{StoreId}}", storeId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(PublicationsController), nameof(PublicationsController.GetCategoriesPublications), storeId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
@@ -55,8 +65,10 @@ public class PublicationsController
 	[HttpGet("~/api/stores/{storeId}/publications")]
 	public IEnumerable<PublicationExtendedModel> Search(string storeId, [FromQuery] string? query, [FromQuery] string[]? categoriesIds, [FromQuery] ProductType? type, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
+#if DEBUG
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Query}, {CategoriesIds}, {Type}, {Page}",
 			nameof(PublicationsController), nameof(PublicationsController.Search), storeId, query, categoriesIds, type, page);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		SearchQueryValidator.Validate(query);
@@ -74,7 +86,9 @@ public class PublicationsController
 	[HttpGet("~/api/stores/{storeId}/publications/search")]
 	public IEnumerable<PublicationBaseModel> SearchLite(string storeId, [FromQuery] string? query, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.SearchLite)} method called with {{StoreId}}, {{Query}}", storeId, query);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Query}", nameof(PublicationsController), nameof(PublicationsController.SearchLite), storeId, query);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		SearchQueryValidator.Validate(query);
@@ -85,7 +99,9 @@ public class PublicationsController
 	[HttpGet("~/api/categories/{categoryId}/publications")]
 	public IEnumerable<PublicationExtendedModel> GetCategoryPublications(string categoryId, [FromQuery] int? page, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(PublicationsController)}.{nameof(PublicationsController.GetCategoryPublications)} method called with {{CategoryId}}, {{Page}}", categoryId, page);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {CategoryId}, {Page}", nameof(PublicationsController), nameof(PublicationsController.GetCategoryPublications), categoryId, page);
+#endif
 
 		AutoIdValidator.Validate(categoryId, nameof(Category).ToLower());
 		PaginationValidator.Validate(page);

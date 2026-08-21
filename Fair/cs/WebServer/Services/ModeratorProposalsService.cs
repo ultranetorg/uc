@@ -1,23 +1,26 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class ModeratorProposalsService
 (
+#if DEBUG
 	ILogger<ModeratorProposalsService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public TotalItemsResult<ReviewProposalModel> GetReviewProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(GetReviewProposalsNotOptimized), storeId, page, pageSize, search);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetReviewProposalsNotOptimized), storeId, page, pageSize, search);
+#endif
 
 		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsReviewOperation, CreateReviewProposalModel, cancellationToken);
 	}
@@ -62,9 +65,11 @@ public class ModeratorProposalsService
 
 	public PublicationProposalModel GetPublicationProposal([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string proposalId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(GetPublicationProposal), storeId, proposalId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(proposalId);
 
-		Guard.Against.NullOrEmpty(proposalId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationProposal), storeId, proposalId);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);
@@ -75,12 +80,14 @@ public class ModeratorProposalsService
 	public TotalItemsResult<PublicationProposalModel> GetPublicationsProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}",
-			nameof(ModeratorProposalsService), nameof(GetPublicationsProposalsNotOptimized), storeId, page, pageSize, search);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}",
+			nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationsProposalsNotOptimized), storeId, page, pageSize, search);
+#endif
 
 		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel, cancellationToken);
 	}
@@ -216,11 +223,13 @@ public class ModeratorProposalsService
 	public TotalItemsResult<ModeratorProposalModel> GetModeratorProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(GetModeratorProposalsNotOptimized), storeId, page, pageSize, search);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetModeratorProposalsNotOptimized), storeId, page, pageSize, search);
+#endif
 
 		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsModeratorOperation, CreateModeratorProposalModel, cancellationToken);
 	}
@@ -253,11 +262,13 @@ public class ModeratorProposalsService
 	public TotalItemsResult<PublisherProposalModel> GetPublisherProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(GetPublisherProposalsNotOptimized), storeId, page, pageSize, search);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublisherProposalsNotOptimized), storeId, page, pageSize, search);
+#endif
 
 		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublisherOperation, CreatePublisherProposalModel, cancellationToken);
 	}
@@ -278,11 +289,13 @@ public class ModeratorProposalsService
 	public TotalItemsResult<ProposalModel> GetUserRegistrations
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorProposalsService), nameof(GetUserRegistrations), storeId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetUserRegistrations), storeId, page, pageSize);
+#endif
 
 		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, null, ProposalUtils.IsUserRegistrationOperation, CreateUserProposalModel, cancellationToken);
 	}
@@ -290,11 +303,13 @@ public class ModeratorProposalsService
 	public TotalItemsResult<UserUnregistrationProposalModel> GetUserUnregistrations
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorProposalsService), nameof(GetUserUnregistrations), storeId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetUserUnregistrations), storeId, page, pageSize);
+#endif
 
 		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, null, ProposalUtils.IsUserUnregistrationOperation, CreateUserUnregistrationModel, cancellationToken);
 	}

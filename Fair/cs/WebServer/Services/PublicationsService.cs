@@ -1,20 +1,23 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class PublicationsService
 (
+#if DEBUG
 	ILogger<PublicationsService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public PublicationDetailsModel GetDetails([NotEmpty][NotNull] string publicationId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(GetDetails), publicationId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 
-		Guard.Against.NullOrEmpty(publicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(PublicationsService.GetDetails), publicationId);
+#endif
 
 		AutoId id = AutoId.Parse(publicationId);
 		Publication publication = mcv.Publications.Latest(id);
@@ -53,9 +56,11 @@ public class PublicationsService
 
 	public PublicationVersionInfo GetVersions([NotEmpty][NotNull] string publicationId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(GetVersions), publicationId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 
-		Guard.Against.NullOrEmpty(publicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(PublicationsService.GetVersions), publicationId);
+#endif
 
 		AutoId id = AutoId.Parse(publicationId);
 		Publication publication = mcv.Publications.Latest(id);
@@ -74,12 +79,14 @@ public class PublicationsService
 
 	public TotalItemsResult<PublicationAuthorModel> GetPublisherPublicationsNotOptimized([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {AuthorId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetPublisherPublicationsNotOptimized), storeId, authorId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(authorId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(authorId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {AuthorId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetPublisherPublicationsNotOptimized), storeId, authorId, page, pageSize);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(storeEntityId);
@@ -167,11 +174,13 @@ public class PublicationsService
 
 	public TotalItemsResult<PublicationExtendedModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}", nameof(PublicationsService), nameof(GetCategoryPublicationsNotOptimized), categoryId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(categoryId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(categoryId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetCategoryPublicationsNotOptimized), categoryId, page, pageSize);
+#endif
 
 		AutoId id = AutoId.Parse(categoryId);
 		Category category = mcv.Categories.Latest(id);
@@ -227,9 +236,11 @@ public class PublicationsService
 
 	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublicationsNotOptimized([NotNull][NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(PublicationsService), nameof(GetCategoriesPublicationsNotOptimized), storeId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
-		Guard.Against.NullOrEmpty(storeId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(PublicationsService), nameof(PublicationsService.GetCategoriesPublicationsNotOptimized), storeId);
+#endif
 
 		if (cancellationToken.IsCancellationRequested)
 			return Enumerable.Empty<CategoryPublicationsModel>();
@@ -321,10 +332,12 @@ public class PublicationsService
 
 	public ChangedPublicationDetailsModel GetChangedPublicationDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string changedPublicationId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ChangedPublicationId}", nameof(PublicationsService), nameof(GetChangedPublicationDetails), storeId, changedPublicationId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(changedPublicationId);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(changedPublicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ChangedPublicationId}", nameof(PublicationsService), nameof(PublicationsService.GetChangedPublicationDetails), storeId, changedPublicationId);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(storeEntityId);
@@ -370,11 +383,13 @@ public class PublicationsService
 
 	public TotalItemsResult<ChangedPublicationModel> GetChangedPublicationsAll([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetChangedPublicationsAll), storeId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetChangedPublicationsAll), storeId, page, pageSize);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(id);
@@ -456,11 +471,13 @@ public class PublicationsService
 	TotalItemsResult<T> GetStorePublications<T>(string storeId, Func<Store, AutoId[]> GetPublications, Func<Product, Publication, T> CreatePublication, int page, int pageSize, CancellationToken cancellationToken)
 		where T: PublicationBaseModel
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(GetStorePublications), storeId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetStorePublications), storeId, page, pageSize);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(id);

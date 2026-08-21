@@ -6,14 +6,18 @@ namespace Uccs.Fair;
 [Route("api/moderator/stores/{storeId}/publications")]
 public class ModeratorPublicationsController
 (
+#if DEBUG
 	ILogger<ModeratorPublicationsController> logger,
+#endif
 	ModeratorProposalsService moderatorProposalService
 ) : BaseController
 {
 	[HttpGet]
 	public IEnumerable<PublicationProposalModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorPublicationsController), nameof(GetAll), storeId, pagination, search);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorPublicationsController), nameof(ModeratorPublicationsController.GetAll), storeId, pagination, search);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);

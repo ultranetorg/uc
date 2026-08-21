@@ -1,22 +1,25 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class UnpublishedPublicationsService
 (
+#if DEBUG
 	ILogger<UnpublishedPublicationsService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public TotalItemsResult<UnpublishedPublicationModel> GetAll([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UnpublishedPublicationsService), nameof(GetAll), storeId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UnpublishedPublicationsService), nameof(UnpublishedPublicationsService.GetAll), storeId, page, pageSize);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(id);
@@ -80,10 +83,12 @@ public class UnpublishedPublicationsService
 
 	public PublicationDetailsModel GetDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string publicationId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {PublicationId}", nameof(UnpublishedPublicationsService), nameof(GetDetails), storeId, publicationId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(publicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {PublicationId}", nameof(UnpublishedPublicationsService), nameof(UnpublishedPublicationsService.GetDetails), storeId, publicationId);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 		Store store = mcv.Stores.Latest(storeEntityId);

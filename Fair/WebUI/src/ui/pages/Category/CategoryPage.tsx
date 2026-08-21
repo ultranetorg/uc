@@ -4,7 +4,7 @@ import { useLocalStorage } from "usehooks-ts"
 import { isNumber } from "lodash"
 
 import { useStoreContext } from "app"
-import { DEFAULT_PAGE_SIZE_24 } from "config"
+import { CATEGORY_PUBLICATIONS_DEFAULT_PAGE_SIZE } from "config"
 import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { NoContent, Pagination } from "ui/components"
@@ -36,7 +36,7 @@ export const CategoryPage = () => {
 
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0
-      ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_24)
+      ? Math.ceil(publications.totalItems / CATEGORY_PUBLICATIONS_DEFAULT_PAGE_SIZE)
       : 0
 
   const [localStorageView, setLocalStorageView] = useLocalStorage<ViewType>("categoryPage.view", "grid")

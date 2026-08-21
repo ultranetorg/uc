@@ -17,14 +17,14 @@ type TypeSelectBaseProps = {
 export type TypeSelectProps = Pick<DropdownSecondaryProps<false>, "onChange"> & TypeSelectBaseProps
 
 export const TypeSelect = memo(({ availableTypes, value, onChange }: TypeSelectProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("typeSelect")
 
   const [isOpen, setIsOpen] = useState(false)
 
   const items = useMemo(
     () =>
       availableTypes && [
-        { label: t("common:any"), value: null },
+        { label: t("allTypes"), value: null },
         ...sortAvailableTypes(availableTypes).map<DropdownItem>(x => ({ label: t("categoryTypes:" + x), value: x })),
       ],
     [availableTypes, t],
@@ -43,7 +43,7 @@ export const TypeSelect = memo(({ availableTypes, value, onChange }: TypeSelectP
         isMulti={false}
         items={items}
         className="w-37.5"
-        placeholder={t("common:any")}
+        placeholder={t("allTypes")}
         defaultValue={null}
         controlled={true}
         value={value ?? undefined}

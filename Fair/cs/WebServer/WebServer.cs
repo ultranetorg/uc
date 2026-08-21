@@ -45,6 +45,7 @@ public class WebServer
 															.AddJsonOptions(options =>	{
 																							options.JsonSerializerOptions.TypeInfoResolver = new PolymorphicTypeResolver();
 																							options.JsonSerializerOptions.Converters.Add(new KebabCaseEnumConverterFactory());
+																							options.JsonSerializerOptions.Converters.Add(new AutoIdJsonConverter());
 																						});
 
 											WebApplication = builder.Build();

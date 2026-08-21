@@ -83,7 +83,7 @@ export const ModeratorCreatePublicationPage = () => {
             onChange={setQuery}
             placeholder={t("placeholders:enterProductId")}
             className="max-w-120 placeholder:text-gray-500"
-            iconAfter={
+            elementAfter={
               <>
                 {query && (
                   <div onClick={handleInputClear} className="cursor-pointer">
