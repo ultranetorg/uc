@@ -76,7 +76,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	 
 	public override string ToString()
 	{
-		return $"{GetType().Name}, {Explanation}{(Error == null ? null : ", Error=" + Error)}";
+		return $"{GetType().Name}{(Explanation == null ? null : ", Explanation=" + Explanation)}{(Error == null ? null : ", Error=" + Error)}";
 	}
 
 

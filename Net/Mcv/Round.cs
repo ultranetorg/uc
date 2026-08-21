@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text;
 
 namespace Uccs.Net;
 
@@ -666,6 +667,9 @@ public abstract class Round : IBinarySerializable
 
 	public void Hashify()
 	{
+		var ms = new MemoryStream();
+		var mw = new Writer(ms, Net.Constructor);
+
 		var s = new Blake2Stream();
 		var w = new Writer(s, Net.Constructor);
 
@@ -674,6 +678,43 @@ public abstract class Round : IBinarySerializable
 		Write(w);
 
 		Hash = s.Hash;
+
+		mw.Write(Mcv.GraphHash);
+		mw.Write(Id > 0 ? Previous.Hash : Mcv.Net.Cryptography.ZeroHash);
+		Write(mw);
+			
+		if(NodeGlobals.DumpRoundOnHashify)
+		{
+			var b = new StringBuilder();
+			b.AppendLine(ms.ToArray().ToHex());
+			b.AppendLine(Hash.ToHex());
+			b.AppendLine(Mcv.GraphHash.ToHex());
+			b.AppendLine((Id > 0 ? Previous.Hash : Mcv.Net.Cryptography.ZeroHash).ToHex());
+			b.AppendLine(Id.ToString());
+			b.AppendLine(ConsensusTime.ToString());
+			b.AppendLine(ConsensusOperationCost.ToString());
+			b.AppendLine(string.Join(" ", ConsensusMemberLeavers.AsReadOnly()));
+			b.AppendLine(string.Join(" ", ConsensusViolators.AsReadOnly()));
+			b.AppendLine(string.Join(" ", ConsensusFundJoiners.AsReadOnly()));
+			b.AppendLine(string.Join(" ", ConsensusFundLeavers.AsReadOnly()));
+
+			b.AppendLine($"{nameof(ConsensusTransactions)}: ");
+			foreach(var i in ConsensusTransactions)
+				i.Dump(Mcv.Net, "\t", b);
+			
+			b.Append($"{nameof(ConsensusIncomingTransfers)}: ");
+			b.AppendLine(string.Join(" ", ConsensusIncomingTransfers.Select(i => i.ToHex())));
+			
+			b.AppendLine($"{nameof(ConsensusOutgoingTransfers)}: ");
+			foreach(var i in ConsensusOutgoingTransfers)
+				i.Dump("\t", b);
+			
+			b.AppendLine($"{nameof(ConsensusOutwards)}: ");
+			foreach(var i in ConsensusOutwards)
+				i.Dump("\t", b);
+	
+			File.WriteAllText(Path.Join(Mcv.Databasepath, $"{Id}.r"), b.ToString());
+		}
 	}
 
 	public virtual void WriteGraphState(Writer writer)
@@ -736,7 +777,7 @@ public abstract class Round : IBinarySerializable
 
 	public void Archive()
 	{
-		var s = new MemoryStream();
+		using var s = new MemoryStream();
 		var w = new Writer(s, Net.Constructor);
 
 		Write(w);
@@ -752,7 +793,6 @@ public abstract class Round : IBinarySerializable
 		using var r = new Reader(raw, Net.Constructor);
 
 		Read(r);
-
 		Hash = r.ReadHash();
 	}
 }

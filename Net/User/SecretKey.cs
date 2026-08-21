@@ -14,6 +14,8 @@ public class SecretKey
 	public PublicKey				PuplicKey => _Address ??= new PublicKey(ECKey.CreateXOnlyPubKey().ToBytes(), Tag);
 	public string					Tag { get; protected set; }
 			
+	readonly BIP340NonceFunction	Deterministic = new BIP340NonceFunction(new byte[32]);
+
 	public SecretKey(byte[] secret, string tag = null)
 	{
 		Secret = secret;
@@ -29,13 +31,12 @@ public class SecretKey
 		return new SecretKey(k){Tag = tag};
 	}
 
-	public byte[] Sign(byte[] hash)
+	public byte[] Sign(byte[] hash, SigningFeatures deterministic)
 	{
-		byte[] aux = new byte[32];
-		RandomNumberGenerator.Fill(aux);
-
 		SecpSchnorrSignature s;
-		while(ECKey.TrySignBIP340(hash, null, out s) == false);
+
+		while(!ECKey.TrySignBIP340(hash, deterministic.HasFlag(SigningFeatures.Deterministic) ? Deterministic  : null, out s))
+			;
 
 		return s.ToBytes();
 	}

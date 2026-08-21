@@ -172,12 +172,12 @@ public abstract class Mcv /// Mutual chain voting
 					t.User = GodName;
 					t.AddOperation(Genesis);
  					v.AddTransaction(t);
- 					t.Sign(Net, God);
+ 					t.Sign(Net, God, SigningFeatures.Deterministic);
 
 					GetRound(i).Payloads = [v];
 				}
 		
-				v.Sign(God);
+				v.Sign(God, SigningFeatures.Deterministic);
 				Add(v, false);
 				v.Round.VotesOfTry = v.Round.Selected = [v];
 				
@@ -256,6 +256,7 @@ public abstract class Mcv /// Mutual chain voting
 			Debugger.Break();
 
 		Tail.Clear();
+		RawRounds.Clear();
 
 		GraphState = null;
 		GraphHash = Net.Cryptography.ZeroHash;
@@ -560,11 +561,15 @@ public abstract class Mcv /// Mutual chain voting
 			if(i.Id == rid)
 				return i;
 
+		if(RawRounds.TryGetValue(rid, out var r))
+			return r;
+
 		var d = Rocks.Get(BitConverter.GetBytes(rid), ChainFamily);
 
 		if(d != null)
 		{
-			var r = CreateRound();
+			r = CreateRound();
+
 			r.Id			= rid; 
 			r.Confirmed		= true;
 			r.Raw			= d;
@@ -703,7 +708,7 @@ public abstract class Mcv /// Mutual chain voting
 			w.Write7BitEncodedInt(round.Id);
 
 			b.Put(ChainStateKey, s.ToArray());
-	
+
 			if(round.Raw == null)
 				round.Archive();
 	

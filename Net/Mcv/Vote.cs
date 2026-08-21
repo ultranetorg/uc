@@ -96,9 +96,9 @@ public class Vote : IBinarySerializable
 		Transactions = Transactions.Prepend(t).ToArray();
 	}
 	
-	public void Sign(SecretKey generator)
+	public void Sign(SecretKey generator, SigningFeatures deterministic)
 	{
-		Signature = Mcv.Net.Cryptography.Sign(generator, Hashify());
+		Signature = Mcv.Net.Cryptography.Sign(generator, Hashify(), deterministic);
 	}
 
 	public byte[] Hashify()
@@ -126,7 +126,7 @@ public class Vote : IBinarySerializable
 		///writer.Write(FundLeavers);
 		writer.Write(Violators);
 
-		writer.Write(Transactions, t => t.WriteForVote(writer));
+		writer.Write(Transactions, t => t.Write(writer));
 
 		writer.Write(OutwardResults);
 		writer.Write(FriendTransferRequests, writer.WriteBytes);
@@ -146,7 +146,7 @@ public class Vote : IBinarySerializable
 
 		Transactions				 = reader.ReadArray(() =>	{
 																	var t = new Transaction {Vote = this};
-																	t.ReadForVote(reader);
+																	t.Read(reader);
 																	return t;
 																});
 

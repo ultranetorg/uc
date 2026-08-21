@@ -32,7 +32,6 @@ public enum NodeError : uint
 	NotSeed,
 	NotSynchronized,
 	NoSession,
-	Timeout,
 	TransactionRejected,
 	TooEearly,
 	Unknown,

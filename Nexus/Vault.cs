@@ -242,9 +242,9 @@ public class Vault
 					Signer = acc.Address, 
 					Signature = cryptography switch 
 					{
-						CryptographyType.No		=> Cryptography.No.Sign(acc.Key, Hash),
-						CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Key, Hash),
-						CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Key, Hash),
+						CryptographyType.No		=> Cryptography.No.Sign(acc.Key, Hash, SigningFeatures.None),
+						CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Key, Hash, SigningFeatures.None),
+						CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Key, Hash, SigningFeatures.None),
 						_ => throw new VaultException(VaultError.UnknownCtyptography)
 					}
 				};

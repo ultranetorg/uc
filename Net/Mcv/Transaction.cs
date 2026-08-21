@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Text;
 
 namespace Uccs.Net;
 
@@ -57,10 +58,10 @@ public class Transaction : IBinarySerializable
 		return $"{nameof(User)}={User}, {nameof(Nonce)}={Nonce}, {Status}, {nameof(Operations)}={(Operations != null ? (Operations.Length == 1 ?  $"{Operations.First()}" : $"{{{Operations.Length}}}") : null)}, {nameof(Expiration)}={Expiration}, {nameof(Signature)}={Signature?.ToHexPrefix()}";
 	}
 
-	public void Sign(McvNet net, SecretKey signer)
+	public void Sign(McvNet net, SecretKey signer, SigningFeatures deterministic)
 	{
 		//Signer = signer.Address;
-		Signature = net.Cryptography.Sign(signer, Hashify(net));
+		Signature = net.Cryptography.Sign(signer, Hashify(net), deterministic);
 	}
 
 	public void AddOperation(Operation operation)
@@ -75,21 +76,59 @@ public class Transaction : IBinarySerializable
 		var w = new Writer(s, net.Constructor);
 
 		w.Write(net.Zone);
-		w.WriteUtf8(net.Address);
-		//w.Write(Member);
+		w.WriteASCII(net.Address);
 		w.WriteASCII(User);
-		w.Write7BitEncodedInt(Nonce);
-		w.Write7BitEncodedInt(Expiration);
+		w.Write(Nonce);
+		w.Write(Expiration);
 		w.Write(Boost);
+		w.WriteBytes(Pow);
 		w.WriteBytes(Tag);
 		w.WriteVirtual(Operations);
 
 		return s.Hash;
 	}
 
+	internal void Dump(McvNet net, string tab, StringBuilder builder)
+	{
+		builder.Append(tab);		builder.AppendLine($"Zone: {net.Zone}" );
+		builder.Append(tab);		builder.AppendLine($"Address: {net.Address}" );
+		builder.Append(tab);		builder.AppendLine($"Nonce: {Nonce}" );
+		builder.Append(tab);		builder.AppendLine($"Expiration: {Expiration}" );
+		builder.Append(tab);		builder.AppendLine($"Boost: {Boost}" );
+		builder.Append(tab);		builder.AppendLine($"Pow: {Pow?.ToHex()}" );
+		builder.Append(tab);		builder.AppendLine($"Tag: {Tag?.ToHex()}" );
+
+		builder.Append(tab);		builder.AppendLine($"{nameof(Operations)}: ");
+		foreach(var i in Operations)
+			builder.AppendLine($"{tab}\t{i}");
+	}
+
 	#if DEBUG
 	static readonly long __Checker = 0x0123456789ABCDEF;
 	#endif
+
+	public void Write(Writer writer)
+	{
+		writer.Write(ActionOnResult);
+	
+		WriteConfirmed(writer);
+
+		#if DEBUG
+		writer.Write(__Checker);
+		#endif
+	}
+
+	public void Read(Reader reader)
+	{
+		ActionOnResult		= reader.Read<ActionOnResult>();
+	
+		ReadConfirmed(reader);
+
+		#if DEBUG
+		if(reader.ReadInt64() != __Checker)
+			throw new IntegrityException();
+		#endif
+	}
 
  	public void	WriteConfirmed(Writer writer)
  	{
@@ -98,7 +137,9 @@ public class Transaction : IBinarySerializable
 		writer.Write7BitEncodedInt(Expiration);
 		writer.Write7BitEncodedInt64(Boost);
 		writer.WriteBytes(Tag);
+		writer.WriteBytes(Pow);
 		writer.WriteVirtual(Operations);
+
 		writer.WriteBytes(Signature);
 
 		#if DEBUG
@@ -115,6 +156,7 @@ public class Transaction : IBinarySerializable
 		Expiration	= reader.Read7BitEncodedInt();
 		Boost		= reader.Read7BitEncodedInt64();
 		Tag			= reader.ReadBytes();
+		Pow			= reader.ReadBytes();
  		Operations	= reader.ReadArray(() => {
  												var o = reader.ReadVirtual<Operation>();
  												o.Transaction = this;
@@ -129,87 +171,46 @@ public class Transaction : IBinarySerializable
 		#endif
  	}
 
-	public void	WriteForVote(Writer writer)
-	{
-		writer.Write(ActionOnResult);
-
-		writer.WriteUtf8(User);
-		//writer.Write(Member);
-		writer.Write7BitEncodedInt(Nonce);
-		writer.Write7BitEncodedInt(Expiration);
-		writer.Write7BitEncodedInt64(Boost);
-		writer.WriteBytes(Tag);
-		writer.WriteVirtual(Operations);
-		writer.Write(Signature);
-
-		#if DEBUG
-		writer.Write(__Checker);
-		#endif
-	}
- 		
-	public void	ReadForVote(Reader reader)
-	{
-		ActionOnResult		= reader.Read<ActionOnResult>();
-
-		User				= reader.ReadUtf8();
-		//Member				= reader.Read<AutoId>();
-		Nonce				= reader.Read7BitEncodedInt();
-		Expiration			= reader.Read7BitEncodedInt();
-		Boost				= reader.Read7BitEncodedInt64();
-		Tag					= reader.ReadBytes();
- 		Operations			= reader.ReadArray(() => {
- 													 	var o = reader.ReadVirtual<Operation>();
- 													 	o.Transaction	= this;
- 													 	return o; 
- 													 });
-		Signature			= reader.ReadSignature();
-
-		#if DEBUG
-		if(reader.ReadInt64() != __Checker)
-			throw new IntegrityException();
-		#endif
-	}
-
-	public void Write(Writer writer)
-	{
-		writer.Write(ActionOnResult);
-		writer.Write(Signature);
-	
-		writer.WriteUtf8(User);
-		writer.Write7BitEncodedInt(Nonce);
-		writer.Write7BitEncodedInt(Expiration);
-		writer.Write7BitEncodedInt64(Boost);
-		writer.WriteBytes(Tag);
-		writer.WriteBytes(Pow);
-		writer.WriteVirtual(Operations);
-
-		#if DEBUG
-		writer.Write(__Checker);
-		#endif
-	}
-
-	public void Read(Reader reader)
-	{
-		ActionOnResult		= reader.Read<ActionOnResult>();
-		Signature			= reader.ReadSignature();
-	
-		User				= reader.ReadUtf8();
-		Nonce				= reader.Read7BitEncodedInt();
-		Expiration			= reader.Read7BitEncodedInt();
-		Boost				= reader.Read7BitEncodedInt64();
-		Tag					= reader.ReadBytes();
-		Pow					= reader.ReadBytes();
-		Operations			= reader.ReadArray(() => {
-														var o = reader.ReadVirtual<Operation>();
-														o.Transaction = this;
-														return o; 
-													});
-
-		#if DEBUG
-		if(reader.ReadInt64() != __Checker)
-			throw new IntegrityException();
-		#endif
-	}
+//	public void	WriteForVote(Writer writer)
+//	{
+//		writer.Write(ActionOnResult);
+//
+//		writer.WriteASCII(User);
+//		//writer.Write(Member);
+//		writer.Write7BitEncodedInt(Nonce);
+//		writer.Write7BitEncodedInt(Expiration);
+//		writer.Write7BitEncodedInt64(Boost);
+//		writer.WriteBytes(Tag);
+//		writer.WriteVirtual(Operations);
+//		writer.Write(Signature);
+//
+//		#if DEBUG
+//		writer.Write(__Checker);
+//		#endif
+//	}
+// 		
+//	public void	ReadForVote(Reader reader)
+//	{
+//		ActionOnResult		= reader.Read<ActionOnResult>();
+//
+//		User				= reader.ReadASCII();
+//		//Member			= reader.Read<AutoId>();
+//		Nonce				= reader.Read7BitEncodedInt();
+//		Expiration			= reader.Read7BitEncodedInt();
+//		Boost				= reader.Read7BitEncodedInt64();
+//		Tag					= reader.ReadBytes();
+// 		Operations			= reader.ReadArray(() => {
+// 													 	var o = reader.ReadVirtual<Operation>();
+// 													 	o.Transaction	= this;
+// 													 	return o; 
+// 													 });
+//		Signature			= reader.ReadSignature();
+//
+//		#if DEBUG
+//		if(reader.ReadInt64() != __Checker)
+//			throw new IntegrityException();
+//		#endif
+//	}
 
 	public void CreatePow(McvNode node)
 	{
@@ -249,5 +250,4 @@ public class Transaction : IBinarySerializable
 			Pow = new byte[32];
 		}
 	}
-
 }

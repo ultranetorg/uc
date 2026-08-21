@@ -19,7 +19,7 @@ public class SecretKeyTests
 		var k = SecretKey.Create();
 		var kk = SecretKey.Create();
 
-		var s = Cryptography.Mcv.Sign(k, h);
+		var s = Cryptography.Mcv.Sign(k, h, SigningFeatures.None);
 
 
 		Assert.True(k.PuplicKey == PublicKey.Parse(k.PuplicKey.ToString()));

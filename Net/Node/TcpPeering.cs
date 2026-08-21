@@ -384,9 +384,8 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 							return;
 
 						failed:
-							if(peer != null)
-								lock(Lock)
-									peer.Disconnect();;
+							lock(Lock)
+								peer?.Disconnect();;
 
 							tcp.Close();
 
@@ -427,7 +426,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 			if(!NodeGlobals.InfiniteTimeouts)
 				if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
-					throw new NodeException(NodeError.Timeout);
+					throw new TimeoutException();
 			
 			Thread.Sleep(1);
 		}
@@ -471,7 +470,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 			if(!NodeGlobals.InfiniteTimeouts)
 				if(DateTime.Now - t > TimeSpan.FromMilliseconds(Timeout))
-					throw new NodeException(NodeError.Timeout);
+					throw new TimeoutException();
 			
 			Thread.Sleep(1);
 		}

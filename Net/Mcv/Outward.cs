@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace Uccs.Net;
 
@@ -96,4 +97,10 @@ public struct OutwardResult : IBinarySerializable, IEquatable<OutwardResult>, IC
 		return !left.Equals(right);
 	}
 
+	internal void Dump(string tab, StringBuilder b)
+	{
+		b.Append(tab);		b.AppendLine(User.ToString());
+		b.Append(tab);		b.AppendLine(Id.ToString());
+		b.Append(tab);		b.AppendLine(Approved.ToString());
+	}
 }
