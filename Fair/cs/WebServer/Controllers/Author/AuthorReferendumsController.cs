@@ -6,14 +6,18 @@ namespace Uccs.Fair;
 [Route("api/author/stores/{storeId}/referendums")]
 public class AuthorReferendumsController
 (
+#if DEBUG
 	ILogger<AuthorReferendumsController> logger,
+#endif
 	ProposalService proposalsService
 ) : BaseController
 {
 	[HttpGet]
 	public IEnumerable<ProposalModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
-		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.GetAll)} method called with {{StoreId}}, {{Pagination}}, {{Search}}", storeId, pagination, search);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(AuthorReferendumsController), nameof(AuthorReferendumsController.GetAll), storeId, pagination, search);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);
@@ -27,7 +31,9 @@ public class AuthorReferendumsController
 	[HttpGet("{referendumId}")]
 	public ProposalDetailsModel Get(string storeId, string referendumId)
 	{
-		logger.LogInformation($"GET {nameof(AuthorReferendumsController)}.{nameof(AuthorReferendumsController.Get)} method called with {{StoreId}}, {{ReferendumId}}", storeId, referendumId);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ReferendumId}", nameof(AuthorReferendumsController), nameof(AuthorReferendumsController.Get), storeId, referendumId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		AutoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());

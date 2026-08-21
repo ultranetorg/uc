@@ -2,12 +2,20 @@
 
 namespace Uccs.Fair;
 
-public class NodeController(ILogger<NodeController> logger, FairNode node) : BaseController
+public class NodeController
+(
+#if DEBUG
+	ILogger<NodeController> logger,
+#endif
+	FairNode node
+) : BaseController
 {
 	[HttpGet("urls/nexus")]
 	public string GetNexusUrl()
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called", nameof(ProductsController), nameof(GetNexusUrl));
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called", nameof(NodeController), nameof(NodeController.GetNexusUrl));
+#endif
 
 		return new IpApiSettings {LocalIP = node.Net.Zone == Zone.Simulation ? node.NexusSettings.Host : NexusSettings.StandardHost}.LocalSystemAddress(node.Net.Zone, Api.Nexus);
 	}
@@ -15,7 +23,9 @@ public class NodeController(ILogger<NodeController> logger, FairNode node) : Bas
 	[HttpGet("urls/vault")]
 	public string GetVaultUrl()
 	{
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called", nameof(ProductsController), nameof(GetVaultUrl));
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called", nameof(NodeController), nameof(NodeController.GetVaultUrl));
+#endif
 
 		return new IpApiSettings {LocalIP = node.Net.Zone == Zone.Simulation ? node.NexusSettings.Host : NexusSettings.StandardHost}.LocalSystemAddress(node.Net.Zone, Api.Vault);
 	}

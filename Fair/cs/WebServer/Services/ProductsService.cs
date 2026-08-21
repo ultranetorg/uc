@@ -1,20 +1,23 @@
 using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class ProductsService
 (
+#if DEBUG
 	ILogger<ProductsService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public IEnumerable<FieldValueModel>? GetFields([NotNull][NotEmpty] string productId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetFields), productId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(productId);
 
-		Guard.Against.NullOrEmpty(productId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(ProductsService.GetFields), productId);
+#endif
 
 		AutoId id = AutoId.Parse(productId);
 
@@ -29,9 +32,11 @@ public class ProductsService
 
 	public ProductDetailsModel GetDetails([NotNull][NotEmpty] string productId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(GetDetails), productId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(productId);
 
-		Guard.Against.NullOrEmpty(productId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(ProductsService.GetDetails), productId);
+#endif
 
 		AutoId id = AutoId.Parse(productId);
 
@@ -61,10 +66,12 @@ public class ProductsService
 
 	public PublicationDetailsDiffModel GetDiff([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int version)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(ProductsService), nameof(GetDiff), publicationId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(publicationId);
+		ArgumentOutOfRangeException.ThrowIfNegative(version);
 
-		Guard.Against.NullOrEmpty(publicationId);
-		Guard.Against.Negative(version);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}, {Version}", nameof(ProductsService), nameof(ProductsService.GetDiff), publicationId, version);
+#endif
 
 		AutoId id = AutoId.Parse(publicationId);
 
@@ -107,11 +114,13 @@ public class ProductsService
 
 	public TotalItemsResult<ProductStoreModel> GetProductStores([NotNull][NotEmpty] string productId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(GetProductStores), productId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(productId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegative(pageSize);
 
-		Guard.Against.NullOrEmpty(productId);
-		Guard.Against.Negative(page);
-		Guard.Against.Negative(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.GetProductStores), productId, page, pageSize);
+#endif
 
 		AutoId id = AutoId.Parse(productId);
 
@@ -160,7 +169,7 @@ public class ProductsService
 	public IEnumerable<ProductSearchResultModel> Search([NotNull][NotEmpty] string query, ProductType productType, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		ArgumentNullException.ThrowIfNull(query);
+		ArgumentException.ThrowIfNullOrEmpty(query);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
@@ -212,11 +221,13 @@ public class ProductsService
 
 	public TotalItemsResult<ProductPublicationModel> GetProductPublications(string productId, int page, int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductPublicationModel), productId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(productId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(productId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.GetProductPublications), productId, page, pageSize);
+#endif
 
 		AutoId id = AutoId.Parse(productId);
 
@@ -236,8 +247,8 @@ public class ProductsService
 	//{
 	//	logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(ProductsService), nameof(ProductsService.SearchLite), query, limit);
 
-	//	Guard.Against.NullOrEmpty(query);
-	//	Guard.Against.NegativeOrZero(limit);
+	//	ArgumentException.ThrowIfNullOrEmpty(query);
+	//	ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit);
 
 	//	var result = mcv.ProductTitles.Search(query, ProductType.Software, 0, limit);
 	//	return MapTo<ProductSearchResultBaseModel>(result, cancellationToken);

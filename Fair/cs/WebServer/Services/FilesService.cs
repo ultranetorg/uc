@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
-using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
 using Uccs.Web.Pagination;
 
@@ -8,18 +7,22 @@ namespace Uccs.Fair;
 
 public class FilesService
 (
+#if DEBUG
 	ILogger<CategoriesService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public TotalItemsResult<FileModel> GetAuthorFiles([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {StoreId}, {AuthorId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetAuthorFiles), storeId, authorId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(authorId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(authorId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {AuthorId}, {Page}, {PageSize}", nameof(FilesService), nameof(FilesService.GetAuthorFiles), storeId, authorId, page, pageSize);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 		AutoId authorEntityId = AutoId.Parse(authorId);
@@ -41,11 +44,13 @@ public class FilesService
 
 	public TotalItemsResult<FileModel> GetStoreFiles([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(FilesService), nameof(GetStoreFiles), storeId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(FilesService), nameof(FilesService.GetStoreFiles), storeId, page, pageSize);
+#endif
 
 		AutoId id = AutoId.Parse(storeId);
 
@@ -98,9 +103,11 @@ public class FilesService
 
 	public FileContentResult GetFile([NotNull][NotEmpty] string fileId)
 	{
-		logger.LogDebug("GET {ClassName}.{MethodName} method called with {FileId}", nameof(FilesService), nameof(GetFile), fileId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(fileId);
 
-		Guard.Against.NullOrEmpty(fileId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {FileId}", nameof(FilesService), nameof(FilesService.GetFile), fileId);
+#endif
 
 		AutoId id = AutoId.Parse(fileId);
 

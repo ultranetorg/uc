@@ -1,20 +1,23 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class AuthorsService
 (
+#if DEBUG
 	ILogger<AuthorsService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public AuthorDetailsModel GetDetails(string authorId)
 	{
-		logger.LogDebug($"GET {nameof(AuthorsService)}.{nameof(AuthorsService.GetDetails)} method called with {{AuthorId}}", authorId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(authorId);
 
-		Guard.Against.NullOrEmpty(authorId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {AuthorId}", nameof(AuthorsService), nameof(AuthorsService.GetDetails), authorId);
+#endif
 
 		AutoId authorEntityId = AutoId.Parse(authorId);
 
@@ -43,11 +46,13 @@ public class AuthorsService
 
 	public TotalItemsResult<ProductAuthorModel> GetProducts([NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {AuthorId}, {Page}, {PageSize}", nameof(AuthorsService), nameof(AuthorsService.GetProducts), authorId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(authorId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(authorId);
-		Guard.Against.Negative(page);
-		Guard.Against.NegativeOrZero(pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {AuthorId}, {Page}, {PageSize}", nameof(AuthorsService), nameof(AuthorsService.GetProducts), authorId, page, pageSize);
+#endif
 
 		AutoId authorEntityId = AutoId.Parse(authorId);
 		Author author = mcv.Authors.Latest(authorEntityId);

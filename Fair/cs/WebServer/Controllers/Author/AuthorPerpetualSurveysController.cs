@@ -6,14 +6,18 @@ namespace Uccs.Fair;
 [Route("api/author/stores/{storeId}/perpetual-surveys")]
 public class AuthorPerpetualSurveysController
 (
+#if DEBUG
 	ILogger<AuthorPerpetualSurveysController> logger,
+#endif
 	PerpetualSurveysService proposalsService
 ) : BaseController
 {
 	[HttpGet]
 	public IEnumerable<PerpetualSurveyModel> Get(string storeId, CancellationToken cancellationToken)
 	{
+#if DEBUG
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.Get), storeId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
@@ -23,7 +27,9 @@ public class AuthorPerpetualSurveysController
 	[HttpGet("{perpetualSurveyId}")]
 	public PerpetualSurveyDetailsModel GetDetails(string storeId, int perpetualSurveyId)
 	{
+#if DEBUG
 		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {PerpetualSurveyId}", nameof(AuthorPerpetualSurveysController), nameof(AuthorPerpetualSurveysController.GetDetails), storeId, perpetualSurveyId);
+#endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		ValidatePerpetualSurveyId(perpetualSurveyId);

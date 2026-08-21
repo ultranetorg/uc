@@ -1,24 +1,27 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
 public class ProposalCommentsService
 (
+#if DEBUG
 	ILogger<ProposalCommentsService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	public TotalItemsResult<ProposalCommentModel> GetProposalComments([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string proposalId,
 		[NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-		logger.LogDebug($"GET {nameof(ProposalCommentsService)}.{nameof(ProposalCommentsService.GetProposalComments)} method called with {{StoreId}}, {{ProposalId}}, {{Page}}, {{PageSize}}", storeId, proposalId, page, pageSize);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentException.ThrowIfNullOrEmpty(proposalId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-		Guard.Against.NullOrEmpty(storeId);
-		Guard.Against.NullOrEmpty(proposalId);
-		Guard.Against.Negative(page, nameof(page));
-		Guard.Against.NegativeOrZero(pageSize, nameof(pageSize));
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProposalId}, {Page}, {PageSize}", nameof(ProposalCommentsService), nameof(ProposalCommentsService.GetProposalComments), storeId, proposalId, page, pageSize);
+#endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
 		AutoId proposalEntityId = AutoId.Parse(proposalId);

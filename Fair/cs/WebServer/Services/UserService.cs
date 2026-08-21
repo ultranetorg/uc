@@ -1,22 +1,25 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
-using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
 public class UserService
 (
+#if DEBUG
 	ILogger<UserService> logger,
+#endif
 	FairMcv mcv
 )
 {
 	[Obsolete("This method is deprected use GetUserAvatar instead")]
 	public FileContentResult GetAvatar([NotNull][NotEmpty] string accountId)
 	{
-		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountId}", nameof(UserService), nameof(GetAvatar), accountId);
+#if DEBUG
+		ArgumentException.ThrowIfNullOrEmpty(accountId);
 
-		Guard.Against.NullOrEmpty(accountId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountId}", nameof(UserService), nameof(UserService.GetAvatar), accountId);
+#endif
 
 		AutoId id = AutoId.Parse(accountId);
 

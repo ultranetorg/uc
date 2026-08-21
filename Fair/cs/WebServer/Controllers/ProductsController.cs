@@ -15,7 +15,7 @@ public class ProductsController
 	public IEnumerable<ProductSearchResultModel> Search([FromQuery] string? query, ProductType productType, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Query}, {Pagination}", nameof(ProductsController), nameof(ProductsController.Search), query, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Query}, {ProductType}, {Pagination}", nameof(ProductsController), nameof(ProductsController.Search), query, productType, pagination);
 #endif
 
 		SearchQueryValidator.Validate(query);
@@ -29,7 +29,7 @@ public class ProductsController
 	public IEnumerable<ProductPublicationModel> GetProductPublications(string productId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(GetProductPublications), productId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(ProductsController.GetProductPublications), productId, pagination);
 #endif
 
 		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
@@ -45,7 +45,7 @@ public class ProductsController
 	public ProductDetailsModel GetDetails(string productId)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}", nameof(ProductsController), nameof(GetDetails), productId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}", nameof(ProductsController), nameof(ProductsController.GetDetails), productId);
 #endif
 
 		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
@@ -56,8 +56,8 @@ public class ProductsController
 	[HttpGet("{productId}/stores")]
 	public IEnumerable<ProductStoreModel> GetProductStores(string productId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
-#if DEBUG		
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(GetDetails), productId, pagination);
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(ProductsController.GetProductStores), productId, pagination);
 #endif
 
 		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
