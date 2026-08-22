@@ -101,6 +101,8 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 	public virtual void Run()
 	{
+		NodeGlobals.NodePreRun?.Invoke(this);
+
 		if(Settings.Endpoint != null)
 		{
 			ListeningThread = Program.CreateThread(Listening);

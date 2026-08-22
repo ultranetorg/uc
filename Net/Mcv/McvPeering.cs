@@ -159,7 +159,7 @@ public abstract class McvPeering : HomoPeering
 				MinimalPeersReached = true;
 				Flow.Log?.Report(this, $"{nameof(MinimalPeersReached)} reached");
 	
-				if(Mcv != null && !NodeGlobals.DoNotSynchronize)
+				if(Mcv != null)
 					Synchronize();
 			}
 		}
@@ -178,7 +178,7 @@ public abstract class McvPeering : HomoPeering
 	{
 		lock(Mcv.Lock)
 		{
-			if(Settings.Endpoint != null && Settings.Endpoint.Equals(Net.Father0EP) && Mcv.Settings.Memberships.Any(g => g.Generator == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
+			if(NodeGlobals.ForceSynchronized || Settings.Endpoint != null && Settings.Endpoint.Equals(Net.Father0EP) && Mcv.Settings.Memberships.Any(g => g.Generator == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -487,6 +487,30 @@ public abstract class McvPeering : HomoPeering
 		Synchronize();
 	}
 
+
+	public Vote CreateVote(Round r, AutoId generator) 
+	{
+		var v = Mcv.CreateVote();
+
+		v.Try							= r.Try;
+		v.TargetHash					= r.Target.Hash;
+		v.Generator						= generator;
+		v.RoundId						= r.Id;
+		v.Time							= Time.Now(Mcv.Clock);
+		v.Violators						= [..r.ProposeViolators()];
+		v.Leavers						= [..r.ProposeMemberLeavers(generator)];
+		v.FriendTransferRequests		= [..Mcv.FriendTransferRequests.Select(i => i.Hash)];
+		v.FriendTransferConfirmations	= [..Mcv.FriendTransferResults.Keys];
+		v.OutwardResults				= [..Mcv.OutwardResults];
+						
+		//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
+		//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
+	
+		Mcv.FillVote(v);
+	
+		return v;
+	}
+
 	public void Generate(Round round = null) /// NEVER WAIT AFTER ERRROS HERE
 	{
 		Statistics.Generating.Begin();
@@ -501,7 +525,7 @@ public abstract class McvPeering : HomoPeering
 			var s = FindSession(gs.Generator);
 
 			if(s == null)
-				continue;;
+				continue;
 			
 			if(gs.GeneratorId == null)
 			{
@@ -578,29 +602,6 @@ public abstract class McvPeering : HomoPeering
 					if(r.Target.Hash == null) /// Summarize failed
 						continue;
 				}
-
-				Vote createvote(Round r)
-				{
-					var v = Mcv.CreateVote();
-
-					v.Try							= r.Try;
-					v.TargetHash					= r.Target.Hash;
-					v.Generator						= m.Generator;
-					v.RoundId						= r.Id;
-					v.Time							= Time.Now(Mcv.Clock);
-					v.Violators						= [..r.ProposeViolators()];
-					v.Leavers						= [..r.ProposeMemberLeavers(gs.GeneratorId)];
-					v.FriendTransferRequests		= [..Mcv.FriendTransferRequests.Select(i => i.Hash)];
-					v.FriendTransferConfirmations	= [..Mcv.FriendTransferResults.Keys];
-					v.OutwardResults				= [..Mcv.OutwardResults];
-						
-					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
-					//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
-	
-					Mcv.FillVote(v);
-	
-					return v;
-				}
 	
 				lock(CandidateTransactions)
 				{
@@ -610,7 +611,7 @@ public abstract class McvPeering : HomoPeering
 				
 					if(txs.Any() || must)
 					{
-						var v = createvote(r);
+						var v = CreateVote(r, gs.GeneratorId);
 						var deferred = new List<Transaction>();
 						var pp = r.Target.Previous;
 									
