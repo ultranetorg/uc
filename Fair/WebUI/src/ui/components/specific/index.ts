@@ -1,5 +1,4 @@
 export * from "./MemberFilesModal"
-export * from "./CategoriesList"
 export * from "./CategoriesPublicationsList"
 export * from "./CurrentAccount"
 export * from "./FilesGrid"
