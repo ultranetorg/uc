@@ -19,11 +19,13 @@ public class SecretKeyTests
 		var k = SecretKey.Create();
 		var kk = SecretKey.Create();
 
-		var s = Cryptography.Mcv.Sign(k, h);
+		var s = Cryptography.Mcv.Sign(k, h, SigningFeatures.None);
+		var sd = Cryptography.Mcv.Sign(k, h, SigningFeatures.Deterministic);
 
 
 		Assert.True(k.PuplicKey == PublicKey.Parse(k.PuplicKey.ToString()));
 		Assert.True(Cryptography.Mcv.Verify(k.PuplicKey, h, s));
+		Assert.True(Cryptography.Mcv.Verify(k.PuplicKey, h, sd));
 		Assert.False(Cryptography.Mcv.Verify(kk.PuplicKey, h, s));
 					
 		var v = new Vault(Zone.Test, new VaultSettings{}, new Flow());

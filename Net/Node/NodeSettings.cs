@@ -36,12 +36,15 @@ public class SecretSettings
 
 public class NodeGlobals
 {
-	public static bool				InfiniteTimeouts;
-	public static bool				NoWait;
-	public static bool				DumpOnError;
-	public static int				TimeoutOnError = 1000;
-	public static bool				ThrowOnCorrupted;
-	public static bool				ForceApproveOutwards;
+	public static bool					InfiniteTimeouts;
+	public static bool					NoWait;
+	public static bool					DumpOnError;
+	public static int					TimeoutAfterTransactingError = 1000;
+	public static bool					ThrowOnCorrupted;
+	public static bool					ForceApproveOutwards;
+	public static bool					ForceSynchronized;
+	public static bool					DumpRoundOnHashify;
+	public static Action<Peering>		NodePreRun;
 
 	public static bool				Any => Fields.Any(i => (bool)i.GetValue(null));
 	static IEnumerable<FieldInfo>	Fields => typeof(NodeGlobals).GetFields().Where(i => i.FieldType == typeof(bool));

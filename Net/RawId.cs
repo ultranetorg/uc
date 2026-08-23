@@ -29,9 +29,9 @@ public class RawId : EntityId
 
 	public override int GetHashCode()
 	{
-		if(Bytes.Length == 1) return									   Bytes[0];
-		if(Bytes.Length == 2) return					   Bytes[1] << 8 | Bytes[0];
-		if(Bytes.Length == 3) return	  Bytes[2] << 16 | Bytes[1] << 8 | Bytes[0];
+		if(Bytes.Length == 1) return Bytes[0];
+		if(Bytes.Length == 2) return Bytes[0] | Bytes[1] << 8;
+		if(Bytes.Length == 3) return Bytes[0] | Bytes[1] << 8 | Bytes[2] << 16;
 		
 		return Bytes[3] << 24 | Bytes[2] << 16 | Bytes[1] << 8 | Bytes[0];
 	}

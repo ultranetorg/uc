@@ -106,6 +106,9 @@ public class HomoPeer : Peer, IHomoPeer
 
  						break;
  					}
+
+					default:
+						throw new IntegrityException();
 				}
 
 				Peering.Statistics.Reading.End();
@@ -161,13 +164,13 @@ public class HomoPeer : Peer, IHomoPeer
 			OutRequests.Add(p);
 		}
 
-		Write(PacketType.Request, p.Id, args);
-
 		int i = -1;
+
+		Write(PacketType.Request, p.Id, args);
 
 		try
 		{
-			i = WaitHandle.WaitAny([p.Event, flow.Cancellation.WaitHandle, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 10 * 1000);
+			i = WaitHandle.WaitAny([p.Event, flow.Cancellation.WaitHandle, Peering.Flow.Cancellation.WaitHandle], NodeGlobals.InfiniteTimeouts ? Timeout.Infinite : 20 * 1000);
 		}
 		catch(ObjectDisposedException)
 		{
@@ -186,7 +189,7 @@ public class HomoPeer : Peer, IHomoPeer
 			if(p.Exception == null)
 			{
 				if(p.Result == null)
-					throw new NodeException(NodeError.Connectivity);
+					throw new IntegrityException();
 
 				return p.Result;
 			}
@@ -198,6 +201,11 @@ public class HomoPeer : Peer, IHomoPeer
 		else if(i == 1 || i == 2)
 			throw new OperationCanceledException();
 		else
-			throw new NodeException(NodeError.Timeout);
+		{	
+			lock(Peering.Lock)
+				Disconnect();
+
+			throw new TimeoutException();
+		}
 	}
 }

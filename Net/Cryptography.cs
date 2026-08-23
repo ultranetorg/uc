@@ -8,30 +8,33 @@ using Org.BouncyCastle.Security;
 
 namespace Uccs.Net;
 
+public enum SigningFeatures
+{
+	None = 0,
+	Deterministic
+}
+
 public abstract class Cryptography
 {
-	public static readonly Cryptography				No = new NoCryptography();
-	public static readonly Cryptography				Mcv = new McvCryptography();
-	public static readonly Cryptography				Iccp = new IccpCryptography();
+	public static readonly Cryptography		No = new NoCryptography();
+	public static readonly Cryptography		Mcv = new McvCryptography();
+	public static readonly Cryptography		Iccp = new IccpCryptography();
 
-	public const int								HashLength = 32;
-	public const int								SignatureLength = 64;
-	public const int								PrivateKeyLength = 32;
-	public virtual byte[]							ZeroSignature => new byte[SignatureLength];
-	public virtual byte[]							ZeroHash  => new byte[HashLength];
+	public const int						HashLength = 32;
+	public const int						SignatureLength = 64;
+	public const int						PrivateKeyLength = 32;
+	public virtual byte[]					ZeroSignature => new byte[SignatureLength];
+	public virtual byte[]					ZeroHash  => new byte[HashLength];
 
-	public abstract CryptographyType				Type {get; }
+	public abstract byte[]					Sign(SecretKey key, byte[] hash, SigningFeatures deterministic);
+	public abstract bool					Verify(PublicKey key, byte[] hash, byte[] signature);
+    public abstract byte[]					HashifyPassword(string password, byte[] salt);
 
-	public abstract byte[]							Sign(SecretKey pk, byte[] hash);
-	public abstract bool							Verify(PublicKey address, byte[] hash, byte[] signature);
-    public abstract byte[]							HashifyPassword(string password, byte[] salt);
-													
-
-	public static readonly SecureRandom				Random = new ();
+	public abstract CryptographyType		Type {get; }
+	public static readonly SecureRandom		Random = new ();
 
 	///[ThreadStatic]
 	//public static DZen.Security.Cryptography.SHA3	SHA;
-
 
 	protected Cryptography()
 	{
@@ -132,19 +135,26 @@ public class NoCryptography : Cryptography
 {
 	public override CryptographyType Type => CryptographyType.No;
 
-	public override byte[] Sign(SecretKey k, byte[] h)
+	public override byte[] Sign(SecretKey k, byte[] h, SigningFeatures deterministic)
 	{
 		var s = new byte[SignatureLength];
 
-		Array.Copy(h, 0, s, 0, h.Length);
+		if(deterministic.HasFlag(SigningFeatures.Deterministic))
+			Array.Copy(h, 0, s, 0, h.Length);
+		else
+		{	
+			Array.Copy(h, 0, s, 0, h.Length/2);
+			Random.NextBytes(s, h.Length/2, h.Length/2);
+		}
+
 		Array.Copy(k.PuplicKey.Bytes, 0, s, 32, k.PuplicKey.Bytes.Length);
 
 		return s;
 	}
 
-	public override bool Verify(PublicKey address, byte[] hash, byte[] signature)
+	public override bool Verify(PublicKey key, byte[] hash, byte[] signature)
 	{
-		return Bytes.EqualityComparer.Equals(hash, signature[0..32]) && Bytes.EqualityComparer.Equals(address.Bytes, signature[32..64]);
+		return Bytes.EqualityComparer.Equals(hash.AsSpan(0, 16), signature.AsSpan(0, 16)) && Bytes.EqualityComparer.Equals(key.Bytes, signature.AsSpan(32, 32));
 	}
 
 	public override byte[] HashifyPassword(string password, byte[] salt)
@@ -157,27 +167,24 @@ public class McvCryptography : Cryptography
 {
 	public override CryptographyType Type => CryptographyType.Mcv;
 
-	public override byte[] Sign(SecretKey k, byte[] h)
+	public override byte[] Sign(SecretKey k, byte[] h, SigningFeatures deterministic)
 	{
-		return k.Sign(h);
+		return k.Sign(h, deterministic);
 	}
 
-	public override bool Verify(PublicKey address, byte[] hash, byte[] signature)
+	public override bool Verify(PublicKey key, byte[] hash, byte[] signature)
 	{
-		return SecretKey.Verify(address.Bytes, signature, hash);
+		return SecretKey.Verify(key.Bytes, signature, hash);
 	}
 
 	public override byte[] HashifyPassword(string password, byte[] salt)
 	{
-		const int MemorySizeInKb = 1024 * 1024;
-		const int Iterations = 4;
-
 		using var argon2 =	new Argon2id(Encoding.UTF8.GetBytes(password))
 							{
 								Salt = salt,
 								DegreeOfParallelism = 8,
-								MemorySize = MemorySizeInKb,
-								Iterations = Iterations
+								MemorySize = 1024 * 1024,
+								Iterations = 4
 							};
 
 		return argon2.GetBytes(HashLength);
@@ -192,11 +199,11 @@ public class IccpCryptography : McvCryptography
 public class Blake2Stream : Stream
 {
     Blake2bHashState			Hasher;
-    bool						IsFinished;
+    byte[]						_Hash;
 
     public override bool		CanRead => false;
     public override bool		CanSeek => false;
-    public override bool		CanWrite => !IsFinished;
+    public override bool		CanWrite => _Hash == null;
     public override long		Length => 0;
     public override long		Position 
     { 
@@ -213,9 +220,9 @@ public class Blake2Stream : Stream
     {
 		get
 		{
-			IsFinished = true;
+			_Hash ??= Hasher.Finish();
 		
-			return Hasher.Finish();
+			return _Hash;
 		}
 	}
 
@@ -226,7 +233,7 @@ public class Blake2Stream : Stream
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        if(IsFinished) 
+        if(!CanWrite) 
 			throw new InvalidOperationException("Hash already finalized.");
         
         Hasher.Update(buffer.AsSpan(offset, count));
@@ -234,7 +241,7 @@ public class Blake2Stream : Stream
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        if(IsFinished) 
+        if(!CanWrite) 
 			throw new InvalidOperationException("Hash already finalized.");
         
         Hasher.Update(buffer);
@@ -247,7 +254,7 @@ public class Blake2Stream : Stream
 
         try
         {
-            if(IsFinished)
+            if(!CanWrite)
 				throw new InvalidOperationException("Stream is closed/finished.");
             
             Hasher.Update(buffer.Span);

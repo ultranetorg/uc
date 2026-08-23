@@ -178,7 +178,7 @@ public abstract class McvPeering : HomoPeering
 	{
 		lock(Mcv.Lock)
 		{
-			if(Settings.Endpoint != null && Settings.Endpoint.Equals(Net.Father0EP) && Mcv.Settings.Memberships.Any(g => g.Generator == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
+			if(NodeGlobals.ForceSynchronized || Settings.Endpoint != null && Settings.Endpoint.Equals(Net.Father0EP) && Mcv.Settings.Memberships.Any(g => g.Generator == Net.Father0Name) && Mcv.LastNonEmptyRound.Id == Mcv.LastGenesisRound)
 			{
 				Synchronization = Synchronization.Synchronized;
 				return;
@@ -487,7 +487,31 @@ public abstract class McvPeering : HomoPeering
 		Synchronize();
 	}
 
-	public void Generate(Round round = null)
+
+	public Vote CreateVote(Round r, AutoId generator) 
+	{
+		var v = Mcv.CreateVote();
+
+		v.Try							= r.Try;
+		v.TargetHash					= r.Target.Hash;
+		v.Generator						= generator;
+		v.RoundId						= r.Id;
+		v.Time							= Time.Now(Mcv.Clock);
+		v.Violators						= [..r.ProposeViolators()];
+		v.Leavers						= [..r.ProposeMemberLeavers(generator)];
+		v.FriendTransferRequests		= [..Mcv.FriendTransferRequests.Select(i => i.Hash)];
+		v.FriendTransferConfirmations	= [..Mcv.FriendTransferResults.Keys];
+		v.OutwardResults				= [..Mcv.OutwardResults];
+						
+		//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
+		//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
+	
+		Mcv.FillVote(v);
+	
+		return v;
+	}
+
+	public void Generate(Round round = null) /// NEVER WAIT AFTER ERRROS HERE
 	{
 		Statistics.Generating.Begin();
 	
@@ -501,10 +525,7 @@ public abstract class McvPeering : HomoPeering
 			var s = FindSession(gs.Generator);
 
 			if(s == null)
-			{	
-				Thread.Sleep(NodeGlobals.TimeoutOnError);
-				continue;;
-			}
+				continue;
 			
 			if(gs.GeneratorId == null)
 			{
@@ -513,10 +534,7 @@ public abstract class McvPeering : HomoPeering
 				if(u != null)
 					gs.GeneratorId = u.Id;
 				else
-				{
-					Thread.Sleep(NodeGlobals.TimeoutOnError);
-					continue;
-				}	
+					continue;;
 			}	
 
 			if(gs.BeneficiaryId == null)
@@ -526,10 +544,7 @@ public abstract class McvPeering : HomoPeering
 				if(b != null)
 					gs.BeneficiaryId = b.Id;
 				else
-				{
-					Thread.Sleep(NodeGlobals.TimeoutOnError);
-					continue;
-				}	
+					continue;;
 			}
 				
 			var m = Mcv.NextVotingRound.Senders.FirstOrDefault(i => i.Generator == gs.GeneratorId);
@@ -559,7 +574,6 @@ public abstract class McvPeering : HomoPeering
 				}
 				catch(VaultException ex)
 				{
-					//Thread.Sleep(NodeGlobals.TimeoutOnError);
 					continue;
 				}
 			}
@@ -588,29 +602,6 @@ public abstract class McvPeering : HomoPeering
 					if(r.Target.Hash == null) /// Summarize failed
 						continue;
 				}
-
-				Vote createvote(Round r)
-				{
-					var v = Mcv.CreateVote();
-
-					v.Try							= r.Try;
-					v.TargetHash					= r.Target.Hash;
-					v.Generator						= m.Generator;
-					v.RoundId						= r.Id;
-					v.Time							= Time.Now(Mcv.Clock);
-					v.Violators						= [..r.ProposeViolators()];
-					v.Leavers						= [..r.ProposeMemberLeavers(gs.GeneratorId)];
-					v.FriendTransferRequests		= [..Mcv.FriendTransferRequests.Select(i => i.Hash)];
-					v.FriendTransferConfirmations	= [..Mcv.FriendTransferResults.Keys];
-					v.OutwardResults				= [..Mcv.OutwardResults];
-						
-					//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
-					//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();
-	
-					Mcv.FillVote(v);
-	
-					return v;
-				}
 	
 				lock(CandidateTransactions)
 				{
@@ -620,7 +611,7 @@ public abstract class McvPeering : HomoPeering
 				
 					if(txs.Any() || must)
 					{
-						var v = createvote(r);
+						var v = CreateVote(r, gs.GeneratorId);
 						var deferred = new List<Transaction>();
 						var pp = r.Target.Previous;
 									
@@ -796,7 +787,7 @@ public abstract class McvPeering : HomoPeering
 			}
 
 			var s = new CountStream();
-			t.WriteForVote(new Writer(s, Constructor));
+			t.Write(new Writer(s, Constructor));
 
 			t.Length = (int)s.Length;
 
@@ -952,7 +943,7 @@ public abstract class McvPeering : HomoPeering
 						}
 						catch(NodeException)
 						{
-							Thread.Sleep(NodeGlobals.TimeoutOnError);
+							Thread.Sleep(NodeGlobals.TimeoutAfterTransactingError);
 							continue;
 						}
 
@@ -966,14 +957,14 @@ public abstract class McvPeering : HomoPeering
 					{
 						t.Error = $"NodeException - {ex.Message}";
 						t.Flow.Log?.ReportError(this, "Pretransacting", ex);
-						Thread.Sleep(NodeGlobals.TimeoutOnError);
+						Thread.Sleep(NodeGlobals.TimeoutAfterTransactingError);
 						continue;
 					}
 					catch(VaultException ex)
 					{
 						t.Error = $"VaultException - {ex.Message}";
 						t.Flow.Log?.ReportError(this, "Pretransacting", ex);
-						Thread.Sleep(NodeGlobals.TimeoutOnError);
+						Thread.Sleep(NodeGlobals.TimeoutAfterTransactingError);
 						continue;
 					}
 					///catch(EntityException ex)
@@ -994,7 +985,7 @@ public abstract class McvPeering : HomoPeering
 					{
 						t.Error = $"ApiCallException - {ex.Message}";
 						t.Flow.Log?.ReportError(this, "Pretransacting", ex);
-						Thread.Sleep(NodeGlobals.TimeoutOnError);
+						Thread.Sleep(NodeGlobals.TimeoutAfterTransactingError);
 						continue;
 					}
 				}
@@ -1007,15 +998,15 @@ public abstract class McvPeering : HomoPeering
 					{
 						atxs = Call(i.Key, new PlaceTransactionsPpc {Transactions = [..i.Value]}, Flow).Results;
 					}
-					catch(NodeException ex)
+					catch(Exception ex)
 					{
 						foreach(var t in i.Value)
 						{	
-							t.Error = $"NodeException - {ex.Message}";
+							t.Error = $"PlaceTransactionsPpc - {ex.Message}";
 							t.Flow.Log?.ReportError(this, "Place", ex);
 						}
 
-						Thread.Sleep(NodeGlobals.TimeoutOnError);
+						Thread.Sleep(NodeGlobals.TimeoutAfterTransactingError);
 						continue;
 					}
 
@@ -1066,7 +1057,7 @@ public abstract class McvPeering : HomoPeering
 					{
 						ts = Call(g.Key, new TransactionStatusPpc {Tags = [..g.Select(i => i.Tag)]}, Flow);
 					}
-					catch(NodeException ex)
+					catch(Exception ex)
 					{	
 						foreach(var t in g)
 						{	
@@ -1074,7 +1065,7 @@ public abstract class McvPeering : HomoPeering
 							Flow.Log?.ReportError(this, "TransactionStatusRequest", ex);
 						}
 
-						Thread.Sleep(NodeGlobals.TimeoutOnError);
+						Thread.Sleep(NodeGlobals.TimeoutAfterTransactingError);
 						continue;
 					}
 
@@ -1188,7 +1179,7 @@ public abstract class McvPeering : HomoPeering
 
 		init();
 
-		HomoPeer p;
+		HomoPeer p = null;
 
 		while(flow.Active)
 		{
@@ -1230,17 +1221,27 @@ public abstract class McvPeering : HomoPeering
 			catch(NodeException ex)
 			{
 			}
-			catch(ObjectDisposedException ex)
-			{
-			}
-			catch(IOException ex)
-			{
-			}
 			catch(ContinueException)
 			{
 			}
 			catch(OperationCanceledException)
 			{
+				break;
+			}
+			catch(ObjectDisposedException ex)
+			{
+				lock(Lock)
+					p?.Disconnect();
+			}
+			catch(IOException ex)
+			{
+				lock(Lock)
+					p?.Disconnect();
+			}
+			catch(TimeoutException ex)
+			{
+				lock(Lock)
+					p?.Disconnect();
 			}
 		}
 
