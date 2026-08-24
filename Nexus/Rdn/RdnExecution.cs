@@ -25,6 +25,7 @@ public class RdnExecution : Execution
 	{
 		var u = base.CreateUser(name) as RdnUser;
 	
+		u.Free = true;
 		u.Domains = [];
 		u.DomainNames = [];
 

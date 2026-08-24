@@ -22,7 +22,7 @@ public abstract class Peer : IBinarySerializable
 	public long						Roles  {get; set;} 
 	public string					Name;
 
-	public ConnectionStatus			Status = ConnectionStatus.Disconnected;
+	public volatile ConnectionStatus			Status = ConnectionStatus.Disconnected;
 
 	public bool						Forced;
 	public bool						Permanent;
@@ -40,8 +40,8 @@ public abstract class Peer : IBinarySerializable
 	protected TcpClient				Tcp;
 	protected NetworkStream			Stream;
 	protected Writer				Writer;
-	protected Writer				PacketWriter;
-	protected MemoryStream			WriteStream;
+	protected Writer				BufferWriter;
+	protected MemoryStream			BufferStream;
 	protected Reader				Reader;
 	protected byte[]				ReadBuffer;
 	protected Reader				PacketReader;
@@ -165,8 +165,8 @@ public abstract class Peer : IBinarySerializable
 		Reader			= reader;
 		Writer			= writer;
 		
-		WriteStream		= new();
-		PacketWriter	= new(WriteStream, Peering.Constructor);
+		BufferStream	= new();
+		BufferWriter	= new(BufferStream, Peering.Constructor);
 		
 		ReadBuffer		= new byte[PacketLengthMaximum];
 		ReadStream		= new MemoryStream(ReadBuffer);
@@ -184,14 +184,25 @@ public abstract class Peer : IBinarySerializable
 			Writer.Write(type);
 			Writer.Write(id);
 			
-			WriteStream.SetLength(0);
-			PacketWriter.WriteVirtual(packet);
-
-			if(WriteStream.Length > PacketLengthMaximum)
+			BufferStream.SetLength(0);
+			BufferWriter.WriteVirtual(packet);
+			
+			if(BufferStream.Length > PacketLengthMaximum)
 				throw new IntegrityException("PacketLengthMaximum exceeded");
 			
-			Writer.Write((int)WriteStream.Length);
-			Writer.Write(new ReadOnlySpan<byte>(WriteStream.GetBuffer(), 0, (int)WriteStream.Length));
+			Writer.Write((int)BufferStream.Length);
+			Writer.Write(new ReadOnlySpan<byte>(BufferStream.GetBuffer(), 0, (int)BufferStream.Length));
+
+			///var ms = new MemoryStream();
+			///var mw = new Writer(ms, Peering.Constructor);
+			///
+			///mw.WriteVirtual(packet);
+			///
+			///if(ms.Length > PacketLengthMaximum)
+			///	throw new IntegrityException("PacketLengthMaximum exceeded");
+			///
+			///Writer.Write((int)ms.Length);
+			///Writer.Write(ms.ToArray());
 
 			#if DEBUG
 			Writer.Write(__Checker);
@@ -212,12 +223,12 @@ public abstract class Peer : IBinarySerializable
 		{
 			s += Reader.Read(ReadBuffer, s, n - s);
 		}
-		while(s < n);
-
+		while(s != n);
+		
 		ReadStream.Position = 0;
 		var o = new Reader(ReadStream, Peering.Constructor).ReadVirtual<T>();
 
-		///var o = BinarySerializator.Deserialize<T>(new Reader(Reader.ReadBytes(l), Peering.Constructor));
+		//var o = new Reader(Reader.ReadBytes(n), Peering.Constructor).ReadVirtual<T>();
 
 		#if DEBUG
 		if(Reader.ReadInt64() != __Checker)

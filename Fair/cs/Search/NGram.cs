@@ -62,13 +62,13 @@ public class Ngram<ID> : IBinarySerializable, ITableEntry<ID> where ID : EntityI
 		writer.Write(Id);
 		
 		Entities.Optimize(); 
-		writer.WriteBytes(Entities.Serialize(SerializationFormat.Frozen));
+		writer.WriteBytes(Entities.Serialize(SerializationFormat.Portable));
 	}
 
 	public void Read(Reader reader)
 	{
 		Id = reader.Read<ID>();
-		Entities = Roaring64Bitmap.Deserialize(reader.ReadBytes(), SerializationFormat.Frozen);
+		Entities = Roaring64Bitmap.Deserialize(reader.ReadBytes(), SerializationFormat.Portable);
 	}
 }
 

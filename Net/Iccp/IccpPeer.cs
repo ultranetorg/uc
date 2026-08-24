@@ -35,14 +35,14 @@ public class IccpPeer : Peer, IBinarySerializable
 			Writer.WriteASCII(to);
 			Writer.Write(id);
 			
-			WriteStream.SetLength(0);
-			PacketWriter.WriteVirtual(packet);
+			BufferStream.SetLength(0);
+			BufferWriter.WriteVirtual(packet);
 
-			if(WriteStream.Length > PacketLengthMaximum)
+			if(BufferStream.Length > PacketLengthMaximum)
 				throw new IntegrityException("PacketLengthMaximum exceeded");
 			
-			Writer.Write((int)WriteStream.Length);
-			Writer.Write(new ReadOnlySpan<byte>(WriteStream.GetBuffer(), 0, (int)WriteStream.Length));
+			Writer.Write((int)BufferStream.Length);
+			Writer.Write(new ReadOnlySpan<byte>(BufferStream.GetBuffer(), 0, (int)BufferStream.Length));
 		}
 	}
 
@@ -227,6 +227,6 @@ public class IccpPeer : Peer, IBinarySerializable
 		else if(i == 1 || i == 2)
 			throw new OperationCanceledException();
 		else
-			throw new NodeException(NodeError.Timeout);
+			throw new TimeoutException();
 	}
 }

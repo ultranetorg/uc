@@ -24,6 +24,11 @@ public class BytesEqualityComparer : IEqualityComparer<byte[]>
 {
 	public bool Equals(byte[] a, byte[] b)
 	{
+		return Equals(a.AsSpan(), b.AsSpan());
+	}
+
+	public bool Equals(ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
+	{
 		if(a.Length != b.Length)
 			return false;
 

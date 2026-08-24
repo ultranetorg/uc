@@ -2,7 +2,7 @@
 
 public class Genesis : Operation
 {
-	public override string		Explanation => "";
+	public override string		Explanation => null;
 	
 	public Genesis()
 	{

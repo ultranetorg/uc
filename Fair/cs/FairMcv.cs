@@ -79,7 +79,9 @@ public class FairMcv : Mcv
 	protected override void CreateTables(string databasepath)
 	{
 		var dbo	= new DbOptions().SetCreateIfMissing(true)
-								.SetCreateMissingColumnFamilies(true);
+								.SetCreateMissingColumnFamilies(true)
+								///.SetEnv(Env.CreateMemEnv().Handle)
+								;
 
 		var cfs = new ColumnFamilies();
 		

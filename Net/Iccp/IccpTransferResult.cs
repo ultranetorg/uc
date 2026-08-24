@@ -1,4 +1,6 @@
-﻿namespace Uccs.Net;
+﻿using System.Text;
+
+namespace Uccs.Net;
 
 public class IccpTransferResult : IBinarySerializable, IEquatable<IccpTransferResult>, IComparable<IccpTransferResult>
 {
@@ -51,5 +53,11 @@ public class IccpTransferResult : IBinarySerializable, IEquatable<IccpTransferRe
 	{
 		writer.Write(Hash);
 		writer.Write(Results, writer.Write);
+	}
+
+	internal void Dump(string tab, StringBuilder b)
+	{
+		b.Append(tab); b.AppendLine(Hash.ToHex());
+		b.Append(tab); b.AppendLine(string.Join(" ", Results.AsReadOnly()));
 	}
 }

@@ -72,10 +72,10 @@ public class PublicKey : IComparable, IComparable<PublicKey>, IEquatable<PublicK
 
 	public void Read(Reader reader)
 	{
-		Format = reader.Read<KeyFormat>();
-		Algorithm = reader.Read<Algorithm>();
-		Tag = reader.ReadASCII();
-		Bytes = reader.ReadBytes(Length);
+		Format		= reader.Read<KeyFormat>();
+		Algorithm	= reader.Read<Algorithm>();
+		Tag			= reader.ReadASCII();
+		Bytes		= reader.ReadBytes(Length);
 	}
 
 	public static PublicKey Parse(string address)
