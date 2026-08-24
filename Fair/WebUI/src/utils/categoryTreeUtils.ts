@@ -1,4 +1,4 @@
-import { Category, CategoryBase, CategoryParentBase, CategoryParentBaseWithChildren, ProductType } from "types"
+import { CategoryBase, CategoryParentBase, CategoryParentBaseWithChildren, ProductType } from "types"
 
 export type CategoryTreeItem = {
   id: string
@@ -6,31 +6,70 @@ export type CategoryTreeItem = {
   avatarId?: string
   depth: number
   active?: boolean
-}
-
-export const buildCategoryPathItems = (category: Category): CategoryTreeItem[] => {
-  const ancestors = category.path ?? []
-
-  return [
-    ...ancestors.map((item, index) => ({ id: item.id, title: item.title, depth: index })),
-    { id: category.id, title: category.title, depth: ancestors.length, active: true },
-    ...category.categories.map(item => ({ id: item.id, title: item.title, depth: ancestors.length + 1 })),
-  ]
+  expanded?: boolean
+  hasChildren?: boolean
 }
 
 export const buildRootCategoryItems = (categories: CategoryBase[]): CategoryTreeItem[] =>
   categories.map(item => ({ id: item.id, title: item.title, avatarId: item.avatarId, depth: 0 }))
 
-export const buildCategoryTreeItems = (rootCategories: CategoryBase[], category: Category): CategoryTreeItem[] => {
-  const pathItems = buildCategoryPathItems(category)
-  const activeRootId = category.path?.[0]?.id ?? category.id
-  const hasActiveRoot = rootCategories.some(item => item.id === activeRootId)
+const findCategoryPath = (
+  categories: CategoryParentBaseWithChildren[],
+  categoryId: string,
+): CategoryParentBaseWithChildren[] | undefined => {
+  for (const category of categories) {
+    if (category.id === categoryId) {
+      return [category]
+    }
 
-  const items = rootCategories.flatMap(item =>
-    item.id === activeRootId ? pathItems : [{ id: item.id, title: item.title, depth: 0 }],
-  )
+    const childPath = findCategoryPath(category.children, categoryId)
+    if (childPath) {
+      return [category, ...childPath]
+    }
+  }
 
-  return hasActiveRoot ? items : [...items, ...pathItems]
+  return undefined
+}
+
+// A category without children has nothing to expand into, so the tree stays expanded down to its
+// closest ancestor that has children, keeping that ancestor's subcategories visible.
+const takeExpandablePath = (path: CategoryParentBaseWithChildren[]): CategoryParentBaseWithChildren[] => {
+  for (let index = path.length - 1; index >= 0; --index) {
+    if (path[index].children.length > 0) {
+      return path.slice(0, index + 1)
+    }
+  }
+
+  return path
+}
+
+export const buildCategoryTreeItems = (
+  categories: CategoryParentBaseWithChildren[],
+  activeCategoryId?: string,
+): CategoryTreeItem[] => {
+  const path = activeCategoryId ? findCategoryPath(categories, activeCategoryId) : undefined
+  const expandedIds = new Set(path ? takeExpandablePath(path).map(item => item.id) : [])
+
+  const build = (items: CategoryParentBaseWithChildren[], depth: number): CategoryTreeItem[] =>
+    items.flatMap(item => {
+      const hasChildren = item.children.length > 0
+      const expanded = expandedIds.has(item.id) && hasChildren
+
+      return [
+        {
+          id: item.id,
+          title: item.title,
+          avatarId: item.avatarId,
+          depth,
+          active: item.id === activeCategoryId,
+          expanded,
+          hasChildren,
+        },
+        ...(expanded ? build(item.children, depth + 1) : []),
+      ]
+    })
+
+  return build(categories, 0)
 }
 
 export type CategoryTree = {

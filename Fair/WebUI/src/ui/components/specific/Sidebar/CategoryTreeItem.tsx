@@ -1,42 +1,39 @@
-export const CategoryTreeItem = () => {
-  return <div className="text-2xs leading-4 text-gray-500">ITEM</div>
+import { memo } from "react"
+import { Link } from "react-router-dom"
+import { twMerge } from "tailwind-merge"
+
+import { CategoryTreeItem as CategoryTreeItemType, formatTitle, routes } from "utils"
+import { SvgChevronDown } from "assets"
+
+type CategoryTreeItemBaseProps = {
+  storeId: string
 }
 
-// import { memo } from "react"
-// import { Link } from "react-router-dom"
+export type CategoryTreeItemProps = CategoryTreeItemType & CategoryTreeItemBaseProps
 
-// import { CategoryTreeItem, formatTitle, routes } from "utils"
+const ROOT_INDENT_PX = 30
+const INDENT_PX = 14
 
-// export type CategoryTreeProps = {
-//   storeId: string
-//   items: CategoryTreeItem[]
-// }
-
-// const INDENT_PX = 12
-
-// export const CategoryTree = memo(({ storeId, items }: CategoryTreeProps) => (
-//   <div className="flex flex-col gap-2 pl-2">
-//     {items.map(item =>
-//       item.active ? (
-//         <span
-//           key={item.id}
-//           className="truncate text-2xs font-semibold leading-4 text-gray-800"
-//           style={{ paddingLeft: item.depth * INDENT_PX }}
-//           title={item.title}
-//         >
-//           {formatTitle(item.title)}
-//         </span>
-//       ) : (
-//         <Link
-//           key={item.id}
-//           to={routes.category(storeId, item.id)}
-//           className="truncate text-2xs font-medium leading-4 text-gray-500 hover:text-gray-800 hover:underline"
-//           style={{ paddingLeft: item.depth * INDENT_PX }}
-//           title={item.title}
-//         >
-//           {formatTitle(item.title)}
-//         </Link>
-//       ),
-//     )}
-//   </div>
-// ))
+export const CategoryTreeItem = memo(
+  ({ storeId, id, title, depth, active, expanded, hasChildren }: CategoryTreeItemProps) => {
+    return (
+      <Link
+        className={twMerge(
+          "flex h-6 min-w-0 cursor-pointer select-none items-center rounded-md text-2xs leading-4 hover:bg-gray-100",
+          active && "bg-gray-100",
+        )}
+        style={{ paddingLeft: ROOT_INDENT_PX + (depth - 1) * INDENT_PX }}
+        to={routes.category(storeId, id)}
+      >
+        <span className="min-w-0 flex-1 truncate" title={title}>
+          {formatTitle(title)}
+        </span>
+        {hasChildren && (
+          <SvgChevronDown
+            className={twMerge("shrink-0 -rotate-90 stroke-gray-500", expanded && "rotate-0 transform stroke-gray-800")}
+          />
+        )}
+      </Link>
+    )
+  },
+)
