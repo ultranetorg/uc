@@ -7,7 +7,7 @@ namespace Uccs.Tests;
 public static class IdTests
 {
 	[Fact]
-	public static void Main()
+	public static void General()
 	{
 		var e0 = new AutoId(1);
 		var e1 = new AutoId(2);

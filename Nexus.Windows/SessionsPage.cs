@@ -51,7 +51,7 @@ public partial class SessionsPage : Page
 		lock(Nexus.Vault)
 		{
 			var w = Wallets.SelectedItem as Wallet;
-			a = w.Keys.Find(i => i.Address == Keys.SelectedItem as PublicKey);
+			a = w.Keys.Find(i => i.Public == Keys.SelectedItem as PublicKey);
 		}
 
 		BindSessions(a);
@@ -64,7 +64,7 @@ public partial class SessionsPage : Page
 		lock(Nexus.Vault)
 		{
 			var w = Nexus.Vault.Wallets.Find(i => i.Name == Wallets.SelectedItem as string);
-			a = w.Keys.Find(i => i.Address == Keys.SelectedItem as PublicKey);
+			a = w.Keys.Find(i => i.Public == Keys.SelectedItem as PublicKey);
 
 			a.RemoveAuthentication(Sessions.SelectedItems[0].Tag as Authentication);
 

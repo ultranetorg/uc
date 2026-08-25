@@ -1,13 +1,11 @@
-﻿using Ardalis.GuardClauses;
-
-namespace Uccs.Web.Extensions;
+﻿namespace Uccs.Web.Extensions;
 
 public static class LinkedListExtensions
 {
 	public static void AppendRange<T>(this LinkedList<T> source, IEnumerable<T> items)
 	{
-		Guard.Against.Null(source);
-		Guard.Against.Null(items);
+		ArgumentNullException.ThrowIfNull(source);
+		ArgumentNullException.ThrowIfNull(items);
 
 		foreach (T item in items)
 		{

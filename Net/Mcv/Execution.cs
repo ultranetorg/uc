@@ -295,7 +295,7 @@ public class Execution : ITableExecution
 	public virtual User AffectSigner()
 	{
  		if(Round.Id == 0)
- 			return new User {Name = Mcv.GodName, Key = Mcv.God.PuplicKey};
+ 			return new User {Name = Mcv.GodName, Key = Mcv.God.Puplic};
 
 		var name = Transaction.User;
 

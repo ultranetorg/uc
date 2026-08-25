@@ -8,7 +8,7 @@ public static class Array
 	static void Same(int[] a, int[] b) => Assert.True(a.SequenceEqual(b));
 
 	[Fact]
-	public static void Main()
+	public static void General()
 	{
 		var a = new int[] {0, 1, 2, 3, 4, 5};
 		Same(a.RemoveAt(0), [1,2,3,4,5]);

@@ -86,7 +86,7 @@ public class WalletKeysApc : Apc, IVaultApc
 		public Key(WalletKey key)
 		{
 			Name = key.Name;
-			Public = key.Address;
+			Public = key.Public;
 		}
 
 		public Key()
@@ -166,7 +166,7 @@ public class AddKeyToWalletApc : Apc, IVaultApc
 
 			var a = w.AddKey(Name, Key, Tag);
 		
-			return a.Address;
+			return a.Public;
 		}
 	}
 }
@@ -184,7 +184,7 @@ public class OverrideAuthenticationApc : Apc, IVaultApc
 				vault.AuthenticationRequested = (application, logo, net, user, account) =>
 												{	
 													lock(vault)
-														return new AuthenticationChoice {PublickKey = vault.Find(user).Address, Trust = Trust.AlwaysAllow};
+														return new AuthenticationChoice {PublickKey = vault.Find(user).Public, Trust = Trust.AlwaysAllow};
 												};
 			} 
 			else

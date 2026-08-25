@@ -24,7 +24,6 @@ public class NodeCommand : Uccs.Net.NodeCommand
 
 		a.Execute = () =>	{
 								Cli.Node = new FairNode(Cli.Net.Zone, 
-														GetString("profile", Cli.Boot.Profile), 
 														Cli.NexusSettings, 
 														Cli.Settings as FairNodeSettings, 
 														new RealClock(), 

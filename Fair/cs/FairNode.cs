@@ -38,7 +38,7 @@ public class FairNode : McvNode
 														"Moderators responsible for publishing product updates and other routine operations to maintaining store content clean and tidy"
 														];
 
-	public FairNode(Zone zone, string profile, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), profile, nexussettings, flow)
+	public FairNode(Zone zone, NexusSettings nexussettings, FairNodeSettings settings, IClock clock, Flow flow) : base(Fair.ByZone(zone), settings.Profile, nexussettings, flow)
 	{
 		base.Settings = settings;
 
@@ -52,7 +52,7 @@ public class FairNode : McvNode
 
 		if(Settings.Mcv != null)
 		{
-			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, settings.DataPath, Path.Join(profile, "Mcv"), [Settings.Peering.Endpoint], clock ?? new RealClock());
+			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, settings.DataPath, Path.Join(settings.Profile, "Mcv"), [Settings.Peering.Endpoint], clock ?? new RealClock());
 			base.Mcv.Log = Flow.Log;
 
 			Mcv.Confirmed += r =>	{

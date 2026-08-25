@@ -4,9 +4,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>1.0.1071</AssemblyVersion>
-    <FileVersion>1.0.1071.0</FileVersion>
-    <Version>1.0.1071</Version>
+    <AssemblyVersion>1.0.1111</AssemblyVersion>
+    <FileVersion>1.0.1111.0</FileVersion>
+    <Version>1.0.1111</Version>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
@@ -22,7 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Roaring.Net" Version="1.4.1" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Net\Uccs.Net.csproj" />

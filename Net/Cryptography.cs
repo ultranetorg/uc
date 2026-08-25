@@ -1,9 +1,11 @@
 ﻿using System.Buffers;
-using System.Security.Cryptography;
+//using System.Security.Cryptography;
 using System.Text;
 using Blake2Fast;
 using Blake2Fast.Implementation;
-using Konscious.Security.Cryptography;
+using NSec.Cryptography;
+
+//using Konscious.Security.Cryptography;
 using Org.BouncyCastle.Security;
 
 namespace Uccs.Net;
@@ -23,6 +25,7 @@ public abstract class Cryptography
 	public const int						HashLength = 32;
 	public const int						SignatureLength = 64;
 	public const int						PrivateKeyLength = 32;
+	public const int						PasswordSaltLength = 16;
 	public virtual byte[]					ZeroSignature => new byte[SignatureLength];
 	public virtual byte[]					ZeroHash  => new byte[HashLength];
 
@@ -75,22 +78,23 @@ public abstract class Cryptography
 		///var c = Blake2b.CreateHashAlgorithm();
 		///c.ComputeHash()
 		
-		return Blake2b.ComputeHash(32, data);
+		//return Blake2Fast.Blake2b.ComputeHash(32, data);
+		return NSec.Cryptography.Blake2b.Blake2b_256.Hash(data);
 	}
 
 	public static byte[] Hash(Span<byte> data)
 	{
-		return Blake2b.ComputeHash(32, data);
+		return Blake2Fast.Blake2b.ComputeHash(32, data);
 	}
 
 	public static byte[] Hash(int length, byte[] data)
 	{
-		return Blake2b.ComputeHash(length, data);
+		return Blake2Fast.Blake2b.ComputeHash(length, data);
 	}
 
 	public static byte[] Hash(byte[] a, byte[] b)
 	{
-		return Blake2b.ComputeHash(32, [..a, ..b]);
+		return Blake2Fast.Blake2b.ComputeHash(32, [..a, ..b]);
 	}
 	
 	public static byte[] Hash(Action<BinaryWriter> write)
@@ -116,12 +120,12 @@ public abstract class Cryptography
 
 	public byte[] HashFile(byte[] data)
 	{
-		return SHA256.HashData(data);
+		return System.Security.Cryptography.SHA256.HashData(data);
 	}
 
 	public byte[] HashFile(Stream data)
 	{
-		return SHA256.HashData(data);
+		return System.Security.Cryptography.SHA256.HashData(data);
 	}
 
 	public byte[] ToBytes(int n)
@@ -147,7 +151,7 @@ public class NoCryptography : Cryptography
 			Random.NextBytes(s, h.Length/2, h.Length/2);
 		}
 
-		Array.Copy(k.PuplicKey.Bytes, 0, s, 32, k.PuplicKey.Bytes.Length);
+		Array.Copy(k.Puplic.Bytes, 0, s, 32, k.Puplic.Bytes.Length);
 
 		return s;
 	}
@@ -166,6 +170,15 @@ public class NoCryptography : Cryptography
 public class McvCryptography : Cryptography
 {
 	public override CryptographyType Type => CryptographyType.Mcv;
+	static readonly Argon2Parameters Parameters =	new Argon2Parameters
+													{
+														MemorySize = 1024 * 1024,
+														NumberOfPasses = 4,
+														DegreeOfParallelism = 1
+														
+													};
+
+	static readonly PasswordBasedKeyDerivationAlgorithm Kdf =  PasswordBasedKeyDerivationAlgorithm.Argon2id(Parameters);
 
 	public override byte[] Sign(SecretKey k, byte[] h, SigningFeatures deterministic)
 	{
@@ -179,15 +192,22 @@ public class McvCryptography : Cryptography
 
 	public override byte[] HashifyPassword(string password, byte[] salt)
 	{
-		using var argon2 =	new Argon2id(Encoding.UTF8.GetBytes(password))
-							{
-								Salt = salt,
-								DegreeOfParallelism = 8,
-								MemorySize = 1024 * 1024,
-								Iterations = 4
-							};
+        int maxByteCount = Encoding.UTF8.GetMaxByteCount(password.Length);
+        Span<byte> passwordBytes = stackalloc byte[maxByteCount];
+        int actualBytes	= Encoding.UTF8.GetBytes(password, passwordBytes);
+        Span<byte> cleanPasswordBytes = passwordBytes.Slice(0, actualBytes);
 
-		return argon2.GetBytes(HashLength);
+        byte[] derivedKey = new byte[HashLength];
+
+        try
+        {
+            Kdf.DeriveBytes(cleanPasswordBytes, salt, derivedKey);
+            return derivedKey;
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(cleanPasswordBytes);
+        }
 	}
 }
 
@@ -198,71 +218,55 @@ public class IccpCryptography : McvCryptography
 
 public class Blake2Stream : Stream
 {
-    Blake2bHashState			Hasher;
-    byte[]						_Hash;
+	private IncrementalHash		State;
+	public byte[]				Hash => _Hash ??= IncrementalHash.Finalize(ref State);
+	private byte[]				_Hash;
 
-    public override bool		CanRead => false;
-    public override bool		CanSeek => false;
-    public override bool		CanWrite => _Hash == null;
-    public override long		Length => 0;
-    public override long		Position 
-    { 
-        get => 0; 
-        set => throw new NotSupportedException(); 
-    }
+	public Blake2Stream()
+	{
+		IncrementalHash.Initialize(NSec.Cryptography.Blake2b.Blake2b_256, out State);
+	}
 
-    public override void Flush() { /* Nothing to flush */ }
-    public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-    public override void SetLength(long value) => throw new NotSupportedException();
+	public override void Write(byte[] buffer, int offset, int count)
+	{
+		if(_Hash != null)
+			throw new InvalidOperationException();
 
-    public byte[] Hash
-    {
-		get
+		if(count > 0)
 		{
-			_Hash ??= Hasher.Finish();
-		
-			return _Hash;
+			IncrementalHash.Update(ref State, buffer.AsSpan(offset, count));
 		}
 	}
 
-    public Blake2Stream(int digestLength = Cryptography.HashLength)
-    {
-        Hasher = Blake2b.CreateIncrementalHasher(digestLength);
-    }
+	public override void Write(ReadOnlySpan<byte> buffer)
+	{
+		if(_Hash != null)
+			throw new InvalidOperationException();
 
-    public override void Write(byte[] buffer, int offset, int count)
-    {
-        if(!CanWrite) 
-			throw new InvalidOperationException("Hash already finalized.");
-        
-        Hasher.Update(buffer.AsSpan(offset, count));
-    }
+		if(!buffer.IsEmpty)
+		{
+			IncrementalHash.Update(ref State, buffer);
+		}
+	}
 
-    public override void Write(ReadOnlySpan<byte> buffer)
-    {
-        if(!CanWrite) 
-			throw new InvalidOperationException("Hash already finalized.");
-        
-        Hasher.Update(buffer);
-    }
+	#region Stream Overrides
 
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-    {
-		if(cancellationToken.IsCancellationRequested)
-            return ValueTask.FromCanceled(cancellationToken);
+	public override bool CanRead => false;
+	public override bool CanSeek => false;
+	public override bool CanWrite => _Hash == null;
+	public override long Length => throw new NotSupportedException();
 
-        try
-        {
-            if(!CanWrite)
-				throw new InvalidOperationException("Stream is closed/finished.");
-            
-            Hasher.Update(buffer.Span);
-            return ValueTask.CompletedTask;
-        }
-        catch(Exception ex)
-        {
-            return ValueTask.FromException(ex);
-        }
-    }
+	public override long Position
+	{
+		get => throw new NotSupportedException();
+		set => throw new NotSupportedException();
+	}
+
+	public override void	Flush() { }
+	public override int		Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+	public override long	Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+	public override void	SetLength(long value) => throw new NotSupportedException();
+
+
+	#endregion
 }

@@ -9,7 +9,7 @@ namespace Uccs.Tests;
 public class SecretKeyTests
 {
  	[Fact]
- 	public static void Main()
+ 	public static void General()
  	{
 		var r = new SecureRandom();
 
@@ -23,10 +23,10 @@ public class SecretKeyTests
 		var sd = Cryptography.Mcv.Sign(k, h, SigningFeatures.Deterministic);
 
 
-		Assert.True(k.PuplicKey == PublicKey.Parse(k.PuplicKey.ToString()));
-		Assert.True(Cryptography.Mcv.Verify(k.PuplicKey, h, s));
-		Assert.True(Cryptography.Mcv.Verify(k.PuplicKey, h, sd));
-		Assert.False(Cryptography.Mcv.Verify(kk.PuplicKey, h, s));
+		Assert.True(k.Puplic == PublicKey.Parse(k.Puplic.ToString()));
+		Assert.True(Cryptography.Mcv.Verify(k.Puplic, h, s));
+		Assert.True(Cryptography.Mcv.Verify(k.Puplic, h, sd));
+		Assert.False(Cryptography.Mcv.Verify(kk.Puplic, h, s));
 					
 		var v = new Vault(Zone.Test, new VaultSettings{}, new Flow());
 
@@ -45,7 +45,7 @@ public class SecretKeyTests
 		w1.Unlock(p);
 		
 		Assert.Equal(w.Keys, w1.Keys, EqualityComparer<WalletKey>.Create((a, b) =>	{
-																						return Bytes.EqualityComparer.Equals(a.Key.Secret, b.Key.Secret) && a.Name == b.Name;
+																						return Bytes.EqualityComparer.Equals(a.Secret.Secret, b.Secret.Secret) && a.Name == b.Name;
 																					}));
 		//Assert.True(k == AccountKey.Load(Cryptography.Normal, k.Save(Cryptography.Normal, "123"), "123"));
  	}

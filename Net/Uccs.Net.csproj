@@ -10,9 +10,9 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-    <AssemblyVersion>1.0.944.0</AssemblyVersion>
-    <FileVersion>1.0.944.0</FileVersion>
-    <Version>1.0.944.0</Version>
+    <AssemblyVersion>1.0.965.0</AssemblyVersion>
+    <FileVersion>1.0.965.0</FileVersion>
+    <Version>1.0.965.0</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -27,12 +27,11 @@
     <None Remove="Zone\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
     <PackageReference Include="DnsClient" Version="1.8.0" />
-    <PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.3.1" />
-    <PackageReference Include="NBitcoin.Secp256k1" Version="4.0.0" />
-    <PackageReference Include="RocksDB" Version="10.10.1.649" />
-    <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
+    <PackageReference Include="NBitcoin.Secp256k1" Version="4.0.1" />
+    <PackageReference Include="NSec.Cryptography" Version="26.4.0" />
+    <PackageReference Include="RocksDB" Version="11.8.1.4423" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cs\Uccs.csproj" />

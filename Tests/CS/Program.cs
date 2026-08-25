@@ -1,13 +1,12 @@
 ﻿namespace Uccs.Tests;
 
-
 class Program
 {
-	public static void Main(string[] args)
+	public static void ssssssMain(string[] args)
 	{
 		//PublicKeyTests.Main();
 		//PublicKeyTests.ReadWrite();
-		SecretKeyTests.Main();
+		//SecretKeyTests.Main();
 		//Array.Main();
 		//IdTests.Main();
 		//MoneyTests.Main();
@@ -58,4 +57,6 @@ class Program
 //
 //			rq = BinarySerializator.Deserialize<AuthorResponse>(r, sun.Constract);
 	}
+
+
 }
