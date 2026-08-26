@@ -1,6 +1,7 @@
-import { SvgGridSm, SvgViewStacked } from "assets"
 import { memo, useCallback, useState } from "react"
 import { twMerge } from "tailwind-merge"
+
+import { SvgGrid, SvgViewStacked } from "assets"
 
 export type ViewType = "grid" | "list"
 
@@ -26,7 +27,7 @@ export const ToggleViewButton = memo(({ view, onChange, gridTitle, listTitle }: 
       onClick={handleClick}
     >
       <div className={twMerge("rounded-sm p-0.4375", viewName === "grid" && "bg-gray-950")} title={gridTitle}>
-        <SvgGridSm className={twMerge("fill-gray-500", viewName === "grid" && "fill-gray-100")} />
+        <SvgGrid className={twMerge("fill-gray-500", viewName === "grid" && "fill-gray-100")} />
       </div>
       <div className={twMerge("rounded-sm p-0.4375", viewName === "list" && "bg-gray-950")} title={listTitle}>
         <SvgViewStacked className={twMerge("fill-gray-500", viewName === "list" && "fill-gray-100")} />

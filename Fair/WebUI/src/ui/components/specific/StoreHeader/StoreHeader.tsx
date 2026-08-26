@@ -11,7 +11,6 @@ import { SearchDropdown, SearchDropdownItem } from "ui/components"
 import { routes } from "utils"
 
 import { GovernanceDropdownButton } from "./GovernanceDropdownButton"
-import { LogoDropdownButton } from "./LogoDropdownButton"
 import { ModerationDropdownButton } from "./ModerationDropdownButton"
 import { PublisherMembersDropdownButton } from "./PublisherMembersDropdownButton"
 import { UserProfileButton } from "./UserProfileButton"
@@ -85,13 +84,6 @@ export const StoreHeader = () => {
 
   return (
     <div className="flex items-center justify-between gap-8 pb-8">
-      <LogoDropdownButton
-        t={t}
-        storeId={storeId}
-        title={store.title}
-        imageFileId={store.imageFileId}
-        publishersCount={store.authorsIds.length}
-      />
       <div className="flex w-135 items-center justify-between gap-4">
         <SearchDropdown
           key={storeQuery}

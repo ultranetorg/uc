@@ -5,9 +5,9 @@ import { useSearchPaginatedProducts, useSearchStores } from "entities"
 import { useStoreTitle, useUrlParamsState } from "hooks"
 import { ProductType } from "types"
 import { MessageBox, MultilineText, NextPagination } from "ui/components"
-import { FiltersPanel, ProductsList, StoresList } from "ui/components/specific"
+import { FiltersPanel, ProductsList, StoresList, SearchInput, SearchScope } from "ui/components/specific"
 
-import { SearchInput, SearchScope } from "ui/components/specific/SearchInput"
+import { ParadigmDescription } from "./ParadigmDescription"
 
 export const IndexPage = () => {
   const { t } = useTranslation("indexPage")
@@ -98,7 +98,7 @@ export const IndexPage = () => {
           </h5>
         </div>
       )}
-      <div className="flex w-full max-w-[900px] flex-col gap-6">
+      <div className="flex w-full max-w-[900px] flex-col items-center gap-6">
         <div className="flex w-full flex-col items-center gap-4">
           <SearchInput
             scope={scope}
@@ -111,9 +111,9 @@ export const IndexPage = () => {
           {searchMode && scope === "products" && <FiltersPanel value={filter} onChange={handleFilterChange} />}
         </div>
         {!searchMode ? (
-          <span className="text-center text-2xl font-semibold leading-7.5">How New Paradigm Works</span>
+          <ParadigmDescription />
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex w-full flex-col gap-4">
             <span className="text-2base font-semibold leading-5">{t("searchResults")}</span>
             {(scope === "stores" ? (stores?.items.length ?? 0) : products.length) > 0 ? (
               <>

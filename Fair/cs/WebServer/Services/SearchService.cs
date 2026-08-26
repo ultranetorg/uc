@@ -57,39 +57,11 @@ public class SearchService
 			if(cancellationToken.IsCancellationRequested)
 				yield break;
 
-			/// TODO elwray
-			throw new NotImplementedException();
-
-			//Publication publication = mcv.Publications.Latest(search.Publication);
-			//Product product = mcv.Products.Latest(publication.Product);
-			//Author author = mcv.Authors.Latest(product.Author);
-			//Category category = mcv.Categories.Latest(publication.Category);
-			//ProductType? type = typeToSearch == null ? GetTypeFromCategory(category) : typeToSearch;
-			//
-			//yield return new PublicationExtendedModel(publication, product, author, category)
-			//{
-			//	Type = type,
-			//};
-		}
-	}
-
-	ProductType? GetTypeFromCategory(Category category)
-	{
-		if(category.Type != ProductType.None)
-		{
-			return category.Type;
-		}
-
-		while(category.Parent != null)
-		{
-			category = mcv.Categories.Latest(category.Parent);
-			if(category.Type != ProductType.None)
+			yield return new PublicationExtendedModel(search.Publication, search.Product, search.Author, search.Category)
 			{
-				return category.Type;
-			}
+				Type = typeToSearch ?? search.Category.Type,
+			};
 		}
-
-		return ProductType.None;
 	}
 
 	public IEnumerable<PublicationBaseModel> SearchLitePublications(string storeId, string query, int page, int pageSize, CancellationToken cancellationToken)

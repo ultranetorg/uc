@@ -6,7 +6,7 @@ import { useSearchQueryContext, useStoreContext } from "app"
 import { useSearchPaginatedPublications } from "entities"
 import { ProductType } from "types"
 import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
-import { NextPagination } from "ui/components"
+import { MessageBox, NextPagination } from "ui/components"
 import { PublicationsList, SearchPageHeader } from "ui/components/specific"
 import { routes } from "utils"
 
@@ -91,18 +91,24 @@ export const SearchPage = () => {
         initialCategoryIds={initialCategoryIds}
         selectedCategoriesChange={handleCategoriesChange}
       />
-      <PublicationsList
-        publications={publications}
-        isLoading={isPending || !publications}
-        storeId={storeId!}
-        showPublicationType={state.type === ""}
-      />
-      <NextPagination
-        hasNext={hasNext && !isFetchingNext}
-        page={page}
-        loadedPages={loadedPagesCount}
-        onPageChange={handlePageChange}
-      />
+      {loadedPagesCount > 0 && publications.length > 0 ? (
+        <>
+          <PublicationsList
+            publications={publications}
+            isLoading={isPending || !publications}
+            storeId={storeId!}
+            showPublicationType={state.type === ""}
+          />
+          <NextPagination
+            hasNext={hasNext && !isFetchingNext}
+            page={page}
+            loadedPages={loadedPagesCount}
+            onPageChange={handlePageChange}
+          />
+        </>
+      ) : (
+        <MessageBox className="p-6" message={t("noResults")} />
+      )}
     </div>
   )
 }

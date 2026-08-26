@@ -58,13 +58,19 @@ export const MoviePublicationContent = memo(
             </div>
 
             {/* Ratings */}
-            {"rating" in productOrPublication && productOrPublication.rating && (
+            {"rating" in productOrPublication && productOrPublication.rating !== undefined && (
               <div className="flex items-center gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("ratings")}:</span>
                 <span className={twMerge(VALUE_CLASSNAME, "flex flex-wrap items-center gap-3 whitespace-nowrap")}>
                   <span className="flex items-center gap-1">
-                    <span className="font-semibold">{productOrPublication.rating}</span>
-                    <SvgStarXxs className="fill-favorite" />
+                    {productOrPublication.rating > 0 ? (
+                      <>
+                        <span className="font-semibold">{productOrPublication.rating}</span>
+                        <SvgStarXxs className="fill-favorite" />
+                      </>
+                    ) : (
+                      "N/A"
+                    )}
                   </span>
                   {movieFields.imdb && (
                     <span className="text-2sm leading-5 text-gray-900">IMDb: {movieFields.imdb}</span>

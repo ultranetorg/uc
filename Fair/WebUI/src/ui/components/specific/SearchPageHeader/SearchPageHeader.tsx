@@ -8,7 +8,6 @@ import { CategorySelect, CategorySelectHandle } from "./CategorySelect"
 import { TypeSelect } from "./TypeSelect"
 
 export type SearchPageHeaderProps = {
-  searchResultsCount?: number
   searchResultsLabel: string
   allCategoriesLabel: string
 
@@ -20,7 +19,6 @@ export type SearchPageHeaderProps = {
 
 export const SearchPageHeader = memo(
   ({
-    searchResultsCount,
     searchResultsLabel,
     allCategoriesLabel,
     selectedType,
@@ -56,10 +54,7 @@ export const SearchPageHeader = memo(
 
     return (
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-3.5xl font-semibold leading-9.75">
-          {searchResultsLabel && <span className="text-gray-800">{searchResultsLabel}</span>}
-          <span className="text-gray-400">{searchResultsCount}</span>
-        </div>
+        {searchResultsLabel && <span className="text-2base font-semibold leading-5">{searchResultsLabel}</span>}
         <div className="flex items-center gap-4">
           <TypeSelect value={selectedType} onChange={handleTypeChange} availableTypes={categoriesTypes} />
           <CategorySelect
