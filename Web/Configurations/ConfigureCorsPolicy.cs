@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ardalis.GuardClauses;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,11 +10,11 @@ public static class ConfigureCorsPolicy
 
 	public static IServiceCollection AddCorsPolicy(this IServiceCollection services, ConfigurationManager configurationManager)
 	{
-		Guard.Against.Null(services);
-		Guard.Against.Null(configurationManager);
+		ArgumentNullException.ThrowIfNull(services);
+		ArgumentNullException.ThrowIfNull(configurationManager);
 
 		var allowedOrigins = configurationManager.Get<AllowedOriginsConfiguration>();
-		if (allowedOrigins != null && allowedOrigins.AllowedOrigins?.Length > 0)
+		if(allowedOrigins != null && allowedOrigins.AllowedOrigins?.Length > 0)
 		{
 			services.AddCorsPolicy(allowedOrigins.AllowedOrigins);
 		}
@@ -25,16 +24,19 @@ public static class ConfigureCorsPolicy
 
 	public static IServiceCollection AddCorsPolicy(this IServiceCollection services, [NotEmpty] string[] allowedOrigins)
 	{
-		Guard.Against.Null(services);
-		Guard.Against.Empty(allowedOrigins);
+		ArgumentNullException.ThrowIfNull(services);
+		ArgumentNullException.ThrowIfNull(allowedOrigins);
 
-		if (allowedOrigins != null)
+		if(allowedOrigins.Length == 0)
+			throw new ArgumentException();
+
+		if(allowedOrigins != null)
 		{
 			services.AddCors(options =>
 			{
 				options.AddDefaultPolicy(policy =>
 				{
-					if (allowedOrigins.Contains(AllowAnyOrigin))
+					if(allowedOrigins.Contains(AllowAnyOrigin))
 					{
 						policy.AllowAnyOrigin();
 					}

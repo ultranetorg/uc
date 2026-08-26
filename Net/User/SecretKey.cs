@@ -11,7 +11,7 @@ public class SecretKey
 	PublicKey						_Public;
 
 	public byte[]					Secret { get; protected set; }
-	public PublicKey				PuplicKey => _Public ??= new PublicKey(Private.CreateXOnlyPubKey().ToBytes(), Tag);
+	public PublicKey				Puplic => _Public ??= new PublicKey(Private.CreateXOnlyPubKey().ToBytes(), Tag);
 	public string					Tag { get; protected set; }
 			
 	readonly BIP340NonceFunction	Deterministic = new BIP340NonceFunction(new byte[32]);

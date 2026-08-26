@@ -7,7 +7,7 @@ namespace Uccs.Tests;
 public static class PlatformExpressionTest
 {
 	[Fact]
-	public static void Main()
+	public static void General()
 	{
 		if(Environment.MachineName == "M1")
 		{

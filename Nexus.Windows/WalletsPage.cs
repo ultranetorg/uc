@@ -55,7 +55,7 @@ public partial class WalletsPage : Page
 		{
 			var li = new ListViewItem(i.Name);
 			li.Tag = i;
-			li.SubItems.Add(i.Address.ToString());
+			li.SubItems.Add(i.Public.ToString());
 
 			Invoke(() => Keys.Items.Add(li));
 		}
@@ -247,7 +247,7 @@ public partial class WalletsPage : Page
 
 	private void CopyAddress_Click(object sender, EventArgs e)
 	{
-		Clipboard.SetText(CurrentAccout.Address.ToString());
+		Clipboard.SetText(CurrentAccout.Public.ToString());
 	}
 
 	private void ShowSecret_Click(object sender, EventArgs e)
@@ -271,7 +271,7 @@ public partial class WalletsPage : Page
 									"Only use your key in trusted applications and official websites.\r\n\r\n" +
 									"Remember:\r\n\r\n" +
 									"Once exposed, a private key cannot be made safe again. Always keep it secret and secure.", 
-									CurrentAccout.Key.Secret.ToHex());
+									CurrentAccout.Secret.Secret.ToHex());
 			}
 			else
 			{

@@ -15,7 +15,7 @@ public static class ECTests
 	static ExpiredEC e	= new ExpiredEC(Time.FromDays(50), 40);
 
 	[Fact]
-	public static void Main()
+	public static void General()
 	{
 		SequenceEqual(ExpiredEC.Add([b, c], a),	[a, b, c]);
 		SequenceEqual(ExpiredEC.Add([b, c], [a]),	[a, b, c]);

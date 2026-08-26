@@ -86,7 +86,7 @@ public class Node : IProgram
 
 	public void Abort(Exception ex)
 	{
-		File.WriteAllText(Path.Join(Profile, "Abort" + Cli.FailureExt), ex.ToString());
+		File.WriteAllText(Path.Join(Profile, "Abort." + Cli.FailureExt), ex.ToString());
 		Flow.Log?.ReportError(this, "Thread Aborted", ex);
 
 		Stop();

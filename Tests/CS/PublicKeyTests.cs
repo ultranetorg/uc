@@ -7,7 +7,7 @@ namespace Uccs.Tests;
 public class PublicKeyTests
 {
  	[Fact]
- 	public static void Main()
+ 	public static void General()
  	{
 		var r = new Random();
 		var h = new byte[32];

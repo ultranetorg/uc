@@ -191,6 +191,9 @@ public class ChainReportApc : McvApc
 {
 	public override object Execute(McvNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
+		if(node.Mcv == null)
+			throw new NodeException(NodeError.NoMcv);
+
 		lock(node.Mcv.Lock)
 			return new Return {Rounds = node.Mcv.Tail.Take(Limit)
 													.Reverse()

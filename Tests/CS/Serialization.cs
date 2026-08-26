@@ -6,7 +6,7 @@ namespace Uccs.Tests;
 public static class Serialization
 {
 	[Fact]
-	public static void Main()
+	public static void General()
 	{
 //		var a = new Dictionary<string, int>() {{"first", 1}, {"second", 2}};
 //		var b = new Dictionary<string, int>() {{"first", 1}};

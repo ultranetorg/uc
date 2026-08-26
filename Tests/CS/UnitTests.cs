@@ -6,7 +6,7 @@ namespace Uccs.Tests;
 public static class UnitTests
 {
 	[Fact]
-	public static void Main()
+	public static void General()
 	{
 		Assert.Equal(new Unit(0), Unit.Zero);
 

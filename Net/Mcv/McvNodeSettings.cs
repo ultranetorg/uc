@@ -18,7 +18,6 @@ public class McvNodeSettings : SavableSettings
 	public IpApiSettings				Api { get; set; }
 	public McvSettings					Mcv { get; set; }
 	public PeeringSettings				Peering { get; set; } = new();
-	//public PeeringSettings			NnPeering { get; set; }
 	public List<UserSessionSettings>	Sessions { get; set; } = [];
 	public bool							Log { get; set; }
 	public int							PoolMaximum { get; set; } = 100_000;

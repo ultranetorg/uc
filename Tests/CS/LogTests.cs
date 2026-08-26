@@ -5,7 +5,7 @@ namespace Uccs.Tests;
 public static class LogTests
 {
 	[Fact]
-	public static void Main()
+	public static void General()
 	{
 // 		var l = new Log();
 // 

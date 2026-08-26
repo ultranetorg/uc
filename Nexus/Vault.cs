@@ -82,7 +82,7 @@ public class Vault
 	{
 		foreach(var i in Wallets)
 			foreach(var j in i.Keys)
-				if(j.Address == address)
+				if(j.Public == address)
 					return j;
 
 		return null;
@@ -159,7 +159,7 @@ public class Vault
 
 	public bool IsUnlocked(PublicKey address)
 	{
-		return Find(address)?.Key != null;
+		return Find(address)?.Secret != null;
 	}
 
 	public void DeleteWallet(string name)
@@ -235,16 +235,16 @@ public class Vault
 			throw new VaultException(VaultError.Corrupted);
 	
 		if(au.Trust == Trust.AskEveryTime)
-			AuthorizationRequested(acc.Address, au, operation);
+			AuthorizationRequested(acc.Public, au, operation);
 
 		return	new AuthorizationResult
 				{
-					Signer = acc.Address, 
+					Signer = acc.Public, 
 					Signature = cryptography switch 
 					{
-						CryptographyType.No		=> Cryptography.No.Sign(acc.Key, Hash, SigningFeatures.None),
-						CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Key, Hash, SigningFeatures.None),
-						CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Key, Hash, SigningFeatures.None),
+						CryptographyType.No		=> Cryptography.No.Sign(acc.Secret, Hash, SigningFeatures.None),
+						CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Secret, Hash, SigningFeatures.None),
+						CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Secret, Hash, SigningFeatures.None),
 						_ => throw new VaultException(VaultError.UnknownCtyptography)
 					}
 				};

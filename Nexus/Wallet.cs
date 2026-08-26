@@ -60,8 +60,8 @@ public class Authentication : IBinarySerializable
 public class WalletKey : IBinarySerializable
 {
 	public string						Name { get; set; } 
-	public SecretKey					Key { get; set; }
-	public PublicKey				Address  => Key.PuplicKey;
+	public SecretKey					Secret { get; set; }
+	public PublicKey					Public  => Secret.Puplic;
 	public List<Authentication>			Authentications = [];
 	public Wallet						Wallet;
 	public List<Authentication>			PendingAuthentications = [];
@@ -79,12 +79,12 @@ public class WalletKey : IBinarySerializable
 	{
 		Wallet = vault;
 		Name = name;
-		Key = key;
+		Secret = key;
 	}
 
 	public override string ToString()
 	{
-		return $"{Name}, {Address}";
+		return $"{Name}, {Public}";
 	}
 
 	public Authentication AddAuthentication(string application, string net, string user, byte[] logo, Trust trust)
@@ -137,14 +137,14 @@ public class WalletKey : IBinarySerializable
 	public void Write(Writer writer)
 	{
 		writer.WriteUtf8(Name);
-		writer.Write(Key.Secret);
+		writer.Write(Secret.Secret);
 		writer.Write(Authentications);
 	}
 
 	public void Read(Reader reader)
 	{
 		Name			= reader.ReadUtf8();
-		Key				= new SecretKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
+		Secret				= new SecretKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
 		Authentications	= reader.ReadList<Authentication>();
 	}
 }
@@ -179,7 +179,7 @@ public class Wallet
 	{
 		Name = name ?? Default;
 		Vault = vault;
-		Salt = RandomNumberGenerator.GetBytes(32);
+		Salt = RandomNumberGenerator.GetBytes(Cryptography.PasswordSaltLength);
 		Password = Vault.Cryptography.HashifyPassword(password, Salt);
 		Keys = keys.Select(i => new WalletKey(this, i.Value, i.Key)).ToList();
 	}
@@ -221,7 +221,7 @@ public class Wallet
 		if(key != null && key.Length != Cryptography.PrivateKeyLength)
 			throw new VaultException(VaultError.IncorrectArgumets);
 
-		if(key != null && Keys.Any(i => Bytes.Equal(i.Key.Secret, key)))
+		if(key != null && Keys.Any(i => Bytes.Equal(i.Secret.Secret, key)))
 			throw new VaultException(VaultError.AlreadyExists);
 
 		var a = new WalletKey(this, name, key == null ? SecretKey.Create(tag) : new SecretKey(key, tag));
@@ -271,7 +271,7 @@ public class Wallet
 
 		Keys = r.ReadList(() => { var a = new WalletKey(this); a.Read(r); return a; });
 
-		Salt = RandomNumberGenerator.GetBytes(32);
+		Salt = RandomNumberGenerator.GetBytes(Cryptography.PasswordSaltLength);
 		Password = Vault.Cryptography.HashifyPassword(password, Salt);
 		Encrypted = null;
 	}

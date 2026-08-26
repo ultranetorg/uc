@@ -196,7 +196,7 @@ public class Program: ApplicationContext
 			IEnumerable<PublicKey> keys;
 
 			lock(vault)
-				keys = accounts.Select(i => i.Address);
+				keys = accounts.Select(i => i.Public);
 
 			foreach(var i in keys)
 				control.Items.Add(i);

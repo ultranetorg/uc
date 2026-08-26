@@ -42,8 +42,8 @@ public class WalletCommand : NexusCommand
 								foreach(var i in w.Keys.Index())
 								{
 									Report($"Key {i.Index}:");
-									Report($"   Public - {i.Item.Address}");
-									Report($"   Secret - {i.Item.Key.Secret.ToHex()}");
+									Report($"   Public - {i.Item.Public}");
+									Report($"   Secret - {i.Item.Secret.Secret.ToHex()}");
 								}
 
 								return w;
@@ -51,7 +51,7 @@ public class WalletCommand : NexusCommand
 		return a;
 	}
 
-	public CommandAction List_LW()
+	public CommandAction ListWallets_LW()
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 

@@ -1,12 +1,10 @@
-﻿using Ardalis.GuardClauses;
-
-namespace Uccs.Web.Extensions;
+﻿namespace Uccs.Web.Extensions;
 
 public static class CollectionExtensions
 {
 	public static List<List<T>> SliceIntoBatches<T>(this ICollection<T> collection, int batchSize)
 	{
-		Guard.Against.Negative(batchSize);
+		ArgumentOutOfRangeException.ThrowIfNegative(batchSize);
 
 		if (collection.Count == 0)
 		{
