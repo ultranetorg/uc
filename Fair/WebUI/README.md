@@ -19,12 +19,6 @@
    npm install
    ```
 
-   If installation fails with dependency errors, retry with:
-
-   ```bash
-   npm install --force
-   ```
-
 3. Create a `.env` file in the project root and set the API URL (see [Environment variables](#environment-variables)):
 
    ```env
