@@ -56,7 +56,7 @@ export const ProductsList = memo(({ items, randomRefreshCount = DEFAULT_RANDOM_R
       {items.map(x => (
         <Link
           className="block"
-          to={routes.publication("", x.publications[0].publicationId)}
+          to={routes.publication(x.publications[0].publicationId)}
           key={x.publications[0].publicationId}
         >
           <ProductRow {...x} refreshTrigger={refreshTriggers[x.publications[0].publicationId]} />

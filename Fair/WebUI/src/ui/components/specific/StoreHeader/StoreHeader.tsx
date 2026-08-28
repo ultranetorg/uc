@@ -45,7 +45,7 @@ export const StoreHeader = () => {
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
       if (item) {
-        navigate(routes.publication(storeId!, item.value))
+        navigate(routes.publication(item.value))
       }
     },
     [navigate, storeId],

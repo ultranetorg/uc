@@ -23,8 +23,8 @@ const withTab = (base: string, tabKey?: string): string => (tabKey ? `${base}/${
 export const routes = {
   home: () => "/",
   store: (storeId: string) => storePath(storeId),
-  category: (_storeId: string, categoryId: string) => `/${addPrefix("categoryId", categoryId)}`,
-  publication: (_storeId: string, publicationId: string) => `/${addPrefix("publicationId", publicationId)}`,
+  category: (categoryId: string) => `/${addPrefix("categoryId", categoryId)}`,
+  publication: (publicationId: string) => `/${addPrefix("publicationId", publicationId)}`,
   search: (storeId: string) => `${storePath(storeId)}/search`,
   about: (storeId: string) => `${storePath(storeId)}/about`,
   reviewer: (storeId: string, reviewerId: string) => `${storePath(storeId)}/${addPrefix("userId", reviewerId)}`,

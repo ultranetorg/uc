@@ -14,7 +14,7 @@ export const createBreadcrumbs = (
   path
     ? [
         { path: routes.store(storeId), title: t("common:home") },
-        ...path.map(x => ({ path: routes.category(storeId, x.id), title: x.title })),
+        ...path.map(x => ({ path: routes.category(x.id), title: x.title })),
         { title: title },
       ]
     : [{ path: routes.store(storeId), title: t("common:home") }, { title: title }]

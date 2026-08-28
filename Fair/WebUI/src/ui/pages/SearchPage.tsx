@@ -96,7 +96,6 @@ export const SearchPage = () => {
           <PublicationsList
             publications={publications}
             isLoading={isPending || !publications}
-            storeId={storeId!}
             showPublicationType={state.type === ""}
           />
           <NextPagination

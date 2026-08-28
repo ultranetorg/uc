@@ -73,7 +73,7 @@ export const CategoryPage = () => {
             productType={category.type}
           />
         ) : (
-          <PublicationsList storeId={storeId!} publications={publications.items} />
+          <PublicationsList publications={publications.items} />
         )
       ) : (
         <NoContent>{t("empty")}</NoContent>

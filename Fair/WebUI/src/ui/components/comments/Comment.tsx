@@ -80,7 +80,7 @@ export const Comment = memo(
               {publication && (
                 <>
                   <span>{t("common:to")}:</span>
-                  <Link to={routes.publication(storeId!, publication.id)} className="text-sm font-semibold">
+                  <Link to={routes.publication(publication.id)} className="text-sm font-semibold">
                     {publication.title}
                   </Link>
                 </>

@@ -21,7 +21,7 @@ export const PublicationsGrid = ({ storeId, isPending, publications, productType
       ) : (
         <>
           {publications!.map(x => (
-            <Link key={x.id} to={routes.publication(storeId, x.id)}>
+            <Link key={x.id} to={routes.publication(x.id)}>
               <CardComponent storeId={storeId} {...x} />
             </Link>
           ))}

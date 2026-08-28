@@ -3,7 +3,6 @@ import { Link } from "react-router-dom"
 import { memo } from "react"
 
 import { SvgSoftwareLogo } from "assets/fallback"
-import { useResolveStoreId } from "hooks"
 import { ButtonOutline, ImageFallback } from "ui/components"
 import { buildFileUrl, routes } from "utils"
 
@@ -29,13 +28,12 @@ export const PublicationTableRow = memo(
     categoryTitle,
     onProductStoresClick,
   }: PublicationTableRowProps) => {
-    const storeId = useResolveStoreId()
     const { t } = useTranslation("profile")
 
     return (
       <div className="flex items-center justify-between p-4 text-2sm leading-5">
         <div className="w-[43%]">
-          <Link to={routes.publication(storeId!, id)} className="flex w-fit items-center gap-2">
+          <Link to={routes.publication(id)} className="flex w-fit items-center gap-2">
             <div className="size-8 shrink-0 overflow-hidden rounded-lg">
               <ImageFallback
                 src={buildFileUrl(logoId)}
@@ -47,7 +45,7 @@ export const PublicationTableRow = memo(
           </Link>
         </div>
         <span className="w-[30%]">
-          <Link to={routes.category(storeId!, categoryId)}>{categoryTitle}</Link>
+          <Link to={routes.category(categoryId)}>{categoryTitle}</Link>
         </span>
         <div className="flex w-[27%] justify-center">
           <ButtonOutline
