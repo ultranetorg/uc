@@ -58,7 +58,7 @@ export const CategoryPage = () => {
   )
 
   if (isPending || !category || isPendingPublications || !publications) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (CategoryPage)" : ""}</div>
   }
 
   return (

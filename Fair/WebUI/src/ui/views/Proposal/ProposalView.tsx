@@ -216,7 +216,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   }, [isPublicationMode, proposal, approval])
 
   if (!proposal || !comments) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (ProposalView)" : ""}</div>
   }
 
   return (

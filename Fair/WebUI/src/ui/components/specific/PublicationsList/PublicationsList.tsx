@@ -14,7 +14,7 @@ export type PublicationsListProps = {
 
 export const PublicationsList = ({ isLoading, storeId, publications, showPublicationType }: PublicationsListProps) => {
   if (isLoading || !publications) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (PublicationsList)" : ""}</div>
   }
 
   return (

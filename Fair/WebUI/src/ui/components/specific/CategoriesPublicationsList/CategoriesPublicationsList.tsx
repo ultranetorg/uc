@@ -19,7 +19,7 @@ export const CategoriesPublicationsList = ({
   ...rest
 }: CategoriesPublicationsListProps) => {
   return isPending || !categoriesPublications ? (
-    <div>Loading</div>
+    <div>Loading{import.meta.env.DEV ? " (CategoriesPublicationsList)" : ""}</div>
   ) : (
     <>
       {categoriesPublications.map(x => (

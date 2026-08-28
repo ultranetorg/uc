@@ -23,7 +23,7 @@ export const UserDetailsView = memo(({ storeId, user, reviews }: UserDetailsView
   const { store } = useStoreContext()
   const { t } = useTranslation("userDetailsView")
 
-  if (!user || !reviews) return <div>Loading</div>
+  if (!user || !reviews) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
 
   const isPublisher = isUserPublisher(store, user)
   const isModerator = isUserModerator(store, user)

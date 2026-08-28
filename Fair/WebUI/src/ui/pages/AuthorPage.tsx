@@ -23,7 +23,7 @@ export const AuthorPage = () => {
   const handleModalClose = useCallback(() => setSelectedProductId(undefined), [])
 
   if (isPending || !author) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (AuthorPage)" : ""}</div>
   }
 
   return (

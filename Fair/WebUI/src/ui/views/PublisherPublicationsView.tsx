@@ -42,7 +42,7 @@ export const PublisherPublicationsView = memo(
     )
 
     if (!author || !publications) {
-      return <>Loading </>
+      return <div>Loading{import.meta.env.DEV ? " (PublisherPublicationsView)" : ""}</div>
     }
 
     if (!publications.items.length) return null

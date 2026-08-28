@@ -30,7 +30,7 @@ export const UnpublishedPublicationPage = () => {
   const pageTitle = publication?.title ?? publication?.id
   useStoreTitle(store?.title, pageTitle ? `Unpublished Publication - ${pageTitle}` : "Unpublished Publication")
 
-  if (isLoading || !publication) return <div>Loading</div>
+  if (isLoading || !publication) return <div>Loading{import.meta.env.DEV ? " (UnpublishedPublicationPage)" : ""}</div>
 
   return (
     <div className="flex flex-col gap-6">

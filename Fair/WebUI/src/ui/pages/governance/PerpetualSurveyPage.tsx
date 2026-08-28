@@ -109,7 +109,7 @@ export const PerpetualSurveyPage = () => {
   }, [publisherIds, survey, t])
 
   if (!survey || isFetching) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (PerpetualSurveyPage)" : ""}</div>
   }
 
   return (

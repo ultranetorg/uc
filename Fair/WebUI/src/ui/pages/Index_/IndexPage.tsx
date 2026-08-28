@@ -83,7 +83,7 @@ export const IndexPage = () => {
   const searchMode = search !== ""
 
   if (searchMode && ((scope === "products" && isProductsPending) || (scope === "stores" && isStoresPending))) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (IndexPage)" : ""}</div>
   }
 
   return (

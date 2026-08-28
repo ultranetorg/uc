@@ -38,7 +38,7 @@ export const PreviewPage = () => {
   if (!previousPath || (!productId && !publicationId)) return <Navigate to={routes.store(storeId!)} />
 
   if (isProductPending && isPublicationPending && !product && !publication) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (PreviewPage)" : ""}</div>
   }
 
   return (

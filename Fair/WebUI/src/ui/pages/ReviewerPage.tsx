@@ -32,7 +32,7 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
 
   useStoreTitle(user?.name ? `User - ${user?.name}` : undefined)
 
-  if (!user) return <div>Loading</div>
+  if (!user) return <div>Loading{import.meta.env.DEV ? " (ReviewerPage)" : ""}</div>
 
   return (
     <div className="flex flex-col gap-6">

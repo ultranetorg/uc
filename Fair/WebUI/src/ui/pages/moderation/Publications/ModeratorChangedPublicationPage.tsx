@@ -59,7 +59,7 @@ export const ModeratorChangedPublicationPage = () => {
     })
   }, [isModerator, mutate, navigate, publication, storeId, t, voterId])
 
-  if (!storeId || isLoading) return <div>Loading</div>
+  if (!storeId || isLoading) return <div>Loading{import.meta.env.DEV ? " (ModeratorChangedPublicationPage)" : ""}</div>
 
   if (!publication) {
     return <div>Not found</div>

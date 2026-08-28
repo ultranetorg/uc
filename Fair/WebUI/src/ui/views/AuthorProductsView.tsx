@@ -21,7 +21,7 @@ export const AuthorProductsView = memo(({ authorId, onProductStoresClick }: Auth
     products?.totalItems && products.totalItems > 0 ? Math.ceil(products.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   if (!products || isPending) {
-    return <>Loading </>
+    return <div>Loading{import.meta.env.DEV ? " (AuthorProductsView)" : ""}</div>
   }
 
   return (

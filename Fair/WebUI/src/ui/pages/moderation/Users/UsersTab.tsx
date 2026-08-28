@@ -43,7 +43,7 @@ export const UsersTab = () => {
     [setState],
   )
 
-  if (!users || isPending) return <div>Loading</div>
+  if (!users || isPending) return <div>Loading{import.meta.env.DEV ? " (UsersTab)" : ""}</div>
 
   return (
     <>
