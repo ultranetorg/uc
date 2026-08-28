@@ -1,165 +1,76 @@
-yarn install
-yarn dev
+# Fair.WebUI
 
-## Pages
+## Prerequisites
 
-### StoresPage
+- [Node.js](https://nodejs.org/) >= 20.0.0 (latest LTS recommended, tested on 25.1.0)
+- npm (bundled with Node.js)
 
-### StorePage
+## Installation
 
-### CategoryPage
+1. Go to the `WebUI` directory — the project root, where `package.json` is located:
 
-### PublicationPage
+   ```bash
+   cd Fair/WebUI
+   ```
 
-## Assets sizes
+2. Install dependencies:
 
-| Tailwind size (px): | Tailwind postfix: | Asset postfix: |
-| ------------------- | ----------------- | -------------- |
-| 14                  | xxs               | 2xs            |
-| 16                  | xs                | xs             |
-| 20                  | sm                | sm             |
-| **24**              | **base**          | **md**         |
-| 28                  | lg                |                |
-| 32                  | xl                |                |
-| 36                  | 2xl               |                |
-| 40                  |                   | 3xl            |
-| 44                  |                   |                |
-| 64                  | 9xl               | 9xl            |
-| 72                  | 10xl              | 10xl           |
-| 76                  |                   |                |
+   ```bash
+   npm install
+   ```
 
-text-xs font-size: 0.75rem; /_ 12px _/
-text-sm font-size: 0.875rem; /_ 14px _/
-text-base font-size: 1rem; /_ 16px _/
-text-lg font-size: 1.125rem; /_ 18px _/
-text-xl font-size: 1.25rem; /_ 20px _/
-text-2xl font-size: 1.5rem; /_ 24px _/
-text-3xl font-size: 1.875rem; /_ 30px _/
-text-4xl font-size: 2.25rem; /_ 36px _/
-text-5xl font-size: 3rem; /_ 48px _/
-text-6xl font-size: 3.75rem; /_ 60px _/
-text-7xl font-size: 4.5rem; /_ 72px _/
-text-8xl font-size: 6rem; /_ 96px _/
-text-9xl font-size: 8rem; /_ 128px _/
+3. Create a `.env` file in the project root and set the API URL (see [Environment variables](#environment-variables)):
 
-## Classes hierarchy
+   ```env
+   VITE_APP_API_BASE_URL=http://127.1.0.100:1080/api
+   ```
 
-### Account
+4. Run the project (see [Development](#development) below).
 
-```mermaid
-graph TD;
-    AccountModel["AccountModel<br/>(Используется AccountSwitcher, используется Sidebar, содержит настройки аккаунта - FavoriteStores)"]
+## Development
 
-    AccountModel --> AccountBaseModel
-    AccountBaseAvatarModel --> AccountBaseModel
+Starts a local dev server with hot reload (Vite):
+
+```bash
+npm run dev
 ```
 
-### Publication
+## Build
 
-```mermaid
-graph TD;
-    PublicationImageBaseModel
-    PublicationAuthorModel --> PublicationBaseModel
-    PublicationModel --> PublicationBaseModel
-    PublicationDetailsModel --> PublicationExtendedModel
-    PublicationExtendedModel --> PublicationModel
+Standard production build (type-check + Vite build), output goes to `dist/`:
+
+```bash
+npm run build
 ```
 
-### ChangedPublication
+Serverless build (single-file, bundled build for static/serverless hosting; requires `yarn` to be available on PATH):
 
-```mermaid
-graph TD;
-    ChangedPublicationDetailsModel --> ChangedPublication
+```bash
+npm run build:serverless
 ```
 
-### Category
+Preview a production build locally:
 
-```mermaid
-graph TD;
-    CategoryParentBaseModel --> CategoryBaseModel
-    CategoryPublicationsModel --> CategoryBaseModel
-    CategoryModel --> CategoryParentBaseModel
+```bash
+npm run preview
 ```
 
-### Store
+## Environment variables
 
-```mermaid
-graph TD;
-    StoreModel --> StoreBaseModel
+Configuration is read from a `.env` file in the project root (see [Vite env docs](https://vite.dev/guide/env-and-mode)). Only variables prefixed with `VITE_APP_` are exposed to the client code.
+
+| Variable                        | Description                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------- |
+| `VITE_APP_API_BASE_URL`          | Base URL of the Fair API the app talks to.                                            |
+| `VITE_APP_ICCP_NODE_TEST_URL`    | (Optional) URL of an ICCP test node. Commented out by default.                        |
+| `VITE_APP_SERVERLESS_BUILD`      | Set automatically by `npm run build:serverless`; switches on the serverless build mode. |
+
+Example `.env`:
+
+```env
+VITE_APP_API_BASE_URL=http://127.1.0.100:1080/api
+#VITE_APP_ICCP_NODE_TEST_URL=http://127.1.0.100:3160
 ```
-
-
-### Operation
-
-```mermaid
-classDiagram
-    Operation <|-- FairOperation
-
-    FairOperation <|-- AccountAvatarChange
-    FairOperation <|-- AccountNicknameChange
-    FairOperation <|-- FavoriteStoreChange
-
-    FairOperation <|-- AuthorAvatarChange
-    FairOperation <|-- AuthorCreation
-    FairOperation <|-- AuthorLinksChange
-    FairOperation <|-- AuthorNicknameChange
-    FairOperation <|-- AuthorTextChange
-    FairOperation <|-- AuthorRenewal
-    FairOperation <|-- AuthorModerationReward
-    FairOperation <|-- AuthorOwnerAddition
-    FairOperation <|-- AuthorOwnerRemoval
-
-    FairOperation <|-- FileCreation
-    FairOperation <|-- FileDeletion
-
-    FairOperation <|-- ProductCreation
-    FairOperation <|-- ProductDeletion
-    FairOperation <|-- ProductUpdation
-
-    FairOperation <|-- PerpetualVoting
-
-    FairOperation <|-- ProposalCreation
-    FairOperation <|-- ProposalVoting
-    FairOperation <|-- ProposalCommentCreation
-    FairOperation <|-- ProposalCommentEdit
-
-    FairOperation <|-- StoreCreation
-    FairOperation <|-- StoreRenewal
-
-    FairOperation <|-- StoreOperation
-    StoreOperation <|-- StorePolicyChange
-    StoreOperation <|-- VotableOperation
-
-    VotableOperation <|-- CategoryAvatarChange
-    VotableOperation <|-- CategoryCreation
-    VotableOperation <|-- CategoryDeletion
-    VotableOperation <|-- CategoryMovement
-    VotableOperation <|-- CategoryTypeChange
-
-    VotableOperation <|-- PublicationCreation
-    VotableOperation <|-- PublicationDeletion
-    VotableOperation <|-- PublicationPublish
-    VotableOperation <|-- PublicationUpdation
-
-    VotableOperation <|-- ReviewCreation
-    VotableOperation <|-- ReviewEdit
-    VotableOperation <|-- ReviewStatusChange
-
-    VotableOperation <|-- StoreAvatarChange
-    VotableOperation <|-- StoreModeratorAddition
-    VotableOperation <|-- StoreModeratorRemoval
-    VotableOperation <|-- StoreNameChange
-    VotableOperation <|-- StoreTextChange
-
-    VotableOperation <|-- UserDeletion
-    VotableOperation <|-- UserRegistration
-```
-
-## Z-Index
-
-50 - fullscreen modal
-60 - Modal backdrop
-61 - <Modal />
 
 ## Links
 

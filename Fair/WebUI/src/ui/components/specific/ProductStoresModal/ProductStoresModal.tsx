@@ -28,7 +28,7 @@ export const ProductStoresModal = memo(({ onClose, productId }: ProductStoresMod
   useEscapeKey(onClose)
 
   if (!stores) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (ProductStoresModal)" : ""}</div>
   }
 
   return (

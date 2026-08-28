@@ -14,7 +14,7 @@ export const AboutPage = () => {
   useStoreTitle(store?.title, "About")
 
   if (!store) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (AboutPage)" : ""}</div>
   }
 
   return (

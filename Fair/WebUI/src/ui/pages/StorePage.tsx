@@ -19,7 +19,7 @@ export const StorePage = () => {
   )
 
   if (isPending || !store || !storeId || !categories || !categoriesPublications || isCategoriesPending) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (StorePage)" : ""}</div>
   }
 
   return (

@@ -32,7 +32,7 @@ export const CommentsList = memo(
   }: CommentsListProps) => (
     <div className="flex flex-col gap-4">
       {isFetching || !comments ? (
-        <div>Loading</div>
+        <div>Loading{import.meta.env.DEV ? " (CommentsList)" : ""}</div>
       ) : comments.length === 0 ? (
         <>
           {showCommentInput ? (

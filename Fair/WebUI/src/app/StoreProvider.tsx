@@ -26,6 +26,7 @@ export const StoreProvider = memo(({ children }: PropsWithChildren) => {
   const effectiveStoreId = useResolveStoreId()
 
   const { data: store, isPending, error } = useGetStore(effectiveStoreId)
+  if (error) throw error
   const { data: rootCategories } = useGetCategoriesRoot(effectiveStoreId)
   const { data: categories, isPending: isCategoriesPending } = useGetCategoriesTree(effectiveStoreId, 16)
 

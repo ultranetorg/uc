@@ -54,7 +54,7 @@ export const PublicationPage = () => {
   }, [refetchReviews])
 
   if (isPending || !publication) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (PublicationPage)" : ""}</div>
   }
 
   return (

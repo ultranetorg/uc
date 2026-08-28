@@ -26,7 +26,7 @@ export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: Publisher
   useStoreTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 
   if (isPending || !author) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (PublisherPage)" : ""}</div>
   }
 
   return (

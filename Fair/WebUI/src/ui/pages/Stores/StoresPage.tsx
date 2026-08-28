@@ -93,7 +93,7 @@ export const StoresPage = () => {
   )
 
   if (isDefaultFetching || isStoresFetching) {
-    return <div>Loading</div>
+    return <div>Loading{import.meta.env.DEV ? " (StoresPage)" : ""}</div>
   }
 
   return (

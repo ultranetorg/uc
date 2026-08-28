@@ -42,7 +42,7 @@ export const ReviewsList = memo(
       {error ? (
         <div>{error.message}</div>
       ) : isPending || !reviews ? (
-        <div>Loading</div>
+        <div>Loading{import.meta.env.DEV ? " (ReviewsList)" : ""}</div>
       ) : reviews.items.length === 0 ? (
         <ReviewsListEmptyState label={noReviewsLabel} />
       ) : (

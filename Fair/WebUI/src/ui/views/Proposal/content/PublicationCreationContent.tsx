@@ -13,7 +13,7 @@ export const PublicationCreationContent = memo(({ storeId, proposal }: ProposalV
 
   const { isFetching, data: product } = useGetProductDetails(productId)
 
-  if (isFetching || !product) return <div>Loading</div>
+  if (isFetching || !product) return <div>Loading{import.meta.env.DEV ? " (PublicationCreationContent)" : ""}</div>
 
   return (
     <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
