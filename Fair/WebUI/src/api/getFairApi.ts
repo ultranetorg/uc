@@ -56,7 +56,7 @@ const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 
 const getDefaultStores = (): Promise<StoreBase[]> => fetch(`${BASE_URL}/stores/default`).then(res => res.json())
 
-const getStore = (storeId: string): Promise<Store> => fetch(`${BASE_URL}/stores/${storeId}`).then(res => res.json())
+const getStore = (storeId: string): Promise<Store> => fetchApi(fetch(`${BASE_URL}/stores/${storeId}`))
 
 const getStorePolicies = (storeId: string): Promise<Policy[]> =>
   fetch(`${BASE_URL}/stores/${storeId}/policies`).then(res => res.json())
