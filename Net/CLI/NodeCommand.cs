@@ -7,6 +7,8 @@ public abstract class NodeCommand : McvCommand
 	CommandAction attach;
 	CommandAction send;
 
+	public static bool					InInteraction;
+
 	protected abstract McvApiClient		CreateClient(string url);
 
 	public NodeCommand(McvCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
@@ -22,6 +24,11 @@ public abstract class NodeCommand : McvCommand
 		attach = new CommandAction(this, MethodBase.GetCurrentMethod());
 		
 		attach.Execute = () =>	{
+									if(InInteraction)
+										throw new Exception("Not available");
+									else
+										InInteraction = true;
+
 									ReportPreambule();
 									ReportNetwork();
 										
@@ -38,14 +45,6 @@ public abstract class NodeCommand : McvCommand
 											break;
 
 										var x = new Xon(c);
-
-										if((First == Keyword && (attach.Names.Contains(x.Nodes[1].Name) || 
-																 //run.Names.Contains(x.Nodes[1].Name)  || 
-																 send.Names.Contains(x.Nodes[1].Name)))
-											|| First == new LogCommand(null, null, null).Keyword)
-										{ 
-											Console.WriteLine("Not available");
-										}
 	
 										Cli.Execute(Cli.Boot.Profile, x);
 									}
@@ -75,6 +74,11 @@ public abstract class NodeCommand : McvCommand
 							];
 
 		send.Execute = () => {
+								if(InInteraction)
+									throw new Exception("Not available");
+								else
+									InInteraction = true;
+
 								ReportPreambule();
 								ReportNetwork();
 

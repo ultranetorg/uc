@@ -43,7 +43,6 @@ public class SimulationRdn : Rdn
 		AffectedCountMaximum		= 10;
 		ECLifetime					= Time.FromYears(100);
 		PoWDifficulity				= 0;
-
 	}
 }
 
@@ -58,6 +57,7 @@ public class VirtualRdn : Rdn
 		PoWDifficulity	= 0;
 	}
 }
+
 public class Developer0Rdn : Rdn
 {
 	public override	Zone		Zone => Zone.Developer0;
@@ -81,7 +81,6 @@ public class TestRdn : Rdn
  		Father0EP	= new(Initials[0], PpiPort);
 	}
 }
-
 
 public class TaRdn : Rdn
 {	

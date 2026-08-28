@@ -65,7 +65,7 @@ public abstract class Cli
 		try
 		{
 			if(!command.Nodes.Any())
-				throw new SyntaxException("Nothing to do");
+				return;
 
 			Execute(command.Nodes, f);
 		}
@@ -125,12 +125,6 @@ public abstract class Cli
 
 				if(first == "exit")
 					return;
-
-				if(first == command.Keyword)
-				{	
-					Console.WriteLine("Already here");
-					continue;
-				}
 
 				Execute(profile, x);
 			}

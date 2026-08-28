@@ -18,11 +18,14 @@ public class NodeCommand : Uccs.Net.NodeCommand
  		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Runs a new instance with command-line interface";
-		a.Arguments =	[
-							new ("profile", DIRPATH, "Path to local profile directory"),
-						];
+		a.Arguments = [];
 
 		a.Execute = () =>	{
+								if(InInteraction)
+									throw new Exception("Not available");
+								else
+									InInteraction = true;
+
 								Cli.Node = new FairNode(Cli.Net.Zone, 
 														Cli.NexusSettings, 
 														Cli.Settings as FairNodeSettings, 

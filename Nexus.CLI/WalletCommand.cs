@@ -35,7 +35,7 @@ public class WalletCommand : NexusCommand
 								//}
 
 								var v = new Vault(Cli.NexusSettings.Zone, Cli.VaultSettings, Flow);
-								var w = v.CreateWallet(Name, GetString("password"), GetInt("accounts", (int)a.Arguments[1].Default));
+								var w = v.CreateWallet(Name, GetString("password"), GetInt("keys", (int)a.Arguments[1].Default));
 
 								VaultApi(new ImportWalletApc {Name = GetString(NameKeyword), Raw = w.ToRaw()});
 
@@ -77,7 +77,7 @@ public class WalletCommand : NexusCommand
 		a.Execute = () =>	{
 								var r = VaultApi<WalletKeysApc.Key[]>(new WalletKeysApc {Name = GetString(NameKeyword, null)});
 
-								Flow.Log.Dump(r, ["Name", "Address"], [i => i.Name, i => i.Public]);
+								Flow.Log.Dump(r, ["Name", "Public Key"], [i => i.Name, i => i.Public]);
 
 								return r;
 							};
@@ -118,17 +118,21 @@ public class WalletCommand : NexusCommand
 
 	public CommandAction AddKey_AK()
 	{
+		const string key = nameof(key);
+		const string keyname = nameof(keyname);
+		const string tag = nameof(tag);
+
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Creates a new or import existing account to a wallet";
-		a.Arguments =  [new ("wallet", FILENAME, "Name of a wallet to add the account to. Otherwise the default is used.", ArgumentFlag.Optional),
-						new (NameKeyword, STRING, "Name of account", ArgumentFlag.Optional),
-						new ("key", SECKEY, "Private key of account to import", ArgumentFlag.Optional)];
+		a.Arguments =  [new (NameKeyword, FILENAME, "Name of a wallet to add the account to. Otherwise the default is used.", ArgumentFlag.Optional),
+						new (keyname, STRING, "Hint name of the key", ArgumentFlag.Optional),
+						new (key, SECKEY, "Private key to import", ArgumentFlag.Optional)];
 
 		a.Execute = () =>	{
-								var aa = VaultApi<PublicKey>(new AddKeyToWalletApc {Wallet = GetString("wallet", null), Key = GetBytes("key", null), Name = GetString(NameKeyword, null), Tag = GetString("tag", null)});
+								var aa = VaultApi<PublicKey>(new AddKeyToWalletApc {Wallet = GetString(NameKeyword, null), Key = GetBytes(key, null), Name = GetString(keyname, null), Tag = GetString(tag, null)});
 								
-								Report("Address - " + aa); 
+								Report("Public Key : " + aa); 
 
 								return aa;
 							};
