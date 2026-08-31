@@ -20,7 +20,7 @@ export const CategoryPublicationsList = memo(
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between text-gray-800">
         <span className="text-xl font-bold leading-6">{title}</span>
-        <Link className="text-sm font-medium leading-4.25 hover:font-semibold" to={routes.category(storeId, id)}>
+        <Link className="text-sm font-medium leading-4.25 hover:font-semibold" to={routes.category(id)}>
           {seeAllLabel}
         </Link>
       </div>

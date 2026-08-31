@@ -63,7 +63,7 @@ export const ProductRow = memo(
     const handleChange = useCallback(
       (item: DropdownItem) => {
         const { publicationId } = item as StoreRatingDropdownItem
-        navigate(routes.publication("", publicationId))
+        navigate(routes.publication(publicationId))
       },
       [navigate],
     )
