@@ -13,6 +13,9 @@ public class FairNode : McvNode
 	public WebServer				WebServer;
 	List<OutwardTransaction>		CurrentOutwards = [];
 
+	public readonly static string	UniqueDirectiryName = typeof(FairNode).FullName;
+
+
 	public static readonly string	Description = "The Fair is the decentralized autonomous owner-free platform (DAO) of product publishing communities fully governed by the will of its members";
 
 	public static readonly string[]	ClientRequiredMessage = ["This is decentralized autonomous owner-free platform and requires Client Software installed to participate in its communities.",

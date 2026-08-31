@@ -16,12 +16,14 @@ public class WalletCommand : NexusCommand
 
 	public CommandAction Create_C()
 	{
+		const string keys = nameof(keys);
+
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Used to create a new account and its wallet.";
 		a.Arguments =	[
 							new (NameKeyword, FILENAME, "An arbitrary name of a newly created wallet"),
-							new ("accounts", INT, "Number of accounts to automatically create in the wallet", ArgumentFlag.Optional, @default: 0),
+							new (keys, INT, "Number of accounts to automatically create in the wallet", ArgumentFlag.Optional, @default: 0),
 							new ("password", PASSWORD, "A password that is used to encrypt a newly created wallet", ArgumentFlag.Optional)
 						];
 
@@ -35,7 +37,7 @@ public class WalletCommand : NexusCommand
 								//}
 
 								var v = new Vault(Cli.NexusSettings.Zone, Cli.VaultSettings, Flow);
-								var w = v.CreateWallet(Name, GetString("password"), GetInt("keys", (int)a.Arguments[1].Default));
+								var w = v.CreateWallet(Name, GetString("password"), GetInt(keys, (int)a.Arguments[1].Default));
 
 								VaultApi(new ImportWalletApc {Name = GetString(NameKeyword), Raw = w.ToRaw()});
 

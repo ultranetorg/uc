@@ -4,6 +4,10 @@ namespace Uccs.Fair;
 
 public class NodeCommand : Uccs.Net.NodeCommand
 {
+	public NodeCommand()
+	{
+	}
+
 	public NodeCommand(McvCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
 	}

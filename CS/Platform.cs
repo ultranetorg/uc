@@ -102,10 +102,10 @@ public class Expression : IBinarySerializable
 	public const string			Or = "OR";
 	public const string			And = "AND";
 
-	public const string			Family = "Family";
-	public const string			Brand = "Brand";
-	public const string			Version = "Version";
-	public const string			Architecture = "Architecture";
+	public const string			Family = "family";
+	public const string			Brand = "brand";
+	public const string			Version = "version";
+	public const string			Architecture = "architecture";
 
 	static bool IsOperation(string name) => name == Greater ||
 											name == GreaterOrEqual ||
@@ -134,6 +134,11 @@ public class Expression : IBinarySerializable
 	public Expression(string @operator)
 	{
 		Operator = @operator;
+	}
+
+	public override string ToString()
+	{
+		return Operator;
 	}
 
 	public Xon ToXon(IXonValueSerializator serializator)

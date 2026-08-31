@@ -23,6 +23,9 @@
     "package": {
       "commandName": "Project",
       "commandLineArgs": "package"
+    },
+    "(empty)": {
+      "commandName": "Project"
     }
   }
 }

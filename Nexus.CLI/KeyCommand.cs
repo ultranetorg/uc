@@ -18,14 +18,14 @@ public class KeyCommand : NexusCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string @public = nameof(@public);
 		const string user = nameof(user);
 		const string net = nameof(net);
 		const string application = nameof(application);
-		const string account = nameof(account);
 
 		a.Description = "Authenticates the specified user to transact in the specified network from the specified application";
 		a.Arguments =	[
-							AddressArgument(PUBKEY, "account which are authorized to sign transactions"),
+							new (@public,		PUBKEY, "Public key which are authorized to sign transactions"),
 							new (user,			NAME, "Name of user in the specified network on whose behalf transactions are to be sent"),
 							new (net,			NA, "Address of the network to where transactions are to be sent"),
 							new (application,	STRING, "Identifier of the application"),
@@ -35,7 +35,7 @@ public class KeyCommand : NexusCommand
 
 								var ar = VaultApi<AuthenticationResult>(new AuthenticateApc
 																		{
-																			Key  = GetPublicKey(AddressKeyword),
+																			Key  = GetPublicKey(@public),
 																			User = GetString(user),
 																			Net = GetString(net),
 																			Application = GetString(application),
@@ -49,14 +49,15 @@ public class KeyCommand : NexusCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
+		const string @public = nameof(@public);
 		const string session = nameof(session);
 		const string trust = nameof(trust);
 
 		a.Description = "Confirms pending authentication";
 		a.Arguments =	[
-							AddressArgument(PUBKEY, "account to confirm authentication for"),
-							new (session, HEX, "Session Id"),
-							new (trust, TRUST, "Trust level"),
+							new (@public,	PUBKEY, "Public key to confirm authentication for"),
+							new (session,	HEX, "Session Id"),
+							new (trust,		TRUST, "Trust level"),
 						];
 
 		a.Execute = () =>	{
@@ -65,7 +66,7 @@ public class KeyCommand : NexusCommand
 
 								lock(Cli.Nexus.Vault)
 								{
-									var ac = Cli.Nexus.Vault.Find(GetPublicKey(AddressKeyword))
+									var ac = Cli.Nexus.Vault.Find(GetPublicKey(@public))
 											 ??
 											 throw new VaultException(VaultError.NotFound);
 	
@@ -85,11 +86,13 @@ public class KeyCommand : NexusCommand
 
 	public CommandAction ListPendingAuthentications_LPA()
 	{
+		const string @public = nameof(@public);
+
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Lists pending authentications for the specified account";
 		a.Arguments =	[
-							AddressArgument(PUBKEY, "account to get pending authentications from"),
+							new Argument(@public, PUBKEY, "Public key to get pending authentications from"),
 						];
 
 		a.Execute = () =>	{
@@ -98,7 +101,7 @@ public class KeyCommand : NexusCommand
 
 								lock(Cli.Nexus.Vault)
 								{
-									var ac = Cli.Nexus.Vault.Find(GetPublicKey(AddressKeyword))
+									var ac = Cli.Nexus.Vault.Find(GetPublicKey(@public))
 											 ??
 											 throw new VaultException(VaultError.NotFound);
 
@@ -112,11 +115,13 @@ public class KeyCommand : NexusCommand
 
 	public CommandAction ListAuthentications_LA()
 	{
+		const string @public = nameof(@public);
+
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		a.Description = "Lists existing authentications for the specified account";
+		a.Description = "Lists confirmed authentications for the specified key";
 		a.Arguments =	[
-							AddressArgument(PUBKEY, "account to get authentications from"),
+							new Argument(@public, PUBKEY, "Public key to get confirmed authentications from"),
 						];
 
 		a.Execute = () =>	{
@@ -125,7 +130,7 @@ public class KeyCommand : NexusCommand
 
 								lock(Cli.Nexus.Vault)
 								{
-									var ac = Cli.Nexus.Vault.Find(GetPublicKey(AddressKeyword))
+									var ac = Cli.Nexus.Vault.Find(GetPublicKey(@public))
 											 ??
 											 throw new VaultException(VaultError.NotFound);
 

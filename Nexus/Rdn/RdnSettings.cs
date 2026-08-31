@@ -57,7 +57,7 @@ public class RdnNodeSettings : McvNodeSettings
 		}
 	}
 
-	public RdnNodeSettings(NexusSettings nexusSettings) : base(System.IO.Path.Join(nexusSettings.Profile, typeof(RdnNode).FullName))
+	public RdnNodeSettings(NexusSettings nexusSettings) : base(System.IO.Path.Join(nexusSettings.Profile, RdnNode.UniqueDirectiryName))
 	{
 		if(!nexusSettings.Exists)
 			throw new Exception("NexusSettings not found");

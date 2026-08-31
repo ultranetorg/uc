@@ -15,6 +15,8 @@ public class UserSessionSettings : Settings
 
 public class McvNodeSettings : SavableSettings
 {
+	public override string				FileName => $"Node{Extention}";
+
 	public IpApiSettings				Api { get; set; }
 	public McvSettings					Mcv { get; set; }
 	public PeeringSettings				Peering { get; set; } = new();

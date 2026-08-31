@@ -16,6 +16,8 @@ public enum RdnRole : uint
 
 public class RdnNode : McvNode
 {
+	public readonly static string	UniqueDirectiryName = typeof(RdnNode).FullName;
+
 	new public RdnTcpPeering		Peering => base.Peering as RdnTcpPeering;
 	new public RdnMcv				Mcv => base.Mcv as RdnMcv;
 	public new Rdn					Net => base.Net as Rdn;

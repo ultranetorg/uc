@@ -48,21 +48,21 @@ public class FairNodeSettings : McvNodeSettings
 		}
 	}
 
-	public FairNodeSettings(string profile, Zone zone, NexusSettings nexusSettings) : base(profile)
+	public FairNodeSettings(NexusSettings nexusSettings) : base(System.IO.Path.Join(nexusSettings.Profile, FairNode.UniqueDirectiryName))
 	{
 		if(!nexusSettings.Exists)
 			throw new Exception("NexusSettings not found");
 
 		if(!Exists)
 		{
-			SetDefaults(zone, nexusSettings);
+			SetDefaults(nexusSettings);
 			Save();
 		}
 	}
 
-	public void SetDefaults(Zone zone, NexusSettings settings)
+	public void SetDefaults(NexusSettings settings)
 	{
-		Peering		= new () {Endpoint = new (IPAddress.Any, Fair.ByZone(zone).PpiPort)};
+		Peering		= new () {Endpoint = new (IPAddress.Any, Fair.ByZone(settings.Zone).PpiPort)};
 		Api			= new () {LocalIP = settings.Host};
 		DataPath	= System.IO.Path.Join(FairNode.ExeDirectory, "Data");
 	}

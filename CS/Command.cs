@@ -54,46 +54,52 @@ public class CommandAction
 		Command = command;
 		Method = method;
 
-		Examples = () =>	{
-								var c = $"{Command.Keyword}{(Name != Command.DefaultAction.ToLower() ? $" {Name}" : null)}";
-	
-								var used = new Dictionary<ArgumentType, int>();
-	
-								string nextexample(ArgumentType t)
-								{
-									if(!used.ContainsKey(t))
-										used[t] = 0;
-									else
-										used[t]++;
-	
-									return t.Examples[used[t]];
-								}
-	
-								if(Arguments != null)
-								{
-									foreach(var i in Arguments)
-										if(i.Name == null && i.Type != null)
-											c += $" {nextexample(i.Type)}";
-
-								foreach(var i in Arguments)
-								{
-									var a = i.Arguments == null ? i : i.Arguments[0];
-
-									if(a.Name != null)
-										if(a.Type != null)
-											c += $" {a.Name}={nextexample(a.Type)}";
-										else
-											c += $" {a.Name}";
-								}
-							}
-
-			return [new Example(null, c)];
-							};
+		Examples = () => [new Example(null, CreateExample([]))];
 	}
 
 	public override string ToString()
 	{
 		return Method.Name;
+	}
+
+	public string CreateExample(Dictionary<string, string> values)
+	{
+		var c = $"{Command.Keyword}{(Name != Command.DefaultAction.ToLower() ? $" {Name}" : null)}";
+
+		var used = new Dictionary<ArgumentType, int>();
+
+		string valuexample(Argument a)
+		{
+			if(a.Name != null && values.TryGetValue(a.Name, out var v))
+				return v;
+
+			if(!used.ContainsKey(a.Type))
+				used[a.Type] = 0;
+			else
+				used[a.Type]++;
+
+			return a.Type.Examples[used[a.Type]];
+		} 
+
+		if(Arguments != null)
+		{
+			foreach(var i in Arguments)
+				if(i.Name == null && i.Type != null)
+					c += $" {valuexample(i)}";
+
+			foreach(var i in Arguments)
+			{
+				var a = i.Arguments == null ? i : i.Arguments[0];
+
+				if(a.Name != null)
+					if(a.Type != null)
+						c += $" {a.Name}={valuexample(a)}";
+					else
+						c += $" {a.Name}";
+			}
+		}
+
+		return c;
 	}
 }
 

@@ -21,8 +21,7 @@ public class FairCli : McvCli
 
 		Net				= Fair.ByZone(Boot.Zone);
 		NexusSettings	= new NexusSettings(Boot.Zone, Boot.Profile);
-		Settings		= new FairNodeSettings(Path.Join(Boot.Profile, typeof(FairNode).FullName), Boot.Zone, NexusSettings);
-
+		Settings		= new FairNodeSettings(NexusSettings);
 
 		Execute(Boot.Profile, Boot.Commnand);
 	}
