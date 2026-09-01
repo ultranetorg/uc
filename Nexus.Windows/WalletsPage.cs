@@ -53,7 +53,7 @@ public partial class WalletsPage : Page
 
 		foreach(var i in w.Keys)
 		{
-			var li = new ListViewItem(i.Name);
+			var li = new ListViewItem(i.Alias);
 			li.Tag = i;
 			li.SubItems.Add(i.Public.ToString());
 

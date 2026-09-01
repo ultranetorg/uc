@@ -45,7 +45,7 @@ public class SecretKeyTests
 		w1.Unlock(p);
 		
 		Assert.Equal(w.Keys, w1.Keys, EqualityComparer<WalletKey>.Create((a, b) =>	{
-																						return Bytes.EqualityComparer.Equals(a.Secret.Secret, b.Secret.Secret) && a.Name == b.Name;
+																						return Bytes.EqualityComparer.Equals(a.Secret.Secret, b.Secret.Secret) && a.Alias == b.Alias;
 																					}));
 		//Assert.True(k == AccountKey.Load(Cryptography.Normal, k.Save(Cryptography.Normal, "123"), "123"));
  	}

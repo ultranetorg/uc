@@ -59,7 +59,7 @@ public class Authentication : IBinarySerializable
 
 public class WalletKey : IBinarySerializable
 {
-	public string						Name { get; set; } 
+	public string						Alias { get; set; } 
 	public SecretKey					Secret { get; set; }
 	public PublicKey					Public  => Secret.Puplic;
 	public List<Authentication>			Authentications = [];
@@ -75,16 +75,16 @@ public class WalletKey : IBinarySerializable
 		Wallet = vault;
 	}
 
-	public WalletKey(Wallet vault, string name, SecretKey key)
+	public WalletKey(Wallet vault, string alias, SecretKey key)
 	{
 		Wallet = vault;
-		Name = name;
+		Alias = alias;
 		Secret = key;
 	}
 
 	public override string ToString()
 	{
-		return $"{Name}, {Public}";
+		return $"{Alias}, {Public}";
 	}
 
 	public Authentication AddAuthentication(string application, string net, string user, byte[] logo, Trust trust)
@@ -136,14 +136,14 @@ public class WalletKey : IBinarySerializable
 
 	public void Write(Writer writer)
 	{
-		writer.WriteUtf8(Name);
+		writer.WriteUtf8(Alias);
 		writer.Write(Secret.Secret);
 		writer.Write(Authentications);
 	}
 
 	public void Read(Reader reader)
 	{
-		Name			= reader.ReadUtf8();
+		Alias			= reader.ReadUtf8();
 		Secret				= new SecretKey(reader.ReadBytes(Cryptography.PrivateKeyLength));
 		Authentications	= reader.ReadList<Authentication>();
 	}
@@ -213,7 +213,7 @@ public class Wallet
 		File.WriteAllBytes(Path, ToRaw());
 	}
 
-	public WalletKey AddKey(string name, byte[] key, string tag)
+	public WalletKey AddKey(string alias, byte[] key, string tag)
 	{
 		if(Encrypted != null)
 			throw new VaultException(VaultError.Locked);
@@ -224,7 +224,7 @@ public class Wallet
 		if(key != null && Keys.Any(i => Bytes.Equal(i.Secret.Secret, key)))
 			throw new VaultException(VaultError.AlreadyExists);
 
-		var a = new WalletKey(this, name, key == null ? SecretKey.Create(tag) : new SecretKey(key, tag));
+		var a = new WalletKey(this, alias, key == null ? SecretKey.Create(tag) : new SecretKey(key, tag));
 		
 		Keys.Add(a);
 

@@ -80,12 +80,12 @@ public class WalletKeysApc : Apc, IVaultApc
 {
 	public class Key
 	{
-		public string			Name { get; set; } 
+		public string			Alias { get; set; } 
 		public PublicKey		Public { get; set; }
 
 		public Key(WalletKey key)
 		{
-			Name = key.Name;
+			Alias = key.Alias;
 			Public = key.Public;
 		}
 
@@ -94,7 +94,7 @@ public class WalletKeysApc : Apc, IVaultApc
   		}
 	}
 
- 	public string		Name { get; set; }
+ 	public string Name { get; set; }
 
 	public  object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
@@ -151,7 +151,7 @@ public class LockWalletApc : Apc, IVaultApc
 public class AddKeyToWalletApc : Apc, IVaultApc
 {
 	public string		Wallet { get; set; } ///  Null means first
-	public string		Name { get; set; } ///  Null means first
+	public string		Alias { get; set; } ///  Null means first
 	public string		Tag { get; set; }
 	public byte[]		Key { get; set; } ///  Null means create a new
 
@@ -164,7 +164,7 @@ public class AddKeyToWalletApc : Apc, IVaultApc
 			if(w == null)
 				throw new VaultException(VaultError.NotFound);
 
-			var a = w.AddKey(Name, Key, Tag);
+			var a = w.AddKey(Alias, Key, Tag);
 		
 			return a.Public;
 		}

@@ -79,7 +79,7 @@ public class WalletCommand : NexusCommand
 		a.Execute = () =>	{
 								var r = VaultApi<WalletKeysApc.Key[]>(new WalletKeysApc {Name = GetString(NameKeyword, null)});
 
-								Flow.Log.Dump(r, ["Name", "Public Key"], [i => i.Name, i => i.Public]);
+								Flow.Log.Dump(r, ["Name", "Public Key"], [i => i.Alias, i => i.Public]);
 
 								return r;
 							};
@@ -121,18 +121,18 @@ public class WalletCommand : NexusCommand
 	public CommandAction AddKey_AK()
 	{
 		const string key = nameof(key);
-		const string keyname = nameof(keyname);
+		const string alias = nameof(alias);
 		const string tag = nameof(tag);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Creates a new or import existing account to a wallet";
 		a.Arguments =  [new (NameKeyword, FILENAME, "Name of a wallet to add the account to. Otherwise the default is used.", ArgumentFlag.Optional),
-						new (keyname, STRING, "Hint name of the key", ArgumentFlag.Optional),
+						new (alias, STRING, "Hint name of the key", ArgumentFlag.Optional),
 						new (key, SECKEY, "Private key to import", ArgumentFlag.Optional)];
 
 		a.Execute = () =>	{
-								var aa = VaultApi<PublicKey>(new AddKeyToWalletApc {Wallet = GetString(NameKeyword, null), Key = GetBytes(key, null), Name = GetString(keyname, null), Tag = GetString(tag, null)});
+								var aa = VaultApi<PublicKey>(new AddKeyToWalletApc {Wallet = GetString(NameKeyword, null), Key = GetBytes(key, null), Alias = GetString(alias, null), Tag = GetString(tag, null)});
 								
 								Report("Public Key : " + aa); 
 
