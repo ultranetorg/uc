@@ -1,6 +1,7 @@
 export * from "./MemberFilesModal"
 export * from "./CategoriesPublicationsList"
 export * from "./CurrentAccount"
+export * from "./FavoriteStores"
 export * from "./FilesGrid"
 export * from "./FiltersDropdownButton"
 export * from "./FiltersPanel"

@@ -5,6 +5,7 @@ import {
   Placement,
   safePolygon,
   size,
+  useClick,
   useDismiss,
   useFloating,
   useFloatingNodeId,
@@ -18,6 +19,7 @@ export type UseSubmenuProps = {
   placement?: Placement
   offset?: number
   setFloatSizeAsReference?: boolean
+  trigger?: "hover" | "click"
 }
 
 export const useSubmenu = (options?: UseSubmenuProps) => {
@@ -48,9 +50,13 @@ export const useSubmenu = (options?: UseSubmenuProps) => {
   })
 
   const dismiss = useDismiss(context)
-  const hover = useHover(context, { handleClose: safePolygon({ requireIntent: true }) })
+  const hover = useHover(context, {
+    enabled: (options?.trigger ?? "hover") === "hover",
+    handleClose: safePolygon({ requireIntent: true }),
+  })
+  const click = useClick(context, { enabled: options?.trigger === "click", toggle: true })
   const role = useRole(context)
-  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
+  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, click, role])
 
   return {
     nodeId,

@@ -162,6 +162,9 @@ export const enUS = {
     setAvatar: "Set Avatar",
     switchUsers: "Switch Users",
   },
+  favoriteStores: {
+    title: "Favorite Stores",
+  },
   pageBanner: {
     text: "You’re browsing through the legacy Web2. Switch to the fully decentralized Web3 with <1>Ultranet</1> — install <2>Ultranet Client Software</2> to join the new paradigm.",
   },

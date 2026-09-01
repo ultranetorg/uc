@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { SvgFair } from "assets"
-import { AccountPanel } from "ui/components/specific"
+import { AccountPanel, FavoriteStores } from "ui/components/specific"
 import { routes } from "utils"
 
 export const Header = () => {
@@ -14,6 +14,7 @@ export const Header = () => {
         <Link to={routes.home()}>
           <SvgFair className="fill-white" title={t("common:fair")} />
         </Link>
+        <FavoriteStores />
         <AccountPanel />
       </div>
     </div>

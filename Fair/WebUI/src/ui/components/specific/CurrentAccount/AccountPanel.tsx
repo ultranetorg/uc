@@ -23,7 +23,7 @@ export const AccountPanel = memo(() => {
   const { mutate } = useTransactMutationWithStatus()
 
   const fileUploadRef = useRef<FileUploadHandle>(null)
-  const profileMenu = useSubmenu({ placement: "bottom-end", offset: 16 })
+  const profileMenu = useSubmenu({ placement: "bottom-end", offset: 16, trigger: "click" })
   const accountsMenu = useSubmenu({ placement: "right-end" })
   useScrollOrResize(() => profileMenu.setOpen(false))
 
@@ -77,6 +77,8 @@ export const AccountPanel = memo(() => {
   }, [mutate, refetch, t])
 
   const handleDeleteModalClose = useCallback(() => setDeleteModalOpen(false), [])
+
+  const handleProfileClose = useCallback(() => profileMenu.setOpen(false), [profileMenu])
 
   const handleAvatarChange = useCallback(() => {
     fileUploadRef.current?.show()
@@ -178,6 +180,7 @@ export const AccountPanel = memo(() => {
           address={user!.owner!}
           hasAvatar={user!.hasAvatar}
           onNicknameCreate={handleNicknameCreate}
+          onClose={handleProfileClose}
           {...userSwitcherProps}
           {...profileMenu.getFloatingProps()}
         />
