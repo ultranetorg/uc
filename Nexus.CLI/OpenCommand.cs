@@ -5,6 +5,9 @@ namespace Uccs.Nexus.CLI;
 
 public class OpenCommand : NexusCommand
 {
+	public OpenCommand()
+	{
+	}
 	public OpenCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
 	}

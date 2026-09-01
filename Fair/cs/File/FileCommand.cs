@@ -5,6 +5,10 @@ namespace Uccs.Fair;
 
 public class FileCommand : FairCommand
 {
+	public FileCommand()
+	{
+	}
+
 	public FileCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}

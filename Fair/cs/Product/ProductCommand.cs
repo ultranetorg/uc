@@ -21,6 +21,10 @@ public class ProductCommand : FairCommand
 		}
 	}
 
+	public ProductCommand()
+	{
+	}
+
 	public ProductCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}

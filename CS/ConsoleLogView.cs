@@ -11,12 +11,13 @@ public interface ILogView
 
 public class ConsoleLogView : ILogView
 {
-	public Log		Log { get; protected set; }
-	object			Lock = new();
-	public bool		ShowSender { get;set; } = false;
-	public bool		ShowSubject { get;set; } = false;
-	public int		BufferWidth => Console.BufferWidth;
-	public string[]	Tags;
+	public Log							Log { get; protected set; }
+	object								Lock = new();
+	public bool							ShowSender { get;set; } = false;
+	public bool							ShowSubject { get;set; } = false;
+	public int							BufferWidth => Console.BufferWidth;
+	public string[]						Tags;
+	public static readonly ConsoleColor	DefaultForegroundColor = Console.ForegroundColor;
 
 	ConcurrentQueue<LogMessage>	Messages;
 
@@ -24,7 +25,6 @@ public class ConsoleLogView : ILogView
 	{
 		ShowSender = showsender;
 		ShowSubject = showsubject;
-
 	}
 
 	public void StartListening(Log log)
@@ -50,14 +50,12 @@ public class ConsoleLogView : ILogView
 			if(Tags != null && m.Subject != null && m.Subject.Split(' ').Any(i => !Tags.Contains(i)))
 				return;
 	
-			var prev = Console.ForegroundColor;
-	
-			Console.ForegroundColor = m.Severity switch
+			Console.ForegroundColor = m.Severity	switch
 													{ 
-													Log.Severity.SubLog => ConsoleColor.Green,
-													Log.Severity.Error => ConsoleColor.Red,
-													Log.Severity.Warning => ConsoleColor.Yellow,
-													_ => prev
+														Log.Severity.SubLog => ConsoleColor.Green,
+														Log.Severity.Error => ConsoleColor.Red,
+														Log.Severity.Warning => ConsoleColor.Yellow,
+														_ => DefaultForegroundColor
 													};
 	
 			Console.Write(new string(' ', 4)); 
@@ -97,7 +95,7 @@ public class ConsoleLogView : ILogView
 				}
 			}
 					
-			Console.ForegroundColor = prev;
+			Console.ForegroundColor = DefaultForegroundColor;
 		}
 	}
 }

@@ -184,7 +184,7 @@ partial class WalletsPage
 		// 
 		// columnHeader1
 		// 
-		columnHeader1.Text = "Name";
+		columnHeader1.Text = "Alias";
 		columnHeader1.Width = 150;
 		// 
 		// columnHeader2

@@ -4,6 +4,10 @@ using System.Reflection;
 
 public class UserCommand : Net.UserCommand
 {
+	public UserCommand()
+	{
+	}
+
 	public UserCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}

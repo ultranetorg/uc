@@ -6,9 +6,12 @@ public class PublicationCommand : FairCommand
 {
 	Argument		Eligible => ByArgument("Name of the user authorized to change the publication");
 
+	public PublicationCommand()
+	{
+	}
+
 	public PublicationCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-		
 	}
 
 	public CommandAction Create_C()
