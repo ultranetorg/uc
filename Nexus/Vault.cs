@@ -92,7 +92,7 @@ public class Vault
 	{
 		foreach(var i in Wallets)
 			foreach(var j in i.Keys)
-				if(j.Name == name)
+				if(j.Alias == name)
 					return j;
 
 		return null;
