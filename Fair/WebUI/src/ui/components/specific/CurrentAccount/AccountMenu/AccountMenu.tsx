@@ -3,39 +3,37 @@ import { useTranslation } from "react-i18next"
 
 import { SvgPlusCircleMd } from "assets"
 import { UserBase, PropsWithStyle } from "types"
-import { shortenAddress } from "utils"
 
-import { Account } from "./components"
+import { AccountItem } from "./AccountItem"
 
-export type AccountSwitcherItem = Omit<UserBase, "id">
+export type AccountMenuItem = Omit<UserBase, "id">
 
-export interface AccountSwitcherBaseProps {
+export interface AccountMenuBaseProps {
   selectedUserName?: string
-  items: AccountSwitcherItem[]
+  items: AccountMenuItem[]
   avatarVersion?: number
   onAdd: () => void
   onRemove: (userName: string) => void
   onSelect: (userName: string) => void
 }
 
-export type AccountSwitcherProps = PropsWithStyle & AccountSwitcherBaseProps
+export type AccountMenuProps = PropsWithStyle & AccountMenuBaseProps
 
-export const AccountSwitcher = memo(
-  forwardRef<HTMLDivElement, AccountSwitcherProps>(
-    ({ style, selectedUserName, items, avatarVersion, onAdd, onRemove, onSelect }: AccountSwitcherProps, ref) => {
+export const AccountMenu = memo(
+  forwardRef<HTMLDivElement, AccountMenuProps>(
+    ({ style, selectedUserName, items, avatarVersion, onAdd, onRemove, onSelect }: AccountMenuProps, ref) => {
       const { t } = useTranslation("currentAccount")
 
       return (
         <div
-          className="z-10 w-70 cursor-pointer divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-0 py-1 shadow-md"
+          className="z-10 w-65 cursor-pointer divide-y divide-gray-700 overflow-hidden rounded-lg border border-gray-700 bg-gray-600 shadow-md"
           ref={ref}
           style={style}
         >
           <div>
             {items.map(x => (
-              <Account
+              <AccountItem
                 key={x.nickname}
-                addressShort={shortenAddress(x.address)}
                 selected={x.nickname === selectedUserName}
                 avatarVersion={x.nickname === selectedUserName ? avatarVersion : undefined}
                 onSelect={() => onSelect(x.nickname)}
@@ -45,10 +43,10 @@ export const AccountSwitcher = memo(
             ))}
           </div>
           <div
-            className="flex cursor-pointer select-none items-center gap-2 px-4 py-3 text-2sm leading-4.25 text-gray-900 hover:bg-gray-100"
+            className="flex h-10 cursor-pointer select-none items-center gap-2 px-4 text-2sm leading-4.25 text-white hover:bg-gray-550"
             onClick={onAdd}
           >
-            <SvgPlusCircleMd className="fill-gray-800" /> {t("addUser")}
+            <SvgPlusCircleMd className="fill-white" /> {t("addUser")}
           </div>
         </div>
       )

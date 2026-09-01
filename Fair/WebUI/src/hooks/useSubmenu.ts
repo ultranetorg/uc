@@ -1,5 +1,6 @@
 import { useState } from "react"
 import {
+  flip,
   offset,
   Placement,
   safePolygon,
@@ -28,6 +29,7 @@ export const useSubmenu = (options?: UseSubmenuProps) => {
     nodeId,
     middleware: [
       offset(options?.offset ?? 8),
+      flip(),
       ...(options?.setFloatSizeAsReference === true
         ? [
             size({

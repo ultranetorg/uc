@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
 
-type ProfileButtonBaseProps = {
+interface ProfileButtonBaseProps {
   label: string
   iconBefore?: JSX.Element
   iconAfter?: JSX.Element
@@ -17,7 +17,7 @@ export const ProfileButton = memo(
     ({ className, label, iconBefore, iconAfter, onClick, ...rest }, ref) => (
       <div
         className={twMerge(
-          "box-border flex h-12 w-full cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 py-3 pl-4 pr-3 text-2sm leading-5 text-gray-800 hover:bg-gray-200",
+          "box-border flex h-12 w-full cursor-pointer items-center gap-2 rounded bg-gray-600 py-3 pl-4 pr-3 text-2sm leading-5 text-white hover:bg-gray-550",
           className,
         )}
         onClick={onClick}

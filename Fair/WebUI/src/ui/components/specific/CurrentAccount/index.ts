@@ -1,1 +1,1 @@
-export * from "./CurrentAccount"
+export * from "./AccountPanel"
