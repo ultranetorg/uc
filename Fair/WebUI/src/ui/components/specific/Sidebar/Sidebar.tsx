@@ -27,7 +27,12 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
 
   return (
     <div className={twMerge("flex w-65 flex-col gap-8 p-6", className)}>
-      <CurrentStore storeId={store.id} logoFileId={store.imageFileId} title={store.title} />
+      <CurrentStore
+        storeId={store.id}
+        title={store.title}
+        logoFileId={store.imageFileId}
+        publishersCount={store.authorsIds.length}
+      />
       {items.length > 0 && <CategoriesTree storeId={store.id} items={items} />}
     </div>
   )

@@ -13,7 +13,7 @@ export interface FavoriteStoreItemProps {
 
 export const FavoriteStoreItem = memo(({ storeId, name, logoId }: FavoriteStoreItemProps) => (
   <Link to={routes.store(storeId)} title={name}>
-    <div className="size-8 overflow-hidden rounded">
+    <div className="box-border size-8 overflow-hidden rounded hover:border hover:border-gray-500">
       <ImageFallback className="size-8" src={buildFileUrl(logoId)} fallback={<SvgStoreLogo className="size-8" />} />
     </div>
   </Link>

@@ -218,7 +218,7 @@ export const enUS = {
     avatarUploaded: "Avatar successfully uploaded",
     commentAdded: "Comment successfully added",
     favoriteAdded: `Store "{{store}}" added to favorites`,
-    favoriteRemoved: `Store "{{Store}}" removed from favorites`,
+    favoriteRemoved: `Store "{{store}}" removed from favorites`,
     fileDeleted: `File "{{fileId}}" successfully deleted`,
     fileUploaded: `File "{{fileName}}" successfully uploaded`,
     nicknameChanged: "Nickname changed successfully",
