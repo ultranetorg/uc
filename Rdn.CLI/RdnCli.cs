@@ -4,6 +4,8 @@ namespace Uccs.Rdn.CLI;
 
 public class RdnCli : McvCli
 {
+	public const string	ExeBaseFileName = "rdn";
+
 	public override JsonApiClient	Api => _Api ??= new RdnApiClient(Settings.Api.LocalNodeAddress(Net));
 	JsonApiClient					_Api;
 

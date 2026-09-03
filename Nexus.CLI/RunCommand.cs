@@ -37,7 +37,7 @@ public class RunCommand : NexusCommand
 								Report($"Zone    : {Cli.NexusSettings.Zone}");
 								Report($"Profile : {Cli.NexusSettings.Profile}");
 
-								Cli.InteractOrWait(b.Profile, this, a, Cli.Nexus.Flow);
+								Cli.InteractOrWait(nameof(Name).ToLowerInvariant(), b.Profile, this, a, Cli.Nexus.Flow);
 
 								Cli.Nexus.Vault.AuthenticationRequested -= OnAuth;
 								Cli.Nexus.Stop();

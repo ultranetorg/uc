@@ -36,7 +36,7 @@ public class NodeCommand : Uccs.Net.NodeCommand
 														new RealClock(), 
 														new Flow(Flow, new Log())); /// Use the same Cancellation to allow to exit by API call or other
 								
-								Cli.InteractOrWait(Cli.Boot.Profile, this, a, Cli.Node.Flow);
+								Cli.InteractOrWait(Cli.Net.Name, Cli.Boot.Profile, this, a, Cli.Node.Flow);
 
 								if(Cli.Node.Flow.Active)
 									Cli.Node.Stop();

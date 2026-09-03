@@ -111,13 +111,13 @@ public abstract class Cli
 		LogView.StopListening();
 	}
 
-	public virtual void InteractOrWait(string profile, Command command, CommandAction action, Flow flow)
+	public virtual void InteractOrWait(string prompt, string profile, Command command, CommandAction action, Flow flow)
 	{
 		if(ConsoleAvailable)
 		{
 			while(flow.Active)
 			{
-				Console.Write($"> ");
+				Console.Write($"{prompt}> ");
 
 				var x = new Xon(Console.ReadLine());
 
