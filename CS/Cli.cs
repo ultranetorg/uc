@@ -159,7 +159,7 @@ public abstract class Cli
 			{
 				c.Report(string.Join(", ", i.Names));
 				c.Report("");
-				c.Report("   Syntax      : " + i.Syntax);
+				c.Report("   Syntax      : " + i.CreateSyntax());
 				c.Report("   Description : " + i.Description);
 				c.Report("");
 			}
@@ -176,7 +176,7 @@ public abstract class Cli
 
 			c.Report("Syntax :");
 			c.Report("");
-			c.Report("   " + a.Syntax);
+			c.Report("   " + a.CreateSyntax());
 
 			c.Report("");
 

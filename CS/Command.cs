@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Net;
 using System.Reflection;
+using System.Text;
 
 namespace Uccs;
 
@@ -9,7 +10,7 @@ public class CommandAction
 {
 	Command					Command;
 	//public string			Name;
-	public string[]			Names => Method.Name.ToLower().Split('_');
+	public string[]			Names => Method.Name.Split('_');
 	public string			Name => (Names.Length > 1 ? Names[1] : Names[0]);
 	public string			LongName => Names[0];
 	public string			Title => Names.Length == 1 ? Names[0] : $"{Names[0]}, {Names[1]}";
@@ -24,30 +25,30 @@ public class CommandAction
 	MethodBase				Method;
 	public Func<Example[]>	Examples;
 
-	public string Syntax
-	{
-		get
-		{
-			var s = $"{Command.Keyword} {Name}";
-	
-			var used = new Dictionary<ArgumentType, int>();
-	
-			if(Arguments != null)
-			{
-				foreach(var i in Arguments)
-					if(i.Name == null)
-						s += $" {i.Type.Name}";
-	
-				foreach(var i in Arguments)
-					if(i.Name != null)
-						if(i.Type != null)
-							s += $" {i.Name}={i.Type.Name}";
-						else
-							s += $" {i.Name}"; /// boolean
-			}
-			return s;
-		}
-	}
+//	public string Syntax
+//	{
+//		get
+//		{
+//			var s = $"{Command.Keyword} {Name.ToLowerInvariant()}";
+//	
+//			var used = new Dictionary<ArgumentType, int>();
+//	
+//			if(Arguments != null)
+//			{
+//				foreach(var i in Arguments)
+//					if(i.Name == null)
+//						s += $" {i.Type.Name}";
+//	
+//				foreach(var i in Arguments)
+//					if(i.Name != null)
+//						if(i.Type != null)
+//							s += $" {i.Name}={i.Type.Name}";
+//						else
+//							s += $" {i.Name}"; /// boolean
+//			}
+//			return s;
+//		}
+//	}
 	
 	public CommandAction(Command command, MethodBase method)
 	{
@@ -62,9 +63,36 @@ public class CommandAction
 		return Method.Name;
 	}
 
+	public string CreateSyntax(Func<ArgumentType, string> decoratetype = null)
+	{
+		decoratetype ??= t => t.Name;
+
+		var s = new StringBuilder($"{Command.Keyword}{(!Name.Equals(Command.DefaultAction, StringComparison.InvariantCultureIgnoreCase) ? $" {Name.ToLowerInvariant()}" : null)}");
+	
+		var used = new Dictionary<ArgumentType, int>();
+	
+		if(Arguments != null)
+		{
+			foreach(var i in Arguments)
+				if(i.Name == null && i.Type != null)
+					s.Append(decoratetype(i.Type));
+	
+			foreach(var a in Arguments.SelectMany(i => i.Arguments ?? [i]))
+			{
+				if(a.Name != null)
+					if(a.Type != null)
+						s.Append($" {a.Name}={decoratetype(a.Type)}");
+					else
+						s.Append($" {a.Name}"); /// boolean
+			}
+		}
+
+		return s.ToString();
+	}
+
 	public string CreateExample(Dictionary<string, string> values)
 	{
-		var c = $"{Command.Keyword}{(Name != Command.DefaultAction.ToLower() ? $" {Name}" : null)}";
+		var c = $"{Command.Keyword}{(!Name.Equals(Command.DefaultAction, StringComparison.InvariantCultureIgnoreCase) ? $" {Name.ToLowerInvariant()}" : null)}";
 
 		var used = new Dictionary<ArgumentType, int>();
 
