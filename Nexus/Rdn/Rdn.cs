@@ -7,6 +7,7 @@ public abstract class Rdn : McvNet
 {
 	public override	string						Address => Iccn.Root;
 	public override	string						Name => Iccn.Root;
+	public override	string						Title => "RDN";
 	public override ushort						PpiPort => Port.Map(Zone, KnownProtocol.Rdn);
 	public override ushort						ApiPort => Port.Map(Zone, KnownProtocol.RdnApi);
 	public override Dictionary<string, byte>	Tables => Enum.GetValues<RdnTable>().SkipLast(2).ToDictionary(i => i.ToString(), i => (byte)i);

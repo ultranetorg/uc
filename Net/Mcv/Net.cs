@@ -36,6 +36,7 @@ public abstract class Net
 
 	public abstract string				Address { get; }
 	public abstract string				Name { get; }
+	public abstract string				Title { get; }
 	public abstract	Zone				Zone { get; }
 	public abstract ushort				PpiPort { get; }
 	public abstract ushort				ApiPort { get; }

@@ -7,6 +7,7 @@ public abstract class Fair : McvNet
 {
 	public override	string						Address => "fair.rdn";
 	public override	string						Name => "fair";
+	public override	string						Title => "Fair";
 	public override ushort						PpiPort => Port.Map(Zone, KnownProtocol.Fair);
 	public override ushort						ApiPort => Port.Map(Zone, KnownProtocol.FairApi);
 	public int									OutwardVerificationEnergyCost => 100;
