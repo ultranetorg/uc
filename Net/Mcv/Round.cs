@@ -115,36 +115,9 @@ public abstract class Round : IBinarySerializable
 		return $"Id={Id}, Try={Try}, V/VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), {(Confirmed ? "Confirmed, " : "")}Members={Members?.Count}, ConfirmedTime={ConsensusTime}, Hash={Hash?.ToHex()}";
 	}
 
-//	public void Update()
-//	{
-//		foreach(var i in New)
-//		{
-//			Mcv.Check(i);
-//
-//			if(i.Status == VoteStatus.OK)
-//			{	
-//				if(i.Try == Try)
-//	 			{	
-//					VotesOfTry.Add(i);
-//					
-//					if(i.Transactions.Any())
-//						Payloads.Add(i);
-//
-//					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
-//						SelectedArrived.Add(i);
-//				}
-//			}
-//		}
-//
-//		New.Clear();
-//	}
-
 	public void UpdateVoters()
 	{
- 		Voters = //Id < Mcv.JoinToVote ?	[new Member {Generator = AutoId.God}] 
-					//					: 
-										[..Senders.OrderByHash(i => i.Generator.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.FindRound(Id - Mcv.JoinToVote).Hash]).Take(Mcv.RequiredVotersMaximum)];
-
+ 		Voters = [..Senders.OrderByHash(i => i.Generator.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.FindRound(Id - Mcv.JoinToVote).Hash]).Take(Mcv.RequiredVotersMaximum)];
 
 		MinimumForConsensus = Voters.Length switch
 											{ 
@@ -165,9 +138,12 @@ public abstract class Round : IBinarySerializable
 		{
 			if(i.Try == Try)
 	 		{	
-				Mcv.Check(i);
+				if(i.Generator == AutoId.God)
+					i.Status = VoteStatus.OK;
+				else
+					Mcv.Check(i);
 
-				if(i.Status == VoteStatus.OK || i.Generator == AutoId.God)
+				if(i.Status == VoteStatus.OK)
 				{	
 					VotesOfTry.Add(i);
 					
@@ -525,9 +501,6 @@ public abstract class Round : IBinarySerializable
 			a.AverageUptime = (a.AverageUptime + Id - i.Since)/(a.AverageUptime == 0 ? 1 : 2);
 			
 			Members.Remove(i);
-			var m = i .Clone();
-			m.Till = Id + Net.P;
-			Members.Add(m);
 
 			Mcv.Log?.Report(this, $"Left - Round {Id} - {a}");
 
@@ -535,14 +508,11 @@ public abstract class Round : IBinarySerializable
 			///	Debugger.Break();
 		}
 
-		Members.RemoveAll(i => i.Till < Id);
-
 		foreach(var i in e.Candidates.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
 			var c = e.AffectCandidate(i.Generator);
 			
 			c.Since = Id + Mcv.JoinToVote;
-			c.Till = int.MaxValue - Mcv.JoinToVote;
 			
 			e.Candidates.Remove(c);
 			Members.Add(c);
@@ -584,7 +554,7 @@ public abstract class Round : IBinarySerializable
 		
 		r.Senders = Id < Mcv.JoinToVote ?	[..Members]
 											:
-											[..Members.Where(i => i.Since <= Id && Id <= i.Till)];
+											[..Members.Where(i => i.Since <= Id)];
 		r.UpdateVoters();
 	}
 

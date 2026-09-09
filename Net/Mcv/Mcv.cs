@@ -160,8 +160,8 @@ public abstract class Mcv /// Mutual chain voting
 			{
 				var v = CreateVote(); 
 
-				if(i - Net.P >= 0)
-					GetRound(i - Net.P).Voters = [new Member {Generator = AutoId.God}];
+				GetRound(i).Voters = [new Member {Generator = AutoId.God}];
+				GetRound(i).Senders = [new Member {Generator = AutoId.God}];
 
 				v.RoundId	 = i;
 				v.Generator	 = AutoId.God;
@@ -180,7 +180,6 @@ public abstract class Mcv /// Mutual chain voting
 					GetRound(i).Payloads = [v];
 				}
 		
-				GetRound(i).Senders = [new Member {Generator = AutoId.God}];
 
 				v.Sign(God, SigningFeatures.Deterministic);
 				Add(v, false);
