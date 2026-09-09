@@ -295,10 +295,6 @@ public abstract class McvPeering : HomoPeering
 						download(i);
 					}
 		
-					var r = Mcv.CreateRound();
-					r.Confirmed = true;
-					r.ReadGraphState(new Reader(stamp.GraphState, Constructor));
-		
 					var s = Call(peer, new StampPpc(), Flow);
 	
 					lock(Mcv.Lock)
@@ -308,9 +304,27 @@ public abstract class McvPeering : HomoPeering
 			
 						if(s.GraphHash.SequenceEqual(Mcv.GraphHash))
 	 					{	
+							var rd = new Reader(stamp.GraphState, Constructor);
+
+							Round r = null;
+					 
+							for(int i = 0; i < Mcv.JoinToVote; i++)
+							{
+								var rr = Mcv.CreateRound();
+								rr.Confirmed = true;
+								rr.ReadGraphState(rd);
+
+								Mcv.InsertRound(rr);
+
+								rr.UpdateNextVoting();
+									
+								if(i == 0)
+									r = rr;
+							}
+
 							Mcv.LastConfirmedRound = r;
 							Mcv.LastCommitedRound = r;
-							Mcv.InsertRound(r);
+							//Mcv.InsertRound(r);
 
 							using(var w = new WriteBatch())
 							{

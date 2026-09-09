@@ -21,7 +21,7 @@ public abstract class EntityId : IBinarySerializable, IEquatable<EntityId>, ICom
 			if(_Raw != null)
 				return _Raw;
 
-			var s = new MemoryStream();
+			using var s = new MemoryStream();
 			var w = new Writer(s);
 								
 			Write(w);

@@ -33,10 +33,8 @@ public abstract class Round : IBinarySerializable
 	public OrderedDictionary<IccpTransaction, string>	IccTransactions;
 	public List<Member>									Members;
 
-	public IEnumerable<Member>							Senders => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id && Id <= i.Till) ?? [];
-	public IEnumerable<Member>							Voters => Id < Mcv.JoinToVote ? [new Member {Generator = AutoId.God}] 
-																						 : 
-																						 Senders.OrderByHash(i => i.Generator.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+	public Member[]										Senders;
+	public Member[]										Voters;
 
 	public List<Vote>									Votes = [];
 	public List<AutoId>									Forkers = [];
@@ -64,7 +62,6 @@ public abstract class Round : IBinarySerializable
 
 	public List<PublicKey>								Funds;
 
-
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
 
@@ -73,6 +70,8 @@ public abstract class Round : IBinarySerializable
 	public abstract long								UserAllocationFee();
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation operation, Time time){}
+
+	public int											MinimumForConsensus;
 
 	public Round FindParent(int level)
 	{
@@ -103,19 +102,6 @@ public abstract class Round : IBinarySerializable
 		}
 	}
 
-	public int MinimumForConsensus
-	{
-		get
-		{
-			var n = Voters.Count();
-
-			if(n == 1)	return 1;
-			if(n == 2)	return 2;
-			if(n == 4)	return 3;
-	
-			return n * 2/3;
-		}
-	}
 
 	public Round(Mcv c)
 	{
@@ -152,6 +138,22 @@ public abstract class Round : IBinarySerializable
 //
 //		New.Clear();
 //	}
+
+	public void UpdateVoters()
+	{
+ 		Voters = //Id < Mcv.JoinToVote ?	[new Member {Generator = AutoId.God}] 
+					//					: 
+										[..Senders.OrderByHash(i => i.Generator.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.FindRound(Id - Mcv.JoinToVote).Hash]).Take(Mcv.RequiredVotersMaximum)];
+
+
+		MinimumForConsensus = Voters.Length switch
+											{ 
+												1 => 1,
+												2 => 2,
+												4 => 3,
+												_ => Voters.Length * 2/3
+											};
+	}
 
 	public void ReUpdate()
 	{
@@ -570,8 +572,20 @@ public abstract class Round : IBinarySerializable
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
-		Mcv.Tail.RemoveAll(i => i.Id < Id);
+		Mcv.Tail.RemoveAll(i => i.Id < Id - Net.P);
 		Mcv.Confirmed?.Invoke(this);
+
+		UpdateNextVoting();
+	}
+
+	public void UpdateNextVoting()
+	{
+		var r = Mcv.GetRound(Id + Mcv.JoinToVote);
+		
+		r.Senders = Id < Mcv.JoinToVote ?	[..Members]
+											:
+											[..Members.Where(i => i.Since <= Id && Id <= i.Till)];
+		r.UpdateVoters();
 	}
 
 	public virtual void	ConfirmForeign(Execution execution)

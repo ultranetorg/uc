@@ -33,7 +33,7 @@ public enum VoteStatus
 public abstract class Mcv /// Mutual chain voting
 {
 	public const int								RequiredVotersMaximum = 21; 
-	public int										JoinToVote => Net.P + 1;
+	public int										JoinToVote => 1 + Net.P;
 	public int										LastGenesisRound => JoinToVote - 1;
 	public const int								EntityRentYearsMin = 1;
 	public const int								EntityRentYearsMax = 10;
@@ -143,7 +143,7 @@ public abstract class Mcv /// Mutual chain voting
 				Load();
 			}
 			else
-			{ 
+			{
 				Clear();
 				Initialize();
 			}
@@ -159,6 +159,9 @@ public abstract class Mcv /// Mutual chain voting
 			for(int i = 0; i <= LastGenesisRound; i++)
 			{
 				var v = CreateVote(); 
+
+				if(i - Net.P >= 0)
+					GetRound(i - Net.P).Voters = [new Member {Generator = AutoId.God}];
 
 				v.RoundId	 = i;
 				v.Generator	 = AutoId.God;
@@ -177,6 +180,8 @@ public abstract class Mcv /// Mutual chain voting
 					GetRound(i).Payloads = [v];
 				}
 		
+				GetRound(i).Senders = [new Member {Generator = AutoId.God}];
+
 				v.Sign(God, SigningFeatures.Deterministic);
 				Add(v, false);
 				v.Round.VotesOfTry = v.Round.Selected = [v];
@@ -198,56 +203,6 @@ public abstract class Mcv /// Mutual chain voting
 		}
 	
 		Rocks.Put(GenesisKey, (new Genesis() as IBinarySerializable).ToRaw());
-	}
-
-	public void Load()
-	{
-		GraphState = Rocks.Get(GraphStateKey);
-
-		if(GraphState != null)
-		{
-			using var r = new Reader(GraphState, Net.Constructor);
-	
-			LastCommitedRound = CreateRound();
-			LastCommitedRound.ReadGraphState(r);
-
-			InsertRound(LastCommitedRound);
-
-			Hashify();
-
-			if(!GraphHash.SequenceEqual(Rocks.Get(__GraphHashKey)))
-			{
-				throw new IntegrityException();
-			}
-		}
-
-		if(Settings.Chain != null)
-		{
-			using var rd = new Reader(Rocks.Get(ChainStateKey), Net.Constructor);
-		
-			var lcr = FindRound(rd.Read7BitEncodedInt());
-				
-			if(GraphState == null) /// clear to avoid genesis loading issues, it must be created - not loaded
-			{
-				Clear();
-				Initialize();
-			} 
-			else
-			{
-				LastConfirmedRound = LastCommitedRound;
-
-				for(var i = LastCommitedRound.Id + 1; i <= lcr.Id; i++)
-				{
-					var r = FindRound(i);
-				
-					r.Restore(r.Raw);
-					Tail.Insert(0, r);
-				
-					r.Confirmed = false;
-					r.Confirm();
-				}
-			}
-		}
 	}
 
 	public void Clear()
@@ -523,6 +478,8 @@ public abstract class Mcv /// Mutual chain voting
 					round.Try++;
 					round.Target.Hash = null;
 
+					round.UpdateVoters();
+
 					//round.ReUpdate();
 
 				}
@@ -684,15 +641,20 @@ public abstract class Mcv /// Mutual chain voting
 			}
 			
 			round.ClearAffected();
-
-			LastCommitedRound = round;
-					
+								
 			using var s = new MemoryStream();
 			var w = new Writer(s, Net.Constructor);
-	
-			LastCommitedRound.WriteGraphState(w);
-	
+		
+			var p = round;
+
+			for(int i = 0; i < JoinToVote; i++)
+			{
+				p.WriteGraphState(w);
+				p = p.Previous;
+			}
+
 			GraphState = s.ToArray();
+			LastCommitedRound = round;
 
 			Hashify();
 				
@@ -716,5 +678,61 @@ public abstract class Mcv /// Mutual chain voting
 		}
 
 		Rocks.Write(b);
+	}
+
+	public void Load()
+	{
+		GraphState = Rocks.Get(GraphStateKey);
+
+		if(GraphState != null)
+		{
+			using var r = new Reader(GraphState, Net.Constructor);
+	
+			for(int i = 0; i < JoinToVote; i++)
+			{
+				var round = CreateRound();
+				round.ReadGraphState(r);
+
+				InsertRound(round);
+
+				if(i == 0)
+					LastCommitedRound = round;
+			}
+
+			Hashify();
+
+			if(!GraphHash.SequenceEqual(Rocks.Get(__GraphHashKey)))
+			{
+				throw new IntegrityException();
+			}
+		}
+
+		if(Settings.Chain != null)
+		{
+			using var rd = new Reader(Rocks.Get(ChainStateKey), Net.Constructor);
+		
+			var lcr = FindRound(rd.Read7BitEncodedInt());
+				
+			if(GraphState == null) /// clear to avoid genesis loading issues, it must be created - not loaded
+			{
+				Clear();
+				Initialize();
+			} 
+			else
+			{
+				LastConfirmedRound = LastCommitedRound;
+
+				for(var i = LastCommitedRound.Id + 1; i <= lcr.Id; i++)
+				{
+					var r = FindRound(i);
+				
+					r.Restore(r.Raw);
+					Tail.Insert(0, r);
+				
+					r.Confirmed = false;
+					r.Confirm();
+				}
+			}
+		}
 	}
 }
