@@ -65,7 +65,7 @@ public class FairNode : McvNode
 											Task.Run(() =>	{
 																if(t.Operation is AuthorVerification o)
 																{
-																	var approved = IsWebdomainOwner(o.Webdomain, t.User);
+																	var approved = IsWebdomainOwner(o.Webdomain, o.Author);
 	
 																	lock(Mcv.Lock)
 																	{	

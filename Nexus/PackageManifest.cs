@@ -235,6 +235,12 @@ public class PackageManifest
 	{
   	}
 
+	public Start MatchExecution(Family family)
+	{ 
+		var p = new Platform {Family = family};
+		return Start.FirstOrDefault(i => i.Condition.Match(p)); 
+	}
+
 	public static PackageManifest Parse(string text)
 	{
 		return FromXon(new Xon(text));

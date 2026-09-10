@@ -210,7 +210,7 @@ public class SearchService
 
 		var result = mcv.StoreTitles.Search(query, page * pageSize, pageSize);
 
-		/// TODO elwray: no need for StoreSearchLiteModel,  StoreSearchResult contains entity itself
+		/// TODO Elwray: no need for StoreSearchLiteModel,  StoreSearchResult contains entity itself
 		return result.Select(x => new StoreSearchLiteModel(x.Store.Id.ToString(), x.Store.Title));
 	}
 

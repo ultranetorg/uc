@@ -25,20 +25,20 @@ public class ResourceDeclaration : IBinarySerializable
 
 public class Seed
 {
-	public Endpoint				IP;
+	public Endpoint				Endpoint;
 	public DateTime				Arrived;
 	public Availability			Availability;
 
 	public Seed(Endpoint iP, DateTime arrived, Availability availability)
 	{
-		IP = iP;
+		Endpoint = iP;
 		Arrived = arrived;
 		Availability = availability;
 	}
 
 	public override string ToString()
 	{
-		return IP.ToString();
+		return Endpoint.ToString();
 	}
 }
 
@@ -120,7 +120,7 @@ public class SeedHub
 						continue;
 	  				}
 
-				var s = seeds.Find(i => i.IP.Equals(ip));
+				var s = seeds.Find(i => i.Endpoint.Equals(ip));
 	
 				if(s == null)
 				{
@@ -150,8 +150,8 @@ public class SeedHub
  	public Endpoint[] Locate(LocateReleasePpc request)
  	{
  		if(Releases.TryGetValue(request.Address, out var v))
- 			return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.IP).ToArray();
+ 			return v.OrderByDescending(i => i.Arrived).Take(Math.Min(request.Count, SeedsPerRequestMax)).Select(i => i.Endpoint).ToArray();
  		else
- 			return []; /// TODO: ask other hubs
+ 			return [];
  	}
 }

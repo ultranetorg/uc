@@ -185,7 +185,7 @@ public class ProposalVoting : FairOperation
 					break;
  				
 				case (sbyte)SpecialChoice.Banish:
-					/// TODO
+					/// TODO Maximion
 					break;
 
 
