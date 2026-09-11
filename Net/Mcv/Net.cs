@@ -6,12 +6,12 @@ namespace Uccs.Net;
 public enum Zone : ushort
 {
 	None, 
-	Simulation	= 02_00_0, 
-	Virtual		= 03_00_0, 
-	TA			= 04_00_0,
-	Main		= 10_00_0,
-	Test		= 11_00_0,
-	Developer0	= 12_00_0,
+	Simulation	= 02_000, 
+	Virtual		= 03_000, 
+	TA			= 04_000,
+	Main		= 10_000,
+	Test		= 11_000,
+	Developer0	= 50_000,
 }
 
 public enum KnownProtocol : ushort
@@ -40,6 +40,7 @@ public abstract class Net
 	public abstract	Zone				Zone { get; }
 	public abstract ushort				PpiPort { get; }
 	public abstract ushort				ApiPort { get; }
+	public Constructor					Constructor = new ();
 
 	public IPAddress[]					Initials;
 	public static readonly IPAddress[]	UOInitials = @" 78.47.204.100	
@@ -75,10 +76,6 @@ public abstract class Net
 																//new([192, 168, 88, 114]),
 																//new([192, 168, 88, 115]),
 															];
-
-	public Constructor					Constructor = new ();
-
-
 	public override string ToString()
 	{
 		return Address;
