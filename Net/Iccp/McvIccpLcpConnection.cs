@@ -21,7 +21,7 @@ public class McvIccpLcpConnection: IccpLcpConnection
 											 			foreach(var i in node.Settings.Mcv.Memberships.Where(i => e.Round.Members.Any(j => j.Generator == i.GeneratorId)))
 											 			{
 															Task.Run(() =>	{
-											 									Call(Net, f.Name, new TransferRequestIcca {Hash = f.LastOutgoingTransfer.Hash
+											 									Call(Net, f.Id.Text, new TransferRequestIcca {Hash = f.LastOutgoingTransfer.Hash
 																													/*
 																													 * , 
 																													 *	Signature = Net.Cryptography.ZeroSignature
@@ -30,11 +30,11 @@ public class McvIccpLcpConnection: IccpLcpConnection
 	
 																				while(Flow.Active)
 																				{
-																					var rp = Call(Net, f.Name, new LastIncomingTransferIcca {}, Flow) as LastIncomingTransferIccr;
+																					var rp = Call(Net, f.Id.Text, new LastIncomingTransferIcca {}, Flow) as LastIncomingTransferIccr;
 	
 																					if(Bytes.Equal(f.LastOutgoingTransfer.Hash, rp.Result.Hash))
 																					{
-																						Mcv.FriendTransferResults.Add(rp.Result, f.Name);
+																						Mcv.FriendTransferResults.Add(rp.Result, f.Id.Text);
 																						break;
 																					}
 	

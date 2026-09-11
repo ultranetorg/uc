@@ -25,11 +25,11 @@ public abstract class Round : IBinarySerializable
 	public Dictionary<int, int>[]						NextEids;
 	public ImmutableDictionary<MetaId, MetaEntity>		AffectedMetas = ImmutableDictionary<MetaId, MetaEntity>.Empty;
 	public ImmutableDictionary<AutoId, User>			AffectedUsers = ImmutableDictionary<AutoId, User>.Empty;
-	public TableState<AutoId, Friend, FriendTable>		Friends;
+	public TableState<StringId, Friend, FriendTable>	Friends;
 	public long[]										Spacetimes;
 	public long[]										Bandwidths;
 	public List<Member>									Candidates;
-	public List<OutworldTransaction>						OutworldTransactions;
+	public List<OutworldTransaction>					OutworldTransactions;
 	public OrderedDictionary<IccpTransaction, string>	IccTransactions;
 	public List<Member>									Members;
 
@@ -567,7 +567,7 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in txs)
 				i.Key.OutgoingPrelock(execution);
 
-			var s = execution.Friends.Affect(txs.Key);
+			var s = execution.Friends.Affect(new StringId(txs.Key));
 
 			s.OutStatus = IccTransferStatus.FormedAndPending;
 			s.LastOutgoingTransfer = new IccpTransfer
@@ -586,7 +586,7 @@ public abstract class Round : IBinarySerializable
 					??
 					throw new ConfirmationException(this, []);
 
-			var f = execution.Friends.Affect(t.From);
+			var f = execution.Friends.Affect(new StringId(t.From));
 			f.LastIncomingTransfer = new IccpTransferResult {Hash = t.Hash, Results = new bool[t.Transactions.Length]};
 
 			for(int j = 0; j < t.Transactions.Length; j++)
@@ -602,7 +602,7 @@ public abstract class Round : IBinarySerializable
  			if(!Mcv.FriendTransferResults.TryGetValue(i, out var to))
 				throw new ConfirmationException(this, []);
 
-			var f = execution.Friends.Affect(to);
+			var f = execution.Friends.Affect(new StringId(to));
 
 			for(int j = 0; j < i.Results.Length; j++)
 			{

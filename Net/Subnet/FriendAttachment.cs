@@ -36,7 +36,7 @@ public class FriendAttachment : Operation, IOutworldOperation
 
 	public override void Execute(Execution execution)
 	{
-		if(execution.Friends.Find(Name) != null)
+		if(execution.Friends.Find(new StringId(Name)) != null)
 		{
 			Error = AlreadyExists;
 			return;
@@ -58,7 +58,10 @@ public class FriendAttachment : Operation, IOutworldOperation
 
 	public void SuccessExecute(Execution execution, OutworldTransaction task)
 	{
-		var s = execution.Friends.Affect(Name);
+		if(execution.Friends.Find(new StringId(Name)) != null) /// too late
+			return;
+
+		var s = execution.Friends.Create(Name);
 
 		s.Peers					= Peers;
 		s.Client				= Client;

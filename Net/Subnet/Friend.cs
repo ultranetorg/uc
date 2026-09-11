@@ -8,15 +8,14 @@ public enum IccTransferStatus : byte
 	None, FormedAndPending, Confirmed
 }
 
-public class Friend : IBinarySerializable, ITableEntry<AutoId>
+public class Friend : IBinarySerializable, ITableEntry<StringId>
 {
 	public const int								NameLengthMin = 1;
 	public const int								NameLengthMax = 256;
 	public const int								PeersMaximum = 1000;
 	public const int								RootHashLengthMaximum = 4096;
 
-	public AutoId									Id { get; set; }
-	public string									Name { get; set; }
+	public StringId									Id { get; set; }
 	public Snq										Client { get; set; }
 	public Endpoint[]								Peers { get; set; }
 	public IccpTransferResult						LastIncomingTransfer { get; set; }
@@ -38,7 +37,7 @@ public class Friend : IBinarySerializable, ITableEntry<AutoId>
 
 	public override string ToString()
 	{
-		return $"{Name}, {Id}";
+		return $"{Id}";
 	}
 
 	public object Clone()
@@ -46,7 +45,6 @@ public class Friend : IBinarySerializable, ITableEntry<AutoId>
 		return	new Friend(Mcv)
 				{
 					Id = Id,
-					Name = Name,
 					Client = Client,
 					Peers = Peers,
 					LastIncomingTransfer = LastIncomingTransfer,
@@ -88,7 +86,6 @@ public class Friend : IBinarySerializable, ITableEntry<AutoId>
 	public void Write(Writer writer)
 	{
 		writer.Write(Id);
-		writer.WriteASCII(Name);
 		writer.Write(Client);
 		writer.Write(Peers);
 		writer.Write(LastIncomingTransfer);
@@ -99,8 +96,7 @@ public class Friend : IBinarySerializable, ITableEntry<AutoId>
 
 	public void Read(Reader reader)
 	{
-		Id						= reader.Read<AutoId>();
-		Name					= reader.ReadASCII();
+		Id						= reader.Read<StringId>();
 		Client					= reader.Read<Snq>();
 		Peers					= reader.ReadArray<Endpoint>();
 		LastIncomingTransfer	= reader.Read<IccpTransferResult>();

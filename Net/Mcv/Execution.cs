@@ -77,8 +77,8 @@ public class Execution : ITableExecution
 
 	public virtual IBaseTableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Users.Id == table)		return FindUser(id as AutoId) != null ?		(IBaseTableEntry)AffectUser(id as AutoId) : null;
-		if(Mcv.Friends.Id == table)		return Friends.Find(id as AutoId) != null ? (IBaseTableEntry)Friends.Affect(id as AutoId) : null;
+		if(Mcv.Users.Id == table)		return FindUser(id as AutoId) != null ?			(IBaseTableEntry)AffectUser(id as AutoId) : null;
+		if(Mcv.Friends.Id == table)		return Friends.Find(id as StringId) != null ?	(IBaseTableEntry)Friends.Affect(id as StringId) : null;
 
 		return null;
 	}
