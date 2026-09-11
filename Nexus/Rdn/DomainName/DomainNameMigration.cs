@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Rdn;
 
-public class DomainNameMigration : RdnOperation, IOutwardOperation
+public class DomainNameMigration : RdnOperation, IOutworldOperation
 { 
 	public string			Name  { get; set; }
 	public string			Tld  { get; set; }
@@ -38,7 +38,7 @@ public class DomainNameMigration : RdnOperation, IOutwardOperation
 
 	public override void Execute(RdnExecution execution)
 	{
-		if(execution.OutwardTransactions.Count >= McvNet.OutwardsMaximum)
+		if(execution.OutworldTransactions.Count >= McvNet.OutworldTransactionsMaximum)
 		{
 			Error = LimitExceeded;
 			return;
@@ -52,20 +52,20 @@ public class DomainNameMigration : RdnOperation, IOutwardOperation
 			return;
 		}
 
-		execution.AffectOutwards();
-		execution.OutwardTransactions.Add(	new OutwardTransaction
+		execution.AffectOutworlds();
+		execution.OutworldTransactions.Add(	new OutworldTransaction
 											{
-												Id			= ++User.LastOutward,
+												Id			= ++User.LastOutworld,
 												User		= User.Id, 
 												Operation	= this,
-												Expiration	= execution.Time + execution.Net.OutwardVerificationDurationLimit
+												Expiration	= execution.Time + execution.Net.OutworldVerificationDurationLimit
 											 });
 	
 		execution.PayOperationEnergy(User);
-		execution.PayOutwardEnergy(User);
+		execution.PayOutworldEnergy(User);
 	}
 
-	public void SuccessExecute(Execution execution, OutwardTransaction task)
+	public void SuccessExecute(Execution execution, OutworldTransaction task)
 	{
 		var e = execution as RdnExecution;
 

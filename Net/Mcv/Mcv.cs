@@ -69,7 +69,7 @@ public abstract class Mcv /// Mutual chain voting
 	public RoundDelegate							Confirmed;
 	public SubnetDelegate							FriendTransferFormed;
 
-	public List<OutwardResult>						OutwardResults = new();
+	public List<OutworldResult>						OutworldResults = new();
 
 	List<Round>										_Tail = [];
 	public List<Round>								Tail

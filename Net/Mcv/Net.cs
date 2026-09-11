@@ -32,7 +32,7 @@ public class Port
 
 public abstract class Net
 {
-	public const string					Postfix = $".{Iccn.Root}";
+	public const string					Postfix = $".{Icn.Root}";
 
 	public abstract string				Address { get; }
 	public abstract string				Name { get; }
@@ -84,6 +84,17 @@ public abstract class Net
 		return Address;
 	}
 
+	public static string ToCanonical(string address)
+	{
+		if(address == Icn.Root || address == null || address == string.Empty)
+			return Icn.Root;
+
+ 		if(!address.EndsWith(Postfix))
+			return $"{address}{Postfix}";
+
+		return address;
+	}
+
 	public static string Escape(string path)
 	{
 		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path.ToString(), (c1, c2) => c1.Replace(c2.ToString(), $" {(short)c2} "));
@@ -97,10 +108,10 @@ public abstract class Net
 	public static bool Equal(string x, string y)
 	{
 		if(x == null || x == string.Empty)
-			x = Iccn.Root;
+			x = Icn.Root;
 
 		if(y == null || y == string.Empty)
-			y = Iccn.Root;
+			y = Icn.Root;
 
 		var i = x.LastIndexOf(Postfix, StringComparison.InvariantCultureIgnoreCase);
 		var j = y.LastIndexOf(Postfix, StringComparison.InvariantCultureIgnoreCase);
@@ -121,7 +132,7 @@ public abstract class McvNet : Net
 	public const long							IdealRoundsPerDay						= IdealRoundsPerSecond * 60*60*24;
 	public const int							BandwidthRentMonthsMaximum				= 12;
 	public const int							BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
-	public const int							OutwardsMaximum							= 1000;
+	public const int							OutworldTransactionsMaximum							= 1000;
 	public const int							PoWLength								= 32;
 	public virtual int							FreeSpaceMaximum						=> 0;
 	public Time									ECLifetime								= Time.FromYears(1);
@@ -130,7 +141,7 @@ public abstract class McvNet : Net
 
  	public Cryptography							Cryptography							= Cryptography.Mcv;
 	public int									AffectedCountMaximum					= 100_000;
-	public Time									OutwardVerificationDurationLimit		= Time.FromHours(1);
+	public Time									OutworldVerificationDurationLimit		= Time.FromHours(1);
 	public int									MembersLimit							= 1000;
 	public long									CandidatesMaximum						= 1000 * 10;
 	

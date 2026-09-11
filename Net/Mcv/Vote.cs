@@ -23,7 +23,7 @@ public class Vote : IBinarySerializable
 	public IccpTransferResult[]			FriendTransferConfirmations = [];
 	public Transaction[]				Transactions = [];
 	public byte[]						Signature { get; set; }
-	public OutwardResult[]				OutwardResults = {};
+	public OutworldResult[]				OutworldResults = {};
 
 	public int							TransactionCountExcess;
 	public bool							Restored => TargetHash != null;
@@ -128,7 +128,7 @@ public class Vote : IBinarySerializable
 
 		writer.Write(Transactions, t => t.Write(writer));
 
-		writer.Write(OutwardResults);
+		writer.Write(OutworldResults);
 		writer.Write(FriendTransferRequests, writer.WriteBytes);
 		writer.Write(FriendTransferConfirmations);
 	}
@@ -150,7 +150,7 @@ public class Vote : IBinarySerializable
 																	return t;
 																});
 
-		OutwardResults				= reader.ReadArray<OutwardResult>();
+		OutworldResults				= reader.ReadArray<OutworldResult>();
 		FriendTransferRequests		= reader.ReadArray(reader.ReadBytes);
 		FriendTransferConfirmations	= reader.ReadArray<IccpTransferResult>();
 	}

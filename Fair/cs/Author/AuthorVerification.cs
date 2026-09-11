@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class AuthorVerification : FairOperation, IOutwardOperation
+public class AuthorVerification : FairOperation, IOutworldOperation
 { 
 	public AutoId			Author  { get; set; }
 	public string			Webdomain  { get; set; }
@@ -39,7 +39,7 @@ public class AuthorVerification : FairOperation, IOutwardOperation
 
 	public override void Execute(FairExecution execution)
 	{
-		if(execution.OutwardTransactions.Count >= McvNet.OutwardsMaximum)
+		if(execution.OutworldTransactions.Count >= McvNet.OutworldTransactionsMaximum)
 		{
 			Error = LimitExceeded;
 			return;
@@ -50,21 +50,21 @@ public class AuthorVerification : FairOperation, IOutwardOperation
 
 		a = execution.Authors.Find(a.Id);
 
-		execution.AffectOutwards();
-		execution.OutwardTransactions.Add(	new OutwardTransaction
+		execution.AffectOutworlds();
+		execution.OutworldTransactions.Add(	new OutworldTransaction
 											{
-												Id			= ++User.LastOutward,
+												Id			= ++User.LastOutworld,
 												User		= User.Id, 
 												Operation	= this,
-												Expiration	= execution.Time + execution.Net.OutwardVerificationDurationLimit
+												Expiration	= execution.Time + execution.Net.OutworldVerificationDurationLimit
 											});
 
 	
 		execution.PayOperationEnergy(User);
-		execution.PayEnergy(User, execution.Net.OutwardVerificationEnergyCost);
+		execution.PayEnergy(User, execution.Net.OutworldVerificationEnergyCost);
 	}
 
-	public void SuccessExecute(Execution execution, OutwardTransaction task)
+	public void SuccessExecute(Execution execution, OutworldTransaction task)
 	{
 		var e = execution as FairExecution;
 		var a = e.Authors.Affect(Author);

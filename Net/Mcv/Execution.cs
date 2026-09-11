@@ -4,39 +4,39 @@ namespace Uccs.Net;
 
 public class Execution : ITableExecution
 {
-	public Dictionary<MetaId, MetaEntity>		AffectedMetas = new();
-	public Dictionary<AutoId, User>				AffectedUsers = new();
-	//public Dictionary<AutoId, Member>			AffectedCandidates = new();
+	public Dictionary<MetaId, MetaEntity>				AffectedMetas = new();
+	public Dictionary<AutoId, User>						AffectedUsers = new();
+	//public Dictionary<AutoId, Member>					AffectedCandidates = new();
 	
-	public FrientExecution						Friends;
+	public FrientExecution								Friends;
 
-	Dictionary<int, int>[]						_NextEids;
-	long[]										AffectedSpaces;
-	long[]										AffectedBandwidths;
-	List<OutwardTransaction>					AffectedOutwardTransactions;
-	OrderedDictionary<IccpTransaction, string>	AffectedIccTransaction;
-	List<Member>								_Candidates;
+	Dictionary<int, int>[]								_NextEids;
+	long[]												AffectedSpaces;
+	long[]												AffectedBandwidths;
+	List<OutworldTransaction>							AffectedOutworldTransactions;
+	OrderedDictionary<IccpTransaction, string>			AffectedIccTransaction;
+	List<Member>										_Candidates;
 	
-	public Dictionary<int, int>[]				NextEids => _NextEids ??= [..Mcv.Tables.Select(i => new Dictionary<int, int>())];
-	public long[]								Spaces  { get => AffectedSpaces ?? Round.Spacetimes; set => AffectedSpaces = value; }
-	public long[]								Bandwidths { get => AffectedBandwidths ?? Round.Bandwidths; set => AffectedBandwidths = value; }
-	public List<Member>							Candidates { get => _Candidates ?? Round.Candidates; }
-	public List<OutwardTransaction>				OutwardTransactions { get => AffectedOutwardTransactions ?? Round.OutwardTransactions; set => AffectedOutwardTransactions = value; }
+	public Dictionary<int, int>[]						NextEids => _NextEids ??= [..Mcv.Tables.Select(i => new Dictionary<int, int>())];
+	public long[]										Spaces  { get => AffectedSpaces ?? Round.Spacetimes; set => AffectedSpaces = value; }
+	public long[]										Bandwidths { get => AffectedBandwidths ?? Round.Bandwidths; set => AffectedBandwidths = value; }
+	public List<Member>									Candidates { get => _Candidates ?? Round.Candidates; }
+	public List<OutworldTransaction>					OutworldTransactions { get => AffectedOutworldTransactions ?? Round.OutworldTransactions; set => AffectedOutworldTransactions = value; }
 	public OrderedDictionary<IccpTransaction, string>	IccTransactions { get => AffectedIccTransaction ?? Round.IccTransactions; set => AffectedIccTransaction = value; }
 
-	public Time									Time => Round.ConsensusTime;
-	public McvNet								Net;
-	public Mcv									Mcv;
-	public Round								Round;
-	public Transaction							Transaction;
+	public Time											Time => Round.ConsensusTime;
+	public McvNet										Net;
+	public Mcv											Mcv;
+	public Round										Round;
+	public Transaction									Transaction;
 
-	public AutoId								LastCreatedId { get; set; }
+	public AutoId										LastCreatedId { get; set; }
 
-	public HashSet<IEnergyHolder>				EnergySpenders;
-	public HashSet<ISpacetimeHolder>			SpacetimeSpenders;
-	public long									OperationCost;
+	public HashSet<IEnergyHolder>						EnergySpenders;
+	public HashSet<ISpacetimeHolder>					SpacetimeSpenders;
+	public long											OperationCost;
 
-	public Execution							Parent;
+	public Execution									Parent;
 
 	public Execution(Mcv mcv, Round round, Transaction transaction)
 	{
@@ -57,9 +57,9 @@ public class Execution : ITableExecution
 		AffectedSpaces ??= [..Round.Spacetimes];
 	}
 
-	public void AffectOutwards()
+	public void AffectOutworlds()
 	{
-		AffectedOutwardTransactions ??= [..Round.OutwardTransactions];
+		AffectedOutworldTransactions ??= [..Round.OutworldTransactions];
 	}
 
 	public void AffectIccTransactions()

@@ -56,7 +56,7 @@ public class Program: ApplicationContext
 			Nexus.IccpLcpServer.ConnectionEstablished += c =>	{
 														 			if(c is IccpLcpConnection nc && nc.Type == IccpLcpConnectionType.Node)
 														 			{
-															 			if(nc.Net == Iccn.Root)
+															 			if(nc.Net == Icn.Root)
 															 			{
 																			var i = new ToolStripMenuItem(nc.Net, null, (s, e) =>	{
 																 																		var f = new RdnForm(Nexus.RdnNode);

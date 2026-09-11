@@ -62,16 +62,16 @@ public abstract class McvNode : Node
 		return Peering.ToString();
 	}
 
-	public bool IsWebdomainOwner(string domain, AutoId user)
+	public bool IsWebdomainOwner(string domain, string proof)
 	{
-		if(NodeGlobals.ForceApproveOutwards)
+		if(NodeGlobals.ForceApproveOutworlds)
 			return true;
 
 		try
 		{
 			var result = Dns.QueryAsync(domain, QueryType.TXT, QueryClass.IN, Flow.Cancellation);
 
-			return result.Result.Answers.TxtRecords().Any(r => r.DomainName == domain + '.' && AutoId.TryParse(r.Text.First(), out var id) && id == user);
+			return result.Result.Answers.TxtRecords().Any(r => r.DomainName == domain + '.' && r.Text.First() == proof);
 		}
 		catch(Exception)
 		{

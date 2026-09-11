@@ -515,7 +515,7 @@ public abstract class McvPeering : HomoPeering
 		v.Leavers						= [..r.ProposeMemberLeavers(generator)];
 		v.FriendTransferRequests		= [..Mcv.FriendTransferRequests.Select(i => i.Hash)];
 		v.FriendTransferConfirmations	= [..Mcv.FriendTransferResults.Keys];
-		v.OutwardResults				= [..Mcv.OutwardResults];
+		v.OutworldResults				= [..Mcv.OutworldResults];
 						
 		//v.FundJoiners	= Settings.ProposedFundJoiners.Where(i => !LastConfirmedRound.Funds.Contains(i)).ToArray();
 		//v.FundLeavers	= Settings.ProposedFundLeavers.Where(i => LastConfirmedRound.Funds.Contains(i)).ToArray();

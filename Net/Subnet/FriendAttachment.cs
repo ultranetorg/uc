@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Net;
 
-public class FriendAttachment : Operation, IOutwardOperation
+public class FriendAttachment : Operation, IOutworldOperation
 {
 	public string				Name  { get; set; }
 	public Snq					Client  { get; set; }
@@ -42,21 +42,21 @@ public class FriendAttachment : Operation, IOutwardOperation
 			return;
 		}
 
-		execution.AffectOutwards();
-		execution.OutwardTransactions.Add(	new OutwardTransaction
+		execution.AffectOutworlds();
+		execution.OutworldTransactions.Add(	new OutworldTransaction
 											{
-												Id			= ++User.LastOutward,
+												Id			= ++User.LastOutworld,
 												User		= User.Id, 
 												//Generator	= Transaction.Vote.Member,  
 												Operation	= this,
-												Expiration	= execution.Time + execution.Net.OutwardVerificationDurationLimit
+												Expiration	= execution.Time + execution.Net.OutworldVerificationDurationLimit
 											});
 
 	
 		execution.PayOperationEnergy(User);
 	}
 
-	public void SuccessExecute(Execution execution, OutwardTransaction task)
+	public void SuccessExecute(Execution execution, OutworldTransaction task)
 	{
 		var s = execution.Friends.Affect(Name);
 

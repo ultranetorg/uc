@@ -5,13 +5,13 @@ namespace Uccs.Fair;
 
 public abstract class Fair : McvNet
 {
-	public override	string						Address => "fair.rdn";
+	public override	string						Address => $"fair";
 	public override	string						Name => "fair";
 	public override	string						Title => "Fair";
 	public override ushort						PpiPort => Port.Map(Zone, KnownProtocol.Fair);
 	public override ushort						ApiPort => Port.Map(Zone, KnownProtocol.FairApi);
-	public int									OutwardVerificationEnergyCost => 100;
 	public override Dictionary<string, byte>	Tables => Enum.GetValues<FairTable>().SkipLast(4).ToDictionary(i => i.ToString(), i => (byte)i);
+	public int									OutworldVerificationEnergyCost => 100;
 
 	public const int							FileLengthMaximum = 1024*1024;
 	public const ushort							PostLengthMaximum = 65535;

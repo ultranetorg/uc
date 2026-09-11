@@ -17,7 +17,7 @@ public static class AddressTests
  	[Fact]
  	public static void SchemeNetQuery()
  	{
-		string[] a = [null, "", Iccn.Root];
+		string[] a = [null, "", Icn.Root];
 
 		foreach(var i in a )
 			foreach(var j in a)

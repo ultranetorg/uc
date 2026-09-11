@@ -239,7 +239,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 				if(p == null) /// get a new ones from Mcv
 				{
-					if(to == Iccn.Root)
+					if(to == Icn.Root)
 					{
 						Roots ??= GetRoots(flow).Select(i => new Endpoint(i, Settings.Endpoint.Port)).ToArray();
 

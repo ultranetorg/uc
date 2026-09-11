@@ -11,7 +11,7 @@ public class FairNode : McvNode
 
 	public JsonServer				ApiServer;
 	public WebServer				WebServer;
-	List<OutwardTransaction>		CurrentOutwards = [];
+	List<OutworldTransaction>		CurrentOutworlds = [];
 
 	public readonly static string	UniqueDirectiryName = typeof(FairNode).FullName;
 
@@ -59,19 +59,19 @@ public class FairNode : McvNode
 			base.Mcv.Log = Flow.Log;
 
 			Mcv.Confirmed += r =>	{
-										foreach(var t in r.OutwardTransactions.Where(i =>	!CurrentOutwards.Any(a => a.User == i.User && a.Id == i.Id) &&
-																							!Mcv.OutwardResults.Any(a => a.User == i.User && a.Id == i.Id)))
+										foreach(var t in r.OutworldTransactions.Where(i =>	!CurrentOutworlds.Any(a => a.User == i.User && a.Id == i.Id) &&
+																							!Mcv.OutworldResults.Any(a => a.User == i.User && a.Id == i.Id)))
 										{
 											Task.Run(() =>	{
 																if(t.Operation is AuthorVerification o)
 																{
-																	var approved = IsWebdomainOwner(o.Webdomain, o.Author);
+																	var approved = IsWebdomainOwner(o.Webdomain, Snq.ToString(Uccs.Net.Iccp.Scheme, Net.Address, $"author/{o.Author}"));
 	
 																	lock(Mcv.Lock)
 																	{	
-																		Mcv.OutwardResults.Add(new OutwardResult {User = t.User, Id = t.Id, Approved = approved});
+																		Mcv.OutworldResults.Add(new OutworldResult {User = t.User, Id = t.Id, Approved = approved});
 
-																		CurrentOutwards.Remove(t);
+																		CurrentOutworlds.Remove(t);
 																	}
 																}
 															});
