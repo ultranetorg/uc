@@ -31,6 +31,8 @@ public class EthereumSettings : Settings
 
 public class RdnNodeSettings : McvNodeSettings
 {
+	public const string			DataRelativePath = "Data";
+
 	public List<PublicKey>		ProposedFundJoiners = new();
 	public List<PublicKey>		ProposedFundLeavers = new();
 
@@ -42,7 +44,6 @@ public class RdnNodeSettings : McvNodeSettings
 	public new long				Roles => (Mcv?.Roles ?? 0) | (Seed != null ? (long)RdnRole.Seed : 0);
 
 	public string				DataPath { get; set; }
-	public const string			DataRelativePath = "Data";
 
 	public RdnNodeSettings()
 	{

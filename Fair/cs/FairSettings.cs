@@ -32,8 +32,11 @@ public class WebSettings : Settings
 
 public class FairNodeSettings : McvNodeSettings
 {
-	public WebSettings		Web { get; set; }
-	public string			DataPath { get; set; }
+	public const string			DataRelativePath = "Data";
+	public const string			WwwRootRelativePath = "wwwroot";
+
+	public WebSettings			Web { get; set; }
+	public string				DataPath { get; set; }
 
 	public FairNodeSettings()
 	{
@@ -64,6 +67,6 @@ public class FairNodeSettings : McvNodeSettings
 	{
 		Peering		= new () {Endpoint = new (IPAddress.Any, Fair.ByZone(settings.Zone).PpiPort)};
 		Api			= new () {LocalIP = settings.Host};
-		DataPath	= System.IO.Path.Join(FairNode.ExeDirectory, "Data");
+		DataPath	= System.IO.Path.Join(FairNode.ExeDirectory, DataRelativePath);
 	}
 }

@@ -5,9 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>fair</AssemblyName>
-    <Version>0.0.1013.0</Version>
-    <FileVersion>0.0.1013.0</FileVersion>
-    <AssemblyVersion>0.0.1013.0</AssemblyVersion>
+    <Version>0.0.1018.0</Version>
+    <FileVersion>0.0.1018.0</FileVersion>
+    <AssemblyVersion>0.0.1018.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fair\cs\Uccs.Fair.csproj" />
