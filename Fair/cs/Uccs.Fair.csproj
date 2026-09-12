@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Version>0.0.1002.0</Version>
     <FileVersion>0.0.1002.0</FileVersion>
-    <AssemblyVersion>0.0.102.0</AssemblyVersion>
+    <AssemblyVersion>0.0.1002.0</AssemblyVersion>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>

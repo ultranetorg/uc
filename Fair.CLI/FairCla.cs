@@ -1,10 +1,12 @@
-﻿public class NexusCliApplication
+﻿namespace Uccs.Fair.CLI;
+
+public class FairCla
 {
-	public static void Main(string[] args)
+	static void Main(string[] args)
 	{
 		Thread.CurrentThread.CurrentCulture = 
 		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 
-		new Uccs.Nexus.CLI.NexusCli();
+		new FairCli();
 	}
-}	
+}

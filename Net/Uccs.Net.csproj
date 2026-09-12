@@ -10,10 +10,10 @@
     <PackageProjectUrl>{HOME}</PackageProjectUrl>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <AnalysisLevel>none</AnalysisLevel>
-	  <Version>0.0.1000.0</Version>
-	  <FileVersion>0.0.1000.0</FileVersion>
-	  <AssemblyVersion>0.0.100.0</AssemblyVersion>
-	  <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.0.1004.0</Version>
+    <FileVersion>0.0.1004.0</FileVersion>
+    <AssemblyVersion>0.0.1004.0</AssemblyVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

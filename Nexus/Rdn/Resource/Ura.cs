@@ -8,15 +8,8 @@ namespace Uccs.Rdn;
 ///		net/domain/resource
 /// </summary>
 
-// 	public enum ResourceType
-// 	{
-// 		None, Variable, Constant
-// 	}
-
 public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparable<Ura>, ITextSerialisable
 {
-//	public ResourceType			Type { get; set; }
-	public string				Net { get; set; }
 	public string				Domain { get; set; }
 	public string				Resource { get; set; }
 
@@ -32,17 +25,8 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 		Resource = resource;
 	}
 
-	public Ura(string net, string domain, string resource)
-	{
-		Net = net;
-		Domain = domain;
-		Resource = resource;
-	}
-
 	public Ura(Snq address)
 	{
-		Net = address.Net;
-
 		Parse(address.Query, out var d, out var r);
 		
 		Domain = d;
@@ -51,19 +35,23 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public Ura(Ura a)
 	{
-		Net			= a.Net;
 		Domain		= a.Domain;
 		Resource	= a.Resource;
 	}
 
+	public static string ToString(string domain, string resource)
+	{
+		return Snq.ToString(Iccp.Scheme, null, domain + (resource != null ? $"/{resource}" : null));
+	}
+
 	public override string ToString()
 	{
-		return Snq.ToString(Iccp.Scheme, Net, Domain + (Resource != null ? $"/{Resource}" : null));
+		return ToString(Domain, Resource);
 	}
 
 	public Snq ToSnq()
 	{
-		return new Snq(Iccp.Scheme, Net, Domain + (Resource != null ? $"/{Resource}" : null));
+		return new Snq(Iccp.Scheme, null, Domain + (Resource != null ? $"/{Resource}" : null));
 	}
 
 	public override bool Equals(object o)
@@ -73,7 +61,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public bool Equals(Ura o)
 	{
-		return o is not null && Uccs.Net.Net.Equal(Net, o.Net) && Domain == o.Domain && Resource == o.Resource;
+		return o is not null && Domain == o.Domain && Resource == o.Resource;
 	}
 
  	public override int GetHashCode()
@@ -88,12 +76,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public int CompareTo(Ura o)
 	{
-		var c = Net.CompareTo(o.Net);
-
-		if(c != 0)
-			return c;
-
-		c = Domain.CompareTo(o.Domain);
+		var c = Domain.CompareTo(o.Domain);
 
 		if(c != 0)
 			return c;
@@ -114,17 +97,16 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public void Read(string text)
 	{
-		Parse(text, out string p, out string z, out string d, out string r);
-		Net = z;
+		Parse(text, out string d, out string r);
 		Domain = d;
 		Resource = r;
 	}
 
-	public static void Parse(string v, out string scheme, out string net, out string domain, out string resource)
+	public static void Parse(string v, out string domain, out string resource)
 	{
 		int i;
 		
-		Snq.Parse(v, out scheme, out net, out string o);
+		Snq.Parse(v, out _, out _, out string o);
 
 		var e = o.IndexOf('/');
 			
@@ -145,36 +127,37 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 			resource = null;
 	}
 
-	public static void Parse(string path, out string domain, out string resource)
+	public static void ParseQuery(string query, out string domain, out string resource)
 	{
 		int i;
 
-		var e = path.IndexOf('/');
+		var e = query.IndexOf('/');
 			
 		if(e != -1)
 		{
-			domain = path.Substring(0, e);
+			domain = query.Substring(0, e);
 			i = e + 1;
 		}
 		else
 		{
-			domain = path;
+			domain = query;
 			i = -1;
 		}
 
 		if(i != -1)
-			resource = path.Substring(i);
+			resource = query.Substring(i);
 		else
 			resource = null;
 	}
+
 	public static Ura Parse(string v)
 	{
-		Parse(v, out var s, out var z, out var d, out var r);
+		Parse(v, out var d, out var r);
 
-		return new Ura(z, d, r);
+		return new Ura(d, r);
 	}
 
-	public static Ura ParseAR(string v)
+	public static Ura ParseQuery(string v)
 	{
 		var a = new Ura();
 		
@@ -188,22 +171,12 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public void Write(Writer w)
 	{
-		w.Write((byte)(Net != null ? 0b1 : 0));
-		
-		if(Net != null)
-			w.WriteUtf8(Net);
-		
 		w.WriteUtf8(Domain);
 		w.WriteUtf8(Resource);
 	}
 
 	public void Read(Reader r)
 	{
-		var b = r.ReadByte();
-		
-		if((b & 0b1) != 0) 
-			Net = r.ReadUtf8();
-		
 		Domain		= r.ReadUtf8();
 		Resource	= r.ReadUtf8();
 	}

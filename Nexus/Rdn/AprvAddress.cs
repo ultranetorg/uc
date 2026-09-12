@@ -2,19 +2,19 @@
 
 public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAddress>, IEquatable<AprvAddress>
 {
-	public string			Domain		{ get ; set; }
+	public string			Author		{ get ; set; }
 	public string			Product		{ get ; set; }
 	public string			Realization { get ; set; }
 	public string			Version		{ get ; set; }
 
-	public string			APR => $"/{Domain}/{Product}/{Realization}";
+	public string			APR => $"/{Author}/{Product}/{Realization}";
 	public string			PRV => $"{Product}/{Realization}/{Version}";
 
-	public static implicit operator Ura(AprvAddress value) => new Ura(value.Domain, value.PRV);
+	public static implicit operator Ura(AprvAddress value) => new Ura(value.Author, value.PRV);
 
 	public AprvAddress(string domain, string product, string realization, string veriosn)
 	{
-		Domain = domain;
+		Author = domain;
 		Product = product;
 		Realization = realization;
 		Version = veriosn;
@@ -22,7 +22,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 	public AprvAddress(Ura resource, string version)
 	{
-		Domain = resource.Domain;
+		Author = resource.Domain;
 
 		var j = resource.Resource.LastIndexOf('/');
 		
@@ -33,7 +33,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 	public AprvAddress(Ura resource)
 	{
-		Domain = resource.Domain;
+		Author = resource.Domain;
 
 		var j = resource.Resource.Split('/');
 		
@@ -48,7 +48,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 	public override string ToString()
 	{
-		return new Ura(Domain, PRV).ToString();
+		return new Ura(Author, PRV).ToString();
 	}
 
 	public static AprvAddress Parse(string v)
@@ -57,7 +57,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 		var a = new AprvAddress();
 		var p = r.Resource.Split('/');
 
-		a.Domain		= r.Domain;
+		a.Author		= r.Domain;
 		a.Product		= p[0];
 		a.Realization	= p[1];
 		a.Version		= p[2]; 
@@ -77,7 +77,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 		address = new AprvAddress();
 
-		address.Domain		= r.Domain;
+		address.Author		= r.Domain;
 		address.Product		= p[0];
 		address.Realization	= p[1];
 		address.Version		= p[2]; 
@@ -97,7 +97,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 		address = new AprvAddress();
 
-		address.Domain		= r.Domain;
+		address.Author		= r.Domain;
 		address.Product		= p[0];
 		address.Realization	= p[1];
 
@@ -111,7 +111,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 	public AprvAddress ReplaceVersion(string version)
 	{
-		return new AprvAddress(Domain, Product, Realization, version);
+		return new AprvAddress(Author, Product, Realization, version);
 	}
 
 	public int CompareTo(object obj)
@@ -121,7 +121,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 	public int CompareTo(AprvAddress o)
 	{
-		var a = Domain.CompareTo(o.Domain);
+		var a = Author.CompareTo(o.Author);
 		if(a != 0)
 			return a;
 
@@ -143,7 +143,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 	
 	public virtual void Write(Writer w)
 	{
-		w.WriteUtf8(Domain);
+		w.WriteUtf8(Author);
 		w.WriteUtf8(Product);
 		w.WriteUtf8(Realization);
 		w.WriteUtf8(Version);
@@ -151,7 +151,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 	public virtual void Read(Reader r)
 	{
-		Domain = r.ReadUtf8();
+		Author = r.ReadUtf8();
 		Product = r.ReadUtf8();
 		Realization = r.ReadUtf8();
 		Version = r.ReadUtf8();
@@ -165,7 +165,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 	public bool Equals(AprvAddress o)
 	{
 		return	o is not null && 
-				Domain		== o.Domain && 
+				Author		== o.Author && 
 				Product		== o.Product && 
 				Realization	== o.Realization && 
 				Version.Equals(o.Version);
@@ -173,7 +173,7 @@ public class AprvAddress : IBinarySerializable, IComparable, IComparable<AprvAdd
 
 	public override int GetHashCode()
 	{
-		return Domain.GetHashCode();
+		return Author.GetHashCode();
 	}
 
 	public static bool operator == (AprvAddress left, AprvAddress right)

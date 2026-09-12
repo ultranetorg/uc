@@ -9,7 +9,7 @@
     <AssemblyName>fairwin</AssemblyName>
 	  <Version>0.0.1000.0</Version>
 	  <FileVersion>0.0.1000.0</FileVersion>
-	  <AssemblyVersion>0.0.100.0</AssemblyVersion>
+	  <AssemblyVersion>0.0.1000.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fair\cs\Uccs.Fair.csproj" />

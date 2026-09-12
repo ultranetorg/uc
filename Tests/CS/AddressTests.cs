@@ -53,7 +53,7 @@ public static class AddressTests
 		Assert.True(s.Count(i => i == Ura.Parse($"{Iccp.Scheme}:/aa/rr")) == 1);
 		Assert.True(s.Count(i => i == Ura.Parse($"{Iccp.Scheme}:net/aaa/rrr")) == 1);
 
-		Assert.DoesNotContain(Ura.Parse("ura:absent/aaa/rrr"), s);
+		Assert.DoesNotContain(Ura.Parse("ura:/aaa/xxx"), s);
  	}
 
  	[Fact]

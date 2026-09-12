@@ -9,10 +9,10 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	  <Version>0.0.1000.0</Version>
-	  <FileVersion>0.0.1000.0</FileVersion>
-	  <AssemblyVersion>0.0.100.0</AssemblyVersion>
-	  <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.0.1004.0</Version>
+    <FileVersion>0.0.1004.0</FileVersion>
+    <AssemblyVersion>0.0.1004.0</AssemblyVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
