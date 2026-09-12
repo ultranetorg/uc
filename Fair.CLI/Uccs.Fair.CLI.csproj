@@ -1,17 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<AssemblyName>fair</AssemblyName>
-		<AssemblyVersion>0.0.1146</AssemblyVersion>
-		<FileVersion>0.0.1146.0</FileVersion>
-		<Version>0.0.1146</Version>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Fair\cs\Uccs.Fair.csproj" />
-	</ItemGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>fair</AssemblyName>
+    <Version>0.0.1003.0</Version>
+    <FileVersion>0.0.1003.0</FileVersion>
+    <AssemblyVersion>0.0.103.0</AssemblyVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Fair\cs\Uccs.Fair.csproj" />
+  </ItemGroup>
 </Project>
