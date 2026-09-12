@@ -36,6 +36,13 @@ public class NodeCommand : Uccs.Net.NodeCommand
 														new RealClock(), 
 														new Flow(Flow, new Log())); /// Use the same Cancellation to allow to exit by API call or other
 								
+
+								Report($"{nameof(FairNode)}");
+								Report($"Zone    : {Cli.NexusSettings.Zone}");
+								Report($"Name    : {Cli.NexusSettings.Name}");
+								Report($"Version : {Assembly.GetEntryAssembly().GetName().Version}");
+								Report($"Profile : {Cli.Settings.Profile}");
+
 								Cli.InteractOrWait(Cli.Net.Name, Cli.Boot.Profile, this, a, Cli.Node.Flow);
 
 								if(Cli.Node.Flow.Active)

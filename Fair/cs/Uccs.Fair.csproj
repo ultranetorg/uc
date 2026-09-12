@@ -4,15 +4,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>1.0.1146</AssemblyVersion>
-    <FileVersion>1.0.1146.0</FileVersion>
-    <Version>1.0.1146</Version>
+    <AssemblyVersion>0.0.1146</AssemblyVersion>
+    <FileVersion>0.0.1146.0</FileVersion>
+    <Version>0.0.1146</Version>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
-    <AssemblyName>fair</AssemblyName>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <SixLaborsLicenseFile>$(UO)\sixlabors.lic</SixLaborsLicenseFile>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;8632</NoWarn>
@@ -44,5 +44,8 @@
       <LastGenOutput>ErrorMessages.Designer.cs</LastGenOutput>
       <CustomToolNamespace>Uccs.Fair</CustomToolNamespace>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

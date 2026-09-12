@@ -44,7 +44,7 @@ public abstract class Cli
 	{
 		var t = commnad.First().Name;
 		var args = commnad.Skip(1).ToList();
-		var ct = assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
+		var ct = assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.Equals(t + nameof(Command), StringComparison.InvariantCultureIgnoreCase));
 
 		return ct?.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
 	}

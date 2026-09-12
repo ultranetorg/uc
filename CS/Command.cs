@@ -213,7 +213,7 @@ public abstract class Command
 	public static bool		ConsoleAvailable { get; protected set; }
 	public Flow				Flow;
 
-	public void				Report(string message) => Flow.Log?.Report(this, "   " + message);
+	public void				Report(string message) => Flow.Log?.Report(this, message);
 
 	static Command()
 	{
