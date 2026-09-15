@@ -106,7 +106,7 @@ public enum ParentPackageFlag : byte
 
 public class ParentPackage
 {
-	public Ura					Release { get; set; }
+	public Ura					Address { get; set; }
 	public ParentPackageFlag	Flags { get; set; }
 	public Dependency[]			AddedDependencies { get; set; }
 	public Dependency[]			RemovedDependencies { get; set; }
@@ -115,7 +115,7 @@ public class ParentPackage
 	{
 		var d = new ParentPackage();
 
-		d.Release				= Ura.Parse(xon.Name);
+		d.Address				= Ura.Parse(xon.Name);
 		d.Flags					= xon.GetEnum<ParentPackageFlag>("Flags", ParentPackageFlag.None);
 		d.AddedDependencies		= xon.One("Add").Nodes.Select(Dependency.FromXon).ToArray();
 		d.RemovedDependencies	= xon.One("Remove").Nodes.Select(Dependency.FromXon).ToArray();
@@ -127,7 +127,7 @@ public class ParentPackage
 	{					
 		var x = new Xon(serializator);
 	
-		x.Name = Release.ToString();
+		x.Name = Address.ToString();
 		x.Add("Flags").Value = Flags;
 		x.Add("Add").Nodes.AddRange(AddedDependencies.Select(i => i.ToXon(serializator)));
 		x.Add("Remove").Nodes.AddRange(RemovedDependencies.Select(i => i.ToXon(serializator)));
@@ -152,8 +152,8 @@ public class ParentPackage
 
 public class Start// : IBinarySerializable
 {
-	public string				Path { get; set; }
-	public string				Arguments { get; set; }
+	public string		Path { get; set; }
+	public string		Arguments { get; set; }
 	public Expression	Condition { get; set; }
 
 	public override string ToString()
@@ -211,7 +211,6 @@ public class PackageManifest
 	public Dependency[]				CompleteDependencies { get; set; } = [];
 	public byte[]					IncrementalHash { get; set; }
 	public ParentPackage[]			Parents { get; set; }
-	public Ura[]					History { get; set; }
 	public Start[]					Start { get; set; }
 
 	public Start					MatchExecution(Platform platform) => Start.FirstOrDefault(i => i.Condition.Match(platform)); 
@@ -264,7 +263,6 @@ public class PackageManifest
 		m.CompleteDependencies	= xon.One("Complete/Dependencies")?.Nodes.Select(Dependency.FromXon).ToArray() ?? [];
 		m.IncrementalHash		= xon.Get<byte[]>("Incremental/Hash", null);
 		m.Parents				= xon.One("Incremental/Parents")?.Nodes.Select(ParentPackage.FromXon).ToArray();
-		m.History				= xon.One("History")?.Nodes.Select(i => Ura.Parse(i.Name)).ToArray();
 		m.Start					= xon.Many(nameof(Start)).Select(Uccs.Nexus.Start.FromXon).ToArray();
 
 		return m;
@@ -288,9 +286,6 @@ public class PackageManifest
 			if(Parents != null && Parents.Any())
 				i.Add("Parents").Nodes.AddRange(Parents.Select(i => i.ToXon(serializator)));
 		}
-
-		if(History != null && History.Any())
-			x.Add("History").Nodes.AddRange(History.Select(i => new Xon(serializator, i.ToString())));
 
 		if(Start != null && Start.Any())
 			x.Nodes.AddRange(Start.Select(i => {

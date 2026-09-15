@@ -125,9 +125,9 @@ partial class IamForm
 		Logo.BackgroundImageLayout = ImageLayout.None;
 		Logo.Image = (Image)resources.GetObject("Logo.Image");
 		Logo.InitialImage = null;
-		Logo.Location = new Point(20, 9);
+		Logo.Location = new Point(16, 16);
 		Logo.Name = "Logo";
-		Logo.Size = new Size(48, 48);
+		Logo.Size = new Size(32, 32);
 		Logo.SizeMode = PictureBoxSizeMode.AutoSize;
 		Logo.TabIndex = 4;
 		Logo.TabStop = false;
@@ -140,15 +140,15 @@ partial class IamForm
 		panel1.Location = new Point(0, 0);
 		panel1.Margin = new Padding(0);
 		panel1.Name = "panel1";
-		panel1.Size = new Size(1080, 71);
+		panel1.Size = new Size(1080, 64);
 		panel1.TabIndex = 5;
 		// 
 		// pictureBox1
 		// 
 		pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-		pictureBox1.Location = new Point(74, -2);
+		pictureBox1.Location = new Point(64, 16);
 		pictureBox1.Name = "pictureBox1";
-		pictureBox1.Size = new Size(300, 70);
+		pictureBox1.Size = new Size(230, 31);
 		pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
 		pictureBox1.TabIndex = 5;
 		pictureBox1.TabStop = false;

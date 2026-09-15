@@ -23,6 +23,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'"></PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="VirtualTreeViewWinForms" Version="2.0.2" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Mcv.FUI\Uccs.Mcv.FUI.csproj" />
     <ProjectReference Include="..\Nexus\Uccs.Nexus.csproj" />
   </ItemGroup>
@@ -31,6 +34,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="AuthenticattionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="PackagesForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Rdn\DomainPanel.cs">

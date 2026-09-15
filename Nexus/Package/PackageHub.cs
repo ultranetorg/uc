@@ -29,13 +29,13 @@ public class PackageHub
  		return Path.Join(Node.Settings.Seed.Releases, Net.Net.Escape(release.ToString()));
  	}
 
-	IEnumerable<LocalPackage> PreviousIncrementals(Ura package, Ura incrementalminimal)
-	{
-		return Find(package).Manifest.History	//.TakeWhile(i => !i.SequenceEqual(package.Hash))
-												.SkipWhile(i => i != incrementalminimal)
-												.Select(i => Find(i))
-												.Where(i => i is not null);
-	}
+//	IEnumerable<LocalPackage> PreviousIncrementals(Ura package, Ura incrementalminimal)
+//	{
+//		return Find(package).Manifest.History	//.TakeWhile(i => !i.SequenceEqual(package.Hash))
+//												.SkipWhile(i => i != incrementalminimal)
+//												.Select(i => Find(i))
+//												.Where(i => i is not null);
+//	}
 
 	public bool IsAvailable(Ura package)
 	{
@@ -50,7 +50,7 @@ public class PackageHub
 		lock(Node.ResourceHub.Lock)
 		{
 			if(	p.Release.Availability.HasFlag(Availability.Complete) || 
-				p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsAvailable(i.Release)))
+				p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsAvailable(i.Address)))
 			{
 				return p.Manifest.CriticalDependencies.All(i => IsAvailable(i.Address));
 			}
@@ -257,11 +257,11 @@ public class PackageHub
 
 	public void DetermineDelta(Ura package, PackageManifest manifest, out bool canincrement, out List<Dependency> dependencies)
 	{
-		var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Release));
+		var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Address));
 	
 		if(from != null)
 		{
-			var deps = Find(from.Release).Manifest.CompleteDependencies.ToList();
+			var deps = Find(from.Address).Manifest.CompleteDependencies.ToList();
 
 			deps.AddRange(from.AddedDependencies);
 			deps.RemoveAll(i => from.RemovedDependencies.Contains(i));
@@ -339,12 +339,11 @@ public class PackageHub
 			{
 				var vm = PackageManifest.Load(Find(previous).Release.Find(LocalPackage.ManifestFile).LocalPath);
 			
-				var d = new ParentPackage {	Release				= previous,
+				var d = new ParentPackage {	Address				= previous,
 											AddedDependencies	= m.CompleteDependencies.Where(i => !vm.CompleteDependencies.Contains(i)).ToArray(),
 											RemovedDependencies	= vm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() };
 				
 				m.Parents = [d];
-				m.History = (Find(previous).Manifest.History ?? []).Append(previous).ToArray();
 			}
 
 			var h = Node.ResourceHub.Net.Cryptography.HashFile(m.Raw);
@@ -441,14 +440,14 @@ public class PackageHub
 																		else
 																			throw new ResourceException(ResourceError.Busy);
 
-																		var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Release));
+																		var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Address));
 
 																		if(pp == null)
 																			throw new ResourceException(ResourceError.ParentPackagesNotFound);
 
 																		m.Incrementals.Insert(0, new (p, pp));
 
-																		p = Find(pp.Release);
+																		p = Find(pp.Address);
 																	}
 
 																	Thread.Sleep(10);
