@@ -1,6 +1,7 @@
 import { memo } from "react"
 
 import { CategoryTreeItem as CategoryTreeItemType } from "utils"
+
 import { CategoryTreeItem } from "./CategoryTreeItem"
 import { CategoryTreeRootItem } from "./CategoryTreeRootItem"
 
