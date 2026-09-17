@@ -4,7 +4,7 @@ namespace Uccs;
 
 public class Platform// : IBinarySerializable
 {
-	public Family	Family;
+	public Family			Family;
 	public int				Brand;
 	public int				Version;
 	public Architecture		Architecture;
@@ -98,28 +98,28 @@ public class Expression : IBinarySerializable
 	public const string			Less = "<";
 	public const string			LessOrEqual = "<=";
 	public const string			Equal = "==";
-	public const string			Not = "NOT";
-	public const string			Or = "OR";
-	public const string			And = "AND";
+	public const string			Not = "not";
+	public const string			Or = "or";
+	public const string			And = "and";
 
 	public const string			Family = "family";
 	public const string			Brand = "brand";
 	public const string			Version = "version";
 	public const string			Architecture = "architecture";
 
-	static bool IsOperation(string name) => name == Greater ||
-											name == GreaterOrEqual ||
-											name == Less ||
-											name == LessOrEqual ||
-											name == Equal ||
-											name == Not ||
-											name == Or ||
-											name == And;
+	static bool					IsOperation(string name) => name == Greater ||
+															name == GreaterOrEqual ||
+															name == Less ||
+															name == LessOrEqual ||
+															name == Equal ||
+															name == Not ||
+															name == Or ||
+															name == And;
 
-	public bool Match(Platform platform) => (bool)Evaluate(new(){   {Family, platform.Family},
-																	{Brand, platform.Brand},
-																	{Version, platform.Version},
-																	{Architecture, platform.Architecture}});
+	public bool					Match(Platform platform) => (bool)Evaluate(new(){   {Family, platform.Family},
+																					{Brand, platform.Brand},
+																					{Version, platform.Version},
+																					{Architecture, platform.Architecture}});
 
 	public Expression()
 	{
@@ -163,14 +163,6 @@ public class Expression : IBinarySerializable
 		}
 
 		return e;
-		//if(Enum.TryParse<PlatfromOperator>(x.Name, out var o))
-		//	e.Operator = o;
-		//else
-		//	e.Name = x.Name;
-		//
-		//e.Operands = x.Nodes.Select(FromXon).ToArray();
-
-		//return e;
 	}
 
 	public object Evaluate(Dictionary<string, object> consts, Expression left = null)

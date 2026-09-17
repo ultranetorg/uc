@@ -339,9 +339,12 @@ public class PackageHub
 			{
 				var vm = PackageManifest.Load(Find(previous).Release.Find(LocalPackage.ManifestFile).LocalPath);
 			
-				var d = new ParentPackage {	Address				= previous,
-											AddedDependencies	= m.CompleteDependencies.Where(i => !vm.CompleteDependencies.Contains(i)).ToArray(),
-											RemovedDependencies	= vm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() };
+				var d = new ParentPackage
+						{
+							Address				= previous,
+							AddedDependencies	= m.CompleteDependencies.Where(i => !vm.CompleteDependencies.Contains(i)).ToArray(),
+							RemovedDependencies	= vm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() 
+						};
 				
 				m.Parents = [d];
 			}

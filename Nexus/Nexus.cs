@@ -134,7 +134,7 @@ public class Nexus : IProgram
 
 	public DeployedNode RunNode(string net)
 	{
-		net = Net.Net.ToCanonical(net);
+		//net = Net.Net.ToCanonical(net);
 
 		var node = Settings.Nodes.FirstOrDefault(i => Uccs.Net.Net.Equal(i.Net, net));
 

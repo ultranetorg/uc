@@ -255,7 +255,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 					} 
 					else
 					{
-						var nets = to.Split('.');
+						var nets = Net.ToCanonical(to).Split('.');
 						int d = nets.Length;
 
 						string take(int depth) => string.Join('.', nets[^depth..]);
@@ -264,7 +264,7 @@ public class IccpPeering : TcpPeering<IccpPeer>
 
 						while(flow.Active)
 						{
-							l = Lcp.Connections.Cast<IccpLcpConnection>().FirstOrDefault(c => c.Net == take(d));
+							l = Lcp.Connections.Cast<IccpLcpConnection>().FirstOrDefault(c => Net.Equal(c.Net, take(d)));
 
 							if(l != null)
 								break;
