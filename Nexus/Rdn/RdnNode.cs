@@ -26,7 +26,7 @@ public class RdnNode : McvNode
 	public ResourceHub				ResourceHub;
 	public SeedHub					SeedHub;
 	public JsonServer				ApiServer;
-	List<OutwardTransaction>		CurrentOutwards = [];
+	List<OutworldTransaction>		CurrentOutworlds = [];
 
 	public RdnNode(Zone zone, NexusSettings nexussettings, RdnNodeSettings settings, IClock clock, Flow flow) : base(Rdn.ByZone(zone), settings.Profile, nexussettings, flow)
 	{
@@ -50,25 +50,25 @@ public class RdnNode : McvNode
 			}
 
 			Mcv.Confirmed += r =>	{
-										foreach(var t in r.OutwardTransactions.Where(i => !CurrentOutwards.Any(a => a.User == i.User && a.Id == i.Id) &&
-																						  !Mcv.OutwardResults.Any(a => a.User == i.User && a.Id == i.Id)))
+										foreach(var t in r.OutworldTransactions.Where(i =>	!CurrentOutworlds.Any(a => a.User == i.User && a.Id == i.Id) &&
+																							!Mcv.OutworldResults.Any(a => a.User == i.User && a.Id == i.Id)))
 										{
 											Task.Run(() =>	{
 																if(t.Operation is DomainNameMigration m)
 																{
-																	var approved = IsWebdomainOwner(m.Name + '.' + m.Tld, t.User);
+																	var approved = IsWebdomainOwner(m.Name + '.' + m.Tld, Snq.ToString(Uccs.Net.Iccp.Scheme, Net.Address, $"user/{t.User}"));
 	
 																	lock(Mcv.Lock)
 																	{	
-																		Mcv.OutwardResults.Add(new OutwardResult {User = t.User, Id = t.Id, Approved = approved});
+																		Mcv.OutworldResults.Add(new OutworldResult {User = t.User, Id = t.Id, Approved = approved});
 
-																		CurrentOutwards.Remove(t);
+																		CurrentOutworlds.Remove(t);
 																	}
 																}
 																else if(t.Operation is FriendAttachment sa)
 																{
 																	lock(Mcv.Lock)
-																		Mcv.OutwardResults.Add(new OutwardResult {User = t.User, Id = t.Id, Approved = Settings.ProposedFriendAttachments.Contains(sa.Name)});
+																		Mcv.OutworldResults.Add(new OutworldResult {User = t.User, Id = t.Id, Approved = Settings.ProposedFriendAttachments.Contains(sa.Name)});
 																}
 															});
 										}

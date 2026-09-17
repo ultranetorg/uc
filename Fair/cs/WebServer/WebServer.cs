@@ -56,7 +56,7 @@ public class WebServer
 
 											WebApplication.UseCors();
 
-											var root = Path.Join(o.ContentRootPath, "wwwroot");
+											var root = Path.Join(o.ContentRootPath, FairNodeSettings.WwwRootRelativePath);
 
 											Directory.CreateDirectory(root);
 

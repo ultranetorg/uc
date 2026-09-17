@@ -3,12 +3,12 @@ using System.Text;
 
 namespace Uccs.Net;
 
-public interface IOutwardOperation
+public interface IOutworldOperation
 {	
-	public abstract void SuccessExecute(Execution execution, OutwardTransaction task);
+	public abstract void SuccessExecute(Execution execution, OutworldTransaction task);
 }
 
-public class OutwardTransaction : IBinarySerializable
+public class OutworldTransaction : IBinarySerializable
 {
 	public int					Id;
 	public Time					Expiration;
@@ -32,7 +32,7 @@ public class OutwardTransaction : IBinarySerializable
 	}
 }
 
-public struct OutwardResult : IBinarySerializable, IEquatable<OutwardResult>, IComparable<OutwardResult>
+public struct OutworldResult : IBinarySerializable, IEquatable<OutworldResult>, IComparable<OutworldResult>
 {
 	public AutoId		User;
 	public int			Id;
@@ -54,15 +54,15 @@ public struct OutwardResult : IBinarySerializable, IEquatable<OutwardResult>, IC
 
 	public override bool Equals(object obj)
 	{
-		return obj is OutwardResult id && Equals(id);
+		return obj is OutworldResult id && Equals(id);
 	}
 
-	public bool Equals(OutwardResult a)
+	public bool Equals(OutworldResult a)
 	{
 		return User == a.User && Id == a.Id && Approved == a.Approved;
 	}
 
-	public int CompareTo(OutwardResult a)
+	public int CompareTo(OutworldResult a)
 	{
 		var c = User.CompareTo(a.User);
 
@@ -87,12 +87,12 @@ public struct OutwardResult : IBinarySerializable, IEquatable<OutwardResult>, IC
 		return Id.GetHashCode();
 	}
 
-	public static bool operator == (OutwardResult left, OutwardResult right)
+	public static bool operator == (OutworldResult left, OutworldResult right)
 	{
 		return left.Equals(right);
 	}
 
-	public static bool operator != (OutwardResult left, OutwardResult right)
+	public static bool operator != (OutworldResult left, OutworldResult right)
 	{
 		return !left.Equals(right);
 	}

@@ -19,10 +19,10 @@ public static class PublicationUtils
 
 	static FieldValue? FindLatestField(Product product, Token fieldName) => product.Versions.OrderBy(x => x.Id).LastOrDefault()?.Fields.FirstOrDefault(x => x.Name == fieldName);
 
-	// TODO: Should be removed.
+	// TODO Elwray: Should be removed.
 	public static string GetUrl(Publication publication)
 	{
-		// TODO: implement method.
+		// TODO Elwray: implement method.
 		return "https://google.com/publications/" + publication.Id.ToString();
 	}
 

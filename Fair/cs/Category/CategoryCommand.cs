@@ -2,12 +2,15 @@
 
 namespace Uccs.Fair;
 
-public class CategoryCommand : FairCommand
-{
-	public CategoryCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
-	{
-		
-	}
+//public class CategoryCommand : FairCommand
+//{
+//	public CategoryCommand()
+//	{
+//	}
+//
+//	public CategoryCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
+//	{
+//	}
 
 //	public CommandAction Create()
 //	{
@@ -118,4 +121,4 @@ public class CategoryCommand : FairCommand
 	//						};
 	//	return a;
 	//}
-}
+//}

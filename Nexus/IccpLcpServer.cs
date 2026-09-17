@@ -34,7 +34,7 @@ public class IccpLcpServer : LcpServer
 
 		if(c.Type == IccpLcpConnectionType.Node)
 		{	
-			c.Net = connection.Reader.ReadUtf8();
+			c.Net = Net.Net.ToCanonical(connection.Reader.ReadUtf8());
 			c.Api = connection.Reader.ReadUtf8();
 		}
 

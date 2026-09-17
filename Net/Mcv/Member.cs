@@ -7,12 +7,11 @@ public class Member : IBinarySerializable
 	public AutoId			Generator { get; set; }
 	public AutoId			Beneficiary { get; set; }
 	public int				Since { get; set; }
-	public int				Till { get; set; }
 	public Endpoint[]		GraphPpiEndpoints { get; set; } = [];
 
 	public override string ToString()
 	{
-		return $"{nameof(Generator)}={Generator}, {nameof(Beneficiary)}={Beneficiary}, {nameof(Since)}={Since}, {nameof(Till)}={Till}, {nameof(GraphPpiEndpoints)}={{{GraphPpiEndpoints.Length}}}";
+		return $"{nameof(Generator)}={Generator}, {nameof(Beneficiary)}={Beneficiary}, {nameof(Since)}={Since}, {nameof(GraphPpiEndpoints)}={{{GraphPpiEndpoints.Length}}}";
 	}
 
   	public void WriteBase(Writer writer)
@@ -21,7 +20,6 @@ public class Member : IBinarySerializable
  		writer.Write(Beneficiary);
 		writer.Write(GraphPpiEndpoints);
 		writer.Write7BitEncodedInt(Since);
-		writer.Write7BitEncodedInt(Till);
  	}
  
  	public void ReadBase(Reader reader)
@@ -30,7 +28,6 @@ public class Member : IBinarySerializable
 		Beneficiary			= reader.Read<AutoId>();
 		GraphPpiEndpoints	= reader.ReadArray<Endpoint>();
  		Since				= reader.Read7BitEncodedInt();
- 		Till				= reader.Read7BitEncodedInt();
 	}
 
   	public virtual void Write(Writer writer)
@@ -47,7 +44,7 @@ public class Member : IBinarySerializable
  	{
  		writer.Write(Generator);
  		writer.Write(Beneficiary);
-		writer.Write(GraphPpiEndpoints, i => writer.Write(i));
+		writer.Write(GraphPpiEndpoints);
  	}
  
  	public virtual void ReadCandidate(Reader reader)
@@ -72,6 +69,5 @@ public class Member : IBinarySerializable
 		generator.Beneficiary		= Beneficiary;
 		generator.GraphPpiEndpoints	= GraphPpiEndpoints;
 		generator.Since				= Since;
-		generator.Till				= Till;
 	}
 }

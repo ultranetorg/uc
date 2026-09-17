@@ -9,7 +9,7 @@ public class LocalPackage
 	public const string		ManifestFile = "m";
 	public const string		Removals = ".removals";
 	public const string		Patches = ".patches";
-	public const string		Renamings = ".renamings"; /// TODO
+	public const string		Renamings = ".renamings"; /// TODO Maximion
 
 	public LocalResource	Resource;
 	public LocalRelease		Release => Resource.Data != null && Resource.Data.Type.Content == ContentType.Package_Software_VersionManifest ? Hub.Node.ResourceHub.Find(Resource.Data.Parse<Urr>()) : null;

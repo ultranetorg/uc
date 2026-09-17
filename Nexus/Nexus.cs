@@ -134,7 +134,7 @@ public class Nexus : IProgram
 
 	public DeployedNode RunNode(string net)
 	{
-		net = Snq.ToCanonicalNet(net);
+		net = Net.Net.ToCanonical(net);
 
 		var node = Settings.Nodes.FirstOrDefault(i => Uccs.Net.Net.Equal(i.Net, net));
 
@@ -174,7 +174,7 @@ public class Nexus : IProgram
 
 	public byte[] Do(Snq snq, Flow flow)
 	{
-		if(snq.Net == null || snq.Net == Iccn.Root)
+		if(snq.Net == null || snq.Net == Icn.Root)
 		{
 			return RdnDo(new Ura(snq), flow);
 		}

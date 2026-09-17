@@ -29,6 +29,7 @@ public class NexusSettings : SavableSettings
 	public List<NexusSessionSettings>	Sessions { get; set; }
 	public PeeringSettings				IccpPeering { get; set; }
 	public List<DeployedNode>			Nodes { get; set; } = [];
+	public bool							FirstRun { get; set; } = true;
 
 	public static readonly IPAddress	StandardHost = new ([127, 1, 0, 0]);
 

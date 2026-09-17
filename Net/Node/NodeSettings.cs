@@ -41,7 +41,7 @@ public class NodeGlobals
 	public static bool					DumpOnError;
 	public static int					TimeoutAfterTransactingError = 1000;
 	public static bool					ThrowOnCorrupted;
-	public static bool					ForceApproveOutwards;
+	public static bool					ForceApproveOutworlds;
 	public static bool					ForceSynchronized;
 	public static bool					DumpRoundOnHashify;
 	public static Action<Peering>		NodePreRun;

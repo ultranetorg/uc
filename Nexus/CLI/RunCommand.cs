@@ -33,11 +33,11 @@ public class RunCommand : NexusCommand
 
 								Report($"UOS {nameof(Nexus)}");
 								Report($"Name    : {Cli.Nexus.Settings.Name}");
-								Report($"Version : {Cli.Nexus.Version}");
+								Report($"Version : {Assembly.GetEntryAssembly().GetName().Version}");
 								Report($"Zone    : {Cli.NexusSettings.Zone}");
 								Report($"Profile : {Cli.NexusSettings.Profile}");
 
-								Cli.InteractOrWait(b.Profile, this, a, Cli.Nexus.Flow);
+								Cli.InteractOrWait(nameof(Name).ToLowerInvariant(), b.Profile, this, a, Cli.Nexus.Flow);
 
 								Cli.Nexus.Vault.AuthenticationRequested -= OnAuth;
 								Cli.Nexus.Stop();

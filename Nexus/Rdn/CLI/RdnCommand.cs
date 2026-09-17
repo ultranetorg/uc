@@ -19,7 +19,7 @@ public abstract class RdnCommand : McvCommand
 			if(Has(IdKeyword))
 				return GetAutoId(IdKeyword);
 			else if(Has(AddressKeyword))
-				 return Ppc(new ResourceByAddressPpc(Ura.Parse(Address))).Resource.Id;
+				return Ppc(new ResourceByAddressPpc(Ura.Parse(Address))).Resource.Id;
 			else
 				throw new SyntaxException("Neither 'id' nor 'name' arguments provided");
 

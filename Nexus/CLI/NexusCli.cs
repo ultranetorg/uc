@@ -42,14 +42,6 @@ public class NexusCli : NetCli
 		Nexus = nexus;
 	}
 
-	public static void Main(string[] args)
-	{
-		Thread.CurrentThread.CurrentCulture = 
-		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
-
-		new NexusCli();
-	}
-
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
 	{
 		return CreateFromAssembly(Assembly.GetExecutingAssembly(), commnad, flow);

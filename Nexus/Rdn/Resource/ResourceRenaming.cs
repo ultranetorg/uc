@@ -31,6 +31,12 @@ public class ResourceRenaming : RdnOperation
 		if(!RequireResourceAccess(execution, Resource, out var d, out var r))
 			return;
 
+		if(r.IsLocked(execution))
+		{
+			Error = Locked;
+			return;
+		}
+
 		execution.ResourceNames.Unregister(d.Name, r.Name);
 
 		r = execution.Resources.Affect(r.Id);

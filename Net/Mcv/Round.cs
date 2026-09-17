@@ -25,18 +25,16 @@ public abstract class Round : IBinarySerializable
 	public Dictionary<int, int>[]						NextEids;
 	public ImmutableDictionary<MetaId, MetaEntity>		AffectedMetas = ImmutableDictionary<MetaId, MetaEntity>.Empty;
 	public ImmutableDictionary<AutoId, User>			AffectedUsers = ImmutableDictionary<AutoId, User>.Empty;
-	public TableState<AutoId, Friend, FriendTable>		Friends;
+	public TableState<StringId, Friend, FriendTable>	Friends;
 	public long[]										Spacetimes;
 	public long[]										Bandwidths;
 	public List<Member>									Candidates;
-	public List<OutwardTransaction>						OutwardTransactions;
+	public List<OutworldTransaction>					OutworldTransactions;
 	public OrderedDictionary<IccpTransaction, string>	IccTransactions;
 	public List<Member>									Members;
 
-	public IEnumerable<Member>							Senders => Mcv.LastConfirmedRound.Members?.Where(i => i.Since <= Id && Id <= i.Till) ?? [];
-	public IEnumerable<Member>							Voters => Id < Mcv.JoinToVote ? [new Member {Generator = AutoId.God}] 
-																						 : 
-																						 Senders.OrderByHash(i => i.Generator.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.LastConfirmedRound.Hash]).Take(Mcv.RequiredVotersMaximum);
+	public Member[]										Senders;
+	public Member[]										Voters;
 
 	public List<Vote>									Votes = [];
 	public List<AutoId>									Forkers = [];
@@ -57,13 +55,12 @@ public abstract class Round : IBinarySerializable
 	//public int											ConsensusOverloadRound;
 	public byte[][]										ConsensusIncomingTransfers;
 	public IccpTransferResult[]							ConsensusOutgoingTransfers;
-	public OutwardResult[]								ConsensusOutwards = {};
+	public OutworldResult[]								ConsensusOutworlds = {};
 
 	public bool											Confirmed = false;
 	public byte[]										Hash;
 
 	public List<PublicKey>								Funds;
-
 
 	public Mcv											Mcv;
 	public McvNet										Net => Mcv.Net;
@@ -73,6 +70,8 @@ public abstract class Round : IBinarySerializable
 	public abstract long								UserAllocationFee();
 	public virtual void									CopyConfirmed(){}
 	public virtual void									RegisterForeign(Operation operation, Time time){}
+
+	public int											MinimumForConsensus;
 
 	public Round FindParent(int level)
 	{
@@ -103,19 +102,6 @@ public abstract class Round : IBinarySerializable
 		}
 	}
 
-	public int MinimumForConsensus
-	{
-		get
-		{
-			var n = Voters.Count();
-
-			if(n == 1)	return 1;
-			if(n == 2)	return 2;
-			if(n == 4)	return 3;
-	
-			return n * 2/3;
-		}
-	}
 
 	public Round(Mcv c)
 	{
@@ -129,29 +115,18 @@ public abstract class Round : IBinarySerializable
 		return $"Id={Id}, Try={Try}, V/VoT/P={Votes.Count}({VotesOfTry.Count()}/{Payloads.Count()}), {(Confirmed ? "Confirmed, " : "")}Members={Members?.Count}, ConfirmedTime={ConsensusTime}, Hash={Hash?.ToHex()}";
 	}
 
-//	public void Update()
-//	{
-//		foreach(var i in New)
-//		{
-//			Mcv.Check(i);
-//
-//			if(i.Status == VoteStatus.OK)
-//			{	
-//				if(i.Try == Try)
-//	 			{	
-//					VotesOfTry.Add(i);
-//					
-//					if(i.Transactions.Any())
-//						Payloads.Add(i);
-//
-//					if(Id >= Mcv.JoinToVote && SelectedVoters.Any(j => j.User == i.User))
-//						SelectedArrived.Add(i);
-//				}
-//			}
-//		}
-//
-//		New.Clear();
-//	}
+	public void UpdateVoters()
+	{
+ 		Voters = [..Senders.OrderByHash(i => i.Generator.Raw, [(byte)(Try>>24), (byte)(Try>>16), (byte)(Try>>8), (byte)Try, ..Mcv.FindRound(Id - Mcv.JoinToVote).Hash]).Take(Mcv.RequiredVotersMaximum)];
+
+		MinimumForConsensus = Voters.Length switch
+											{ 
+												1 => 1,
+												2 => 2,
+												4 => 3,
+												_ => Voters.Length * 2/3
+											};
+	}
 
 	public void ReUpdate()
 	{
@@ -163,9 +138,12 @@ public abstract class Round : IBinarySerializable
 		{
 			if(i.Try == Try)
 	 		{	
-				Mcv.Check(i);
+				if(i.Generator == AutoId.God)
+					i.Status = VoteStatus.OK;
+				else
+					Mcv.Check(i);
 
-				if(i.Status == VoteStatus.OK || i.Generator == AutoId.God)
+				if(i.Status == VoteStatus.OK)
 				{	
 					VotesOfTry.Add(i);
 					
@@ -314,9 +292,9 @@ public abstract class Round : IBinarySerializable
 														 .Where(v => svotes.Count(i => i.FriendTransferConfirmations.Contains(v)) >= min)
 														 .Order().ToArray();
 
-			ConsensusOutwards = svotes	.SelectMany(i => i.OutwardResults)
+			ConsensusOutworlds = svotes	.SelectMany(i => i.OutworldResults)
 										.Distinct()
-										.Where(x => OutwardTransactions.Any(o => o.User == x.User && o.Id == x.Id) && svotes.Count(b => b.OutwardResults.Contains(x)) >= min)
+										.Where(x => OutworldTransactions.Any(o => o.User == x.User && o.Id == x.Id) && svotes.Count(b => b.OutworldResults.Contains(x)) >= min)
 										.Order().ToArray();
 
 			Elect(svotes, min);
@@ -382,7 +360,7 @@ public abstract class Round : IBinarySerializable
 		Funds				= Id == 0 ? [] : Previous.Funds;
 		Bandwidths			= Id == 0 ? [] : Previous.Bandwidths;
 		Spacetimes			= Id == 0 ? [] : Previous.Spacetimes;
-		OutwardTransactions	= Id == 0 ? [] : Previous.OutwardTransactions;
+		OutworldTransactions	= Id == 0 ? [] : Previous.OutworldTransactions;
 		IccTransactions		= Id == 0 ? [] : Previous.IccTransactions;
 		
 		NextEids = [..Mcv.Tables.Select(i => (Dictionary<int, int>)null)];
@@ -466,7 +444,7 @@ public abstract class Round : IBinarySerializable
 		Candidates			= execution.Candidates;
 		Spacetimes			= execution.Spaces;
 		Bandwidths			= execution.Bandwidths;
-		OutwardTransactions	= execution.OutwardTransactions;
+		OutworldTransactions	= execution.OutworldTransactions;
 		IccTransactions		= execution.IccTransactions;
 
 		Friends.Absorb(execution.Friends);
@@ -485,7 +463,7 @@ public abstract class Round : IBinarySerializable
 
 		Execute(ConsensusTransactions);
 
-		OutwardTransactions	= [..OutwardTransactions];
+		OutworldTransactions	= [..OutworldTransactions];
 		IccTransactions		= new(IccTransactions);
 
 		CopyConfirmed();
@@ -523,9 +501,6 @@ public abstract class Round : IBinarySerializable
 			a.AverageUptime = (a.AverageUptime + Id - i.Since)/(a.AverageUptime == 0 ? 1 : 2);
 			
 			Members.Remove(i);
-			var m = i .Clone();
-			m.Till = Id + Net.P;
-			Members.Add(m);
 
 			Mcv.Log?.Report(this, $"Left - Round {Id} - {a}");
 
@@ -533,14 +508,11 @@ public abstract class Round : IBinarySerializable
 			///	Debugger.Break();
 		}
 
-		Members.RemoveAll(i => i.Till < Id);
-
 		foreach(var i in e.Candidates.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
 		{
 			var c = e.AffectCandidate(i.Generator);
 			
 			c.Since = Id + Mcv.JoinToVote;
-			c.Till = int.MaxValue - Mcv.JoinToVote;
 			
 			e.Candidates.Remove(c);
 			Members.Add(c);
@@ -570,20 +542,32 @@ public abstract class Round : IBinarySerializable
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
-		Mcv.Tail.RemoveAll(i => i.Id < Id);
+		Mcv.Tail.RemoveAll(i => i.Id < Id - Net.P);
 		Mcv.Confirmed?.Invoke(this);
+
+		UpdateNextVoting();
+	}
+
+	public void UpdateNextVoting()
+	{
+		var r = Mcv.GetRound(Id + Mcv.JoinToVote);
+		
+		r.Senders = Id < Mcv.JoinToVote ?	[..Members]
+											:
+											[..Members.Where(i => i.Since <= Id)];
+		r.UpdateVoters();
 	}
 
 	public virtual void	ConfirmForeign(Execution execution)
 	{
-		///	var ows = Outwards.Where(i => i.Operation is IccOperation o && execution.Friends.Find(o.ToNet).OutStatus != IccTransferStatus.FormedAndPending).ToArray();
+		///	var ows = Outworlds.Where(i => i.Operation is IccOperation o && execution.Friends.Find(o.ToNet).OutStatus != IccTransferStatus.FormedAndPending).ToArray();
 
 		foreach(var txs in IccTransactions.GroupBy(i => i.Value))
 		{
 			foreach(var i in txs)
 				i.Key.OutgoingPrelock(execution);
 
-			var s = execution.Friends.Affect(txs.Key);
+			var s = execution.Friends.Affect(new StringId(txs.Key));
 
 			s.OutStatus = IccTransferStatus.FormedAndPending;
 			s.LastOutgoingTransfer = new IccpTransfer
@@ -602,7 +586,7 @@ public abstract class Round : IBinarySerializable
 					??
 					throw new ConfirmationException(this, []);
 
-			var f = execution.Friends.Affect(t.From);
+			var f = execution.Friends.Affect(new StringId(t.From));
 			f.LastIncomingTransfer = new IccpTransferResult {Hash = t.Hash, Results = new bool[t.Transactions.Length]};
 
 			for(int j = 0; j < t.Transactions.Length; j++)
@@ -618,7 +602,7 @@ public abstract class Round : IBinarySerializable
  			if(!Mcv.FriendTransferResults.TryGetValue(i, out var to))
 				throw new ConfirmationException(this, []);
 
-			var f = execution.Friends.Affect(to);
+			var f = execution.Friends.Affect(new StringId(to));
 
 			for(int j = 0; j < i.Results.Length; j++)
 			{
@@ -648,21 +632,21 @@ public abstract class Round : IBinarySerializable
 //			i.OutStatus = OutTransactionStatus.Sent;
 //		}
 
-		foreach(var i in ConsensusOutwards)
+		foreach(var i in ConsensusOutworlds)
 		{
-			var e = OutwardTransactions.Find(j => j.User == i.User && j.Id == i.Id);
+			var e = OutworldTransactions.Find(j => j.User == i.User && j.Id == i.Id);
 
 			if(i.Approved)
 			{
-				(e.Operation as IOutwardOperation).SuccessExecute(execution, e);
+				(e.Operation as IOutworldOperation).SuccessExecute(execution, e);
 			} 
 			//else
 			//	execution.AffectUser(e.Generator).AverageUptime -= 10;
 		
-			OutwardTransactions.Remove(e);
+			OutworldTransactions.Remove(e);
 		}
 
-		OutwardTransactions.RemoveAll(i => i.Expiration < execution.Time);
+		OutworldTransactions.RemoveAll(i => i.Expiration < execution.Time);
 	}
 
 	public void Hashify()
@@ -709,8 +693,8 @@ public abstract class Round : IBinarySerializable
 			foreach(var i in ConsensusOutgoingTransfers)
 				i.Dump("\t", b);
 			
-			b.AppendLine($"{nameof(ConsensusOutwards)}: ");
-			foreach(var i in ConsensusOutwards)
+			b.AppendLine($"{nameof(ConsensusOutworlds)}: ");
+			foreach(var i in ConsensusOutworlds)
 				i.Dump("\t", b);
 	
 			File.WriteAllText(Path.Join(Mcv.Databasepath, $"{Id}.r"), b.ToString());
@@ -727,7 +711,7 @@ public abstract class Round : IBinarySerializable
 
 		writer.Write(ConsensusTime);
 		writer.Write7BitEncodedInt64(ConsensusOperationCost);
-		writer.Write(OutwardTransactions);
+		writer.Write(OutworldTransactions);
 		writer.Write(IccTransactions, writer.WriteVirtual, writer.WriteASCII);
 	}
 
@@ -741,7 +725,7 @@ public abstract class Round : IBinarySerializable
 
 		ConsensusTime			= reader.Read<Time>();
 		ConsensusOperationCost	= reader.Read7BitEncodedInt64();
-		OutwardTransactions		= reader.ReadList<OutwardTransaction>();
+		OutworldTransactions		= reader.ReadList<OutworldTransaction>();
 		IccTransactions			= reader.ReadOrderedDictionary(reader.ReadVirtual<IccpTransaction>,  reader.ReadASCII);
 	}
 
@@ -757,7 +741,7 @@ public abstract class Round : IBinarySerializable
 		writer.Write(ConsensusTransactions, i => i.WriteConfirmed(writer));
 		writer.Write(ConsensusIncomingTransfers, writer.Write);
 		writer.Write(ConsensusOutgoingTransfers);
-		writer.Write(ConsensusOutwards);
+		writer.Write(ConsensusOutworlds);
 	}
 
 	public virtual void Read(Reader reader)
@@ -772,7 +756,7 @@ public abstract class Round : IBinarySerializable
 		ConsensusTransactions		= reader.Read(() =>	new Transaction {Round = this}, t => t.ReadConfirmed(reader)).ToArray();
 		ConsensusIncomingTransfers	= reader.ReadArray(reader.ReadHash);
 		ConsensusOutgoingTransfers	= reader.ReadArray<IccpTransferResult>();
-		ConsensusOutwards			= reader.ReadArray<OutwardResult>();
+		ConsensusOutworlds			= reader.ReadArray<OutworldResult>();
 	}
 
 	public void Archive()

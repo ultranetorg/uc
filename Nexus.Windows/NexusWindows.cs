@@ -50,19 +50,23 @@ public class Program: ApplicationContext
 																			var f = new IamForm(Nexus);
 																			f.Show();
 																		});
+			traymenu.Items.Add("Packages", null, (s, e) =>	{
+																var f = new PackagesForm(Nexus);
+																f.Show();
+															});
 			traymenu.Items.Add("-");
 			traymenu.Items.Add("Exit", null, (s, e) => Nexus.Stop());
 
 			Nexus.IccpLcpServer.ConnectionEstablished += c =>	{
 														 			if(c is IccpLcpConnection nc && nc.Type == IccpLcpConnectionType.Node)
 														 			{
-															 			if(nc.Net == Iccn.Root)
+															 			if(nc.Net == Icn.Root)
 															 			{
-																			var i = new ToolStripMenuItem(nc.Net, null, (s, e) =>	{
-																 																		var f = new RdnForm(Nexus.RdnNode);
-																 																		f.Show();
-																																	}
-																																	){Tag = c};
+																			var i = new ToolStripMenuItem(Rdn.Rdn.ByZone(ns.Zone).Title, null, (s, e) =>	{
+																 																								var f = new RdnForm(Nexus.RdnNode);
+																 																								f.Show();
+																																							}
+																																							){Tag = c};
 																			traymenu.Items.Insert(0, i);
 															 			} 
 															 			else
@@ -98,7 +102,6 @@ public class Program: ApplicationContext
 						};
 			#pragma warning restore WFO5001
 
-			TrayIcon.ShowBalloonTip(3000, $"Welcome to the Ultranet {b.Zone} Zone", "Click the tray icon to manage your identity and activity", ToolTipIcon.Info);
 			
 			TrayIcon.BalloonTipClicked += (o, a) => new IamForm(Nexus).Show();
 			TrayIcon.DoubleClick += (s, e) => {};
@@ -110,11 +113,19 @@ public class Program: ApplicationContext
 
 			f.Log.Report($"{nameof(Nexus.Vault.Settings.CreateFirstKeyIfEmpty)}={Nexus.Vault.Settings.CreateFirstKeyIfEmpty} && {nameof(Nexus.Vault.Wallets)}={Nexus.Vault.Wallets.Count}");
 
-			if(Nexus.Vault.Settings.CreateFirstKeyIfEmpty && !Nexus.Vault.Wallets.Any())
+			if(ns.FirstRun)
 			{
-				var iam = new IamForm(Nexus);
-				iam.CreateFirstWallet();
-				iam.Show();
+				TrayIcon.ShowBalloonTip(3000, $"Welcome to the Ultranet {b.Zone} Zone", "Click the tray icon to manage your identity and activity", ToolTipIcon.Info);
+
+				ns.FirstRun = false;
+				ns.Save();
+
+				if(Nexus.Vault.Settings.CreateFirstKeyIfEmpty && !Nexus.Vault.Wallets.Any())
+				{
+					var iam = new IamForm(Nexus);
+					iam.CreateFirstWallet();
+					iam.Show();
+				}
 			}
 		}
 

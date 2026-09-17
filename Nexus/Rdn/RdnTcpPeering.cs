@@ -32,7 +32,7 @@ public class RdnTcpPeering : McvPeering
 
 	public override bool ValidateIncoming(Operation o)
 	{
-		/// TODO: remake as async
+		/// TODO Maximion: remake as async
 		/// if(o is DomainMigration m && !Node.IsWebdomainOwner($"{m.Name}.{m.Tld}", ))
 		/// 	return false;
 

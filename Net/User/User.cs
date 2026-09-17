@@ -161,7 +161,7 @@ public class User : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, ISp
 	public PublicKey		Key { get; set; }
 	//public Permission[]		Permissions { get; set; }
 	public int				LastNonce { get; set; } = -1;
-	public int				LastOutward { get; set; } = -1;
+	public int				LastOutworld { get; set; } = -1;
 	public long				AverageUptime { get; set; }
 	
 	public long				Spacetime { get; set; }
@@ -220,7 +220,7 @@ public class User : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, ISp
 
 		writer.Write7BitEncodedInt64(Spacetime);
 		writer.Write7BitEncodedInt(LastNonce);
-		writer.Write7BitEncodedInt(LastOutward);
+		writer.Write7BitEncodedInt(LastOutworld);
 		writer.Write7BitEncodedInt64(AverageUptime);
 
 		(this as IEnergyHolder).WriteEnergyHolder(writer);
@@ -235,7 +235,7 @@ public class User : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, ISp
 
 		Spacetime 			= reader.Read7BitEncodedInt64();
 		LastNonce			= reader.Read7BitEncodedInt();
-		LastOutward			= reader.Read7BitEncodedInt();
+		LastOutworld			= reader.Read7BitEncodedInt();
 		AverageUptime		= reader.Read7BitEncodedInt64();
 
 		(this as IEnergyHolder).ReadEnergyHolder(reader);
@@ -260,7 +260,7 @@ public class User : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, ISp
 		a.Key					= Key;
 		a.Spacetime				= Spacetime;
 		a.LastNonce				= LastNonce;
-		a.LastOutward			= LastOutward;
+		a.LastOutworld			= LastOutworld;
 		a.AverageUptime			= AverageUptime;
 
 		(this as IEnergyHolder).Copy(a);

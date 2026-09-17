@@ -79,7 +79,7 @@ public class RdnExecution : Execution
 		return 10_000_000 * years / (l * l * l * l);
 	}
 
-	public void PayOutwardEnergy(IEnergyHolder spender)
+	public void PayOutworldEnergy(IEnergyHolder spender)
 	{
 		PayEnergy(spender, Net.MigrationEnergyCost);
 	}

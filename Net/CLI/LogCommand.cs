@@ -4,6 +4,10 @@ namespace Uccs.Net;
 
 public class LogCommand : McvCommand
 {
+	public LogCommand()
+	{
+	}
+
 	public LogCommand(McvCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
 	}

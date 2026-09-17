@@ -7,14 +7,6 @@ public class FairCli : McvCli
 	public override JsonApiClient	Api => _Api ??= new FairApiClient(Settings.Api.LocalNodeAddress(Net));
 	JsonApiClient					_Api;
 
-	static void Main(string[] args)
-	{
-		Thread.CurrentThread.CurrentCulture = 
-		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
-
-		new FairCli();
-	}
-
 	public FairCli()
 	{
 		Boot = new NetBoot(ExeDirectory);

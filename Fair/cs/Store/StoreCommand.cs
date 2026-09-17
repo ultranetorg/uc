@@ -19,9 +19,12 @@ public class StoreCommand : FairCommand
 		}
 	}
 
+	public StoreCommand()
+	{
+	}
+
 	public StoreCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-
 	}
 
 	public CommandAction Create_C()

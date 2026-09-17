@@ -20,9 +20,12 @@ public class AuthorCommand : FairCommand
 		}
 	}
 
+	public AuthorCommand()
+	{
+	}
+
 	public AuthorCommand(FairCli program, List<Xon> args, Flow flow) : base(program, args, flow)
 	{
-
 	}
 
 	public CommandAction Create_C()

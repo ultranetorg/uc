@@ -6,12 +6,12 @@ namespace Uccs.Net;
 public enum Zone : ushort
 {
 	None, 
-	Simulation	= 02_00_0, 
-	Virtual		= 03_00_0, 
-	TA			= 04_00_0,
-	Main		= 10_00_0,
-	Test		= 11_00_0,
-	Developer0	= 12_00_0,
+	Simulation	= 02_000, 
+	Virtual		= 03_000, 
+	TA			= 04_000,
+	Main		= 10_000,
+	Test		= 11_000,
+	Developer0	= 50_000,
 }
 
 public enum KnownProtocol : ushort
@@ -32,13 +32,15 @@ public class Port
 
 public abstract class Net
 {
-	public const string					Postfix = $".{Iccn.Root}";
+	public const string					Postfix = $".{Icn.Root}";
 
 	public abstract string				Address { get; }
 	public abstract string				Name { get; }
+	public abstract string				Title { get; }
 	public abstract	Zone				Zone { get; }
 	public abstract ushort				PpiPort { get; }
 	public abstract ushort				ApiPort { get; }
+	public Constructor					Constructor = new ();
 
 	public IPAddress[]					Initials;
 	public static readonly IPAddress[]	UOInitials = @" 78.47.204.100	
@@ -74,13 +76,20 @@ public abstract class Net
 																//new([192, 168, 88, 114]),
 																//new([192, 168, 88, 115]),
 															];
-
-	public Constructor					Constructor = new ();
-
-
 	public override string ToString()
 	{
 		return Address;
+	}
+
+	public static string ToCanonical(string address)
+	{
+		if(address == Icn.Root || address == null || address == string.Empty)
+			return Icn.Root;
+
+ 		if(!address.EndsWith(Postfix))
+			return $"{address}{Postfix}";
+
+		return address;
 	}
 
 	public static string Escape(string path)
@@ -96,10 +105,10 @@ public abstract class Net
 	public static bool Equal(string x, string y)
 	{
 		if(x == null || x == string.Empty)
-			x = Iccn.Root;
+			x = Icn.Root;
 
 		if(y == null || y == string.Empty)
-			y = Iccn.Root;
+			y = Icn.Root;
 
 		var i = x.LastIndexOf(Postfix, StringComparison.InvariantCultureIgnoreCase);
 		var j = y.LastIndexOf(Postfix, StringComparison.InvariantCultureIgnoreCase);
@@ -120,7 +129,7 @@ public abstract class McvNet : Net
 	public const long							IdealRoundsPerDay						= IdealRoundsPerSecond * 60*60*24;
 	public const int							BandwidthRentMonthsMaximum				= 12;
 	public const int							BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
-	public const int							OutwardsMaximum							= 1000;
+	public const int							OutworldTransactionsMaximum							= 1000;
 	public const int							PoWLength								= 32;
 	public virtual int							FreeSpaceMaximum						=> 0;
 	public Time									ECLifetime								= Time.FromYears(1);
@@ -129,7 +138,7 @@ public abstract class McvNet : Net
 
  	public Cryptography							Cryptography							= Cryptography.Mcv;
 	public int									AffectedCountMaximum					= 100_000;
-	public Time									OutwardVerificationDurationLimit		= Time.FromHours(1);
+	public Time									OutworldVerificationDurationLimit		= Time.FromHours(1);
 	public int									MembersLimit							= 1000;
 	public long									CandidatesMaximum						= 1000 * 10;
 	

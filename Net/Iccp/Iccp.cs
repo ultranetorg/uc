@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace Uccs.Net;
 
-public abstract class Iccn
+public abstract class Icn
 {
-	public const string			Root = "rdn";
+	public const string			Root = "@";
 	public static ushort		Port(Zone zone) => Uccs.Net.Port.Map(zone, KnownProtocol.Iccp);
 }
 

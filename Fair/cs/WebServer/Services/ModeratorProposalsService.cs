@@ -237,7 +237,7 @@ public class ModeratorProposalsService
 	ModeratorProposalModel CreateModeratorProposalModel(Proposal proposal, Store store)
 	{
 		Author author = mcv.Authors.Latest(proposal.By);
-		FairUser by = (FairUser) mcv.Users.Latest(author.Owners[0]); // TODO: handle multiple Authors.
+		FairUser by = (FairUser) mcv.Users.Latest(author.Owners[0]); // TODO Elwray: handle multiple Authors.
 
 		if(proposal.Options[0].Operation is StoreModeratorAddition addition)
 		{

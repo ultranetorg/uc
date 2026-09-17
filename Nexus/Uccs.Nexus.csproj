@@ -9,9 +9,9 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <AnalysisLevel>none</AnalysisLevel>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyVersion>1.0.1079.0</AssemblyVersion>
-    <FileVersion>1.0.1079.0</FileVersion>
-    <Version>1.0.1079.0</Version>
+    <Version>0.0.1006.0</Version>
+    <FileVersion>0.0.1006.0</FileVersion>
+    <AssemblyVersion>0.0.1006.0</AssemblyVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>

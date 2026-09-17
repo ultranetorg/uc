@@ -44,7 +44,7 @@ public abstract class Cli
 	{
 		var t = commnad.First().Name;
 		var args = commnad.Skip(1).ToList();
-		var ct = assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.ToLower() == t + nameof(Command).ToLower());
+		var ct = assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.Equals(t + nameof(Command), StringComparison.InvariantCultureIgnoreCase));
 
 		return ct?.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
 	}
@@ -111,13 +111,13 @@ public abstract class Cli
 		LogView.StopListening();
 	}
 
-	public virtual void InteractOrWait(string profile, Command command, CommandAction action, Flow flow)
+	public virtual void InteractOrWait(string prompt, string profile, Command command, CommandAction action, Flow flow)
 	{
 		if(ConsoleAvailable)
 		{
 			while(flow.Active)
 			{
-				Console.Write($"> ");
+				Console.Write($"{prompt}> ");
 
 				var x = new Xon(Console.ReadLine());
 
@@ -159,7 +159,7 @@ public abstract class Cli
 			{
 				c.Report(string.Join(", ", i.Names));
 				c.Report("");
-				c.Report("   Syntax      : " + i.Syntax);
+				c.Report("   Syntax      : " + i.CreateSyntax());
 				c.Report("   Description : " + i.Description);
 				c.Report("");
 			}
@@ -176,7 +176,7 @@ public abstract class Cli
 
 			c.Report("Syntax :");
 			c.Report("");
-			c.Report("   " + a.Syntax);
+			c.Report("   " + a.CreateSyntax());
 
 			c.Report("");
 
