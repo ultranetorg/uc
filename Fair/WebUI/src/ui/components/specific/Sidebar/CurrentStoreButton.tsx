@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { useUserContext } from "app"
+import { useUserContext, usePendingOperationsContext } from "app"
 import { SvgStar } from "assets"
 import { SvgStoreLogo } from "assets/fallback"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -21,16 +21,13 @@ export interface CurrentStoreProps {
 export const CurrentStore = memo(({ storeId, title, logoFileId, publishersCount }: CurrentStoreProps) => {
   const { t } = useTranslation()
 
-  const { mutate } = useTransactMutationWithStatus()
+  const { mutate, isPending } = useTransactMutationWithStatus()
   const { user, refetch } = useUserContext()
+  const { setFavorite, clearFavorite } = usePendingOperationsContext()
 
   const transactOperation = useCallback(
     (action: boolean) => {
-      if (action) {
-        //setShowPending(true)
-      }
-
-      //setDisabledIds(prev => [...prev, id])
+      setFavorite({ id: storeId, title, imageFileId: logoFileId }, action)
 
       const operation = new FavoriteStoreChange(storeId, action)
       mutate(operation, {
@@ -43,14 +40,13 @@ export const CurrentStore = memo(({ storeId, title, logoFileId, publishersCount 
         onError: err => {
           showToast(err.toString(), "error")
         },
-        onSettled: () => {
-          //setDisabledIds(() => [])
-          //setShowPending(false)
-          refetch()
+        onSettled: async () => {
+          await refetch()
+          clearFavorite(storeId)
         },
       })
     },
-    [mutate, refetch, storeId, t, title],
+    [setFavorite, storeId, title, logoFileId, mutate, t, refetch, clearFavorite],
   )
 
   const handleFavoriteAdd = useCallback(() => transactOperation(true), [transactOperation])
@@ -78,13 +74,16 @@ export const CurrentStore = memo(({ storeId, title, logoFileId, publishersCount 
           </span>
         </div>
       </Link>
-      <SvgStar
-        className={twMerge(
-          "size-5 shrink-0 cursor-pointer stroke-gray-400 hover:fill-favorite hover:stroke-favorite",
-          isInFavorites && "fill-favorite stroke-favorite hover:fill-transparent hover:stroke-gray-400",
-        )}
-        onClick={isInFavorites ? handleFavoriteRemove : handleFavoriteAdd}
-      />
+      {user && (
+        <SvgStar
+          className={twMerge(
+            "size-5 shrink-0 stroke-gray-400 hover:fill-favorite hover:stroke-favorite",
+            isInFavorites && "fill-favorite stroke-favorite hover:fill-transparent hover:stroke-gray-400",
+            !isPending ? "cursor-pointer" : "animate-pulse",
+          )}
+          onClick={!isPending ? (isInFavorites ? handleFavoriteRemove : handleFavoriteAdd) : undefined}
+        />
+      )}
     </div>
   )
 })

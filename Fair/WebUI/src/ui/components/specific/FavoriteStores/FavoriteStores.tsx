@@ -10,16 +10,17 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { useUserContext } from "app"
+import { usePendingOperationsContext, useUserContext } from "app"
 import { SvgChevronDown } from "assets"
 
 import { FavoriteStoreItem } from "./FavoriteStoreItem"
 import { FavoriteStoresMenu } from "./FavoriteStoresMenu/FavoriteStoresMenu"
 
-const MAX_VISIBLE_ITEMS = 4
+const MAX_VISIBLE_ITEMS = 12
 
 export const FavoriteStores = () => {
   const { user } = useUserContext()
+  const { favoritesChanges } = usePendingOperationsContext()
 
   const [isOpen, setOpen] = useState(false)
 
@@ -39,13 +40,25 @@ export const FavoriteStores = () => {
 
   if (!user) return null
 
-  const visibleItems = user.favoriteStores.slice(0, MAX_VISIBLE_ITEMS)
+  const pendingChanges = Object.values(favoritesChanges)
+  const pendingAdditions = pendingChanges.filter(
+    x => x.action && !user.favoriteStores.some(store => store.id === x.store.id),
+  )
+
+  const allItems = [...user.favoriteStores, ...pendingAdditions.map(x => x.store)]
+  const visibleItems = allItems.slice(0, MAX_VISIBLE_ITEMS)
 
   return (
     <>
       <div className="flex items-center gap-2" ref={refs.setPositionReference}>
         {visibleItems.map(x => (
-          <FavoriteStoreItem key={x.id} storeId={x.id} name={x.title} logoId={x.imageFileId} />
+          <FavoriteStoreItem
+            key={x.id}
+            storeId={x.id}
+            name={x.title}
+            logoId={x.imageFileId}
+            isPending={!!favoritesChanges[x.id]}
+          />
         ))}
         <div
           className="flex size-8 cursor-pointer items-center justify-center rounded bg-gray-600 hover:bg-gray-550"

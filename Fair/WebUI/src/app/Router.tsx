@@ -5,6 +5,7 @@ import { IndexPage } from "ui/pages"
 
 import { AuthenticationProvider } from "./AuthenticationProvider"
 import { EntityRoute } from "./EntityRoute"
+import { PendingOperationsProvider } from "./PendingOperationsProvider"
 import { RouteErrorBoundary } from "./RouteErrorBoundary"
 import { SignInProvider } from "./SignInProvider"
 import { StorePoliciesProvider } from "./StorePoliciesProvider"
@@ -21,9 +22,11 @@ const routes: RouteObject[] = [
       <AuthenticationProvider>
         <SignInProvider>
           <UserProvider>
-            <StoreProvider>
-              <Outlet />
-            </StoreProvider>
+            <PendingOperationsProvider>
+              <StoreProvider>
+                <Outlet />
+              </StoreProvider>
+            </PendingOperationsProvider>
           </UserProvider>
         </SignInProvider>
       </AuthenticationProvider>
