@@ -5,7 +5,7 @@ using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
-public enum DependencyNeed
+public enum DependencyNeed : byte
 {
 	None, Critical, Deferred
 }
@@ -18,8 +18,9 @@ public enum DependencyFlag : byte
 	AutoUpdateAllowed	= 0b0000_0010,
 }
 
-public class Dependency : IEquatable<Dependency>
+public class Dependency : IEquatable<Dependency>, IBinarySerializable
 {
+	public AutoId			Id { get; set; }
 	public Ura				Address { get; set; }
 	public DependencyNeed	Need { get; set; }
 	public DependencyFlag	Flags { get; set; }
@@ -29,19 +30,19 @@ public class Dependency : IEquatable<Dependency>
 		return $"{Address}, {Need}, {Flags}";
 	}
 
-	//public void Read(Reader reader)
-	//{
-	//	Package = reader.Read<Ura>();
-	//	Type = (DependencyType)reader.ReadByte();
-	//	Flags = (DependencyFlag)reader.ReadByte();
-	//}
-	//
-	//public void Write(Writer writer)
-	//{
-	//	writer.Write(Package);
-	//	writer.Write((byte)Type);
-	//	writer.Write((byte)Flags);
-	//}
+	public void Read(Reader reader)
+	{
+		Id		= reader.Read<AutoId>();
+		Need	= reader.Read<DependencyNeed>();
+		Flags	= reader.Read<DependencyFlag>();
+	}
+	
+	public void Write(Writer writer)
+	{
+		writer.Write(Id);
+		writer.Write(Need);
+		writer.Write(Flags);
+	}
 
 	public override bool Equals(object obj)
 	{
@@ -104,12 +105,29 @@ public enum ParentPackageFlag : byte
 	Software_Compatible	= 0b0000_0001,
 }
 
-public class ParentPackage
+public class ParentPackage : IBinarySerializable
 {
+	public AutoId				Id { get; set; }
 	public Ura					Address { get; set; }
 	public ParentPackageFlag	Flags { get; set; }
 	public Dependency[]			AddedDependencies { get; set; }
 	public Dependency[]			RemovedDependencies { get; set; }
+
+	public void Write(Writer w)
+	{
+		w.Write(Id);
+		w.Write(Flags);
+		w.Write(AddedDependencies);
+		w.Write(RemovedDependencies);
+	}
+	
+	public void Read(Reader r)
+	{						
+		Id					= r.Read<AutoId>();
+		Flags				= r.Read<ParentPackageFlag>();
+		AddedDependencies	= r.ReadArray<Dependency>();
+		RemovedDependencies = r.ReadArray<Dependency>();
+	}
 
 	public static ParentPackage FromXon(Xon xon)
 	{
@@ -134,23 +152,9 @@ public class ParentPackage
 
 		return x;
 	}
-
-	//public void Write(Writer w)
-	//{
-	//	w.Write(Release);
-	//	w.Write(AddedDependencies);
-	//	w.Write(RemovedDependencies);
-	//}
-	//
-	//public void Read(Reader r)
-	//{						
-	//	Release				= r.Read<Ura>();
-	//	AddedDependencies	= r.ReadArray<Dependency>();
-	//	RemovedDependencies = r.ReadArray<Dependency>();
-	//}
 }
 
-public class Start// : IBinarySerializable
+public class Start : IBinarySerializable
 {
 	public string		Path { get; set; }
 	public string		Arguments { get; set; }
@@ -161,17 +165,19 @@ public class Start// : IBinarySerializable
 		return $"{Path}, {Arguments}";
 	}
 
-	//public void Read(Reader reader)
-	//{
-	//	Path = reader.ReadUtf8();
-	//	Arguments = reader.ReadUtf8();
-	//}
-	//
-	//public void Write(Writer writer)
-	//{
-	//	writer.WriteUtf8(Path);
-	//	writer.WriteUtf8(Arguments);
-	//}
+	public void Read(Reader reader)
+	{
+		Path		= reader.ReadUtf8();
+		Arguments	= reader.ReadUtf8();
+		Condition	= reader.ReadNullable<Expression>();
+	}
+	
+	public void Write(Writer writer)
+	{
+		writer.WriteUtf8(Path);
+		writer.WriteUtf8(Arguments);
+		writer.WriteNullable(Condition);
+	}
 
 	public static Start FromXon(Xon x)
 	{
@@ -203,7 +209,7 @@ public enum PackageFlag : byte
 	Deprecated		= 0b0000_0001, 
 }
 
-public class PackageManifest
+public class PackageManifest : IBinarySerializable
 {
 	public const string				Extension = "rdnpm";
 
@@ -213,26 +219,44 @@ public class PackageManifest
 	public ParentPackage[]			Parents { get; set; }
 	public Start[]					Start { get; set; }
 
-	public Start					MatchExecution(Platform platform) => Start.FirstOrDefault(i => i.Condition.Match(platform)); 
-
 	[JsonIgnore]
 	public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical);
 
-  		public byte[] Raw
+	public Start					MatchExecution(Platform platform) => Start.FirstOrDefault(i => i.Condition.Match(platform)); 
+
+  	public byte[] Raw
+  	{
+  		get
   		{
-  			get
-  			{
- 	 			var s = new MemoryStream();
+ 	 		var s = new MemoryStream();
  	 	
-				ToXon(new NetXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
+			ToXon(new NetXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
 	
- 	 			return s.ToArray();
-  			}
+ 	 		return s.ToArray();
   		}
+  	}
 
 	public PackageManifest()
 	{
   	}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(CompleteHash);
+		writer.Write(CompleteDependencies);
+		writer.Write(IncrementalHash);
+		writer.Write(Parents);
+		writer.Write(Start);
+	}
+
+	public void Read(Reader reader)
+	{
+		CompleteHash			= reader.ReadHash();
+		CompleteDependencies	= reader.ReadArray<Dependency>();
+		IncrementalHash			= reader.ReadHash();
+		Parents					= reader.ReadArray<ParentPackage>();
+		Start					= reader.ReadArray<Start>();
+	}
 
 	public Start MatchExecution(Family family)
 	{ 
