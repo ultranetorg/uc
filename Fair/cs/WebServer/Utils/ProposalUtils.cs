@@ -43,7 +43,7 @@ public static class ProposalUtils
 			StoreAvatarChange operation => new StoreAvatarChangeModel(operation),
 			StoreModeratorAddition operation => CreateStoreModeratorAdditionModel(mcv, operation),
 			StoreModeratorRemoval operation => CreateStoreModeratorRemovalModel(mcv, operation),
-			StoreRenaming operation => CreateStoreNameChangeModel(operation),
+			StoreRenaming operation => CreateStoreRenamingModel(operation),
 			StoreInfoUpdation operation => new StoreInfoUpdationModel(operation),
 			UserUnregistration operation => new UserUnregistrationModel(operation),
 			UserRegistration operation => new UserRegistrationModel(operation),
@@ -121,9 +121,9 @@ public static class ProposalUtils
 		};
 	}
 
-	static StoreNameChangeModel CreateStoreNameChangeModel(StoreRenaming operation)
+	static StoreRenamingModel CreateStoreRenamingModel(StoreRenaming operation)
 	{
-		return new StoreNameChangeModel(operation, operation.Store.Name);
+		return new StoreRenamingModel(operation, operation.Store.Name);
 	}
 
 	static PublicationPublishModel CreatePublicationPublishModel(FairMcv mcv, PublicationPublish operation)

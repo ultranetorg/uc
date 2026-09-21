@@ -31,14 +31,14 @@ export const useModerationDropdownButtonMenuItems = (storeId: string): SimpleMen
             },
           ]
         : []),
-      ...(isModeratorVoting("store-name-change", policies)
+      ...(isModeratorVoting("store-renaming", policies)
         ? [
             {
               label: t("nameChange"),
               to: routes.moderation.createProposal(storeId),
               state: {
-                title: `Change store name`,
-                type: "store-name-change",
+                title: `Rename store`,
+                type: "store-renaming",
                 storeId: storeId,
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(storeId),

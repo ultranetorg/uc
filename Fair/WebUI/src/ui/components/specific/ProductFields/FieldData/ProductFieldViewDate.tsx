@@ -1,15 +1,9 @@
 import { memo } from "react"
 
-import { formatSecDate } from "utils"
+import { formatDate } from "utils"
 
 import { ProductFieldViewProp } from "./types"
-
-function getAdded(value: unknown) {
-  return <div className="text-green-700">{formatSecDate(Number(value))}</div>
-}
-function getRemoved(value: unknown) {
-  return <div className="text-red-500 line-through opacity-75">{formatSecDate(Number(value))}</div>
-}
+import { getAdded, getRemoved } from "./utils"
 
 export const ProductFieldViewDate = memo(({ value, oldValue, status }: ProductFieldViewProp) => {
   switch (status) {
@@ -28,7 +22,7 @@ export const ProductFieldViewDate = memo(({ value, oldValue, status }: ProductFi
       )
     }
     default: {
-      return <div>{formatSecDate(Number(value))}</div>
+      return <div>{formatDate(Number(value))}</div>
     }
   }
 })

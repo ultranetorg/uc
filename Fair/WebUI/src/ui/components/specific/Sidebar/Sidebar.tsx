@@ -26,7 +26,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
   }
 
   return (
-    <div className={twMerge("flex w-65 flex-col gap-8 p-6", className)}>
+    <div className={twMerge("flex w-65 min-w-65 max-w-65 shrink-0 flex-col gap-8 p-6", className)}>
       <CurrentStore
         storeId={store.id}
         title={store.title}

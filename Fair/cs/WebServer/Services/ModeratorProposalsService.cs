@@ -330,7 +330,7 @@ public class ModeratorProposalsService
 
 		return new UserUnregistrationProposalModel(proposal, by)
 		{
-			UserId = userToUnregister.Id.ToString(),
+			UserId = userToUnregister.Id,
 			UserName = userToUnregister.Name
 		};
 	}

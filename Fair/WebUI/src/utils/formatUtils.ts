@@ -1,10 +1,7 @@
-import dayjs from "dayjs"
 import { TFunction } from "i18next"
 import { capitalize } from "lodash"
 
-import { START_DATE } from "config"
 import { BaseVotableOperation } from "types"
-import { getHoursPassedFromStart } from "./dateUtils"
 
 const OS_DIVIDER = " | "
 const ROLES_DELIMITER = ", "
@@ -23,8 +20,8 @@ export const formatNabb = (t: TFunction, neither: number, any: number, ban: numb
 export const formatNabbShort = (neither: number, any: number, ban: number, banish: number) =>
   `${neither} / ${any} / ${ban} / ${banish}`
 
-export const formatDate = (hours: number): string =>
-  dayjs(START_DATE).add(hours, "hour").startOf("day").format("DD.MM.YYYY")
+export const formatDate = (seconds: number): string =>
+  new Intl.DateTimeFormat(undefined).format(new Date(Date.UTC(2026, 0, 1) + seconds * 1000))
 
 export const formatSupportedPlatforms = (platforms: string[]): string => platforms.join(" / ")
 
@@ -35,10 +32,6 @@ const languageNames = new Intl.DisplayNames(["en"], {
 export const formatUiLanguages = (languages: string[]): string => languages.map(x => languageNames.of(x)).join(", ")
 
 export const formatLanguage = (language: string): string | undefined => languageNames.of(language)
-
-export function formatSecDate(seconds: number) {
-  return dayjs(START_DATE).add(seconds, "seconds").startOf("day").format("DD.MM.YYYY")
-}
 
 export const formatDuration = (t: TFunction, durationInHours: number): string => {
   const HOURS_IN_DAY = 24
@@ -70,12 +63,6 @@ export const formatDuration = (t: TFunction, durationInHours: number): string =>
   }
 
   return t("date:hour", { count: Math.floor(durationInHours) })
-}
-
-export const formatLastsFor = (t: TFunction, creationTime: number) => {
-  const hoursPassed = getHoursPassedFromStart()
-  const hoursDuration = hoursPassed - creationTime
-  return formatDuration(t, hoursDuration)
 }
 
 export const formatOption = (option: BaseVotableOperation, t: TFunction) => {

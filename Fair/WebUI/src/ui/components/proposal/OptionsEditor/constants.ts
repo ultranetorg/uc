@@ -205,7 +205,7 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "store-name-change",
+      operationType: "store-renaming",
       fields: [
         {
           valueType: "string",

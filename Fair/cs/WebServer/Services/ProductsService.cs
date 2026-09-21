@@ -52,15 +52,15 @@ public class ProductsService
 
 		return new ProductDetailsModel
 		{
-			Id = product.Id.ToString(),
+			Id = product.Id,
 			Type = product.Type,
 			Title = PublicationUtils.GetLatestTitle(product),
-			LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
-			Updated = product.Updated.Hours,
+			LogoId = PublicationUtils.GetLatestLogo(product),
+			Updated = product.Updated,
 			Fields = productFields,
-			AuthorId = author.Id.ToString(),
+			AuthorId = author.Id,
 			AuthorTitle = author.Title,
-			AuthorLogoId = author.Avatar?.ToString()
+			AuthorLogoId = author.Avatar,
 		};
 	}
 
@@ -97,15 +97,15 @@ public class ProductsService
 
 		return new PublicationDetailsDiffModel
 		{
-			Id = publication.Id.ToString(),
+			Id = publication.Id,
 			Type = product.Type,
 			Title = product.Title,
-			LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
-			Updated = product.Updated.Hours,
+			LogoId = PublicationUtils.GetLogo(publication, product),
+			Updated = product.Updated,
 			Fields = fields,
-			AuthorId = author.Id.ToString(),
+			AuthorId = author.Id,
 			AuthorTitle = author.Title,
-			AuthorLogoId = author.Avatar?.ToString(),
+			AuthorLogoId = author.Avatar,
 			Path = path,
 			Rating = publication.Rating,
 			FieldsTo = fieldsTo
@@ -151,10 +151,10 @@ public class ProductsService
 
 			var model = new ProductStoreModel
 			{
-				StoreId = store.Id.ToString(),
-				PublicationId = publication.Id.ToString(),
+				StoreId = store.Id,
+				PublicationId = publication.Id,
 				Title = store.Title,
-				AvatarId = store.Avatar?.ToString()
+				AvatarId = store.Avatar
 			};
 			result.Add(model);
 		}
@@ -211,8 +211,8 @@ public class ProductsService
 			Store store = mcv.Stores.Latest(publication.Store);
 			yield return new ProductPublicationModel
 			{
-				PublicationId = publication.Id.ToString(),
-				StoreId = store.Id.ToString(),
+				PublicationId = publication.Id,
+				StoreId = store.Id,
 				StoreTitle = store.Title,
 				Rating = publication.Rating,
 			};

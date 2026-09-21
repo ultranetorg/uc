@@ -2,7 +2,7 @@
 
 public class PublicationUpdationModel(PublicationUpdation operation) : BaseVotableOperationModel(operation)
 {
-	public string PublicationId { get; set; } = operation.Publication.ToString();
+	public AutoId PublicationId { get; set; } = operation.Publication;
 
 	public int Version { get; set; } = operation.Version;
 }

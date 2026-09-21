@@ -63,8 +63,8 @@ public class StoresService
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		IEnumerable<string> moderatorsIds = store.Moderators.Where(x => x.BannedTill.Days == 0).Select(x => x.User.ToString());
-		IEnumerable<string> authorsIds = store.Publishers.Where(x => x.BannedTill.Days == 0).Select(x => x.Author.ToString());
+		IEnumerable<AutoId> moderatorsIds = store.Moderators.Where(x => x.BannedTill == Time.Zero).Select(x => x.User);
+		IEnumerable<AutoId> authorsIds = store.Publishers.Where(x => x.BannedTill == Time.Zero).Select(x => x.Author);
 
 		return new StoreModel(store)
 		{

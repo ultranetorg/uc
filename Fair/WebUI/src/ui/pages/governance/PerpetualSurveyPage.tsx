@@ -37,7 +37,7 @@ export const PerpetualSurveyPage = () => {
   const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
     () => ({
       "store-avatar-change": [storesKeys.policies(storeId!)],
-      "store-name-change": [storesKeys.policies(storeId!)],
+      "store-renaming": [storesKeys.policies(storeId!)],
       "store-info-updation": [storesKeys.policies(storeId!)],
     }),
     [storeId],

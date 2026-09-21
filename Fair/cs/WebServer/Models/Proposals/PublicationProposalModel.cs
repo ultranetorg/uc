@@ -2,11 +2,11 @@
 
 public class PublicationProposalModel(Proposal proposal, FairUser by, Product product, Author author, PublicationImageBaseModel? publication = null) : ProposalModel(proposal, by)
 {
-	public int UpdationTime { get; } = product.Updated.Days;
+	public Time Updated { get; } = product.Updated;
 
 	public PublicationImageBaseModel Publication { get; } = publication;
 
-	public string AuthorId { get; } = author.Id.ToString();
+	public AutoId AuthorId { get; } = author.Id;
 	public string AuthorTitle { get; } = author.Title;
-	public string? AuthorLogoId { get; } = author.Avatar?.ToString();
+	public AutoId? AuthorLogoId { get; } = author.Avatar;
 }

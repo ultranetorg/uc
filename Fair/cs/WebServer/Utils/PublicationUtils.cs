@@ -23,7 +23,7 @@ public static class PublicationUtils
 	public static string GetUrl(Publication publication)
 	{
 		// TODO Elwray: implement method.
-		return "https://google.com/publications/" + publication.Id.ToString();
+		return "https://google.com/publications/" + publication.Id;
 	}
 
 	public static IEnumerable<CategoryPathItem> BuildPath(FairMcv mcv, Category category)
@@ -32,7 +32,7 @@ public static class PublicationUtils
 		{
 			yield return new CategoryPathItem
 			{
-				Id = category.Id.ToString(),
+				Id = category.Id,
 				Title = category.Title
 			};
 

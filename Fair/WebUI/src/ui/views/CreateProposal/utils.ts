@@ -55,7 +55,7 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
       return { candidates: mapUsersToIds(option.moderators) }
     case "store-moderator-removal":
       return { moderator: mapUsersToIds(option.moderators)[0] }
-    case "store-name-change":
+    case "store-renaming":
       return { name: option.name }
     case "store-info-updation":
       return { title: option.storeTitle, slogan: option.slogan, description: option.description }

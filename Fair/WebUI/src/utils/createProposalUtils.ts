@@ -18,7 +18,7 @@ const operationTypeToFairOperationTypeMap: Record<OperationType, string> = {
   "store-avatar-change": "StoreAvatarChange",
   "store-moderator-addition": "StoreModeratorAddition",
   "store-moderator-removal": "StoreModeratorRemoval",
-  "store-name-change": "StoreNameChange",
+  "store-renaming": "StoreRenaming",
   "store-info-updation": "StoreInfoUpdation",
   "user-registration": "UserRegistration",
   "user-unregistration": "UserUnregistration",

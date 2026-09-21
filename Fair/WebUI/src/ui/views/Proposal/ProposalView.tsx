@@ -72,7 +72,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       "store-authors-removal": [storesKeys.publishers(storeId!), proposalsKeys.publishers(storeId!)],
 
       "store-avatar-change": [storesKeys.detail(storeId!)],
-      "store-name-change": [storesKeys.detail(storeId!)],
+      "store-renaming": [storesKeys.detail(storeId!)],
       "store-info-updation": [storesKeys.detail(storeId!)],
 
       "category-creation": [categoriesKeys.all(storeId!)],

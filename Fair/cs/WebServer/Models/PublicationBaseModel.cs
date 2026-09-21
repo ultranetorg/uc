@@ -5,12 +5,12 @@ namespace Uccs.Fair;
 public class PublicationBaseModel
 {
 	[JsonPropertyOrder(-2)]
-	public string Id { get; set; }
+	public AutoId Id { get; set; }
 
 	[JsonPropertyOrder(-1)]
 	public string Title { get; set; }
 
-	public PublicationBaseModel(string id, string title)
+	public PublicationBaseModel(AutoId id, string title)
 	{
 		Id = id;
 		Title = title;
@@ -18,7 +18,7 @@ public class PublicationBaseModel
 
 	public PublicationBaseModel(Publication publication, Product product)
 	{
-		Id = publication.Id.ToString();
+		Id = publication.Id;
 		Title = product.Title;
 	}
 }

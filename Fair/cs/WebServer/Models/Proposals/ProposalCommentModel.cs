@@ -2,13 +2,13 @@
 
 public class ProposalCommentModel(ProposalComment proposal, FairUser account)
 {
-	public string Id { get; set; } = proposal.Id.ToString();
+	public AutoId Id { get; set; } = proposal.Id;
 
-	public string ProposalId { get; set; } = proposal.Proposal.ToString();
+	public AutoId ProposalId { get; set; } = proposal.Proposal;
 
 	public UserBaseAvatarModel CreatorUser { get; set; } = new(account);
 
 	public string Text { get; set; } = proposal.Text;
 
-	public int Created { get; set; } = proposal.Created.Days;
+	public Time Created { get; set; } = proposal.Created;
 }

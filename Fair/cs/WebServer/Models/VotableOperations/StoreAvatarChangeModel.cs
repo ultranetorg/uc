@@ -2,5 +2,5 @@
 
 public class StoreAvatarChangeModel(StoreAvatarChange operation) : BaseVotableOperationModel(operation)
 {
-	public string FileId { get; set; } = operation.File.ToString();
+	public AutoId FileId { get; set; } = operation.File;
 }

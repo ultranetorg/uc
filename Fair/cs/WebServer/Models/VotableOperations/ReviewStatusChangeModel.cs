@@ -2,7 +2,7 @@
 
 public class ReviewStatusChangeModel(ReviewStatusChange operation) : BaseVotableOperationModel(operation)
 {
-	public string ReviewId { get; set; } = operation.Review.ToString();
+	public AutoId ReviewId { get; set; } = operation.Review;
 
 	public ReviewStatus Status { get; set; } = operation.Status;
 }

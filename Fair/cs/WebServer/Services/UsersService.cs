@@ -75,7 +75,7 @@ public class UsersService
 	{
 		return new UserModel
 		{
-			Id = account.Id.ToString(),
+			Id = account.Id,
 			Name = account.Name,
 			Owner = account.Key.ToString()
 		};
@@ -97,10 +97,10 @@ public class UsersService
 
 		return new UserDetailsModel
 		{
-			Id = account.Id.ToString(),
+			Id = account.Id,
 			Name = account.Name,
 			Owner = account.Key.ToString(),
-			AuthorsIds = account.Authors.Select(id => id.ToString()),
+			AuthorsIds = account.Authors,
 			FavoriteStores = account.FavoriteStores.Count > 0 ? LoadUserStores(account.FavoriteStores) : [],
 			HasAvatar = account.Avatar != null
 		};
@@ -133,7 +133,7 @@ public class UsersService
 
 		return new UserAuthorsModel
 		{
-			Id = user.Id.ToString(),
+			Id = user.Id,
 			Name = user.Name,
 			Owner = user.Key.ToString(),
 			Authors = user.Authors.Count != 0 ? LoadAuthors(user.Authors) : []

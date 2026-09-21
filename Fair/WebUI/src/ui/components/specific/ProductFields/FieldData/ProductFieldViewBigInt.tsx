@@ -1,12 +1,7 @@
 import { memo } from "react"
-import { ProductFieldViewProp } from "./types"
 
-function getAdded(value: unknown) {
-  return <div className="text-green-700">{value as number}</div>
-}
-function getRemoved(value: unknown) {
-  return <div className="text-red-500 line-through opacity-75">{value as number}</div>
-}
+import { ProductFieldViewProp } from "./types"
+import { getAdded, getRemoved } from "./utils"
 
 export const ProductFieldViewBigInt = memo(({ value, oldValue, status }: ProductFieldViewProp) => {
   switch (status) {

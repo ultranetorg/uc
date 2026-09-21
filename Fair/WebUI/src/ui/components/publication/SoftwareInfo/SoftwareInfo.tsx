@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useState } from "react"
 import { twMerge } from "tailwind-merge"
-
 import { Link } from "react-router-dom"
+
 import { SvgBoxArrowUpRight, SvgStarXxs } from "assets"
 import { DownloadSource, ProductDetails, PublicationDetails } from "types"
 import { DropdownSecondary, LinkFullscreen } from "ui/components"

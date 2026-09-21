@@ -47,15 +47,15 @@ public class UnpublishedStoreProductsService
 
 		return new ProductDetailsModel
 		{
-			Id = product.Id.ToString(),
+			Id = product.Id,
 			Type = product.Type,
 			Title = PublicationUtils.GetLatestTitle(product),
-			LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
-			Updated = product.Updated.Hours,
+			LogoId = PublicationUtils.GetLatestLogo(product),
+			Updated = product.Updated,
 			Fields = mappedFields,
-			AuthorId = author.Id.ToString(),
+			AuthorId = author.Id,
 			AuthorTitle = author.Title,
-			AuthorLogoId = author.Avatar?.ToString()
+			AuthorLogoId = author.Avatar
 		};
 
 		bool HasProductCreationProposalForProduct(Store store, AutoId productId)

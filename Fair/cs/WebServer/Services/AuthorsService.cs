@@ -30,7 +30,7 @@ public class AuthorsService
 		return new AuthorDetailsModel(author)
 		{
 			Description = author.Description,
-			AvatarId = author.Avatar?.ToString(),
+			AvatarId = author.Avatar,
 			OwnersIds = LoadOwners(author.Owners)
 		};
 	}
@@ -83,9 +83,9 @@ public class AuthorsService
 			Product product = mcv.Products.Latest(productId);
 			ProductAuthorModel model = new ProductAuthorModel(product)
 			{
-				Id = product.Id.ToString(),
+				Id = product.Id,
 				Title = PublicationUtils.GetLatestTitle(product),
-				LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
+				LogoId = PublicationUtils.GetLatestLogo(product),
 				PublicationsCount = product.Publications.Length
 			};
 			items.Add(model);

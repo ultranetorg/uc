@@ -1,3 +1,4 @@
+import { startCase } from "lodash"
 import { useTranslation } from "react-i18next"
 
 import { useStoreContext } from "app"
@@ -20,7 +21,10 @@ export const ProposalPage = () => {
     <ProposalView
       isFetching={isFetching}
       proposal={proposal}
-      parentBreadcrumbs={{ title: t("common:moderatorProposals"), path: routes.moderation.proposals(storeId!) }}
+      parentBreadcrumbs={{
+        title: startCase(t("common:moderatorProposals")),
+        path: routes.moderation.proposals(storeId!),
+      }}
     />
   )
 }
