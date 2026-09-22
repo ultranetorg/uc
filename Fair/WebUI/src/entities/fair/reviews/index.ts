@@ -1,1 +1,1 @@
-export * from "./useGetReviews"
+export * from "./useGetPaginatedReviews"

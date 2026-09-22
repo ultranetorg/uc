@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 
+import { capitalize } from "lodash"
 import { useOperationPolicy, useSignInContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import {
@@ -106,7 +107,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         ? Array.isArray(parentBreadcrumbs)
           ? [...parentBreadcrumbs]
           : [parentBreadcrumbs]
-        : { title: t("common:proposals"), path: routes.moderation.proposals(storeId!) },
+        : { title: capitalize(t("common:proposals")), path: routes.moderation.proposals(storeId!) },
     [parentBreadcrumbs, storeId, t],
   )
 

@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { truncate } from "lodash"
+import { capitalize, truncate } from "lodash"
 
 import { useOperationPolicy, useStoreContext } from "app"
 import { SvgEyeSm } from "assets"
@@ -21,7 +21,9 @@ export const UnpublishedPublicationPage = () => {
   const { store } = useStoreContext()
 
   const parentBreadcrumbs = useMemo(
-    () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!, "unpublished") }],
+    () => [
+      { title: capitalize(t("common:publications")), path: routes.moderation.publications(storeId!, "unpublished") },
+    ],
     [storeId, t],
   )
 

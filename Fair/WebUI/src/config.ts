@@ -5,3 +5,5 @@ export const CATEGORY_PUBLICATIONS_DEFAULT_PAGE_SIZE = 24
 export const SEARCH_DELAY = 500
 
 export const START_DATE = "2026-01-01"
+
+export const REVIEWS_PAGE_SIZE = 10

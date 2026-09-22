@@ -16,7 +16,17 @@ const VALUE_CLASSNAME = "truncate text-2sm leading-5"
 const LONG_VALUE_CLASSNAME = "line-clamp-3 text-2sm leading-5"
 
 export const MoviePublicationContent = memo(
-  ({ t, storeId, productOrPublication, isPendingReviews, reviews, error, onLeaveReview }: ContentProps) => {
+  ({
+    t,
+    storeId,
+    productOrPublication,
+    isPendingReviews,
+    reviews,
+    error,
+    onLeaveReview,
+    onShowMore,
+    hasMoreReviews,
+  }: ContentProps) => {
     const fields = productOrPublication.fields
 
     const movieFields = useMemo(() => buildMovieFields(fields), [fields])
@@ -170,6 +180,8 @@ export const MoviePublicationContent = memo(
               noReviewsLabel={t("noReviews")}
               reviewLabel={t("review", { count: reviews?.totalItems })}
               showMoreReviewsLabel={t("showMoreReviews")}
+              onShowMore={onShowMore}
+              hasMoreReviews={hasMoreReviews}
             />
           )}
         </div>

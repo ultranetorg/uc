@@ -2,8 +2,8 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useOperationPolicy, useSignInContext, useStoreContext } from "app"
-import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetPublicationDetails, useGetReviews } from "entities"
+import { REVIEWS_PAGE_SIZE } from "config"
+import { useGetPaginatedReviews, useGetPublicationDetails } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { ReviewModal, PublicationHeader } from "ui/components/publication"
@@ -28,11 +28,13 @@ export const PublicationPage = () => {
   useStoreTitle(store?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
 
   const {
+    reviews,
     isPending: isPendingReviews,
-    data: reviews,
     error: reviewsError,
+    hasMoreReviews,
+    fetchNextReviews,
     refetch: refetchReviews,
-  } = useGetReviews(publicationId, 0, DEFAULT_PAGE_SIZE_20)
+  } = useGetPaginatedReviews(publicationId, REVIEWS_PAGE_SIZE)
 
   const handleEditReview = useCallback((id: string, text: string) => setEditReview({ id, text }), [])
 
@@ -53,6 +55,8 @@ export const PublicationPage = () => {
     refetchReviews()
   }, [refetchReviews])
 
+  const handleShowMore = useCallback(() => fetchNextReviews(), [fetchNextReviews])
+
   if (isPending || !publication) {
     return <div>Loading{import.meta.env.DEV ? " (PublicationPage)" : ""}</div>
   }
@@ -71,6 +75,8 @@ export const PublicationPage = () => {
             reviews={reviews}
             onLeaveReview={handleLeaveReview}
             onEditReview={handleEditReview}
+            onShowMore={handleShowMore}
+            hasMoreReviews={hasMoreReviews}
           />
         </div>
       </div>

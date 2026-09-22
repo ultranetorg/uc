@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
+import { capitalize } from "lodash"
 
 import { useOperationPolicy, useStoreContext, useStoreRolesContext } from "app"
 import { SvgEyeSm } from "assets"
@@ -31,7 +32,7 @@ export const ModeratorChangedPublicationPage = () => {
   useStoreTitle(store?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
 
   const parentBreadcrumbs = useMemo(
-    () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!, "changed") }],
+    () => [{ title: capitalize(t("common:publications")), path: routes.moderation.publications(storeId!, "changed") }],
     [storeId, t],
   )
 

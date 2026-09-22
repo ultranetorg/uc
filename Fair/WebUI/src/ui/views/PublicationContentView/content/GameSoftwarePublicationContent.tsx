@@ -34,6 +34,8 @@ export const GameSoftwarePublicationContent = memo(
     error,
     onLeaveReview,
     onEditReview,
+    onShowMore,
+    hasMoreReviews,
   }: ContentProps) => {
     const [isEulaOpen, setIsEulaOpen] = useState(false)
     const [platform, setPlatform] = useState<string | undefined>()
@@ -146,6 +148,8 @@ export const GameSoftwarePublicationContent = memo(
               reviewLabel={t("review", { count: reviews?.totalItems })}
               showMoreReviewsLabel={t("showMoreReviews")}
               contextMenu={commentContextMenu}
+              onShowMore={onShowMore}
+              hasMoreReviews={hasMoreReviews}
             />
           )}
         </div>
