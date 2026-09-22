@@ -1,20 +1,17 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useOperationPolicy, useSignInContext, useStoreContext } from "app"
 import { REVIEWS_PAGE_SIZE } from "config"
 import { useGetPaginatedReviews, useGetPublicationDetails } from "entities"
-import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
-import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
+import { useParams, useStoreTitle } from "hooks"
 import { ReviewModal, PublicationHeader } from "ui/components/publication"
-import { createBreadcrumbs } from "utils"
 import { PublicationContentView } from "ui/views"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publicationPage")
   const { creator: create } = useOperationPolicy("review-creation")
   const { publicationId } = useParams()
-  const storeId = useResolveStoreId()
   const { store } = useStoreContext()
 
   const { startSignIn } = useSignInContext()
@@ -38,12 +35,6 @@ export const PublicationPage = () => {
 
   const handleEditReview = useCallback((id: string, text: string) => setEditReview({ id, text }), [])
 
-  const breadcrumbsItems = useMemo<BreadcrumbsItemProps[] | undefined>(
-    () =>
-      publication ? createBreadcrumbs(storeId!, publication.path, publication.title ?? publication.id, t) : undefined,
-    [publication, storeId, t],
-  )
-
   const handleLeaveReview = useCallback(() => {
     if (create) setReviewModalOpen(true)
     else startSignIn("user")
@@ -64,7 +55,6 @@ export const PublicationPage = () => {
   return (
     <>
       <div className="flex flex-col gap-6">
-        <Breadcrumbs items={breadcrumbsItems!} />
         <PublicationHeader id={publicationId!} title={publication.title} logoFileId={publication.logoId} />
         <div className="flex gap-8">
           <PublicationContentView

@@ -1,5 +1,4 @@
 export * from "./arrayUtils"
-export * from "./breadcrumbsUtils"
 export * from "./categoryTreeUtils"
 export * from "./classNameUtils"
 export * from "./createProposalUtils"

@@ -1,7 +1,9 @@
 import { memo, useMemo } from "react"
 import { twMerge } from "tailwind-merge"
+import { last } from "lodash"
 
 import { useStoreContext } from "app"
+import { useGetPublicationDetails } from "entities"
 import { useParams } from "hooks"
 import { PropsWithClassName } from "types"
 import { buildCategoryTreeItems, buildRootCategoryItems } from "utils"
@@ -10,16 +12,19 @@ import { CurrentStore } from "./CurrentStoreButton"
 import { CategoriesTree } from "./CategoriesTree"
 
 export const Sidebar = memo(({ className }: PropsWithClassName) => {
-  const { categoryId } = useParams()
+  const { categoryId, publicationId } = useParams()
   const { store, categoriesTree, rootCategories } = useStoreContext()
+  const { data: publication } = useGetPublicationDetails(publicationId)
+
+  const activeCategoryId = categoryId ?? last(publication?.path)?.id
 
   const items = useMemo(() => {
     if (categoriesTree?.length) {
-      return buildCategoryTreeItems(categoriesTree, categoryId)
+      return buildCategoryTreeItems(categoriesTree, activeCategoryId)
     }
 
     return rootCategories?.length ? buildRootCategoryItems(rootCategories) : []
-  }, [categoriesTree, rootCategories, categoryId])
+  }, [categoriesTree, rootCategories, activeCategoryId])
 
   if (!store) {
     return null
