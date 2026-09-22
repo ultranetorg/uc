@@ -4,7 +4,7 @@ import { useStoreContext } from "app"
 import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
 import { useResolveStoreId, useStoreTitle } from "hooks"
 import { CategoriesPublicationsList, ModeratorStoreMenu } from "ui/components/specific"
-import { NoContent } from "ui/components"
+import { MessageBox } from "ui/components"
 
 export const StorePage = () => {
   const storeId = useResolveStoreId()
@@ -34,7 +34,7 @@ export const StorePage = () => {
             seeAllLabel={t("seeAll")}
           />
         ) : (
-          <NoContent>{t("noPublications")}</NoContent>
+          <MessageBox className="p-6" message={t("noPublications")} />
         )}
       </div>
     </div>

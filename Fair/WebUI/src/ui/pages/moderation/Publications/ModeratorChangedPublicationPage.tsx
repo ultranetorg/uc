@@ -32,7 +32,7 @@ export const ModeratorChangedPublicationPage = () => {
   useStoreTitle(store?.title, pageTitle ? `Changed Publication - ${pageTitle}` : "Changed Publication")
 
   const parentBreadcrumbs = useMemo(
-    () => [{ title: capitalize(t("common:publications")), path: routes.moderation.publications(storeId!, "changed") }],
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!, "changed") }],
     [storeId, t],
   )
 

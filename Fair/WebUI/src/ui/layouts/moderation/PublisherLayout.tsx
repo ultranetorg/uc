@@ -1,7 +1,6 @@
 import { memo, PropsWithChildren } from "react"
 import { Outlet, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
-import { capitalize } from "lodash"
 
 import { useResolveStoreId } from "hooks"
 import { Breadcrumbs } from "ui/components"
@@ -18,7 +17,7 @@ export const PublishersLayout = memo(({ children }: PropsWithChildren) => {
         fullPath={true}
         items={[
           { path: routes.store(storeId!), title: t("common:home") },
-          { path: routes.moderation.publishers(storeId!), title: capitalize(t("common:publishers")) },
+          { path: routes.moderation.publishers(storeId!), title: t("common:publishers") },
           { title: publisherId! },
         ]}
       />

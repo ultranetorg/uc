@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
-import { capitalize } from "lodash"
 
 import { useOperationPolicy, useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
 import { useResolveStoreId, useStoreTitle } from "hooks"
@@ -36,7 +35,7 @@ export const ModeratorCreatePublicationPage = () => {
   useStoreTitle(store?.title, query ? `Search Product - ${query}` : "Search Product")
 
   const parentBreadcrumbs = useMemo(
-    () => [{ title: capitalize(t("common:publications")), path: routes.moderation.publications(storeId!) }],
+    () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!) }],
     [storeId, t],
   )
 

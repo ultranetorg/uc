@@ -136,6 +136,7 @@ export const PerpetualSurveyPage = () => {
             votesText={t("common:votes")}
             onExpand={handleExpand}
             onVoteClick={handleSignInOrVote}
+            expandAll={true}
           />
         </div>
       </div>

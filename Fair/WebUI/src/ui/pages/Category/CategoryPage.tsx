@@ -7,7 +7,7 @@ import { useStoreContext } from "app"
 import { CATEGORY_PUBLICATIONS_DEFAULT_PAGE_SIZE } from "config"
 import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
-import { NoContent, Pagination } from "ui/components"
+import { MessageBox, Pagination } from "ui/components"
 import { PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
 import { parseInteger } from "utils"
 
@@ -76,7 +76,7 @@ export const CategoryPage = () => {
           <PublicationsList publications={publications.items} />
         )
       ) : (
-        <NoContent>{t("empty")}</NoContent>
+        <MessageBox className="p-6" message={t("empty")} />
       )}
 
       <div className="flex justify-end">

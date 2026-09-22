@@ -107,7 +107,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         ? Array.isArray(parentBreadcrumbs)
           ? [...parentBreadcrumbs]
           : [parentBreadcrumbs]
-        : { title: capitalize(t("common:proposals")), path: routes.moderation.proposals(storeId!) },
+        : { title: t("common:proposals"), path: routes.moderation.proposals(storeId!) },
     [parentBreadcrumbs, storeId, t],
   )
 
