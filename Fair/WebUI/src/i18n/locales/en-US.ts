@@ -430,6 +430,7 @@ export const enUS = {
     governance: "Governance",
     moderation: "Moderation",
     noPublications: "Current store has no publications yet",
+    search: "Search...",
     seeAll: "See all",
   },
   storesPage: {

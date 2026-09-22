@@ -48,7 +48,7 @@ export const StoreHeader = () => {
         navigate(routes.publication(item.value))
       }
     },
-    [navigate, storeId],
+    [navigate],
   )
 
   const handleClearInputClick = useCallback(() => {
@@ -97,6 +97,7 @@ export const StoreHeader = () => {
           onInputChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onSearchClick={handleSearchClick}
+          placeholder={t("search")}
         />
       </div>
       <div className="flex items-center gap-8">
