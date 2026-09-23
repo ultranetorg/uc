@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { capitalize, isNumber } from "lodash"
 
@@ -7,6 +7,7 @@ import { useParams, useResolveStoreId, useStoreTitle, useUrlParamsState } from "
 import { Breadcrumbs } from "ui/components"
 import { UserDetailsView } from "ui/views"
 import { parseInteger, routes } from "utils"
+import { REVIEWS_PAGE_SIZE } from "config"
 
 export type ReviewerPageProps = {
   showDefaultBreadcrumbs?: boolean
@@ -17,7 +18,7 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
   const storeId = useResolveStoreId()
   const { t } = useTranslation()
 
-  const [state] = useUrlParamsState({
+  const [state, setState] = useUrlParamsState({
     page: {
       defaultValue: 0,
       parse: v => parseInteger(v),
@@ -25,12 +26,22 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
     },
   })
 
+  const [page, setPage] = useState(state.page)
+
   const { data: user, error } = useGetUserAuthors(userId)
   if (error) throw error
 
-  const { data: reviews } = useGetUserReviews(user?.id, state.page)
+  const { data: reviews } = useGetUserReviews(user?.id, state.page, REVIEWS_PAGE_SIZE)
 
   useStoreTitle(user?.name ? `User - ${user?.name}` : undefined)
+
+  const handleReviewsPageChange = useCallback(
+    (page: number) => {
+      setState({ page: page })
+      setPage(page)
+    },
+    [setState],
+  )
 
   if (!user) return <div>Loading{import.meta.env.DEV ? " (ReviewerPage)" : ""}</div>
 
@@ -46,7 +57,13 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
           ]}
         />
       )}
-      <UserDetailsView storeId={storeId!} user={user} reviews={reviews} />
+      <UserDetailsView
+        storeId={storeId!}
+        user={user}
+        reviews={reviews}
+        reviewsPage={page}
+        onReviewsPageChange={handleReviewsPageChange}
+      />
     </div>
   )
 })

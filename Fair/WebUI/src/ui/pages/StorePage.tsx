@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { useStoreContext } from "app"
-import { useGetCategoriesPublications, useGetCategoriesRoot } from "entities"
+import { useGetCategoriesPublications } from "entities"
 import { useResolveStoreId, useStoreTitle } from "hooks"
 import { CategoriesPublicationsList, ModeratorStoreMenu } from "ui/components/specific"
 import { MessageBox } from "ui/components"
@@ -13,12 +13,11 @@ export const StorePage = () => {
 
   useStoreTitle(store?.title ? `Store - ${store?.title}` : "Store")
 
-  const { isPending: isCategoriesPending, data: categories } = useGetCategoriesRoot(store?.id)
   const { isPending: isCategoriesPublicationsPending, data: categoriesPublications } = useGetCategoriesPublications(
-    store?.id,
+    store?.hasPublications ? store.id : undefined,
   )
 
-  if (isPending || !store || !storeId || !categories || !categoriesPublications || isCategoriesPending) {
+  if (isPending || !store || !storeId || (store.hasPublications && !categoriesPublications)) {
     return <div>Loading{import.meta.env.DEV ? " (StorePage)" : ""}</div>
   }
 
@@ -26,7 +25,7 @@ export const StorePage = () => {
     <div className="flex flex-col gap-6">
       <ModeratorStoreMenu className="self-end" />
       <div className="flex flex-col gap-6">
-        {categories.length && categoriesPublications.length ? (
+        {categoriesPublications && categoriesPublications.length ? (
           <CategoriesPublicationsList
             storeId={storeId!}
             isPending={isCategoriesPublicationsPending}

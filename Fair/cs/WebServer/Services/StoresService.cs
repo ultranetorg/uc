@@ -70,6 +70,7 @@ public class StoresService
 		{
 			ModeratorsIds = moderatorsIds,
 			AuthorsIds = authorsIds,
+			HasPublications = store.PublicationsCount > 0
 		};
 	}
 

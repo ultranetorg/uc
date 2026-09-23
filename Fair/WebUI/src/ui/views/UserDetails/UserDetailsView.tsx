@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next"
 import { useStoreContext } from "app"
 import avatarFallback from "assets/fallback/user-30.png"
 import { Review, TotalItemsResult, UserAuthors } from "types"
-import { CopyAddressButton, ImageFallback } from "ui/components"
+import { CopyAddressButton, ImageFallback, Pagination } from "ui/components"
 import { ModeratorUserMenu } from "ui/components/specific"
 import { buildUserAvatarByIdUrl, formatRole, isUserModerator, isUserPublisher } from "utils"
 
+import { REVIEWS_PAGE_SIZE } from "config"
 import { ReviewsList } from "./ReviewsList"
 import { PublishersList } from "./PublishersList"
 
@@ -17,57 +18,69 @@ export type UserDetailsViewProps = {
   storeId: string
   user?: UserAuthors
   reviews?: TotalItemsResult<Review>
+  reviewsPage: number
+  onReviewsPageChange: (page: number) => void
 }
 
-export const UserDetailsView = memo(({ storeId, user, reviews }: UserDetailsViewProps) => {
-  const { store } = useStoreContext()
-  const { t } = useTranslation("userDetailsView")
+export const UserDetailsView = memo(
+  ({ storeId, user, reviews, reviewsPage, onReviewsPageChange }: UserDetailsViewProps) => {
+    const { store } = useStoreContext()
+    const { t } = useTranslation("userDetailsView")
 
-  if (!user || !reviews) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
+    if (!user || !reviews) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
 
-  const isPublisher = isUserPublisher(store, user)
-  const isModerator = isUserModerator(store, user)
+    const isPublisher = isUserPublisher(store, user)
+    const isModerator = isUserModerator(store, user)
+    const pagesCount =
+      reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / REVIEWS_PAGE_SIZE) : 0
 
-  return (
-    <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
-      <div className="flex flex-col">
-        <div className="relative h-57.5">
-          <div className="relative h-42.5 bg-gray-500">
-            <div className="absolute right-6 top-6">
-              <ModeratorUserMenu userId={user.id} userName={user.name} />
+    return (
+      <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
+        <div className="flex flex-col">
+          <div className="relative h-57.5">
+            <div className="relative h-42.5 bg-gray-500">
+              <div className="absolute right-6 top-6">
+                <ModeratorUserMenu userId={user.id} userName={user.name} />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">
+              <div className="absolute left-1 top-1 size-30 overflow-hidden rounded-full">
+                <ImageFallback
+                  src={buildUserAvatarByIdUrl(user.id)}
+                  fallbackSrc={avatarFallback}
+                  className="size-full object-cover"
+                />
+              </div>
             </div>
           </div>
-          <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">
-            <div className="absolute left-1 top-1 size-30 overflow-hidden rounded-full">
-              <ImageFallback
-                src={buildUserAvatarByIdUrl(user.id)}
-                fallbackSrc={avatarFallback}
-                className="size-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-4 p-6">
-          <div className="flex flex-col">
-            <span className="text-xl font-semibold leading-6">{user.name}</span>
-            <CopyAddressButton address={user.owner} />
+          <div className="flex flex-col gap-4 p-6">
+            <div className="flex flex-col">
+              <span className="text-xl font-semibold leading-6">{user.name}</span>
+              <CopyAddressButton address={user.owner} />
+            </div>
+            <span className="text-2xs capitalize leading-4">{formatRole(t, isPublisher, isModerator)}</span>
           </div>
-          <span className="text-2xs capitalize leading-4">{formatRole(t, isPublisher, isModerator)}</span>
+        </div>
+        <div className="flex flex-col gap-5 p-6">
+          <span className={LABEL_CLASSNAME}>{t("common:publishers")}</span>
+          {user.authors.length > 0 ? (
+            <PublishersList storeId={storeId} authors={user.authors} />
+          ) : (
+            <>{t("noPublishers")}</>
+          )}
+        </div>
+        <div className="flex flex-col gap-5 p-6">
+          <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>
+          {reviews.items.length > 0 ? <ReviewsList reviews={reviews} /> : <>{t("noReviews")}</>}
+          <Pagination
+            className="self-end"
+            pagesCount={pagesCount}
+            onPageChange={onReviewsPageChange}
+            page={reviewsPage}
+          />
         </div>
       </div>
-      <div className="flex flex-col gap-5 p-6">
-        <span className={LABEL_CLASSNAME}>{t("common:publishers")}</span>
-        {user.authors.length > 0 ? (
-          <PublishersList storeId={storeId} authors={user.authors} />
-        ) : (
-          <>{t("noPublishers")}</>
-        )}
-      </div>
-      <div className="flex flex-col gap-5 p-6">
-        <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>
-        {reviews.items.length > 0 ? <ReviewsList reviews={reviews} /> : <>{t("noReviews")}</>}
-      </div>
-    </div>
-  )
-})
+    )
+  },
+)
