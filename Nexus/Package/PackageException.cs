@@ -6,7 +6,8 @@ public enum PackageError : byte
 
 	IO,
 	IncorrectContentType,
-	NotSupportedReleaseAddressType
+	NotSupportedReleaseAddressType,
+	MissingResource
 }
 
 public class PackageException : CodeException

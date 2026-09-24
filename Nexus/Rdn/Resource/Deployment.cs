@@ -4,9 +4,9 @@ namespace Uccs.Nexus;
 
 public class DeploymentMerge
 {
-	public LocalPackage											Target;
-	public LocalPackage											Complete;	
-	public List<KeyValuePair<LocalPackage, ParentPackage>>		Incrementals = new();	
+	public Package											Target;
+	public Package											Complete;	
+	public List<KeyValuePair<Package, ParentPackage>>		Incrementals = new();	
 }
 
 public class Deployment
@@ -16,9 +16,9 @@ public class Deployment
 
 public class DeploymentMergeProgress
 {
-	public Ura		Target { get; set; }	
-	public Ura		Complete { get; set; }	
-	public Ura[]	Incrementals { get; set; }	
+	public AutoId	Target { get; set; }	
+	public AutoId	Complete { get; set; }	
+	public AutoId[]	Incrementals { get; set; }	
 
 	public DeploymentMergeProgress()
 	{
@@ -26,9 +26,9 @@ public class DeploymentMergeProgress
 
 	public DeploymentMergeProgress(DeploymentMerge merge)
 	{
-		Target			= merge.Target.Resource.Address;
-		Complete		= merge.Complete.Resource.Address;
-		Incrementals	= merge.Incrementals.Select(i => i.Key.Resource.Address).ToArray();
+		Target			= merge.Target.Id;
+		Complete		= merge.Complete.Id;
+		Incrementals	= merge.Incrementals.Select(i => i.Key.Id).ToArray();
 	}
 }
 

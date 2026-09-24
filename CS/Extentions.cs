@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Numerics;
 using System.Text;
@@ -90,5 +92,18 @@ public static class Extentions
         }
 
         return value.ToString();
+    }
+
+	public static bool RemoveFirst<T>(this List<T> list, Predicate<T> match)
+    {
+        int index = list.FindIndex(match);
+
+        if(index != -1)
+        {
+            list.RemoveAt(index);
+            return true;
+        }
+        
+        return false;
     }
 }

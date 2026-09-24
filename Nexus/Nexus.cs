@@ -155,9 +155,11 @@ public class Nexus : IProgram
 			
 				if(s == Iccp.Scheme) /// deploy node software
 				{
-					var p = DeployProduct(Ura.Parse(wi.Software), Flow);
+					var r = RdnNode.Peering.Call(new ResourceByAddressPpc(Ura.Parse(wi.Software)), Flow)?.Resource;
 
-					node = new DeployedNode {Net = net, Package = p.Resource.Address.ToString()};
+					var p = DeployProduct(r.Id, Flow);
+
+					node = new DeployedNode {Net = net, Package = p.Id};
 					Settings.Nodes.Add(node);
 				}
 				else
@@ -167,7 +169,7 @@ public class Nexus : IProgram
 				throw new NexusException("No node software");
 		}
 
-		node.Process = Run(Ura.Parse(node.Package));
+		node.Process = Run(node.Package);
 
 		return node;
 	}
@@ -176,7 +178,9 @@ public class Nexus : IProgram
 	{
 		if(snq.Net == null || snq.Net == Icn.Root)
 		{
-			return RdnDo(new Ura(snq), flow);
+			var r = RdnNode.Peering.Call(new ResourceByAddressPpc(new Ura(snq)), Flow)?.Resource;
+
+			return RdnDo(r.Id, flow);
 		}
 		else
 		{
@@ -203,16 +207,16 @@ public class Nexus : IProgram
 		}
 	}
 
-	LocalPackage DeployProduct(Ura ura, Flow flow)
+	Package DeployProduct(AutoId ura, Flow flow)
 	{
-		var r = RdnNode.Peering.Call(new ResourceByAddressPpc(ura), flow)?.Resource;
+		var r = RdnNode.Peering.Call(new ResourceByIdPpc(ura), flow)?.Resource;
 		//var d = RdnNode.ResourceHub.Find(ura)?.Last;
 				
 		if(r.Data == null)
 			throw new NexusException("No data");
 	
 		//Ura apr = null;
-		Ura aprv = null;
+		AutoId aprv = null;
 	
 		if(r.Data.Type.Content == ContentType.Package_Software_ProductManifest)
 		{
@@ -237,16 +241,16 @@ public class Nexus : IProgram
 
 	}
 
-	byte[] RdnDo(Ura ura, Flow flow)
+	byte[] RdnDo(AutoId ura, Flow flow)
 	{
 		var p = DeployProduct(ura, flow);
 
-		Run(p.Resource.Address);
+		Run(p.Id);
 
 		return null;
 	}
 
-	Process Run(Ura package)
+	Process Run(AutoId package)
 	{
 //		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, package), "*." + PackageManifest.Extension).First();
 //	
@@ -256,21 +260,21 @@ public class Nexus : IProgram
 
 		
 
-		var m =	PackageHub.Find(package).Manifest;
+		var i =	PackageHub.Find(package).Instruction;
 
 		SetupApplicationEnvironemnt(package);
 	
 		var ps = new Process();
 		ps.StartInfo.UseShellExecute = true;
-		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, package), m.Start[0].Path);
-		ps.StartInfo.Arguments = m.Start[0].Arguments;
+		ps.StartInfo.FileName = Path.Join(PackageHub.AddressToDeployment(Settings.Packages, package), i.Start[0].Path);
+		ps.StartInfo.Arguments = i.Start[0].Arguments;
 	
 		ps.Start();
 
 		return ps;
 	}
 
-	public void SetupApplicationEnvironemnt(Ura address)
+	public void SetupApplicationEnvironemnt(AutoId address)
 	{
 		Environment.SetEnvironmentVariable(NetBoot.ZoneEnvironmentKey,		Settings.Zone.ToString());
 		Environment.SetEnvironmentVariable(NetBoot.ProfileEnvironmentKey,	Settings.Profile);

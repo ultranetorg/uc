@@ -32,9 +32,9 @@ public abstract class NodeCommand : McvCommand
 									ReportPreambule();
 									ReportNetwork();
 										
-									var a = new Uri(First);
+									var a = new Uri(Address);
 
-									Cli.ApiClient = CreateClient(First);
+									Cli.Api = CreateClient(Address);
 
 									while(true)
 									{
@@ -55,7 +55,7 @@ public abstract class NodeCommand : McvCommand
 		attach.Description = "Connects to existing node instance via JSON RPC protocol";
 		attach.Arguments =	[
 								new (AddressKeyword, URL, "URL address of node to connect to"),
-								new (Apc.CredentialsKeyword, PASSWORD, "API access key")
+								//new (Apc.CredentialsKeyword, PASSWORD, "API access key")
 							];
 
 		return attach;
@@ -68,9 +68,9 @@ public abstract class NodeCommand : McvCommand
 
 		send.Description = "Send specified command to existing running node";
 		send.Arguments =	[
-								new (AddressKeyword,URL, "HOST address of node to send a command to"),
-								new (Apc.CredentialsKeyword, PASSWORD, "API access key", ArgumentFlag.Optional),
-								new ("command",		COMMAND, "A command to send for execution")
+								new (AddressKeyword,			URL, "HOST address of node to send a command to"),
+								new (Apc.CredentialsKeyword,	PASSWORD, "API access key", ArgumentFlag.Optional),
+								new ("command",					COMMAND, "A command to send for execution")
 							];
 
 		send.Execute = () => {
@@ -82,9 +82,7 @@ public abstract class NodeCommand : McvCommand
 								ReportPreambule();
 								ReportNetwork();
 
-								var a = new Uri(First);
-
-								Cli.ApiClient = CreateClient(First);
+								Cli.Api = CreateClient(Address);
 
 								Cli.Execute(Args.Skip(1).Where(i => new string[] {Apc.CredentialsKeyword, ConfirmationArg}.All(j => j != i.Name)), Flow);
 

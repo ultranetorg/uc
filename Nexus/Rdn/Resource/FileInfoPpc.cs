@@ -2,7 +2,7 @@
 
 public class FileInfoPpc : RdnPpc<FileInfoPpr>
 {
-	public Urr		Release { get; set; }
+	public Urn		Release { get; set; }
 	public string	File { get; set; }
 
 	public override Result Execute()
@@ -23,7 +23,7 @@ public class FileInfoPpc : RdnPpc<FileInfoPpr>
 
 	public override void Read(Reader reader)
 	{
-		Release = reader.ReadVirtual<Urr>();
+		Release = reader.ReadVirtual<Urn>();
 		File	= reader.ReadUtf8();
 	}
 

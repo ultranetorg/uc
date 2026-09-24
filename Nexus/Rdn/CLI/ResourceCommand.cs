@@ -46,12 +46,14 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 
-								Transacted = () =>	{
-														//var	r = Rdc(new ResourceRequest(First)).Resource;
-												
-														Api(new LocalResourceUpdateApc {Address = Ura.Parse(Address),
-																						Data = GetData()});
-													};
+								///Transacted = () =>	{
+								///						//var	r = Rdc(new ResourceRequest(First)).Resource;
+								///				
+								///						var r = GetResource();
+								///
+								///						Api(new LocalResourceUpdateApc {Address = r.resource.Id,
+								///														Data = GetData()});
+								///					};
 
 								return new ResourceCreation(Ura.Parse(Address), GetData(), Has(Dependable.Name));
 							};
@@ -121,10 +123,10 @@ public class ResourceCommand : RdnCommand
 
 								var	r = GetResource();
 
-								Transacted = () =>	{
-														Api(new LocalResourceUpdateApc {Address = r.address,
-																						Data = GetData()});
-													};
+								//Transacted = () =>	{
+								//						Api(new LocalResourceUpdateApc {Address = r.resource.Id,
+								//														Data = GetData()});
+								//					};
 
 								var o =	new ResourceUpdation(r.resource.Id);
 
@@ -156,29 +158,29 @@ public class ResourceCommand : RdnCommand
 		return a;
 	}
 
-	public CommandAction Local_L()
-	{
-		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-
-		a.Description = "Gets information about locally available releases of the specified resource";
-		a.Arguments =	[
-							AddressOrId(RA, "resource local copy to get information about")
-						];
-
-		a.Execute = () =>	{
-								var r = Api<LocalResource>(new LocalResourceApc {Address = Ura.Parse(Address)});
-				
-								if(r != null)
-								{
-									Flow.Log.Dump(r);
-
-									return r;
-								}
-								else
-									throw new Exception("Resource not found");
-							};
-		return a;
-	}
+///	public CommandAction Local_L()
+///	{
+///		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+///
+///		a.Description = "Gets information about locally available releases of the specified resource";
+///		a.Arguments =	[
+///							AddressOrId(RA, "resource local copy to get information about")
+///						];
+///
+///		a.Execute = () =>	{
+///								var r = Api<CachedResource>(new CachedResourceApc {Id = GetResource().resource.Id});
+///				
+///								if(r != null)
+///								{
+///									Flow.Log.Dump(r);
+///
+///									return r;
+///								}
+///								else
+///									throw new Exception("Resource not found");
+///							};
+///		return a;
+///	}
 
 	public CommandAction LocalSearch_LS()
 	{
@@ -192,17 +194,19 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Flow.CancelAfter(Cli.Settings.PpcTimeout);
-
-								var r = Api<IEnumerable<LocalResource>>(new LocalResourcesSearchApc {Query = GetString(query)});
-				
-								Flow.Log.Dump(	r, 
-												["Address", "Type", "Data", "Length"], 
-												[i =>	i.Address.Domain + '/' + i.Address.Resource,
-														i => i.Data.Type,
-														i => i.Data.Value.ToHex(32),
-														i => i.Data.Value.Length]);
-								return r;
+								throw new NotImplementedException();
+								 
+								///Flow.CancelAfter(Cli.Settings.PpcTimeout);
+								///
+								///var r = Api<IEnumerable<CachedResource>>(new LocalResourcesSearchApc {Query = GetString(query)});
+								///
+								///Flow.Log.Dump(	r, 
+								///				["Address", "Type", "Data", "Length"], 
+								///				[i =>	i.Id, ///i.Address.Domain + '/' + i.Address.Resource,
+								///						i => i.Data.Type,
+								///						i => i.Data.Value.ToHex(32),
+								///						i => i.Data.Value.Length]);
+								///return r;
 							};
 		return a;
 	}
@@ -216,7 +220,7 @@ public class ResourceCommand : RdnCommand
 
 		a.Description = "Downloads the latest release of the specified resource";
 		a.Arguments =	[
-							AddressOrId(RA, "resource the latest release to download of"),
+							AddressOrId(RA, "resource the release to download of"),
 							new (to,		DIRPATH,	"Destination path on the local system to download the release to", ArgumentFlag.Optional),
 							new (wait,		BOOL,		"Wait or not download to finish", ArgumentFlag.Optional, "yes")
 						];
@@ -230,7 +234,7 @@ public class ResourceCommand : RdnCommand
 								{
 									while(Flow.Active)
 									{
-										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()});
+										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.ReadVirtual<Urn>(Cli.Net.Constructor)});
 	
 										if(p is null)
 											break;
@@ -260,7 +264,7 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								Api(new CancelResourceDownloadApc {Release = Urr.Parse(GetString(AddressKeyword))});
+								Api(new CancelResourceDownloadApc {Release = Urn.Parse(GetString(AddressKeyword))});
 
 								return null;
 							};

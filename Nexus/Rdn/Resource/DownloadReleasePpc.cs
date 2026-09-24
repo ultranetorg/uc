@@ -2,7 +2,7 @@
 
 public class DownloadReleasePpc : RdnPpc<DownloadReleasePpr>
 {
-	public Urr				Address { get; set; }
+	public Urn				Address { get; set; }
 	public string			File { get; set; }
 	public long				Offset { get; set; }
 	public long				Length { get; set; }
@@ -28,7 +28,7 @@ public class DownloadReleasePpc : RdnPpc<DownloadReleasePpr>
 
 	public override void Read(Reader reader)
 	{
-		Address = reader.ReadVirtual<Urr>();
+		Address = reader.ReadVirtual<Urn>();
 		File	= reader.ReadUtf8();
 		Offset	= reader.Read7BitEncodedInt64();
 		Length	= reader.Read7BitEncodedInt64();

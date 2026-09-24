@@ -96,19 +96,20 @@ public partial class ResourcesPanel : McvPanel
 
 	private void LocalSearch_Click(object sender, EventArgs e)
 	{
-		LocalReleases.Items.Clear();
-	
-		foreach(var i in Node.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text, StringComparison.InvariantCultureIgnoreCase)))
-		{
-			var li = new ListViewItem(i.Id?.ToString());
-			li.Tag = i;
-			li.SubItems.Add(i.Address.ToString());
-			li.SubItems.Add(i.Data?.Type.Meaning.ToString());
-			li.SubItems.Add(i.Data?.Type.Content.ToString());
-			li.SubItems.Add(i.Data?.Value.Length.ToString());
-	
-			LocalReleases.Items.Add(li);
-		}
+		throw new NotImplementedException();
+	///	LocalReleases.Items.Clear();
+	///
+	///	foreach(var i in Node.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(LocalQuery.Text, StringComparison.InvariantCultureIgnoreCase)))
+	///	{
+	///		var li = new ListViewItem(i.Id?.ToString());
+	///		li.Tag = i;
+	///		li.SubItems.Add(i.Address.ToString());
+	///		li.SubItems.Add(i.Data?.Type.Meaning.ToString());
+	///		li.SubItems.Add(i.Data?.Type.Content.ToString());
+	///		li.SubItems.Add(i.Data?.Value.Length.ToString());
+	///
+	///		LocalReleases.Items.Add(li);
+	///	}
 	}
 
 	// 		private void releases_SelectedIndexChanged(object sender, EventArgs e)

@@ -6,7 +6,7 @@ public abstract class NetCli : Cli
 {
 	public NetBoot					Boot;
 	public NexusSettings			NexusSettings;
-	public abstract JsonApiClient	Api {get; }
+	public JsonApiClient			Api;
 
 	public NetCli()
 	{

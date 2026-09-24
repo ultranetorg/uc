@@ -7,7 +7,6 @@ public abstract class McvCli : NetCli
 	public McvNodeSettings	Settings;
 	public McvNet			Net;
 	public McvNode			Node;
-	public McvApiClient		ApiClient;
 
 	public McvCli()
 	{
@@ -17,7 +16,7 @@ public abstract class McvCli : NetCli
 	{
 		NexusSettings = nexussettings;
 		Settings = settings;
-		ApiClient = api;
+		Api = api;
 	}
 
 	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
@@ -42,7 +41,7 @@ public abstract class McvCli : NetCli
 			}
 			else
 			{
-				var t = c.Transact(ApiClient, ops, c.GetString(McvCommand.ByKeyword), c.GetLong(McvCommand.BoostKeyword, 0), McvCommand.GetActionOnResult(args));
+				var t = c.Transact(Api as McvApiClient, ops, c.GetString(McvCommand.ByKeyword), c.GetLong(McvCommand.BoostKeyword, 0), McvCommand.GetActionOnResult(args));
 
 				c.Transacted?.Invoke();
 			}

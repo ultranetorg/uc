@@ -40,7 +40,7 @@ public class PackageDownloadProgress : PackageActivityProgress
 
 public class PackageDownload
 {
-	public LocalPackage						Package;
+	public Package						Package;
 	public FileDownload						FileDownload;
 	public bool								IsDownloaded;
 	public List<PackageDownload>			Dependencies = new();
@@ -52,7 +52,7 @@ public class PackageDownload
 	public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 	public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Concat(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
-	public PackageDownload(PackageHub hub, LocalPackage package, Flow flow)
+	public PackageDownload(PackageHub hub, Package package, Flow flow)
 	{
 		Package = package;
 
@@ -60,7 +60,7 @@ public class PackageDownload
 
 		lock(hub.Lock)
 		{
-			if(hub.IsAvailable(package.Resource.Address))
+			if(hub.IsAvailable(package.Id))
 			{
 				IsDownloaded = true;
 				return;
@@ -72,79 +72,37 @@ public class PackageDownload
 		Task = Task.Run(() =>	{
 									try
 									{
-										Resource last = null;
-
-										while(flow.Active)
-										{
-											try
-											{
-												last = node.Peering.Call(new ResourceByAddressPpc(package.Resource.Address), flow).Resource;
-													
-												if(last.Data?.Type != new DataType(DataType.File, ContentType.Package_Software_VersionManifest))
-												{
-													throw new PackageException(PackageError.IncorrectContentType, $"{package.Resource.Address} is not {ContentType.Package_Software_VersionManifest}");
-												}
-
-												break;
-											}
-											catch(EntityException ex)
-											{
-												Thread.Sleep(100);
-											}
-										}
-
-										lock(node.ResourceHub.Lock)
-										{
-											node.ResourceHub.Add(last.Data.Parse<Urr>());
-											package.Resource.AddData(last.Data);
-										}
-
-										IIntegrity itg = null;
-
-										switch(last.Data.Parse<Urr>())
-										{ 
-											case Rrrh u:
-												itg = new DHIntegrity(u.Hash); 
-												break;
-
-											//case Urrsd u:
-											//	var d = node.Peering.Call(new DomainPpc(package.Resource.Address.Domain), workflow).Domain;
-											//	var aa = node.Peering.Call(new UserPpc(d.Owner), workflow).User;
-											//	itg = new SPDIntegrity(node.Net.Cryptography, u, aa.Owner);
-											//	break;
-
-											default : 
-												throw new PackageException(PackageError.NotSupportedReleaseAddressType, $"{package.Resource.Address}");
-										};
+										//if(Package. last?.Type != new DataType(DataType.Self, ContentType.Package_Software_VersionManifest))
+										//	throw new PackageException(PackageError.IncorrectContentType, $"{package.Id} is not {ContentType.Package_Software_VersionManifest}");
 
 										Seeker = new SeedSeeker(node, package.Release.Address, flow);
 
-										node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, Seeker, flow);
+										//node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, Seeker, flow);
 
-										bool incrementable;
+										string file;
 
 										lock(hub.Lock)
 										{
-											hub.DetermineDelta(package.Resource.Address, Package.Manifest, out incrementable, out List<Dependency> deps);
+											hub.DetermineDelta(Package.Manifest, out file, out List<Dependency> deps);
 								
 											foreach(var i in deps.Where(i => i.Need == DependencyNeed.Critical))
 											{
-												if(!hub.ExistsRecursively(i.Address))
+												if(!hub.ExistsRecursively(i.Id))
 												{
-													var dd = hub.StartDownload(i.Address, flow);
+													var dd = hub.StartDownload(i.Id, flow);
 													Dependencies.Add(dd);
 												}
 											}
 										}
 
 										lock(node.ResourceHub)
- 											FileDownload = node.ResourceHub.DownloadFile(Package.Release, 
-																						false,
-																						incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile, 
-																						Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), incrementable ? LocalPackage.IncrementalFile : LocalPackage.CompleteFile),
-																						new DHIntegrity(incrementable ? Package.Manifest.IncrementalHash : Package.Manifest.CompleteHash),
-																						Seeker,
-																						flow);
+ 											FileDownload = node.ResourceHub.DownloadFile(	Package.Release, 
+																							false,
+																							file, 
+																							Path.Join(hub.AddressToReleases(package.Release.Address), file),
+																							new DHIntegrity(Package.Release.LoadIndex().One(file).Get<byte[]>()),
+																							Seeker,
+																							flow);
 
 
 										Task.WaitAll(DependenciesRecursive.Select(i => i.Task).Append(FileDownload.Task).ToArray());
@@ -153,10 +111,10 @@ public class PackageDownload
 
 										lock(node.ResourceHub.Lock)
 										{
-											if(Package.Release.IsReady(LocalPackage.CompleteFile))
+											if(Package.Release.IsReady(Package.CompleteFile))
 												a |= Availability.Complete;
 
-											if(Package.Release.IsReady(LocalPackage.IncrementalFile))
+											if(Package.Release.IsReady(Package.DeltaFile))
 												a |= Availability.Incremental;
 										}
 

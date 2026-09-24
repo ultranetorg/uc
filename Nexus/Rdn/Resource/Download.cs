@@ -81,8 +81,8 @@ public class FileDownload
 		}
 	}
 
-	public LocalRelease							Release;
-	public LocalFile							File;
+	public Release							Release;
+	public ReleaseFile							File;
 	public bool									Succeeded;
 	public long									Length => File.Length;
 	public long									DownloadedLength => File.CompletedLength + CurrentPieces.Sum(i => i.Data != null ? i.Data.Length : 0);
@@ -95,14 +95,14 @@ public class FileDownload
 	public PieceDelegate						PieceSucceeded;
 	Flow										Flow;
 
-	public FileDownload(RdnNode node, LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow flow)
+	public FileDownload(RdnNode node, Release release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow flow)
 	{
 		Rdn			= node;
 		Release		= release;
 		File		= release.Find(path) ?? release.AddEmpty(path, localpath);
 		Flow		= flow;
 
-		if(File.Status == LocalFileStatus.Completed)
+		if(File.Status == ReleaseFileStatus.Completed)
 		{
 			if(integrity.Verify(release.Hashify(path)))
 			{
@@ -132,7 +132,7 @@ public class FileDownload
 									{
 										int left() => File.Pieces.Length - File.CompletedPieces.Count() - CurrentPieces.Count;
 
-										if(File.Status != LocalFileStatus.Inited || (File.Length > 0 && left() > 0 && CurrentPieces.Count < MaxThreadsCount))
+										if(File.Status != ReleaseFileStatus.Inited || (File.Length > 0 && left() > 0 && CurrentPieces.Count < MaxThreadsCount))
 										{
 											SeedSeeker.Seed[] seeds;
 
@@ -143,7 +143,7 @@ public class FileDownload
 											
 											if(seeds.Any())
 											{
-												if(File.Status != LocalFileStatus.Inited)
+												if(File.Status != ReleaseFileStatus.Inited)
 												{
 													long l = -1;
 
@@ -298,7 +298,7 @@ public class FileDownload
 
 public class DirectoryDownload
 {
-	public LocalRelease			Release;
+	public Release			Release;
 	public string				LocalPath;
 	public bool					Succeeded;
 	public Queue<Xon>			Files = new();
@@ -309,7 +309,7 @@ public class DirectoryDownload
 	public SeedSeeker			Seeker;
 	Flow						Flow;
 
-	public DirectoryDownload(RdnNode sun, LocalRelease release, string localpath, IIntegrity integrity, Flow flow)
+	public DirectoryDownload(RdnNode sun, Release release, string localpath, IIntegrity integrity, Flow flow)
 	{
 		Release = release;
 		LocalPath = localpath;
@@ -321,9 +321,9 @@ public class DirectoryDownload
 		{
 			try
 			{
-				sun.ResourceHub.GetFile(release, false, LocalRelease.Index, null, integrity, Seeker, Flow);
+				sun.ResourceHub.GetFile(release, false, Release.Index, null, integrity, Seeker, Flow);
 
-				var index = new Xon(release.Find(LocalRelease.Index).Read());
+				var index = new Xon(release.Find(Release.Index).Read());
 
 				void enumearate(Xon xon)
 				{
@@ -412,9 +412,9 @@ public class FileDownloadProgress : ResourceActivityProgress
 
 	public FileDownloadProgress(FileDownload file)
 	{
-		Path				= file.File.Status == LocalFileStatus.Inited ? file.File.Path : null;
-		Length				= file.File.Status == LocalFileStatus.Inited ? file.File.Length : -1;
-		DownloadedLength	= file.File.Status == LocalFileStatus.Inited ? file.DownloadedLength : -1;
+		Path				= file.File.Status == ReleaseFileStatus.Inited ? file.File.Path : null;
+		Length				= file.File.Status == ReleaseFileStatus.Inited ? file.File.Length : -1;
+		DownloadedLength	= file.File.Status == ReleaseFileStatus.Inited ? file.DownloadedLength : -1;
 	}
 
 	public string	Path { get; set; }

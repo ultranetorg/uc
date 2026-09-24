@@ -25,10 +25,10 @@ public class SeedSeeker
 		//public Seed[]				Seeds = {};
 		public HubStatus			Status = HubStatus.Estimating;
 		SeedSeeker					Seeker;
-		Urr							Address;
+		Urn							Address;
 		Flow						Flow;
 
-		public Hub(SeedSeeker seeker, Urr hash, AutoId member, IEnumerable<Endpoint> ips)
+		public Hub(SeedSeeker seeker, Urn hash, AutoId member, IEnumerable<Endpoint> ips)
 		{
 			Seeker = seeker;
 			Address = hash;
@@ -84,7 +84,7 @@ public class SeedSeeker
 	DateTime					MembersRefreshed = DateTime.MinValue;
 	RdnGenerator[]				Members;
 
-	public SeedSeeker(RdnNode node, Urr address, Flow flow)
+	public SeedSeeker(RdnNode node, Urn address, Flow flow)
 	{
 		Node = node;
 		Flow = flow.CreateNested($"{GetType().Name}, {address}");

@@ -28,7 +28,7 @@ public class ReleaseCommand : RdnCommand
 															 {	
 																Sources = Args.Where(i => i.Name == "source").Select(i => i.Get<string>()),
 																AddressCreator = new()	{	
-																							Type = GetEnum("addresstype", UrrScheme.Rrrh),
+																							Type = GetEnum("addresstype", UrnScheme.Hcid),
 																							//Owner = GetAccountAddress("owner", false),
 																							//Resource = Ura.Parse(Args[0].Name)
 																						}
@@ -51,7 +51,7 @@ public class ReleaseCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								var r = Api<LocalReleaseApe>(new LocalReleaseApc {Address = Urr.Parse(Address)});
+								var r = Api<LocalReleaseApe>(new LocalReleaseApc {Address = Urn.Parse(Address)});
 				
 								if(r != null)
 								{

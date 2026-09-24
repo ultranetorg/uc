@@ -53,24 +53,22 @@ public class NexusTypeResolver : ApiTypeResolver
 
 public class NexusApiClient : JsonApiClient
 {
-	public PackageInfo FindLocalPackage(Ura address, Flow flow) => Call<PackageInfo>(new LocalPackageApc { Address = address }, flow);
-
 	public NexusApiClient(string address, HttpClient http = null, int timeout = 30) : base(address, http, timeout)
 	{
 		Options = NexusJsonConfiguration.CreateOptions();
 	}
 
-	public PackageInfo DeployPackage(Ura address, string destination, Flow flow)
+	public PackageApe DeployPackage(AutoId address, string destination, Flow flow)
 	{
 		Send(new PackageDeployApc {Address = address, To = destination}, flow);
 
 		do
 		{
-			var d = Call<PackageActivityProgress>(new PackageActivityProgressApc {Package = address}, flow);
+			var d = Call<PackageActivityProgress>(new PackageActivityProgressApc {Id = address}, flow);
 
 			if(d is null)
 			{
-				return Call<PackageInfo>(new LocalPackageApc {Address = address}, flow);
+				return Call<PackageApe>(new LocalPackageApc {Id = address}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{

@@ -16,9 +16,22 @@ public interface IBinarySerializable
 
 	public byte[] ToRaw()	
 	{
-		var s = new MemoryStream();
+		using var s = new MemoryStream();
 		var w = new Writer(s);
 								
+		Write(w);
+								
+		return s.ToArray();
+	}
+
+	public byte[] ToRaw(Constructor constructor)	
+	{
+		using var s = new MemoryStream();
+		var w = new Writer(s, constructor);
+					
+		if(this is ITypeCode c)
+			w.Write(constructor.TypeToCode(GetType()));
+		
 		Write(w);
 								
 		return s.ToArray();

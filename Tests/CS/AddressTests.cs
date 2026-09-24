@@ -70,9 +70,9 @@ public static class AddressTests
 	[Fact]
 	public static void Release()
 	{
-		var a = new Rrrh {Hash = RandomBytes(32) };
-		var ac = new Rrrh{Hash = a.Hash.ToArray() };
-		var b = new Rrrh {Hash = RandomBytes(32) };
+		var a = new Hcid {Hash = RandomBytes(32) };
+		var ac = new Hcid{Hash = a.Hash.ToArray() };
+		var b = new Hcid {Hash = RandomBytes(32) };
 		 
 		//var x = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = RandomBytes(65) };
 		//var xc = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = x.Signature.ToArray() };
@@ -92,11 +92,11 @@ public static class AddressTests
 		//Assert.Contains(x, l);
 		//Assert.DoesNotContain(y, l);
 
-		Assert.True(a == Urr.Parse(a.ToString()));
+		Assert.True(a == Urn.Parse(a.ToString()));
 
 
 
-		Assert.True(a == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)a, RdnJsonConfiguration.CreateOptions()), RdnJsonConfiguration.CreateOptions()));
+		Assert.True(a == JsonSerializer.Deserialize<Urn>(JsonSerializer.Serialize((Urn)a, RdnJsonConfiguration.CreateOptions()), RdnJsonConfiguration.CreateOptions()));
 		//Assert.True(x == JsonSerializer.Deserialize<Urr>(JsonSerializer.Serialize((Urr)x, RdnJsonConfiguration.CreateOptions()), RdnJsonConfiguration.CreateOptions()));
 		//
 		//Assert.True(x == JsonSerializer.Deserialize<A>(JsonSerializer.Serialize(new A{RR = x}, RdnJsonConfiguration.CreateOptions()), RdnJsonConfiguration.CreateOptions()).RR);
@@ -104,6 +104,6 @@ public static class AddressTests
 
 	class A
 	{
-		public Urr RR {get;set; }
+		public Urn RR {get;set; }
 	}
 }

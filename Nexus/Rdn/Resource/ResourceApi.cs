@@ -10,51 +10,48 @@ public class ResourceActivityProgress
 {
 }
 
-public class LocalResourceAddApc : RdnApc
-{
-	public Ura		Address { get; set; }
-
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		lock(node.ResourceHub.Lock)
-		{
-			node.ResourceHub.Add(Address);
-		}
-
-		return null;
-	}
-}
+//public class LocalResourceAddApc : RdnApc
+//{
+//	public Ura		Address { get; set; }
+//
+//	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+//	{
+//		lock(node.ResourceHub.Lock)
+//		{
+//			node.ResourceHub.Add(Address);
+//		}
+//
+//		return null;
+//	}
+//}
 
 public class ResourceDownloadApc : RdnApc
 {
 	public AutoId			Id { get; set; }
 	public string			To { get; set; }
 
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
-		var r = node.Peering.Call(new ResourceByIdPpc(Id), workflow);
+		var d = node.ResourceHub.Get(Id);
 
-		if(r == null)
-			throw new ResourceException(ResourceError.NotFound);
-
-		if(r.Resource.Data == null)
+		if(d == null)
 			throw new ResourceException(ResourceError.NoData);
 
-		if(r.Resource.Data.Type.Meaning != DataType.File && r.Resource.Data.Type.Meaning != DataType.Directory)
+		if(d.Type.Meaning != DataType.File && d.Type.Meaning != DataType.Directory)
 			throw new ResourceException(ResourceError.InvalidMeaning);
 
 		IIntegrity itg;
 
-		var urr = r.Resource.Data.Parse<Urr>();
+		var urr = d.ReadVirtual<Urn>(Rdn.Any.Constructor);
 
 		switch(urr)
 		{ 
-			case Rrrh a :
+			case Hcid a :
 				itg = new DHIntegrity(a.Hash); 
 				break;
 
 			//case Urrsd a :
-			//	///.var au = node.Call(c => c.Request(new DomainRequest(Idedtifier)), workflow).Domain;
+			//	///.var au = node.Call(c => c.Request(new DomainRequest(Idedtifier)), flow).Domain;
 			//	///.itg = new SPDIntegrity(node.Net.Cryptography, a, au.Owner);
 			//	throw new NotSupportedException();
 				
@@ -64,18 +61,15 @@ public class ResourceDownloadApc : RdnApc
 
 		lock(node.ResourceHub.Lock)
 		{
-			var lrs = node.ResourceHub.Find(r.Address) ?? node.ResourceHub.Add(r.Address);
-			lrs.AddData(r.Resource.Data);
+			var lrl = node.ResourceHub.Find(urr) ?? node.ResourceHub.Add(urr, Id);
 
-			var lrl = node.ResourceHub.Find(urr) ?? node.ResourceHub.Add(urr);
-
-			if(r.Resource.Data.Type.Meaning == DataType.File)
+			if(d.Type.Meaning == DataType.File)
 			{
-				node.ResourceHub.DownloadFile(lrl, true, "", To ?? node.ResourceHub.ToReleases(urr), itg, null, workflow);
+				node.ResourceHub.DownloadFile(lrl, true, "", To ?? node.ResourceHub.ToReleases(urr), itg, null, flow);
 			}
-			else if(r.Resource.Data.Type.Meaning == DataType.Directory)
+			else if(d.Type.Meaning == DataType.Directory)
 			{
-				node.ResourceHub.DownloadDirectory(lrl, To ?? node.ResourceHub.ToReleases(urr), itg, workflow);
+				node.ResourceHub.DownloadDirectory(lrl, To ?? node.ResourceHub.ToReleases(urr), itg, flow);
 			}
 			else
 				throw new ResourceException(ResourceError.NotSupportedDataType);
@@ -86,9 +80,9 @@ public class ResourceDownloadApc : RdnApc
 
 public class CancelResourceDownloadApc : RdnApc
 {
-	public Urr	Release { get; set; }
+	public Urn	Release { get; set; }
 
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.ResourceHub.Lock)
 		{
@@ -109,84 +103,83 @@ public class LocalReleaseBuildApc : RdnApc
 	public IEnumerable<string>		Sources { get; set; }
 	public ReleaseAddressCreator	AddressCreator { get; set; }
 
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.ResourceHub.Lock)
 		{
 			if(Sources.Count() == 1 && File.Exists(Sources.First()))
-				return new LocalReleaseApe(node.ResourceHub.Add(Sources.First(), AddressCreator, workflow));
+				return new LocalReleaseApe(node.ResourceHub.Add(Sources.First(), AddressCreator, flow));
 			else
-				return new LocalReleaseApe(node.ResourceHub.Add(Sources, AddressCreator, workflow));
+				return new LocalReleaseApe(node.ResourceHub.Add(Sources, AddressCreator, flow));
 		}
 	}
 }
 
-public class LocalReleaseAddApc : RdnApc
-{
-	public Ura			Resource { get; set; }
-	public ResourceData	Data  { get; set; }
-	public Urr			Release { get; set; }
-	public byte[]		Content { get; set; }
-	public string		Path  { get; set; }
-	public string		LocalPath  { get; set; }
-	public Availability	Availability { get; set; } = Availability.Full;
+//public class LocalReleaseAddApc : RdnApc
+//{
+//	public AutoId			Resource { get; set; }
+//	public ResourceData		Data  { get; set; }
+//	public Urr				Release { get; set; }
+//	public byte[]			Content { get; set; }
+//	public string			Path  { get; set; }
+//	public string			LocalPath  { get; set; }
+//	public Availability		Availability { get; set; } = Availability.Full;
+//
+//	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+//	{
+//		lock(node.ResourceHub.Lock)
+//		{
+//			var rc = node.ResourceHub.Find(Resource) ?? node.ResourceHub.Add(Resource);
+//			rc.AddData(Data);
+//
+//			if(Release != null)
+//			{
+//				var rl = node.ResourceHub.Find(Release);
+//				
+//				if(rl == null)
+//				{
+//					rl = node.ResourceHub.Add(Release);
+//					rl.AddCompleted(Path, LocalPath, Content);
+//					rl.Complete(Availability);
+//				}
+//			}
+//		}
+//
+//		return null;
+//	}
+//}
 
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		lock(node.ResourceHub.Lock)
-		{
-			var rc = node.ResourceHub.Find(Resource) ?? node.ResourceHub.Add(Resource);
-			rc.AddData(Data);
-
-			if(Release != null)
-			{
-				var rl = node.ResourceHub.Find(Release);
-				
-				if(rl == null)
-				{
-					rl = node.ResourceHub.Add(Release);
-					rl.AddCompleted(Path, LocalPath, Content);
-					rl.Complete(Availability);
-				}
-			}
-		}
-
-		return null;
-	}
-}
-
-public class LocalResourceUpdateApc : RdnApc
-{
-	public Ura				Address { get; set; }
-	public AutoId			Id { get; set; }
-	public ResourceData		Data { get; set; }
-
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		lock(node.ResourceHub.Lock)
-		{
-			var r = node.ResourceHub.Find(Address) ?? node.ResourceHub.Add(Address);
-			
-			if(Id != null)
-			{
-				r.Id = Id;
-			}
-			
-			if(Data != null)
-			{
-				r.AddData(Data);
-			}
-		}
-
-		return null;
-	}
-}
+//public class LocalResourceUpdateApc : RdnApc
+//{
+//	public AutoId			Id { get; set; }
+//	public ResourceData		Data { get; set; }
+//
+//	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+//	{
+//		lock(node.ResourceHub.Lock)
+//		{
+//			var r = node.ResourceHub.Find(Id) ?? node.ResourceHub.Add(Address);
+//			
+//			if(Id != null)
+//			{
+//				r.Id = Id;
+//			}
+//			
+//			if(Data != null)
+//			{
+//				r.AddData(Data);
+//			}
+//		}
+//
+//		return null;
+//	}
+//}
 
 public class LocalReleaseActivityProgressApc : RdnApc
 {
-	public Urr Release { get; set; }
+	public Urn Release { get; set; }
 	
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.ResourceHub.Lock)
 		{
@@ -218,12 +211,12 @@ public class LocalReleaseActivityProgressApc : RdnApc
 
 public class LocalReleaseReadApc : RdnApc
 {
-	public Urr			Address { get; set; }
+	public Urn			Address { get; set; }
 	public string		Path  { get; set; }
 	public long			Offset  { get; set; } = 0;
 	public long			Length  { get; set; } = -1;
 
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.ResourceHub.Lock)
 		{
@@ -242,11 +235,11 @@ public class LocalReleaseReadApc : RdnApc
 // 		public ResourceAddress	Resource { get; set; }
 // 		//public byte[]			Hash { get; set; }
 // 		
-// 		public override object Execute(Sun node, HttpListenerRequest request, HttpListenerResponse response, Workflow workflow)
+// 		public override object Execute(Sun node, HttpListenerRequest request, HttpListenerResponse response, Workflow flow)
 // 		{
 // 			lock(node.ResourceHub.Lock)
 // 			{	
-// 				var r = node.Call<ResourceResponse>(p => p.Resources.Find(Resource), workflow);
+// 				var r = node.Call<ResourceResponse>(p => p.Resources.Find(Resource), flow);
 // 
 // 				//var a = node.ResourceHub.Find(Resource, Hash);
 // 
@@ -261,32 +254,33 @@ public class LocalResourcesSearchApc : RdnApc
 	public int		Skip { get; set; } = 0;
 	public int		Take { get; set; } = int.MaxValue;
 	
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.ResourceHub.Lock)
-		{	
-			return (Query == null ? node.ResourceHub.Resources : node.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query))).Skip(Skip).Take(Take);
+		{
+			throw new NotImplementedException();
+		//	return (Query == null ? node.ResourceHub.Resources : node.ResourceHub.Resources.Where(i => i.Address.ToString().Contains(Query))).Skip(Skip).Take(Take);
 		}
 	}
 }
 
-public class LocalResourceApc : RdnApc
-{
-	public Ura		Address { get; set; }
-	
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		lock(node.ResourceHub.Lock)
-		{	
-			return node.ResourceHub.Resources.Find(i => i.Address == Address);
-		}
-	}
-}
+//public class CachedResourceApc : RdnApc
+//{
+//	public AutoId		Id { get; set; }
+//	
+//	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+//	{
+//		lock(node.ResourceHub.Lock)
+//		{	
+//			return node.ResourceHub.Find(Id);
+//		}
+//	}
+//}
 
 public class LocalReleaseApe
 {
-	public Urr				Address { get; set; }
-	public Member[]		DeclaredOn { get; set; }
+	public Urn				Address { get; set; }
+	public Member[]			DeclaredOn { get; set; }
 	public Availability		Availability { get; set; }
 	//public File[]			Files { get; set; }
 
@@ -294,7 +288,7 @@ public class LocalReleaseApe
 	{
 	}
 
-	public LocalReleaseApe(LocalRelease release)
+	public LocalReleaseApe(Release release)
 	{
 		Address		= release.Address;
 		DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();
@@ -305,7 +299,7 @@ public class LocalReleaseApe
 
 public class LocalReleaseApc : RdnApc
 {
-	public Urr		Address { get; set; }
+	public Urn		Address { get; set; }
 
 // 		public class File
 // 		{
@@ -339,7 +333,7 @@ public class LocalReleaseApc : RdnApc
 // 		}
 
 	
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(node.ResourceHub.Lock)
 		{	

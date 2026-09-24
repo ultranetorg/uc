@@ -6,9 +6,6 @@ public class RdnCli : McvCli
 {
 	public const string	ExeBaseFileName = "rdn";
 
-	public override JsonApiClient	Api => _Api ??= new RdnApiClient(Settings.Api.LocalNodeAddress(Net));
-	JsonApiClient					_Api;
-
 	public RdnCli()
 	{
 		Boot = new NetBoot(ExeDirectory);
@@ -16,6 +13,8 @@ public class RdnCli : McvCli
 		Net				= Rdn.ByZone(Boot.Zone);
 		NexusSettings	= new NexusSettings(Boot.Zone, Boot.Profile);
 		Settings		= new RdnNodeSettings(NexusSettings);
+
+		Api				= new RdnApiClient(Settings.Api.LocalNodeAddress(Net));
 
 		Execute(Boot.Profile, Boot.Commnand);
 	}

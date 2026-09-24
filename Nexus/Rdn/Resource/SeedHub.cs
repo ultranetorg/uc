@@ -5,13 +5,13 @@ namespace Uccs.Rdn;
 public class ResourceDeclaration : IBinarySerializable
 {
 	public AutoId			Resource { get; set; }	
-	public Urr				Release { get; set; }	
+	public Urn				Release { get; set; }	
 	public Availability		Availability { get; set; }
 
 	public void Read(Reader reader)
 	{
 		Resource = reader.Read<AutoId>();
-		Release = reader.ReadVirtual<Urr>();
+		Release = reader.ReadVirtual<Urn>();
 		Availability = reader.Read<Availability>();
 	}
 
@@ -46,13 +46,13 @@ public class SeedHub
 {
 	public const int					SeedsPerReleaseMax = 100;
 	public const int					SeedsPerRequestMax = 50;
-	public Dictionary<Urr, List<Seed>>	Releases = [];
+	public Dictionary<Urn, List<Seed>>	Releases = [];
 	public object						Lock = new ();
 	RdnMcv								Mcv;
 
-	public SeedHub(RdnMcv node)
+	public SeedHub(RdnMcv mcv)
 	{
-		Mcv = node;
+		Mcv = mcv;
 	}
 
 	public IEnumerable<ReleaseDeclarationResult> ProcessIncoming(Endpoint ip, ResourceDeclaration[] resources)
@@ -74,11 +74,11 @@ public class SeedHub
 			{
 				bool valid()
 				{
-					if(rzd is Rrrh urrh)
+					if(rzd is Hcid cid)
 					{
 						var r = Mcv.Resources.Latest(rsd.Resource);
 	
-						if((r?.Data?.Type.Meaning == DataType.File || r?.Data?.Type.Meaning == DataType.Directory) && r.Data.Parse<Urr>() == urrh)
+						if((r?.Data?.Type.Meaning == DataType.File || r?.Data?.Type.Meaning == DataType.Directory) && r.Data.ReadVirtual<Urn>(Mcv.Net.Constructor) == cid)
 						{
 							return true;
 						}

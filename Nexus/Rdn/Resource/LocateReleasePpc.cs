@@ -4,7 +4,7 @@ namespace Uccs.Rdn;
 
 public class LocateReleasePpc : RdnPpc<LocateReleasePpr>
 {
-	public Urr	Address { get; set; }
+	public Urn	Address { get; set; }
 	public int	Count { get; set; }
 
 	public override Result Execute()
@@ -18,7 +18,7 @@ public class LocateReleasePpc : RdnPpc<LocateReleasePpr>
 
 	public override void Read(Reader reader)
 	{
-		Address = reader.ReadVirtual<Urr>();
+		Address = reader.ReadVirtual<Urn>();
 		Count	= reader.Read7BitEncodedInt();
 	}
 

@@ -31,14 +31,14 @@ public enum DeclarationResult : byte
 
 public class ReleaseDeclarationResult : IBinarySerializable
 {
-	public Urr					Address { get; set; }
+	public Urn					Address { get; set; }
 	public DeclarationResult	Result { get; set; }	
 
 	public ReleaseDeclarationResult()
 	{
 	}
 
-	public ReleaseDeclarationResult(Urr address, DeclarationResult result)
+	public ReleaseDeclarationResult(Urn address, DeclarationResult result)
 	{
 		Address = address;
 		Result = result;
@@ -52,7 +52,7 @@ public class ReleaseDeclarationResult : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Address = reader.ReadVirtual<Urr>();
+		Address = reader.ReadVirtual<Urn>();
 		Result = reader.Read<DeclarationResult>();
 	}
 }

@@ -73,9 +73,6 @@ public class RdnApiServer : McvApiServer
 
 public class RdnApiClient : McvApiClient
 {
-	public LocalResource	FindLocalResource(Ura address, Flow flow) => Call<LocalResource>(new LocalResourceApc {Address = address}, flow);
-	public LocalReleaseApe	FindLocalRelease(Urr address, Flow flow) => Call<LocalReleaseApe>(new LocalReleaseApc {Address = address}, flow);
-
 	public RdnApiClient(string address, HttpClient http = null, int timeout = 30) : base(address, http, timeout)
 	{
 		Options = RdnJsonConfiguration.CreateOptions();
@@ -87,11 +84,11 @@ public class RdnApiClient : McvApiClient
 
 		do
 		{
-			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Parse<Urr>()}, flow);
+			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.ReadVirtual<Urn>(Rdn.Any.Constructor)}, flow);
 
 			if(d is null)
 			{
-				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Parse<Urr>()}, flow);
+				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.ReadVirtual<Urn>(Rdn.Any.Constructor)}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{
@@ -131,31 +128,31 @@ public class HttpGetApc : RdnApc
 			var path = request.QueryString["path"] ?? "";
 
 			var r = rdn.Peering.Call(new ResourceByAddressPpc(a), workflow).Resource;
-			var ra = r.Data?.Parse<Urr>()
+			var ra = r.Data?.ReadVirtual<Urn>(rdn.Net.Constructor)
 					 ??	
 					 throw new ResourceException(ResourceError.NotFound);
 
-			LocalResource s;
-			LocalRelease z;
+			ResourceData s;
+			Release z;
 
 			lock(rdn.ResourceHub.Lock)
 			{
-				s = rdn.ResourceHub.Find(a) ?? rdn.ResourceHub.Add(a);
-				z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra);
+				s = rdn.ResourceHub.Get(r.Id);
+				z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra, r.Id);
 			}
 
 			IIntegrity itg = null;
 
 			switch(ra)
 			{ 
-				case Rrrh x :
+				case Hcid x :
 					if(r.Data.Type.Meaning == DataType.File)
 					{
 						itg = new DHIntegrity(x.Hash); 
 					}
 					else if(r.Data.Type.Meaning == DataType.Directory)
 					{
-						var	f = rdn.ResourceHub.GetFile(z, false, LocalRelease.Index, null, new DHIntegrity(x.Hash), null, workflow);
+						var	f = rdn.ResourceHub.GetFile(z, false, Release.Index, null, new DHIntegrity(x.Hash), null, workflow);
 
 						var index = new Xon(f.Read());
 

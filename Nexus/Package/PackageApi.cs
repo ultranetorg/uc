@@ -8,79 +8,75 @@ public abstract class PackageActivityProgress
 {
 }
 
-public class PackageInfo
+public class PackageApe
 {
-	//public Ura				Address { get; set; }
-	//public ResourceData		Data { get; set; }
-	public bool				Available { get; set; }
-	//public string			Path { get; set; }
-	public PackageManifest	Manifest { get; set; }
-	//public LocalRelease		Release { get; set; }
+	public bool					Available { get; set; }
+	public LocalReleaseApe		Release { get; set; }
+	public PackageManifest		Manifest { get; set; }
 
-	public PackageInfo()
+	public PackageApe()
 	{
 	}
 
-	public PackageInfo(LocalPackage package)
+	public PackageApe(Package package)
 	{
-		Available	= package.Hub.IsAvailable(package.Resource.Address);
 		Manifest	= package.Manifest;
-		//Address		= package.Resource.Address;
-		//Data		= package.Resource.Last;
-		//Release		= package.Release;
+		Release		= new LocalReleaseApe(package.Release);
+		Available	= package.Hub.IsAvailable(package.Id);
 	}
 }
 
-public class PackageAddApc : Apc, INexusApc 
-{
-	public Ura						Resource { get; set; }
-	public byte[]					Complete { get; set; }
-	public byte[]					Incremental { get; set; }
-	public byte[]					Manifest { get; set; }
-	public ReleaseAddressCreator	AddressCreator { get; set; }
 
-	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
-	{
-		var h = nexus.RdnNode.Net.Cryptography.HashFile(Manifest);
-		var a = AddressCreator.Create(null/*Vault*/, h);
-
-		lock(nexus.PackageHub.Lock)
-		{
-			var p = nexus.PackageHub.Get(Resource);
-			
-			lock(nexus.RdnNode.ResourceHub.Lock)
-			{
-				p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Package_Software_VersionManifest), a));
-				
-				var r = nexus.RdnNode.ResourceHub.Find(a) ?? nexus.RdnNode.ResourceHub.Add(a);
-
-				var path = nexus.PackageHub.AddressToReleases(a);
-
-				r.AddCompleted(LocalPackage.ManifestFile, Path.Join(path, LocalPackage.ManifestFile), Manifest);
-		
-				if(Complete != null)
-					r.AddCompleted(LocalPackage.CompleteFile, Path.Join(path, LocalPackage.CompleteFile), Complete);
-	
-				if(Incremental != null)
-					r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(path, LocalPackage.IncrementalFile), Incremental);
-									
-				r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
-			}
-		}
-
-		return null;
-	}
-}
+//public class PackageAddApc : Apc, INexusApc 
+//{
+//	//public AutoId					Resource { get; set; }
+//	public byte[]					Complete { get; set; }
+//	public byte[]					Incremental { get; set; }
+//	public byte[]					Manifest { get; set; }
+//	public ReleaseAddressCreator	AddressCreator { get; set; }
+//
+//	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+//	{
+//		var h = nexus.RdnNode.Net.Cryptography.HashFile(Manifest);
+//		var a = AddressCreator.Create(null/*Vault*/, h);
+//
+//		lock(nexus.PackageHub.Lock)
+//		{
+//			//var p = nexus.PackageHub.Get(Resource);
+//			
+//			lock(nexus.RdnNode.ResourceHub.Lock)
+//			{
+//				//p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Package_Software_VersionManifest), a));
+//				
+//				var r = nexus.RdnNode.ResourceHub.Find(a) ?? nexus.RdnNode.ResourceHub.Add(a);
+//
+//				var path = nexus.PackageHub.AddressToReleases(a);
+//
+//				r.AddCompleted(LocalPackage.ManifestFile, Path.Join(path, LocalPackage.ManifestFile), Manifest);
+//		
+//				if(Complete != null)
+//					r.AddCompleted(LocalPackage.CompleteFile, Path.Join(path, LocalPackage.CompleteFile), Complete);
+//	
+//				if(Incremental != null)
+//					r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(path, LocalPackage.IncrementalFile), Incremental);
+//									
+//				r.Complete((Complete != null ? Availability.Complete : 0) | (Incremental != null ? Availability.Incremental : 0));
+//
+//				return new LocalReleaseApe(r);
+//			}
+//		}
+//	}
+//}
 
 public class PackageBuildApc : Apc, INexusApc
 {
-	public Ura						Resource { get; set; }
 	public IEnumerable<string>		Sources { get; set; }
-	public string					DependenciesPath { get; set; }
-	public Ura						Previous { get; set; }
+	public string					Manifest { get; set; }
+	public string					Instruction { get; set; }
+	public AutoId					Previous { get; set; }
 	public ReleaseAddressCreator	AddressCreator { get; set; }
 
-	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		if(nexus.PackageHub == null)
 			throw new ResourceException(ResourceError.NotHub);
@@ -89,7 +85,12 @@ public class PackageBuildApc : Apc, INexusApc
 		{	
 			try
 			{
-				return new LocalReleaseApe(nexus.PackageHub.AddRelease(Resource, Sources, DependenciesPath, Previous, AddressCreator, workflow));
+				return new PackageApe(nexus.PackageHub.BuildRelease(Sources, 
+																	Manifest == null ? new PackageManifest() : PackageManifest.FromXon(new Xon(Manifest)), 
+																	Instruction == null ? null : PackageInstruction.FromXon(new Xon(Instruction)), 
+																	Previous, 
+																	AddressCreator, 
+																	flow));
 			}
 			catch(IOException ex)
 			{
@@ -101,7 +102,7 @@ public class PackageBuildApc : Apc, INexusApc
 
 public class StartPackageDownloadApc : Apc, INexusApc
 {
-	public Ura		Package { get; set; }
+	public AutoId		Id { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -110,7 +111,7 @@ public class StartPackageDownloadApc : Apc, INexusApc
 
 		lock(nexus.PackageHub.Lock)
 		{	
-			nexus.PackageHub.StartDownload(Package, workflow);
+			nexus.PackageHub.StartDownload(Id, workflow);
 			return null;
 		}
 	}
@@ -118,7 +119,7 @@ public class StartPackageDownloadApc : Apc, INexusApc
 
 public class PackageActivityProgressApc : Apc, INexusApc
 {
-	public Ura	Package { get; set; }
+	public AutoId	Id { get; set; }
 	
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -127,7 +128,7 @@ public class PackageActivityProgressApc : Apc, INexusApc
 
 		lock(nexus.PackageHub.Lock)
 		{
-			var p = nexus.PackageHub.Find(Package);
+			var p = nexus.PackageHub.Find(Id);
 
 			if(p == null)
 				throw new ResourceException(ResourceError.NotFound);
@@ -145,7 +146,7 @@ public class PackageActivityProgressApc : Apc, INexusApc
 
 public class LocalPackageApc : Apc, INexusApc
 {
-	public Ura	Address { get; set; }
+	public AutoId	Id { get; set; }
 	
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -154,19 +155,19 @@ public class LocalPackageApc : Apc, INexusApc
 
 		lock(nexus.PackageHub.Lock)
 		{
-			var p = nexus.PackageHub.Find(Address);
+			var p = nexus.PackageHub.Find(Id);
 
 			if(p == null)
 				throw new ResourceException(ResourceError.NotFound);
 
-			return new PackageInfo(p);
+			return new PackageApe(p);
 		}
 	}
 }
 
 public class PackageDeployApc : Apc, INexusApc
 {
-	public Ura			Address { get; set; }
+	public AutoId			Address { get; set; }
 	public string		To { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)

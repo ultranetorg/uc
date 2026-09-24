@@ -1,15 +1,19 @@
 ﻿using System.IO.Compression;
 using System.Text;
+using RocksDbSharp;
 using Uccs.Rdn;
 
 namespace Uccs.Nexus;
 
 public class PackageHub
 {
-	public List<LocalPackage>	Packages = new();
+	//public const string			FamilyName = nameof(Packages);
+
+	public List<Package>	Packages = new();
 	public RdnNode				Node;
 	public object				Lock = new object();
 	public string				DeploymentPath;
+	//public ColumnFamilyHandle	Family => Node.Database.GetColumnFamily(FamilyName);
 
 	public PackageHub(RdnNode node, string deploymentpath)
 	{
@@ -17,14 +21,25 @@ public class PackageHub
 		DeploymentPath = deploymentpath;
 
 		Directory.CreateDirectory(deploymentpath);
+		
+		//if(!Node.Database.TryGetColumnFamily(FamilyName, out var cf))	
+		//	Node.Database.CreateColumnFamily(new (), FamilyName);
+		//
+		//using(var i = Node.Database.NewIterator(Family))
+		//{
+		//	for(i.SeekToFirst(); i.Valid(); i.Next())
+		//	{
+ 		//		Packages.Add(new Reader(i.Key()) );
+		//	}
+		//}
 	}
 
- 	public static string AddressToDeployment(string packagespath, Ura resource)
+ 	public static string AddressToDeployment(string packagespath, AutoId resource)
  	{
- 		return Path.Join(packagespath, Net.Net.Escape(resource.Domain), Net.Net.Escape(resource.Resource));
+ 		return Path.Join(packagespath, resource.ToString());
  	}
 
- 	public string AddressToReleases(Urr release)
+ 	public string AddressToReleases(Urn release)
  	{
  		return Path.Join(Node.Settings.Seed.Releases, Net.Net.Escape(release.ToString()));
  	}
@@ -37,7 +52,7 @@ public class PackageHub
 //												.Where(i => i is not null);
 //	}
 
-	public bool IsAvailable(Ura package)
+	public bool IsAvailable(AutoId package)
 	{
 		var p = Find(package);
 		
@@ -50,53 +65,86 @@ public class PackageHub
 		lock(Node.ResourceHub.Lock)
 		{
 			if(	p.Release.Availability.HasFlag(Availability.Complete) || 
-				p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsAvailable(i.Address)))
+				p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsAvailable(i.Id)))
 			{
-				return p.Manifest.CriticalDependencies.All(i => IsAvailable(i.Address));
+				return p.Manifest.CriticalDependencies.All(i => IsAvailable(i.Id));
 			}
 			else
 				return false;
 		}
 	}
 
-	public LocalPackage Get(Ura resource)
-	{
-		var p = Find(resource);
+//	public LocalPackage Get(AutoId resource)
+//	{
+//		var p = Find(resource);
+//
+//		if(p != null)
+//			return p;
+//
+//		lock(Node.ResourceHub.Lock)
+//		{
+//			var r = Node.ResourceHub.Find(resource) ?? Node.ResourceHub.Add(resource);
+//			p = new LocalPackage(this, r);
+//		}
+//
+//		Packages.Add(p);
+//
+//		return p;
+//	}
 
-		if(p != null)
-			return p;
+// 	public LocalPackage Find(Ura resource)
+// 	{
+// 		var p = Packages.Find(i => i.Resource.Address == resource);
+// 
+// 		if(p != null)
+// 			return p;
+// 
+// 		LocalResource r;
+// 
+// 		lock(Node.ResourceHub.Lock)
+// 		{
+// 			r = Node.ResourceHub.Find(resource);
+// 
+// 			if(r != null)
+// 			{
+// 				p = new LocalPackage(this, r);
+// 	
+// 				Packages.Add(p);
+// 	
+// 				return p;
+// 			}
+// 		}
+// 
+// 		return null;
+// 	}
 
-		lock(Node.ResourceHub.Lock)
-		{
-			var r = Node.ResourceHub.Find(resource) ?? Node.ResourceHub.Add(resource);
-			p = new LocalPackage(this, r);
-		}
-
-		Packages.Add(p);
-
-		return p;
-	}
-
- 	public LocalPackage Find(Ura resource)
+ 	public Package Find(AutoId id)
  	{
- 		var p = Packages.Find(i => i.Resource.Address == resource);
+ 		var p = Packages.Find(i => i.Id == id);
  
  		if(p != null)
  			return p;
  
- 		LocalResource r;
- 
+ 		ResourceData d;
+ 		
  		lock(Node.ResourceHub.Lock)
  		{
- 			r = Node.ResourceHub.Find(resource);
- 
- 			if(r != null)
+ 			d = Node.ResourceHub.Get(id);
+ 		
+ 			if(d != null && d.Type.Content == ContentType.Package_Software_VersionManifest)
  			{
- 				p = new LocalPackage(this, r);
- 	
- 				Packages.Add(p);
- 	
- 				return p;
+				var m = d.Read<PackageManifest>();
+
+ 				if(Node.ResourceHub.Find(m.Urn) != null)
+ 				{
+	 				p = new Package(this);
+						
+					p.Id = id;
+	 		
+	 				Packages.Add(p);
+	 		
+	 				return p;
+ 				}
  			}
  		}
  
@@ -128,7 +176,7 @@ public class PackageHub
 // 			return null;
 // 		}
 
-	public bool ExistsRecursively(Ura release)
+	public bool ExistsRecursively(AutoId release)
 	{
 		var p = Find(release);
 
@@ -137,7 +185,7 @@ public class PackageHub
 
 		foreach(var i in p.Manifest.CompleteDependencies)
 		{
-			if(i.Need == DependencyNeed.Critical && !ExistsRecursively(i.Address))
+			if(i.Need == DependencyNeed.Critical && !ExistsRecursively(i.Id))
 				return false;
 		}
 
@@ -156,7 +204,7 @@ public class PackageHub
 
 			if(removals.Any())
 			{
-				var e = arch.CreateEntry(LocalPackage.Removals);
+				var e = arch.CreateEntry(Package.Removals);
 				var f = string.Join('\n', removals);
 					
 				using var s = e.Open();
@@ -165,7 +213,7 @@ public class PackageHub
 
 			if(patches.Any())
 			{
-				var e = arch.CreateEntry(LocalPackage.Patches);
+				var e = arch.CreateEntry(Package.Patches);
 					
 				using var s = e.Open();
 				var w = new Writer(s);
@@ -179,7 +227,7 @@ public class PackageHub
 		}
 	}
 	
-	public void BuildIncremental(Stream stream, Ura package, Ura previous, IDictionary<string, string> all, Flow flow)
+	public void BuildIncremental(Stream stream, Release complete, IDictionary<string, string> all, Flow flow)
 	{
 		var rems = new List<string>();
 		var upds = new Dictionary<string, string>();
@@ -191,7 +239,7 @@ public class PackageHub
 		string ppath;
 			
 		lock(Node.ResourceHub)
-			ppath = Find(previous).Release.Find(LocalPackage.CompleteFile).LocalPath;
+			ppath = complete.Find(Package.CompleteFile).DataPath;
 
 		using(var ps = new FileStream(ppath, FileMode.Open))
 		{
@@ -255,13 +303,13 @@ public class PackageHub
 		Build(stream, upds, rems, pchs, flow);
 	}
 
-	public void DetermineDelta(Ura package, PackageManifest manifest, out bool canincrement, out List<Dependency> dependencies)
+	public void DetermineDelta(PackageManifest manifest, out string file, out List<Dependency> dependencies)
 	{
-		var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Address));
+		var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Id));
 	
 		if(from != null)
 		{
-			var deps = Find(from.Address).Manifest.CompleteDependencies.ToList();
+			var deps = Find(from.Id).Manifest.CompleteDependencies.ToList();
 
 			deps.AddRange(from.AddedDependencies);
 			deps.RemoveAll(i => from.RemovedDependencies.Contains(i));
@@ -270,19 +318,19 @@ public class PackageHub
 			deps.RemoveAll(i => !manifest.CompleteDependencies.Contains(i));
 				
 			dependencies = deps;
-			canincrement = true; /// we have all incremental packages since last complete one
+			file = Package.DeltaFile; /// we have all incremental packages since last complete one
 		}
 		else
 		{
 			dependencies = manifest.CompleteDependencies.ToList();
-			canincrement = false;
+			file = Package.CompleteFile;
 		}
 	}
 
-	public LocalRelease AddRelease(Ura resource, IEnumerable<string> sources, string dependenciespath, Ura previous, ReleaseAddressCreator addresscreator, Flow flow)
+	public Package BuildRelease(IEnumerable<string> sources, PackageManifest manifest, PackageInstruction instruction, AutoId previous, ReleaseAddressCreator addresscreator, Flow flow)
 	{
-		byte[] cstream;
-		byte[] istream = null;
+		byte[] completed;
+		byte[] delta = null;
 
 		var files = new Dictionary<string, string>();
 
@@ -316,58 +364,59 @@ public class PackageHub
 
 		var ms = new MemoryStream();
 		Build(ms, files, [], [], flow);
-		cstream = ms.ToArray();
+		completed = ms.ToArray();
 
 		if(previous != null)
 		{
 			ms = new MemoryStream();
-			BuildIncremental(ms, resource, previous, files, flow);
-			istream = ms.ToArray();
+			BuildIncremental(ms, Find(previous).Release, files, flow);
+			delta = ms.ToArray();
 		}
 		
-		var m = File.Exists(dependenciespath) ? PackageManifest.Load(dependenciespath)
-											  : new PackageManifest{CompleteDependencies = []};
+	 	var p = new Package(this);
 
-		///Add(release, m);
-		
+		p.Manifest = manifest;
+	 	
+	 	Packages.Add(p);
+					
  		lock(Node.ResourceHub.Lock)
  		{
-			m.CompleteHash		= Node.ResourceHub.Net.Cryptography.HashFile(cstream);
-			m.IncrementalHash	= istream != null ? Node.ResourceHub.Net.Cryptography.HashFile(istream) : null;
+			/// pi.CompleteHash		= Node.ResourceHub.Net.Cryptography.HashFile(cstream);
+			/// pi.IncrementalHash	= istream != null ? Node.ResourceHub.Net.Cryptography.HashFile(istream) : null;
 
 			if(previous != null) /// a single parent supported only
 			{
-				var vm = PackageManifest.Load(Find(previous).Release.Find(LocalPackage.ManifestFile).LocalPath);
+				var vm = Find(previous).Manifest;
 			
 				var d = new ParentPackage
 						{
-							Address				= previous,
-							AddedDependencies	= m.CompleteDependencies.Where(i => !vm.CompleteDependencies.Contains(i)).ToArray(),
-							RemovedDependencies	= vm.CompleteDependencies.Where(i => !m.CompleteDependencies.Contains(i)).ToArray() 
+							Id					= previous,
+							AddedDependencies	= manifest.CompleteDependencies.Where(i => !vm.CompleteDependencies.Contains(i)).ToArray(),
+							RemovedDependencies	= vm.CompleteDependencies.Where(i => !manifest.CompleteDependencies.Contains(i)).ToArray() 
 						};
 				
-				m.Parents = [d];
+				manifest.Parents = [d];
 			}
 
-			var h = Node.ResourceHub.Net.Cryptography.HashFile(m.Raw);
+			var x = new Dictionary<object, string>();
+ 			
+			x[completed] = Package.CompleteFile;
 
-			var a = addresscreator.Create(null/*Node.Vault*/, h);
-			var r = Node.ResourceHub.Add(a);
-			 
- 			r.AddCompleted(LocalPackage.ManifestFile, Path.Join(AddressToReleases(a), LocalPackage.ManifestFile), m.Raw);
-			r.AddCompleted(LocalPackage.CompleteFile, Path.Join(AddressToReleases(a), LocalPackage.CompleteFile), cstream);
+			if(delta != null)
+				x[delta] = Package.DeltaFile;
 
-			if(istream != null)
-				r.AddCompleted(LocalPackage.IncrementalFile, Path.Join(AddressToReleases(a), LocalPackage.IncrementalFile), istream);
+			if(instruction != null)
+				x[(instruction as IBinarySerializable).ToRaw()] = PackageInstruction.Extension;
 
-			r.Complete(Availability.Complete|(istream != null ? Availability.Incremental : 0));
- 				
-			var p = Get(resource);
-			p.Resource.AddData(new DataType(DataType.File, ContentType.Package_Software_VersionManifest), a);
+			var r = Node.ResourceHub.Add(x);
 
-			flow.Log?.Report(this, $"Release added: {a}");
+			r.Complete(Availability.Complete|(delta != null ? Availability.Incremental : 0));
 
-			return r;
+			manifest.Urn = r.Address;
+
+			flow.Log?.Report(this, $"Release built: {r.Address}");
+
+			return p;
  		}
 	}
  
@@ -385,7 +434,7 @@ public class PackageHub
 //  			 return AddRelease(resource, sources, dependenciespath, m.History, m.History?.LastOrDefault(), addresscreator, flow);
 //  		}
 
-	public void StartDeploy(Ura address, string packagespath, Flow flow)
+	public void StartDeploy(AutoId address, string packagespath, Flow flow)
 	{
 		lock(Lock)
 		{
@@ -407,87 +456,87 @@ public class PackageHub
 		{
 			var p = Find(address);
 			
-			var rdnvm = Path.Join(AddressToDeployment(packagespath, new(address)), '.' + PackageManifest.Extension);
+			var pi = Path.Join(AddressToDeployment(packagespath, address), PackageInstruction.Extension);
 
-			if(File.Exists(rdnvm) && p.Manifest.CompleteHash.SequenceEqual(PackageManifest.Load(rdnvm).CompleteHash))
+			if(File.Exists(pi) && Bytes.Equal(p.Release.Hashify(PackageInstruction.Extension), Node.Net.Cryptography.HashFile(File.ReadAllBytes(pi))))
 				return;
 
 			var	d = new Deployment();
 
-			void collect(LocalPackage parent, Ura address)	{
-																var m = new DeploymentMerge {Target = Find(address)};
-																d.Merges.Add(m);
+			void collect(Package parent, AutoId address)	{
+																	var m = new DeploymentMerge {Target = Find(address)};
+																	d.Merges.Add(m);
 
-																var p = m.Target;
+																	var p = m.Target;
 
-																while(flow.Active)
-																{
-																	if(p.Release == null)
+																	while(flow.Active)
 																	{
-																	}
-																	else if(p.Release.Availability.HasFlag(Availability.Complete))
-																	{
-																		if(p.Activity == null)
-																			p.Activity = d;
-																		else
-																			throw new ResourceException(ResourceError.Busy);
+																		if(p.Release == null)
+																		{
+																		}
+																		else if(p.Release.Availability.HasFlag(Availability.Complete))
+																		{
+																			if(p.Activity == null)
+																				p.Activity = d;
+																			else
+																				throw new ResourceException(ResourceError.Busy);
 				
-																		m.Complete = p;
+																			m.Complete = p;
 
-																		break;
+																			break;
+																		}
+																		else if(p.Release.Availability.HasFlag(Availability.Incremental))
+																		{	
+																			if(p.Activity == null)
+																				p.Activity = d;
+																			else
+																				throw new ResourceException(ResourceError.Busy);
+
+																			var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Id));
+
+																			if(pp == null)
+																				throw new ResourceException(ResourceError.ParentPackagesNotFound);
+
+																			m.Incrementals.Insert(0, new (p, pp));
+
+																			p = Find(pp.Id);
+																		}
+
+																		Thread.Sleep(10);
 																	}
-																	else if(p.Release.Availability.HasFlag(Availability.Incremental))
-																	{	
-																		if(p.Activity == null)
-																			p.Activity = d;
-																		else
-																			throw new ResourceException(ResourceError.Busy);
 
-																		var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Address));
-
-																		if(pp == null)
-																			throw new ResourceException(ResourceError.ParentPackagesNotFound);
-
-																		m.Incrementals.Insert(0, new (p, pp));
-
-																		p = Find(pp.Address);
-																	}
-
-																	Thread.Sleep(10);
-																}
-
-																//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
+																	//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
 			
-																var deps = new HashSet<Ura>();
+																	var deps = new HashSet<AutoId>();
 
-																foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
-																	deps.Add(j.Address);
+																	foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
+																		deps.Add(j.Id);
 
-																foreach(var i in m.Incrementals.AsEnumerable().Reverse())
-																{
-																	foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
-																		deps.Add(j.Address);
+																	foreach(var i in m.Incrementals.AsEnumerable().Reverse())
+																	{
+																		foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
+																			deps.Add(j.Id);
 	
-																	foreach(var j in i.Value.RemovedDependencies)
-																		deps.Remove(j.Address);
-																}
+																		foreach(var j in i.Value.RemovedDependencies)
+																			deps.Remove(j.Id);
+																	}
 
-																foreach(var i in deps)
-																	collect(p, i);
-															}
+																	foreach(var i in deps)
+																		collect(p, i);
+																}
 
 			collect(null, address);
 
 			Task.Run(() =>	{ 
 								foreach(var s in d.Merges.AsEnumerable().Reverse())
 								{
-									using(var fs = new FileStream(s.Complete.Release.Find(LocalPackage.CompleteFile).LocalPath, FileMode.Open))
+									using(var fs = new FileStream(s.Complete.Release.Find(Package.CompleteFile).DataPath, FileMode.Open))
 									{
 										using(var a = new ZipArchive(fs, ZipArchiveMode.Read))
 										{
 											foreach(var e in a.Entries)
 											{
-												var f = Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+												var f = Path.Join(AddressToDeployment(packagespath, s.Target.Id), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 								
 												Directory.CreateDirectory(Path.GetDirectoryName(f));
 												e.ExtractToFile(f, true);
@@ -497,15 +546,15 @@ public class PackageHub
 
 									foreach(var i in s.Incrementals)
 									{
-										using(var fs = new FileStream(i.Key.Release.Find(LocalPackage.IncrementalFile).LocalPath, FileMode.Open))
+										using(var fs = new FileStream(i.Key.Release.Find(Package.DeltaFile).DataPath, FileMode.Open))
 										{
 											using(var z = new ZipArchive(fs, ZipArchiveMode.Read))
 											{
 												foreach(var e in z.Entries)
 												{
-													if(e.Name != LocalPackage.Removals)
+													if(e.Name != Package.Removals)
 													{
-														var f = Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+														var f = Path.Join(AddressToDeployment(packagespath, s.Target.Id), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 								
 														Directory.CreateDirectory(Path.GetDirectoryName(f));
 														e.ExtractToFile(f, true);
@@ -518,7 +567,7 @@ public class PackageHub
 
 															while(!sr.EndOfStream)
 															{
-																File.Delete(Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
+																File.Delete(Path.Join(AddressToDeployment(packagespath, s.Target.Id), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
 															}
 														}
 													}
@@ -533,7 +582,7 @@ public class PackageHub
 
 									foreach(var i in s.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical && i.Flags.HasFlag(DependencyFlag.Merge)))
 									{
-										var d = Find(i.Address);
+										var d = Find(i.Id);
 									
 										while(d == null || d.Activity != null)
 											if(flow.Active)
@@ -541,9 +590,9 @@ public class PackageHub
 											else
 												return;
 
-										foreach(var fs in Directory.EnumerateFiles(AddressToDeployment(packagespath, new(i.Address)), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != '.' + PackageManifest.Extension))
+										foreach(var fs in Directory.EnumerateFiles(AddressToDeployment(packagespath, i.Id), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != PackageInstruction.Extension))
 										{
-											var fd = Path.Join(AddressToDeployment(packagespath, new (s.Target.Resource.Address)), fs.Substring(AddressToDeployment(packagespath, new (i.Address)).Length + 1));
+											var fd = Path.Join(AddressToDeployment(packagespath, s.Target.Id), fs.Substring(AddressToDeployment(packagespath, i.Id).Length + 1));
 											Directory.CreateDirectory(Path.GetDirectoryName(fd));
 
 											File.Copy(fs, fd, true);
@@ -552,7 +601,7 @@ public class PackageHub
 									
 									}
 
-									File.Copy(s.Complete.Release.Find(LocalPackage.ManifestFile).LocalPath, Path.Join(AddressToDeployment(packagespath, new(s.Target.Resource.Address)), '.' + PackageManifest.Extension), true);
+									File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Id), PackageInstruction.Extension), true);
 
 									s.Complete.Activity = null;
 								}
@@ -560,9 +609,15 @@ public class PackageHub
 		}
 	}
 
-	public PackageDownload StartDownload(Ura address, Flow flow)
+	public PackageDownload StartDownload(AutoId id, Flow flow)
 	{
-		var p = Get(address);
+		var p = Find(id);
+		
+		if(p == null)
+		{
+			p = new Package(this){Id = id};
+			Packages.Add(p);
+		}
 
 		if(p.Activity is PackageDownload d)
 			return d;
@@ -574,11 +629,11 @@ public class PackageHub
 		return d;
 	}
 
-	public LocalPackage Deploy(Ura address, Flow flow)
+	public Package Deploy(AutoId address, Flow flow)
 	{
 		StartDeploy(address, DeploymentPath, flow);
 
-		LocalPackage p;
+		Package p;
 
 		lock(Lock)
 			p = Find(address);

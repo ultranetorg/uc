@@ -8,9 +8,6 @@ public class NexusCli : NetCli
 	public Nexus					Nexus;
 	public VaultSettings			VaultSettings;
 
-	NexusApiClient					_Api;
-	public override JsonApiClient	Api => _Api ??= new NexusApiClient(NexusSettings.Api.LocalSystemAddress(NexusSettings.Zone, Net.Api.Nexus));
-
 	VaultApiClient					_VaulApi;
 	public JsonApiClient			VaultApi => _VaulApi ??= new VaultApiClient(NexusSettings.Api.LocalSystemAddress(Boot.Zone, Net.Api.Vault));
 
@@ -23,6 +20,8 @@ public class NexusCli : NetCli
 		Boot = new NetBoot(ExeDirectory);
 		NexusSettings = new NexusSettings(Boot.Zone, Boot.Profile);
 		VaultSettings = new VaultSettings(NexusSettings);
+
+		Api = new NexusApiClient(NexusSettings.Api.LocalSystemAddress(NexusSettings.Zone, Net.Api.Nexus));
 
 		//var c = Console.ForegroundColor;
 		//Console.Write($"Zone    = ");

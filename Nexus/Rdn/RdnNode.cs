@@ -127,14 +127,14 @@ public class RdnNode : McvNode
 		base.Stop();
 	}
 
-	public LocalRelease Download(Resource resource, Flow flow)
+	public Release Download(Resource resource, Flow flow)
 	{
 		new ResourceDownloadApc {Id = resource.Id}.Execute(this, null, null, flow);
 
-		LocalRelease l;
+		Release l;
 
 		lock(ResourceHub.Lock)
-			l = ResourceHub.Find(resource.Data.Parse<Urr>());
+			l = ResourceHub.Find(resource.Data.ReadVirtual<Urn>(Net.Constructor));
 
 		do
 		{

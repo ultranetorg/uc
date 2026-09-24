@@ -56,7 +56,7 @@ public class AnalyzerReport
 
 public class Analysis : IBinarySerializable
 {
-	public Urr						Release { get; set; }
+	public Urn						Release { get; set; }
 	public long						EnergyReward { get; set; }
 	public long						SpacetimeReward { get; set; }
 	public AutoId					Consil	{ get; set; }
@@ -71,7 +71,7 @@ public class Analysis : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Release			= Urr.ReadVirtual(reader);
+		Release			= Urn.ReadVirtual(reader);
 		Consil			= reader.Read<AutoId>();
 		EnergyReward	= reader.Read7BitEncodedInt64();
 		SpacetimeReward	= reader.Read7BitEncodedInt64();

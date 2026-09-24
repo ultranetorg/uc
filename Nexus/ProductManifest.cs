@@ -6,10 +6,10 @@ namespace Uccs.Nexus;
 
 public class Realization : IBinarySerializable
 {
-	public Ura					Latest;
+	public AutoId				Latest;
 	public string				Name;
 	public string				Title;
-	public Expression	Condition;
+	public Expression			Condition;
 	public string				Channel;
 
 	public Realization()
@@ -22,7 +22,7 @@ public class Realization : IBinarySerializable
 
 		r.Name		= xon.Get<string>();
 		r.Title		= xon.Get<string>("Title", null);
-		r.Latest	= xon.One("Latest")?.Get<Ura>();
+		r.Latest	= xon.One("Latest")?.Get<AutoId>();
 		r.Channel	= xon.Get<string>("Channel");
 		r.Condition = xon.Has("Condition") ? Expression.FromXon(xon.One("Condition").Nodes.First()) : null;
 
@@ -46,7 +46,7 @@ public class Realization : IBinarySerializable
 	public void Read(Reader reader)
 	{
 		Title		= reader.ReadUtf8();
-		Latest		= reader.Read<Ura>();
+		Latest		= reader.Read<AutoId>();
 		Channel		= reader.ReadUtf8();
 		Condition	= reader.ReadNullable<Expression>();
 	}				

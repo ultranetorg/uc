@@ -17,6 +17,7 @@ public abstract class Rdn : McvNet
 
 	public static readonly IPAddress[]			LocalInitials = Enumerable.Range(0, 16).Select(i => new IPAddress([127, 1, 0, (byte)i])).ToArray();
 
+ 	public static readonly Rdn					Any = new AnyRdn();
  	public static readonly Rdn					Simulated = new SimulationRdn();
  	public static readonly Rdn					Virtual = new VirtualRdn();
  	public static readonly Rdn					Test = new TestRdn();
@@ -29,6 +30,16 @@ public abstract class Rdn : McvNet
 	public Rdn()
 	{
 		Constructor.Register<Operation>(Assembly.GetExecutingAssembly(), typeof(RdnOperationClass), i => i, overwrite: true);
+		Constructor.Register<Urn>(GetType().Assembly, typeof(UrnScheme), i => i);
+	}
+}
+
+public class AnyRdn : Rdn
+{	
+	public override	Zone	Zone => Zone.None;
+	
+	public AnyRdn()
+	{
 	}
 }
 

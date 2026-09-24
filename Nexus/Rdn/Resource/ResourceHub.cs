@@ -6,20 +6,20 @@ namespace Uccs.Rdn;
 
 public class ResourceHub
 {
-	public const long				PieceMaxLength = 512 * 1024;
-	public const string				ReleaseFamilyName = "Releases";
-	public const string				ResourceFamilyName = "Resources";
-	public const int				MembersPerDeclaration = 3;
+	public const long										PieceMaxLength = 512 * 1024;
+	public const int										MembersPerDeclaration = 3;
+	public const string										ReleaseFamilyName = nameof(Releases);
+	public const string										ResourceFamilyName = nameof(Resources);
 
-	public List<LocalRelease>		Releases = new();
-	public List<LocalResource>		Resources = new();
-	public RdnNode					Node;
-	public object					Lock = new object();
-	public McvNet					Net;
-	public ColumnFamilyHandle		ReleaseFamily => Node.Database.GetColumnFamily(ReleaseFamilyName);
-	public ColumnFamilyHandle		ResourceFamily => Node.Database.GetColumnFamily(ResourceFamilyName);
-	public SeedSettings				Settings;
-	Thread							DeclaringThread;
+	public List<Release>								Releases = new();
+	public List<CachedResource>								Resources = new();
+	public RdnNode											Node;
+	public object											Lock = new object();
+	public McvNet											Net;
+	public ColumnFamilyHandle								ReleaseFamily => Node.Database.GetColumnFamily(ReleaseFamilyName);
+	public ColumnFamilyHandle								ResourceFamily => Node.Database.GetColumnFamily(ResourceFamilyName);
+	public SeedSettings										Settings;
+	Thread													DeclaringThread;
 
 	public ResourceHub(RdnNode node, McvNet net, SeedSettings settings)
 	{
@@ -38,10 +38,9 @@ public class ResourceHub
 		{
 			for(i.SeekToFirst(); i.Valid(); i.Next())
 			{
- 				Releases.Add(new LocalRelease(this, Urr.FromRaw(i.Key())));
+ 				Releases.Add(new Release(this, Urn.FromRaw(i.Key())));
 			}
 		}
-
 	}
 
 	public void RunDeclaring()
@@ -54,50 +53,70 @@ public class ResourceHub
 		}
 	}
 
-	public string ToReleases(Urr urr)
+	public string ToReleases(Urn urr)
 	{
 		return Path.Join(Settings.Releases, Uccs.Net.Net.Escape(urr.ToString()));
 	}
 
-	public LocalRelease Add(byte[] address)
-	{
-		if(Releases.Any(i => i.Address.Raw.SequenceEqual(address)))
-			throw new ResourceException(ResourceError.AlreadyExists);
-	
-		var r = new LocalRelease(this, Urr.FromRaw(address));
-		r.__StackTrace = new System.Diagnostics.StackTrace(true);
-	
-		Releases.Add(r);
-	
-		return r;
-	}
-
-	public LocalRelease Add(Urr address)
+	public Release Add(Urn address, AutoId id)
 	{
 		if(Releases.Any(i => i.Address == address))
 			throw new ResourceException(ResourceError.AlreadyExists);
 
-		var r = new LocalRelease(this, address);
-		r.__StackTrace = new System.Diagnostics.StackTrace(true);
+		var r = new Release(this, address);
+		r.Resource		= id;
+		r.__StackTrace	= new System.Diagnostics.StackTrace(true);
 
 		Releases.Add(r);
 
 		return r;
 	}
 
-	public LocalResource Add(Ura resource)
+	public void Add(Release release)
 	{
-		if(Resources.Any(i => i.Address == resource))
+		if(Releases.Any(i => i.Address == release.Address))
 			throw new ResourceException(ResourceError.AlreadyExists);
 
-		var r = new LocalResource(this, resource);
+		Releases.Add(release);
+	}
 
-		Resources.Add(r);
+	public Release Add(Dictionary<object, string> files)
+	{
+		var r = new Release(this, files);
 
-		r.Save();
+		if(Releases.Any(i => i.Address == r.Address))
+			throw new ResourceException(ResourceError.AlreadyExists);
+
+		Releases.Add(r);
 
 		return r;
 	}
+
+//	public LocalResource Update(AutoId id, ResourceData data)
+//	{
+//		if(Ids.TryGetValue(id, out var d))
+//		{
+//			d.Data = data;
+//			d.Updated = DateTime.UtcNow;
+//		} 
+//		else
+//			Ids[id] = d = new LocalResource(this, data){Updated = DateTime.UtcNow};
+//
+//		return d;
+//	}
+//
+//	public LocalResource Update(Ura address, ResourceData data)
+//	{
+//		if(Addresses.TryGetValue(address, out var d))
+//		{
+//			d.Data = data;
+//			d.Updated = DateTime.UtcNow;
+//		} 
+//		else
+//			Addresses[address] = d = new LocalResource(this, data){Updated = DateTime.UtcNow};
+//
+//		return d;
+//	}
 
 //		public LocalRelease Find(byte[] address)
 //		{
@@ -118,7 +137,7 @@ public class ResourceHub
 //			return null;
 //		}
 
-	public LocalRelease Find(Urr address)
+	public Release Find(Urn address)
 	{
 		var r = Releases.Find(i => i.Address == address);
 
@@ -129,54 +148,133 @@ public class ResourceHub
 
 		if(d != null)
 		{
-			r = new LocalRelease(this, address);
+			r = new Release(this, address);
 			Releases.Add(r);
 			return r;
 		}
 
 		return null;
 	}
+//
+//	public ResourceData Find(AutoId id)
+//	{
+//		var c = Resources.Find(i => i.Id == id);
+//
+//		if(c != null)
+//		{	
+//			return c.Data;
+//		}
+//		else
+//		{
+//			var d = Node.Database.Get(id.Raw, ResourceFamily);
+//									
+//			if(d != null)
+//			{	
+//				c = new CachedResource(id, new Reader(d).Read<ResourceData>());
+//				Resources.Add(c);
+//			}
+//		}
+//
+//		return c.Data;
+//	}
 
-	public LocalResource Find(Ura resource)
+//	public ResourceData Get(Ura address)
+//	{
+//		var r = Resources.Find(i => i.Address == address);
+//
+//		if(r != null)
+//		{	
+//			if(DateTime.UtcNow - r.Updated < TimeSpan.FromSeconds(30))
+//				return r.Data;
+//			else
+//				r.Data = Node.Peering.Call(new ResourceByAddressPpc(address), Node.Flow).Resource.Data;
+//		}
+//		else
+//		{
+//			var d = Node.Database.Get(id.Raw, ResourceFamily);
+//									
+//			if(d != null)
+//			{
+//				r = new CachedResource(id, new Reader(d).Read<ResourceData>());
+//				Resources.Add(r);
+//			}
+//			else
+//			{	
+//				var a = Node.Peering.Call(new ResourceByIdPpc(id), Node.Flow).Resource; 
+//				
+//				r = new CachedResource(a);
+//				Resources.Add(r);
+//
+//				if(r.Data != null && a.Flags.HasFlag(ResourceFlags.Dependable))
+//				{
+//					Node.Database.Put(id.Raw, (r.Data as IBinarySerializable).ToRaw(), ResourceFamily);
+//				}
+//			}
+//		}
+//
+//		r.Updated = DateTime.UtcNow;
+//
+//		return r.Data;
+//	}
+
+	public ResourceData Get(AutoId id)
 	{
-		var r = Resources.Find(i => i.Address == resource);
+		var r = Resources.Find(i => i.Id == id);
 
 		if(r != null)
-			return r;
-
-		var d = Node.Database.Get(Encoding.UTF8.GetBytes(resource.ToString()), ResourceFamily);
-
-		if(d != null)
+		{	
+			if(DateTime.UtcNow - r.Updated < TimeSpan.FromSeconds(10))
+				return r.Data;
+			else
+			{	
+				r.Data = Node.Peering.Call(new ResourceByIdPpc(id), Node.Flow).Resource.Data;
+				r.Updated = DateTime.UtcNow;
+			}
+		}
+		else
 		{
-			r = new LocalResource(this, resource);
-			r.Load();
-			Resources.Add(r);
-			return r;
+			var d = Node.Database.Get(id.Raw, ResourceFamily);
+									
+			if(d != null)
+			{
+				r = new CachedResource(id, new Reader(d).Read<ResourceData>());
+				Resources.Add(r);
+			}
+			else
+			{	
+				var a = Node.Peering.Call(new ResourceByIdPpc(id), Node.Flow).Resource; 
+				
+				r = new CachedResource(a);
+				r.Updated = DateTime.UtcNow;
+
+				Resources.Add(r);
+
+				if(r.Data != null && a.Flags.HasFlag(ResourceFlags.Dependable))
+				{
+					Node.Database.Put(id.Raw, (r.Data as IBinarySerializable).ToRaw(), ResourceFamily);
+				}
+			}
 		}
 
-		return null;
+		return r.Data;
 	}
 
-	public LocalRelease Add(IEnumerable<string> sources, ReleaseAddressCreator address, Flow workflow)
+	public Release Add(IEnumerable<string> sources, ReleaseAddressCreator address, Flow workflow)
 	{
-		var files = new Dictionary<string, string>();
-		var index = new Xon(new XonBinaryValueSerializator());
+		var files = new Dictionary<object, string>();
 
-		void adddir(string basepath, Xon parent, string dir, string dest)
+		void adddir(string basepath, string dir, string dest)
 		{
 			//var d = parent.Add(Path.GetFileName(path));
 
 			foreach(var i in Directory.EnumerateFiles(dir))
 			{
 				files[i] = Path.Join(dest, i.Substring(basepath.Length + 1).Replace(Path.DirectorySeparatorChar, '/'));
-				parent.Add(Path.GetFileName(i)).Value = Net.Cryptography.HashFile(File.ReadAllBytes(i));
 			}
 
 			foreach(var i in Directory.EnumerateDirectories(dir).Where(i => Directory.EnumerateFileSystemEntries(i).Any()))
 			{
-				var d = parent.Add(Path.GetFileName(i));
-
-				adddir(basepath, d, i, dest);
+				adddir(basepath, i, dest);
 			}
 		}
 
@@ -190,66 +288,48 @@ public class ResourceHub
 			{
 				if(Directory.Exists(s))
 				{
-					adddir(s, index, s, null);
+					adddir(s, s, null);
 				}
 				else
 				{
 					files[s] = Path.GetFileName(s);
-					using var f = File.OpenRead(s);
-					index.Add(files[s]).Value = Net.Cryptography.HashFile(f);
 				}
 			}
 			else
 			{
 				if(Directory.Exists(s))
 				{
-					adddir(s, index, s, d);
+					adddir(s, s, d);
 				}
 				else
 				{
 					files[s] = d;
-					using var f = File.OpenRead(s);
-					index.Add(files[s]).Value = Net.Cryptography.HashFile(f);
 				}
 			}
 		}
 
-		var ms = new MemoryStream();
-		index.Save(new XonBinaryWriter(ms));
-
-		var h = Net.Cryptography.HashFile(ms.ToArray());
-		var a = address.Create(null/*Node.Vault*/, h);
- 				
-		var r = Add(a);
-
-		r.AddCompleted(LocalRelease.Index, null, ms.ToArray());
-
-		foreach(var i in files)
-		{
-			r.AddCompleted(i.Value, i.Key, null);
-		}
-		
+		var r = Add(files);
 		r.Complete(Availability.Full);
 
 		return r;
 	}
 
-	public LocalRelease Add(string path, ReleaseAddressCreator address, Flow workflow)
+	public Release Add(string localpath, ReleaseAddressCreator address, Flow workflow)
 	{
-		using var b = File.OpenRead(path);
+		using var b = File.OpenRead(localpath);
 
 		var h = Net.Cryptography.HashFile(b);
 		var a = address.Create(null/*Node.Vault*/, h);
  			
-		var r = Add(a);
+		var r = Add(a, null);
 
- 		r.AddCompleted("", path, null);
+ 		r.AddCompleted("", localpath, null);
 		r.Complete(Availability.Full);
 
 		return r;
 	}
 
-	public LocalFile GetFile(LocalRelease release, bool single, string file, string localpath, IIntegrity integrity, SeedSeeker harvester, Flow workflow)
+	public ReleaseFile GetFile(Release release, bool single, string file, string localpath, IIntegrity integrity, SeedSeeker harvester, Flow workflow)
 	{
 		var t = Task.CompletedTask;
 
@@ -298,55 +378,30 @@ public class ResourceHub
 				continue;
 			}
 
-			var ds = new Dictionary<RdnGenerator, Dictionary<LocalResource, LocalRelease>>();
-			var us = new List<LocalResource>();
+			var ds = new Dictionary<RdnGenerator, Dictionary<AutoId, Release>>();
 
 			lock(Lock)
 			{
-				foreach(var r in Resources.Where(i => i.Data?.Type.Meaning == DataType.File || i.Data?.Type.Meaning == DataType.Directory))
+				foreach(var r in Releases.Where(i => i.Resource != null))
 				{
-					if(r.Id == null)
+					if(r.Availability != Availability.None)
 					{
-						if(!r.Resolving)
-							us.Add(r);
-					} 
-					else
-					{
-						//foreach(var d in r.Datas)
-						var d = r.Data;
-
-						Urr a;
-						
-						try
+						foreach(var m in mr.Members	.OrderByHash(i => i.Generator.Raw, r.Address.MemberOrderKey)
+													.Take(MembersPerDeclaration)
+													.Where(m =>	{
+																	var d = r.DeclaredOn.Find(dm => dm.Member.Generator == m.Generator);
+																	return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+																})
+													.Cast<RdnGenerator>())
 						{
-							a = d.Parse<Urr>();
-						}
-						catch(Exception ex)
-						{
-							continue;
-						}
-
-						var l = Find(a);
-
-						if(l != null && l.Availability != Availability.None)
-						{
-							foreach(var m in mr.Members	.OrderByHash(i => i.Generator.Raw, l.Address.MemberOrderKey)
-														.Take(MembersPerDeclaration)
-														.Where(m =>	{
-																		var d = l.DeclaredOn.Find(dm => dm.Member.Generator == m.Generator);
-																		return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																	})
-														.Cast<RdnGenerator>())
-							{
-								var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
-								rss[r] = l;
-							}
+							var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
+							rss[r.Resource] = r;
 						}
 					}
 				}
 			}
 
-			if(ds.Count == 0 && us.Count == 0)
+			if(ds.Count == 0)
 			{
 				Node.Peering.Statistics.Declaring.End();
 				Thread.Sleep(1000);
@@ -360,46 +415,6 @@ public class ResourceHub
 
 			lock(Lock)
 			{
-				foreach(var r in us)
-				{
-					r.Resolving = true;
-
-					var t = new Task(() =>	{
-												try
-												{
-													var cr = Node.Peering.Call(new ResourceByAddressPpc(r.Address), Node.Flow);
-													
-													if(cr == null) 
-													{	
-														Debugger.Break();
-														cr = Node.Peering.Call(new ResourceByAddressPpc(r.Address), Node.Flow);
-														return;
-													}
-
-													lock(Lock)
-													{
-														r.Id = cr.Resource.Id;
-														r.Save();
-
-														tasks.Remove(r);
-													}
-												}
-												catch(CodeException ex) ///when(!Debugger.IsAttached)
-												{
-												}
-												catch(OperationCanceledException)
-												{
-													return;
-												}
-
-												lock(Lock)
-													r.Resolving = false;
-											});
-					tasks[r] = t;
-
-					t.Start();
-				}
-
 				foreach(var i in ds)
 				{
 					foreach(var r in i.Value.Select(i => i.Value))
@@ -419,10 +434,11 @@ public class ResourceHub
 												lock(Lock)
 													rds = i.Value.Select(rs =>	new ResourceDeclaration
 																				{
-																					Resource = rs.Key.Id, 
-																					Release = rs.Value.Address, 
-																					Availability = rs.Value.Availability
-																				}).ToArray();
+																					Resource		= rs.Key, 
+																					Release			= rs.Value.Address, 
+																					Availability	= rs.Value.Availability
+																				})
+																				.ToArray();
 
 												try
 												{
@@ -465,7 +481,7 @@ public class ResourceHub
 		}
 	}
 
-	public FileDownload DownloadFile(LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow workflow)
+	public FileDownload DownloadFile(Release release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow workflow)
 	{
 		var f = release.Files.Find(i => i.Path == path);
 		
@@ -482,7 +498,7 @@ public class ResourceHub
 		return d;
 	}
 
-	public DirectoryDownload DownloadDirectory(LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
+	public DirectoryDownload DownloadDirectory(Release release, string localpath, IIntegrity integrity, Flow workflow)
 	{
 		if(release.Activity is DirectoryDownload d)
 			return d;

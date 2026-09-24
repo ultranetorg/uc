@@ -51,7 +51,8 @@ public class Xon// : INestedSerializable
 
 	public Xon(byte[] data) : this(XonBinaryValueSerializator.Default)
 	{
-		Load(new XonBinaryReader(new MemoryStream(data)));
+		using var s = new MemoryStream(data);
+		Load(new XonBinaryReader(s));
 	}
 	
 	public Xon(IXonReader r, IXonValueSerializator serializator) : this(serializator)
@@ -68,7 +69,14 @@ public class Xon// : INestedSerializable
 
 	public override string ToString()
 	{
-		return $"{Name}{(_Value != null ? " = " + _Value : null)}{(Nodes.Any() ? (Name != null ? ", " : null) + "Nodes=" + Nodes.Count : null)}";
+		using(var s = new MemoryStream())
+		{
+			Save(new XonTextWriter(s, Encoding.UTF8));
+
+			s.TryGetBuffer(out var a);
+
+			return Encoding.UTF8.GetString(a);
+		}
 	}
 
 	public object this[string name]
@@ -148,6 +156,11 @@ public class Xon// : INestedSerializable
 	public O Get<O>()
 	{
 		return typeof(O) == typeof(Xon) ? (O)Value : Serializator.Get<O>(this, Value);
+	} 
+
+	public R Parse<R>(Func<string, R> read)
+	{
+		return Value == null ? default(R) : read(Serializator.Get<string>(this, Value));
 	} 
 
 	public object Get(Type type)

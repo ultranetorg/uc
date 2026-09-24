@@ -127,62 +127,10 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 	{
 	}
 
-	public ResourceData(Reader reader)
-	{
-		Read(reader);
-	}
-
 	public ResourceData(DataType type, object value)
 	{
 		Type = type;
 		Value = Serialize(value);
-	}
-
-	public static byte[] Serialize(object o)
-	{
-		switch(o)
-		{
-			case byte[] s:		return s;
-			case string s:		return Encoding.UTF8.GetBytes(s);
-			case Urr s:			return Encoding.UTF8.GetBytes(s.ToString());
-			case Ura s:			return Encoding.UTF8.GetBytes(s.ToString());
-			case AprvAddress s:	return Encoding.UTF8.GetBytes(s.ToString());
-			case Consil a:		return (a as IBinarySerializable).ToRaw();
-			case Analysis a:	return (a as IBinarySerializable).ToRaw();
-			case DnsRecord a:	return (a as IBinarySerializable).ToRaw();
-
-			default :
-				throw new ResourceException(ResourceError.UnknownDataType);
-		}
-	}
-
-	public override string ToString()
-	{
-		return $"{Type}, {Value.Length}";
-	}
-
-	public T Read<T>() where T : IBinarySerializable, new()
-	{
-		using var r = new Reader(Value);
-
-		return r.Read<T>();
-	}
-
-	public T Parse<T>()
-	{
-		return (T) typeof(T).GetMethod("Parse", [typeof(string)]).Invoke(null, [Encoding.UTF8.GetString(Value)]);
-	}
-
-	public void Write(Writer writer)
-	{
-		writer.Write(Type);
-		writer.WriteBytes(Value);
-	}
-
-	public void Read(Reader reader)
-	{
-		Type	= reader.Read<DataType>();
-		Value	= reader.ReadBytes();
 	}
 
 	public override int GetHashCode()
@@ -197,18 +145,71 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 
 	public bool Equals(ResourceData other)
 	{
-		return other is not null && Type == other.Type && Value.SequenceEqual(other.Value);
+		return other is not null && Type == other.Type && Bytes.Equal(Value, other.Value);
 	}
 
-	public static bool operator ==(ResourceData left, ResourceData right)
+	public static bool operator == (ResourceData left, ResourceData right)
 	{
 		return  left is null && right is null || 
 				left is not null && left.Equals(right);
 	}
 
-	public static bool operator !=(ResourceData left, ResourceData right)
+	public static bool operator != (ResourceData left, ResourceData right)
 	{
 		return !(left == right);
+	}
+
+	public static byte[] Serialize(object o)
+	{
+		switch(o)
+		{
+			case byte[] s:	return s;
+			case string s:	return Encoding.UTF8.GetBytes(s);
+
+			default :
+				if(o is IBinarySerializable b)
+					return b.ToRaw(Rdn.Any.Constructor);
+				else
+					throw new ResourceException(ResourceError.UnknownDataType);
+		}
+	}
+
+	public override string ToString()
+	{
+		return $"{Type}, {Value.Length}";
+	}
+
+	public T Read<T>() where T : IBinarySerializable, new()
+	{
+		using var r = new Reader(Value, Rdn.Any.Constructor);
+
+		return r.Read<T>();
+	}
+
+	public T ReadVirtual<T>(Constructor constructor) where T : class, IBinarySerializable, ITypeCode
+	{
+		using var r = new Reader(Value, constructor);
+
+		var o = r.Constructor.Construct(typeof(T), r.ReadUInt32()) as T;
+		o.Read(r);
+		return o;
+	}
+
+	//public T Parse<T>()
+	//{
+	//	return (T) typeof(T).GetMethod("Parse", [typeof(string)]).Invoke(null, [Encoding.UTF8.GetString(Value)]);
+	//}
+
+	public void Write(Writer writer)
+	{
+		writer.Write(Type);
+		writer.WriteBytes(Value);
+	}
+
+	public void Read(Reader reader)
+	{
+		Type	= reader.Read<DataType>();
+		Value	= reader.ReadBytes();
 	}
 }
 
@@ -216,9 +217,7 @@ public class ResourceDataJsonConverter : JsonConverter<ResourceData>
 {
 	public override ResourceData Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		using var r = new Reader(reader.GetString().FromHex());
-		
-		return new ResourceData(r);
+		return new Reader(reader.GetString().FromHex(), Rdn.Any.Constructor).Read<ResourceData>();
 	}
 
 	public override void Write(Utf8JsonWriter writer, ResourceData value, JsonSerializerOptions options)

@@ -74,6 +74,7 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		var d = new Dependency();
 		
 		d.Address	= Ura.Parse(xon.Name);
+		d.Id		= xon.Parse(v => AutoId.Parse(v));
 		d.Need		= Enum.Parse<DependencyNeed>(xon.Get<string>("Need"));
 		d.Flags		|= xon.Has(DependencyFlag.Merge.ToString()) ? DependencyFlag.Merge : DependencyFlag.None;
 		d.Flags		|= xon.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
@@ -86,6 +87,7 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		var x = new Xon(serializator);
 
 		x.Name = Address.ToString();
+		x.Value = Id?.ToString();
 		x.Add("Need").Value = Need;
 		
 		foreach(var i in Enum.GetValues<DependencyFlag>().Where(i => i != DependencyFlag.None))
@@ -134,6 +136,7 @@ public class ParentPackage : IBinarySerializable
 		var d = new ParentPackage();
 
 		d.Address				= Ura.Parse(xon.Name);
+		d.Id					= xon.Parse(v => AutoId.Parse(v));
 		d.Flags					= xon.GetEnum<ParentPackageFlag>("Flags", ParentPackageFlag.None);
 		d.AddedDependencies		= xon.One("Add").Nodes.Select(Dependency.FromXon).ToArray();
 		d.RemovedDependencies	= xon.One("Remove").Nodes.Select(Dependency.FromXon).ToArray();
@@ -146,11 +149,118 @@ public class ParentPackage : IBinarySerializable
 		var x = new Xon(serializator);
 	
 		x.Name = Address.ToString();
+		x.Value = Id?.ToString();
 		x.Add("Flags").Value = Flags;
 		x.Add("Add").Nodes.AddRange(AddedDependencies.Select(i => i.ToXon(serializator)));
 		x.Add("Remove").Nodes.AddRange(RemovedDependencies.Select(i => i.ToXon(serializator)));
 
 		return x;
+	}
+}
+
+[Flags]
+public enum PackageFlag : byte
+{
+	None, 
+	Deprecated		= 0b0000_0001, 
+}
+
+public class PackageManifest : IBinarySerializable
+{
+	public const string				Extension = ".rdnpm";
+
+	public Urn						Urn { get; set; }
+	public Dependency[]				CompleteDependencies { get; set; } = [];
+	public ParentPackage[]			Parents { get; set; } = [];
+
+	[JsonIgnore]
+	public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical);
+
+	public PackageManifest()
+	{
+  	}
+
+	public PackageManifest(byte[] bytes)
+	{
+		Read(new Reader(bytes));
+  	}
+
+	public void Write(Writer writer)
+	{
+		writer.WriteVirtual(Urn);
+		writer.Write(CompleteDependencies);
+		writer.Write(Parents);
+	}
+
+	public void Read(Reader reader)
+	{
+		Urn						= reader.ReadVirtual<Urn>();
+		CompleteDependencies	= reader.ReadArray<Dependency>();
+		Parents					= reader.ReadArray<ParentPackage>();
+	}
+
+	public static PackageManifest Parse(string text)
+	{
+		return FromXon(new Xon(text));
+	}
+
+	public static PackageManifest Load(string filepath)
+	{
+		return FromXon(new Xon(File.ReadAllText(filepath, Encoding.UTF8)));
+	}
+
+	public void Save(string filepath)
+	{
+		ToXon(new NetXonTextValueSerializator()).Save(filepath);
+	}
+
+	public Xon ToXon(IXonValueSerializator serializator)
+	{
+		var x = new Xon(serializator);
+
+		x.Add(nameof(Urn)).Value = Urn?.ToString();
+		
+		if(CompleteDependencies.Any())
+			x.Add(nameof(CompleteDependencies)).Nodes.AddRange(CompleteDependencies.Select(i => i.ToXon(serializator)));
+
+		if(Parents.Any())
+			x.Add(nameof(Parents)).Nodes.AddRange(Parents.Select(i => i.ToXon(serializator)));
+
+		return x;
+	}
+
+	public static PackageManifest FromXon(Xon xon)
+	{
+		var m = new PackageManifest();
+
+		m.Urn					= xon.One(nameof(Urn))?.Parse(v => Urn.Parse(v));
+		m.CompleteDependencies	= xon.One(nameof(CompleteDependencies))?.Nodes.Select(Dependency.FromXon).ToArray() ?? [];
+		m.Parents				= xon.One(nameof(Parents))?.Nodes.Select(ParentPackage.FromXon).ToArray() ?? [];
+
+		return m;
+	}
+
+	public void FillIds(Func<Ura, AutoId> getid)
+	{
+		foreach(var c in CompleteDependencies)
+		{
+			c.Id = getid(c.Address);
+		}
+
+		foreach(var p in Parents)
+		{
+			p.Id = getid(p.Address);
+
+			foreach(var a in p.AddedDependencies)
+			{
+				a.Id = getid(a.Address);
+			}
+
+			foreach(var r in p.RemovedDependencies)
+			{
+				r.Id = getid(r.Address);
+			}
+		}
 	}
 }
 
@@ -202,59 +312,43 @@ public class Start : IBinarySerializable
 	}
 }	
 
-[Flags]
-public enum PackageFlag : byte
+public class PackageInstruction : IBinarySerializable
 {
-	None, 
-	Deprecated		= 0b0000_0001, 
-}
+	public const string				Extension = ".rdnpi";
 
-public class PackageManifest : IBinarySerializable
-{
-	public const string				Extension = "rdnpm";
-
-	public byte[]					CompleteHash { get; set; }
-	public Dependency[]				CompleteDependencies { get; set; } = [];
-	public byte[]					IncrementalHash { get; set; }
-	public ParentPackage[]			Parents { get; set; }
+	//public byte[]					CompleteHash { get; set; }
+	//public byte[]					IncrementalHash { get; set; }
 	public Start[]					Start { get; set; }
 
-	[JsonIgnore]
-	public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical);
+	public Start					MatchExecution(Platform platform) => Start.FirstOrDefault(i => i.Condition.Match(platform));
 
-	public Start					MatchExecution(Platform platform) => Start.FirstOrDefault(i => i.Condition.Match(platform)); 
+//  	public byte[] Raw
+//  	{
+//  		get
+//  		{
+// 	 		var s = new MemoryStream();
+// 	 	
+//			ToXon(new NetXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
+//	
+// 	 		return s.ToArray();
+//  		}
+//  	}
 
-  	public byte[] Raw
-  	{
-  		get
-  		{
- 	 		var s = new MemoryStream();
- 	 	
-			ToXon(new NetXonTextValueSerializator()).Save(new XonTextWriter(s, Encoding.UTF8));
-	
- 	 		return s.ToArray();
-  		}
-  	}
-
-	public PackageManifest()
+	public PackageInstruction()
 	{
   	}
 
 	public void Write(Writer writer)
 	{
-		writer.Write(CompleteHash);
-		writer.Write(CompleteDependencies);
-		writer.Write(IncrementalHash);
-		writer.Write(Parents);
+		//writer.Write(CompleteHash);
+		//writer.Write(IncrementalHash);
 		writer.Write(Start);
 	}
 
 	public void Read(Reader reader)
 	{
-		CompleteHash			= reader.ReadHash();
-		CompleteDependencies	= reader.ReadArray<Dependency>();
-		IncrementalHash			= reader.ReadHash();
-		Parents					= reader.ReadArray<ParentPackage>();
+		//CompleteHash			= reader.ReadHash();
+		//IncrementalHash			= reader.ReadHash();
 		Start					= reader.ReadArray<Start>();
 	}
 
@@ -264,12 +358,12 @@ public class PackageManifest : IBinarySerializable
 		return Start.FirstOrDefault(i => i.Condition.Match(p)); 
 	}
 
-	public static PackageManifest Parse(string text)
+	public static PackageInstruction Parse(string text)
 	{
 		return FromXon(new Xon(text));
 	}
 
-	public static PackageManifest Load(string filepath)
+	public static PackageInstruction Load(string filepath)
 	{
 		return FromXon(new Xon(File.ReadAllText(filepath, Encoding.UTF8)));
 	}
@@ -279,14 +373,12 @@ public class PackageManifest : IBinarySerializable
 		ToXon(new NetXonTextValueSerializator()).Save(filepath);
 	}
 
-	public static PackageManifest FromXon(Xon xon)
+	public static PackageInstruction FromXon(Xon xon)
 	{
-		var m = new PackageManifest();
+		var m = new PackageInstruction();
 
-		m.CompleteHash			= xon.Get<byte[]>("Complete/Hash");
-		m.CompleteDependencies	= xon.One("Complete/Dependencies")?.Nodes.Select(Dependency.FromXon).ToArray() ?? [];
-		m.IncrementalHash		= xon.Get<byte[]>("Incremental/Hash", null);
-		m.Parents				= xon.One("Incremental/Parents")?.Nodes.Select(ParentPackage.FromXon).ToArray();
+		//m.CompleteHash			= xon.Get<byte[]>("Complete/Hash");
+		//m.IncrementalHash		= xon.Get<byte[]>("Incremental/Hash", null);
 		m.Start					= xon.Many(nameof(Start)).Select(Uccs.Nexus.Start.FromXon).ToArray();
 
 		return m;
@@ -296,20 +388,14 @@ public class PackageManifest : IBinarySerializable
 	{
 		var x = new Xon(serializator);
 		
-		var c = x.Add("Complete");
-		c.Add("Hash").Value = CompleteHash;
-		
-		if(CompleteDependencies.Any())
-			c.Add("Dependencies").Nodes.AddRange(CompleteDependencies.Select(i => i.ToXon(serializator)));
-
-		if(IncrementalHash != null)
-		{
-			var i = x.Add("Incremental");
-			i.Add("Hash").Value = IncrementalHash;
-		
-			if(Parents != null && Parents.Any())
-				i.Add("Parents").Nodes.AddRange(Parents.Select(i => i.ToXon(serializator)));
-		}
+		//var c = x.Add("Complete");
+		//c.Add("Hash").Value = CompleteHash;
+		//
+		//if(IncrementalHash != null)
+		//{
+		//	var i = x.Add("Incremental");
+		//	i.Add("Hash").Value = IncrementalHash;
+		//}
 
 		if(Start != null && Start.Any())
 			x.Nodes.AddRange(Start.Select(i => {

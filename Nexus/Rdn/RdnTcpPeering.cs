@@ -23,7 +23,6 @@ public class RdnTcpPeering : McvPeering
 	{
 		Constructor.Register<PeerRequest>(GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppc".Length));
 		Constructor.Register<Result>	 (GetType().Assembly, typeof(RdnPpcClass), i => i.Remove(i.Length - "Ppr".Length));
-		Constructor.Register<Urr>		 (GetType().Assembly, typeof(UrrScheme), i => i);
 
 		Constructor.Register<Vote, RdnVote>(() => new RdnVote(Mcv));
 

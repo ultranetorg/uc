@@ -15,7 +15,7 @@ public class NexusSessionSettings
 public class DeployedNode
 {
 	public string			Net;
-	public string			Package;
+	public AutoId			Package;
 	public Process			Process;
 }
 
