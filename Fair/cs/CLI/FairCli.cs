@@ -22,10 +22,18 @@ public class FairCli : McvCli
 		Net	= Fair.ByZone(nexussettings.Zone);
 	}
 
-	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
+	public override void Collect()
 	{
-		return	CreateFromAssembly(Assembly.GetExecutingAssembly(), commnad, flow)
-				??
-				base.Create(commnad, flow);
+		base.Collect();
+
+		Commands.Remove(typeof(Uccs.Net.UserCommand));
+
+		Commands.Add(typeof(AuthorCommand));
+		Commands.Add(typeof(FileCommand));
+		Commands.Add(typeof(NodeCommand));
+		Commands.Add(typeof(ProductCommand));
+		Commands.Add(typeof(PublicationCommand));
+		Commands.Add(typeof(StoreCommand));
+		Commands.Add(typeof(UserCommand));
 	}
 }

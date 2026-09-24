@@ -24,10 +24,21 @@ public class RdnCli : McvCli
 		Net	= Rdn.ByZone(nexussettings.Zone);
 	}
 
-	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
+	public override void Collect()
 	{
-		return	CreateFromAssembly(Assembly.GetExecutingAssembly(), commnad, flow)
-				??
-				base.Create(commnad, flow);
+		base.Collect();
+
+		Commands.Remove(typeof(Uccs.Net.UserCommand));
+
+		Commands.Add(typeof(DevCommand));
+		Commands.Add(typeof(DomainCommand));
+		Commands.Add(typeof(DomainNameCommand));
+		Commands.Add(typeof(EconomyCommand));
+		Commands.Add(typeof(LinkCommand));
+		Commands.Add(typeof(NodeCommand));
+		Commands.Add(typeof(ReleaseCommand));
+		Commands.Add(typeof(ResourceCommand));
+		Commands.Add(typeof(SubnetCommand));
+		Commands.Add(typeof(UserCommand));
 	}
 }

@@ -19,9 +19,14 @@ public abstract class McvCli : NetCli
 		Api = api;
 	}
 
-	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
+	public override void Collect()
 	{
-		return CreateFromAssembly(Assembly.GetExecutingAssembly(), commnad, flow);
+		base.Collect();
+
+		Commands.Add(typeof(BatchCommand));
+		Commands.Add(typeof(LogCommand));
+		Commands.Add(typeof(UserCommand));
+		Commands.Add(typeof(UtilityCommand));
 	}
 
 	public override void PostExecute(IEnumerable<Xon> args, Command command, object result, Flow flow)

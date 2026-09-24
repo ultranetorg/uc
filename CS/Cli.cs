@@ -15,6 +15,8 @@ public abstract class Cli
 
 	public static bool			ConsoleAvailable { get; protected set; }
 
+	public List<Type>			Commands = [];
+
 	static Cli()
 	{
 		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -33,20 +35,12 @@ public abstract class Cli
 	protected Cli()
 	{
 		Application = Assembly.GetEntryAssembly().Location;
+
+		Collect();
 	}
 
-	public virtual Command Create(IEnumerable<Xon> commnad, Flow flow)
+	public virtual void Collect()
 	{
-		return null;
-	}
-
-	public Command CreateFromAssembly(Assembly assembly, IEnumerable<Xon> commnad, Flow flow)
-	{
-		var t = commnad.First().Name;
-		var args = commnad.Skip(1).ToList();
-		var ct = assembly.DefinedTypes.Where(i => i.IsSubclassOf(typeof(Command))).FirstOrDefault(i => i.Name.Equals(t + nameof(Command), StringComparison.InvariantCultureIgnoreCase));
-
-		return ct?.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args, flow]) as Command;
 	}
 
 	public void Execute(string profile, Xon command)
@@ -134,6 +128,13 @@ public abstract class Cli
 
 	}
 
+	public Command Create(IEnumerable<Xon> args, Flow flow)
+	{
+		return Commands.Find(i => i.Name.Equals(args.First().Name + nameof(Command), StringComparison.InvariantCultureIgnoreCase))?.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args.Skip(1).ToList(), flow]) as Command
+				??
+				throw new SyntaxException("Unknown command name");
+	}
+
 	public object Execute(IEnumerable<Xon> args, Flow flow)
 	{
 		if(flow.Aborted)
@@ -145,16 +146,27 @@ public abstract class Cli
 			Console.ReadKey();
 		}
 
-		if(args.Skip(1).FirstOrDefault()?.Name == "?")
+
+		if(args.FirstOrDefault()?.Name == "?")
 		{
-			var l = new Log();
-			var v = new ConsoleLogView(false, false);
-			v.StartListening(l);
+			foreach(var i in Commands.Select(i => i.GetConstructor([GetType(), typeof(List<Xon>), typeof(Flow)]).Invoke([this, args.Skip(1).ToList(), flow]) as Command))
+			{
+				flow.Log.Report(i.Keyword);
 
-			var c = Create(args, flow)
-					??
-					throw new SyntaxException("Unknown command name");
+				if(i.Actions.Any(i => i.LongName != Command.DefaultAction))
+				{
+					flow.Log.Report("   " + string.Join(", ", i.Actions.Select(i => i.LongName).Where(i => i != Command.DefaultAction)));
+				}
 
+				flow.Log.Report("");
+			}
+
+			return null;
+		}
+		else if(args.Skip(1).FirstOrDefault()?.Name == "?")
+		{
+			var c = Create(args, flow);
+			
 			foreach(var i in c.Actions)
 			{
 				c.Report(string.Join(", ", i.Names));
@@ -168,11 +180,9 @@ public abstract class Cli
 		}
 		else if(args.Skip(2).FirstOrDefault()?.Name == "?")
 		{
-			var c = Create(args, flow)
-					??
-					throw new SyntaxException("Unknown command name");
+			var c = Create(args, flow);
 
-			var a = c.Actions.FirstOrDefault(i => i.Names.Contains(args.Skip(1).First().Name));
+			var a = c.GetAction(args.Skip(1).First().Name);
 
 			c.Report("Syntax :");
 			c.Report("");
@@ -197,10 +207,8 @@ public abstract class Cli
 		}
 		else
 		{
-			var c = Create(args, flow)
-					??
-					throw new SyntaxException("Unknown command name");
-
+			var c = Create(args, flow);
+			
 			var a = c.GetAction(args.Skip(1).FirstOrDefault()?.Name);
 			
 			if(a != null)

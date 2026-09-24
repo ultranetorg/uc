@@ -16,9 +16,4 @@ public abstract class NetCli : Cli
 	{
 		NexusSettings = nexussettings;
 	}
-
-	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
-	{
-		return CreateFromAssembly(Assembly.GetExecutingAssembly(), commnad, flow);
-	}
 }

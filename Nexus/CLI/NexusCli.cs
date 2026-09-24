@@ -41,8 +41,15 @@ public class NexusCli : NetCli
 		Nexus = nexus;
 	}
 
-	public override Command Create(IEnumerable<Xon> commnad, Flow flow)
+	public override void Collect()
 	{
-		return CreateFromAssembly(Assembly.GetExecutingAssembly(), commnad, flow);
+		base.Collect();
+
+		Commands.Add(typeof(KeyCommand));
+		Commands.Add(typeof(OpenCommand));
+		Commands.Add(typeof(PackageCommand));
+		Commands.Add(typeof(RunCommand));
+		Commands.Add(typeof(WalletCommand));
+
 	}
 }	
