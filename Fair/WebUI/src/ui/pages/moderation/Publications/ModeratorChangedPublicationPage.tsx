@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
+import { capitalize } from "lodash"
 
 import { useOperationPolicy, useStoreContext, useStoreRolesContext } from "app"
 import { SvgEyeSm } from "assets"

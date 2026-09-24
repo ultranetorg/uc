@@ -2,12 +2,12 @@
 
 public class AuthorBaseAvatarModel(Author author)
 {
-	public string Id { get; init; } = author.Id.ToString();
+	public AutoId Id { get; init; } = author.Id;
 
 	public string Title { get; } = author.Title;
 	public string? Name { get; } = author.Name;
 	
-	public string? AvatarId { get; } = author.Avatar?.ToString();
+	public AutoId? AvatarId { get; } = author.Avatar;
 
-	public IEnumerable<string> Owners { get; } = author.Owners.Select(x => x.ToString());
+	public IEnumerable<AutoId> Owners { get; } = author.Owners;
 }

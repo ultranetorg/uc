@@ -16,7 +16,7 @@ export type OperationType =
   | "store-avatar-change"
   | "store-moderator-addition"
   | "store-moderator-removal"
-  | "store-name-change"
+  | "store-renaming"
   | "store-info-updation"
   | "user-registration"
   | "user-unregistration"

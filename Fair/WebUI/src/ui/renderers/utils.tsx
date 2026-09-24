@@ -4,16 +4,8 @@ import { TFunction } from "i18next"
 import avatarFallback from "assets/fallback/author-16.png"
 import { AuthorBaseAvatar, OperationType, Proposal, PublicationImageBase, PublicationProposal } from "types"
 import { ButtonOutline, ButtonPrimary, MemberInfo, PublicationInfo, TableColumn } from "ui/components"
-import {
-  formatNabb,
-  formatNabbShort,
-  formatDuration,
-  getHoursPassedFromStart,
-  formatArShort,
-  formatAr,
-  buildFileUrl,
-} from "utils"
 import { renderVotes } from "ui/renderers2"
+import { formatNabb, formatNabbShort, formatArShort, formatAr, buildFileUrl, getLastsFor } from "utils"
 
 const FONT_SM_CLASSNAME = "text-sm leading-4.25"
 
@@ -76,9 +68,7 @@ export const renderCategory = (title: string) => (
 )
 
 export const renderLastsFor = (t: TFunction, creationTime: number) => {
-  const hoursPassed = getHoursPassedFromStart()
-  const hoursDuration = hoursPassed - creationTime
-  const formatted = formatDuration(t, hoursDuration)
+  const formatted = getLastsFor(t, creationTime)
   return (
     <span className={FONT_SM_CLASSNAME} title={formatted}>
       {formatted}

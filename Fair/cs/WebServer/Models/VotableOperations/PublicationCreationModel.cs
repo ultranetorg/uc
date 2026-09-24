@@ -2,5 +2,5 @@
 
 public class PublicationCreationModel(PublicationCreation operation) : BaseVotableOperationModel(operation)
 {
-	public string ProductId { get; set; } = operation.Product.ToString();
+	public AutoId ProductId { get; set; } = operation.Product;
 }

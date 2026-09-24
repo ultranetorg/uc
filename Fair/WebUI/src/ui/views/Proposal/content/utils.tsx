@@ -185,7 +185,7 @@ const getStoreAvatarChange = (operation: StoreAvatarChange): JSX.Element => (
   </>
 )
 
-const getStoreNameChange = (operation: StoreNameChange): JSX.Element =>
+const getStoreRenaming = (operation: StoreNameChange): JSX.Element =>
   operation.storeName ? (
     <Trans
       ns="proposalView"
@@ -280,8 +280,8 @@ export const renderDescription = (storeId: string, option: ProposalOption): Reac
 
     case "store-avatar-change":
       return getStoreAvatarChange(option.operation as StoreAvatarChange)
-    case "store-name-change":
-      return getStoreNameChange(option.operation as StoreNameChange)
+    case "store-renaming":
+      return getStoreRenaming(option.operation as StoreNameChange)
     case "store-info-updation":
       return getStoreInfoUpdation(option.operation as StoreInfoUpdation)
 

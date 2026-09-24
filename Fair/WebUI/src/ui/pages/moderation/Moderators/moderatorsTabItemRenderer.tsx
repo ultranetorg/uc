@@ -3,11 +3,11 @@ import { TFunction } from "i18next"
 import { Link } from "react-router-dom"
 import { truncate } from "lodash"
 
+import { storesKeys } from "entities"
 import { Moderator } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
-import { storesKeys } from "entities"
 import { renderUser } from "ui/renderers2"
-import { routes } from "utils"
+import { formatDate, routes } from "utils"
 
 export const moderatorsTabItemRenderer =
   (t: TFunction, storeId: string) =>
@@ -19,7 +19,7 @@ export const moderatorsTabItemRenderer =
         return renderUser(moderator.user.id, moderator.user.nickname)
 
       case "banned":
-        return moderator.bannedTill !== 0 ? moderator.bannedTill : ""
+        return moderator.bannedTill !== 0 ? formatDate(moderator.bannedTill) : ""
 
       case "actions":
         return (

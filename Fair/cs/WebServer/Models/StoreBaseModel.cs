@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class StoreBaseModel(Store store)
 {
 	[JsonPropertyOrder(-5)]
-	public string Id { get; } = store.Id.ToString();
+	public AutoId Id { get; } = store.Id;
 
 	[JsonPropertyOrder(-4)]
 	public string Nickname { get; } = store.Name;
@@ -17,5 +17,5 @@ public class StoreBaseModel(Store store)
 	public string Description { get; } = store.Description;
 
 	[JsonPropertyOrder(-1)]
-	public string ImageFileId { get; } = store.Avatar?.ToString();
+	public AutoId? ImageFileId { get; } = store.Avatar;
 }

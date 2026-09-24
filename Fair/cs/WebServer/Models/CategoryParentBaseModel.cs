@@ -2,7 +2,7 @@
 
 public class CategoryParentBaseModel(Category category) : CategoryBaseModel(category)
 {
-	public string ParentId { get; set; } = category.Parent?.ToString();
+	public AutoId? ParentId { get; set; } = category.Parent;
 
 	public ProductType? Type { get; } = category.Type;
 }

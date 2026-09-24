@@ -2,17 +2,17 @@
 
 public class ProductDetailsModel
 {
-	public string Id { get; init; }
+	public AutoId Id { get; init; }
 
 	public ProductType Type { get; init; }
 
 	public string? Title { get; init; }
-	public string? LogoId { get; init; }
-	public int Updated { get; init; }
+	public AutoId? LogoId { get; init; }
+	public Time Updated { get; init; }
 
-	public string AuthorId { get; init; }
+	public AutoId AuthorId { get; init; }
 	public string AuthorTitle { get; init; }
-	public string? AuthorLogoId { get; init; }
+	public AutoId? AuthorLogoId { get; init; }
 
 	public IEnumerable<FieldValueModel>? Fields { get; init; }
 }

@@ -66,14 +66,14 @@ public class UnpublishedPublicationsService
 
 			UnpublishedPublicationModel model = new UnpublishedPublicationModel
 			{
-				Id = publication.Id.ToString(),
+				Id = publication.Id,
 				Type = product.Type,
 				Title = PublicationUtils.GetLatestTitle(product),
-				LogoId = PublicationUtils.GetLatestLogo(product)?.ToString(),
-				Updated = product.Updated.Hours,
-				AuthorId = author.Id.ToString(),
+				LogoId = PublicationUtils.GetLatestLogo(product),
+				Updated = product.Updated,
+				AuthorId = author.Id,
 				AuthorTitle = author.Title,
-				AuthorLogoId = author.Avatar?.ToString()
+				AuthorLogoId = author.Avatar,
 			};
 			result.Add(model);
 		}
@@ -121,15 +121,15 @@ public class UnpublishedPublicationsService
 
 		return new PublicationDetailsModel
 		{
-			Id = publication.Id.ToString(),
+			Id = publication.Id,
 			Type = product.Type,
 			Title = product.Title,
-			LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
-			Updated = product.Updated.Hours,
+			LogoId = PublicationUtils.GetLogo(publication, product),
+			Updated = product.Updated,
 			Fields = mappedFields,
-			AuthorId = author.Id.ToString(),
+			AuthorId = author.Id,
 			AuthorTitle = author.Title,
-			AuthorLogoId = author.Avatar?.ToString(),
+			AuthorLogoId = author.Avatar,
 		};
 	}
 

@@ -2,5 +2,5 @@
 
 public class SurveyOptionDetailsModel : SurveyOptionModel
 {
-	public IEnumerable<string> YesVotes { get; set; }
+	public IEnumerable<AutoId> YesVotes { get; set; }
 }

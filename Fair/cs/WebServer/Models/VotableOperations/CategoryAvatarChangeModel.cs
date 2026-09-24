@@ -2,8 +2,8 @@
 
 public class CategoryAvatarChangeModel(CategoryAvatarChange operation, Category category) : BaseVotableOperationModel(operation)
 {
-	public string CategoryId { get; } = category.Id.ToString();
+	public AutoId CategoryId { get; } = category.Id;
 	public string CategoryTitle { get; } = category.Title;
 
-	public string FileId { get; set; } = operation.File.ToString();
+	public AutoId FileId { get; set; } = operation.File;
 }

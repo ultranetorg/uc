@@ -1,30 +1,29 @@
-import { useCallback, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useAuthenticationContext, useSignInContext, useUserContext } from "app"
 import { SvgChevronRight, SvgPersonSquare } from "assets"
-import { useTransactMutationWithStatus } from "entities/iccpNode"
+
 import { useResolveStoreId, useScrollOrResize, useSubmenu } from "hooks"
+import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { UserAvatarChange } from "types"
 import { FileUpload, FileUploadHandle, TextModal } from "ui/components"
 import { fileToBase64, routes, showToast } from "utils"
 
-import { AccountSwitcher, AccountSwitcherItem } from "./AccountSwitcher"
-import { CurrentAccountButton } from "./components"
-import { ProfileButton } from "./ProfileButton"
-import { ProfileMenu } from "./ProfileMenu"
+import { AccountButton } from "./AccountButton"
+import { AccountMenu, AccountMenuItem } from "./AccountMenu"
+import { PanelButton } from "./PanelButton"
+import { ProfilePanel } from "./ProfilePanel"
 
-const STICKY_CLASSNAME = "sticky bottom-2 z-20"
-
-export const CurrentAccount = () => {
+export const AccountPanel = memo(() => {
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
   const { t } = useTranslation("currentAccount")
   const { mutate } = useTransactMutationWithStatus()
 
   const fileUploadRef = useRef<FileUploadHandle>(null)
-  const profileMenu = useSubmenu({ placement: "top-start" })
+  const profileMenu = useSubmenu({ placement: "bottom-end", offset: 16, trigger: "click" })
   const accountsMenu = useSubmenu({ placement: "right-end" })
   useScrollOrResize(() => profileMenu.setOpen(false))
 
@@ -37,7 +36,7 @@ export const CurrentAccount = () => {
 
   const userItems = useMemo(
     () =>
-      users.map<AccountSwitcherItem>(x => ({
+      users.map<AccountMenuItem>(x => ({
         nickname: x.user.name,
         address: x.user.owner,
       })),
@@ -78,6 +77,8 @@ export const CurrentAccount = () => {
   }, [mutate, refetch, t])
 
   const handleDeleteModalClose = useCallback(() => setDeleteModalOpen(false), [])
+
+  const handleProfileClose = useCallback(() => profileMenu.setOpen(false), [profileMenu])
 
   const handleAvatarChange = useCallback(() => {
     fileUploadRef.current?.show()
@@ -149,34 +150,29 @@ export const CurrentAccount = () => {
   return (
     <>
       {!users.length ? (
-        <ProfileButton
-          iconBefore={<SvgPersonSquare className="fill-gray-800" />}
-          className={STICKY_CLASSNAME}
+        <PanelButton
+          iconBefore={<SvgPersonSquare className="fill-gray-300" />}
           label={t("authenticate")}
           onClick={handleAuthenticate}
         />
       ) : !user ? (
-        <ProfileButton
-          iconBefore={<SvgPersonSquare className="fill-gray-800" />}
-          iconAfter={<SvgChevronRight className="stroke-gray-800" />}
-          className={STICKY_CLASSNAME}
+        <PanelButton
+          iconBefore={<SvgPersonSquare className="fill-white" />}
+          iconAfter={<SvgChevronRight className="stroke-white" />}
           label={t("switchUsers")}
           ref={accountsMenu.refs.setReference}
           {...accountsMenu.getReferenceProps()}
         />
       ) : (
-        <CurrentAccountButton
-          className={STICKY_CLASSNAME}
-          nickname={user.name}
-          id={user.id}
-          address={user.owner}
+        <AccountButton
+          name={user.name}
           avatarVersion={avatarVersion}
           ref={profileMenu.refs.setReference}
           {...profileMenu.getReferenceProps()}
         />
       )}
       {user && profileMenu.isOpen && (
-        <ProfileMenu
+        <ProfilePanel
           customParentId={profileMenu.nodeId!}
           ref={profileMenu.refs.setFloating}
           style={profileMenu.floatingStyles}
@@ -184,12 +180,13 @@ export const CurrentAccount = () => {
           address={user!.owner!}
           hasAvatar={user!.hasAvatar}
           onNicknameCreate={handleNicknameCreate}
+          onClose={handleProfileClose}
           {...userSwitcherProps}
           {...profileMenu.getFloatingProps()}
         />
       )}
       {accountsMenu.isOpen && (
-        <AccountSwitcher
+        <AccountMenu
           ref={accountsMenu.refs.setFloating}
           style={accountsMenu.floatingStyles}
           {...userSwitcherProps}
@@ -210,4 +207,4 @@ export const CurrentAccount = () => {
       <FileUpload ref={fileUploadRef} onUpload={handleUpload} />
     </>
   )
-}
+})

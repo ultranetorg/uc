@@ -21,6 +21,8 @@ export const PublicationContentView = ({
   reviews,
   onLeaveReview,
   onEditReview,
+  onShowMore,
+  hasMoreReviews,
 }: PublicationContentViewProps) => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("publicationPage")
@@ -38,6 +40,8 @@ export const PublicationContentView = ({
       reviews={reviews}
       onLeaveReview={onLeaveReview}
       onEditReview={onEditReview}
+      onShowMore={onShowMore}
+      hasMoreReviews={hasMoreReviews}
     />
   )
 }

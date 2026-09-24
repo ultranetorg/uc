@@ -167,8 +167,9 @@ const getUserStoreExists = async (userId: string, storeId: string): Promise<bool
   throw new Error(`Failed to check registration: ${res.status}`)
 }
 
-const getUserReviews = async (userId: string, page?: number): Promise<TotalItemsResult<Review>> => {
-  const res = await fetch(`${BASE_URL}/users/${userId}/reviews` + (page && page > 0 ? `page=${page}` : ""))
+const getUserReviews = async (userId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/users/${userId}/reviews` + params)
   return await toTotalItemsResult(res)
 }
 

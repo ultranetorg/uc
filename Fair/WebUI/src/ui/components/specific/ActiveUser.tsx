@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import avatarFallback3xl from "assets/fallback/user-10.png"
@@ -11,9 +12,12 @@ export type ActiveUserProps = {
   onClick: () => void
 }
 
-export const ActiveUser = ({ id, name, disabled = false, onClick }: ActiveUserProps) => (
+export const ActiveUser = memo(({ id, name, disabled = false, onClick }: ActiveUserProps) => (
   <div
-    className={twMerge("flex cursor-pointer gap-3 rounded-lg bg-gray-100 p-2", disabled && "cursor-not-allowed")}
+    className={twMerge(
+      "flex cursor-pointer items-center gap-3 rounded-lg bg-gray-100 p-2",
+      disabled && "cursor-not-allowed",
+    )}
     onClick={!disabled ? onClick : undefined}
   >
     <div className="size-10 overflow-hidden rounded-full">
@@ -23,9 +27,6 @@ export const ActiveUser = ({ id, name, disabled = false, onClick }: ActiveUserPr
         className="size-full object-cover"
       />
     </div>
-    <div className="flex flex-col gap-1">
-      <span className="text-2sm font-medium leading-4.5">{name}</span>
-      <span className="text-xs leading-3.75 text-gray-500">{id}</span>
-    </div>
+    <span className="text-2sm font-medium leading-4.5">{name}</span>
   </div>
-)
+))

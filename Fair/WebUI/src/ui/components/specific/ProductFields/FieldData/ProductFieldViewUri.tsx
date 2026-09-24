@@ -18,6 +18,7 @@ function getAdded(value: unknown) {
     </Link>
   )
 }
+
 function getRemoved(value: unknown) {
   const uri = ensureHttp(value as string)
 

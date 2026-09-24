@@ -29,6 +29,7 @@ export const enUS = {
     currentVersion: "current version",
     delete: "delete",
     date: "Date",
+    download: "download",
     edit: "edit",
     globalProfile: "global profile",
     governance: "governance",
@@ -162,6 +163,9 @@ export const enUS = {
     setAvatar: "Set Avatar",
     switchUsers: "Switch Users",
   },
+  favoriteStores: {
+    title: "Favorite Stores",
+  },
   pageBanner: {
     text: "You’re browsing through the legacy Web2. Switch to the fully decentralized Web3 with <1>Ultranet</1> — install <2>Ultranet Client Software</2> to join the new paradigm.",
   },
@@ -215,7 +219,7 @@ export const enUS = {
     avatarUploaded: "Avatar successfully uploaded",
     commentAdded: "Comment successfully added",
     favoriteAdded: `Store "{{store}}" added to favorites`,
-    favoriteRemoved: `Store "{{Store}}" removed from favorites`,
+    favoriteRemoved: `Store "{{store}}" removed from favorites`,
     fileDeleted: `File "{{fileId}}" successfully deleted`,
     fileUploaded: `File "{{fileName}}" successfully uploaded`,
     nicknameChanged: "Nickname changed successfully",
@@ -302,7 +306,7 @@ export const enUS = {
   moderatorsPage: {
     title: "Moderators",
     addModerator: "Add new moderator",
-    bannedTill: "Banned till",
+    bannedTill: "Banned Till",
     noModerators: "No moderators",
     removeModerator: "Remove moderator",
   },
@@ -427,6 +431,7 @@ export const enUS = {
     governance: "Governance",
     moderation: "Moderation",
     noPublications: "Current store has no publications yet",
+    search: "Search...",
     seeAll: "See all",
   },
   storesPage: {
@@ -478,8 +483,8 @@ export const enUS = {
     "publication-publish": `Publish unpublished "<PublicationLink/>" publication in "<CategoryLink/>" category.`,
     "publication-unpublish": `Unpublish "<PublicationLink/>" publication from "<CategoryLink/>" category.`,
     "store-avatar-change": "Change store avatar",
-    "store-name-change": `Change store name from "{{storeName}}" to "{{name}}"`,
-    "store-name-change_empty": `Set store name "{{name}}"`,
+    "store-renaming": `Rename store from "{{storeName}}" to "{{name}}"`,
+    "store-renaming-change_empty": `Set store name "{{name}}"`,
     "store-info-updation": `Set store title "{{title}}", description "{{description}}" and slogan "{{slogan}}"`,
     "store-authors-removal_one": "Remove this author",
     "store-authors-removal_other": "Remove this authors",
@@ -551,12 +556,13 @@ export const enUS = {
   installModal: {
     title: "Client Software is Required",
     authorText:
-      "<span>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library in London, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets.</span><span>It has survived not only many decades, but also the leap into electronic typesetting, remaining essentially unchanged.</span><span>It was popularised thanks to these sheets and more recently with desktop publishing software like Aldus PageMaker and Microsoft Word including versions of Lorem Ipsum.</span><span>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</span>",
+      "<span>This is decentralized platform of autonomous transparent community-governed stores.</span><span>Anyone can become the author, create product pages and publish it in the stores.</span><span>Author has full control over its content and behavior.</span><span>Follow this link to learn how to become an author, publish your products and participate in stores governance.</span><span>Please, click the button below to become an author.</span>",
     userText:
-      "<span>This is decentralized autonomous owner-free platform and requires Client Software installed to participate in its communities.</span><span>Windows OS is currently supported only.</span><span>Please, follow the link below to download.</span>",
+      "<span>This is decentralized platform of autonomous transparent community-governed stores.</span><span>Windows OS is currently supported only.</span><span>Please, click the button below to download.</span>",
     doneTitle: "Welcome to the ULTRANET and to the Fair Network",
     doneText:
       '<span>Now, find <icon/> icon in the tray, open its menu and select "Identity and Activity" option</span><span>There you can manage your crypto wallets and accounts that are used to identify yourself when participating in Fair network and other decentralized platforms</span><span>Use the button below to log in to your account</span>',
+    becomeAnAuthor: "Become an Author",
   },
 
   /* Tabs */
@@ -613,7 +619,7 @@ export const enUS = {
     "store-avatar-change": "Change store avatar",
     "store-moderator-addition": "Add store moderators",
     "store-moderator-removal": "Remove store moderator",
-    "store-name-change": "Change store name",
+    "store-renaming": "Rename store",
     "store-info-updation": "Update store information",
     "user-registration": "User registration",
     "user-unregistration": "User unregistration",

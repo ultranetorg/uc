@@ -46,7 +46,8 @@ public class WebServer
 																							options.JsonSerializerOptions.TypeInfoResolver = new PolymorphicTypeResolver();
 																							options.JsonSerializerOptions.Converters.Add(new KebabCaseEnumConverterFactory());
 																							options.JsonSerializerOptions.Converters.Add(new AutoIdJsonConverter());
-																						});
+																							options.JsonSerializerOptions.Converters.Add(new TimeJsonConverter());
+															});
 
 											WebApplication = builder.Build();
 

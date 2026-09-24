@@ -31,14 +31,14 @@ export const useGovernanceDropdownButtonMenuItems = (storeId: string): SimpleMen
             },
           ]
         : []),
-      ...(isPublisherVoting("store-name-change", policies)
+      ...(isPublisherVoting("store-renaming", policies)
         ? [
             {
               label: t("nameChange"),
               to: routes.governance.createReferendum(storeId),
               state: {
-                title: `Change store name`,
-                type: "store-name-change",
+                title: `Rename store`,
+                type: "store-renaming",
                 storeId: storeId,
                 parentBreadcrumbs: [{ path: routes.governance.referendums(storeId), title: t("common:referendums") }],
                 redirectAfterProposalCreation: routes.governance.referendums(storeId),

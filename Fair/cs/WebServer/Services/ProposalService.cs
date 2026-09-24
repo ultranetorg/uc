@@ -89,7 +89,7 @@ public class ProposalService
 			ProposalOptionModel model = new(option);
 
 			//IEnumerable<AccountBaseModel> yesAccounts = LoadYesAccounts(option.Yes);
-			model.Yes = option.Yes.Select(x => x.ToString());
+			model.Yes = option.Yes;
 			model.Operation = ProposalUtils.ToBaseVotableOperationModel(mcv, option.Operation);
 
 			result.Add(model);

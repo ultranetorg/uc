@@ -1,17 +1,10 @@
 ﻿namespace Uccs.Fair;
 
-public class UserProductModel
+public class UserProductModel(Product product)
 {
-	public string Id { get; set; }
+	public AutoId Id { get; set; } = product.Id;
 
 	public string Title { get; set; }
 
-	public int Updated { get; set; }
-
-	public UserProductModel(Product product)
-	{
-		Id = product.Id.ToString();
-		// Title = PublicationUtils.GetTitle(publication, product);
-		Updated = product.Updated.Days;
-	}
+	public Time Updated { get; set; } = product.Updated;
 }

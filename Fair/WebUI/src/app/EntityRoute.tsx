@@ -52,7 +52,7 @@ const StoreEntityRoute = () => {
   const { userId, publisherId } = useParams()
   const backgroundLocation = useBackgroundLocation()
 
-  // store123-4/user234-5
+  // store1234/user2345
   if (userId !== undefined)
     return (
       <MaybeFullscreen showFullscreen={!!backgroundLocation}>
@@ -60,7 +60,7 @@ const StoreEntityRoute = () => {
       </MaybeFullscreen>
     )
 
-  // store123-4/publisher234-5
+  // store1234/publisher2345
   if (publisherId !== undefined)
     return (
       <MaybeFullscreen showFullscreen={!!backgroundLocation}>
@@ -72,7 +72,7 @@ const StoreEntityRoute = () => {
 }
 
 const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
-  // fair.net/category123-4
+  // fair.net/category1234
   categoryId: (
     <BaseLayout>
       <StoreLayout>
@@ -80,7 +80,7 @@ const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
       </StoreLayout>
     </BaseLayout>
   ),
-  // fair.net/publication234-5
+  // fair.net/publication2345
   publicationId: (
     <BaseLayout>
       <StoreLayout>
@@ -88,7 +88,7 @@ const ENTITY_ELEMENTS: Partial<Record<EntityParam, ReactNode>> = {
       </StoreLayout>
     </BaseLayout>
   ),
-  // fair.net/author345-6
+  // fair.net/author3456
   authorId: (
     <FullscreenPageView>
       <AuthorPage />
@@ -101,6 +101,10 @@ export const EntityRoute = () => {
   const { appEntity = "", "*": rest } = useParams()
 
   if (appEntity.startsWith(ENTITY_PREFIXES.storeId)) {
+    if (appEntity.length === ENTITY_PREFIXES.storeId.length) {
+      throw new ApiError(404, "Not Found")
+    }
+
     return (
       <Routes>
         <Route path=":subEntity" element={<StoreEntityRoute />} />
@@ -194,8 +198,8 @@ export const EntityRoute = () => {
     throw new ApiError(404, "Not Found")
   }
 
-  const matchedEntity = (Object.keys(ENTITY_ELEMENTS) as EntityParam[]).find(key =>
-    appEntity.startsWith(ENTITY_PREFIXES[key]),
+  const matchedEntity = (Object.keys(ENTITY_ELEMENTS) as EntityParam[]).find(
+    key => appEntity.startsWith(ENTITY_PREFIXES[key]) && appEntity.length > ENTITY_PREFIXES[key].length,
   )
 
   if (!matchedEntity) {

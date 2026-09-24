@@ -1,4 +1,4 @@
-import { KeyboardEvent, useCallback, useEffect, useMemo, useState } from "react"
+import { KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useMatch, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
@@ -34,9 +34,22 @@ export const StoreHeader = () => {
     setQuery(storeQuery)
   }, [storeQuery])
 
+  // При переходе в другой стор - очищаем строку поиска.
+  const previousStoreIdRef = useRef(storeId)
+  useEffect(() => {
+    if (previousStoreIdRef.current !== storeId) {
+      previousStoreIdRef.current = storeId
+      setStoreQuery("")
+    }
+  }, [storeId, setStoreQuery])
+
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
-  const { data: publication, isFetching } = useSearchLitePublications(storeId, debouncedQuery, !!isSearchPage)
+  const { data: publication, isFetching } = useSearchLitePublications(
+    storeId,
+    debouncedQuery,
+    !!isSearchPage || !store?.hasPublications,
+  )
   const items = useMemo(
     () => (!isSearchPage ? publication?.map(x => ({ value: x.id, label: x.title })) : undefined),
     [isSearchPage, publication],
@@ -48,7 +61,7 @@ export const StoreHeader = () => {
         navigate(routes.publication(item.value))
       }
     },
-    [navigate, storeId],
+    [navigate],
   )
 
   const handleClearInputClick = useCallback(() => {
@@ -97,6 +110,7 @@ export const StoreHeader = () => {
           onInputChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onSearchClick={handleSearchClick}
+          placeholder={t("search")}
         />
       </div>
       <div className="flex items-center gap-8">

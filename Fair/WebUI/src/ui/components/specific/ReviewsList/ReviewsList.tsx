@@ -15,6 +15,8 @@ export type ReviewsListBaseProps = {
   noReviewsLabel: string
   showMoreReviewsLabel: string
   reviewLabel: string
+  onShowMore?: () => void
+  hasMoreReviews?: boolean
 }
 
 export type ReviewsListProps = ReviewsListBaseProps & Pick<CommentProps, "contextMenu">
@@ -30,6 +32,8 @@ export const ReviewsList = memo(
     showMoreReviewsLabel,
     reviewLabel,
     contextMenu,
+    onShowMore,
+    hasMoreReviews = true,
   }: ReviewsListProps) => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -58,7 +62,12 @@ export const ReviewsList = memo(
               contextMenu={contextMenu}
             />
           ))}
-          <ButtonOutline className="mx-auto" label={showMoreReviewsLabel} />
+          <ButtonOutline
+            className="mx-auto"
+            label={showMoreReviewsLabel}
+            onClick={onShowMore}
+            disabled={!hasMoreReviews}
+          />
         </>
       )}
     </div>

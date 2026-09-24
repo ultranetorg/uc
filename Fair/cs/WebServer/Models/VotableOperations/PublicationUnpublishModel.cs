@@ -2,9 +2,9 @@
 
 public class PublicationUnpublishModel(PublicationUnpublish operation, Product product, Category category) : BaseVotableOperationModel(operation)
 {
-	public string PublicationId { get; set; } = operation.Publication.ToString();
+	public AutoId PublicationId { get; set; } = operation.Publication;
 	public string? PublicationTitle { get; } = PublicationUtils.GetLatestTitle(product);
 
-	public string CategoryId { get; } = category.Id.ToString();
+	public AutoId CategoryId { get; } = category.Id;
 	public string CategoryTitle { get; } = category.Title;
 }

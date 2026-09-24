@@ -2,6 +2,6 @@
 
 public class StoreModeratorRemovalModel(StoreModeratorRemoval operation) : BaseVotableOperationModel(operation)
 {
-	public string ModeratorId { get; set; } = operation.Moderator.ToString();
+	public AutoId ModeratorId { get; set; } = operation.Moderator;
 	public UserModel Moderator { get; init; } = null!;
 }

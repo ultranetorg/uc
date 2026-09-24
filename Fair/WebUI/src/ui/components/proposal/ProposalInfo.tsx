@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge"
 import { PropsWithClassName, User } from "types"
 import { LinkFullscreen } from "ui/components"
 import { renderUser } from "ui/renderers2"
-import { formatDate, formatLastsFor, routes } from "utils"
+import { getLastsFor, formatDate, routes } from "utils"
 
 type ProposalInfoBaseProps = {
   storeId: string
@@ -35,7 +35,7 @@ export const ProposalInfo = memo(({ className, storeId, createdBy, createdAt }: 
       </div>
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">Lasts for:</span>
-        <span>{formatLastsFor(t, createdAt)}</span>
+        <span>{getLastsFor(t, createdAt)}</span>
       </div>
     </div>
   )

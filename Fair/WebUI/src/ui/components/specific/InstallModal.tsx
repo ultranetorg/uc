@@ -2,6 +2,7 @@ import { memo } from "react"
 import { Link } from "react-router-dom"
 import { Trans, useTranslation } from "react-i18next"
 
+import { twMerge } from "tailwind-merge"
 import uosIcon from "assets/uos.png"
 import { ButtonPrimary, Modal, ModalProps } from "ui/components"
 
@@ -35,8 +36,18 @@ export const InstallModal = memo(({ isIccpAvailable, onSignIn, installFor, ...mo
               className="flex flex-col gap-3 text-center text-2sm leading-5"
               components={{ span: <span /> }}
             />
-            <Link to="https://www.ultranet.org/Test/download" target="_blank">
-              <ButtonPrimary label="Download" className="w-full" />
+            <Link
+              to={
+                installFor === "user"
+                  ? "https://www.ultranet.org/net/software/download"
+                  : "https://www.ultranet.org/fair/docs/howtopublish"
+              }
+              target="_blank"
+            >
+              <ButtonPrimary
+                label={installFor === "user" ? t("common:download") : t("becomeAnAuthor")}
+                className={twMerge("w-full", installFor === "user" && "capitalize")}
+              />
             </Link>
           </>
         ) : (

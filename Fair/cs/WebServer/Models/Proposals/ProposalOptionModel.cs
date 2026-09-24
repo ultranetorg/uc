@@ -6,5 +6,5 @@ public class ProposalOptionModel(ProposalOption option)
 
 	public BaseVotableOperationModel Operation { get; set; }
 
-	public IEnumerable<string> Yes { get; set; } = null!;
+	public IEnumerable<AutoId> Yes { get; set; } = null!;
 }

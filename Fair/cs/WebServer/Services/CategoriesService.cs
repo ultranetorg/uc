@@ -54,7 +54,7 @@ public class CategoriesService
 
 		return new CategoryModel(category)
 		{
-			StoreId = category.Store.ToString(),
+			StoreId = category.Store,
 			Categories = subCategories,
 			Type = typeAndPath.Item1,
 			Path = typeAndPath.Item2
@@ -71,7 +71,7 @@ public class CategoriesService
 			Category parentCategory = mcv.Categories.Latest(parentCategoryId);
 			path.Add(new CategoryPathItem
 			{
-				Id = parentCategory.Id.ToString(),
+				Id = parentCategory.Id,
 				Title = parentCategory.Title
 			});
 

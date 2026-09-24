@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class AuthorBaseModel
 {
 	[JsonPropertyOrder(-4)]
-	public string Id { get; set; }
+	public AutoId Id { get; set; }
 
 	[JsonPropertyOrder(-3), Obsolete("Use Name property instead")]
 	public string Nickname { get; set; }
@@ -22,7 +22,7 @@ public class AuthorBaseModel
 
 	public AuthorBaseModel(Author author)
 	{
-		Id = author.Id.ToString();
+		Id = author.Id;
 		Nickname = author.Name;
 		Name = author.Name;
 		Title = author.Title;

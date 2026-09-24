@@ -4,9 +4,9 @@ namespace Uccs.Fair;
 
 public class PublicationExtendedModel(Publication publication, Product product, Author author, Category category) : PublicationModel(publication, product, category)
 {
-	public string AuthorId { get; set; } = author.Id.ToString();
+	public AutoId AuthorId { get; set; } = author.Id;
 	public string AuthorTitle { get; set; } = author.Title;
-	public string? AuthorFileId { get; } = author.Avatar?.ToString();
+	public AutoId? AuthorFileId { get; } = author.Avatar;
 
 	public ProductType? Type { get; init; }
 }

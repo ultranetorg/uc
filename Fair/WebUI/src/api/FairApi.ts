@@ -86,7 +86,7 @@ export type FairApi = {
   getUserAuthors(userId: string): Promise<UserAuthors>
   getUserDetails(name: string): Promise<UserDetails>
   getUserStoreExists(userId: string, storeId: string): Promise<boolean>
-  getUserReviews(userId: string, page?: number): Promise<TotalItemsResult<Review>>
+  getUserReviews(userId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Review>>
 
   getCategoriesTree(storeId: string, depth?: number): Promise<CategoryParentBase[]>
   getCategoryDetails(categoryId: string): Promise<Category>

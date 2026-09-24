@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class UserModel
 {
 	[JsonPropertyOrder(-3)]
-	public string Id { get; init; }
+	public AutoId Id { get; init; }
 
 	[JsonPropertyOrder(-2)]
 	public string Name { get; init; }
@@ -19,7 +19,7 @@ public class UserModel
 
 	public UserModel(User user)
 	{
-		Id = user.Id.ToString();
+		Id = user.Id;
 		Name = user.Name;
 		Owner = user.Key.ToString();
 	}

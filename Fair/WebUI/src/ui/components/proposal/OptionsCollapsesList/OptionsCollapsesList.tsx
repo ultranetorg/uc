@@ -17,6 +17,7 @@ export type OptionsCollapsesListItem = {
 
 type OptionsCollapsesListBaseProps = {
   items: OptionsCollapsesListItem[]
+  expandAll?: boolean
   showResults?: boolean
   showVoteButton?: boolean
   votesText: string
@@ -30,6 +31,7 @@ export type OptionsCollapsesListProps = PropsWithClassName & OptionsCollapsesLis
 export const OptionsCollapsesList = ({
   className,
   items,
+  expandAll = false,
   showResults,
   showVoteButton,
   votesText,
@@ -44,7 +46,7 @@ export const OptionsCollapsesList = ({
         key={x.value}
         disabled={votedValue !== undefined && x.value !== votedValue}
         loading={votedValue !== undefined && x.value === votedValue}
-        expanded={!!x.expanded || (items.length === 1 ? true : undefined)}
+        expanded={expandAll || !!x.expanded || (items.length === 1 ? true : undefined)}
         showResults={showResults}
         showVoteButton={showVoteButton}
         onExpand={expanded => onExpand?.(x.value, expanded)}

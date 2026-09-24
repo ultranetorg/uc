@@ -2,6 +2,6 @@
 
 public class FileModel
 {
-	public string Id { get; set; }
+	public AutoId Id { get; set; }
 	public int Refs { get; set; }
 }

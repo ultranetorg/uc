@@ -62,7 +62,7 @@ public class PerpetualSurveysService
 		PerpetualSurvey survey = store.PerpetualSurveys[surveyIndex];
 		return ToPerpetualSurvey<PerpetualSurveyDetailsModel, SurveyOptionDetailsModel>(store.Publishers.Length, surveyIndex, survey, (model, option) =>
 		{
-			model.YesVotes = option.Yes.Select(x => x.ToString());
+			model.YesVotes = option.Yes;
 		});
 	}
 

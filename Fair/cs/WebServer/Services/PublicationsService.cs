@@ -39,16 +39,16 @@ public class PublicationsService
 
 		return new PublicationDetailsModel
 		{
-			Id = publication.Id.ToString(),
-			StoreId = publication.Store.ToString(),
+			Id = publication.Id,
+			StoreId = publication.Store,
 			Type = product.Type,
 			Title = product.Title,
-			LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
-			Updated = product.Updated.Hours,
+			LogoId = PublicationUtils.GetLogo(publication, product),
+			Updated = product.Updated,
 			Fields = mappedFields,
-			AuthorId = author.Id.ToString(),
+			AuthorId = author.Id,
 			AuthorTitle = author.Title,
-			AuthorLogoId = author.Avatar?.ToString(),
+			AuthorLogoId = author.Avatar,
 			Path = path,
 			Rating = isPublicationPublished ? publication.Rating : null
 		};
@@ -160,9 +160,9 @@ public class PublicationsService
 				byte[]? logo = fileId != null ? mcv.Files.Latest(fileId).Data : null;
 				var resultItem = new PublicationAuthorModel(publication, product)
 				{
-					ProductId = product.Id.ToString(),
-					LogoId = PublicationUtils.GetLogo(publication, product)?.ToString(),
-					CategoryId = publication.Category.ToString(),
+					ProductId = product.Id,
+					LogoId = PublicationUtils.GetLogo(publication, product),
+					CategoryId = publication.Category,
 					CategoryTitle = category.Title
 				};
 				context.Items.Add(resultItem);
@@ -363,17 +363,17 @@ public class PublicationsService
 
 		return new ChangedPublicationDetailsModel
 		{
-			Id = publication.Id.ToString(),
+			Id = publication.Id,
 			Type = product.Type,
 			Title = product.Title,
-			LogoId = fileId?.ToString(),
-			Updated = product.Updated.Hours,
-			AuthorId = author.Id.ToString(),
+			LogoId = fileId,
+			Updated = product.Updated,
+			AuthorId = author.Id,
 			AuthorTitle = author.Title,
-			AuthorLogoId = author.Avatar?.ToString(),
+			AuthorLogoId = author.Avatar,
 			CurrentVersion = publication.ProductVersion,
 			LatestVersion = product.Versions.Last().Id,
-			CategoryId = category.Id.ToString(),
+			CategoryId = category.Id,
 			CategoryTitle = category.Title,
 			Rating = publication.Rating,
 			Fields = fields,
@@ -449,15 +449,15 @@ public class PublicationsService
 
 			var model = new ChangedPublicationModel
 			{
-				Id = publication.Id.ToString(),
+				Id = publication.Id,
 				Type = product.Type,
 				Title = product.Title,
-				LogoId = fileId?.ToString(),
-				Updated = product.Updated.Hours,
-				AuthorId = author.Id.ToString(),
+				LogoId = fileId,
+				Updated = product.Updated,
+				AuthorId = author.Id,
 				AuthorTitle = author.Title,
-				AuthorLogoId = author.Avatar?.ToString(),
-				CategoryId = category.Id.ToString(),
+				AuthorLogoId = author.Avatar,
+				CategoryId = category.Id,
 				CategoryTitle = category.Title,
 				CurrentVersion = publication.ProductVersion,
 				LatestVersion = product.Versions.Last().Id

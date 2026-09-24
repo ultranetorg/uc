@@ -2,19 +2,19 @@
 
 public class ProposalModel(Proposal proposal, FairUser by)
 {
-	public string Id { get; } = proposal.Id.ToString();
+	public AutoId Id { get; } = proposal.Id;
 
 	public bool IsStalled { get; set; } = false;
 
 	public FairOperationClass Operation { get; } = proposal.OptionClass;
 
-	public IEnumerable<IEnumerable<string>> Yes { get; } = proposal.Options.Select(x => x.Yes.Select(y => y.ToString()));
-	public IEnumerable<string> Neither { get; } = proposal.Neither.Select(x => x.ToString());
-	public IEnumerable<string> Any { get; } = proposal.Any.Select(x => x.ToString());
-	public IEnumerable<string> Ban { get; } = proposal.Ban.Select(x => x.ToString());
-	public IEnumerable<string> Banish { get; } = proposal.Banish.Select(x => x.ToString());
+	public IEnumerable<IEnumerable<AutoId>> Yes { get; } = proposal.Options.Select(x => x.Yes);
+	public IEnumerable<AutoId> Neither { get; } = proposal.Neither;
+	public IEnumerable<AutoId> Any { get; } = proposal.Any;
+	public IEnumerable<AutoId> Ban { get; } = proposal.Ban;
+	public IEnumerable<AutoId> Banish { get; } = proposal.Banish;
 
-	public int CreationTime { get; } = proposal.CreationTime.Hours;
+	public Time CreationTime { get; } = proposal.CreationTime;
 
 	public string Title { get; } = proposal.Title;
 	public string Text { get; } = proposal.Text;

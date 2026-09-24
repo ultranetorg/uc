@@ -85,7 +85,7 @@ public class FilesService
 			{
 				var model = new FileModel
 				{
-					Id = file.Id.ToString(),
+					Id = file.Id,
 					Refs = file.Refs
 				};
 				result.Add(model);

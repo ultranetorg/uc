@@ -11,4 +11,6 @@ export type ContentProps = {
   error?: Error
   onLeaveReview?: () => void
   onEditReview?: (id: string, text: string) => void
+  onShowMore?: () => void
+  hasMoreReviews?: boolean
 }

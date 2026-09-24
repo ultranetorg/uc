@@ -15,7 +15,7 @@ public struct Time : IBinarySerializable
 
 	public static readonly Time		Zero = new Time(0);
 	public static readonly Time		Empty = new Time(-1);
-	public static DateTime			Start = new DateTime(FirstYear, 1, 1);
+	public static DateTime			Start = new DateTime(FirstYear, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 	public const short				FirstYear = 2026;
 
 	public static Time				operator -  (Time a, Time b) => new Time(a.Seconds - b.Seconds);

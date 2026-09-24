@@ -1,34 +1,18 @@
 ﻿namespace Uccs.Fair;
 
-public class UserPublicationModel
+public class UserPublicationModel(Publication publication, Store store, Category category, Product product)
 {
-	public string Id { get; set; }
+	public AutoId Id { get; set; } = publication.Id;
 
-	public string StoreId { get; set; }
-	public string StoreTitle { get; set; }
+	public AutoId StoreId { get; set; } = store.Id;
+	public string StoreTitle { get; set; } = store.Title;
 
-	public string CategoryId { get; set; }
-	public string CategoryTitle { get; set; }
+	public AutoId CategoryId { get; set; } = category.Id;
+	public string CategoryTitle { get; set; } = category.Title;
 
-	public string ProductId { get; set; }
-	public string ProductTitle { get; set; }
+	public AutoId ProductId { get; set; } = product.Id;
+	public string ProductTitle { get; set; } = product.Title;
 
 	//
-	public string Url { get; set; }
-
-	public UserPublicationModel(Publication publication, Store store, Category category, Product product)
-	{
-		Id = publication.Id.ToString();
-
-		StoreId = store.Id.ToString();
-		StoreTitle = store.Title;
-
-		CategoryId = category.Id.ToString();
-		CategoryTitle = category.Title;
-
-		ProductId = product.Id.ToString();
-		ProductTitle = product.Title;
-
-		Url = PublicationUtils.GetUrl(publication);
-	}
+	public string Url { get; set; } = PublicationUtils.GetUrl(publication);
 }

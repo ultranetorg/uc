@@ -1,8 +1,9 @@
-import dayjs from "dayjs"
+import { TFunction } from "i18next"
 
-import { START_DATE } from "config"
+import { formatDuration } from "./formatUtils"
 
-export const getHoursPassedFromStart = (): number => {
-  const startDate = dayjs(START_DATE)
-  return dayjs().diff(startDate, "hours")
+export const getLastsFor = (t: TFunction, creationTime: number): string => {
+  const nowSeconds = (Date.now() - Date.UTC(2026, 0, 1)) / 1000
+  const hoursDuration = Math.max(0, nowSeconds - creationTime) / 3600
+  return formatDuration(t, hoursDuration)
 }

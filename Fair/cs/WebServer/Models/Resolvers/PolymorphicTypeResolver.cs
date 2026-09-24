@@ -32,7 +32,7 @@ public class PolymorphicTypeResolver : DefaultJsonTypeInfoResolver
 					new JsonDerivedType(typeof(StoreAvatarChangeModel), "store-avatar-change"),
 					new JsonDerivedType(typeof(StoreModeratorAdditionModel), "store-moderator-addition"),
 					new JsonDerivedType(typeof(StoreModeratorRemovalModel), "store-moderator-removal"),
-					new JsonDerivedType(typeof(StoreNameChangeModel), "store-name-change"),
+					new JsonDerivedType(typeof(StoreRenamingModel), "store-renaming"),
 					new JsonDerivedType(typeof(StoreInfoUpdationModel), "store-info-updation"),
 					new JsonDerivedType(typeof(UserUnregistrationModel), "user-unregistration"),
 					new JsonDerivedType(typeof(UserRegistrationModel), "user-registration"),

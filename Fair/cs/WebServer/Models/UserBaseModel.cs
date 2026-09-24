@@ -5,7 +5,7 @@ namespace Uccs.Fair;
 public class UserBaseModel(FairUser account)
 {
 	[JsonPropertyOrder(-4)]
-	public string Id { get; } = account.Id.ToString();
+	public AutoId Id { get; } = account.Id;
 
 	[JsonPropertyOrder(-3)]
 	public string Nickname { get; } = account.Name;
