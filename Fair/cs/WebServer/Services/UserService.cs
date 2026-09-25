@@ -15,9 +15,9 @@ public class UserService
 	[Obsolete("This method is deprected use GetUserAvatar instead")]
 	public FileContentResult GetAvatar([NotNull][NotEmpty] string accountId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(accountId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {AccountId}", nameof(UserService), nameof(UserService.GetAvatar), accountId);
 #endif
 

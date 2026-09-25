@@ -368,7 +368,6 @@ export const enUS = {
     publisher: "Publisher",
     quality: "Quality",
     rating: "Rating",
-    ratings: "Ratings",
     releaseDate: "Release date",
     review_one: "Review",
     review_other: "Reviews",
@@ -554,13 +553,14 @@ export const enUS = {
     uniqueNickname: "Choose a unique username. It will be visible to other users.",
   },
   installModal: {
-    title: "Client Software is Required",
+    clientRequiredTitle: "Client Software is Required",
     authorText:
       "<span>This is decentralized platform of autonomous transparent community-governed stores.</span><span>Anyone can become the author, create product pages and publish it in the stores.</span><span>Author has full control over its content and behavior.</span><span>Follow this link to learn how to become an author, publish your products and participate in stores governance.</span><span>Please, click the button below to become an author.</span>",
+    authorRoleRequiredTitle: "Author role is required",
     userText:
       "<span>This is decentralized platform of autonomous transparent community-governed stores.</span><span>Windows OS is currently supported only.</span><span>Please, click the button below to download.</span>",
-    doneTitle: "Welcome to the ULTRANET and to the Fair Network",
-    doneText:
+    clientReadyTitle: "Welcome to the ULTRANET and to the Fair Network",
+    clientReadyText:
       '<span>Now, find <icon/> icon in the tray, open its menu and select "Identity and Activity" option</span><span>There you can manage your crypto wallets and accounts that are used to identify yourself when participating in Fair network and other decentralized platforms</span><span>Use the button below to log in to your account</span>',
     becomeAnAuthor: "Become an Author",
   },

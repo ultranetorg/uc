@@ -26,10 +26,10 @@ public class ProposalService
 	/// <param name="discussionOrReferendums">`true` for Discussion, `false` for Referendum</param>
 	ProposalDetailsModel GetProposalDetails(string storeId, string proposalId, bool discussionOrReferendums)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(proposalId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProposalId}, {DiscussionOrReferendums}", nameof(ProposalService), nameof(ProposalService.GetProposalDetails), storeId, proposalId, discussionOrReferendums);
 #endif
 
@@ -112,11 +112,11 @@ public class ProposalService
 
 	TotalItemsResult<ProposalModel> GetProposals(string storeId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {DiscussionOrReferendums}, {Page}, {PageSize}, {Search}", nameof(ProposalService), nameof(ProposalService.GetProposals), storeId, discussionOrReferendums, page, pageSize, search);
 #endif
 
@@ -190,11 +190,11 @@ public class ProposalService
 
 	public TotalItemsResult<ProposalModel> GetProposals([NotEmpty][NotNull] string storeId, FairOperationClass? operationClass, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {OperationClass}, {Page}, {PageSize}", nameof(ProposalService), nameof(ProposalService.GetProposals), storeId, operationClass, page, pageSize);
 #endif
 

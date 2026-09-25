@@ -12,10 +12,10 @@ public class UnpublishedStoreProductsService
 {
 	public ProductDetailsModel GetDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string productId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(productId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProductId}", nameof(UnpublishedStoreProductsService), nameof(UnpublishedStoreProductsService.GetDetails), storeId, productId);
 #endif
 

@@ -1,18 +1,10 @@
 import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
-import { useQueryClient } from "@tanstack/react-query"
 
-import { capitalize } from "lodash"
 import { useOperationPolicy, useSignInContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
-import {
-  categoriesKeys,
-  proposalsKeys,
-  publicationsKeys,
-  storesKeys,
-  useGetModeratorDiscussionComments,
-} from "entities"
+import { useGetModeratorDiscussionComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
@@ -53,7 +45,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const storeId = useResolveStoreId()
   const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
+  const { invalidateOperation } = useInvalidation()
   const { mutate } = useTransactMutationWithStatus()
   const { t } = useTranslation("proposalView")
 
@@ -66,22 +58,6 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const [votedValue, setVotedValue] = useState<number | undefined>()
   const [voteAction, setVoteAction] = useState<VoteAction | undefined>()
   const [commentSubmitting, setCommentSubmitting] = useState(false)
-
-  const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
-    () => ({
-      "store-moderator-removal": [storesKeys.moderators(storeId!), proposalsKeys.moderators(storeId!)],
-      "store-authors-removal": [storesKeys.publishers(storeId!), proposalsKeys.publishers(storeId!)],
-
-      "store-avatar-change": [storesKeys.detail(storeId!)],
-      "store-renaming": [storesKeys.detail(storeId!)],
-      "store-info-updation": [storesKeys.detail(storeId!)],
-
-      "category-creation": [categoriesKeys.all(storeId!)],
-      "publication-deletion": [publicationsKeys.categoriesPublications(storeId!)],
-      "publication-unpublish": [publicationsKeys.categoriesPublications(storeId!)],
-    }),
-    [storeId],
-  )
 
   const {
     isFetching: isCommentsFetching,
@@ -128,10 +104,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           showToast(t("toast:voted"), "success")
           setVoteStatus("voted")
 
-          const invalidateKeys = invalidateQueryKeysByOperationType[proposal!.operation]
-          if (invalidateKeys) {
-            invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x, refetchType: "all" }))
-          }
+          invalidateOperation(proposal!.operation, { storeId: storeId! })
 
           navigate(previousPath ?? routes.moderation.proposals(storeId!))
         },
@@ -142,19 +115,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         onSettled: () => setVotedValue(undefined),
       })
     },
-    [
-      isReferendum,
-      approval,
-      proposal,
-      mutate,
-      startSignIn,
-      t,
-      invalidateQueryKeysByOperationType,
-      navigate,
-      previousPath,
-      storeId,
-      queryClient,
-    ],
+    [isReferendum, approval, proposal, mutate, startSignIn, t, invalidateOperation, navigate, previousPath, storeId],
   )
 
   const vote = useCallback(

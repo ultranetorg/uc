@@ -3,7 +3,6 @@ import { TFunction } from "i18next"
 import { Link } from "react-router-dom"
 import { truncate } from "lodash"
 
-import { storesKeys } from "entities"
 import { Moderator } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { renderUser } from "ui/renderers2"
@@ -33,7 +32,6 @@ export const moderatorsTabItemRenderer =
                 moderators: [moderator.user],
                 redirectAfterProposalCreation: routes.moderation.moderators(storeId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.moderators(storeId),
               }}
             >
               <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />

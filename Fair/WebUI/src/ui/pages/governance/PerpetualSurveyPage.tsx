@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { startCase } from "lodash"
-import { useQueryClient } from "@tanstack/react-query"
 
-import { useSignInContext, useStoreContext, useStoreRolesContext } from "app"
-import { storesKeys, useGetPerpetualSurveyDetails } from "entities"
+import { useSignInContext, useStoreContext, useStoreRolesContext, useUserContext } from "app"
+import { useGetPerpetualSurveyDetails, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { OperationType, PerpetualVoting, StoreApprovalPolicyChange } from "types"
+import { PerpetualVoting, StoreApprovalPolicyChange } from "types"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
@@ -17,11 +16,12 @@ export type PageState = "voting" | "results"
 export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurveyPage")
   const { perpetualSurveyId } = useParams()
-  const queryClient = useQueryClient()
+  const { invalidatePolicyChange } = useInvalidation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
+  const { user } = useUserContext()
 
-  const { startSignIn } = useSignInContext()
+  const { startSignIn, openAuthorRoleRequiredModal } = useSignInContext()
   const { publisherIds } = useStoreRolesContext()
   const { mutate } = useTransactMutationWithStatus()
 
@@ -34,15 +34,6 @@ export const PerpetualSurveyPage = () => {
 
   useStoreTitle(store?.title, `Perpetual Survey - ${startCase(title)}`)
 
-  const invalidateQueryKeysByOperationType: Partial<Record<OperationType, readonly (readonly string[])[]>> = useMemo(
-    () => ({
-      "store-avatar-change": [storesKeys.policies(storeId!)],
-      "store-renaming": [storesKeys.policies(storeId!)],
-      "store-info-updation": [storesKeys.policies(storeId!)],
-    }),
-    [storeId],
-  )
-
   const handleExpand = useCallback(
     (value: string | number, expanded: boolean) =>
       setItems(p => p?.map(x => (x.value !== value ? x : { ...x, expanded }))),
@@ -51,8 +42,13 @@ export const PerpetualSurveyPage = () => {
 
   const handleSignInOrVote = useCallback(
     (choiceId: string | number) => {
-      if (!publisherIds) {
-        startSignIn("author")
+      if (!publisherIds || !publisherIds.length) {
+        if (!user) {
+          startSignIn("author")
+        } else {
+          openAuthorRoleRequiredModal()
+        }
+
         return
       }
 
@@ -60,11 +56,7 @@ export const PerpetualSurveyPage = () => {
       const operation = new PerpetualVoting(storeId!, Number(perpetualSurveyId), publisherId, Number(choiceId))
       mutate(operation, {
         onSuccess: () => {
-          const invalidateKeys =
-            invalidateQueryKeysByOperationType[survey?.options[0].operation.operation as OperationType]
-          if (invalidateKeys) {
-            invalidateKeys.forEach(x => queryClient.invalidateQueries({ queryKey: x, refetchType: "all" }))
-          }
+          invalidatePolicyChange({ storeId: storeId! })
 
           showToast(t("toast:perpetualVoted", { publisher: publisherId }))
         },
@@ -73,16 +65,16 @@ export const PerpetualSurveyPage = () => {
       })
     },
     [
-      invalidateQueryKeysByOperationType,
-      mutate,
-      perpetualSurveyId,
       publisherIds,
-      queryClient,
-      refetch,
       storeId,
+      perpetualSurveyId,
+      mutate,
+      user,
       startSignIn,
-      survey?.options,
+      openAuthorRoleRequiredModal,
+      invalidatePolicyChange,
       t,
+      refetch,
     ],
   )
 

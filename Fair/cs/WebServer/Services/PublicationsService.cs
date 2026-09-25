@@ -13,9 +13,9 @@ public class PublicationsService
 {
 	public PublicationDetailsModel GetDetails([NotEmpty][NotNull] string publicationId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(PublicationsService.GetDetails), publicationId);
 #endif
 
@@ -56,9 +56,9 @@ public class PublicationsService
 
 	public PublicationVersionInfo GetVersions([NotEmpty][NotNull] string publicationId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(PublicationsService.GetVersions), publicationId);
 #endif
 
@@ -79,12 +79,12 @@ public class PublicationsService
 
 	public TotalItemsResult<PublicationAuthorModel> GetPublisherPublicationsNotOptimized([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(authorId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {AuthorId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetPublisherPublicationsNotOptimized), storeId, authorId, page, pageSize);
 #endif
 
@@ -174,11 +174,11 @@ public class PublicationsService
 
 	public TotalItemsResult<PublicationExtendedModel> GetCategoryPublicationsNotOptimized([NotNull][NotEmpty] string categoryId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(categoryId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetCategoryPublicationsNotOptimized), categoryId, page, pageSize);
 #endif
 
@@ -236,9 +236,9 @@ public class PublicationsService
 
 	public IEnumerable<CategoryPublicationsModel> GetCategoriesPublicationsNotOptimized([NotNull][NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(PublicationsService), nameof(PublicationsService.GetCategoriesPublicationsNotOptimized), storeId);
 #endif
 
@@ -332,10 +332,10 @@ public class PublicationsService
 
 	public ChangedPublicationDetailsModel GetChangedPublicationDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string changedPublicationId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(changedPublicationId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ChangedPublicationId}", nameof(PublicationsService), nameof(PublicationsService.GetChangedPublicationDetails), storeId, changedPublicationId);
 #endif
 
@@ -383,11 +383,11 @@ public class PublicationsService
 
 	public TotalItemsResult<ChangedPublicationModel> GetChangedPublicationsAll([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetChangedPublicationsAll), storeId, page, pageSize);
 #endif
 
@@ -471,11 +471,11 @@ public class PublicationsService
 	TotalItemsResult<T> GetStorePublications<T>(string storeId, Func<Store, AutoId[]> GetPublications, Func<Product, Publication, T> CreatePublication, int page, int pageSize, CancellationToken cancellationToken)
 		where T: PublicationBaseModel
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetStorePublications), storeId, page, pageSize);
 #endif
 

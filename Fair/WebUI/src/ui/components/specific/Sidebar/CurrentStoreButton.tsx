@@ -21,9 +21,9 @@ export interface CurrentStoreProps {
 export const CurrentStore = memo(({ storeId, title, logoFileId, publishersCount }: CurrentStoreProps) => {
   const { t } = useTranslation()
 
+  const { setFavorite, clearFavorite } = usePendingOperationsContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
   const { user, refetch } = useUserContext()
-  const { setFavorite, clearFavorite } = usePendingOperationsContext()
 
   const transactOperation = useCallback(
     (action: boolean) => {

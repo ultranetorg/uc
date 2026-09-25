@@ -12,9 +12,9 @@ public class CategoriesService
 {
 	public IEnumerable<CategoryBaseModel> GetRoot([NotNull][NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(CategoriesService), nameof(CategoriesService.GetRoot), storeId);
 #endif
 
@@ -35,9 +35,9 @@ public class CategoriesService
 
 	public CategoryModel GetDetails([NotNull][NotEmpty] string categoryId, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(categoryId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {CategoryId}", nameof(CategoriesService), nameof(CategoriesService.GetDetails), categoryId);
 #endif
 
@@ -98,10 +98,10 @@ public class CategoriesService
 
 	public IEnumerable<CategoryParentBaseModel> GetTree([NotEmpty] string storeId, [NonNegativeValue] int? depth, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		DepthValidator.ValidateResolved(depth);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Depth}", nameof(CategoriesService), nameof(CategoriesService.GetTree), storeId, depth);
 #endif
 

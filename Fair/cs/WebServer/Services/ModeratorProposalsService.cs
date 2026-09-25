@@ -14,11 +14,11 @@ public class ModeratorProposalsService
 	public TotalItemsResult<ReviewProposalModel> GetReviewProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetReviewProposalsNotOptimized), storeId, page, pageSize, search);
 #endif
 
@@ -65,9 +65,9 @@ public class ModeratorProposalsService
 
 	public PublicationProposalModel GetPublicationProposal([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string proposalId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(proposalId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProposalId}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationProposal), storeId, proposalId);
 #endif
 
@@ -80,11 +80,11 @@ public class ModeratorProposalsService
 	public TotalItemsResult<PublicationProposalModel> GetPublicationsProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}",
 			nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationsProposalsNotOptimized), storeId, page, pageSize, search);
 #endif
@@ -223,11 +223,11 @@ public class ModeratorProposalsService
 	public TotalItemsResult<ModeratorProposalModel> GetModeratorProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetModeratorProposalsNotOptimized), storeId, page, pageSize, search);
 #endif
 
@@ -262,11 +262,11 @@ public class ModeratorProposalsService
 	public TotalItemsResult<PublisherProposalModel> GetPublisherProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublisherProposalsNotOptimized), storeId, page, pageSize, search);
 #endif
 
@@ -289,11 +289,11 @@ public class ModeratorProposalsService
 	public TotalItemsResult<ProposalModel> GetUserRegistrations
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetUserRegistrations), storeId, page, pageSize);
 #endif
 
@@ -303,11 +303,11 @@ public class ModeratorProposalsService
 	public TotalItemsResult<UserUnregistrationProposalModel> GetUserUnregistrations
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetUserUnregistrations), storeId, page, pageSize);
 #endif
 

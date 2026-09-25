@@ -4,7 +4,7 @@ import { isNumber } from "lodash"
 
 import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetUserUnregistrationProposals } from "entities"
+import { useGetUserUnregistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
@@ -16,6 +16,7 @@ import { getRemoveUsersTabItemRenderer } from "./removeUsersTabItemRenderer"
 export const UsersRemovalsTab = () => {
   const storeId = useResolveStoreId()
   const { voterId } = useOperationPolicy("user-registration")
+  const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
@@ -67,6 +68,7 @@ export const UsersRemovalsTab = () => {
       const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : -1)
       mutate(operation, {
         onSuccess: () => {
+          invalidateOperation("user-unregistration", { storeId: storeId! })
           const message =
             action === "approve"
               ? t("toast:userUnregistrationApproved", { name })
@@ -82,7 +84,7 @@ export const UsersRemovalsTab = () => {
         },
       })
     },
-    [mutate, refetch, t, voterId],
+    [mutate, invalidateOperation, refetch, storeId, t, voterId],
   )
 
   const handleApprove = useCallback((id: string, name: string) => vote(id, name, "approve"), [vote])

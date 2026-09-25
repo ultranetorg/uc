@@ -2,11 +2,11 @@ import { memo, useCallback } from "react"
 import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
-import { useQueryClient } from "@tanstack/react-query"
 import { twMerge } from "tailwind-merge"
 
 import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
+import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId } from "hooks"
 import { CreateProposalData, ProposalCreation, ProposalType, Role } from "types"
@@ -23,7 +23,7 @@ import {
   ValidationWrapper,
 } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
-import { isArrayOfArrays, isVotingRequired, routes, showToast } from "utils"
+import { isVotingRequired, routes, showToast } from "utils"
 
 import { prepareProposalOptions } from "./utils"
 
@@ -37,7 +37,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const location = useLocation()
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
-  const queryClient = useQueryClient()
+  const { invalidateOperation } = useInvalidation()
   const { t } = useTranslation("createProposal")
 
   const { isModerator, isPublisher } = useStoreRolesContext()
@@ -70,14 +70,8 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     const operation = new ProposalCreation(storeId!, by, role, data.title, options, data.description)
     mutate(operation, {
       onSuccess: () => {
-        if (!isRequiredVoting && Array.isArray(location.state?.invalidateQueryKeys)) {
-          if (isArrayOfArrays(location.state.invalidateQueryKeys)) {
-            location.state.invalidateQueryKeys.each((x: readonly unknown[]) =>
-              queryClient.invalidateQueries({ queryKey: x, refetchType: "all" }),
-            )
-          } else {
-            queryClient.invalidateQueries({ queryKey: location.state.invalidateQueryKeys, refetchType: "all" })
-          }
+        if (!isRequiredVoting) {
+          invalidateOperation(data.type, { storeId: storeId!, userName: user?.name })
         }
 
         const translationKey = isRequiredVoting ? "toast:proposalCreated" : "toast:proposalExecuted"

@@ -2,7 +2,6 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
-import { unpublishedPublicationsKeys } from "entities"
 import { useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
@@ -31,7 +30,6 @@ export const useModeratorPublicationMenuItems = (
           ],
           redirectAfterProposalCreation: routes.moderation.publications(storeId!),
           redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.store(storeId!),
-          invalidateQueryKeys: unpublishedPublicationsKeys.all(storeId!),
         },
       },
       { separator: true },

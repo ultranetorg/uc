@@ -4,7 +4,7 @@ import { isNumber } from "lodash"
 
 import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetUserRegistrationProposals } from "entities"
+import { useGetUserRegistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
@@ -15,6 +15,7 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 export const NewUsersTab = () => {
   const storeId = useResolveStoreId()
   const { voterId } = useOperationPolicy("user-registration")
+  const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
@@ -70,6 +71,7 @@ export const NewUsersTab = () => {
               ? t("toast:userRegistrationApproved", { name })
               : t("toast:userRegistrationRejected", { name })
           showToast(message, "success")
+          invalidateOperation("user-registration", { storeId: storeId! })
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -80,7 +82,7 @@ export const NewUsersTab = () => {
         },
       })
     },
-    [mutate, refetch, t, voterId],
+    [mutate, invalidateOperation, refetch, storeId, t, voterId],
   )
 
   const handleApprove = useCallback((id: string, name: string) => vote(id, name, "approve"), [vote])

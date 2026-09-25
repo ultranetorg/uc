@@ -47,7 +47,7 @@ export const ModeratorCreatePublicationPage = () => {
     setQuery("")
   }, [setQuery])
 
-  const handleCreatePublication = useCallback(() => {
+  const handleCreate = useCallback(() => {
     const role = isModerator ? Role.Moderator : Role.Publisher
     const options = [
       {
@@ -111,7 +111,7 @@ export const ModeratorCreatePublicationPage = () => {
                       <ButtonPrimary
                         className="h-11 w-40 capitalize"
                         label={t("common:create")}
-                        onClick={handleCreatePublication}
+                        onClick={handleCreate}
                         disabled={isPending}
                         loading={isPending}
                       />
