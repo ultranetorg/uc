@@ -24,19 +24,20 @@ const operationRules: Record<OperationType, InvalidationRule> = {
   "category-movement": ({ storeId }) => [categoriesKeys.all(storeId)],
   "category-type-change": ({ storeId }) => [categoriesKeys.all(storeId)], // TODO: update all except tree
 
-  "publication-creation": ({ storeId }) => [unpublishedPublicationsKeys.all(storeId)],
+  "publication-creation": ({ storeId }) => [storesKeys.detail(storeId), unpublishedPublicationsKeys.all(storeId)],
   "publication-deletion": ({ storeId }) => [
+    storesKeys.detail(storeId),
     publicationsKeys.categoriesPublications(storeId),
     publicationsKeys.categoriesPublicationsAll(),
   ],
   "publication-publish": ({ storeId }) => [
-    publicationsKeys.categoriesPublications(storeId!),
+    storesKeys.detail(storeId),
     publicationsKeys.categoriesPublications(storeId),
     publicationsKeys.categoriesPublicationsAll(),
     unpublishedPublicationsKeys.all(storeId),
   ],
   "publication-unpublish": ({ storeId }) => [
-    publicationsKeys.categoriesPublications(storeId!),
+    storesKeys.detail(storeId),
     publicationsKeys.categoriesPublications(storeId),
     publicationsKeys.categoriesPublicationsAll(),
     unpublishedPublicationsKeys.all(storeId),
