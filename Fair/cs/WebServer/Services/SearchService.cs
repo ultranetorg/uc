@@ -14,12 +14,12 @@ public class SearchService
 {
 	public IEnumerable<PublicationExtendedModel> SearchPublications([NotNull, NotEmpty] string storeId, [NotNull, NotEmpty] string query, string[]? categoriesIds, ProductType? type, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(query);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {CategoriesIds}, {Type}, {Page}, {PageSize}",
 			nameof(SearchService), nameof(SearchService.SearchPublications), storeId, query, categoriesIds, type, page, pageSize);
 #endif
@@ -66,12 +66,12 @@ public class SearchService
 
 	public IEnumerable<PublicationBaseModel> SearchLitePublications(string storeId, string query, int page, int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(query);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchLitePublications), storeId, query, page, pageSize);
 #endif
 
@@ -157,10 +157,10 @@ public class SearchService
 
 	public TotalItemsResult<StoreBaseModel> SearchStores(string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchStores), query, page, pageSize);
 #endif
 
@@ -197,11 +197,11 @@ public class SearchService
 
 	public IEnumerable<StoreSearchLiteModel> SearchLiteStores([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(query);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchLiteStores), query, page, pageSize);
 #endif
 
@@ -216,11 +216,11 @@ public class SearchService
 
 	public IEnumerable<UserModel> SearchStoreUsers([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(query);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchStoreUsers), storeId, query, limit);
 #endif
 
@@ -262,9 +262,9 @@ public class SearchService
 
 	public IEnumerable<UserBaseAvatarModel> SearchUser([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(query);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchUser), query, limit);
 #endif
 
@@ -307,10 +307,10 @@ public class SearchService
 
 	public IEnumerable<AuthorBaseAvatarModel> SearchAuthors([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(query);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchAuthors), query, limit);
 #endif
 

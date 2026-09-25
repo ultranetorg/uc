@@ -49,9 +49,9 @@ public class StoresService
 
 	public StoreModel GetDetails([NotEmpty] string storeId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(StoresService.GetDetails), storeId);
 #endif
 
@@ -76,9 +76,9 @@ public class StoresService
 
 	public TotalItemsResult<PublisherModel> GetPublishers([NotEmpty][NotNull] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(StoresService), nameof(StoresService.GetPublishers), storeId, page, pageSize, search);
 #endif
 
@@ -136,9 +136,9 @@ public class StoresService
 
 	public IEnumerable<ModeratorModel> GetModerators([NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(StoresService.GetModerators), storeId);
 #endif
 
@@ -175,9 +175,9 @@ public class StoresService
 
 	public IEnumerable<PolicyModel> GetPolicies(string storeId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(StoresService), nameof(StoresService.GetPolicies), storeId);
 #endif
 

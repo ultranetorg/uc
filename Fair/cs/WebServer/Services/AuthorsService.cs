@@ -13,9 +13,9 @@ public class AuthorsService
 {
 	public AuthorDetailsModel GetDetails(string authorId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(authorId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {AuthorId}", nameof(AuthorsService), nameof(AuthorsService.GetDetails), authorId);
 #endif
 
@@ -46,11 +46,11 @@ public class AuthorsService
 
 	public TotalItemsResult<ProductAuthorModel> GetProducts([NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(authorId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {AuthorId}, {Page}, {PageSize}", nameof(AuthorsService), nameof(AuthorsService.GetProducts), authorId, page, pageSize);
 #endif
 

@@ -13,11 +13,11 @@ public class UnpublishedPublicationsService
 {
 	public TotalItemsResult<UnpublishedPublicationModel> GetAll([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UnpublishedPublicationsService), nameof(UnpublishedPublicationsService.GetAll), storeId, page, pageSize);
 #endif
 
@@ -83,10 +83,10 @@ public class UnpublishedPublicationsService
 
 	public PublicationDetailsModel GetDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string publicationId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {PublicationId}", nameof(UnpublishedPublicationsService), nameof(UnpublishedPublicationsService.GetDetails), storeId, publicationId);
 #endif
 

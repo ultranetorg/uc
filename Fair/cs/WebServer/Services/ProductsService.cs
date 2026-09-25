@@ -13,9 +13,9 @@ public class ProductsService
 {
 	public IEnumerable<FieldValueModel>? GetFields([NotNull][NotEmpty] string productId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(productId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(ProductsService.GetFields), productId);
 #endif
 
@@ -32,9 +32,9 @@ public class ProductsService
 
 	public ProductDetailsModel GetDetails([NotNull][NotEmpty] string productId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(productId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}", nameof(ProductsService), nameof(ProductsService.GetDetails), productId);
 #endif
 
@@ -66,10 +66,10 @@ public class ProductsService
 
 	public PublicationDetailsDiffModel GetDiff([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int version)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 		ArgumentOutOfRangeException.ThrowIfNegative(version);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}, {Version}", nameof(ProductsService), nameof(ProductsService.GetDiff), publicationId, version);
 #endif
 
@@ -114,11 +114,11 @@ public class ProductsService
 
 	public TotalItemsResult<ProductStoreModel> GetProductStores([NotNull][NotEmpty] string productId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(productId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegative(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.GetProductStores), productId, page, pageSize);
 #endif
 
@@ -168,11 +168,11 @@ public class ProductsService
 
 	public IEnumerable<ProductSearchResultModel> Search([NotNull][NotEmpty] string query, ProductType productType, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(query);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {ProductType}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.Search), query, productType, page, pageSize);
 #endif
 
@@ -221,11 +221,11 @@ public class ProductsService
 
 	public TotalItemsResult<ProductPublicationModel> GetProductPublications(string productId, int page, int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(productId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.GetProductPublications), productId, page, pageSize);
 #endif
 

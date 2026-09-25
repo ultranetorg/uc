@@ -14,9 +14,9 @@ public class PerpetualSurveysService
 {
 	public IEnumerable<PerpetualSurveyModel> GetPerpetualReferendums([NotNull][NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(PerpetualSurveysService), nameof(PerpetualSurveysService.GetPerpetualReferendums), storeId);
 #endif
 
@@ -40,10 +40,10 @@ public class PerpetualSurveysService
 
 	public PerpetualSurveyDetailsModel GetPerpetualReferendumDetails([NotNull][NotEmpty] string storeId, [NonNegativeValue] int surveyIndex)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(surveyIndex);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {SurveyIndex}", nameof(PerpetualSurveysService), nameof(PerpetualSurveysService.GetPerpetualReferendumDetails), storeId, surveyIndex);
 #endif
 
@@ -99,12 +99,12 @@ public class PerpetualSurveysService
 
 	public TotalItemsResult<ProposalCommentModel> GetPerpetualReferendumComments([NotNull][NotEmpty] string storeId, [NonNegativeValue] int surveyIndex, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(surveyIndex);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {SurveyIndex}, {Page}, {PageSize}", nameof(PerpetualSurveysService), nameof(PerpetualSurveysService.GetPerpetualReferendumComments), storeId, surveyIndex, page, pageSize);
 #endif
 

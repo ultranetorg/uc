@@ -13,11 +13,11 @@ public class ReviewsService
 {
 	public TotalItemsResult<ReviewModel> GetPublicationReviewsNotOptimized([NotNull][NotEmpty] string publicationId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}, {Page}, {PageSize}", nameof(ReviewsService), nameof(ReviewsService.GetPublicationReviewsNotOptimized), publicationId, page, pageSize);
 #endif
 
@@ -34,11 +34,11 @@ public class ReviewsService
 
 	public TotalItemsResult<ReviewModel> GetUserReviewsNotOptimized([NotNull][NotEmpty] string userId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(userId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {Page}, {PageSize}", nameof(ReviewsService), nameof(ReviewsService.GetUserReviewsNotOptimized), userId, page, pageSize);
 #endif
 

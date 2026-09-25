@@ -15,12 +15,12 @@ public class FilesService
 {
 	public TotalItemsResult<FileModel> GetAuthorFiles([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string authorId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(authorId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {AuthorId}, {Page}, {PageSize}", nameof(FilesService), nameof(FilesService.GetAuthorFiles), storeId, authorId, page, pageSize);
 #endif
 
@@ -44,11 +44,11 @@ public class FilesService
 
 	public TotalItemsResult<FileModel> GetStoreFiles([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(FilesService), nameof(FilesService.GetStoreFiles), storeId, page, pageSize);
 #endif
 
@@ -103,9 +103,9 @@ public class FilesService
 
 	public FileContentResult GetFile([NotNull][NotEmpty] string fileId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(fileId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {FileId}", nameof(FilesService), nameof(FilesService.GetFile), fileId);
 #endif
 

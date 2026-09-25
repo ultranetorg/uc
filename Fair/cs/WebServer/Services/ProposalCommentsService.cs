@@ -14,12 +14,12 @@ public class ProposalCommentsService
 	public TotalItemsResult<ProposalCommentModel> GetProposalComments([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string proposalId,
 		[NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(proposalId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {ProposalId}, {Page}, {PageSize}", nameof(ProposalCommentsService), nameof(ProposalCommentsService.GetProposalComments), storeId, proposalId, page, pageSize);
 #endif
 

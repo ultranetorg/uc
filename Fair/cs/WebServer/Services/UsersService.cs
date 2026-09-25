@@ -16,11 +16,11 @@ public class UsersService
 {
 	public TotalItemsResult<UserModel> GetStoreUsers([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UsersService), nameof(UsersService.GetStoreUsers), storeId, page, pageSize);
 #endif
 
@@ -55,9 +55,9 @@ public class UsersService
 
 	public UserModel GetUserByName([NotNull][NotEmpty] string name)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(name);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(UsersService.GetUserByName), name);
 #endif
 
@@ -83,9 +83,9 @@ public class UsersService
 
 	public UserDetailsModel GetDetails([NotNull][NotEmpty] string name)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(name);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(UsersService.GetDetails), name);
 #endif
 
@@ -117,9 +117,9 @@ public class UsersService
 
 	public UserAuthorsModel GetUserAuthors([NotNull][NotEmpty] string userId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(userId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(UsersService.GetUserAuthors), userId);
 #endif
 
@@ -151,10 +151,10 @@ public class UsersService
 
 	public bool StoreExists([NotNull][NotEmpty] string userId, [NotNull][NotEmpty] string storeId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(userId);
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}, {StoreId}", nameof(UsersService), nameof(UsersService.StoreExists), userId, storeId);
 #endif
 
@@ -172,9 +172,9 @@ public class UsersService
 
 	public FileContentResult GetAvatarById([NotNull][NotEmpty] string userId)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(userId);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(UsersService.GetAvatarById), userId);
 #endif
 
@@ -191,9 +191,9 @@ public class UsersService
 
 	public FileContentResult GetAvatarByName([NotNull][NotEmpty] string name)
 	{
-#if DEBUG
 		ArgumentException.ThrowIfNullOrEmpty(name);
 
+#if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(UsersService.GetAvatarByName), name);
 #endif
 
