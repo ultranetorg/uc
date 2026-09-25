@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { capitalize } from "lodash"
 import { useOperationPolicy, useSignInContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import {

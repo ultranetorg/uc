@@ -21,7 +21,6 @@ export * from "./Sidebar"
 export * from "./StoreHeader"
 export * from "./StoresGrid"
 
-export * from "./AboutInfo"
 export * from "./ActiveUser"
 export * from "./CommentContextMenu"
 export * from "./InstallModal"

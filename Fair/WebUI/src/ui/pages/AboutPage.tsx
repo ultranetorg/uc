@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useStoreContext } from "app"
 import { useResolveStoreId, useStoreTitle } from "hooks"
 import { Breadcrumbs } from "ui/components"
-import { AboutInfo } from "ui/components/specific"
+import { AboutInfo } from "ui/components/specific/about"
 import { routes } from "utils"
 
 export const AboutPage = () => {

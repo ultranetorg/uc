@@ -45,6 +45,8 @@ export const FavoriteStores = () => {
     x => x.action && !user.favoriteStores.some(store => store.id === x.store.id),
   )
 
+  if (!user.favoriteStores.length && pendingAdditions.length == 0) return null
+
   const allItems = [...user.favoriteStores, ...pendingAdditions.map(x => x.store)]
   const visibleItems = allItems.slice(0, MAX_VISIBLE_ITEMS)
 

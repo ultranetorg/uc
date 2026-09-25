@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
-import { storesKeys } from "entities"
+import { proposalsKeys, storesKeys } from "entities"
 import { useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
@@ -25,7 +25,7 @@ export const useModeratorUserMenuItems = (userId: string, userName?: string) => 
           ],
           redirectAfterProposalCreation: routes.moderation.users(storeId!, "remove"),
           redirectAfterProposalExecution: routes.store(storeId!),
-          invalidateQueryKeys: storesKeys.users(storeId!),
+          invalidateQueryKeys: [storesKeys.users(storeId!), proposalsKeys.userUnregistrations(storeId!)],
         },
       },
     ],

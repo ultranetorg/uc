@@ -1,73 +1,14 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useLocation } from "react-router-dom"
 
-import { useStorePoliciesContext } from "app"
-import { storesKeys } from "entities"
-import { isModeratorVoting, routes } from "utils"
-import { SimpleMenuItem } from "ui/components/SimpleMenu"
+import { useStoreChangeMenuItems } from "hooks"
+import { routes } from "utils"
+import { SimpleMenuItem } from "ui/components"
 
 export const useModerationDropdownButtonMenuItems = (storeId: string): SimpleMenuItem[] => {
-  const location = useLocation()
-  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("storeDropdownMenu")
 
-  const storeItems = useMemo(
-    () => [
-      ...(isModeratorVoting("store-avatar-change", policies)
-        ? [
-            {
-              label: t("avatarChange"),
-              to: routes.moderation.createProposal(storeId),
-              state: {
-                title: `Change store avatar`,
-                type: "store-avatar-change",
-                storeId: storeId,
-                parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.proposals(storeId),
-                redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.detail(storeId),
-              },
-            },
-          ]
-        : []),
-      ...(isModeratorVoting("store-renaming", policies)
-        ? [
-            {
-              label: t("nameChange"),
-              to: routes.moderation.createProposal(storeId),
-              state: {
-                title: `Rename store`,
-                type: "store-renaming",
-                storeId: storeId,
-                parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.proposals(storeId),
-                redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.detail(storeId),
-              },
-            },
-          ]
-        : []),
-      ...(isModeratorVoting("store-info-updation", policies)
-        ? [
-            {
-              label: t("textChange"),
-              to: routes.moderation.createProposal(storeId),
-              state: {
-                title: `Update store information`,
-                type: "store-info-updation",
-                storeId: storeId,
-                parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.proposals(storeId),
-                redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.detail(storeId),
-              },
-            },
-          ]
-        : []),
-    ],
-    [location.pathname, policies, storeId, t],
-  )
+  const storeItems = useStoreChangeMenuItems(storeId, { publishers: false })
 
   const menuItems = useMemo(
     () => [

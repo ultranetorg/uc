@@ -11,29 +11,30 @@ type SignInContextType = {
   isPending?: boolean
   startSignIn: (role: SignInRole) => void
   openSignInModal: () => void
+  openAuthorRoleRequiredModal: () => void
 }
 
 const SignInContext = createContext<SignInContextType>({
   isPending: false,
   startSignIn: () => {},
   openSignInModal: () => {},
+  openAuthorRoleRequiredModal: () => {},
 })
 
 export const SignInProvider = ({ children }: PropsWithChildren) => {
   const [isIccpAvailable, setIccpAvailable] = useState(false)
   const [isSignInModalOpen, setSignInModalOpen] = useState(false)
-  const [isAuthorModalOpen, setAuthorModalOpen] = useState(false)
-  const [isUserModalOpen, setUserModalOpen] = useState(false)
+  const [installModalRole, setInstallModalRole] = useState<SignInRole | undefined>()
+  const [isAuthorRoleRequiredModalOpen, setAuthorRoleRequiredModalOpen] = useState(false)
 
   const nexus = useGetNexusUrl()
   const node = useGetIccpNodeUrl(nexus.data)
-  const { data: pong, isPending } = useGetPing(node.data, isAuthorModalOpen || isUserModalOpen ? 3000 : false)
+  const { data: pong, isPending } = useGetPing(node.data, installModalRole !== undefined ? 3000 : false)
 
-  const handleSignIn = useCallback(
+  const handleStartSignIn = useCallback(
     (role: SignInRole) => {
       if (!isIccpAvailable) {
-        if (role === "user") setUserModalOpen(true)
-        else setAuthorModalOpen(true)
+        setInstallModalRole(role)
       } else {
         setSignInModalOpen(true)
       }
@@ -41,13 +42,8 @@ export const SignInProvider = ({ children }: PropsWithChildren) => {
     [isIccpAvailable],
   )
 
-  const handleAuthorSignIn = useCallback(() => {
-    setAuthorModalOpen(false)
-    setSignInModalOpen(true)
-  }, [])
-
-  const handleUserSignIn = useCallback(() => {
-    setUserModalOpen(false)
+  const handleInstallModalSignIn = useCallback(() => {
+    setInstallModalRole(undefined)
     setSignInModalOpen(true)
   }, [])
 
@@ -58,31 +54,33 @@ export const SignInProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo<SignInContextType>(
     () => ({
       isPending,
-      startSignIn: handleSignIn,
+      startSignIn: handleStartSignIn,
       openSignInModal: () => setSignInModalOpen(true),
+      openAuthorRoleRequiredModal: () => setAuthorRoleRequiredModalOpen(true),
     }),
-    [handleSignIn, isPending],
+    [handleStartSignIn, isPending],
   )
 
   return (
     <SignInContext.Provider value={value}>
       {children}
       {isSignInModalOpen && <SignInModal onClose={() => setSignInModalOpen(false)} />}
-      {isAuthorModalOpen && (
-        <InstallModal
-          installFor="author"
-          isIccpAvailable={isIccpAvailable}
-          onClose={() => setAuthorModalOpen(false)}
-          onSignIn={handleAuthorSignIn}
-        />
-      )}
-      {isUserModalOpen && (
-        <InstallModal
-          installFor="user"
-          isIccpAvailable={isIccpAvailable}
-          onClose={() => setUserModalOpen(false)}
-          onSignIn={handleUserSignIn}
-        />
+      {installModalRole !== undefined &&
+        (isIccpAvailable ? (
+          <InstallModal
+            variant="client-ready"
+            onClose={() => setInstallModalRole(undefined)}
+            onSignIn={handleInstallModalSignIn}
+          />
+        ) : (
+          <InstallModal
+            variant="client-required"
+            role={installModalRole}
+            onClose={() => setInstallModalRole(undefined)}
+          />
+        ))}
+      {isAuthorRoleRequiredModalOpen && (
+        <InstallModal variant="author-role-required" onClose={() => setAuthorRoleRequiredModalOpen(false)} />
       )}
     </SignInContext.Provider>
   )

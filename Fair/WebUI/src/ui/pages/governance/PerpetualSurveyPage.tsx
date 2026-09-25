@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { startCase } from "lodash"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { useSignInContext, useStoreContext, useStoreRolesContext } from "app"
+import { useSignInContext, useStoreContext, useStoreRolesContext, useUserContext } from "app"
 import { storesKeys, useGetPerpetualSurveyDetails } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { OperationType, PerpetualVoting, StoreApprovalPolicyChange } from "types"
@@ -20,8 +20,9 @@ export const PerpetualSurveyPage = () => {
   const queryClient = useQueryClient()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
+  const { user } = useUserContext()
 
-  const { startSignIn } = useSignInContext()
+  const { startSignIn, openAuthorRoleRequiredModal } = useSignInContext()
   const { publisherIds } = useStoreRolesContext()
   const { mutate } = useTransactMutationWithStatus()
 
@@ -51,8 +52,13 @@ export const PerpetualSurveyPage = () => {
 
   const handleSignInOrVote = useCallback(
     (choiceId: string | number) => {
-      if (!publisherIds) {
-        startSignIn("author")
+      if (!publisherIds || !publisherIds.length) {
+        if (!user) {
+          startSignIn("author")
+        } else {
+          openAuthorRoleRequiredModal()
+        }
+
         return
       }
 
@@ -73,16 +79,18 @@ export const PerpetualSurveyPage = () => {
       })
     },
     [
-      invalidateQueryKeysByOperationType,
-      mutate,
-      perpetualSurveyId,
       publisherIds,
-      queryClient,
-      refetch,
       storeId,
+      perpetualSurveyId,
+      mutate,
+      user,
       startSignIn,
+      openAuthorRoleRequiredModal,
+      invalidateQueryKeysByOperationType,
       survey?.options,
       t,
+      queryClient,
+      refetch,
     ],
   )
 

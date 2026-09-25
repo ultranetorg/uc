@@ -1,72 +1,80 @@
 import { memo } from "react"
 import { Link } from "react-router-dom"
 import { Trans, useTranslation } from "react-i18next"
-
 import { twMerge } from "tailwind-merge"
+
 import uosIcon from "assets/uos.png"
 import { ButtonPrimary, Modal, ModalProps } from "ui/components"
 
-type InstallFor = "author" | "user"
+const DOWNLOAD_CLIENT_URL = "https://www.ultranet.org/net/software/download"
+const HOW_TO_PUBLISH_URL = "https://www.ultranet.org/fair/docs/howtopublish"
 
-type InstallModalBaseProps = {
-  installFor: InstallFor
-  isIccpAvailable: boolean
-  onSignIn: () => void
-}
+const TEXT_CLASSNAME = "flex flex-col gap-3 text-center text-2sm leading-5"
 
-export type InstallModalProps = Pick<ModalProps, "onClose"> & InstallModalBaseProps
+export type InstallModalRole = "user" | "author"
 
-export const InstallModal = memo(({ isIccpAvailable, onSignIn, installFor, ...modalRest }: InstallModalProps) => {
+export type InstallModalVariant =
+  | { variant: "client-required"; role: InstallModalRole }
+  | { variant: "author-role-required" }
+  | { variant: "client-ready"; onSignIn: () => void }
+
+export type InstallModalProps = Pick<ModalProps, "onClose"> & InstallModalVariant
+
+export const InstallModal = memo((props: InstallModalProps) => {
   const { t } = useTranslation("installModal")
 
+  const title =
+    props.variant === "client-required"
+      ? t("clientRequiredTitle")
+      : props.variant === "author-role-required"
+        ? t("authorRoleRequiredTitle")
+        : t("clientReadyTitle")
+
   return (
-    <Modal
-      className="w-135 gap-6"
-      titleClassName="w-full text-center pl-8.5"
-      {...modalRest}
-      title={!isIccpAvailable ? t("title") : t("doneTitle")}
-    >
+    <Modal className="w-135 gap-6" titleClassName="w-full text-center pl-8.5" onClose={props.onClose} title={title}>
       <div className="flex flex-col gap-6">
-        {!isIccpAvailable ? (
+        {props.variant === "client-ready" ? (
           <>
             <Trans
               ns="installModal"
-              i18nKey={installFor === "author" ? "authorText" : "userText"}
+              i18nKey="clientReadyText"
               parent="div"
-              className="flex flex-col gap-3 text-center text-2sm leading-5"
-              components={{ span: <span /> }}
-            />
-            <Link
-              to={
-                installFor === "user"
-                  ? "https://www.ultranet.org/net/software/download"
-                  : "https://www.ultranet.org/fair/docs/howtopublish"
-              }
-              target="_blank"
-            >
-              <ButtonPrimary
-                label={installFor === "user" ? t("common:download") : t("becomeAnAuthor")}
-                className={twMerge("w-full", installFor === "user" && "capitalize")}
-              />
-            </Link>
-          </>
-        ) : (
-          <>
-            <Trans
-              ns="installModal"
-              i18nKey="doneText"
-              parent="div"
-              className="flex flex-col gap-3 text-center text-2sm leading-5"
+              className={TEXT_CLASSNAME}
               components={{
                 spanBold: <span className="text-base font-medium" />,
                 span: <span />,
                 icon: <img src={uosIcon} alt="UOS" className="mx-1 inline-block size-4 align-text-bottom" />,
               }}
             />
-            <ButtonPrimary onClick={onSignIn} label="Log In" className="w-full" />
+            <ButtonPrimary onClick={props.onSignIn} label={t("signInModal:signIn")} className="w-full" />
           </>
+        ) : (
+          <InstallModalGuide role={props.variant === "client-required" ? props.role : "author"} />
         )}
       </div>
     </Modal>
   )
 })
+
+const InstallModalGuide = ({ role }: { role: InstallModalRole }) => {
+  const { t } = useTranslation("installModal")
+  const isUser = role === "user"
+
+  return (
+    <>
+      <Trans
+        ns="installModal"
+        i18nKey={isUser ? "userText" : "authorText"}
+        parent="div"
+        className={TEXT_CLASSNAME}
+        components={{ span: <span /> }}
+      />
+      <Link to={isUser ? DOWNLOAD_CLIENT_URL : HOW_TO_PUBLISH_URL} target="_blank">
+        <ButtonPrimary
+          label={isUser ? t("common:download") : t("becomeAnAuthor")}
+          className={twMerge("w-full", isUser && "capitalize")}
+        />
+      </Link>
+    </>
+  )
+}
