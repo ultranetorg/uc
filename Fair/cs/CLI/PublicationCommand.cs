@@ -94,9 +94,8 @@ public class PublicationCommand : FairCommand
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Gets information about publication specified";
-		a.Arguments = [
+		a.Arguments =	[
 							IdArgument("publication to get information about"),
-							Eligible
 						];
 
 		a.Execute = () => {
@@ -111,7 +110,6 @@ public class PublicationCommand : FairCommand
 		return a;
 	}
 
-	// 
 	// 	public CommandAction Update()
 	// 	{
 	// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
@@ -179,28 +177,6 @@ public class PublicationCommand : FairCommand
 	// 								Flow.CancelAfter(Cli.Settings.RdcTransactingTimeout);
 	// 
 	// 								return new PublicationDeletion {Publication = FirstEntityId};
-	// 							};
-	// 		return a;
-	// 	}
-	// 
-	// 	public CommandAction Entity()
-	// 	{
-	// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-	// 
-	// 		a.Name = "e";
-	// 		a.Description = "Get publication entity information from MCV database",
-	// 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-	// 						Arguments =	[new (FirstArg, "Id of a publication to get information about")],
-	// 						Examples =[new (null, $"{Keyword} {a.Name} {EID.Example}")];
-	// 
-	// 		a.Execute = () =>	{
-	// 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
-	// 				
-	// 								var rp = Ppc(new PublicationRequest(FirstEntityId));
-	// 
-	// 								Dump(rp.Publication);
-	// 					
-	// 								return rp.Publication;
 	// 							};
 	// 		return a;
 	// 	}
