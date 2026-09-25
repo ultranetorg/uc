@@ -1,5 +1,4 @@
 import { memo, ReactNode } from "react"
-import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
 import { useStoreContext } from "app"
@@ -36,9 +35,9 @@ export const ModerationHeader = memo(
             ]}
           />
           {store && (
-            <Link to={routes.moderation.moderators(storeId!)} className="text-2xs font-medium leading-5">
+            <span className="text-2xs font-medium leading-5">
               {store.moderatorsIds.length} {t("common:moderators", { count: store.moderatorsIds.length })}
-            </Link>
+            </span>
           )}
         </div>
         <div className="my-5 flex h-11 items-center justify-between gap-4">

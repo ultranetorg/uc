@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 import { truncate } from "lodash"
 
-import { categoriesKeys } from "entities"
 import { useParams, useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
@@ -25,7 +24,6 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId!), title: t("common:proposals") }],
           redirectAfterProposalCreation: routes.moderation.proposals(storeId!),
           redirectAfterProposalExecution: location.pathname,
-          invalidateQueryKeys: categoriesKeys.all(storeId!), // TODO: update all except tree
         },
       },
       {
@@ -38,7 +36,6 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId!), title: t("common:proposals") }],
           redirectAfterProposalCreation: routes.moderation.proposals(storeId!),
           redirectAfterProposalExecution: location.pathname,
-          invalidateQueryKeys: categoriesKeys.all(storeId!), // TODO: update all except tree
         },
       },
       {
@@ -54,7 +51,6 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           ],
           redirectAfterProposalCreation: routes.moderation.proposals(storeId!),
           redirectAfterProposalExecution: paramCategoryId === categoryId ? routes.store(storeId!) : location.pathname,
-          invalidateQueryKeys: categoriesKeys.all(storeId!),
         },
       },
       {
@@ -70,7 +66,6 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           ],
           redirectAfterProposalCreation: routes.moderation.proposals(storeId!),
           redirectAfterProposalExecution: location.pathname,
-          invalidateQueryKeys: categoriesKeys.all(storeId!),
         },
       },
       {
@@ -86,7 +81,6 @@ export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle:
           parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId!), title: t("common:proposals") }],
           redirectAfterProposalCreation: routes.moderation.proposals(storeId!),
           redirectAfterProposalExecution: paramCategoryId === categoryId ? routes.store(storeId!) : location.pathname,
-          invalidateQueryKeys: categoriesKeys.all(storeId!),
         },
       },
     ],

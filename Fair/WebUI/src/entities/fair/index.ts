@@ -11,6 +11,8 @@ export * from "./users"
 export * from "./moderator"
 export * from "./UnpublishedPublications"
 
+export * from "./invalidation"
+
 export * from "./ChangedPublications"
 export * from "./ModeratorDiscussion"
 export * from "./ModeratorDiscussionComment"

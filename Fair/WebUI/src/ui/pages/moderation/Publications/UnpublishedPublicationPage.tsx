@@ -5,7 +5,7 @@ import { truncate } from "lodash"
 
 import { useOperationPolicy, useStoreContext } from "app"
 import { SvgEyeSm } from "assets"
-import { unpublishedPublicationsKeys, useGetUnpublishedPublication } from "entities"
+import { useGetUnpublishedPublication } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { OperationType } from "types"
 import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
@@ -52,7 +52,6 @@ export const UnpublishedPublicationPage = () => {
                     publicationId: publication.id,
                     redirectAfterProposalCreation: routes.moderation.publications(storeId!, "proposals"),
                     redirectAfterProposalExecution: routes.moderation.publications(storeId!, "unpublished"),
-                    invalidateQueryKeys: unpublishedPublicationsKeys.all(storeId!),
                   }}
                 >
                   <ButtonPrimary className="h-11 w-40 capitalize" label={t("common:publish")} />

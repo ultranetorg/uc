@@ -1,5 +1,3 @@
-import { isArray } from "lodash"
-
 export const chunkArray = <T>(array: T[], chunkSize: number = 10): T[][] => {
   const result: T[][] = []
   for (let i = 0; i < array.length; i += chunkSize) {
@@ -7,5 +5,3 @@ export const chunkArray = <T>(array: T[], chunkSize: number = 10): T[][] => {
   }
   return result
 }
-
-export const isArrayOfArrays = (value: unknown): boolean => isArray(value) && value.every(x => isArray(x))

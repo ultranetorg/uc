@@ -2,8 +2,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 
-import { useStorePoliciesContext, useUserContext } from "app"
-import { storesKeys, usersKeys } from "entities"
+import { useStorePoliciesContext } from "app"
 import { OperationType } from "types"
 import { SimpleMenuItem } from "ui/components"
 import { isModeratorVoting, isPublisherVoting, routes } from "utils"
@@ -31,7 +30,6 @@ export const useStoreChangeMenuItems = (
 ): SimpleMenuItem[] => {
   const location = useLocation()
   const { policies } = useStorePoliciesContext()
-  const { user } = useUserContext()
   const { t } = useTranslation("storeDropdownMenu")
 
   return useMemo(
@@ -49,10 +47,6 @@ export const useStoreChangeMenuItems = (
                 parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
                 redirectAfterProposalCreation: routes.moderation.proposals(storeId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys:
-                  type === "store-avatar-change"
-                    ? [storesKeys.detail(storeId), usersKeys.detail(user!.name)]
-                    : storesKeys.detail(storeId),
               },
             },
           ]
@@ -70,7 +64,6 @@ export const useStoreChangeMenuItems = (
                 parentBreadcrumbs: [{ path: routes.governance.referendums(storeId), title: t("common:referendums") }],
                 redirectAfterProposalCreation: routes.governance.referendums(storeId),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.detail(storeId),
               },
             },
           ]
@@ -78,6 +71,6 @@ export const useStoreChangeMenuItems = (
 
         return []
       }),
-    [location.pathname, moderators, policies, publishers, storeId, t, user],
+    [location.pathname, moderators, policies, publishers, storeId, t],
   )
 }

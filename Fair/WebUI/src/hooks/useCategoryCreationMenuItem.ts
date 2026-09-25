@@ -2,7 +2,6 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 
-import { categoriesKeys } from "entities"
 import { SimpleMenuItem } from "ui/components"
 import { routes } from "utils"
 
@@ -24,7 +23,6 @@ export const useCategoryCreationMenuItem = (storeId: string): SimpleMenuItem => 
         categoryId: null,
         redirectAfterProposalCreation: routes.moderation.proposals(storeId),
         redirectAfterProposalExecution: location.pathname,
-        invalidateQueryKeys: categoriesKeys.all(storeId),
       },
     }),
     [location.pathname, storeId, t],

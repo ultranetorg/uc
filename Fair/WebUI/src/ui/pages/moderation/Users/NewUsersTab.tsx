@@ -1,11 +1,10 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
-import { useQueryClient } from "@tanstack/react-query"
 
 import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { storesKeys, useGetUserRegistrationProposals } from "entities"
+import { useGetUserRegistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
@@ -16,7 +15,7 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 export const NewUsersTab = () => {
   const storeId = useResolveStoreId()
   const { voterId } = useOperationPolicy("user-registration")
-  const queryClient = useQueryClient()
+  const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
@@ -72,7 +71,7 @@ export const NewUsersTab = () => {
               ? t("toast:userRegistrationApproved", { name })
               : t("toast:userRegistrationRejected", { name })
           showToast(message, "success")
-          queryClient.invalidateQueries({ queryKey: storesKeys.users(storeId!), refetchType: "all" })
+          invalidateOperation("user-registration", { storeId: storeId! })
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -83,7 +82,7 @@ export const NewUsersTab = () => {
         },
       })
     },
-    [mutate, queryClient, refetch, storeId, t, voterId],
+    [mutate, invalidateOperation, refetch, storeId, t, voterId],
   )
 
   const handleApprove = useCallback((id: string, name: string) => vote(id, name, "approve"), [vote])

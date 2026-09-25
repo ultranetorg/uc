@@ -7,7 +7,6 @@ import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
-import { storesKeys } from "entities"
 import { routes } from "utils"
 import { ModeratorsTab } from "./ModeratorsTab"
 import { ModeratorsProposalsTab } from "./ModeratorsProposalsTab"
@@ -56,7 +55,6 @@ export const ModeratorsPage = () => {
                   type: "store-moderator-addition",
                   redirectAfterProposalCreation: routes.moderation.moderators(storeId!, "p"),
                   redirectAfterProposalExecution: location.pathname,
-                  invalidateQueryKeys: storesKeys.publishers(storeId!),
                 }}
               >
                 <ButtonPrimary label={t("addModerator")} />

@@ -6,7 +6,6 @@ import { truncate } from "lodash"
 import { Publisher } from "types"
 import { ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { renderAuthor } from "ui/renderers/utils"
-import { storesKeys } from "entities"
 import { routes } from "utils"
 
 export const getPublishersTabItemRenderer =
@@ -36,7 +35,6 @@ export const getPublishersTabItemRenderer =
                 authors: [publisher.author],
                 redirectAfterProposalCreation: routes.moderation.publishers(storeId, "proposals"),
                 redirectAfterProposalExecution: location.pathname,
-                invalidateQueryKeys: storesKeys.publishers(storeId),
               }}
             >
               <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />

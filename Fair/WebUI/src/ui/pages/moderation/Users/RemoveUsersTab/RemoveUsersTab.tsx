@@ -1,11 +1,10 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
-import { useQueryClient } from "@tanstack/react-query"
 
 import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { storesKeys, useGetUserUnregistrationProposals } from "entities"
+import { useGetUserUnregistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
@@ -17,7 +16,7 @@ import { getRemoveUsersTabItemRenderer } from "./removeUsersTabItemRenderer"
 export const UsersRemovalsTab = () => {
   const storeId = useResolveStoreId()
   const { voterId } = useOperationPolicy("user-registration")
-  const queryClient = useQueryClient()
+  const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
@@ -69,7 +68,7 @@ export const UsersRemovalsTab = () => {
       const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : -1)
       mutate(operation, {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: storesKeys.users(storeId!), refetchType: "all" })
+          invalidateOperation("user-unregistration", { storeId: storeId! })
           const message =
             action === "approve"
               ? t("toast:userUnregistrationApproved", { name })
@@ -85,7 +84,7 @@ export const UsersRemovalsTab = () => {
         },
       })
     },
-    [mutate, queryClient, refetch, storeId, t, voterId],
+    [mutate, invalidateOperation, refetch, storeId, t, voterId],
   )
 
   const handleApprove = useCallback((id: string, name: string) => vote(id, name, "approve"), [vote])
