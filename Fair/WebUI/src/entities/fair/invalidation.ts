@@ -30,14 +30,16 @@ const operationRules: Record<OperationType, InvalidationRule> = {
     publicationsKeys.categoriesPublicationsAll(),
   ],
   "publication-publish": ({ storeId }) => [
-    unpublishedPublicationsKeys.all(storeId),
+    publicationsKeys.categoriesPublications(storeId!),
     publicationsKeys.categoriesPublications(storeId),
     publicationsKeys.categoriesPublicationsAll(),
+    unpublishedPublicationsKeys.all(storeId),
   ],
   "publication-unpublish": ({ storeId }) => [
-    unpublishedPublicationsKeys.all(storeId),
+    publicationsKeys.categoriesPublications(storeId!),
     publicationsKeys.categoriesPublications(storeId),
     publicationsKeys.categoriesPublicationsAll(),
+    unpublishedPublicationsKeys.all(storeId),
   ],
   "publication-updation": () => [],
 
