@@ -429,7 +429,7 @@ export const enUS = {
     categories: "Categories",
     governance: "Governance",
     moderation: "Moderation",
-    noPublications: "Current store has no publications yet",
+    noPublications: "Current store has no publications yet.",
     search: "Search...",
     seeAll: "See all",
   },
@@ -557,6 +557,8 @@ export const enUS = {
     authorText:
       "<span>This is decentralized platform of autonomous transparent community-governed stores.</span><span>Anyone can become the author, create product pages and publish it in the stores.</span><span>Author has full control over its content and behavior.</span><span>Follow this link to learn how to become an author, publish your products and participate in stores governance.</span><span>Please, click the button below to become an author.</span>",
     authorRoleRequiredTitle: "Author role is required",
+    authorRoleRequiredText:
+      "<span>Follow this link to learn how to become an author, publish your products and participate in stores governance.</span><span>Please, click the button below to become an author.</span>",
     userText:
       "<span>This is decentralized platform of autonomous transparent community-governed stores.</span><span>Windows OS is currently supported only.</span><span>Please, click the button below to download.</span>",
     clientReadyTitle: "Welcome to the ULTRANET and to the Fair Network",

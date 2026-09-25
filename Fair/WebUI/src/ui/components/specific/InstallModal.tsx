@@ -49,14 +49,22 @@ export const InstallModal = memo((props: InstallModalProps) => {
             <ButtonPrimary onClick={props.onSignIn} label={t("signInModal:signIn")} className="w-full" />
           </>
         ) : (
-          <InstallModalGuide role={props.variant === "client-required" ? props.role : "author"} />
+          <InstallModalGuide
+            role={props.variant === "client-required" ? props.role : "author"}
+            textKey={props.variant === "author-role-required" ? "authorRoleRequiredText" : undefined}
+          />
         )}
       </div>
     </Modal>
   )
 })
 
-const InstallModalGuide = ({ role }: { role: InstallModalRole }) => {
+type InstallModalGuideProps = {
+  role: InstallModalRole
+  textKey?: string
+}
+
+const InstallModalGuide = ({ role, textKey }: InstallModalGuideProps) => {
   const { t } = useTranslation("installModal")
   const isUser = role === "user"
 
@@ -64,7 +72,7 @@ const InstallModalGuide = ({ role }: { role: InstallModalRole }) => {
     <>
       <Trans
         ns="installModal"
-        i18nKey={isUser ? "userText" : "authorText"}
+        i18nKey={textKey ?? (isUser ? "userText" : "authorText")}
         parent="div"
         className={TEXT_CLASSNAME}
         components={{ span: <span /> }}

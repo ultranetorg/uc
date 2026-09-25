@@ -7,7 +7,7 @@ import { useOperationPolicy, useStoreContext, useStorePoliciesContext, useStoreR
 import { useResolveStoreId, useStoreTitle } from "hooks"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
-import { useGetUnpublishedStoreProduct } from "entities"
+import { useGetUnpublishedStoreProduct, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
@@ -24,6 +24,7 @@ export const ModeratorCreatePublicationPage = () => {
   const { policies } = useStorePoliciesContext()
   const { isModerator } = useStoreRolesContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
+  const { invalidateOperation } = useInvalidation()
 
   const isRequiredVoting = isVotingRequired("publication-creation", store, policies)
 
@@ -59,6 +60,10 @@ export const ModeratorCreatePublicationPage = () => {
     const operation = new ProposalCreation(storeId!, voterId!, role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
+        if (!isRequiredVoting) {
+          invalidateOperation("publication-creation", { storeId: storeId! })
+        }
+
         showToast(t("toast:publicationCreated"), "success")
 
         if (isRequiredVoting) {
@@ -69,7 +74,7 @@ export const ModeratorCreatePublicationPage = () => {
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [isModerator, isRequiredVoting, mutate, navigate, product, storeId, t, voterId])
+  }, [invalidateOperation, isModerator, isRequiredVoting, mutate, navigate, product, storeId, t, voterId])
 
   const isProductValid = !isError && !!product && !!product.fields && product.fields.length > 0
 

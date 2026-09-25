@@ -25,7 +25,7 @@ export const AccountItem = memo(
         className="flex h-10 select-none items-center gap-2 overflow-hidden px-4 hover:bg-gray-550"
         onClick={onSelect}
       >
-        <div className="size-8 shrink-0 overflow-hidden rounded-full" title={nickname ?? address}>
+        <div className="size-8 shrink-0 overflow-hidden rounded-sm" title={nickname ?? address}>
           <img
             src={nickname ? `${buildUserAvatarByNameUrl(nickname)}?v=${avatarVersion ?? 0}` : avatarFallbackXl}
             className="size-full object-cover object-center"
