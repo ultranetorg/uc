@@ -40,7 +40,7 @@ public class PackageDownloadProgress : PackageActivityProgress
 
 public class PackageDownload
 {
-	public Package						Package;
+	public Package							Package;
 	public FileDownload						FileDownload;
 	public bool								IsDownloaded;
 	public List<PackageDownload>			Dependencies = new();
@@ -72,8 +72,10 @@ public class PackageDownload
 		Task = Task.Run(() =>	{
 									try
 									{
-										//if(Package. last?.Type != new DataType(DataType.Self, ContentType.Package_Software_VersionManifest))
-										//	throw new PackageException(PackageError.IncorrectContentType, $"{package.Id} is not {ContentType.Package_Software_VersionManifest}");
+										var r = node.ResourceHub.Get(Package.Id);
+										
+										if(r != null && r.Meaning != Meaning.Package_Software_VersionManifest)
+											throw new PackageException(PackageError.IncorrectContentType, $"{package.Id} is not {Meaning.Package_Software_VersionManifest}");
 
 										Seeker = new SeedSeeker(node, package.Release.Address, flow);
 

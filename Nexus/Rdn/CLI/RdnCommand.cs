@@ -73,15 +73,30 @@ public abstract class RdnCommand : McvCommand
 		{
 			if(d.Nodes.Any())
 			{
-				var t = DataType.Parse(d.Get<string>());
+				Meaning m;
+				ContentType c;
 
-				if(t.Meaning == DataType.Self)
-				{	
-					if(t.Content == ContentType.Unknown)
-						return new ResourceData(t, d.Get<string>("hex").FromHex());
+				var t = d.Get<string>();
+				var i = t.IndexOf('/');
 			
-					if(t.Content == ContentType.Ampp_Council)
-						return new ResourceData(t,	new Consil
+				if(i == -1)
+				{	
+					m = Enum.Parse<Meaning>(t, true);
+					c = ContentType.Undefined;
+				}
+				else
+				{	
+					m = Enum.Parse<Meaning>(t.Substring(0, i), true); 
+					c = Enum.Parse<ContentType>(t.AsSpan(i + 1, t.Length - i - 1), true);
+				}
+
+				switch(m)
+				{	
+					case Meaning.Raw :
+						return new ResourceData(m, d.Get<string>("hex").FromHex());
+			
+					case Meaning.Ampp_Council :
+						return new ResourceData(m,	new Consil
 													{
 														Analyzers					= d.Get<string>("analyzers").Split(',').Select(PublicKey.Parse).ToArray(),  
 														SizeEnergyFeeMinimum		= d.Get<long>("sefm"),
@@ -89,8 +104,8 @@ public abstract class RdnCommand : McvCommand
 														ResultSpacetimeFeeMinimum	= d.Get<long>("rstfm")
 													});
 					
-					if(t.Content == ContentType.Ampp_Analysis)
-						return new ResourceData(t,	new Analysis
+					case Meaning.Ampp_Analysis :
+						return new ResourceData(m,	new Analysis
 													{
 														Release			= Urn.Parse(d.Get<string>("release")), 
 														EnergyReward	= d.Get<long>("ereward"),
@@ -98,22 +113,19 @@ public abstract class RdnCommand : McvCommand
 														Consil			= GetResourceId(d.Get<string>("consil"))
 													});
 					
-					if(t.Content == ContentType.DnsRecord)
-						return new ResourceData(t,	new DnsRecord
+					case Meaning.DnsRecord :
+						return new ResourceData(m,	new DnsRecord
 													{
 														Type	= d.GetEnum<DnsRecordType>("type"), 
 														Value	= d.Get<string>("value"),
 														TTL		= d.Get("ttl", 3600)
 													});
-				}
-				else
-				{
-					if(	t.Meaning == DataType.File ||
-						t.Meaning == DataType.Directory)
-						return new ResourceData(t, Urn.Parse(d.Get<string>("address")));
+					case Meaning.Rex_File:
+					case Meaning.Rex_Directory :
+						return new ResourceData(m, Urn.Parse(d.Get<string>("address")));
 				}
 			}
-			else if(d.Value == null)
+			else if(d.Value == null) /// Type without value means remove data
 				return null;
 
 			throw new SyntaxException("Unknown or missing meaning/type");

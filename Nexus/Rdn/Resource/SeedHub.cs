@@ -78,7 +78,7 @@ public class SeedHub
 					{
 						var r = Mcv.Resources.Latest(rsd.Resource);
 	
-						if((r?.Data?.Type.Meaning == DataType.File || r?.Data?.Type.Meaning == DataType.Directory) && r.Data.ReadVirtual<Urn>(Mcv.Net.Constructor) == cid)
+						if((r?.Data?.Meaning == Meaning.Rex_File && r?.Data?.Meaning == Meaning.Rex_Directory) && r.Data.ReadVirtual<Urn>() == cid)
 						{
 							return true;
 						}

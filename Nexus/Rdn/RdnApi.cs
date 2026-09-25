@@ -146,11 +146,11 @@ public class HttpGetApc : RdnApc
 			switch(ra)
 			{ 
 				case Hcid x :
-					if(r.Data.Type.Meaning == DataType.File)
+					if(r.Data.Meaning == Meaning.Rex_File)
 					{
 						itg = new DHIntegrity(x.Hash); 
 					}
-					else if(r.Data.Type.Meaning == DataType.Directory)
+					else if(r.Data.Meaning == Meaning.Rex_Directory)
 					{
 						var	f = rdn.ResourceHub.GetFile(z, false, Release.Index, null, new DHIntegrity(x.Hash), null, workflow);
 

@@ -218,7 +218,7 @@ public class Nexus : IProgram
 		//Ura apr = null;
 		AutoId aprv = null;
 	
-		if(r.Data.Type.Content == ContentType.Package_Software_ProductManifest)
+		if(r.Data.Meaning == Meaning.Package_Software_ProductManifest)
 		{
 			//var lrr = RdnNode.Download(r, flow);
 	
@@ -230,7 +230,7 @@ public class Nexus : IProgram
 				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
 			}
 		}
-		else if(r.Data.Type.Content == ContentType.Package_Software_VersionManifest)
+		else if(r.Data.Meaning == Meaning.Package_Software_VersionManifest)
 		{
 			aprv = ura;
 		}

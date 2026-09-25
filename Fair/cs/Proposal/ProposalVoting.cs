@@ -6,7 +6,7 @@ public class ProposalVoting : FairOperation
 	public AutoId				Voter { get; set; }
 	public sbyte				Choice { get; set; }
 
-	public override bool		IsValid(McvNet net) => Choice >= (sbyte)SpecialChoice._First;
+	public override bool		IsValid(McvNet net) => Choice >= (sbyte)SpecialChoice._First && Proposal != null && Voter != null;
 	public override string		Explanation => $"Proposal={Proposal}, Voter={Voter}, Choice={Choice}";
 
 	public ProposalVoting()

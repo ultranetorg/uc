@@ -5,33 +5,33 @@ public enum RdnOperationClass : uint
 	RdnGenesis					= OperationClass.Genesis, 
 	RdnCandidacyDeclaration		= OperationClass.CandidacyDeclaration, 
 
-	User							= 100,
+	User							= 100_000_000,
 		UserRenaming				= 100_000_001,
 
-	DomainName						= 101,
+	DomainName						= 101_000_000,
 		DomainNameAcquisition		= 101_000_001,
 		DomainNameMigration			, 
 		DomainNameRenewal			,
 		DomainNameTransfer			,
 
-	Domain							= 102,
+	Domain							= 102_000_000,
 		DomainCreation				= 102_000_001,
 		DomainRenaming				, 
 		DomainRenewal				,
 		DomainTransfer				,
 		DomainPolicyUpdation		,
 
-	Resource						= 103,
+	Resource						= 103_000_000,
 		ResourceCreation			= 103_000_001,
 		ResourceRenaming			,
 		ResourceUpdation			, 
 		ResourceDeletion			, 
 
-		ResourceLink				= 103_001, 
+		ResourceLink				= 103_001_000, 
 			ResourceLinkCreation	= 103_001_001,
 			ResourceLinkDeletion	,
 
-	Analysis						= 104,
+	Analysis						= 104_000_000,
 		AnalysisResultUpdation		= 104_000_001
 }
 

@@ -131,7 +131,7 @@ public class PackageHub
  		{
  			d = Node.ResourceHub.Get(id);
  		
- 			if(d != null && d.Type.Content == ContentType.Package_Software_VersionManifest)
+ 			if(d != null && d.Meaning == Meaning.Package_Software_VersionManifest)
  			{
 				var m = d.Read<PackageManifest>();
 
@@ -463,67 +463,67 @@ public class PackageHub
 
 			var	d = new Deployment();
 
-			void collect(Package parent, AutoId address)	{
-																	var m = new DeploymentMerge {Target = Find(address)};
-																	d.Merges.Add(m);
+			void collect(Package parent, AutoId address){
+															var m = new DeploymentMerge {Target = Find(address)};
+															d.Merges.Add(m);
 
-																	var p = m.Target;
+															var p = m.Target;
 
-																	while(flow.Active)
-																	{
-																		if(p.Release == null)
-																		{
-																		}
-																		else if(p.Release.Availability.HasFlag(Availability.Complete))
-																		{
-																			if(p.Activity == null)
-																				p.Activity = d;
-																			else
-																				throw new ResourceException(ResourceError.Busy);
-				
-																			m.Complete = p;
-
-																			break;
-																		}
-																		else if(p.Release.Availability.HasFlag(Availability.Incremental))
-																		{	
-																			if(p.Activity == null)
-																				p.Activity = d;
-																			else
-																				throw new ResourceException(ResourceError.Busy);
-
-																			var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Id));
-
-																			if(pp == null)
-																				throw new ResourceException(ResourceError.ParentPackagesNotFound);
-
-																			m.Incrementals.Insert(0, new (p, pp));
-
-																			p = Find(pp.Id);
-																		}
-
-																		Thread.Sleep(10);
-																	}
-
-																	//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
-			
-																	var deps = new HashSet<AutoId>();
-
-																	foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
-																		deps.Add(j.Id);
-
-																	foreach(var i in m.Incrementals.AsEnumerable().Reverse())
-																	{
-																		foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
-																			deps.Add(j.Id);
-	
-																		foreach(var j in i.Value.RemovedDependencies)
-																			deps.Remove(j.Id);
-																	}
-
-																	foreach(var i in deps)
-																		collect(p, i);
+															while(flow.Active)
+															{
+																if(p.Release == null)
+																{
 																}
+																else if(p.Release.Availability.HasFlag(Availability.Complete))
+																{
+																	if(p.Activity == null)
+																		p.Activity = d;
+																	else
+																		throw new ResourceException(ResourceError.Busy);
+				
+																	m.Complete = p;
+
+																	break;
+																}
+																else if(p.Release.Availability.HasFlag(Availability.Incremental))
+																{	
+																	if(p.Activity == null)
+																		p.Activity = d;
+																	else
+																		throw new ResourceException(ResourceError.Busy);
+
+																	var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Id));
+
+																	if(pp == null)
+																		throw new ResourceException(ResourceError.ParentPackagesNotFound);
+
+																	m.Incrementals.Insert(0, new (p, pp));
+
+																	p = Find(pp.Id);
+																}
+
+																Thread.Sleep(10);
+															}
+
+															//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
+			
+															var deps = new HashSet<AutoId>();
+
+															foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
+																deps.Add(j.Id);
+
+															foreach(var i in m.Incrementals.AsEnumerable().Reverse())
+															{
+																foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
+																	deps.Add(j.Id);
+	
+																foreach(var j in i.Value.RemovedDependencies)
+																	deps.Remove(j.Id);
+															}
+
+															foreach(var i in deps)
+																collect(p, i);
+														}
 
 			collect(null, address);
 

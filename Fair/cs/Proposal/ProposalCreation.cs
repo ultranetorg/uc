@@ -67,10 +67,13 @@ public class ProposalCreation : FairOperation
 	
 	public override bool IsValid(McvNet net)
 	{
-		var e =	(Title == null || Title.Length <= Fair.TitleLengthMaximum) &&
+		var e = Store != null &&
+				By != null &&
+				As != Role.None &&
+				Enum.IsDefined<Role>(As) &&
+				(Title == null || Title.Length <= Fair.TitleLengthMaximum) &&
 				(Text == null || Text.Length <= Fair.PostLengthMaximum) &&
 				Options.Length > 0 &&
-				Enum.IsDefined<Role>(As) &&
 				Options.All(i => i.Operation.GetType() == Options[0].Operation.GetType() && i.Operation.IsValid(net) && (i.Title == null || i.Title.Length <= Fair.TitleLengthMaximum));
 
 		return e;

@@ -15,7 +15,7 @@ public enum OperationClass : uint
 	UtilityTransfer				= 000_000_002,
 	CandidacyDeclaration		= 000_000_003, 
 	
-	User						= 001,
+	User						= 001_000_000,
 		UserCreation			= 001_000_001, 
 		UserOwnerChange			= 001_000_002, 
 		UserPermissionAddition	= 001_000_003, 
@@ -23,7 +23,7 @@ public enum OperationClass : uint
 		UserNameChange			= 001_000_005, 
 		UserBandwidthAllocation	= 001_000_006,
 
-	Friend						= 002, 
+	Friend						= 002_000_000, 
 		FriendAttachment		= 002_000_001,
 }
 

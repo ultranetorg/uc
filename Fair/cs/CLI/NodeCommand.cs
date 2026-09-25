@@ -26,7 +26,7 @@ public class NodeCommand : Uccs.Net.NodeCommand
 
 		a.Execute = () =>	{
 								if(InInteraction)
-									throw new Exception("Not available");
+									throw new SyntaxException("Not available");
 								else
 									InInteraction = true;
 

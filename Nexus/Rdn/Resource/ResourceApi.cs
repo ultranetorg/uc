@@ -37,7 +37,7 @@ public class ResourceDownloadApc : RdnApc
 		if(d == null)
 			throw new ResourceException(ResourceError.NoData);
 
-		if(d.Type.Meaning != DataType.File && d.Type.Meaning != DataType.Directory)
+		if(d.Meaning == Meaning.Rex_File && d.Meaning == Meaning.Rex_Directory)
 			throw new ResourceException(ResourceError.InvalidMeaning);
 
 		IIntegrity itg;
@@ -63,11 +63,11 @@ public class ResourceDownloadApc : RdnApc
 		{
 			var lrl = node.ResourceHub.Find(urr) ?? node.ResourceHub.Add(urr, Id);
 
-			if(d.Type.Meaning == DataType.File)
+			if(d.Meaning == Meaning.Rex_File)
 			{
 				node.ResourceHub.DownloadFile(lrl, true, "", To ?? node.ResourceHub.ToReleases(urr), itg, null, flow);
 			}
-			else if(d.Type.Meaning == DataType.Directory)
+			else if(d.Meaning == Meaning.Rex_Directory)
 			{
 				node.ResourceHub.DownloadDirectory(lrl, To ?? node.ResourceHub.ToReleases(urr), itg, flow);
 			}

@@ -11,7 +11,7 @@ public class ResourceHub
 	public const string										ReleaseFamilyName = nameof(Releases);
 	public const string										ResourceFamilyName = nameof(Resources);
 
-	public List<Release>								Releases = new();
+	public List<Release>									Releases = new();
 	public List<CachedResource>								Resources = new();
 	public RdnNode											Node;
 	public object											Lock = new object();
@@ -228,6 +228,11 @@ public class ResourceHub
 			else
 			{	
 				r.Data = Node.Peering.Call(new ResourceByIdPpc(id), Node.Flow).Resource.Data;
+
+				if(r.Data.Meaning == Meaning.Rex_File && r.Data.Meaning == Meaning.Rex_Directory)
+				{
+				}
+
 				r.Updated = DateTime.UtcNow;
 			}
 		}

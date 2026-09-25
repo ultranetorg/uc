@@ -72,8 +72,8 @@ public partial class ResourcesPanel : McvPanel
 		
 					li.SubItems.Add(i.Name);
 					li.SubItems.Add(i.Flags.ToString());
-					li.SubItems.Add(i.Data?.Type.Meaning.ToString());
-					li.SubItems.Add(i.Data?.Type.Content.ToString());
+					li.SubItems.Add(i.Data?.Meaning.ToString());
+					li.SubItems.Add(i.Data?.Content.ToString());
 					li.SubItems.Add(i.Data?.Value.Length.ToString());
 					li.SubItems.Add(i.Inbounds?.Length.ToString());
 					li.SubItems.Add(i.Outbounds?.Length.ToString());

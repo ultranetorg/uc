@@ -46,7 +46,7 @@ public class PackageApe
 //			
 //			lock(nexus.RdnNode.ResourceHub.Lock)
 //			{
-//				//p.Resource.AddData(new ResourceData(new DataType(DataType.File, ContentType.Package_Software_VersionManifest), a));
+//				//p.Resource.AddData(new ResourceData(new DataType(DataType.File, Meaning.Package_Software_VersionManifest), a));
 //				
 //				var r = nexus.RdnNode.ResourceHub.Find(a) ?? nexus.RdnNode.ResourceHub.Add(a);
 //

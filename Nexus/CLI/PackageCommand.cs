@@ -78,7 +78,7 @@ public class PackageCommand : NexusCommand
 
 								if(Has(AddressKeyword))
 								{
-									ops.Add(new ResourceCreation(address, new ResourceData(new DataType(DataType.Self, ContentType.Package_Software_VersionManifest), p.Manifest), Has(depandable)));
+									ops.Add(new ResourceCreation(address, new ResourceData(Meaning.Package_Software_VersionManifest, p.Manifest), Has(depandable)));
 								}
 
 								if(Has(cdl))

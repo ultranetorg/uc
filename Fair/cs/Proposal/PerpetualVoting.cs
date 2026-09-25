@@ -7,7 +7,7 @@ public class PerpetualVoting : FairOperation
 	public AutoId				Publisher { get; set; }
 	public sbyte				Choice { get; set; }
 
-	public override bool		IsValid(McvNet net) => Choice >= (sbyte)SpecialChoice._First;
+	public override bool		IsValid(McvNet net) => Choice >= (sbyte)SpecialChoice._First && Store != null && Publisher != null;
 	public override string		Explanation => $"Referendum={Referendum}, Voter={Publisher}, Choice={Choice}";
 
 	public PerpetualVoting()

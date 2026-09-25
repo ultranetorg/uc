@@ -84,7 +84,7 @@ public class AnalysisResultUpdation : RdnOperation
 			r.Result = Result;
 		}
 
-		ar.Data = new ResourceData(ar.Data.Type, an);
+		ar.Data = new ResourceData(ar.Data.Meaning, an);
 
 		execution.PayOperationEnergy(User);
 	}
