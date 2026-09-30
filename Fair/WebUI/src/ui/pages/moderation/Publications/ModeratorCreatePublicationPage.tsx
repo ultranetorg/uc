@@ -11,13 +11,18 @@ import { useGetUnpublishedStoreProduct, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
-import { ModerationPublicationHeader, ModerationHeader, ProductFieldsTree } from "ui/components/specific"
+import {
+  ModerationPublicationHeader,
+  ModerationHeader,
+  ProductFieldsTree,
+  ProductPublicationInformation,
+} from "ui/components/specific"
 import { isVotingRequired, routes, showToast } from "utils"
 
 export const ModeratorCreatePublicationPage = () => {
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
-  const { t } = useTranslation("createPublication")
+  const { t } = useTranslation("createPublicationPage")
 
   const { voterId } = useOperationPolicy("publication-creation")
   const { store } = useStoreContext()
@@ -146,6 +151,7 @@ export const ModeratorCreatePublicationPage = () => {
                 </>
               }
             />
+            <ProductPublicationInformation product={product} />
             <ProductFieldsTree productFields={product.fields} />
           </div>
         ) : debouncedQuery ? (

@@ -2,7 +2,7 @@ import { memo, useMemo } from "react"
 import { Proposal, PublicationCreation } from "types"
 
 import { useGetProductDetails } from "entities"
-import { ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
+import { ModerationPublicationHeader, ProductFieldsTree, ProductPublicationInformation } from "ui/components/specific"
 
 import { ProposalViewContentProps } from "./types"
 
@@ -24,6 +24,7 @@ export const PublicationCreationContent = memo(({ storeId, proposal }: ProposalV
         authorId={product.authorId}
         authorTitle={product.authorTitle}
       />
+      <ProductPublicationInformation product={product} />
       <ProductFieldsTree productFields={product.fields} />
     </div>
   )

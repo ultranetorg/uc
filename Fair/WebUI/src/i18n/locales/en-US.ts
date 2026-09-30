@@ -210,6 +210,10 @@ export const enUS = {
       },
     },
   },
+  productPublicationInformation: {
+    productType: "Product Type",
+    updationDate: "Updation Date",
+  },
   searchInput: {
     products: "Products",
     stores: "Stores",
@@ -277,7 +281,7 @@ export const enUS = {
     grid: "Grid View",
     list: "List View",
   },
-  createPublication: {
+  createPublicationPage: {
     productNotFound: "We didn’t find anything. Try a different or shorter search.",
     productHasNoField: "Specified product has no fields.",
     searchProduct: "Search products by ID",

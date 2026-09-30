@@ -8,7 +8,12 @@ import { SvgEyeSm } from "assets"
 import { useGetUnpublishedPublication } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { OperationType } from "types"
-import { ModerationHeader, ModerationPublicationHeader, ProductFieldsTree } from "ui/components/specific"
+import {
+  ModerationHeader,
+  ModerationPublicationHeader,
+  ProductFieldsTree,
+  ProductPublicationInformation,
+} from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { routes } from "utils"
 
@@ -84,6 +89,7 @@ export const UnpublishedPublicationPage = () => {
           authorId={publication.authorId}
           authorTitle={publication.authorTitle}
         />
+        <ProductPublicationInformation product={publication} />
         <ProductFieldsTree productFields={publication.fields} />
       </div>
     </div>

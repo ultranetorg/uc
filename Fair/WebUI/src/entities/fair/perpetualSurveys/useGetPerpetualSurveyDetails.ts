@@ -2,13 +2,15 @@ import { useQuery } from "@tanstack/react-query"
 
 import { getFairApi } from "api"
 
+import { perpetualSurveysKeys } from "./perpetualSurveysKeys"
+
 const api = getFairApi()
 
 export const useGetPerpetualSurveyDetails = (storeId?: string, perpetualSurveyId?: string) => {
   const queryFn = () => api.getAuthorPerpetualSurveyDetails(storeId!, perpetualSurveyId!)
 
   const { isFetching, isError, data, refetch } = useQuery({
-    queryKey: ["stores", storeId, "perpetual-surveys", perpetualSurveyId],
+    queryKey: perpetualSurveysKeys.details(storeId!, perpetualSurveyId!),
     queryFn: queryFn,
     enabled: !!storeId && perpetualSurveyId !== undefined,
   })

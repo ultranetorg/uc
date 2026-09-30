@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { startCase } from "lodash"
 
 import { useSignInContext, useStoreContext, useStoreRolesContext, useUserContext } from "app"
 import { useGetPerpetualSurveyDetails, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { PerpetualVoting, StoreApprovalPolicyChange } from "types"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { PerpetualVoting, StoreApprovalPolicyChange } from "types"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 import { routes, showToast } from "utils"
@@ -17,6 +18,7 @@ export const PerpetualSurveyPage = () => {
   const { t } = useTranslation("perpetualSurveyPage")
   const { perpetualSurveyId } = useParams()
   const { invalidatePolicyChange } = useInvalidation()
+  const navigate = useNavigate()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const { user } = useUserContext()
@@ -57,7 +59,7 @@ export const PerpetualSurveyPage = () => {
       mutate(operation, {
         onSuccess: () => {
           invalidatePolicyChange({ storeId: storeId! })
-
+          navigate(routes.governance.surveys(storeId!))
           showToast(t("toast:perpetualVoted", { publisher: publisherId }))
         },
         onError: err => showToast(err.toString(), "error"),
@@ -73,6 +75,7 @@ export const PerpetualSurveyPage = () => {
       startSignIn,
       openAuthorRoleRequiredModal,
       invalidatePolicyChange,
+      navigate,
       t,
       refetch,
     ],
