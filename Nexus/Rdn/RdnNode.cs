@@ -134,7 +134,7 @@ public class RdnNode : McvNode
 		Release l;
 
 		lock(ResourceHub.Lock)
-			l = ResourceHub.Find(resource.Data.ReadVirtual<Urn>(Net.Constructor));
+			l = ResourceHub.Find(resource.Data.GetVirtual<Urn>(Net.Constructor));
 
 		do
 		{

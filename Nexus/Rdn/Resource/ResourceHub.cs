@@ -229,9 +229,9 @@ public class ResourceHub
 			{	
 				r.Data = Node.Peering.Call(new ResourceByIdPpc(id), Node.Flow).Resource.Data;
 
-				if(r.Data.Meaning == Meaning.Rex_File && r.Data.Meaning == Meaning.Rex_Directory)
-				{
-				}
+				//if(r.Data.Meaning == Meaning.Fex_File && r.Data.Meaning == Meaning.Fex_Directory)
+				//{
+				//}
 
 				r.Updated = DateTime.UtcNow;
 			}
@@ -440,7 +440,7 @@ public class ResourceHub
 													rds = i.Value.Select(rs =>	new ResourceDeclaration
 																				{
 																					Resource		= rs.Key, 
-																					Release			= rs.Value.Address, 
+																					Urn			= rs.Value.Address, 
 																					Availability	= rs.Value.Availability
 																				})
 																				.ToArray();

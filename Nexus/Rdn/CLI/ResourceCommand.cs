@@ -7,17 +7,17 @@ public class ResourceCommand : RdnCommand
 	Argument	Data		=> new ("data", HEX, "Data to be associated with the resource", ArgumentFlag.Optional);
 	Argument	Dependable	=> new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", ArgumentFlag.Optional);
 
-	(Resource resource, Ura address) GetResource()
+	Resource  GetResource()
 	{
 		if(Has(IdKeyword))
 		{	
 			var r = Ppc(new ResourceByIdPpc(GetAutoId(IdKeyword)));
-			return (r.Resource, r.Address);
+			return r.Resource;
 		}
 		else if(Has(AddressKeyword))
 		{	
 			var r = Ppc(new ResourceByAddressPpc(Ura.Parse(GetString(AddressKeyword))));
-			return (r.Resource, Ura.Parse(Address));
+			return r.Resource;
 		}
 		else
 			throw new SyntaxException("Neither 'id' nor 'name' arguments provided");
@@ -45,15 +45,19 @@ public class ResourceCommand : RdnCommand
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+															
+								Transacted = () =>	{ 
+														var	r = GetResource();
 
-								///Transacted = () =>	{
-								///						//var	r = Rdc(new ResourceRequest(First)).Resource;
-								///				
-								///						var r = GetResource();
-								///
-								///						Api(new LocalResourceUpdateApc {Address = r.resource.Id,
-								///														Data = GetData()});
-								///					};
+														if(r.Data != null && r.Data.IsCexInvolved(out var urn))
+														{
+															Api(new ReleaseUpdateApc
+																{
+																	Address = urn,
+																	Resource= r.Id,
+																});
+														}
+													};
 
 								return new ResourceCreation(Ura.Parse(Address), GetData(), Has(Dependable.Name));
 							};
@@ -96,7 +100,7 @@ public class ResourceCommand : RdnCommand
 
 								return	new ResourceRenaming
 										{
-											Resource = GetResource().resource.Id, 
+											Resource = GetResource().Id, 
 											NewName = GetString(newname)
 										};
 							};
@@ -123,12 +127,23 @@ public class ResourceCommand : RdnCommand
 
 								var	r = GetResource();
 
-								//Transacted = () =>	{
-								//						Api(new LocalResourceUpdateApc {Address = r.resource.Id,
-								//														Data = GetData()});
-								//					};
+								Transacted = () =>	{ 
+														if(Has(Data.Name))
+														{
+															var d = GetData();
 
-								var o =	new ResourceUpdation(r.resource.Id);
+															if(d != null && d.IsCexInvolved(out var urn))
+															{
+																Api(new ReleaseUpdateApc
+																	{
+																		Address = urn,
+																		Resource= r.Id,
+																	});
+															}
+														}
+													};
+
+								var o =	new ResourceUpdation(r.Id);
 
 								if(Has(Data.Name))			o.Change(GetData());
 								if(Has(Dependable.Name))	o.MakeDependable();
@@ -151,7 +166,7 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								Flow.Log.Dump(GetResource().resource);
+								Flow.Log.Dump(GetResource());
 
 								return null;
 							};
@@ -226,7 +241,7 @@ public class ResourceCommand : RdnCommand
 						];
 
 		a.Execute = () =>	{
-								var r = GetResource().resource;
+								var r = GetResource();
 
 								Api(new ResourceDownloadApc{Id = r.Id, To = GetString(to, null)});
 
@@ -234,7 +249,7 @@ public class ResourceCommand : RdnCommand
 								{
 									while(Flow.Active)
 									{
-										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.ReadVirtual<Urn>(Cli.Net.Constructor)});
+										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.GetVirtual<Urn>(Cli.Net.Constructor)});
 	
 										if(p is null)
 											break;

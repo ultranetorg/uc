@@ -6,113 +6,38 @@ namespace Uccs.Rdn;
 
 public enum Meaning : ushort
 {
-	Raw											= 0,
+	Raw										= 0,
 	
-	Control										= 01_000,
-		Redirect_Uri							= 01_001,
+	Control									= 01_000,
+		Redirect_Uri						= 01_001,
 	
-	Rex											= 02_000,
-		Rex_File 								= 02_001,
-		Rex_Directory 							= 02_002,
+	ExternalContent							= 02_000,
 
-	Package										= 03_000,
-		Package_Software						= 03_000,
-			Package_Software_ProductManifest	= 03_001,
-			Package_Software_VersionManifest	= 03_002,
+	Package									= 03_000,
+		Package_Software_ProductManifest	= 03_001,
+		Package_Software_VersionManifest	= 03_002,
 	
-	Ampp										= 04_000,
-		Ampp_Council							= 04_001,
-		Ampp_Analysis							= 04_002,
+	Ampp									= 04_000,
+		Ampp_Council						= 04_001,
+		Ampp_Analysis						= 04_002,
 	
-	Dns											= 05_000,
-		DnsRecord								= 05_001,
-
+	Dns										= 05_000,
+		Dns_Record							= 05_001,
 }
 
 public enum ContentType : uint
 {
-	Undefined 	= 0,
-	//Raw 		= 0,
-	Text		= 0001,
-	Image		= 0002,
-	Audio		= 0003,
-	Video		= 0004,
-	Font		= 0005,
-}
+	Undefined					= 0,
+	File						= 01_00_000_000,
+		File_Text				= 01_01_000_000,
+		File_Image				= 01_02_000_000,
+		File_Audio				= 01_03_000_000,
+		File_Video				= 01_04_000_000,
+		File_Font				= 01_05_000_000,
+		File_End				= 01_99_999_999,
 
-//public class DataType : IEquatable<DataType>, IBinarySerializable
-//{
-//
-//	public DataType()
-//	{
-//	}
-//
-//	public DataType(Meaning meaning, ContentType content)
-//	{
-//	}
-//
-//	public DataType(Meaning meaning)
-//	{
-//		Meaning = meaning;
-//	}
-//
-//	public static string From(byte[] x)
-//	{
-//		return x.ToHex();
-//	}
-//
-//	public static DataType Parse(string t)
-//	{
-//		var i = t.IndexOf('/');
-//
-//		if(i == -1)
-//			return new DataType(Enum.Parse<Meaning>(t, true), ContentType.Undefined);
-//		else
-//			return new DataType(Enum.Parse<Meaning>(t.Substring(0, i), true), Enum.Parse<ContentType>(t.AsSpan(i + 1, t.Length - i - 1), true));
-//	}
-//
-//	public override string ToString()
-//	{
-//		return $"{Meaning}, {Content}";
-//	}
-//
-//	public override bool Equals(object obj)
-//	{
-//		return Equals(obj as DataType);
-//	}
-//
-//	public bool Equals(DataType o)
-//	{
-//		return o is not null && Meaning == o.Meaning && Content == o.Content;
-//	}
-//
-//	public override int GetHashCode()
-//	{
-//		return HashCode.Combine(Meaning, Content);
-//	}
-//
-//	public static bool operator == (DataType left, DataType right)
-//	{
-//		return  left is null && right is null || left is not null && left.Equals(right);
-//	}
-//
-//	public static bool operator != (DataType left, DataType right)
-//	{
-//		return !(left == right);
-//	}
-//
-//	public void Write(Writer writer)
-//	{
-//		writer.Write(Meaning);
-//		writer.Write(Content);
-//	}
-//
-//	public void Read(Reader reader)
-//	{
-//		Meaning	= reader.Read<Meaning>();
-//		Content = reader.Read<ContentType>();
-//	}
-//}
+	Directory					= 02_00_000_000,
+}
 
 public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 {
@@ -121,6 +46,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 	public Meaning		Meaning { get; set; }
 	public ContentType	Content { get; set; }
 	public byte[]		Value;
+	object				Object;
 	
  	public string Hex
  	{
@@ -134,6 +60,9 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
  			return s.ToArray().ToHex();
  		}
  	}
+
+	public static bool	IsFile(ContentType c) => ContentType.File <= c && c < ContentType.File_End;
+	public static bool	IsDirectory(ContentType c) => c == ContentType.Directory;
 
 	public ResourceData()
 	{
@@ -151,6 +80,23 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 		Meaning = meaning;
 		Content = ContentType.Undefined;
 		Value = Serialize(value);
+	}
+	
+	public bool IsCexInvolved(out Urn urn)
+	{ 
+		if(	Meaning != Meaning.ExternalContent &&
+			Meaning != Meaning.Package_Software_VersionManifest)
+		{	
+			urn = null;
+			return false;
+		}
+
+		urn = new Reader(Value, Rdn.Any.Constructor).ReadVirtual<Urn>();
+		
+		if(urn.Nid != UrnNid.Hcid)
+			return false;
+
+		return true;
 	}
 
 	public override int GetHashCode()
@@ -179,7 +125,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 		return !(left == right);
 	}
 
-	public static byte[] Serialize(object o)
+	byte[] Serialize(object o)
 	{
 		switch(o)
 		{
@@ -199,20 +145,30 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 		return $"{Meaning}, {Content}, {Value?.Length}";
 	}
 
-	public T Read<T>() where T : IBinarySerializable, new()
+	public T Get<T>() where T : IBinarySerializable, new()
 	{
-		using var r = new Reader(Value, Rdn.Any.Constructor);
+		if(Object == null)
+		{
+			using var r = new Reader(Value, Rdn.Any.Constructor);
+	
+			Object = r.Read<T>();
+		}
 
-		return r.Read<T>();
+		return (T)Object;
 	}
 
-	public T ReadVirtual<T>(Constructor constructor = null) where T : class, IBinarySerializable, ITypeCode
+	public T GetVirtual<T>(Constructor constructor = null) where T : class, IBinarySerializable, ITypeCode
 	{
-		using var r = new Reader(Value, constructor ?? Rdn.Any.Constructor);
+		if(Object == null)
+		{
+			using var r = new Reader(Value, constructor ?? Rdn.Any.Constructor);
 
-		var o = r.Constructor.Construct(typeof(T), r.ReadUInt32()) as T;
-		o.Read(r);
-		return o;
+			var o = r.Constructor.Construct(typeof(T), r.ReadUInt32()) as T;
+			o.Read(r);
+			Object = o;
+		}
+
+		return (T)Object;
 	}
 
 	//public T Parse<T>()

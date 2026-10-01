@@ -160,25 +160,24 @@ public class PublicationCommand : FairCommand
 // 		return a;
 // 	}
 // 
-// 	public CommandAction Entity()
-// 	{
-// 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
-// 
-// 		a.Name = "e";
-// 		a.Description = "Get publication entity information from MCV database",
-// 						Syntax = $"{Keyword} {a.NamesSyntax} {EID}",
-// 						Arguments =	[new (FirstArg, "Id of a publication to get information about")],
-// 						Examples =[new (null, $"{Keyword} {a.Name} {EID.Example}")];
-// 
-// 		a.Execute = () =>	{
-// 								Flow.CancelAfter(Cli.Settings.RdcQueryTimeout);
-// 				
-// 								var rp = Ppc(new PublicationRequest(FirstEntityId));
-// 
-// 								Dump(rp.Publication);
-// 					
-// 								return rp.Publication;
-// 							};
-// 		return a;
-// 	}
+ 	public CommandAction Entity_E()
+ 	{
+ 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+ 
+		a.Description = "Get publication entity information from MCV database";
+		a.Arguments =	[
+							IdArgument("publication to get information about")
+						];
+
+		a.Execute = () =>	{
+ 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
+ 				
+ 								var r = Ppc(new PublicationPpc(Id));
+ 
+ 								Flow.Log.Dump(r.Publication);
+ 					
+ 								return r.Publication;
+ 							};
+ 		return a;
+ 	}
 }

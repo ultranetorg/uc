@@ -9,7 +9,7 @@ public class PackageCommand : NexusCommand
 {
 	public static readonly		ArgumentType PA = new ("PA", "Package resource address", [@"/company/application/winx64/1.2.3"]);
 
-	Ura address => Ura.Parse(Address);
+	Ura							address => Ura.Parse(Address);
 
 	RdnApiClient rdn;
 
@@ -67,7 +67,7 @@ public class PackageCommand : NexusCommand
 															Previous		= Has(cdl) ? rdn.Ppc(new ResourceByAddressPpc(GetResourceAddress(previous)), Flow).Resource.Id : null, 
 															AddressCreator	=	new()
 																				{
-																					Type = UrnScheme.Hcid,
+																					Type = UrnNid.Hcid,
 																					///Owner = GetAccountAddress("owner", null),
 																					Resource = address
 																				}
@@ -90,7 +90,18 @@ public class PackageCommand : NexusCommand
 								}
 								
 								if(ops.Any())
+								{	
 									Transact(rdn, ops, GetString(ByKeyword), GetLong(BoostKeyword, 0), McvCommand.GetActionOnResult(Args));
+
+									var r = rdn.Ppc(new ResourceByAddressPpc(address), Flow).Resource;
+
+									rdn.Send(new ReleaseUpdateApc
+											{
+												Address = r.Data.GetVirtual<Urn>(),
+												Resource= r.Id,
+											},
+											Flow);
+								}
 
 								return p;
 							};

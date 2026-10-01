@@ -7,30 +7,27 @@ namespace Uccs.Rdn;
 /// 
 /// </summary>
 
-public enum UrnScheme : uint
+public enum UrnNid : uint
 {
 	None, Hcid
 }
 
 public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITextSerialisable
 {
- 	public abstract byte[]			MemberOrderKey { get; }
- 	public byte[]					Raw => _Raw ??= (this as IBinarySerializable).ToRaw();
-	byte[]							_Raw;
+	public abstract UrnNid				Nid { get; }
+ 	public abstract byte[]				MemberOrderKey { get; }
+ 	public byte[]						Raw => _Raw ??= (this as IBinarySerializable).ToRaw();
+	byte[]								_Raw;
 
-	public abstract UrnScheme		Scheme { get; }
-	public override abstract bool	Equals(object other);
-  	public abstract bool			Equals(Urn other);
-	public override abstract int	GetHashCode();
-	public abstract void			ParseSpecific(string t);
-	public override abstract string ToString();
-
-	//	public const char				S = ':';
+	public override abstract bool		Equals(object other);
+  	public abstract bool				Equals(Urn other);
+	public override abstract int		GetHashCode();
+	public abstract void				ParseSpecific(ReadOnlySpan<char> t);
+	public override abstract string		ToString();
 
 	static Urn()
 	{
 	}
-
 
 	public void Read(string text)
 	{
@@ -39,16 +36,21 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
 
 	public static Urn Parse(string t)
 	{
-		Snq.Parse(t, out var s, out var z, out var o);
+		Snq.Parse(t, out var s, out var n, out var _);
 
-		var a = Enum.Parse<UrnScheme>(s, true)	switch
-												{
-													UrnScheme.Hcid => new Hcid() as Urn,
-													//UrrScheme.Urrsd => new Urrsd(),
-													_ => throw new FormatException()
-												};
+		var i = n.IndexOf(':');
 
-		a.ParseSpecific(o);
+		if(i == -1)
+			throw new FormatException();
+
+		var a = Enum.Parse<UrnNid>(n.AsSpan(0, i),  true)	switch
+															{
+																UrnNid.Hcid => new Hcid() as Urn,
+																//UrrScheme.Urrsd => new Urrsd(),
+																_ => throw new FormatException()
+															};
+
+		a.ParseSpecific(n.AsSpan(i + 1));
 
 		return a;
 	}
@@ -74,18 +76,18 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
 
 	public void WriteVirtual(Writer writer)
 	{
-		writer.Write(Scheme);
+		writer.Write(Nid);
 		WriteMore(writer);
 	}
 
 	public static Urn ReadVirtual(Reader reader)
 	{
-		var a = reader.Read<UrnScheme>() switch
-										 {
-										 	UrnScheme.Hcid => new Hcid() as Urn,
-										 	//UrrScheme.Urrsd => new Urrsd(),
-										 	_ => throw new FormatException()
-										 };
+		var a = reader.Read<UrnNid>()	switch
+										{
+											UrnNid.Hcid => new Hcid() as Urn,
+											//UrrScheme.Urrsd => new Urrsd(),
+											_ => throw new FormatException()
+										};
 		
 		a.ReadMore(reader);
 		
@@ -112,7 +114,7 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
  
 public class Hcid : Urn /// Rdn Resource Release Hash
 {
-	public override UrnScheme	Scheme => UrnScheme.Hcid; 
+	public override UrnNid	Nid => UrnNid.Hcid; 
 
 	public Hcid()
 	{
@@ -130,23 +132,16 @@ public class Hcid : Urn /// Rdn Resource Release Hash
  	public override bool	Equals(object obj) => Equals(obj as Hcid);
 	public override bool	Equals(Urn o) => o is Hcid a && Hash.SequenceEqual(a.Hash);
 
-	public new static Hcid Parse(string t)
-	{
-		Snq.Parse(t, out var s, out var z, out var o);
-
-		var a = new Hcid();
-
-		a.ParseSpecific(o);
-
-		return a;
-	}
 	public override string ToString()
 	{
-		return Snq.ToString(Scheme.ToString(), null, Hash.ToHex());
+		return $"urn:{Nid}:{Hash.ToHex()}";
 	}
 
-	public override void ParseSpecific(string t)
+	public override void ParseSpecific(ReadOnlySpan<char> t)
 	{
+		if(t.Length/2 != Cryptography.HashLength)
+			throw new FormatException();
+
 		Hash = t.FromHex();
 	}
 
@@ -181,7 +176,7 @@ public class UrrJsonConverter : JsonConverter<Urn>
 
 public class ReleaseAddressCreator
 {
-	public UrnScheme		Type { get; set; }
+	public UrnNid		Type { get; set; }
 	public PublicKey		Owner { get; set; }
 	public Ura				Resource { get; set; }
 
@@ -189,7 +184,7 @@ public class ReleaseAddressCreator
 	{
 		return Type	switch
 					{
-						UrnScheme.Hcid => new Hcid {Hash = hash},
+						UrnNid.Hcid => new Hcid {Hash = hash},
 						///UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.Find(Owner).Key, Resource, hash),
 						_ => throw new ResourceException(ResourceError.UnknownAddressType)
 					};

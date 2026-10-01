@@ -187,14 +187,16 @@ public class PackageManifest : IBinarySerializable
 
 	public void Write(Writer writer)
 	{
-		writer.WriteVirtual(Urn);
+		writer.WriteVirtual(Urn); /// URN HEADER: MUST GO FIRST
+
 		writer.Write(CompleteDependencies);
 		writer.Write(Parents);
 	}
 
 	public void Read(Reader reader)
 	{
-		Urn						= reader.ReadVirtual<Urn>();
+		Urn						= reader.ReadVirtual<Urn>(); /// URN HEADER: MUST GO FIRST
+
 		CompleteDependencies	= reader.ReadArray<Dependency>();
 		Parents					= reader.ReadArray<ParentPackage>();
 	}
