@@ -2,6 +2,7 @@ import { memo, useCallback, useState } from "react"
 
 import { useOperationPolicy } from "app"
 import { SvgCheckCircleFill3XLColored, SvgX } from "assets"
+import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useEscapeKey, useResolveStoreId } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption } from "types"
@@ -47,6 +48,7 @@ export const ReviewModal = memo(
     const { creator } = useOperationPolicy(isEditMode ? "review-edit" : "review-creation")
     const storeId = useResolveStoreId()
     const { mutate } = useTransactMutationWithStatus()
+    const { invalidateOperation } = useInvalidation()
 
     const [step, setStep] = useState(0)
     const [rating, setRating] = useState(5)
@@ -81,6 +83,8 @@ export const ReviewModal = memo(
       const operation = new ProposalCreation(storeId!, creator.id, creator.role, "", options, "")
       mutate(operation, {
         onSuccess: () => {
+          invalidateOperation(isEditMode ? "review-edit" : "review-creation", { storeId: storeId!, publicationId })
+
           setStep(1)
           setTimeout(() => {
             onSubmit?.()
@@ -88,7 +92,18 @@ export const ReviewModal = memo(
         },
         onError: err => showToast(err.toString(), "error"),
       })
-    }, [creator, isEditMode, mutate, onSubmit, publicationId, rating, reviewId, reviewText, storeId])
+    }, [
+      creator,
+      invalidateOperation,
+      isEditMode,
+      mutate,
+      onSubmit,
+      publicationId,
+      rating,
+      reviewId,
+      reviewText,
+      storeId,
+    ])
 
     useEscapeKey(onClose)
 

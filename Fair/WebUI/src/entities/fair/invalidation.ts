@@ -4,6 +4,7 @@ import { QueryKey, useQueryClient } from "@tanstack/react-query"
 import { OperationType } from "types"
 
 import { categoriesKeys } from "./categories"
+import { perpetualSurveysKeys } from "./perpetualSurveys"
 import { proposalsKeys } from "./proposals"
 import { publicationsKeys } from "./publications"
 import { storesKeys } from "./stores"
@@ -12,6 +13,7 @@ import { usersKeys } from "./users"
 
 export type InvalidationContext = {
   storeId: string
+  publicationId?: string
   userName?: string
 }
 
@@ -24,17 +26,31 @@ const operationRules: Record<OperationType, InvalidationRule> = {
   "category-movement": ({ storeId }) => [categoriesKeys.all(storeId)],
   "category-type-change": ({ storeId }) => [categoriesKeys.all(storeId)], // TODO: update all except tree
 
-  "publication-creation": () => [],
-  "publication-deletion": ({ storeId }) => [publicationsKeys.categoriesPublications(storeId)],
-  "publication-publish": ({ storeId }) => [unpublishedPublicationsKeys.all(storeId)],
-  "publication-unpublish": ({ storeId }) => [
-    unpublishedPublicationsKeys.all(storeId),
+  "publication-creation": ({ storeId }) => [storesKeys.detail(storeId), unpublishedPublicationsKeys.all(storeId)],
+  "publication-deletion": ({ storeId }) => [
+    storesKeys.detail(storeId),
     publicationsKeys.categoriesPublications(storeId),
+    publicationsKeys.categoriesPublicationsAll(),
+  ],
+  "publication-publish": ({ storeId }) => [
+    storesKeys.detail(storeId),
+    publicationsKeys.categoriesPublications(storeId),
+    publicationsKeys.categoriesPublicationsAll(),
+    unpublishedPublicationsKeys.all(storeId),
+  ],
+  "publication-unpublish": ({ storeId }) => [
+    storesKeys.detail(storeId),
+    publicationsKeys.categoriesPublications(storeId),
+    publicationsKeys.categoriesPublicationsAll(),
+    unpublishedPublicationsKeys.all(storeId),
   ],
   "publication-updation": () => [],
 
-  "review-creation": () => [],
-  "review-edit": () => [],
+  "review-creation": ({ storeId, publicationId }) => [
+    publicationsKeys.categoriesPublications(storeId),
+    publicationsKeys.detail(publicationId!),
+  ],
+  "review-edit": ({ publicationId }) => [publicationsKeys.detail(publicationId!)],
   "review-status-change": () => [],
 
   "store-authors-removal": ({ storeId }) => [storesKeys.publishers(storeId), proposalsKeys.publishers(storeId)],
@@ -56,7 +72,10 @@ const operationRules: Record<OperationType, InvalidationRule> = {
 }
 
 // Смена политики голосования (perpetual survey) для любой операции.
-const policyChangeRule: InvalidationRule = ({ storeId }) => [storesKeys.policies(storeId)]
+const policyChangeRule: InvalidationRule = ({ storeId }) => [
+  storesKeys.policies(storeId),
+  perpetualSurveysKeys.all(storeId),
+]
 
 export const useInvalidation = () => {
   const queryClient = useQueryClient()

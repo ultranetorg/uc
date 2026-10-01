@@ -4,7 +4,7 @@ import { isNumber, isString } from "lodash"
 
 import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetReviewProposals } from "entities"
+import { useGetReviewProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, SpecialChoice } from "types"
@@ -41,6 +41,7 @@ export const ReviewsPage = () => {
     reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const { mutate } = useTransactMutationWithStatus()
+  const { invalidateOperation } = useInvalidation()
 
   const columns = useMemo(
     () => [
@@ -77,6 +78,11 @@ export const ReviewsPage = () => {
       const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : SpecialChoice.Neither)
       mutate(operation, {
         onSuccess: () => {
+          if (action === "approve") {
+            const review = reviews?.items.find(x => x.id === id)
+            invalidateOperation(review?.operation, { storeId: storeId!, publicationId: review?.publication?.id })
+          }
+
           const message = action === "approve" ? t("toast:reviewApproved") : t("toast:reviewRejected")
           showToast(message, "success")
         },
@@ -89,7 +95,7 @@ export const ReviewsPage = () => {
         },
       })
     },
-    [mutate, refetch, t, voterId],
+    [invalidateOperation, mutate, refetch, reviews, storeId, t, voterId],
   )
 
   const handleApproveClick = useCallback(

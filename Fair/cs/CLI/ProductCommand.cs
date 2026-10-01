@@ -128,7 +128,7 @@ public class ProductCommand : FairCommand
 
 		a.Description = "Gets information about product specified";
 		a.Arguments =	[
-							IdArgument("product to get information about"), 
+							IdArgument("product to get information about")
 						];
 
 		a.Execute = () =>	{

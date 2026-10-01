@@ -6,7 +6,9 @@ export const publicationsKeys = {
   categoriesPublications: (storeId: string) =>
     [...publicationsKeys.store(storeId), "categories", "publication"] as const,
 
-  categoryPublications: (categoryId: string, page?: number) => ["categories", categoryId, { page }] as const,
+  categoriesPublicationsAll: () => ["categories", "publications"] as const,
+  categoryPublications: (categoryId: string, page?: number) =>
+    [...publicationsKeys.categoriesPublicationsAll(), categoryId, { page }] as const,
 
   detail: (publicationId: string) => ["publications", publicationId] as const,
   diff: (publicationId: string, version: number) =>
