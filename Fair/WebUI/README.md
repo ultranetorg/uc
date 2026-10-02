@@ -59,11 +59,11 @@ npm run preview
 
 Configuration is read from a `.env` file in the project root (see [Vite env docs](https://vite.dev/guide/env-and-mode)). Only variables prefixed with `VITE_APP_` are exposed to the client code.
 
-| Variable                        | Description                                                                          |
-| -------------------------------- | ------------------------------------------------------------------------------------- |
-| `VITE_APP_API_BASE_URL`          | Base URL of the Fair API the app talks to.                                            |
-| `VITE_APP_ICCP_NODE_TEST_URL`    | (Optional) URL of an ICCP test node. Commented out by default.                        |
-| `VITE_APP_SERVERLESS_BUILD`      | Set automatically by `npm run build:serverless`; switches on the serverless build mode. |
+| Variable                       | Description                                                                             |
+| ------------------------------ | --------------------------------------------------------------------------------------- |
+| `VITE_APP_API_BASE_URL`        | Base URL of the Fair API the app talks to.                                              |
+| `VITE_APP_ICCP_NODE_TEST_URL`  | (Optional) URL of an ICCP test node. Commented out by default.                          |
+| `VITE_APP_SERVERLESS_BUILD`    | Set automatically by `npm run build:serverless`; switches on the serverless build mode. |
 
 Example `.env`:
 

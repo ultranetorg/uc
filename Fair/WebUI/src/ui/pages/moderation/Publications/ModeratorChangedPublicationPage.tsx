@@ -4,11 +4,16 @@ import { Link, useNavigate } from "react-router-dom"
 
 import { useOperationPolicy, useStoreContext, useStoreRolesContext } from "app"
 import { SvgEyeSm } from "assets"
-import { useGetChangedPublication } from "entities"
+import { useGetChangedPublication, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
-import { ModerationHeader, ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
+import {
+  ModerationHeader,
+  ModerationPublicationHeader,
+  ProductFieldsDiff,
+  ProductPublicationInformation,
+} from "ui/components/specific"
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { routes, showToast } from "utils"
 
@@ -19,6 +24,7 @@ export const ModeratorChangedPublicationPage = () => {
   const { t } = useTranslation()
 
   const { voterId } = useOperationPolicy("publication-updation")
+  const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
   const { isModerator } = useStoreRolesContext()
   const { mutate } = useTransactMutationWithStatus()
@@ -52,12 +58,13 @@ export const ModeratorChangedPublicationPage = () => {
     const operation = new ProposalCreation(storeId!, voterId!, role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
+        invalidateOperation("publication-updation", { storeId: storeId!, publicationId })
         showToast(t("toast:publicationUpdated"), "success")
         navigate(routes.moderation.publications(storeId!))
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [isModerator, mutate, navigate, publication, storeId, t, voterId])
+  }, [invalidateOperation, isModerator, mutate, navigate, publication, publicationId, storeId, t, voterId])
 
   if (!storeId || isLoading) return <div>Loading{import.meta.env.DEV ? " (ModeratorChangedPublicationPage)" : ""}</div>
 
@@ -110,6 +117,7 @@ export const ModeratorChangedPublicationPage = () => {
           authorId={publication.authorId}
           authorTitle={publication.authorTitle}
         />
+        <ProductPublicationInformation publicationChanged={publication} />
         <ProductFieldsDiff from={publication.fields} to={publication.fieldsTo} />
       </div>
     </div>
