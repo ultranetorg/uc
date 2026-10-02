@@ -5,20 +5,20 @@ namespace Uccs.Rdn;
 public class ResourceDeclaration : IBinarySerializable
 {
 	public AutoId			Resource { get; set; }	
-	public Urn				Release { get; set; }	
+	public Urn				Urn { get; set; }	
 	public Availability		Availability { get; set; }
 
 	public void Read(Reader reader)
 	{
 		Resource = reader.Read<AutoId>();
-		Release = reader.ReadVirtual<Urn>();
+		Urn = reader.ReadVirtual<Urn>();
 		Availability = reader.Read<Availability>();
 	}
 
 	public void Write(Writer writer)
 	{
 		writer.Write(Resource);
-		writer.WriteVirtual(Release);
+		writer.WriteVirtual(Urn);
 		writer.Write(Availability);
 	}
 }
@@ -59,13 +59,13 @@ public class SeedHub
 	{
 		foreach(var rsd in resources)
 		{
-			var rzd = rsd.Release;
+			var urn = rsd.Urn;
 
 			lock(Mcv.Lock)
 			{ 
-				if(!Mcv.NextVotingRound.Senders.OrderByHash(i => i.Generator.Raw, rzd.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Memberships.Any(g => g.GeneratorId == i.Generator)))
+				if(!Mcv.NextVotingRound.Senders.OrderByHash(i => i.Generator.Raw, urn.MemberOrderKey).Take(ResourceHub.MembersPerDeclaration).Any(i => Mcv.Settings.Memberships.Any(g => g.GeneratorId == i.Generator)))
 				{
-					yield return new (rzd, DeclarationResult.NotNearest);
+					yield return new (urn, DeclarationResult.NotNearest);
 					continue;
 				}
 			}
@@ -74,30 +74,12 @@ public class SeedHub
 			{
 				bool valid()
 				{
-					if(rzd is Hcid cid)
-					{
-						var r = Mcv.Resources.Latest(rsd.Resource);
+					var r = Mcv.Resources.Latest(rsd.Resource);
 	
-						if((r?.Data?.Meaning == Meaning.Rex_File && r?.Data?.Meaning == Meaning.Rex_Directory) && r.Data.ReadVirtual<Urn>() == cid)
-						{
-							return true;
-						}
-						else
-							return false;
-					}
-					///else if(rzd is Urrsd sdp)
-					///{
-					///	var d = Node.Domains.Find(rsd.Resource.DomainId, Node.LastConfirmedRound.Id);
-					///	var o = Node.Accounts.Find(d.Owner, Node.LastConfirmedRound.Id);
-					///
-					///	if(!sdp.Prove(Node.Net.Cryptography, o.Address, rsd.Hash))
-					///	{
-					///		return false;
-					///	}
-					///
-					///}
-
-					return false;
+					if(r?.Data?.IsCexInvolved(out var n) ?? false && n == urn)
+						return true;
+					else
+						return false;
 				}
 
 				List<Seed> seeds;
@@ -111,12 +93,12 @@ public class SeedHub
 // 							continue;
 // 	  					}
 
-				if(!Releases.TryGetValue(rsd.Release, out seeds))
+				if(!Releases.TryGetValue(rsd.Urn, out seeds))
 					if(valid())
-						Releases[rsd.Release] = seeds = new();
+						Releases[rsd.Urn] = seeds = new();
 					else
 					{
-	  					yield return new (rzd, DeclarationResult.Rejected);
+	  					yield return new (urn, DeclarationResult.Rejected);
 						continue;
 	  				}
 
@@ -132,7 +114,7 @@ public class SeedHub
 
 				s.Availability = rsd.Availability;
 
-				yield return new (rzd, DeclarationResult.Accepted);
+				yield return new (urn, DeclarationResult.Accepted);
 				
 				///if(releases.Count > 50)
 				///{

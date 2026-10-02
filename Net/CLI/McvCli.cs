@@ -41,12 +41,12 @@ public abstract class McvCli : NetCli
 
 			if(c.Has("estimate"))
 			{
-				var rp = c.Api<PretransactingPpr>(new EstimateOperationApc {Operations = ops, User = c.GetString(McvCommand.ByKeyword)});
+				var rp = c.Api<PretransactingPpr>(new EstimateOperationApc {Operations = ops, User = c.GetString(NetCommand.ByKeyword)});
 				flow.Log.Dump(rp);
 			}
 			else
 			{
-				var t = c.Transact(Api as McvApiClient, ops, c.GetString(McvCommand.ByKeyword), c.GetLong(McvCommand.BoostKeyword, 0), McvCommand.GetActionOnResult(args));
+				var t = c.Transact(Api as McvApiClient, ops, c.GetString(NetCommand.ByKeyword), c.GetLong(NetCommand.BoostKeyword, 0), McvCommand.GetActionOnResult(args));
 
 				c.Transacted?.Invoke();
 			}

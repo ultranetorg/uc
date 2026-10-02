@@ -41,7 +41,7 @@ public class AnalysisResultUpdation : RdnOperation
 			return;
 		}
 
-		var c = execution.Resources.Find(ar.Data.Read<Analysis>().Consil)?.Data?.Read<Consil>();
+		var c = execution.Resources.Find(ar.Data.Get<Analysis>().Consil)?.Data?.Get<Consil>();
 
 		if(c == null)
 		{
@@ -59,7 +59,7 @@ public class AnalysisResultUpdation : RdnOperation
 
 		ar = execution.Resources.Affect(Analysis);
 
-		var an = ar.Data.Read<Analysis>();
+		var an = ar.Data.Get<Analysis>();
 		 
 		var r = an.Results.Find(i => i.Analyzer == aix);
 		//an.Results ??= [];

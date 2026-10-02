@@ -4,8 +4,8 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace Uccs.Rdn;
 
-[JsonDerivedType(typeof(FileDownloadProgress),	 	typeDiscriminator: "FileDownloadProgress")]
-[JsonDerivedType(typeof(ReleaseDownloadProgress),	typeDiscriminator: "ReleaseDownloadProgress")]
+[JsonDerivedType(typeof(FileDownloadProgress),	 	nameof(FileDownloadProgress))]
+[JsonDerivedType(typeof(ReleaseDownloadProgress),	nameof(ReleaseDownloadProgress))]
 public class ResourceActivityProgress
 {
 }
@@ -37,23 +37,16 @@ public class ResourceDownloadApc : RdnApc
 		if(d == null)
 			throw new ResourceException(ResourceError.NoData);
 
-		if(d.Meaning == Meaning.Rex_File && d.Meaning == Meaning.Rex_Directory)
-			throw new ResourceException(ResourceError.InvalidMeaning);
+		if(!d.IsCexInvolved(out var urn))
+			throw new ResourceException(ResourceError.NotSupportedDataType);
 
 		IIntegrity itg;
 
-		var urr = d.ReadVirtual<Urn>(Rdn.Any.Constructor);
-
-		switch(urr)
+		switch(urn)
 		{ 
 			case Hcid a :
 				itg = new DHIntegrity(a.Hash); 
 				break;
-
-			//case Urrsd a :
-			//	///.var au = node.Call(c => c.Request(new DomainRequest(Idedtifier)), flow).Domain;
-			//	///.itg = new SPDIntegrity(node.Net.Cryptography, a, au.Owner);
-			//	throw new NotSupportedException();
 				
 			default:
 				throw new ResourceException(ResourceError.NotSupportedDataType);
@@ -61,18 +54,16 @@ public class ResourceDownloadApc : RdnApc
 
 		lock(node.ResourceHub.Lock)
 		{
-			var lrl = node.ResourceHub.Find(urr) ?? node.ResourceHub.Add(urr, Id);
+			var lrl = node.ResourceHub.Find(urn) ?? node.ResourceHub.Add(urn, Id);
 
-			if(d.Meaning == Meaning.Rex_File)
+			if(ResourceData.IsFile(d.Content))
 			{
-				node.ResourceHub.DownloadFile(lrl, true, "", To ?? node.ResourceHub.ToReleases(urr), itg, null, flow);
+				node.ResourceHub.DownloadFile(lrl, true, "", To ?? node.ResourceHub.ToReleases(urn), itg, null, flow);
 			}
-			else if(d.Meaning == Meaning.Rex_Directory)
+			else if(ResourceData.IsDirectory(d.Content))
 			{
-				node.ResourceHub.DownloadDirectory(lrl, To ?? node.ResourceHub.ToReleases(urr), itg, flow);
+				node.ResourceHub.DownloadDirectory(lrl, To ?? node.ResourceHub.ToReleases(urn), itg, flow);
 			}
-			else
-				throw new ResourceException(ResourceError.NotSupportedDataType);
 		}
 		return null;
 	}
@@ -149,31 +140,26 @@ public class LocalReleaseBuildApc : RdnApc
 //	}
 //}
 
-//public class LocalResourceUpdateApc : RdnApc
-//{
-//	public AutoId			Id { get; set; }
-//	public ResourceData		Data { get; set; }
-//
-//	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-//	{
-//		lock(node.ResourceHub.Lock)
-//		{
-//			var r = node.ResourceHub.Find(Id) ?? node.ResourceHub.Add(Address);
-//			
-//			if(Id != null)
-//			{
-//				r.Id = Id;
-//			}
-//			
-//			if(Data != null)
-//			{
-//				r.AddData(Data);
-//			}
-//		}
-//
-//		return null;
-//	}
-//}
+public class ReleaseUpdateApc : RdnApc
+{
+	public Urn		Address { get; set; }
+	public AutoId	Resource { get; set; }
+
+	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(node.ResourceHub.Lock)
+		{
+			var r = node.ResourceHub.Find(Address);
+			
+			if(r != null)
+			{
+				r.Resource = Resource;
+			}
+		}
+
+		return null;
+	}
+}
 
 public class LocalReleaseActivityProgressApc : RdnApc
 {

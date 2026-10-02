@@ -9,7 +9,7 @@ public class PackageHub
 {
 	//public const string			FamilyName = nameof(Packages);
 
-	public List<Package>	Packages = new();
+	public List<Package>		Packages = new();
 	public RdnNode				Node;
 	public object				Lock = new object();
 	public string				DeploymentPath;
@@ -74,7 +74,7 @@ public class PackageHub
 		}
 	}
 
-//	public LocalPackage Get(AutoId resource)
+//	public Package Get(AutoId resource)
 //	{
 //		var p = Find(resource);
 //
@@ -83,8 +83,9 @@ public class PackageHub
 //
 //		lock(Node.ResourceHub.Lock)
 //		{
-//			var r = Node.ResourceHub.Find(resource) ?? Node.ResourceHub.Add(resource);
-//			p = new LocalPackage(this, r);
+//			var r = Node.ResourceHub.Get(resource);
+//			p = new Package(this);
+//			p.Id = resource;
 //		}
 //
 //		Packages.Add(p);
@@ -131,9 +132,12 @@ public class PackageHub
  		{
  			d = Node.ResourceHub.Get(id);
  		
- 			if(d != null && d.Meaning == Meaning.Package_Software_VersionManifest)
+ 			if(d != null)
  			{
-				var m = d.Read<PackageManifest>();
+				if(d.Meaning != Meaning.Package_Software_VersionManifest)
+					throw new PackageException(PackageError.IncorrectContentType, $"Resource={id}");
+
+				var m = d.Get<PackageManifest>();
 
  				if(Node.ResourceHub.Find(m.Urn) != null)
  				{
@@ -601,7 +605,8 @@ public class PackageHub
 									
 									}
 
-									File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Id), PackageInstruction.Extension), true);
+									if(s.Complete.Release.Find(PackageInstruction.Extension) != null)
+										File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Id), PackageInstruction.Extension), true);
 
 									s.Complete.Activity = null;
 								}
@@ -615,6 +620,9 @@ public class PackageHub
 		
 		if(p == null)
 		{
+			var data = Node.ResourceHub.Get(id);
+			Node.ResourceHub.Add(data.Get<PackageManifest>().Urn, id);
+
 			p = new Package(this){Id = id};
 			Packages.Add(p);
 		}

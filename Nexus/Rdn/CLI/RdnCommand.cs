@@ -8,7 +8,7 @@ public abstract class RdnCommand : McvCommand
 	public static readonly ArgumentType		TLD		= new (nameof(TLD),	"Top-level  web domain",									DomainName.PriorityTlds);
 	public static readonly ArgumentType		RA		= new (nameof(RA),	$"Resource address including domain",						[@"/company/application", "rdn/author/product"]);
 	public static readonly ArgumentType		RLT		= new (nameof(RLT),	"Resource link type",										Enum.GetNames<ResourceLinkType>().Where(i => i != ResourceLinkType.None.ToString()).ToArray());
-	public static readonly ArgumentType		RZA		= new (nameof(RZA),	"Release address",											[$"{UrnScheme.Hcid.ToString().ToLower()}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType		RZA		= new (nameof(RZA),	"Release address",											[$"{UrnNid.Hcid.ToString().ToLower()}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
 
 	new protected RdnCli					Cli => base.Cli as RdnCli;
 
@@ -68,7 +68,7 @@ public abstract class RdnCommand : McvCommand
 	protected ResourceData GetData()
 	{
 		var d = One("data");
-
+			
 		if(d != null)
 		{
 			if(d.Nodes.Any())
@@ -113,16 +113,23 @@ public abstract class RdnCommand : McvCommand
 														Consil			= GetResourceId(d.Get<string>("consil"))
 													});
 					
-					case Meaning.DnsRecord :
+					case Meaning.Dns_Record :
 						return new ResourceData(m,	new DnsRecord
 													{
 														Type	= d.GetEnum<DnsRecordType>("type"), 
 														Value	= d.Get<string>("value"),
 														TTL		= d.Get("ttl", 3600)
 													});
-					case Meaning.Rex_File:
-					case Meaning.Rex_Directory :
-						return new ResourceData(m, Urn.Parse(d.Get<string>("address")));
+					case Meaning.ExternalContent :
+					{ 
+						if(ResourceData.IsFile(c))
+							return new ResourceData(m, c, Urn.Parse(d.Get<string>(AddressKeyword)));
+
+						if(ResourceData.IsDirectory(c))
+							return new ResourceData(m, c, Urn.Parse(d.Get<string>(AddressKeyword)));
+
+						break;
+					}
 				}
 			}
 			else if(d.Value == null) /// Type without value means remove data

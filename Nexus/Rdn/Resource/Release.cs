@@ -9,10 +9,10 @@ public enum Availability : byte
 	Full				= 0b_______1,
 	Minimal				= 0b______10,
 	Partial				= 0b_____100,
-	Complete			= 0b____1000, 
-	CompletePartial		= 0b___10000, 
-	Incremental			= 0b__100000, 
-	IncrementalPartial	= 0b_1000000, 
+	Complete			= 0b____1000,
+	CompletePartial		= 0b___10000,
+	Incremental			= 0b__100000,
+	IncrementalPartial	= 0b_1000000,
 }
 
 public enum ReleaseFileStatus
@@ -250,7 +250,7 @@ public class Release
 
 	public override string ToString()
 	{
-		return $"{Address}, Availability={Availability}, Files={{{Files?.Count}}}";
+		return $"{Address}, Availability={Availability}, Files={{{Files?.Count}}}, Resource={Resource}";
 	}
 
 	public Xon LoadIndex()

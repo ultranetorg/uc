@@ -84,11 +84,11 @@ public class RdnApiClient : McvApiClient
 
 		do
 		{
-			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.ReadVirtual<Urn>(Rdn.Any.Constructor)}, flow);
+			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.GetVirtual<Urn>(Rdn.Any.Constructor)}, flow);
 
 			if(d is null)
 			{
-				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.ReadVirtual<Urn>(Rdn.Any.Constructor)}, flow);
+				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.GetVirtual<Urn>(Rdn.Any.Constructor)}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{
@@ -128,7 +128,14 @@ public class HttpGetApc : RdnApc
 			var path = request.QueryString["path"] ?? "";
 
 			var r = rdn.Peering.Call(new ResourceByAddressPpc(a), workflow).Resource;
-			var ra = r.Data?.ReadVirtual<Urn>(rdn.Net.Constructor)
+			
+			if(r.Data == null)
+				 throw new ResourceException(ResourceError.NoData);
+
+			if(r.Data.Meaning != Meaning.ExternalContent)
+				 throw new ResourceException(ResourceError.NotSupportedDataType);
+
+			var ra = r.Data?.GetVirtual<Urn>(rdn.Net.Constructor)
 					 ??	
 					 throw new ResourceException(ResourceError.NotFound);
 
@@ -146,11 +153,11 @@ public class HttpGetApc : RdnApc
 			switch(ra)
 			{ 
 				case Hcid x :
-					if(r.Data.Meaning == Meaning.Rex_File)
+					if(ResourceData.IsFile(r.Data.Content))
 					{
 						itg = new DHIntegrity(x.Hash); 
 					}
-					else if(r.Data.Meaning == Meaning.Rex_Directory)
+					else if(ResourceData.IsDirectory(r.Data.Content))
 					{
 						var	f = rdn.ResourceHub.GetFile(z, false, Release.Index, null, new DHIntegrity(x.Hash), null, workflow);
 

@@ -72,14 +72,15 @@ public class PackageDownload
 		Task = Task.Run(() =>	{
 									try
 									{
-										var r = node.ResourceHub.Get(Package.Id);
+										//var r = hub.Get(Package.Id);
 										
-										if(r != null && r.Meaning != Meaning.Package_Software_VersionManifest)
-											throw new PackageException(PackageError.IncorrectContentType, $"{package.Id} is not {Meaning.Package_Software_VersionManifest}");
+										//if(r != null && r.Meaning != Meaning.Package_Software_VersionManifest)
+										//	throw new PackageException(PackageError.IncorrectContentType, $"{package.Id} is not {Meaning.Package_Software_VersionManifest}");
 
-										Seeker = new SeedSeeker(node, package.Release.Address, flow);
+										Seeker = new SeedSeeker(node, Package.Manifest.Urn, flow);
 
-										//node.ResourceHub.GetFile(Package.Release, false, LocalPackage.ManifestFile, Path.Join(hub.AddressToReleases(last.Data.Parse<Urr>()), LocalPackage.ManifestFile), itg, Seeker, flow);
+
+										node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Manifest.Urn as Hcid).Hash), Seeker, flow);
 
 										string file;
 
@@ -101,7 +102,7 @@ public class PackageDownload
  											FileDownload = node.ResourceHub.DownloadFile(	Package.Release, 
 																							false,
 																							file, 
-																							Path.Join(hub.AddressToReleases(package.Release.Address), file),
+																							Path.Join(hub.AddressToReleases(Package.Manifest.Urn), file),
 																							new DHIntegrity(Package.Release.LoadIndex().One(file).Get<byte[]>()),
 																							Seeker,
 																							flow);

@@ -29,7 +29,7 @@ public class Package
 			{
 				lock(Hub.Node.ResourceHub.Lock)
 				{
-					_Manifest = Hub.Node.ResourceHub.Get(Id).Read<PackageManifest>();
+					_Manifest = Hub.Node.ResourceHub.Get(Id).Get<PackageManifest>();
 				}
 			}
 		
