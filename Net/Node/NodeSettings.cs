@@ -18,8 +18,6 @@ public class PeeringSettings : Settings
 
 public class SecretSettings
 {
-	public const string		FileName = "Secrets.globals";
-
 	public string			Password;
 
 	public SecretSettings()
