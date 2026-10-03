@@ -9,7 +9,7 @@ export * from "./stores"
 export * from "./users"
 
 export * from "./moderator"
-export * from "./UnpublishedPublications"
+export * from "./unpublishedPublications"
 
 export * from "./invalidation"
 

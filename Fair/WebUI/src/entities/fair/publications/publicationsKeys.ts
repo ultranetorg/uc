@@ -6,6 +6,8 @@ export const publicationsKeys = {
   categoriesPublications: (storeId: string) =>
     [...publicationsKeys.store(storeId), "categories", "publication"] as const,
 
+  changedPublications: (storeId: string) => [...publicationsKeys.store(storeId), "publications", "changed"] as const,
+
   categoriesPublicationsAll: () => ["categories", "publications"] as const,
   categoryPublications: (categoryId: string, page?: number) =>
     [...publicationsKeys.categoriesPublicationsAll(), categoryId, { page }] as const,

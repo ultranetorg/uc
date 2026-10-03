@@ -20,7 +20,7 @@ export const StoreHeader = () => {
   const navigate = useNavigate()
   const isSearchPage = useMatch("/:storeId/s")
   const { store } = useStoreContext()
-  const { isModerator, isPublisher } = useStoreRolesContext()
+  const { isPublisher } = useStoreRolesContext()
   const { t } = useTranslation("storePage")
   const { user } = useUserContext()
 

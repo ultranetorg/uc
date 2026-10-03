@@ -25,7 +25,7 @@ export const PublicationDeletionContent = memo(({ storeId, proposal }: ProposalV
         authorId={publication.authorId}
         authorTitle={publication.authorTitle}
       />
-      <ProductPublicationInformation product={publication} />
+      <ProductPublicationInformation publication={publication} />
       <ProductFieldsTree productFields={publication.fields} />
     </div>
   )

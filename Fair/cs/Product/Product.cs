@@ -207,21 +207,20 @@ public class FieldValue : IBinarySerializable
 
 	public static byte[] Parse(FieldType type, string value)
 	{ 
-		switch(type)
+		return type switch
 		{
-			case FieldType.Float : 
-			case FieldType.Integer : 
-				return BitConverter.GetBytes(long.Parse(value));
+			FieldType.Float or
+			FieldType.Integer => BitConverter.GetBytes(float.Parse(value)),
 
-			case FieldType.TextUtf8 : 
-			case FieldType.StringUtf8 :
-				return Encoding.UTF8.GetBytes(value);
-			
-			case FieldType.FileId : 
-				return AutoId.Parse(value).Raw;
-		}
+			FieldType.TextUtf8 or
+			FieldType.StringUtf8 => Encoding.UTF8.GetBytes(value),
 
-		throw new ArgumentException("Unknown ProductFieldType");
+			FieldType.LanguageCode when value.Length == 2 => Encoding.ASCII.GetBytes(value.ToUpperInvariant()),
+
+			FieldType.FileId => AutoId.Parse(value).Raw,
+
+			_ => throw new ArgumentException("Unknown ProductFieldType")
+		};
 	}
 }
 

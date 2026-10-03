@@ -2,7 +2,7 @@ import { memo, useMemo } from "react"
 
 import { useGetPublicationDetailsDiff } from "entities"
 import { Proposal, PublicationUpdation } from "types"
-import { ModerationPublicationHeader, ProductFieldsDiff } from "ui/components/specific"
+import { ModerationPublicationHeader, ProductFieldsDiff, ProductPublicationInformation } from "ui/components/specific"
 
 import { ProposalViewContentProps } from "./types"
 
@@ -25,6 +25,7 @@ export const PublicationUpdationContent = memo(({ storeId, proposal }: ProposalV
         authorId={publication.authorId}
         authorTitle={publication.authorTitle}
       />
+      <ProductPublicationInformation publication={publication} />
       <ProductFieldsDiff from={publication.fields} to={publication.fieldsTo} />
     </div>
   )

@@ -8,7 +8,7 @@ import { perpetualSurveysKeys } from "./perpetualSurveys"
 import { proposalsKeys } from "./proposals"
 import { publicationsKeys } from "./publications"
 import { storesKeys } from "./stores"
-import { unpublishedPublicationsKeys } from "./UnpublishedPublications"
+import { unpublishedPublicationsKeys } from "./unpublishedPublications"
 import { usersKeys } from "./users"
 
 export type InvalidationContext = {
@@ -26,7 +26,11 @@ const operationRules: Record<OperationType, InvalidationRule> = {
   "category-movement": ({ storeId }) => [categoriesKeys.all(storeId)],
   "category-type-change": ({ storeId }) => [categoriesKeys.all(storeId)], // TODO: update all except tree
 
-  "publication-creation": ({ storeId }) => [storesKeys.detail(storeId), unpublishedPublicationsKeys.all(storeId)],
+  "publication-creation": ({ storeId }) => [
+    storesKeys.detail(storeId),
+    unpublishedPublicationsKeys.all(storeId),
+    proposalsKeys.publications(storeId),
+  ],
   "publication-deletion": ({ storeId }) => [
     storesKeys.detail(storeId),
     publicationsKeys.categoriesPublications(storeId),
@@ -44,7 +48,13 @@ const operationRules: Record<OperationType, InvalidationRule> = {
     publicationsKeys.categoriesPublicationsAll(),
     unpublishedPublicationsKeys.all(storeId),
   ],
-  "publication-updation": () => [],
+  "publication-updation": ({ storeId, publicationId }) => [
+    storesKeys.detail(storeId),
+    publicationsKeys.categoriesPublications(storeId),
+    publicationsKeys.categoriesPublicationsAll(),
+    publicationsKeys.detail(publicationId!),
+    publicationsKeys.changedPublications(storeId),
+  ],
 
   "review-creation": ({ storeId, publicationId }) => [
     publicationsKeys.categoriesPublications(storeId),
@@ -54,7 +64,7 @@ const operationRules: Record<OperationType, InvalidationRule> = {
   "review-status-change": () => [],
 
   "store-authors-removal": ({ storeId }) => [storesKeys.publishers(storeId), proposalsKeys.publishers(storeId)],
-  "store-moderator-addition": ({ storeId }) => [storesKeys.moderators(storeId)],
+  "store-moderator-addition": ({ storeId }) => [storesKeys.moderators(storeId), proposalsKeys.moderators(storeId!)],
   "store-moderator-removal": ({ storeId }) => [storesKeys.moderators(storeId), proposalsKeys.moderators(storeId)],
 
   "store-avatar-change": ({ storeId, userName }) => [

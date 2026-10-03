@@ -65,9 +65,7 @@ export const ModeratorCreatePublicationPage = () => {
     const operation = new ProposalCreation(storeId!, voterId!, role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
-        if (!isRequiredVoting) {
-          invalidateOperation("publication-creation", { storeId: storeId! })
-        }
+        invalidateOperation("publication-creation", { storeId: storeId! })
 
         showToast(t("toast:publicationCreated"), "success")
 

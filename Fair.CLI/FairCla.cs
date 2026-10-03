@@ -7,6 +7,9 @@ public class FairCla
 		Thread.CurrentThread.CurrentCulture = 
 		Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 
+		Console.InputEncoding =
+		Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 		new FairCli();
 	}
 }

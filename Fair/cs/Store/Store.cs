@@ -192,6 +192,7 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 						new (FairOperationClass.CategoryCreation,		m|p, 	vc|va),
 						new (FairOperationClass.CategoryDeletion,		m|p, 	vc|va),
 						new (FairOperationClass.CategoryTypeChange,		m|p,	vc|va),
+						new (FairOperationClass.CategoryMovement,		m|p,    vc|va),
 						new (FairOperationClass.CategoryAvatarChange,	m|p, 	vc|va|o),
 																																								 
 						new (FairOperationClass.PublicationCreation,	m|p|c,	vc|va),
