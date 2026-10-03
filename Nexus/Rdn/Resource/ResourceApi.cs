@@ -44,7 +44,7 @@ public class ResourceDownloadApc : RdnApc
 
 		switch(urn)
 		{ 
-			case Hcid a :
+			case Blake3rn a :
 				itg = new DHIntegrity(a.Hash); 
 				break;
 				

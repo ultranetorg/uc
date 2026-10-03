@@ -152,7 +152,7 @@ public class HttpGetApc : RdnApc
 
 			switch(ra)
 			{ 
-				case Hcid x :
+				case Blake3rn x :
 					if(ResourceData.IsFile(r.Data.Content))
 					{
 						itg = new DHIntegrity(x.Hash); 

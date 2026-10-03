@@ -30,7 +30,7 @@ public abstract class Rdn : McvNet
 	public Rdn()
 	{
 		Constructor.Register<Operation>(Assembly.GetExecutingAssembly(), typeof(RdnOperationClass), i => i, overwrite: true);
-		Constructor.Register<Urn>(GetType().Assembly, typeof(UrnNid), i => i);
+		Constructor.Register<Urn>(GetType().Assembly, typeof(UrnNid), i => i.Substring(0, i.Length - "rn".Length));
 	}
 }
 

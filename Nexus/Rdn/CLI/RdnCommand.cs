@@ -8,7 +8,7 @@ public abstract class RdnCommand : McvCommand
 	public static readonly ArgumentType		TLD		= new (nameof(TLD),	"Top-level  web domain",									DomainName.PriorityTlds);
 	public static readonly ArgumentType		RA		= new (nameof(RA),	$"Resource address including domain",						[@"/company/application", "rdn/author/product"]);
 	public static readonly ArgumentType		RLT		= new (nameof(RLT),	"Resource link type",										Enum.GetNames<ResourceLinkType>().Where(i => i != ResourceLinkType.None.ToString()).ToArray());
-	public static readonly ArgumentType		RZA		= new (nameof(RZA),	"Release address",											[$"{UrnNid.Hcid.ToString().ToLower()}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
+	public static readonly ArgumentType		RZA		= new (nameof(RZA),	"Release address",											[$"{UrnNid.Blake3.ToString().ToLower()}:F371BC4A311F2B009EEF952DD83CA80E2B60026C8E935592D0F9C308453C813E"]);
 
 	new protected RdnCli					Cli => base.Cli as RdnCli;
 

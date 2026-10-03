@@ -67,7 +67,7 @@ public class PackageCommand : NexusCommand
 															Previous		= Has(cdl) ? rdn.Ppc(new ResourceByAddressPpc(GetResourceAddress(previous)), Flow).Resource.Id : null, 
 															AddressCreator	=	new()
 																				{
-																					Type = UrnNid.Hcid,
+																					Type = UrnNid.Blake3,
 																					///Owner = GetAccountAddress("owner", null),
 																					Resource = address
 																				}
