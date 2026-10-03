@@ -222,20 +222,25 @@ public class Transaction : IBinarySerializable
 			
 			var ts = Enumerable	.Range(0, Environment.ProcessorCount)
 								.Select(i => node.CreateThread(() => { 
-																		var b = new byte[McvNet.PoWLength];
-																		var a = Blake2Fast.Blake2b.CreateHashAlgorithm(McvNet.PoWLength);
+																		var x = new byte[McvNet.PoWLength];
+																		using var a = Blake3.Hasher.New();
 																		var r = new Random();
 																	 
 																	 	while(Flow.Active && Pow == null)
 																	 	{
-																	 		r.NextBytes(b);
-																	 		var h = a.ComputeHash([..s.GraphHash, ..b]);
+																	 		r.NextBytes(x);
+																	 		a.Update([..s.GraphHash, ..x]);
 																	 
-																	 		var f = h.Sum(i => BitOperations.PopCount(i));
+																			var n = 0;
+
+																			foreach(var i in a.Finalize().AsSpan())
+																			{
+																	 			n += BitOperations.PopCount(i);
+																			}
 																	 
-																	 		if(f >= node.Net.PoWDifficulity)
+																	 		if(n >= node.Net.PoWDifficulity)
 																	 		{
-																	 			Pow = b;
+																	 			Pow = x;
 																	 		}
 																	 	}
 																	 })).ToArray();
