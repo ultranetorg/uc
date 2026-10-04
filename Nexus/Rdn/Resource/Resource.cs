@@ -71,7 +71,7 @@ public class Resource : ITableEntry<AutoId>, IBinarySerializable
 	public bool					Deleted { get; set; }
 	RdnMcv						Mcv;
 
-	public static bool			IsNameValid(string name) => !string.IsNullOrWhiteSpace(name) && name.Length > 0 && name.Length < 1024;
+	public static bool			IsNameValid(string name) => !string.IsNullOrWhiteSpace(name) && name.Length > 0 && name.Length <= 1000;
 	public bool					IsLocked(RdnExecution execution) => Flags.HasFlag(ResourceFlags.Dependable) && Inbounds.Any(i => execution.Resources.Find(i).Outbounds.Any(j => j.Destination == Id && j.Type.HasFlag(ResourceLinkType.Dependency)));
 
 	public int					DataLength => Flags.HasFlag(ResourceFlags.Data) ? Data.Value.Length : 0; /// Data.Type.Length + Data.ContentType.Length  - not fully precise
