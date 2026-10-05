@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 
 namespace Uccs.Fair;
@@ -45,7 +46,7 @@ public class StoreCreation : FairOperation
 		s.Moderators	= [new Moderator {User = User.Id}];
 
 		s.Policies =   [new (FairOperationClass.StoreModeratorAddition,	Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),	
-						new (FairOperationClass.StoreModeratorRemoval,	Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),
+						//new (FairOperationClass.StoreModeratorRemoval,	Role.Moderator|Role.Publisher,					ApprovalRequirement.PublishersMajority),
 						new (FairOperationClass.StoreRenaming,			Role.Moderator|Role.Publisher,					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.StoreInfoUpdation,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.StoreAvatarChange,		Role.Moderator|Role.Publisher, 					ApprovalRequirement.AnyModerator),
@@ -70,20 +71,20 @@ public class StoreCreation : FairOperation
 						new (FairOperationClass.ReviewEdit,				Role.User, 										ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.ReviewStatusChange,		Role.Moderator, 								ApprovalRequirement.AnyModerator)];
 
-		s.PerpetualSurveys = s.Policies.Select(i =>	{
- 														var z = new PerpetualSurvey();
+		s.Surveys = s.Policies.Select(i =>	{
+ 												var z = new Survey();
  
-														z.LastWin = -1;
- 														z.Options = Enum.GetValues<ApprovalRequirement>()	.Where(i => i != ApprovalRequirement.None)
-																											.Select(a => new SurveyOption(	new StoreApprovalPolicyChange
-																																			{
-																																				Operation = i.OperationClass, 
-																																				//Creators = Store.Restrictions.First(j => j.OperationClass == i.OperationClass).Creators,
-																																				Approval = a
-																																			}))
-																											.ToArray();
-														return z;
-													}).ToArray();
+												z.Id		= new AutoId(execution.IncrementMetaInt(FairMetaEntityType.SurveyIdCounter));
+												z.LastWin	= (sbyte)SpecialChoice.Neither;
+ 												z.Options	= Enum.GetValues<ApprovalRequirement>()	.Where(i => i != ApprovalRequirement.None)
+																									.Select(a => new SurveyOption(	new StoreApprovalPolicyChange
+																																	{
+																																		Operation = i.OperationClass, 
+																																		Approval = a
+																																	}))
+																									.ToImmutableList();
+												return z;
+											}).ToImmutableList();
 
 
 		User.ModeratedStores = User.ModeratedStores.Add(s.Id);

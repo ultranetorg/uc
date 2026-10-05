@@ -28,11 +28,11 @@ public class PerpetualSurveysService
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		return ToPerpetualSurveys(store.PerpetualSurveys, store.Publishers.Length);
+		return ToPerpetualSurveys(store.Surveys, store.Publishers.Length);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	IEnumerable<PerpetualSurveyModel> ToPerpetualSurveys(PerpetualSurvey[] surveys, int storePublishersCount)
+	IEnumerable<PerpetualSurveyModel> ToPerpetualSurveys(IEnumerable<Survey> surveys, int storePublishersCount)
 	{
 		int id = 0;
 		return surveys.Select(x => ToPerpetualSurvey<PerpetualSurveyModel, SurveyOptionModel>(storePublishersCount, id++, x));
@@ -54,12 +54,12 @@ public class PerpetualSurveysService
 		{
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
-		if (surveyIndex >= store.PerpetualSurveys.Length)
+		if (surveyIndex >= store.Surveys.Count)
 		{
 			throw new EntityNotFoundException(nameof(EntityNames.PerpetualSurveyName).ToLower(), surveyIndex);
 		}
 
-		PerpetualSurvey survey = store.PerpetualSurveys[surveyIndex];
+		Survey survey = store.Surveys[surveyIndex];
 		return ToPerpetualSurvey<PerpetualSurveyDetailsModel, SurveyOptionDetailsModel>(store.Publishers.Length, surveyIndex, survey, (model, option) =>
 		{
 			model.YesVotes = option.Yes;
@@ -67,7 +67,7 @@ public class PerpetualSurveysService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	TSurvey ToPerpetualSurvey<TSurvey, TOption>(int storePublishersCount, int id, PerpetualSurvey survey, Action<TOption, SurveyOption>? mapOption = null)
+	TSurvey ToPerpetualSurvey<TSurvey, TOption>(int storePublishersCount, int id, Survey survey, Action<TOption, SurveyOption>? mapOption = null)
 		where TOption : SurveyOptionModel, new()
 		where TSurvey : BasePerpetualSurveyModel<TOption>, new()
 	{
@@ -111,16 +111,14 @@ public class PerpetualSurveysService
 		AutoId entityId = AutoId.Parse(storeId);
 
 		Store store = mcv.Stores.Latest(entityId);
+		
 		if(store == null)
-		{
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
-		}
-		if(surveyIndex >= store.PerpetualSurveys.Length)
-		{
+		
+		if(surveyIndex >= store.Surveys.Count)
 			throw new EntityNotFoundException(nameof(EntityNames.PerpetualSurveyName).ToLower(), surveyIndex);
-		}
 
-		PerpetualSurvey survey = store.PerpetualSurveys[surveyIndex];
+		Survey survey = store.Surveys[surveyIndex];
 		if(survey.Comments == null)
 			return TotalItemsResult<ProposalCommentModel>.Empty;
 

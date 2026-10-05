@@ -101,7 +101,7 @@ public class Execution : ITableExecution
 			return a;
 
 		if(Parent != null)
-			Parent.AffectedMetas.TryGetValue(id, out a);
+			return Parent.AffectMeta(id);
 		else if(!Round.AffectedMetas.TryGetValue(id, out a))
 			a = Mcv.Metas.Find(id);
 		

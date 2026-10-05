@@ -1,5 +1,7 @@
+using System.Collections.Immutable;
 using Uccs;
-using Uccs.Fair;
+
+namespace Uccs.Fair;
 
 public class SurveyOption : IBinarySerializable
 {
@@ -29,25 +31,27 @@ public class SurveyOption : IBinarySerializable
 	}
 }
 
-public class PerpetualSurvey : IBinarySerializable
+public class Survey : IBinarySerializable
 {
-	public SurveyOption[]		Options { get; set; }
-	public sbyte				LastWin { get; set; }
-	public AutoId[]				Comments;
+	public AutoId						Id { get; set; }
+	public ImmutableList<SurveyOption>	Options { get; set; }
+	public sbyte						LastWin { get; set; }
+	public AutoId[]						Comments;
 	
-	public sbyte				FindIndex(ApprovalRequirement policy) => (sbyte)Array.FindIndex(Options, i => i.Operation is StoreApprovalPolicyChange o && o.Approval == policy);
+	public sbyte						FindIndex(ApprovalRequirement policy) => (sbyte)Options.FindIndex(i => i.Operation is StoreApprovalPolicyChange o && o.Approval == policy);
 
-	public PerpetualSurvey()
+	public Survey()
 	{
 	}
 
-	public PerpetualSurvey Clone()
+	public Survey Clone()
 	{
-		var a = new PerpetualSurvey()
+		var a = new Survey()
 				{	
-					LastWin			= LastWin,
-					Options			= Options,
-					Comments		= Comments
+					Id			= Id,
+					LastWin		= LastWin,
+					Options		= Options,
+					Comments	= Comments
 				};
 
 		return a;
@@ -65,13 +69,15 @@ public class PerpetualSurvey : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
+		Id				= reader.Read<AutoId>();
 		LastWin			= reader.ReadSByte();
-		Options			= reader.ReadArray<SurveyOption>();
+		Options			= reader.ReadImmutableList<SurveyOption>();
 		Comments		= reader.ReadArray<AutoId>();
 	}
 
 	public void Write(Writer writer)
 	{
+		writer.Write(Id);
 		writer.Write(LastWin);
 		writer.Write(Options);
 		writer.Write(Comments);
@@ -81,52 +87,3 @@ public class PerpetualSurvey : IBinarySerializable
 	{
 	}
 }
-
-//public class Survey : IBinarySerializable
-//{
-//	public SurveyOption		Options { get; set; }
-//		
-//	public PerpetualSurvey()
-//	{
-//	}
-//
-//	public PerpetualSurvey Clone()
-//	{
-//		var a = new PerpetualSurvey()
-//				{	
-//					LastWin			= LastWin,
-//					Options			= Options,
-//					Comments		= Comments
-//				};
-//
-//		return a;
-//	}
-//
-//	public void ReadMain(Reader reader)
-//	{
-//		Read(reader);
-//	}
-//
-//	public void WriteMain(Writer writer)
-//	{
-//		Write(writer);
-//	}
-//
-//	public void Read(Reader reader)
-//	{
-//		LastWin			= reader.ReadSByte();
-//		Options			= reader.ReadArray<SurveyOption>();
-//		Comments		= reader.ReadArray<AutoId>();
-//	}
-//
-//	public void Write(Writer writer)
-//	{
-//		writer.Write(LastWin);
-//		writer.Write(Options);
-//		writer.Write(Comments);
-//	}
-//
-//	public void Cleanup(Round lastInCommit)
-//	{
-//	}
-//}

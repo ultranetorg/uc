@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class StoreModeratorRemoval : VotableOperation
+public class StoreModeratorRemoval : StoreOperation
 {
 	public AutoId				Moderator { get; set; }
 
@@ -16,28 +16,6 @@ public class StoreModeratorRemoval : VotableOperation
 	{
 		writer.Write(Moderator);
 	}
-
-	public override bool Overlaps(VotableOperation other)
-	{
-		var o = other as StoreModeratorRemoval;
-		
-		if(o.Moderator == Moderator)
-			return true;
-				
-		return false;
-	}
-
- 	public override bool ValidateProposal(FairExecution execution, out string error)
- 	{
-		if(!Store.Moderators.Any(m => m.User == Moderator))
-		{
-			error = NotFound;
-			return false;
-		}
-	
-		error = null;
-		return true;
- 	}
 
 	public override void Execute(FairExecution execution)
 	{

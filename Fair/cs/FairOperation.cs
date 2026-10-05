@@ -44,7 +44,7 @@ public enum FairOperationClass : uint
 		Proposal						= 103_001_000,
 			ProposalCreation			= 103_001_001,
 			ProposalVoting				= 103_001_002,
-			PerpetualVoting				= 103_001_003,
+			SurveyVoting				= 103_001_003,
 
 		Category						= 103_002_000,
 			CategoryCreation			= 103_002_001,

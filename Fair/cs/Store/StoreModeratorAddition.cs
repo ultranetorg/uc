@@ -5,7 +5,7 @@ public class StoreModeratorAddition : VotableOperation
 	public AutoId[]				Candidates { get; set; }
 
 	public override bool		IsValid(McvNet net) => Candidates.Length > 0 && Candidates.Length <= 10;
-	public override string		Explanation => $"Store={Store}, Additions={Candidates.Length}";
+	public override string		Explanation => $"Store={Store}, Candidates={Candidates.Length}";
 	
 	public override void Read(Reader reader)
 	{
@@ -51,5 +51,16 @@ public class StoreModeratorAddition : VotableOperation
  		var s = Store;
  
  		s.Moderators = [..s.Moderators, ..Candidates.Select(i => new Moderator {User = i})];
+
+		s.Surveys = s.Surveys.AddRange(Candidates.Select(i =>	{
+ 																	var z = new Survey();
+																
+																	z.Id	  = new AutoId(execution.IncrementMetaInt(FairMetaEntityType.SurveyIdCounter));
+																	z.LastWin = (sbyte)SpecialChoice.Neither;
+ 																	z.Options = [new SurveyOption(new StoreModeratorRemoval {Moderator = i})];
+
+																	return z;
+																}));
+
 	}
 }

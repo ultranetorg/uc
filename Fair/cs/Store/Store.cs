@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Uccs.Fair;
 
 public enum ApprovalRequirement : byte
@@ -146,7 +148,7 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 	public Moderator[]					Moderators { get; set; }
 	public AutoId[]						Categories { get; set; }
 	public AutoId[]						Proposals { get; set; }
-	public PerpetualSurvey[]			PerpetualSurveys { get; set; }
+	public ImmutableList<Survey>		Surveys { get; set; }
 	public AutoId[]						UnpublishedPublications { get; set; }
 	public AutoId[]						ChangedPublications { get; set; }
 	public AutoId[]						Files { get; set; }
@@ -167,8 +169,8 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 
 	public static readonly Restiction[]	Restrictions;
 
-	public PerpetualSurvey				FindPerpetualSurvey(FairOperationClass operation) => PerpetualSurveys.FirstOrDefault(i => i.Options[0].Operation is StoreApprovalPolicyChange o && o.Operation == operation);
-	public sbyte						FindPerpetualSurveyIndex(FairOperationClass operation) => (sbyte)Array.FindIndex(PerpetualSurveys, i => i.Options[0].Operation is StoreApprovalPolicyChange o && o.Operation == operation);
+	public Survey						FindApprovalPolicyChangeSurvey(FairOperationClass operation) => Surveys.Find(i => i.Options[0].Operation is StoreApprovalPolicyChange o && o.Operation == operation);
+//	public sbyte						FindSurveyIndex(FairOperationClass operation) => (sbyte)Surveys.FindIndex(i => i.Options[0].Operation is StoreApprovalPolicyChange o && o.Operation == operation);
 
 	static Store()
 	{
@@ -246,7 +248,7 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 					Publishers				= Publishers,
 					Moderators				= Moderators,
 					Categories				= Categories,
-					PerpetualSurveys		= PerpetualSurveys,
+					Surveys		= Surveys,
 					Proposals				= Proposals,
 					UnpublishedPublications	= UnpublishedPublications,
 					ChangedPublications		= ChangedPublications,
@@ -303,7 +305,7 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 		Moderators					= reader.ReadArray<Moderator>();
 		Categories					= reader.ReadArray<AutoId>();
 		Proposals					= reader.ReadArray<AutoId>();
-		PerpetualSurveys			= reader.ReadArray<PerpetualSurvey>();
+		Surveys						= reader.ReadImmutableList<Survey>();
 		UnpublishedPublications		= reader.ReadArray<AutoId>();
 		ChangedPublications			= reader.ReadArray<AutoId>();
 		Files						= reader.ReadArray<AutoId>();
@@ -336,7 +338,7 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 		writer.Write(Moderators);
 		writer.Write(Categories);
 		writer.Write(Proposals);
-		writer.Write(PerpetualSurveys);
+		writer.Write(Surveys);
 		writer.Write(UnpublishedPublications);
 		writer.Write(ChangedPublications);
 		writer.Write(Files);

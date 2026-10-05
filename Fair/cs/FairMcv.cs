@@ -15,6 +15,7 @@ public enum FairMetaEntityType : uint
 	ProposalCommentsIdCounter,
 	NameIdCounter,
 	FileIdCounter,
+	SurveyIdCounter,
 
 	AuthorsCount,
 	ProductsCount,

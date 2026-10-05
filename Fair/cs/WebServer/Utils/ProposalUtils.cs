@@ -17,7 +17,7 @@ public static class ProposalUtils
 
 	public static bool IsUserUnregistrationOperation(Proposal proposal) => proposal.Options[0].Operation is UserUnregistration;
 
-	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is StoreModeratorAddition or StoreModeratorRemoval;
+	public static bool IsModeratorOperation(Proposal proposal) => proposal.Options[0].Operation is StoreModeratorAddition;
 
 	public static bool IsPublisherOperation(Proposal proposal) => proposal.Options[0].Operation is StoreAuthorsRemoval;
 
