@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocalStorage } from "usehooks-ts"
 import { isNumber } from "lodash"
@@ -9,13 +9,14 @@ import { useGetCategoryDetails, useGetCategoryPublications } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { MessageBox, Pagination } from "ui/components"
 import { PublicationsGrid, PublicationsList, ViewType } from "ui/components/specific"
-import { parseInteger } from "utils"
+import { findCategoryById, parseInteger } from "utils"
 
 import { CategoryHeader } from "./CategoryHeader"
+import { ChildCategoriesList } from "./ChildCategoriesList"
 
 export const CategoryPage = () => {
   const { categoryId } = useParams()
-  const { store } = useStoreContext()
+  const { store, categoriesTree } = useStoreContext()
   const storeId = useResolveStoreId()
   const { t } = useTranslation("category")
 
@@ -33,6 +34,11 @@ export const CategoryPage = () => {
   const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, state.page)
 
   useStoreTitle(store?.title, category?.title ? `Category - ${category?.title}` : undefined)
+
+  const childCategories = useMemo(
+    () => (category?.id && categoriesTree ? findCategoryById(categoriesTree, category.id)?.children : undefined),
+    [categoriesTree, category?.id],
+  )
 
   const pagesCount =
     publications?.totalItems && publications.totalItems > 0
@@ -75,10 +81,11 @@ export const CategoryPage = () => {
         ) : (
           <PublicationsList publications={publications.items} />
         )
+      ) : childCategories?.length ? (
+        <ChildCategoriesList categories={childCategories} />
       ) : (
         <MessageBox className="p-6" message={t("empty")} />
       )}
-
       <div className="flex justify-end">
         <Pagination onPageChange={handlePageChange} page={state.page} pagesCount={pagesCount} />
       </div>

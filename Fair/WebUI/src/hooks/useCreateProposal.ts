@@ -1,5 +1,6 @@
 import { useCallback } from "react"
 
+import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId } from "hooks"
 import { BaseVotableOperation, OperationCreator, ProposalCreation, ProposalOption } from "types"
@@ -13,6 +14,7 @@ export const useCreateProposal = (
 ) => {
   const storeId = useResolveStoreId()
   const { mutate, isPending } = useTransactMutationWithStatus()
+  const { invalidateProposal } = useInvalidation()
 
   const execute = useCallback(() => {
     if (!creator) return undefined
@@ -26,11 +28,14 @@ export const useCreateProposal = (
     const proposal = new ProposalCreation(storeId!, creator.id, creator.role, "", options, "")
 
     mutate(proposal, {
-      onSuccess,
+      onSuccess: () => {
+        invalidateProposal({ storeId: storeId! })
+        onSuccess()
+      },
       onError,
       onSettled,
     })
-  }, [creator, mutate, onError, onSettled, onSuccess, operation, storeId])
+  }, [creator, invalidateProposal, mutate, onError, onSettled, onSuccess, operation, storeId])
 
   return { execute, isExecuting: isPending }
 }

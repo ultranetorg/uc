@@ -1,3 +1,5 @@
+import { last } from "lodash"
+
 import { CategoryBase, CategoryParentBase, CategoryParentBaseWithChildren, ProductType } from "types"
 
 export type CategoryTreeItem = {
@@ -30,6 +32,11 @@ const findCategoryPath = (
 
   return undefined
 }
+
+export const findCategoryById = (
+  categories: CategoryParentBaseWithChildren[],
+  categoryId: string,
+): CategoryParentBaseWithChildren | undefined => last(findCategoryPath(categories, categoryId))
 
 // A category without children has nothing to expand into, so the tree stays expanded down to its
 // closest ancestor that has children, keeping that ancestor's subcategories visible.

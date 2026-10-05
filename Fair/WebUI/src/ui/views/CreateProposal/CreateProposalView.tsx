@@ -37,7 +37,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const location = useLocation()
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
-  const { invalidateOperation } = useInvalidation()
+  const { invalidateOperation, invalidateProposal } = useInvalidation()
   const { t } = useTranslation("createProposal")
 
   const { isModerator, isPublisher } = useStoreRolesContext()
@@ -70,6 +70,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     const operation = new ProposalCreation(storeId!, by, role, data.title, options, data.description)
     mutate(operation, {
       onSuccess: () => {
+        invalidateProposal({ storeId: storeId! })
         if (!isRequiredVoting) {
           invalidateOperation(data.type, { storeId: storeId!, userName: user?.name })
         }

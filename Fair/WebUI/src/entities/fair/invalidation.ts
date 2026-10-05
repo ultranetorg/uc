@@ -5,6 +5,7 @@ import { OperationType } from "types"
 
 import { categoriesKeys } from "./categories"
 import { perpetualSurveysKeys } from "./perpetualSurveys"
+import { proposalCommentsKeys } from "./proposalComments"
 import { proposalsKeys } from "./proposals"
 import { publicationsKeys } from "./publications"
 import { storesKeys } from "./stores"
@@ -15,6 +16,7 @@ export type InvalidationContext = {
   storeId: string
   publicationId?: string
   userName?: string
+  proposalId?: string
 }
 
 type InvalidationRule = (ctx: InvalidationContext) => QueryKey[]
@@ -87,6 +89,12 @@ const policyChangeRule: InvalidationRule = ({ storeId }) => [
   perpetualSurveysKeys.all(storeId),
 ]
 
+// Любое изменение предложения (создание, голосование, комментарий): список, детали и комментарии.
+const proposalRule: InvalidationRule = ({ storeId, proposalId }) => [
+  proposalsKeys.proposals(storeId),
+  ...(proposalId ? [proposalCommentsKeys.all(storeId, proposalId)] : []),
+]
+
 export const useInvalidation = () => {
   const queryClient = useQueryClient()
 
@@ -107,5 +115,10 @@ export const useInvalidation = () => {
     [invalidateKeys],
   )
 
-  return { invalidateOperation, invalidatePolicyChange }
+  const invalidateProposal = useCallback(
+    (ctx: InvalidationContext) => invalidateKeys(proposalRule(ctx)),
+    [invalidateKeys],
+  )
+
+  return { invalidateOperation, invalidatePolicyChange, invalidateProposal }
 }

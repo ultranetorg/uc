@@ -20,7 +20,7 @@ export const AccountButton = memo(
   forwardRef<HTMLDivElement, AccountButtonProps>(({ name, avatarVersion, ...rest }, ref) => (
     <PanelButton
       iconBefore={
-        <div className="size-10 shrink-0 overflow-hidden rounded-sm">
+        <div className="size-10 shrink-0 overflow-hidden rounded-full">
           <ImageFallback
             src={`${buildUserAvatarByNameUrl(name)}?v=${avatarVersion ?? 0}`}
             fallbackSrc={avatarFallback3xl}
