@@ -9,7 +9,7 @@ namespace Uccs.Rdn;
 
 public enum UrnNid : uint
 {
-	None, Hcid
+	None, Blake3
 }
 
 public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITextSerialisable
@@ -45,7 +45,7 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
 
 		var a = Enum.Parse<UrnNid>(n.AsSpan(0, i),  true)	switch
 															{
-																UrnNid.Hcid => new Hcid() as Urn,
+																UrnNid.Blake3 => new Blake3rn() as Urn,
 																//UrrScheme.Urrsd => new Urrsd(),
 																_ => throw new FormatException()
 															};
@@ -84,7 +84,7 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
 	{
 		var a = reader.Read<UrnNid>()	switch
 										{
-											UrnNid.Hcid => new Hcid() as Urn,
+											UrnNid.Blake3 => new Blake3rn() as Urn,
 											//UrrScheme.Urrsd => new Urrsd(),
 											_ => throw new FormatException()
 										};
@@ -112,25 +112,25 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
  	}
 }
  
-public class Hcid : Urn /// Rdn Resource Release Hash
+public class Blake3rn : Urn /// Rdn Resource Release Hash
 {
-	public override UrnNid	Nid => UrnNid.Hcid; 
-
-	public Hcid()
-	{
-	}
-
-	public Hcid(byte[] hash)
-	{
-		Hash = hash;
-	}
+	public override UrnNid	Nid => UrnNid.Blake3; 
 
 	public byte[]			Hash { get; set; }
  	public override byte[]	MemberOrderKey => Hash;
  		
 	public override int		GetHashCode() => BitConverter.ToInt32(Hash);
- 	public override bool	Equals(object obj) => Equals(obj as Hcid);
-	public override bool	Equals(Urn o) => o is Hcid a && Hash.SequenceEqual(a.Hash);
+ 	public override bool	Equals(object obj) => Equals(obj as Blake3rn);
+	public override bool	Equals(Urn o) => o is Blake3rn a && Bytes.Equal(Hash, a.Hash);
+
+	public Blake3rn()
+	{
+	}
+
+	public Blake3rn(byte[] hash)
+	{
+		Hash = hash;
+	}
 
 	public override string ToString()
 	{
@@ -184,7 +184,7 @@ public class ReleaseAddressCreator
 	{
 		return Type	switch
 					{
-						UrnNid.Hcid => new Hcid {Hash = hash},
+						UrnNid.Blake3 => new Blake3rn {Hash = hash},
 						///UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.Find(Owner).Key, Resource, hash),
 						_ => throw new ResourceException(ResourceError.UnknownAddressType)
 					};

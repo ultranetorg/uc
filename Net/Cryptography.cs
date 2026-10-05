@@ -1,11 +1,7 @@
 ﻿using System.Buffers;
-//using System.Security.Cryptography;
 using System.Text;
-using Blake2Fast;
-using Blake2Fast.Implementation;
+using Blake3;
 using NSec.Cryptography;
-
-//using Konscious.Security.Cryptography;
 using Org.BouncyCastle.Security;
 
 namespace Uccs.Net;
@@ -82,19 +78,26 @@ public abstract class Cryptography
 		return NSec.Cryptography.Blake2b.Blake2b_256.Hash(data);
 	}
 
-	public static byte[] Hash(Span<byte> data)
+	public static byte[] Hash(ReadOnlySpan<byte> data)
 	{
-		return Blake2Fast.Blake2b.ComputeHash(32, data);
+		var h = new byte[32];
+		Blake3.Hasher.Hash(data, h);
+
+		return h;
+		//		return Blake2Fast.Blake2b.ComputeHash(32, data);
 	}
 
 	public static byte[] Hash(int length, byte[] data)
 	{
-		return Blake2Fast.Blake2b.ComputeHash(length, data);
+		var h = new byte[length];
+		Blake3.Hasher.Hash(data, h);
+
+		return h;
 	}
 
 	public static byte[] Hash(byte[] a, byte[] b)
 	{
-		return Blake2Fast.Blake2b.ComputeHash(32, [..a, ..b]);
+		return Hash([..a, ..b]);
 	}
 	
 	public static byte[] Hash(Action<BinaryWriter> write)
@@ -218,13 +221,13 @@ public class IccpCryptography : McvCryptography
 
 public class Blake2Stream : Stream
 {
-	private IncrementalHash		State;
-	public byte[]				Hash => _Hash ??= IncrementalHash.Finalize(ref State);
+	private Blake3Stream		State;
+	public byte[]				Hash => _Hash ??= [..State.ComputeHash().AsSpan()];
 	private byte[]				_Hash;
 
 	public Blake2Stream()
-	{
-		IncrementalHash.Initialize(NSec.Cryptography.Blake2b.Blake2b_256, out State);
+	{	
+		State = new Blake3Stream(new MemoryStream());
 	}
 
 	public override void Write(byte[] buffer, int offset, int count)
@@ -234,7 +237,7 @@ public class Blake2Stream : Stream
 
 		if(count > 0)
 		{
-			IncrementalHash.Update(ref State, buffer.AsSpan(offset, count));
+			State.Write(buffer.AsSpan(offset, count));
 		}
 	}
 
@@ -245,7 +248,7 @@ public class Blake2Stream : Stream
 
 		if(!buffer.IsEmpty)
 		{
-			IncrementalHash.Update(ref State, buffer);
+			State.Write(buffer);
 		}
 	}
 

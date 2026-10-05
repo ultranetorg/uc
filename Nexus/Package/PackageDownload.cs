@@ -80,7 +80,7 @@ public class PackageDownload
 										Seeker = new SeedSeeker(node, Package.Manifest.Urn, flow);
 
 
-										node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Manifest.Urn as Hcid).Hash), Seeker, flow);
+										node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Manifest.Urn as Blake3rn).Hash), Seeker, flow);
 
 										string file;
 

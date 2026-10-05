@@ -238,7 +238,7 @@ public class Release
 		var ms = new MemoryStream();
 		index.Save(new XonBinaryWriter(ms));
 
-		Address = new Hcid(Hub.Net.Cryptography.HashFile(ms.ToArray()));
+		Address = new Blake3rn(Hub.Net.Cryptography.HashFile(ms.ToArray()));
 
 		foreach(var i in files)
 		{

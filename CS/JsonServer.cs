@@ -3,11 +3,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Web;
-using Blake2Fast;
 
 namespace Uccs;
 
@@ -16,7 +14,7 @@ public abstract class Apc
 	public const string		CredentialsKeyword = "credentials";
 	public const string		Postfix = "Apc";
 	public static string	NameOf(Type type) => type.Name.Remove(type.Name.LastIndexOf(Postfix));
-	public static byte[]	HashifyAdminPassword(string password) => Blake2b.ComputeHash(32, Encoding.UTF8.GetBytes(password));
+	public static byte[]	HashifyAdminPassword(string password) => [..Blake3.Hasher.Hash(Encoding.UTF8.GetBytes(password)).AsSpan()];
 
 	public int				Timeout {get; set;} = System.Threading.Timeout.Infinite;
 	public int				Limit { get; set; }

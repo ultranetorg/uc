@@ -70,9 +70,9 @@ public static class AddressTests
 	[Fact]
 	public static void Release()
 	{
-		var a = new Hcid {Hash = RandomBytes(32) };
-		var ac = new Hcid{Hash = a.Hash.ToArray() };
-		var b = new Hcid {Hash = RandomBytes(32) };
+		var a = new Blake3rn {Hash = RandomBytes(32) };
+		var ac = new Blake3rn{Hash = a.Hash.ToArray() };
+		var b = new Blake3rn {Hash = RandomBytes(32) };
 		 
 		//var x = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = RandomBytes(65) };
 		//var xc = new Urrsd { Resource = Ura.Parse($"{Ura.Scheme}:/a/p"), Signature = x.Signature.ToArray() };

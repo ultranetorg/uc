@@ -6,7 +6,7 @@ public class ResourceCreation : RdnOperation
 	public ResourceChanges		Changes { get; set; }
 	public ResourceData			Data { get; set; }
 
-	public override bool		IsValid(McvNet net) =>	!string.IsNullOrWhiteSpace(Address.Resource) && Address.Resource.Length > 0 &&
+	public override bool		IsValid(McvNet net) =>	Resource.IsNameValid(Address.Resource) &&
 														(!Changes.HasFlag(ResourceChanges.SetData) || Data.Value.Length <= ResourceData.LengthMax) &&
 														(Changes == ResourceChanges.None || (Changes.HasFlag(ResourceChanges.SetData) || Changes.HasFlag(ResourceChanges.Dependable)));
 	

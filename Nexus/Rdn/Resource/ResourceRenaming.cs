@@ -7,23 +7,22 @@ public class ResourceRenaming : RdnOperation
 
 	public override string		Explanation => $"{nameof(Resource)}={Resource}, {nameof(NewName)}={NewName}";
 	
-	public override bool		IsValid(McvNet net) => true;
+	public override bool		IsValid(McvNet net) => Uccs.Rdn.Resource.IsNameValid(NewName);
 
 	public ResourceRenaming()
 	{
 	}
 
-
 	public override void Read(Reader reader)
 	{
 		Resource = reader.Read<AutoId>();
-		NewName = reader.ReadASCII();
+		NewName = reader.ReadUtf8();
 	}
 
 	public override void Write(Writer writer)
 	{
 		writer.Write(Resource);
-		writer.WriteASCII(NewName);
+		writer.WriteUtf8(NewName);
 	}
 
 	public override void Execute(RdnExecution execution)
