@@ -5,7 +5,7 @@ import { isNumber, startCase } from "lodash"
 
 import { useStoreContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetModeratorDiscussions } from "entities"
+import { useGetProposals } from "entities"
 import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
@@ -32,7 +32,7 @@ export const ProposalsPage = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: discussions } = useGetModeratorDiscussions(storeId, page, DEFAULT_PAGE_SIZE_20, state.query)
+  const { data: discussions } = useGetProposals(storeId, page, DEFAULT_PAGE_SIZE_20, state.query)
   const pagesCount =
     discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 

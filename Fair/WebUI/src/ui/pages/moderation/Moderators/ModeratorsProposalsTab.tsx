@@ -51,7 +51,7 @@ export const ModeratorsProposalsTab = () => {
   )
 
   const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("store-authors-removal", store, policies),
+    () => calculateVotesRequiredToWinProposal("store-moderator-removal", store, policies),
     [policies, store],
   )
 

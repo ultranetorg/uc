@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 
 import { useOperationPolicy, useSignInContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
-import { useGetModeratorDiscussionComments, useInvalidation } from "entities"
+import { useGetProposalComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
@@ -45,7 +45,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const storeId = useResolveStoreId()
   const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
   const navigate = useNavigate()
-  const { invalidateOperation } = useInvalidation()
+  const { invalidateOperation, invalidateProposal } = useInvalidation()
   const { mutate } = useTransactMutationWithStatus()
   const { t } = useTranslation("proposalView")
 
@@ -59,11 +59,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const [voteAction, setVoteAction] = useState<VoteAction | undefined>()
   const [commentSubmitting, setCommentSubmitting] = useState(false)
 
-  const {
-    isFetching: isCommentsFetching,
-    data: comments,
-    refetch: refetchComments,
-  } = useGetModeratorDiscussionComments(storeId, proposal?.id)
+  const { isFetching: isCommentsFetching, data: comments } = useGetProposalComments(storeId, proposal?.id)
 
   const NestedContent = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
   const isPublicationMode = !!NestedContent
@@ -105,6 +101,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           setVoteStatus("voted")
 
           invalidateOperation(proposal!.operation, { storeId: storeId! })
+          invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
 
           navigate(previousPath ?? routes.moderation.proposals(storeId!))
         },
@@ -115,7 +112,19 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         onSettled: () => setVotedValue(undefined),
       })
     },
-    [isReferendum, approval, proposal, mutate, startSignIn, t, invalidateOperation, navigate, previousPath, storeId],
+    [
+      isReferendum,
+      approval,
+      proposal,
+      mutate,
+      startSignIn,
+      t,
+      invalidateOperation,
+      invalidateProposal,
+      navigate,
+      previousPath,
+      storeId,
+    ],
   )
 
   const vote = useCallback(
@@ -126,6 +135,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:publicationVoted"), "success")
+          invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
           navigate(routes.moderation.publications(storeId!, "proposals"))
         },
         onError: err => {
@@ -135,7 +145,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         },
       })
     },
-    [mutate, navigate, proposal, storeId, t, approval],
+    [mutate, navigate, proposal, storeId, t, approval, invalidateProposal],
   )
 
   const handleApprove = useCallback(() => vote("approve"), [vote])
@@ -148,7 +158,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       const operation = new ProposalCommentCreation(proposal!.id, approval!.id, comment)
       mutate(operation, {
         onSuccess: () => {
-          refetchComments()
+          invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
           showToast(t("toast:commentAdded"), "success")
         },
         onError: err => showToast(err.toString(), "error"),
@@ -158,7 +168,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         },
       })
     },
-    [isPublicationMode, mutate, proposal, refetchComments, t, approval],
+    [isPublicationMode, mutate, proposal, invalidateProposal, storeId, t, approval],
   )
 
   useEffect(() => {

@@ -42,7 +42,7 @@ export const ProfilePanel = memo(
               <SvgX className="cursor-pointer stroke-gray-300 hover:stroke-white" onClick={onClose} />
             </div>
             <div className="flex w-full flex-col items-center gap-4 p-2">
-              <div className="size-[90px] overflow-hidden rounded" title={selectedUserName}>
+              <div className="size-[90px] overflow-hidden rounded-full" title={selectedUserName}>
                 <ImageFallback
                   src={`${buildUserAvatarByNameUrl(selectedUserName!)}?v=${userSwitcherProps.avatarVersion ?? 0}`}
                   fallbackSrc={avatarFallback}

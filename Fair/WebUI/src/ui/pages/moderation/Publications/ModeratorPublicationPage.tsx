@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { useStoreContext } from "app"
-import { useGetModeratorDiscussion } from "entities"
+import { useGetProposalDetails } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
@@ -12,7 +12,7 @@ export const ModeratorPublicationPage = () => {
   const { store } = useStoreContext()
   const { t } = useTranslation()
 
-  const { isFetching, data: proposal } = useGetModeratorDiscussion(storeId, proposalId)
+  const { isFetching, data: proposal } = useGetProposalDetails(storeId, proposalId)
 
   useStoreTitle(store?.title, proposal?.title ? `Publication - ${proposal?.title}` : "Publication")
 
