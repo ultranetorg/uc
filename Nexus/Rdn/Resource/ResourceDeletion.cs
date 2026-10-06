@@ -26,7 +26,7 @@ public class ResourceDeletion : RdnOperation
 		if(RequireResourceAccess(execution, Resource, out var d, out var r) == false)
 			return;
 
-		if(r.IsLocked(execution))
+		if(r.Flags.HasFlag(ResourceFlags.Locked))
 		{
 			Error = Locked;
 			return;

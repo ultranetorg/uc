@@ -73,7 +73,7 @@ public class ResourceUpdation : RdnOperation
 
 			if(Changes.HasFlag(ResourceChanges.SetData))
 			{
-				if(r.IsLocked(execution))
+				if(r.Flags.HasFlag(ResourceFlags.Locked))
 				{
 					Error = Locked;
 					return;
@@ -92,7 +92,7 @@ public class ResourceUpdation : RdnOperation
 			}
 			else if(Changes.HasFlag(ResourceChanges.NullData))
 			{
-				if(r.IsLocked(execution))
+				if(r.Flags.HasFlag(ResourceFlags.Locked))
 				{
 					Error = Locked;
 					return;

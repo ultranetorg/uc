@@ -11,7 +11,7 @@ public enum Availability : byte
 	Partial				= 0b_____100,
 	Complete			= 0b____1000,
 	CompletePartial		= 0b___10000,
-	Incremental			= 0b__100000,
+	Delta			= 0b__100000,
 	IncrementalPartial	= 0b_1000000,
 }
 

@@ -43,7 +43,7 @@ public class ResourceLinkDeletion : RdnOperation
 
 		var l = sr.Outbounds[Index];
 
-		if(l.Type.HasFlag(ResourceLinkType.Dependency) && sr.IsLocked(execution)) /// a resource with dependent ones cant change its own dependencies
+		if(l.Type.HasFlag(ResourceLinkType.Dependency) && sr.Flags.HasFlag(ResourceFlags.Locked)) /// a resource with dependent ones cant change its own dependencies
 		{
 			Error = Locked;
 			return;
@@ -59,7 +59,14 @@ public class ResourceLinkDeletion : RdnOperation
 		execution.Free(User, sd, execution.Net.EntityLength);
 
 		if(l.Type.HasFlag(ResourceLinkType.Dependency) && dr.Flags.HasFlag(ResourceFlags.Dependable))
+		{	
 			execution.Free(User, sd, dr.DataLength);
+
+			if(dr.HasDependables(execution))
+			{
+				dr.Flags &= ~ResourceFlags.Locked;
+			}
+		}
 
 		execution.PayOperationEnergy(User);
 	}

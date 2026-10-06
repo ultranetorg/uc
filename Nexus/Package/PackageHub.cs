@@ -65,7 +65,7 @@ public class PackageHub
 		lock(Node.ResourceHub.Lock)
 		{
 			if(	p.Release.Availability.HasFlag(Availability.Complete) || 
-				p.Release.Availability.HasFlag(Availability.Incremental) && p.Manifest.Parents.Any(i => IsAvailable(i.Id)))
+				p.Release.Availability.HasFlag(Availability.Delta) && p.Manifest.Parents.Any(i => IsAvailable(i.Id)))
 			{
 				return p.Manifest.CriticalDependencies.All(i => IsAvailable(i.Id));
 			}
@@ -414,7 +414,7 @@ public class PackageHub
 
 			var r = Node.ResourceHub.Add(x);
 
-			r.Complete(Availability.Complete|(delta != null ? Availability.Incremental : 0));
+			r.Complete(Availability.Complete|(delta != null ? Availability.Delta : 0));
 
 			manifest.Urn = r.Address;
 
@@ -489,7 +489,7 @@ public class PackageHub
 
 																	break;
 																}
-																else if(p.Release.Availability.HasFlag(Availability.Incremental))
+																else if(p.Release.Availability.HasFlag(Availability.Delta))
 																{	
 																	if(p.Activity == null)
 																		p.Activity = d;

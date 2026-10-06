@@ -30,7 +30,7 @@ public class ResourceRenaming : RdnOperation
 		if(!RequireResourceAccess(execution, Resource, out var d, out var r))
 			return;
 
-		if(r.IsLocked(execution))
+		if(r.Flags.HasFlag(ResourceFlags.Locked))
 		{
 			Error = Locked;
 			return;

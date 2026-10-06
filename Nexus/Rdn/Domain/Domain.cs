@@ -6,7 +6,6 @@ public enum DomainFlag : byte
 {
 	None, 
 	Free		= 0b_______1, 
-	//ChildNet	= 0b__100000, 
 }
 
 public enum OwnershipPolicy : byte

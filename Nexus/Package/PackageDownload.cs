@@ -118,7 +118,7 @@ public class PackageDownload
 												a |= Availability.Complete;
 
 											if(Package.Release.IsReady(Package.DeltaFile))
-												a |= Availability.Incremental;
+												a |= Availability.Delta;
 										}
 
 										lock(hub.Lock)

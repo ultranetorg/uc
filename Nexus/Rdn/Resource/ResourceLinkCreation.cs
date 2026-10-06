@@ -52,7 +52,7 @@ public class ResourceLinkCreation : RdnOperation
 
 		if(Type.HasFlag(ResourceLinkType.Dependency))
 		{
-			if(s.IsLocked(execution)) 
+			if(s.Flags.HasFlag(ResourceFlags.Locked)) 
 			{
 				Error = Locked;
 				return;
@@ -67,7 +67,10 @@ public class ResourceLinkCreation : RdnOperation
 			l.Type = Type;
 
 			if(d.Flags.HasFlag(ResourceFlags.Dependable))
+			{	
+				d.Flags |= ResourceFlags.Locked;
 				execution.Allocate(User, sd, d.DataLength);
+			}
 
 			///var n = 0;
 			///
