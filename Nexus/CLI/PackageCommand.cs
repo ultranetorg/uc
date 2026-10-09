@@ -28,7 +28,8 @@ public class PackageCommand : NexusCommand
 		const string source			= nameof(source);
 		const string manifest		= nameof(manifest);
 		const string instruction	= nameof(instruction);
-		const string cdl			= nameof(cdl);
+		const string publish		= nameof(publish);
+		const string link			= nameof(link);
 		const string depandable		= nameof(depandable);
 
 		a.Description = "Builds and deploys a package to a node file base for distribution via RDN";
@@ -38,7 +39,8 @@ public class PackageCommand : NexusCommand
 							new (previous,			RdnCommand.RZA,	"Release address of parent package against which incremental package is build", ArgumentFlag.Optional),
 							new (manifest,			FILEPATH,		"Path to the version manifest file where complete dependencies are defined", ArgumentFlag.Optional),
 							new (instruction,		FILEPATH,		"Path to the instruction file", ArgumentFlag.Optional),
-							new (cdl,				null,			$"Creates dependency links in {Rdn.Rdn.Any.Title} database", ArgumentFlag.Optional),
+							new (publish,			null,			$"Creates corresponding resource in {Rdn.Rdn.Any.Title} database", ArgumentFlag.Optional),
+							new (link,				null,			$"Creates dependency links in {Rdn.Rdn.Any.Title} database", ArgumentFlag.Optional),
 							new (depandable,		null,			$"Marks created resource as dependable", ArgumentFlag.Optional),
 						];
 
@@ -63,7 +65,7 @@ public class PackageCommand : NexusCommand
 															Sources			= Args.Where(i => i.Name == source).Select(i => i.Get<string>()), 
 															Manifest		= m,
 															Instruction		= i,
-															Previous		= Has(cdl) ? Rapi.Ppc(new ResourceByAddressPpc(GetResourceAddress(previous)), Flow).Resource.Id : null, 
+															Previous		= Has(link) ? Rapi.Ppc(new ResourceByAddressPpc(GetResourceAddress(previous)), Flow).Resource.Id : null,
 															AddressCreator	=	new()
 																				{
 																					Type = UrnNid.Blake3,
@@ -75,12 +77,12 @@ public class PackageCommand : NexusCommand
 
 								List<Operation> ops = [];
 
-								if(Has(AddressKeyword))
+								if(Has(publish))
 								{
 									ops.Add(new ResourceCreation(Address, new ResourceData(Meaning.Package_Software_VersionManifest, p.Manifest), Has(depandable)));
 								}
 
-								if(Has(cdl))
+								if(Has(link))
 								{
 									var id = Has(AddressKeyword) ? AutoId.LastCreated 
 																 : Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
