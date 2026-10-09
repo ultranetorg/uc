@@ -27,6 +27,30 @@ public class PackageApe
 }
 
 
+public class PackageUpdateApc :  Apc, INexusApc
+{
+	public Ura		Address { get; set; }
+	public AutoId	Id { get; set; }
+
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(nexus.PackageHub.Lock)
+		{
+			var p = nexus.PackageHub.Find(Address);
+			
+			if(p != null)
+			{
+				p.Id = Id;
+				nexus.PackageHub.Save(p);
+			}
+			else
+				throw new PackageException(PackageError.NotFound, null);
+		}
+
+		return null;
+	}
+}
+
 //public class PackageAddApc : Apc, INexusApc 
 //{
 //	//public AutoId					Resource { get; set; }
@@ -68,8 +92,9 @@ public class PackageApe
 //	}
 //}
 
-public class PackageBuildApc : Apc, INexusApc
+public class PackageCreateApc : Apc, INexusApc
 {
+	public Ura						Address { get; set; }
 	public IEnumerable<string>		Sources { get; set; }
 	public string					Manifest { get; set; }
 	public string					Instruction { get; set; }
@@ -85,12 +110,13 @@ public class PackageBuildApc : Apc, INexusApc
 		{	
 			try
 			{
-				return new PackageApe(nexus.PackageHub.BuildRelease(Sources, 
-																	Manifest == null ? new PackageManifest() : PackageManifest.FromXon(new Xon(Manifest)), 
-																	Instruction == null ? null : PackageInstruction.FromXon(new Xon(Instruction)), 
-																	Previous, 
-																	AddressCreator, 
-																	flow));
+				return new PackageApe(nexus.PackageHub.Create(	Address,
+																Sources, 
+																Manifest == null ? new PackageManifest() : PackageManifest.FromXon(new Xon(Manifest)), 
+																Instruction == null ? null : PackageInstruction.FromXon(new Xon(Instruction)), 
+																Previous, 
+																AddressCreator, 
+																flow));
 			}
 			catch(IOException ex)
 			{

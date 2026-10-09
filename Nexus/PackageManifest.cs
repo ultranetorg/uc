@@ -213,11 +213,13 @@ public class PackageManifest : IBinarySerializable
 
 	public void Save(string filepath)
 	{
-		ToXon(new NetXonTextValueSerializator()).Save(filepath);
+		ToXon().Save(filepath);
 	}
 
-	public Xon ToXon(IXonValueSerializator serializator)
+	public Xon ToXon(IXonValueSerializator serializator = null)
 	{
+		serializator ??= new XonTextValueSerializator();
+
 		var x = new Xon(serializator);
 
 		x.Add(nameof(Urn)).Value = Urn?.ToString();
@@ -242,7 +244,7 @@ public class PackageManifest : IBinarySerializable
 		return m;
 	}
 
-	public void FillIds(Func<Ura, AutoId> getid)
+	public void TranslateAddressToId(Func<Ura, AutoId> getid)
 	{
 		foreach(var c in CompleteDependencies)
 		{

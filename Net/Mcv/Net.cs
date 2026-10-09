@@ -92,16 +92,6 @@ public abstract class Net
 		return address;
 	}
 
-	public static string Escape(string path)
-	{
-		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path.ToString(), (c1, c2) => c1.Replace(c2.ToString(), $" {(short)c2} "));
-	}
-
-	public static string Unescape(string path)
-	{
-		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
-	}
-
 	public static bool Equal(string x, string y)
 	{
 		if(x == null || x == string.Empty)

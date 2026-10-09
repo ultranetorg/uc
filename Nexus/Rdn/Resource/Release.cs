@@ -188,8 +188,6 @@ public class Release
 	bool							Loaded;
 	ResourceHub						Hub;
 
-	public System.Diagnostics.StackTrace		__StackTrace;
-
 	public List<ReleaseFile> Files
 	{
 		get
@@ -238,7 +236,7 @@ public class Release
 		var ms = new MemoryStream();
 		index.Save(new XonBinaryWriter(ms));
 
-		Address = new Blake3rn(Hub.Net.Cryptography.HashFile(ms.ToArray()));
+		Address = new Blake3Urn(Hub.Net.Cryptography.HashFile(ms.ToArray()));
 
 		foreach(var i in files)
 		{

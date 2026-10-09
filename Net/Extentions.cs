@@ -4,6 +4,16 @@ namespace Uccs.Net;
 
 public static class Extentions
 {
+	public static string EscapeFilePath(this string path)
+	{
+		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path, (c1, c2) => c1.Replace(c2.ToString(), $" {(short)c2} "));
+	}
+
+	public static string UnescapeFilePath(this string path)
+	{
+		return new char[] {' '}.Concat(Path.GetInvalidFileNameChars()).Aggregate(path, (c1, c2) => c1.Replace($" {(short)c2} ", c2.ToString()));
+	}
+
 	public static bool IsSet(this long x, Role bit)
 	{
 		return (x & (long)bit) != 0;

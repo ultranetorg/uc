@@ -54,7 +54,7 @@ public class ResourceCommand : RdnCommand
 															Api(new ReleaseUpdateApc
 																{
 																	Address = urn,
-																	Resource= r.Id,
+																	Id= r.Id,
 																});
 														}
 													};
@@ -137,7 +137,7 @@ public class ResourceCommand : RdnCommand
 																Api(new ReleaseUpdateApc
 																	{
 																		Address = urn,
-																		Resource= r.Id,
+																		Id= r.Id,
 																	});
 															}
 														}

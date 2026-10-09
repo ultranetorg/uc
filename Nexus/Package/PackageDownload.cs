@@ -80,7 +80,7 @@ public class PackageDownload
 										Seeker = new SeedSeeker(node, Package.Manifest.Urn, flow);
 
 
-										node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Manifest.Urn as Blake3rn).Hash), Seeker, flow);
+										node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Manifest.Urn as Blake3Urn).Hash), Seeker, flow);
 
 										string file;
 
@@ -114,10 +114,10 @@ public class PackageDownload
 
 										lock(node.ResourceHub.Lock)
 										{
-											if(Package.Release.IsReady(Package.CompleteFile))
+											if(Package.Release.IsReady(Package.Complete))
 												a |= Availability.Complete;
 
-											if(Package.Release.IsReady(Package.DeltaFile))
+											if(Package.Release.IsReady(Package.Delta))
 												a |= Availability.Delta;
 										}
 
