@@ -24,7 +24,6 @@ public class PackageCommand : NexusCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		const string previous		= nameof(previous);
 		const string source			= nameof(source);
 		const string manifest		= nameof(manifest);
 		const string instruction	= nameof(instruction);
@@ -36,7 +35,6 @@ public class PackageCommand : NexusCommand
 		a.Arguments =	[
 							new (AddressKeyword,	PA,				$"Creates corresponding resource in {Rdn.Rdn.Any.Title} database"),
 							new (source,			PATH,			"File or directory paths of the content to be packaged", ArgumentFlag.Multi),
-							new (previous,			RdnCommand.RZA,	"Release address of parent package against which incremental package is build", ArgumentFlag.Optional),
 							new (manifest,			FILEPATH,		"Path to the version manifest file where complete dependencies are defined", ArgumentFlag.Optional),
 							new (instruction,		FILEPATH,		"Path to the instruction file", ArgumentFlag.Optional),
 							new (publish,			null,			$"Creates corresponding resource in {Rdn.Rdn.Any.Title} database", ArgumentFlag.Optional),
@@ -45,36 +43,42 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Examples =	() =>	[
-									new (null, @$"{Keyword} {a.Name} {previous}={Urn.Parse(RdnCommand.RZA.Example)} {source}={FILEPATH.Example} {source}={DIRPATH.Example} {manifest}={DIRPATH.Example1}\{AprvAddress.Parse(PA.Example).Version}.{PackageManifest.Extension} {instruction}={DIRPATH.Example1}\{AprvAddress.Parse(PA.Example).Version}.{PackageInstruction.Extension}")
+									new (null, @$"{Keyword} {a.Name} {source}={FILEPATH.Example} {source}={DIRPATH.Example} {manifest}={DIRPATH.Example1}\{AprvAddress.Parse(PA.Example).Version}.{PackageManifest.Extension} {instruction}={DIRPATH.Example1}\{AprvAddress.Parse(PA.Example).Version}.{PackageInstruction.Extension}")
 								];
 
 		a.Execute = () =>	{
-								var m = Has(manifest) ? File.ReadAllText(GetString(manifest)) : null;
-								var i = Has(instruction) ? File.ReadAllText(GetString(instruction)) : null;
+								var mt = Has(manifest) ? File.ReadAllText(GetString(manifest)) : null;
+								var it = Has(instruction) ? File.ReadAllText(GetString(instruction)) : null;
 
-								if(m != null)
+								PackageManifest m = null;
+
+								if(mt != null)
 								{
-									var x = PackageManifest.Parse(m);
-									x.TranslateAddressToId(a => Rapi.Ppc(new ResourceByAddressPpc(a), Flow).Resource.Id);
-									m = x.ToXon().ToString();
+									m = PackageManifest.Parse(mt);
+									m.TranslateAddressToId(a => { 
+																	var r = Rapi.Ppc(new ResourceByAddressPpc(a), Flow).Resource;
+
+																	Report($"Resource address resolved {a} -> {r.Id}");
+
+																	return r.Id;
+																});
+									mt = m.ToXon().ToString();
+									m = PackageManifest.Parse(mt);
 								}
 
 								var p = Api<PackageApe>(new PackageCreateApc   
 														{
 															Address			= Address,
 															Sources			= Args.Where(i => i.Name == source).Select(i => i.Get<string>()), 
-															Manifest		= m,
-															Instruction		= i,
-															Previous		= Has(link) ? Rapi.Ppc(new ResourceByAddressPpc(GetResourceAddress(previous)), Flow).Resource.Id : null,
-															AddressCreator	=	new()
-																				{
-																					Type = UrnNid.Blake3,
-																					///Owner = GetAccountAddress("owner", null),
-																					Resource = Address
-																				}
+															Manifest		= mt,
+															Instruction		= it,
+															Previous		= m?.Parents.FirstOrDefault()?.Id,
+															AddressCreator	= new (UrnNid.Blake3)
 														});
+								
+								Report($"Release created");
 								Flow.Log.Dump(p);
-
+								
 								List<Operation> ops = [];
 
 								if(Has(publish))
@@ -84,9 +88,12 @@ public class PackageCommand : NexusCommand
 
 								if(Has(link))
 								{
-									var id = Has(AddressKeyword) ? AutoId.LastCreated 
-																 : Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
+									var id = Has(publish) ? AutoId.LastCreated 
+														  : Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
 	
+									if(m?.Parents.FirstOrDefault() != null)
+										ops.Add(new ResourceLinkCreation(id, m?.Parents.First().Id, ResourceLinkType.Dependency));
+
 									ops.AddRange(p.Manifest.CompleteDependencies.Select(i => new ResourceLinkCreation(id, i.Id, ResourceLinkType.Dependency)));
 								}
 								
@@ -96,18 +103,31 @@ public class PackageCommand : NexusCommand
 
 									var r = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource;
 
-									Api(new PackageUpdateApc
-										{
-											Address = Address,
-											Id = r.Id,
-										});
+									if(Has(publish))
+									{
+										Report($"Published under the resource with Id={r.Id}");
 
-									Rapi.Send(	new ReleaseUpdateApc
-												{
-													Address = p.Manifest.Urn,
-													Id= r.Id,
-												}, 
-												Flow);
+										Api(new PackageUpdateApc
+											{
+												Address = Address,
+												Id = r.Id,
+											});
+
+										Report($"Resource Id assigned to package");
+
+										Rapi.Send(	new ReleaseUpdateApc
+													{
+														Address = p.Manifest.Urn,
+														Id= r.Id,
+													}, 
+													Flow);
+
+										Report($"Id assigned to release");
+									}
+
+									if(Has(link))
+										foreach(var j in r.Outbounds)
+											Report($"Dependency link created to {Rapi.Ppc(new ResourceByIdPpc(j.Destination), Flow).Address}");
 								}
 
 								return p;

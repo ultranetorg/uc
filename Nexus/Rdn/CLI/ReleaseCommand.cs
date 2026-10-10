@@ -27,14 +27,10 @@ public class ReleaseCommand : RdnCommand
 								var a = Api<LocalReleaseApe>(new LocalReleaseBuildApc
 															 {	
 																Sources = Args.Where(i => i.Name == "source").Select(i => i.Get<string>()),
-																AddressCreator = new()	{	
-																							Type = GetEnum("addresstype", UrnNid.Blake3),
-																							//Owner = GetAccountAddress("owner", false),
-																							//Resource = Ura.Parse(Args[0].Name)
-																						}
+																AddressCreator = new(GetEnum("addresstype", UrnNid.Blake3))
 															 });
 
-								Report($"Address   : {a.Address}");
+								Report($"Address : {a.Address}");
 
 								return a;
 							};

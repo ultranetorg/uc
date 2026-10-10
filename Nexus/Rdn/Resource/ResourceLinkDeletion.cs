@@ -62,7 +62,7 @@ public class ResourceLinkDeletion : RdnOperation
 		{	
 			execution.Free(User, sd, dr.DataLength);
 
-			if(dr.HasDependables(execution))
+			if(!dr.HasDependables(execution))
 			{
 				dr.Flags &= ~ResourceFlags.Locked;
 			}

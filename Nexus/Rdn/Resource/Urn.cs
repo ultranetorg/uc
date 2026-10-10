@@ -176,9 +176,14 @@ public class UrrJsonConverter : JsonConverter<Urn>
 
 public class ReleaseAddressCreator
 {
-	public UrnNid		Type { get; set; }
+	public UrnNid			Type { get; set; }
 	public PublicKey		Owner { get; set; }
 	public Ura				Resource { get; set; }
+
+	public ReleaseAddressCreator(UrnNid type)
+	{
+		Type = type;
+	}
 
 	public Urn Create(VaultApiClient vault, byte[] hash)
 	{

@@ -10,8 +10,6 @@ public class CachedResource : IBinarySerializable
 	public ResourceData			Data { get; set; }
 	public DateTime				Updated;
 
-	ResourceHub					Hub;
-
 	public CachedResource()
 	{
 	}

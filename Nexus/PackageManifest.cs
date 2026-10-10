@@ -112,8 +112,8 @@ public class ParentPackage : IBinarySerializable
 	public AutoId				Id { get; set; }
 	public Ura					Address { get; set; }
 	public ParentPackageFlag	Flags { get; set; }
-	public Dependency[]			AddedDependencies { get; set; }
-	public Dependency[]			RemovedDependencies { get; set; }
+	public Dependency[]			AddedDependencies { get; set; } = [];
+	public Dependency[]			RemovedDependencies { get; set; } = [];
 
 	public void Write(Writer w)
 	{
@@ -138,8 +138,8 @@ public class ParentPackage : IBinarySerializable
 		d.Address				= Ura.Parse(xon.Name);
 		d.Id					= xon.Parse(v => AutoId.Parse(v));
 		d.Flags					= xon.GetEnum<ParentPackageFlag>("Flags", ParentPackageFlag.None);
-		d.AddedDependencies		= xon.One("Add").Nodes.Select(Dependency.FromXon).ToArray();
-		d.RemovedDependencies	= xon.One("Remove").Nodes.Select(Dependency.FromXon).ToArray();
+		d.AddedDependencies		= [..xon.One("Add")?.Nodes.Select(Dependency.FromXon) ?? []];
+		d.RemovedDependencies	= [..xon.One("Remove")?.Nodes.Select(Dependency.FromXon) ?? []];
 
 		return d;
 	}
@@ -151,8 +151,12 @@ public class ParentPackage : IBinarySerializable
 		x.Name = Address.ToString();
 		x.Value = Id?.ToString();
 		x.Add("Flags").Value = Flags;
-		x.Add("Add").Nodes.AddRange(AddedDependencies.Select(i => i.ToXon(serializator)));
-		x.Add("Remove").Nodes.AddRange(RemovedDependencies.Select(i => i.ToXon(serializator)));
+
+		if(AddedDependencies.Any())
+			x.Add("Add").Nodes.AddRange(AddedDependencies.Select(i => i.ToXon(serializator)));
+
+		if(RemovedDependencies.Any())
+			x.Add("Remove").Nodes.AddRange(RemovedDependencies.Select(i => i.ToXon(serializator)));
 
 		return x;
 	}
