@@ -10,13 +10,12 @@ public class Package
 	public const string		Patches = ".patches";
 	public const string		Renamings = ".renamings"; /// TODO Maximion
 
-	//public Ura				Address;
 	public AutoId			Id;
 	public Ura				Address;
 	public PackageManifest	Manifest;
+	public Release			Release => Hub.Node.ResourceHub.Find(Manifest.Urn);
 	public PackageHub		Hub;
 	public object			Activity;
-	public Release			Release => Hub.Node.ResourceHub.Find(Manifest.Urn);
 	
 	PackageInstruction		_Instruction;
 
