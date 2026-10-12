@@ -69,7 +69,7 @@ public class PackageInstruction : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Start					= reader.ReadArray<Start>();
+		Start = reader.ReadArray<Start>();
 	}
 
 	public Start MatchExecution(Family family)
@@ -83,11 +83,6 @@ public class PackageInstruction : IBinarySerializable
 		return FromXon(new Xon(text));
 	}
 
-	public static PackageInstruction Load(string filepath)
-	{
-		return FromXon(new Xon(File.ReadAllText(filepath, Encoding.UTF8)));
-	}
-
 	public void Save(string filepath)
 	{
 		ToXon(new NetXonTextValueSerializator()).Save(filepath);
@@ -97,7 +92,7 @@ public class PackageInstruction : IBinarySerializable
 	{
 		var m = new PackageInstruction();
 
-		m.Start					= xon.Many(nameof(Start)).Select(Uccs.Nexus.Start.FromXon).ToArray();
+		m.Start = xon.Many(nameof(Start)).Select(Uccs.Nexus.Start.FromXon).ToArray();
 
 		return m;
 	}

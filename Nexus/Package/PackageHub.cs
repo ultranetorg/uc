@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Collections.Generic;
+using System.IO.Compression;
 using System.Text;
 using RocksDbSharp;
 using Uccs.Rdn;
@@ -244,7 +245,7 @@ public class PackageHub
 			deps.RemoveAll(i => !manifest.CompleteDependencies.Contains(i));
 				
 			dependencies = deps;
-			file = Package.Delta; /// we have all incremental packages since last complete one
+			file = from.Id.ToString(); /// we have all incremental packages since last complete one
 		}
 		else
 		{
@@ -253,10 +254,9 @@ public class PackageHub
 		}
 	}
 
-	public Package Create(Ura address, IEnumerable<string> sources, PackageManifest manifest, PackageInstruction instruction, AutoId previous, ReleaseAddressCreator addresscreator, Flow flow)
+	public Package Create(Ura address, IEnumerable<string> sources, PackageManifest manifest, PackageInstruction instruction, ReleaseAddressCreator addresscreator, Flow flow)
 	{
 		byte[] completed;
-		byte[] delta = null;
 
 		var files = new Dictionary<string, string>();
 
@@ -288,15 +288,27 @@ public class PackageHub
 			}
 		}
 
-		var ms = new MemoryStream();
-		Build(ms, files, [], [], flow);
-		completed = ms.ToArray();
+		var cs = new MemoryStream();
+		Build(cs, files, [], [], flow);
+		completed = cs.ToArray();
 
-		if(previous != null)
+		if(manifest.Parents.Length > 1)
+			throw new PackageException(PackageError.NotSupported, "A single parent supported only");
+
+		var x = new Dictionary<object, string>();
+
+		foreach(var i in manifest.Parents) /// a single parent supported only
 		{
-			ms = new MemoryStream();
-			BuildIncremental(ms, Find(previous).Release, files, flow);
-			delta = ms.ToArray();
+			var parent = Find(i.Address);
+
+			var ds = new MemoryStream();
+
+			BuildIncremental(ds, parent.Release, files, flow);
+
+			i.AddedDependencies		= manifest.CompleteDependencies.Where(i => !parent.Manifest.CompleteDependencies.Contains(i)).ToArray();
+			i.RemovedDependencies	= parent.Manifest.CompleteDependencies.Where(i => !manifest.CompleteDependencies.Contains(i)).ToArray();
+
+			x[ds.ToArray()] = parent.Id.ToString();
 		}
 		
 	 	var p = new Package(this);
@@ -305,36 +317,17 @@ public class PackageHub
 		p.Manifest = manifest;
 	 	
 	 	Packages.Add(p);
+
+		x[completed] = Package.Complete;
+
+		if(instruction != null)
+			x[(instruction as IBinarySerializable).ToRaw()] = PackageInstruction.Extension;
 					
  		lock(Node.ResourceHub.Lock)
  		{
-			if(previous != null) /// a single parent supported only
-			{
-				var vm = Find(previous).Manifest;
-			
-				var d = new ParentPackage
-						{
-							Id					= previous,
-							AddedDependencies	= manifest.CompleteDependencies.Where(i => !vm.CompleteDependencies.Contains(i)).ToArray(),
-							RemovedDependencies	= vm.CompleteDependencies.Where(i => !manifest.CompleteDependencies.Contains(i)).ToArray() 
-						};
-				
-				manifest.Parents = [d];
-			}
-
-			var x = new Dictionary<object, string>();
- 			
-			x[completed] = Package.Complete;
-
-			if(delta != null)
-				x[delta] = Package.Delta;
-
-			if(instruction != null)
-				x[(instruction as IBinarySerializable).ToRaw()] = PackageInstruction.Extension;
-
 			var r = Node.ResourceHub.Add(x);
 
-			r.Complete(Availability.Complete|(delta != null ? Availability.Delta : 0));
+			r.Complete(Availability.Complete|(manifest.Parents.Any() ? Availability.Delta : 0));
 
 			manifest.Urn = r.Address;
 
@@ -392,7 +385,7 @@ public class PackageHub
 																	if(p.Activity == null)
 																		p.Activity = d;
 																	else
-																		throw new ResourceException(ResourceError.Busy);
+																		throw new PackageException(PackageError.Busy);
 				
 																	m.Complete = p;
 
@@ -403,14 +396,14 @@ public class PackageHub
 																	if(p.Activity == null)
 																		p.Activity = d;
 																	else
-																		throw new ResourceException(ResourceError.Busy);
+																		throw new PackageException(PackageError.Busy);
 
 																	var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Id));
 
 																	if(pp == null)
-																		throw new ResourceException(ResourceError.ParentPackagesNotFound);
+																		throw new PackageException(PackageError.ParentPackagesNotFound);
 
-																	m.Incrementals.Insert(0, new (p, pp));
+																	m.Deltas.Insert(0, new (p, pp));
 
 																	p = Find(pp.Id);
 																}
@@ -425,7 +418,7 @@ public class PackageHub
 															foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
 																deps.Add(j.Id);
 
-															foreach(var i in m.Incrementals.AsEnumerable().Reverse())
+															foreach(var i in m.Deltas.AsEnumerable().Reverse())
 															{
 																foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
 																	deps.Add(j.Id);
@@ -443,50 +436,48 @@ public class PackageHub
 			Task.Run(() =>	{ 
 								foreach(var s in d.Merges.AsEnumerable().Reverse())
 								{
-									using(var fs = new FileStream(s.Complete.Release.Find(Package.Complete).DataPath, FileMode.Open))
+									using var cfs = new FileStream(s.Complete.Release.Find(Package.Complete).DataPath, FileMode.Open);
+									using var ca = new ZipArchive(cfs, ZipArchiveMode.Read);
+									
+									var deplpath = AddressToDeployment(packagespath, s.Target.Id); 
+
+									foreach(var e in ca.Entries) /// extract from complete
 									{
-										using(var a = new ZipArchive(fs, ZipArchiveMode.Read))
+										var f = Path.Join(deplpath, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+								
+										Directory.CreateDirectory(Path.GetDirectoryName(f));
+										e.ExtractToFile(f, true);
+									}
+
+									var prev = s.Complete;
+
+									foreach(var i in s.Deltas)
+									{
+										using var ifs = new FileStream(i.Key.Release.Find(prev.Id.ToString()).DataPath, FileMode.Open);
+										using var z = new ZipArchive(ifs, ZipArchiveMode.Read);
+											
+										foreach(var e in z.Entries)
 										{
-											foreach(var e in a.Entries)
+											if(e.Name != Package.Removals)
 											{
-												var f = Path.Join(AddressToDeployment(packagespath, s.Target.Id), e.FullName.Replace('/', Path.DirectorySeparatorChar));
+												var f = Path.Join(deplpath, e.FullName.Replace('/', Path.DirectorySeparatorChar));
 								
 												Directory.CreateDirectory(Path.GetDirectoryName(f));
 												e.ExtractToFile(f, true);
-											}
-										}
-									}
-
-									foreach(var i in s.Incrementals)
-									{
-										using(var fs = new FileStream(i.Key.Release.Find(Package.Delta).DataPath, FileMode.Open))
-										{
-											using(var z = new ZipArchive(fs, ZipArchiveMode.Read))
+											} 
+											else
 											{
-												foreach(var e in z.Entries)
-												{
-													if(e.Name != Package.Removals)
-													{
-														var f = Path.Join(AddressToDeployment(packagespath, s.Target.Id), e.FullName.Replace('/', Path.DirectorySeparatorChar));
-								
-														Directory.CreateDirectory(Path.GetDirectoryName(f));
-														e.ExtractToFile(f, true);
-													} 
-													else
-													{
-														using(var es = e.Open())
-														{
-															var sr = new StreamReader(es);
+												using var es = e.Open();
+												var sr = new StreamReader(es);
 
-															while(!sr.EndOfStream)
-															{
-																File.Delete(Path.Join(AddressToDeployment(packagespath, s.Target.Id), sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
-															}
-														}
-													}
+												while(!sr.EndOfStream)
+												{
+													File.Delete(Path.Join(deplpath, sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
 												}
 											}
 										}
+
+										prev = i.Key;
 
 										i.Key.Activity = null;
 									}
@@ -503,12 +494,12 @@ public class PackageHub
 											else
 												return;
 
-										foreach(var fs in Directory.EnumerateFiles(AddressToDeployment(packagespath, i.Id), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != PackageInstruction.Extension))
+										foreach(var j in Directory.EnumerateFiles(AddressToDeployment(packagespath, i.Id), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != PackageInstruction.Extension))
 										{
-											var fd = Path.Join(AddressToDeployment(packagespath, s.Target.Id), fs.Substring(AddressToDeployment(packagespath, i.Id).Length + 1));
+											var fd = Path.Join(AddressToDeployment(packagespath, s.Target.Id), j.Substring(AddressToDeployment(packagespath, i.Id).Length + 1));
 											Directory.CreateDirectory(Path.GetDirectoryName(fd));
 
-											File.Copy(fs, fd, true);
+											File.Copy(j, fd, true);
 										}
 										//var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									

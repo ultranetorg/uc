@@ -80,7 +80,20 @@ public class PackageDownload
 										Seeker = new SeedSeeker(node, Package.Manifest.Urn, flow);
 
 
-										node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Manifest.Urn as Blake3Urn).Hash), Seeker, flow);
+										var findex = node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Manifest.Urn as Blake3Urn).Hash), Seeker, flow);
+
+										var xindex = new Xon(findex.Read());
+
+										if(xindex.Has(PackageInstruction.Extension))
+										{
+											node.ResourceHub.GetFile(Package.Release, 
+																	 false, 
+																	 PackageInstruction.Extension, 
+																	 Path.Join(hub.AddressToReleases(Package.Manifest.Urn), PackageInstruction.Extension), 
+																	 new DHIntegrity(xindex.Get<byte[]>(PackageInstruction.Extension)), 
+																	 Seeker, 
+																	 flow);
+										}
 
 										string file;
 
@@ -117,7 +130,7 @@ public class PackageDownload
 											if(Package.Release.IsReady(Package.Complete))
 												a |= Availability.Complete;
 
-											if(Package.Release.IsReady(Package.Delta))
+											if(Package.Release.Files.Any(i => uint.TryParse(i.Path, out var _) && i.Status == ReleaseFileStatus.Completed))
 												a |= Availability.Delta;
 										}
 

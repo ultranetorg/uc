@@ -11,7 +11,7 @@ public enum Availability : byte
 	Partial				= 0b_____100,
 	Complete			= 0b____1000,
 	CompletePartial		= 0b___10000,
-	Delta			= 0b__100000,
+	Delta				= 0b__100000,
 	IncrementalPartial	= 0b_1000000,
 }
 
@@ -160,7 +160,7 @@ public class ReleaseFile : IBinarySerializable
 
 	public byte[] Read(long offset = 0, long length = -1)
 	{
-		using(Stream s = DataPath == null ? new MemoryStream(Data) : new FileStream(DataPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+		using(Stream s = IsMeta ? new MemoryStream(Data) : new FileStream(DataPath, FileMode.Open, FileAccess.Read, FileShare.Read))
 		{
 			s.Seek(offset, SeekOrigin.Begin);
 			
@@ -179,11 +179,9 @@ public class Release
 
 	public AutoId					Resource;
 	public Urn						Address;
-	public List<Declaration>		DeclaredOn = new();
-	//public string					Path => System.IO.Path.Join(Hub.ReleasesPath, ResourceHub.Escape(Address.ToString()));
+	public List<Declaration>		DeclaredOn = [];
 	public object					Activity;
 	Availability					_Availability;
-	//long							_Type;
 	List<ReleaseFile>				_Files;
 	bool							Loaded;
 	ResourceHub						Hub;
@@ -210,7 +208,6 @@ public class Release
 	{
 		Hub = hub;
 		Address = address;
-		//_Type = type;
 	}
 
 	public Release(ResourceHub hub)

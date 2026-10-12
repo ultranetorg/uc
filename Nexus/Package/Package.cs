@@ -4,7 +4,6 @@ namespace Uccs.Nexus;
 
 public class Package
 {
-	public const string		Delta = "d";
 	public const string		Complete = "c";
 	public const string		Removals = ".removals";
 	public const string		Patches = ".patches";
@@ -29,7 +28,7 @@ public class Package
 				{
 					lock(Hub.Node.ResourceHub.Lock)
 					{
-						_Instruction = PackageInstruction.Load(Release.Find(PackageInstruction.Extension).DataPath);
+						_Instruction = new Reader(File.ReadAllBytes(Release.Find(PackageInstruction.Extension).DataPath)).Read<PackageInstruction>();
 					}
 				}
 			}

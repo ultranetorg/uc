@@ -2,7 +2,7 @@
 
 public enum DnsRecordType : byte
 {
-	A, AAAA,CNAME, MX, TXT, NS, SOA, PTR, SRV, CAA
+	None, A, AAAA,CNAME, MX, TXT, NS, SOA, PTR, SRV, CAA
 }
 
 public class DnsRecord : IBinarySerializable
@@ -12,6 +12,8 @@ public class DnsRecord : IBinarySerializable
 	public DnsRecordType			Type {get; set;}
 	public string					Value {get; set;}
 	public int						TTL {get; set;}
+
+	public bool						IsValid() => Enum.IsDefined<DnsRecordType>(Type) && Value.Length <= ValueLengthMaximum && TTL > 0;
 
   	public void Write(Writer writer)
  	{

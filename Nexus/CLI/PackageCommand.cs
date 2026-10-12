@@ -33,7 +33,7 @@ public class PackageCommand : NexusCommand
 
 		a.Description = "Builds and deploys a package to a node file base for distribution via RDN";
 		a.Arguments =	[
-							new (AddressKeyword,	PA,				$"Creates corresponding resource in {Rdn.Rdn.Any.Title} database"),
+							new (AddressKeyword,	PA,				$"Package resource address"),
 							new (source,			PATH,			"File or directory paths of the content to be packaged", ArgumentFlag.Multi),
 							new (manifest,			FILEPATH,		"Path to the version manifest file where complete dependencies are defined", ArgumentFlag.Optional),
 							new (instruction,		FILEPATH,		"Path to the instruction file", ArgumentFlag.Optional),
@@ -83,7 +83,7 @@ public class PackageCommand : NexusCommand
 
 								if(Has(publish))
 								{
-									ops.Add(new ResourceCreation(Address, new ResourceData(Meaning.Package_Software_VersionManifest, p.Manifest), Has(depandable)));
+									ops.Add(new ResourceCreation(Address, new ResourceData(Meaning.Package_Software_PackageManifest, p.Manifest), Has(depandable)));
 								}
 
 								if(Has(link))

@@ -9,6 +9,9 @@ public enum PackageError : byte
 	NotFound,
 	NotSupportedReleaseAddressType,
 	MissingResource,
+	NotSupported,
+	ParentPackagesNotFound,
+	Busy,
 }
 
 public class PackageException : CodeException
@@ -20,7 +23,7 @@ public class PackageException : CodeException
 	{
 	}
 
-	public PackageException(PackageError erorr, string message) : base($"{erorr} : {message}" )
+	public PackageException(PackageError erorr, string message = null) : base(message == null ? erorr.ToString() : $"{erorr} : {message}" )
 	{
 		Error = erorr;
 	}

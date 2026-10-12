@@ -114,7 +114,6 @@ public class PackageCreateApc : Apc, INexusApc
 																Sources, 
 																Manifest == null ? new PackageManifest() : PackageManifest.FromXon(new Xon(Manifest)), 
 																Instruction == null ? null : PackageInstruction.FromXon(new Xon(Instruction)), 
-																Previous, 
 																AddressCreator, 
 																flow));
 			}

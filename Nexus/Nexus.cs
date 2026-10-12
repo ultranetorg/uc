@@ -230,7 +230,7 @@ public class Nexus : IProgram
 				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
 			}
 		}
-		else if(r.Data.Meaning == Meaning.Package_Software_VersionManifest)
+		else if(r.Data.Meaning == Meaning.Package_Software_PackageManifest)
 		{
 			aprv = ura;
 		}
