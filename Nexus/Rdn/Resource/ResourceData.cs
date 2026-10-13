@@ -93,7 +93,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 
 		urn = new Reader(Value, Rdn.Any.Constructor).ReadVirtual<Urn>();
 		
-		if(urn.Nid != UrnNid.Blake3)
+		if(urn.Nid != UrnNamespace.Blake3)
 			return false;
 
 		return true;

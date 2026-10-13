@@ -27,7 +27,7 @@ public class ReleaseCommand : RdnCommand
 								var a = Api<LocalReleaseApe>(new LocalReleaseBuildApc
 															 {	
 																Sources = Args.Where(i => i.Name == "source").Select(i => i.Get<string>()),
-																AddressCreator = new(GetEnum("addresstype", UrnNid.Blake3))
+																AddressCreator = new(GetEnum("addresstype", UrnNamespace.Blake3))
 															 });
 
 								Report($"Address : {a.Address}");

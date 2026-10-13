@@ -73,7 +73,7 @@ public class PackageCommand : NexusCommand
 															Manifest		= mt,
 															Instruction		= it,
 															Previous		= m?.Parents.FirstOrDefault()?.Id,
-															AddressCreator	= new (UrnNid.Blake3)
+															AddressCreator	= new (UrnNamespace.Blake3)
 														});
 								
 								Report($"Release created");
@@ -148,6 +148,27 @@ public class PackageCommand : NexusCommand
 								var r = Api<PackageApe>(new LocalPackageApc {Id = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id});
 				
 								Flow.Log.Dump(r);
+
+								return null;
+							};
+		return a;
+	}
+
+	public CommandAction LocalSearch_LS()
+	{
+		const string query 	= nameof(query);
+
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Searches for local packeges using the specified pattern";
+		a.Arguments =	[
+							new (query, STRING, "A text resource address contains")
+						];
+
+		a.Execute = () =>	{
+								var r = Api<PackageApe[]>(new LocalPackageSearchApc {Query = GetString(query)});
+				
+								Flow.Log.Dump(r, ["Address", "Id", "Urn"], [i => i.Address, i => i.Id, i => i.Manifest.Urn]);
 
 								return null;
 							};

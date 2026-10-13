@@ -342,6 +342,8 @@ public class PackageHub
 
 	public void StartDeploy(AutoId address, string packagespath, Flow flow)
 	{
+		packagespath ??= DeploymentPath;
+
 		lock(Lock)
 		{
 			var p = Find(address);

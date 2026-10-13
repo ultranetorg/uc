@@ -7,14 +7,14 @@ namespace Uccs.Rdn;
 /// 
 /// </summary>
 
-public enum UrnNid : uint
+public enum UrnNamespace : uint
 {
 	None, Blake3
 }
 
 public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITextSerialisable
 {
-	public abstract UrnNid				Nid { get; }
+	public abstract UrnNamespace				Nid { get; }
  	public abstract byte[]				MemberOrderKey { get; }
  	public byte[]						Raw => _Raw ??= (this as IBinarySerializable).ToRaw();
 	byte[]								_Raw;
@@ -43,9 +43,9 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
 		if(i == -1)
 			throw new FormatException();
 
-		var a = Enum.Parse<UrnNid>(n.AsSpan(0, i),  true)	switch
+		var a = Enum.Parse<UrnNamespace>(n.AsSpan(0, i),  true)	switch
 															{
-																UrnNid.Blake3 => new Blake3Urn() as Urn,
+																UrnNamespace.Blake3 => new Blake3Urn() as Urn,
 																//UrrScheme.Urrsd => new Urrsd(),
 																_ => throw new FormatException()
 															};
@@ -82,9 +82,9 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
 
 	public static Urn ReadVirtual(Reader reader)
 	{
-		var a = reader.Read<UrnNid>()	switch
+		var a = reader.Read<UrnNamespace>()	switch
 										{
-											UrnNid.Blake3 => new Blake3Urn() as Urn,
+											UrnNamespace.Blake3 => new Blake3Urn() as Urn,
 											//UrrScheme.Urrsd => new Urrsd(),
 											_ => throw new FormatException()
 										};
@@ -114,14 +114,14 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
  
 public class Blake3Urn : Urn /// Rdn Resource Release Hash
 {
-	public override UrnNid	Nid => UrnNid.Blake3; 
+	public override UrnNamespace	Nid => UrnNamespace.Blake3; 
 
-	public byte[]			Hash { get; set; }
- 	public override byte[]	MemberOrderKey => Hash;
+	public byte[]					Hash { get; set; }
+ 	public override byte[]			MemberOrderKey => Hash;
  		
-	public override int		GetHashCode() => BitConverter.ToInt32(Hash);
- 	public override bool	Equals(object obj) => Equals(obj as Blake3Urn);
-	public override bool	Equals(Urn o) => o is Blake3Urn a && Bytes.Equal(Hash, a.Hash);
+	public override int				GetHashCode() => BitConverter.ToInt32(Hash);
+ 	public override bool			Equals(object obj) => Equals(obj as Blake3Urn);
+	public override bool			Equals(Urn o) => o is Blake3Urn a && Bytes.Equal(Hash, a.Hash);
 
 	public Blake3Urn()
 	{
@@ -134,7 +134,7 @@ public class Blake3Urn : Urn /// Rdn Resource Release Hash
 
 	public override string ToString()
 	{
-		return $"urn:{Nid}:{Hash.ToHex()}";
+		return $"urn:{Nid.ToString().ToLowerInvariant()}:{Hash.ToHex()}";
 	}
 
 	public override void ParseSpecific(ReadOnlySpan<char> t)
@@ -176,11 +176,11 @@ public class UrrJsonConverter : JsonConverter<Urn>
 
 public class ReleaseAddressCreator
 {
-	public UrnNid			Type { get; set; }
+	public UrnNamespace			Type { get; set; }
 	public PublicKey		Owner { get; set; }
 	public Ura				Resource { get; set; }
 
-	public ReleaseAddressCreator(UrnNid type)
+	public ReleaseAddressCreator(UrnNamespace type)
 	{
 		Type = type;
 	}
@@ -189,7 +189,7 @@ public class ReleaseAddressCreator
 	{
 		return Type	switch
 					{
-						UrnNid.Blake3 => new Blake3Urn {Hash = hash},
+						UrnNamespace.Blake3 => new Blake3Urn {Hash = hash},
 						///UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.Find(Owner).Key, Resource, hash),
 						_ => throw new ResourceException(ResourceError.UnknownAddressType)
 					};

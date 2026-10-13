@@ -10,9 +10,11 @@ public abstract class PackageActivityProgress
 
 public class PackageApe
 {
-	public bool					Available { get; set; }
+	public Ura					Address { get; set; }
+	public AutoId				Id { get; set; }
 	public LocalReleaseApe		Release { get; set; }
 	public PackageManifest		Manifest { get; set; }
+	public bool					Available { get; set; }
 
 	public PackageApe()
 	{
@@ -20,6 +22,8 @@ public class PackageApe
 
 	public PackageApe(Package package)
 	{
+		Address		= package.Address;
+		Id			= package.Id;
 		Manifest	= package.Manifest;
 		Release		= new LocalReleaseApe(package.Release);
 		Available	= package.Hub.IsAvailable(package.Id);
@@ -190,9 +194,25 @@ public class LocalPackageApc : Apc, INexusApc
 	}
 }
 
+public class LocalPackageSearchApc : Apc, INexusApc
+{
+	public string	Query { get; set; }
+	
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		if(nexus.PackageHub == null)
+			throw new ResourceException(ResourceError.NotHub);
+
+		lock(nexus.PackageHub.Lock)
+		{
+			return nexus.PackageHub.Packages.Where(i => i.Address.ToString().Contains(Query, StringComparison.InvariantCultureIgnoreCase)).Select(i => new PackageApe(i)).ToArray();
+		}
+	}
+}
+
 public class PackageDeployApc : Apc, INexusApc
 {
-	public AutoId			Address { get; set; }
+	public AutoId		Address { get; set; }
 	public string		To { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -200,7 +220,7 @@ public class PackageDeployApc : Apc, INexusApc
 		if(nexus.PackageHub == null)
 			throw new ResourceException(ResourceError.NotHub);
 
-		nexus.PackageHub.StartDeploy(Address, To ?? nexus.PackageHub.DeploymentPath, flow);
+		nexus.PackageHub.StartDeploy(Address, To, flow);
 		return null;
 	}
 }
