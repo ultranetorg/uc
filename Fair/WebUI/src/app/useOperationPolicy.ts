@@ -41,9 +41,10 @@ export const useOperationPolicy = (operation?: OperationType): OperationPolicyRe
 
     let voter: OperationVoter | undefined
     if (
-      (isModerator && policy.approval === "any-moderator") ||
-      policy.approval === "moderators-majority" ||
-      policy.approval === "all-moderators"
+      isModerator &&
+      (policy.approval === "any-moderator" ||
+        policy.approval === "moderators-majority" ||
+        policy.approval === "all-moderators")
     )
       voter = { id: user.id, role: Role.Moderator }
     else if (isPublisher && policy.approval === "publishers-majority" && user.authorsIds && user.authorsIds.length > 0)

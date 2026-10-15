@@ -10,9 +10,8 @@ import { useResolveStoreId } from "hooks"
 import { SearchDropdown, SearchDropdownItem } from "ui/components"
 import { routes } from "utils"
 
-import { GovernanceDropdownButton } from "./GovernanceDropdownButton"
-import { ModerationDropdownButton } from "./ModerationDropdownButton"
 import { PublisherMembersDropdownButton } from "./PublisherMembersDropdownButton"
+import { StoreDropdownButton } from "./StoreDropdownButton"
 import { UserProfileButton } from "./UserProfileButton"
 
 export const StoreHeader = () => {
@@ -114,8 +113,7 @@ export const StoreHeader = () => {
         />
       </div>
       <div className="flex items-center gap-8">
-        <GovernanceDropdownButton className="w-28" />
-        <ModerationDropdownButton className="w-28" />
+        <StoreDropdownButton />
         {isPublisher && <PublisherMembersDropdownButton className="w-25" storeId={storeId} t={t} user={user!} />}
         <UserProfileButton storeId={storeId} t={t} />
       </div>

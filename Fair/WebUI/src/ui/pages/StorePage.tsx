@@ -6,10 +6,12 @@ import { useResolveStoreId, useStoreTitle } from "hooks"
 import { CategoriesPublicationsList, ModeratorStoreMenu } from "ui/components/specific"
 import { MessageBox } from "ui/components"
 
+import { ChildCategoriesList } from "./Category/ChildCategoriesList"
+
 export const StorePage = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("storePage")
-  const { isPending, store } = useStoreContext()
+  const { isPending, store, categoriesTree } = useStoreContext()
 
   useStoreTitle(store?.title ? `Store - ${store?.title}` : "Store")
 
@@ -32,6 +34,8 @@ export const StorePage = () => {
             categoriesPublications={categoriesPublications}
             seeAllLabel={t("seeAll")}
           />
+        ) : categoriesTree?.length ? (
+          <ChildCategoriesList categories={categoriesTree} />
         ) : (
           <MessageBox className="p-6" message={t("noPublications")} />
         )}

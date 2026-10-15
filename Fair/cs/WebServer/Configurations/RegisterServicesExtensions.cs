@@ -21,18 +21,19 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<AuthorsService>();
 		services.AddSingleton<CategoriesService>();
 		services.AddSingleton<FilesService>();
+		services.AddSingleton<ModeratorProposalsService>();
+		services.AddSingleton<ModeratorRecallSurveysService>();
+		services.AddSingleton<PolicySurveysService>();
+		services.AddSingleton<ProductsService>();
+		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<ProposalService>();
 		services.AddSingleton<PublicationsService>();
 		services.AddSingleton<ReviewsService>();
 		services.AddSingleton<SearchService>();
 		services.AddSingleton<StoresService>();
-		services.AddSingleton<PerpetualSurveysService>();
-		services.AddSingleton<ProductsService>();
-		services.AddSingleton<UserService>();
-		services.AddSingleton<ModeratorProposalsService>();
-		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<UnpublishedPublicationsService>();
 		services.AddSingleton<UnpublishedStoreProductsService>();
+		services.AddSingleton<UserService>();
 		services.AddSingleton<UsersService>();
 	}
 }

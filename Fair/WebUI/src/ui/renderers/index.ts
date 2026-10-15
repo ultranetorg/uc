@@ -1,6 +1,6 @@
 export * from "./changedPublicationItemRenderer"
-export * from "./perpetualSurveysItemRenderer"
 export * from "./proposalsItemRenderer"
 export * from "./publicationsItemRenderer"
+export * from "./surveysItemRenderer"
 export * from "./unpublishedPublicationsItemRenderer"
 export * from "./usersItemRenderer"

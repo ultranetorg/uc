@@ -13,7 +13,7 @@ export type ProposalViewContentProps = {
   storeId: string
   pageState?: PageState
   proposal: ProposalDetails
-  isReferendum?: boolean
+  showVoteButton?: boolean
   voteStatus?: VoteStatus
   votedValue?: number
   onVoteClick?: (value: number) => void

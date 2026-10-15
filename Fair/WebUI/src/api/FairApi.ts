@@ -8,8 +8,8 @@ import {
   File,
   Moderator,
   ModeratorProposal,
-  PerpetualSurvey,
-  PerpetualSurveyDetails,
+  Survey,
+  SurveyDetails,
   Policy,
   ProductAuthor,
   ProductDetails,
@@ -126,8 +126,8 @@ export type FairApi = {
 
   getAuthorFiles(storeId: string, authorId?: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>>
 
-  getAuthorPerpetualSurveys(storeId: string): Promise<PerpetualSurvey[]>
-  getAuthorPerpetualSurveyDetails(storeId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails>
+  getPolicySurveys(storeId: string): Promise<Survey[]>
+  getPolicySurveyDetails(storeId: string, surveyId: string): Promise<SurveyDetails>
 
   getAuthorReferendum(storeId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(

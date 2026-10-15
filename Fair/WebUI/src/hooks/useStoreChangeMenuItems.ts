@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom"
 import { useStorePoliciesContext } from "app"
 import { OperationType } from "types"
 import { SimpleMenuItem } from "ui/components"
-import { isModeratorVoting, isPublisherVoting, routes } from "utils"
+import { isModeratorCanCreate, isPublisherCanCreate, routes } from "utils"
 
 type StoreChangeOperation = {
   type: OperationType
@@ -20,13 +20,13 @@ const operations: StoreChangeOperation[] = [
 ]
 
 export type UseStoreChangeMenuItemsOptions = {
-  moderators?: boolean
-  publishers?: boolean
+  isModerator?: boolean
+  isPublisher?: boolean
 }
 
 export const useStoreChangeMenuItems = (
   storeId: string,
-  { moderators = true, publishers = true }: UseStoreChangeMenuItemsOptions = {},
+  { isModerator, isPublisher }: UseStoreChangeMenuItemsOptions = {},
 ): SimpleMenuItem[] => {
   const location = useLocation()
   const { policies } = useStorePoliciesContext()
@@ -35,7 +35,7 @@ export const useStoreChangeMenuItems = (
   return useMemo(
     () =>
       operations.flatMap(({ type, label, title }): SimpleMenuItem[] => {
-        if (moderators && isModeratorVoting(type, policies)) {
+        if (isModerator && isModeratorCanCreate(type, policies)) {
           return [
             {
               label: t(label),
@@ -52,7 +52,7 @@ export const useStoreChangeMenuItems = (
           ]
         }
 
-        if (publishers && isPublisherVoting(type, policies)) {
+        if (isPublisher && isPublisherCanCreate(type, policies)) {
           return [
             {
               label: t(label),
@@ -71,6 +71,6 @@ export const useStoreChangeMenuItems = (
 
         return []
       }),
-    [location.pathname, moderators, policies, publishers, storeId, t],
+    [location.pathname, isModerator, policies, isPublisher, storeId, t],
   )
 }

@@ -33,8 +33,8 @@ export const routes = {
   author: (authorId: string) => `/${addPrefix("authorId", authorId)}`,
 
   governance: {
-    surveys: (storeId: string) => `${storePath(storeId)}/surveys`,
-    survey: (storeId: string, surveyId: string) => `${storePath(storeId)}/surveys/${surveyId}`,
+    policySurveys: (storeId: string) => `${storePath(storeId)}/policy-surveys`,
+    policySurveyDetails: (storeId: string, surveyId: string) => `${storePath(storeId)}/policy-surveys/${surveyId}`,
 
     createReferendum: (storeId: string) => `${storePath(storeId)}/referendums/new`,
     referendums: (storeId: string) => `${storePath(storeId)}/referendums`,

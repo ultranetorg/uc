@@ -44,6 +44,8 @@ export type ProposalViewProps = {
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
   const storeId = useResolveStoreId()
   const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
+  const { voterId } = useOperationPolicy(proposal?.operation)
+
   const navigate = useNavigate()
   const { invalidateOperation, invalidateProposal } = useInvalidation()
   const { mutate } = useTransactMutationWithStatus()
@@ -243,7 +245,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
               t={t}
               storeId={storeId!}
               proposal={proposal}
-              isReferendum={isReferendum}
+              showVoteButton={!!approval && voteStatus !== "voted" && !!voterId}
               pageState={pageState}
               voteStatus={voteStatus}
               votedValue={votedValue}

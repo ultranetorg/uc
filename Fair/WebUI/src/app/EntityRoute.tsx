@@ -15,13 +15,7 @@ import {
   SearchPage,
   StorePage,
 } from "ui/pages"
-import {
-  CreateReferendumPage,
-  PerpetualSurveyPage,
-  PerpetualSurveysPage,
-  ReferendumPage,
-  ReferendumsPage,
-} from "ui/pages/governance"
+import { CreateReferendumPage } from "ui/pages/governance"
 import {
   CreateDiscussionPage,
   ModeratorChangedPublicationPage,
@@ -30,8 +24,6 @@ import {
   ModeratorPublicationPage,
   ModeratorsPage,
   PreviewPage,
-  ProposalPage,
-  ProposalsPage,
   PublicationsPage,
   PublisherProposalPage,
   PublishersPage,
@@ -39,6 +31,14 @@ import {
   UnpublishedPublicationPage,
   UsersPage,
 } from "ui/pages/moderation"
+import {
+  ProposalsPage,
+  ReferendumPage,
+  ReferendumsPage,
+  PolicySurveyPage,
+  PolicySurveysPage,
+  ProposalPage,
+} from "ui/pages/store"
 import { FullscreenPageView, CreateProposalProvider } from "ui/views"
 import { ENTITY_PREFIXES, EntityParam } from "utils"
 
@@ -130,8 +130,8 @@ export const EntityRoute = () => {
             }
           />
 
-          <Route path="surveys" element={<PerpetualSurveysPage />} />
-          <Route path="surveys/:perpetualSurveyId" element={<PerpetualSurveyPage />} />
+          <Route path="policy-surveys" element={<PolicySurveysPage />} />
+          <Route path="policy-surveys/:surveyId" element={<PolicySurveyPage />} />
           <Route path="referendums" element={<ReferendumsPage />} />
           <Route path="referendums/:referendumId" element={<ReferendumPage />} />
 
@@ -148,6 +148,7 @@ export const EntityRoute = () => {
           <Route path="publications/preview" element={<PreviewPage />} />
           <Route element={<ModerationLayout />}>
             // Proposals
+            <Route path="proposals2" element={<ProposalsPage />} />
             <Route path="proposals" element={<ProposalsPage />} />
             <Route path="proposals/:proposalId" element={<ProposalPage />} />
             // Moderators

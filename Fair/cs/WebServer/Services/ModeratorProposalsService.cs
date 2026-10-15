@@ -248,16 +248,6 @@ public class ModeratorProposalsService
 			};
 		}
 
-		// TODO Elwary
-		///if(proposal.Options[0].Operation is StoreModeratorRemoval removal)
-		///{
-		///	IEnumerable<UserModel> moderators = McvUtils.LoadUsers(mcv, [removal.Moderator], CancellationToken.None);
-		///	return new ModeratorProposalModel(proposal, by)
-		///	{
-		///		Moderators = moderators,
-		///	};
-		///}
-
 		return null;
 	}
 

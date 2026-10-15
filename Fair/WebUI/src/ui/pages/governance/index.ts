@@ -1,5 +1,1 @@
 export * from "./CreateReferendumPage"
-export * from "./PerpetualSurveyPage"
-export * from "./PerpetualSurveysPage"
-export * from "./ReferendumPage"
-export * from "./ReferendumsPage"
