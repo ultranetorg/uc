@@ -22,6 +22,7 @@ export const ModerationPublicationPage = () => {
       isFetching={isFetching}
       proposal={proposal}
       previousPath={routes.moderation.publications(storeId!, "proposals")}
+      headerProps={{ showModeratorsCount: true }}
     />
   )
 }

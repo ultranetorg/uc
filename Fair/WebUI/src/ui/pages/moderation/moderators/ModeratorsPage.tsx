@@ -64,6 +64,7 @@ export const ModeratorsPage = () => {
             )}
           </>
         }
+        showModeratorsCount={true}
       />
       <TabsProvider defaultKey={key || "moderators"}>
         <div className="flex flex-col gap-6">

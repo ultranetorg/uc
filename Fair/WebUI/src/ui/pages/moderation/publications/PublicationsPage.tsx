@@ -58,6 +58,7 @@ export const PublicationsPage = () => {
             {!!voterId && <ButtonPrimary className="w-48" label={t("searchProduct")} onClick={handleSearchProduct} />}
           </>
         }
+        showModeratorsCount={true}
       />
       <TabsProvider defaultKey={key || "proposals"}>
         <div className="flex flex-col gap-6">

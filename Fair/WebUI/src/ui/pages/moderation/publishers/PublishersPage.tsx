@@ -42,7 +42,7 @@ export const PublishersPage = () => {
 
   return (
     <>
-      <ModerationHeader title={t("title")} />
+      <ModerationHeader title={t("title")} showModeratorsCount={true} />
       <TabsProvider defaultKey={key || "publishers"}>
         <div className="flex flex-col gap-6">
           <TabsList

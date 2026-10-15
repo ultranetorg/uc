@@ -12,10 +12,11 @@ export type ModerationHeaderProps = {
   breadcrumbTitle?: string
   parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
   components?: ReactNode
+  showModeratorsCount?: boolean
 }
 
 export const ModerationHeader = memo(
-  ({ title, breadcrumbTitle, parentBreadcrumbs, components }: ModerationHeaderProps) => {
+  ({ title, breadcrumbTitle, parentBreadcrumbs, components, showModeratorsCount = false }: ModerationHeaderProps) => {
     const storeId = useResolveStoreId()
     const { store } = useStoreContext()
     const { isModerator } = useStoreRolesContext()
@@ -37,6 +38,7 @@ export const ModerationHeader = memo(
             ]}
           />
           {store &&
+            showModeratorsCount === true &&
             (!isModerator ? (
               <span className="text-2xs font-medium leading-5">
                 {store.moderatorsIds.length} {t("common:moderators", { count: store.moderatorsIds.length })}

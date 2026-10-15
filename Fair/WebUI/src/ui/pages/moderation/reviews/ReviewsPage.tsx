@@ -139,7 +139,7 @@ export const ReviewsPage = () => {
 
   return (
     <>
-      <ModerationHeader title={t("title")} />
+      <ModerationHeader title={t("title")} showModeratorsCount={true} />
       <Table
         columns={columns}
         items={reviews?.items}

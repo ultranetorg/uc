@@ -69,6 +69,7 @@ export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
             noOptionsLabel={t("noUsersFound")}
           />
         }
+        showModeratorsCount={true}
       />
       {children ?? <Outlet />}
     </>

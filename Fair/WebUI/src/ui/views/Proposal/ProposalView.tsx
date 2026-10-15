@@ -10,7 +10,7 @@ import { useResolveStoreId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
-import { ModerationHeader } from "ui/components/specific"
+import { ModerationHeader, ModerationHeaderProps } from "ui/components/specific"
 import { getVotedIndex, isVoted, routes, showToast } from "utils"
 
 import {
@@ -39,9 +39,10 @@ export type ProposalViewProps = {
   isFetching: boolean
   proposal?: ProposalDetails
   previousPath?: string
+  headerProps?: Partial<ModerationHeaderProps>
 }
 
-export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
+export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, headerProps }: ProposalViewProps) => {
   const storeId = useResolveStoreId()
   const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
   const { voterId } = useOperationPolicy(proposal?.operation)
@@ -236,6 +237,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
             </ButtonBar>
           ) : undefined
         }
+        {...headerProps}
       />
       {NestedContent && <NestedContent t={t} storeId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
       <div className="flex gap-8">
