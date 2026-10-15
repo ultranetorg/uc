@@ -15,7 +15,7 @@ public enum Meaning : ushort
 
 	Package									= 03_000,
 		Package_Software_ProductManifest	= 03_001,
-		Package_Software_VersionManifest	= 03_002,
+		Package_Software_PackageManifest	= 03_002,
 	
 	Ampp									= 04_000,
 		Ampp_Council						= 04_001,
@@ -85,7 +85,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 	public bool IsCexInvolved(out Urn urn)
 	{ 
 		if(	Meaning != Meaning.ExternalContent &&
-			Meaning != Meaning.Package_Software_VersionManifest)
+			Meaning != Meaning.Package_Software_PackageManifest)
 		{	
 			urn = null;
 			return false;
@@ -93,7 +93,7 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 
 		urn = new Reader(Value, Rdn.Any.Constructor).ReadVirtual<Urn>();
 		
-		if(urn.Nid != UrnNid.Blake3)
+		if(urn.Nid != UrnNamespace.Blake3)
 			return false;
 
 		return true;

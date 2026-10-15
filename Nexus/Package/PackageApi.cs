@@ -10,9 +10,11 @@ public abstract class PackageActivityProgress
 
 public class PackageApe
 {
-	public bool					Available { get; set; }
+	public Ura					Address { get; set; }
+	public AutoId				Id { get; set; }
 	public LocalReleaseApe		Release { get; set; }
 	public PackageManifest		Manifest { get; set; }
+	public bool					Available { get; set; }
 
 	public PackageApe()
 	{
@@ -20,12 +22,38 @@ public class PackageApe
 
 	public PackageApe(Package package)
 	{
+		Address		= package.Address;
+		Id			= package.Id;
 		Manifest	= package.Manifest;
 		Release		= new LocalReleaseApe(package.Release);
 		Available	= package.Hub.IsAvailable(package.Id);
 	}
 }
 
+
+public class PackageUpdateApc :  Apc, INexusApc
+{
+	public Ura		Address { get; set; }
+	public AutoId	Id { get; set; }
+
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+	{
+		lock(nexus.PackageHub.Lock)
+		{
+			var p = nexus.PackageHub.Find(Address);
+			
+			if(p != null)
+			{
+				p.Id = Id;
+				nexus.PackageHub.Save(p);
+			}
+			else
+				throw new PackageException(PackageError.NotFound, null);
+		}
+
+		return null;
+	}
+}
 
 //public class PackageAddApc : Apc, INexusApc 
 //{
@@ -68,8 +96,9 @@ public class PackageApe
 //	}
 //}
 
-public class PackageBuildApc : Apc, INexusApc
+public class PackageCreateApc : Apc, INexusApc
 {
+	public Ura						Address { get; set; }
 	public IEnumerable<string>		Sources { get; set; }
 	public string					Manifest { get; set; }
 	public string					Instruction { get; set; }
@@ -85,12 +114,12 @@ public class PackageBuildApc : Apc, INexusApc
 		{	
 			try
 			{
-				return new PackageApe(nexus.PackageHub.BuildRelease(Sources, 
-																	Manifest == null ? new PackageManifest() : PackageManifest.FromXon(new Xon(Manifest)), 
-																	Instruction == null ? null : PackageInstruction.FromXon(new Xon(Instruction)), 
-																	Previous, 
-																	AddressCreator, 
-																	flow));
+				return new PackageApe(nexus.PackageHub.Create(	Address,
+																Sources, 
+																Manifest == null ? new PackageManifest() : PackageManifest.FromXon(new Xon(Manifest)), 
+																Instruction == null ? null : PackageInstruction.FromXon(new Xon(Instruction)), 
+																AddressCreator, 
+																flow));
 			}
 			catch(IOException ex)
 			{
@@ -165,9 +194,25 @@ public class LocalPackageApc : Apc, INexusApc
 	}
 }
 
+public class LocalPackageSearchApc : Apc, INexusApc
+{
+	public string	Query { get; set; }
+	
+	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
+	{
+		if(nexus.PackageHub == null)
+			throw new ResourceException(ResourceError.NotHub);
+
+		lock(nexus.PackageHub.Lock)
+		{
+			return nexus.PackageHub.Packages.Where(i => i.Address.ToString().Contains(Query, StringComparison.InvariantCultureIgnoreCase)).Select(i => new PackageApe(i)).ToArray();
+		}
+	}
+}
+
 public class PackageDeployApc : Apc, INexusApc
 {
-	public AutoId			Address { get; set; }
+	public AutoId		Address { get; set; }
 	public string		To { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
@@ -175,7 +220,7 @@ public class PackageDeployApc : Apc, INexusApc
 		if(nexus.PackageHub == null)
 			throw new ResourceException(ResourceError.NotHub);
 
-		nexus.PackageHub.StartDeploy(Address, To ?? nexus.PackageHub.DeploymentPath, flow);
+		nexus.PackageHub.StartDeploy(Address, To, flow);
 		return null;
 	}
 }

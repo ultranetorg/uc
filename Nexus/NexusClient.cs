@@ -33,7 +33,7 @@ public class NexusClient
 
 	public string AddressToDeployment(string packagespath, Ura resource)
 	{
-		return Path.Join(Settings.Packages, Net.Net.Escape(resource.Domain), Net.Net.Escape(resource.Resource));
+		return Path.Join(Settings.Packages, resource.Domain.EscapeFilePath(), resource.Resource.EscapeFilePath());
 	}
 
 	//	public PackageInfo GetPackage(Ura package, Flow flow)

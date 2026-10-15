@@ -144,7 +144,7 @@ public class HttpGetApc : RdnApc
 
 			lock(rdn.ResourceHub.Lock)
 			{
-				s = rdn.ResourceHub.Get(r.Id);
+				s = rdn.ResourceHub.Get(r.Id).Data;
 				z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra, r.Id);
 			}
 
@@ -152,7 +152,7 @@ public class HttpGetApc : RdnApc
 
 			switch(ra)
 			{ 
-				case Blake3rn x :
+				case Blake3Urn x :
 					if(ResourceData.IsFile(r.Data.Content))
 					{
 						itg = new DHIntegrity(x.Hash); 

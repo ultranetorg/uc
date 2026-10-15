@@ -8,14 +8,12 @@ namespace Uccs.Nexus.CLI;
 public class PackageCommand : NexusCommand
 {
 	public static readonly		ArgumentType PA = new ("PA", "Package resource address", [@"/company/application/winx64/1.2.3"]);
-
-	Ura							address => Ura.Parse(Address);
-
-	RdnApiClient rdn;
+	new Ura						Address => Ura.Parse(base.Address);
+	RdnApiClient				Rapi;
 
 	public PackageCommand(NexusCli cli, List<Xon> args, Flow flow) : base(cli, args, flow)
 	{
-		rdn =  new RdnApiClient(Net.Api.ForNode(Rdn.Rdn.ByZone(Cli.Nexus.Settings.Zone), Cli.Nexus.Settings.Api.LocalIP));
+		Rapi = new RdnApiClient(Net.Api.ForNode(Rdn.Rdn.ByZone(Cli.Nexus.Settings.Zone), Cli.Nexus.Settings.Api.LocalIP));
 	}
 
 	public PackageCommand()
@@ -26,81 +24,110 @@ public class PackageCommand : NexusCommand
 	{
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
-		const string previous		= nameof(previous);
 		const string source			= nameof(source);
 		const string manifest		= nameof(manifest);
 		const string instruction	= nameof(instruction);
-		const string cdl			= nameof(cdl);
+		const string publish		= nameof(publish);
+		const string link			= nameof(link);
 		const string depandable		= nameof(depandable);
 
 		a.Description = "Builds and deploys a package to a node file base for distribution via RDN";
 		a.Arguments =	[
+							new (AddressKeyword,	PA,				$"Package resource address"),
 							new (source,			PATH,			"File or directory paths of the content to be packaged", ArgumentFlag.Multi),
-							new (previous,			RdnCommand.RZA,	"Release address of parent package against which incremental package is build", ArgumentFlag.Optional),
 							new (manifest,			FILEPATH,		"Path to the version manifest file where complete dependencies are defined", ArgumentFlag.Optional),
 							new (instruction,		FILEPATH,		"Path to the instruction file", ArgumentFlag.Optional),
-							new (AddressKeyword,	PA,				$"Creates corresponding resource in {Rdn.Rdn.ByZone(Cli.Nexus.Settings.Zone).Title} database"),
-							new (cdl,				null,			$"Creates dependency links in {Rdn.Rdn.ByZone(Cli.Nexus.Settings.Zone).Title} database", ArgumentFlag.Optional),
+							new (publish,			null,			$"Creates corresponding resource in {Rdn.Rdn.Any.Title} database", ArgumentFlag.Optional),
+							new (link,				null,			$"Creates dependency links in {Rdn.Rdn.Any.Title} database", ArgumentFlag.Optional),
 							new (depandable,		null,			$"Marks created resource as dependable", ArgumentFlag.Optional),
 						];
 
 		a.Examples =	() =>	[
-									new (null, @$"{Keyword} {a.Name} {previous}={Urn.Parse(RdnCommand.RZA.Example)} {source}={FILEPATH.Example} {source}={DIRPATH.Example} {manifest}={DIRPATH.Example1}\{AprvAddress.Parse(PA.Example).Version}.{PackageManifest.Extension} {instruction}={DIRPATH.Example1}\{AprvAddress.Parse(PA.Example).Version}.{PackageInstruction.Extension}")
+									new (null, @$"{Keyword} {a.Name} {source}={FILEPATH.Example} {source}={DIRPATH.Example} {manifest}={DIRPATH.Example1}\{AprvAddress.Parse(PA.Example).Version}.{PackageManifest.Extension} {instruction}={DIRPATH.Example1}\{AprvAddress.Parse(PA.Example).Version}.{PackageInstruction.Extension}")
 								];
 
 		a.Execute = () =>	{
-								var m = Has(manifest) ? File.ReadAllText(GetString(manifest)) : null;
-								var i = Has(instruction) ? File.ReadAllText(GetString(instruction)) : null;
+								var mt = Has(manifest) ? File.ReadAllText(GetString(manifest)) : null;
+								var it = Has(instruction) ? File.ReadAllText(GetString(instruction)) : null;
 
-								if(m != null)
+								PackageManifest m = null;
+
+								if(mt != null)
 								{
-									var x = PackageManifest.Parse(m);
-									x.FillIds(a => rdn.Ppc(new ResourceByAddressPpc(a), Flow).Resource.Id);
-									m = x.ToXon(new NetXonTextValueSerializator()).ToString();
+									m = PackageManifest.Parse(mt);
+									m.TranslateAddressToId(a => { 
+																	var r = Rapi.Ppc(new ResourceByAddressPpc(a), Flow).Resource;
+
+																	Report($"Resource address resolved {a} -> {r.Id}");
+
+																	return r.Id;
+																});
+									mt = m.ToXon().ToString();
+									m = PackageManifest.Parse(mt);
 								}
 
-								var p = Api<PackageApe>(new PackageBuildApc   
+								var p = Api<PackageApe>(new PackageCreateApc   
 														{
+															Address			= Address,
 															Sources			= Args.Where(i => i.Name == source).Select(i => i.Get<string>()), 
-															Manifest		= m,
-															Instruction		= i,
-															Previous		= Has(cdl) ? rdn.Ppc(new ResourceByAddressPpc(GetResourceAddress(previous)), Flow).Resource.Id : null, 
-															AddressCreator	=	new()
-																				{
-																					Type = UrnNid.Blake3,
-																					///Owner = GetAccountAddress("owner", null),
-																					Resource = address
-																				}
+															Manifest		= mt,
+															Instruction		= it,
+															Previous		= m?.Parents.FirstOrDefault()?.Id,
+															AddressCreator	= new (UrnNamespace.Blake3)
 														});
+								
+								Report($"Release created");
 								Flow.Log.Dump(p);
-
+								
 								List<Operation> ops = [];
 
-								if(Has(AddressKeyword))
+								if(Has(publish))
 								{
-									ops.Add(new ResourceCreation(address, new ResourceData(Meaning.Package_Software_VersionManifest, p.Manifest), Has(depandable)));
+									ops.Add(new ResourceCreation(Address, new ResourceData(Meaning.Package_Software_PackageManifest, p.Manifest), Has(depandable)));
 								}
 
-								if(Has(cdl))
+								if(Has(link))
 								{
-									var id = Has(AddressKeyword) ? AutoId.LastCreated 
-																 : rdn.Ppc(new ResourceByAddressPpc(address), Flow).Resource.Id;
+									var id = Has(publish) ? AutoId.LastCreated 
+														  : Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
 	
+									if(m?.Parents.FirstOrDefault() != null)
+										ops.Add(new ResourceLinkCreation(id, m?.Parents.First().Id, ResourceLinkType.Dependency));
+
 									ops.AddRange(p.Manifest.CompleteDependencies.Select(i => new ResourceLinkCreation(id, i.Id, ResourceLinkType.Dependency)));
 								}
 								
 								if(ops.Any())
 								{	
-									Transact(rdn, ops, GetString(ByKeyword), GetLong(BoostKeyword, 0), McvCommand.GetActionOnResult(Args));
+									Transact(Rapi, ops, GetString(ByKeyword), GetLong(BoostKeyword, 0), McvCommand.GetActionOnResult(Args));
 
-									var r = rdn.Ppc(new ResourceByAddressPpc(address), Flow).Resource;
+									var r = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource;
 
-									rdn.Send(new ReleaseUpdateApc
+									if(Has(publish))
+									{
+										Report($"Published under the resource with Id={r.Id}");
+
+										Api(new PackageUpdateApc
 											{
-												Address = r.Data.GetVirtual<Urn>(),
-												Resource= r.Id,
-											},
-											Flow);
+												Address = Address,
+												Id = r.Id,
+											});
+
+										Report($"Resource Id assigned to package");
+
+										Rapi.Send(	new ReleaseUpdateApc
+													{
+														Address = p.Manifest.Urn,
+														Id= r.Id,
+													}, 
+													Flow);
+
+										Report($"Id assigned to release");
+									}
+
+									if(Has(link))
+										foreach(var j in r.Outbounds)
+											Report($"Dependency link created to {Rapi.Ppc(new ResourceByIdPpc(j.Destination), Flow).Address}");
 								}
 
 								return p;
@@ -118,9 +145,30 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								var r = Api<PackageApe>(new LocalPackageApc {Id = rdn.Ppc(new ResourceByAddressPpc(address), Flow).Resource.Id});
+								var r = Api<PackageApe>(new LocalPackageApc {Id = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id});
 				
 								Flow.Log.Dump(r);
+
+								return null;
+							};
+		return a;
+	}
+
+	public CommandAction LocalSearch_LS()
+	{
+		const string query 	= nameof(query);
+
+		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
+
+		a.Description = "Searches for local packeges using the specified pattern";
+		a.Arguments =	[
+							new (query, STRING, "A text resource address contains")
+						];
+
+		a.Execute = () =>	{
+								var r = Api<PackageApe[]>(new LocalPackageSearchApc {Query = GetString(query)});
+				
+								Flow.Log.Dump(r, ["Address", "Id", "Urn"], [i => i.Address, i => i.Id, i => i.Manifest.Urn]);
 
 								return null;
 							};
@@ -137,7 +185,7 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								var id = rdn.Ppc(new ResourceByAddressPpc(address), Flow).Resource.Id;
+								var id = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
 
 								Api(new StartPackageDownloadApc {Id = id});
 
@@ -185,7 +233,7 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								var id = rdn.Ppc(new ResourceByAddressPpc(address), Flow).Resource.Id;
+								var id = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
 
 								Api(new PackageDeployApc
 									{

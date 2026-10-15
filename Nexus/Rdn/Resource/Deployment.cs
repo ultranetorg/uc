@@ -6,12 +6,12 @@ public class DeploymentMerge
 {
 	public Package											Target;
 	public Package											Complete;	
-	public List<KeyValuePair<Package, ParentPackage>>		Incrementals = new();	
+	public List<KeyValuePair<Package, ParentPackage>>		Deltas = [];	
 }
 
 public class Deployment
 {
-	public List<DeploymentMerge>	Merges = new ();	
+	public List<DeploymentMerge>	Merges = [];	
 }
 
 public class DeploymentMergeProgress
@@ -28,7 +28,7 @@ public class DeploymentMergeProgress
 	{
 		Target			= merge.Target.Id;
 		Complete		= merge.Complete.Id;
-		Incrementals	= merge.Incrementals.Select(i => i.Key.Id).ToArray();
+		Incrementals	= merge.Deltas.Select(i => i.Key.Id).ToArray();
 	}
 }
 

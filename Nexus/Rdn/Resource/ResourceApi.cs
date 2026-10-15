@@ -37,14 +37,14 @@ public class ResourceDownloadApc : RdnApc
 		if(d == null)
 			throw new ResourceException(ResourceError.NoData);
 
-		if(!d.IsCexInvolved(out var urn))
+		if(!d.Data.IsCexInvolved(out var urn))
 			throw new ResourceException(ResourceError.NotSupportedDataType);
 
 		IIntegrity itg;
 
 		switch(urn)
 		{ 
-			case Blake3rn a :
+			case Blake3Urn a :
 				itg = new DHIntegrity(a.Hash); 
 				break;
 				
@@ -56,11 +56,11 @@ public class ResourceDownloadApc : RdnApc
 		{
 			var lrl = node.ResourceHub.Find(urn) ?? node.ResourceHub.Add(urn, Id);
 
-			if(ResourceData.IsFile(d.Content))
+			if(ResourceData.IsFile(d.Data.Content))
 			{
 				node.ResourceHub.DownloadFile(lrl, true, "", To ?? node.ResourceHub.ToReleases(urn), itg, null, flow);
 			}
-			else if(ResourceData.IsDirectory(d.Content))
+			else if(ResourceData.IsDirectory(d.Data.Content))
 			{
 				node.ResourceHub.DownloadDirectory(lrl, To ?? node.ResourceHub.ToReleases(urn), itg, flow);
 			}
@@ -143,7 +143,7 @@ public class LocalReleaseBuildApc : RdnApc
 public class ReleaseUpdateApc : RdnApc
 {
 	public Urn		Address { get; set; }
-	public AutoId	Resource { get; set; }
+	public AutoId	Id { get; set; }
 
 	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
@@ -153,7 +153,7 @@ public class ReleaseUpdateApc : RdnApc
 			
 			if(r != null)
 			{
-				r.Resource = Resource;
+				r.Resource = Id;
 			}
 		}
 

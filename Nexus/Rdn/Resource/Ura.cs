@@ -15,6 +15,8 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public bool					Valid => !string.IsNullOrWhiteSpace(Domain) && !string.IsNullOrWhiteSpace(Resource);
 
+	string						_String;
+
 	public Ura()
 	{
 	}
@@ -46,7 +48,7 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 
 	public override string ToString()
 	{
-		return ToString(Domain, Resource);
+		return _String ??= ToString(Domain, Resource);
 	}
 
 	public Snq ToSnq()
@@ -93,7 +95,6 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 	{
 		return !(left == right);
 	}
-
 
 	public void Read(string text)
 	{
