@@ -71,12 +71,12 @@ export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem
 
   const menuItems = useMemo(
     () => [
-      { label: t("common:policySurveys"), to: routes.governance.policySurveys(storeId) },
+      { label: t("common:policySurveys"), to: routes.moderation.policySurveys(storeId) },
       ...(isReferendumsVisible || isProposalsVisible
         ? [
             { separator: true },
             ...(isReferendumsVisible
-              ? [{ label: t("common:referendums"), to: routes.governance.referendums(storeId) }]
+              ? [{ label: t("common:referendums"), to: routes.moderation.referendums(storeId) }]
               : []),
             ...(isProposalsVisible ? [{ label: t("common:proposals"), to: routes.moderation.proposals(storeId) }] : []),
           ]

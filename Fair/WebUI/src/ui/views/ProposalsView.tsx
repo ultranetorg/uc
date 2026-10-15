@@ -3,9 +3,14 @@ import { TFunction } from "i18next"
 
 import { SvgSearchMd, SvgX } from "assets"
 import { Proposal, TotalItemsResult } from "types"
-import { Input, Pagination, Table, TableEmptyState } from "ui/components"
-import { getVotingColumns } from "ui/pages/moderation/constants"
+import { Input, Pagination, Table, TableColumn, TableEmptyState } from "ui/components"
 import { getProposalsItemRenderer } from "ui/renderers"
+
+const getVotingColumns = (t: TFunction): TableColumn[] => [
+  { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for" },
+  { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
+  { accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull") },
+]
 
 export type ProposalsViewProps = {
   t: TFunction

@@ -6,7 +6,7 @@ import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
 
-export const ModeratorPublicationPage = () => {
+export const ModerationPublicationPage = () => {
   const { proposalId } = useParams()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()

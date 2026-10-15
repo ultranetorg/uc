@@ -56,13 +56,13 @@ export const useStoreChangeMenuItems = (
           return [
             {
               label: t(label),
-              to: routes.governance.createReferendum(storeId),
+              to: routes.moderation.createReferendum(storeId),
               state: {
                 title,
                 type,
                 storeId,
-                parentBreadcrumbs: [{ path: routes.governance.referendums(storeId), title: t("common:referendums") }],
-                redirectAfterProposalCreation: routes.governance.referendums(storeId),
+                parentBreadcrumbs: [{ path: routes.moderation.referendums(storeId), title: t("common:referendums") }],
+                redirectAfterProposalCreation: routes.moderation.referendums(storeId),
                 redirectAfterProposalExecution: location.pathname,
               },
             },

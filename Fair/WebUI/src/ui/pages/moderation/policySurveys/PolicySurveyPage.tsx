@@ -60,7 +60,7 @@ export const PolicySurveyPage = () => {
       mutate(operation, {
         onSuccess: () => {
           invalidatePolicyChange({ storeId: storeId! })
-          navigate(routes.governance.policySurveys(storeId!))
+          navigate(routes.moderation.policySurveys(storeId!))
           showToast(t("toast:surveyVoted", { publisher: publisherId }))
         },
         onError: err => showToast(err.toString(), "error"),
@@ -115,7 +115,7 @@ export const PolicySurveyPage = () => {
           fullPath={true}
           items={[
             { path: routes.store(storeId!), title: t("home") },
-            { title: t("common:policySurveys"), path: routes.governance.policySurveys(storeId!) },
+            { title: t("common:policySurveys"), path: routes.moderation.policySurveys(storeId!) },
             { title: title! },
           ]}
         />

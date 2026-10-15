@@ -45,7 +45,7 @@ export const ReferendumsPage = () => {
   )
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.governance.referendum(storeId!, id)),
+    (id: string) => navigate(routes.moderation.referendum(storeId!, id)),
     [navigate, storeId],
   )
 

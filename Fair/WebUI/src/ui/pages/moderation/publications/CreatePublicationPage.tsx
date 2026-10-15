@@ -19,7 +19,7 @@ import {
 } from "ui/components/specific"
 import { isVotingRequired, routes, showToast } from "utils"
 
-export const ModeratorCreatePublicationPage = () => {
+export const CreatePublicationPage = () => {
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
   const { t } = useTranslation("createPublicationPage")

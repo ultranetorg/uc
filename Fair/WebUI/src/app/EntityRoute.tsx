@@ -6,6 +6,28 @@ import { useBackgroundLocation, useParams } from "hooks"
 import { BaseLayout, StoreLayout } from "ui/layouts"
 import { ConstrainedWidthLayout, ModerationLayout, PublishersLayout, UsersSectionLayout } from "ui/layouts/moderation"
 import {
+  ChangedPublicationPage,
+  CreateDiscussionPage,
+  CreatePublicationPage,
+  CreateReferendumPage,
+  ModerationPublicationPage,
+  ModeratorProposalPage,
+  ModeratorsPage,
+  PolicySurveyPage,
+  PolicySurveysPage,
+  PreviewPage,
+  ProposalPage,
+  ProposalsPage,
+  PublicationsPage,
+  PublisherProposalPage,
+  PublishersPage,
+  ReferendumPage,
+  ReferendumsPage,
+  ReviewsPage,
+  UnpublishedPublicationPage,
+  UsersPage,
+} from "ui/pages/moderation"
+import {
   AboutPage,
   AuthorPage,
   CategoryPage,
@@ -15,30 +37,6 @@ import {
   SearchPage,
   StorePage,
 } from "ui/pages"
-import { CreateReferendumPage } from "ui/pages/governance"
-import {
-  CreateDiscussionPage,
-  ModeratorChangedPublicationPage,
-  ModeratorCreatePublicationPage,
-  ModeratorProposalPage,
-  ModeratorPublicationPage,
-  ModeratorsPage,
-  PreviewPage,
-  PublicationsPage,
-  PublisherProposalPage,
-  PublishersPage,
-  ReviewsPage,
-  UnpublishedPublicationPage,
-  UsersPage,
-} from "ui/pages/moderation"
-import {
-  ProposalsPage,
-  ReferendumPage,
-  ReferendumsPage,
-  PolicySurveyPage,
-  PolicySurveysPage,
-  ProposalPage,
-} from "ui/pages/store"
 import { FullscreenPageView, CreateProposalProvider } from "ui/views"
 import { ENTITY_PREFIXES, EntityParam } from "utils"
 
@@ -144,7 +142,7 @@ export const EntityRoute = () => {
               </CreateProposalProvider>
             }
           />
-          <Route path="publications/new" element={<ModeratorCreatePublicationPage />} />
+          <Route path="publications/new" element={<CreatePublicationPage />} />
           <Route path="publications/preview" element={<PreviewPage />} />
           <Route element={<ModerationLayout />}>
             // Proposals
@@ -155,8 +153,8 @@ export const EntityRoute = () => {
             <Route path="moderators/proposals/:proposalId" element={<ModeratorProposalPage />} />
             <Route path="moderators/:tabKey?" element={<ModeratorsPage />} />
             // Publications
-            <Route path="publications/proposals/:proposalId" element={<ModeratorPublicationPage />} />
-            <Route path="publications/changed/:publicationId" element={<ModeratorChangedPublicationPage />} />
+            <Route path="publications/proposals/:proposalId" element={<ModerationPublicationPage />} />
+            <Route path="publications/changed/:publicationId" element={<ChangedPublicationPage />} />
             <Route path="publications/unpublished/:publicationId" element={<UnpublishedPublicationPage />} />
             <Route path="publications/:tabKey?" element={<PublicationsPage />} />
             // Publishers

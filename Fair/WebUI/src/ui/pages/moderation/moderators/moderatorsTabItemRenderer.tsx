@@ -24,7 +24,7 @@ export const moderatorsTabItemRenderer =
         return (
           <div className="flex justify-end">
             <Link
-              to={routes.governance.createReferendum(storeId)}
+              to={routes.moderation.createReferendum(storeId)}
               state={{
                 parentBreadcrumbs: [{ path: routes.moderation.moderators(storeId), title: t("title") }],
                 title: `Remove moderator "${truncate(moderator.user.nickname ?? moderator.user.id, { length: 45 })}"`,

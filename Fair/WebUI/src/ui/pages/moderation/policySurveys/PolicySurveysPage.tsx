@@ -3,18 +3,18 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useStoreContext } from "app"
-import { useGetStorePolicies, useGetPolicySurveys } from "entities"
+import { useGetStorePolicies, useGetPolicySurveys as useGetPolicySurveys } from "entities"
 import { useResolveStoreId, useStoreTitle } from "hooks"
 import { Table, TableEmptyState } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { surveysItemRenderer } from "ui/renderers"
 import { routes } from "utils"
 
-export const ModeratorSurveysPage = () => {
+export const PolicySurveysPage = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const { store } = useStoreContext()
-  const { t } = useTranslation("surveysPage")
+  const { t } = useTranslation("policySurveysPage")
 
   useStoreTitle(store?.title, "Policy Surveys")
 
@@ -56,7 +56,7 @@ export const ModeratorSurveysPage = () => {
   const { data: policies } = useGetStorePolicies(true, storeId)
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.governance.policySurveyDetails(storeId!, id)),
+    (id: string) => navigate(routes.moderation.policySurveyDetails(storeId!, id)),
     [navigate, storeId],
   )
 

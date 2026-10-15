@@ -17,7 +17,7 @@ import {
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { routes, showToast } from "utils"
 
-export const ModeratorChangedPublicationPage = () => {
+export const ChangedPublicationPage = () => {
   const navigate = useNavigate()
   const { publicationId } = useParams()
   const storeId = useResolveStoreId()

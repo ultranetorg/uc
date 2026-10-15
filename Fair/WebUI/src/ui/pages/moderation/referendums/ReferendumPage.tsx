@@ -18,10 +18,10 @@ export const ReferendumPage = () => {
 
   return (
     <ProposalView
-      parentBreadcrumbs={{ title: t("common:referendums"), path: routes.governance.referendums(storeId!) }}
+      parentBreadcrumbs={{ title: t("common:referendums"), path: routes.moderation.referendums(storeId!) }}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={routes.governance.referendums(storeId!)}
+      previousPath={routes.moderation.referendums(storeId!)}
     />
   )
 }

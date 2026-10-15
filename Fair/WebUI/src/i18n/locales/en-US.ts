@@ -488,7 +488,7 @@ export const enUS = {
     "publication-unpublish": `Unpublish "<PublicationLink/>" publication from "<CategoryLink/>" category.`,
     "store-avatar-change": "Change store avatar",
     "store-renaming": `Rename store from "{{storeName}}" to "{{name}}"`,
-    "store-renaming-change_empty": `Set store name "{{name}}"`,
+    "store-renaming_empty": `Set store name "{{name}}"`,
     "store-info-updation": `Set store title "{{title}}", description "{{description}}" and slogan "{{slogan}}"`,
     "store-authors-removal_one": "Remove this author",
     "store-authors-removal_other": "Remove this authors",
