@@ -34,17 +34,14 @@ public class Settings
 		else if(t.IsArray)
 		{
 			var m = node.Parent.Many(name.TrimEnd('s'));
-			
-			//.Select(i => load(n, t.GetElementType(), i)).ToArray();
-
 
 			var a = t.GetElementType().MakeArrayType(1);
-			var n = m.Count;
+			var n = m.Count();
 			var l = a.GetConstructor([typeof(int)]).Invoke([n]);
 
-			for(int i=0; i<n; i++)
+			foreach(var (i, j) in m.Index())
 			{
-				a.GetMethod("Set").Invoke(l, [i, Load(name.TrimEnd('s'), t.GetElementType(), m[i])]);
+				a.GetMethod("Set").Invoke(l, [i, Load(name.TrimEnd('s'), t.GetElementType(), j)]);
 			}
 
 			return l;
@@ -52,18 +49,13 @@ public class Settings
 		else if(t.GetInterfaces().Any(i => i == typeof(IList)))
 		{
 			var m = node.Parent.Many(name.TrimEnd('s'));
-			
-			//.Select(i => load(n, t.GetElementType(), i)).ToArray();
-		
 		
 			var l = t.GetConstructor([]).Invoke(null) as IList;
 			var e = t.GetGenericArguments()[0];
-			var n = m.Count;
-			//var l = a.GetConstructor([typeof(int)]).Invoke([n]);
 		
-			for(int i=0; i<n; i++)
+			foreach(var i in m)
 			{
-				l.Add(Load(name.TrimEnd('s'), e, m[i]));
+				l.Add(Load(name.TrimEnd('s'), e, i));
 			}
 		
 			return l;

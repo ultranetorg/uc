@@ -20,10 +20,11 @@ public enum DependencyFlag : byte
 
 public class Dependency : IEquatable<Dependency>, IBinarySerializable
 {
-	public AutoId			Id { get; set; }
+	//public AutoId			Id { get; set; }
 	public Ura				Address { get; set; }
 	public DependencyNeed	Need { get; set; }
 	public DependencyFlag	Flags { get; set; }
+	public Dependency[]		Dependencies { get; set; } = [];
 
 	public override string ToString()
 	{
@@ -32,16 +33,18 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Id		= reader.Read<AutoId>();
-		Need	= reader.Read<DependencyNeed>();
-		Flags	= reader.Read<DependencyFlag>();
+		Address			= reader.Read<Ura>();
+		Need			= reader.Read<DependencyNeed>();
+		Flags			= reader.Read<DependencyFlag>();
+		Dependencies	= reader.ReadArray<Dependency>();
 	}
 	
 	public void Write(Writer writer)
 	{
-		writer.Write(Id);
+		writer.Write(Address);
 		writer.Write(Need);
 		writer.Write(Flags);
+		writer.Write(Dependencies);
 	}
 
 	public override bool Equals(object obj)
@@ -73,11 +76,11 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 	{
 		var d = new Dependency();
 		
-		d.Address	= Ura.Parse(xon.Name);
-		d.Id		= xon.Parse(v => AutoId.Parse(v));
-		d.Need		= Enum.Parse<DependencyNeed>(xon.Get<string>("Need"));
-		d.Flags		|= xon.Has(DependencyFlag.Merge.ToString()) ? DependencyFlag.Merge : DependencyFlag.None;
-		d.Flags		|= xon.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
+		d.Address		= Ura.Parse(xon.Name);
+		d.Dependencies	= [..(xon.One(nameof(Dependencies))?.Nodes ?? []).Select(Dependency.FromXon)];
+		d.Need			= Enum.Parse<DependencyNeed>(xon.Get<string>("Need"));
+		d.Flags			|= xon.Has(DependencyFlag.Merge.ToString()) ? DependencyFlag.Merge : DependencyFlag.None;
+		d.Flags			|= xon.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
 
 		return d;
 	}
@@ -87,7 +90,18 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		var x = new Xon(serializator);
 
 		x.Name = Address.ToString();
-		x.Value = Id?.ToString();
+
+		if(Dependencies.Any())
+		{
+			var d = x.Add(nameof(Dependencies));
+			
+			foreach(var i in Dependencies)
+			{
+				d.Nodes.Add(i.ToXon(serializator));
+			}
+		}
+
+		//x.Value = Id?.ToString();
 		x.Add("Need").Value = Need;
 		
 		foreach(var i in Enum.GetValues<DependencyFlag>().Where(i => i != DependencyFlag.None))
@@ -109,7 +123,7 @@ public enum ParentPackageFlag : byte
 
 public class ParentPackage : IBinarySerializable
 {
-	public AutoId				Id { get; set; }
+	//public AutoId				Id { get; set; }
 	public Ura					Address { get; set; }
 	public ParentPackageFlag	Flags { get; set; }
 	public Dependency[]			AddedDependencies { get; set; } = [];
@@ -117,7 +131,7 @@ public class ParentPackage : IBinarySerializable
 
 	public void Write(Writer w)
 	{
-		w.Write(Id);
+		w.Write(Address);
 		w.Write(Flags);
 		w.Write(AddedDependencies);
 		w.Write(RemovedDependencies);
@@ -125,7 +139,7 @@ public class ParentPackage : IBinarySerializable
 	
 	public void Read(Reader r)
 	{						
-		Id					= r.Read<AutoId>();
+		Address				= r.Read<Ura>();
 		Flags				= r.Read<ParentPackageFlag>();
 		AddedDependencies	= r.ReadArray<Dependency>();
 		RemovedDependencies = r.ReadArray<Dependency>();
@@ -136,7 +150,6 @@ public class ParentPackage : IBinarySerializable
 		var d = new ParentPackage();
 
 		d.Address				= Ura.Parse(xon.Name);
-		d.Id					= xon.Parse(v => AutoId.Parse(v));
 		d.Flags					= xon.GetEnum<ParentPackageFlag>("Flags", ParentPackageFlag.None);
 		d.AddedDependencies		= [..xon.One("Add")?.Nodes.Select(Dependency.FromXon) ?? []];
 		d.RemovedDependencies	= [..xon.One("Remove")?.Nodes.Select(Dependency.FromXon) ?? []];
@@ -149,7 +162,6 @@ public class ParentPackage : IBinarySerializable
 		var x = new Xon(serializator);
 	
 		x.Name = Address.ToString();
-		x.Value = Id?.ToString();
 		x.Add("Flags").Value = Flags;
 
 		if(AddedDependencies.Any())
@@ -171,9 +183,9 @@ public enum PackageFlag : byte
 
 public class PackageManifest : IBinarySerializable
 {
-	public const string				Extension = ".rdnpm";
+	public const string				Extension = "rdnpm";
 
-	public Urn						Urn { get; set; }
+	//public Urn						Urn { get; set; }
 	public Dependency[]				CompleteDependencies { get; set; } = [];
 	public ParentPackage[]			Parents { get; set; } = [];
 
@@ -191,7 +203,7 @@ public class PackageManifest : IBinarySerializable
 
 	public void Write(Writer writer)
 	{
-		writer.WriteVirtual(Urn); /// URN HEADER: MUST GO FIRST
+		//writer.WriteVirtual(Urn); /// URN HEADER: MUST GO FIRST
 
 		writer.Write(CompleteDependencies);
 		writer.Write(Parents);
@@ -199,7 +211,7 @@ public class PackageManifest : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Urn						= reader.ReadVirtual<Urn>(); /// URN HEADER: MUST GO FIRST
+		//Urn						= reader.ReadVirtual<Urn>(); /// URN HEADER: MUST GO FIRST
 
 		CompleteDependencies	= reader.ReadArray<Dependency>();
 		Parents					= reader.ReadArray<ParentPackage>();
@@ -226,7 +238,7 @@ public class PackageManifest : IBinarySerializable
 
 		var x = new Xon(serializator);
 
-		x.Add(nameof(Urn)).Value = Urn?.ToString();
+		//x.Add(nameof(Urn)).Value = Urn?.ToString();
 		
 		if(CompleteDependencies.Any())
 			x.Add(nameof(CompleteDependencies)).Nodes.AddRange(CompleteDependencies.Select(i => i.ToXon(serializator)));
@@ -241,33 +253,33 @@ public class PackageManifest : IBinarySerializable
 	{
 		var m = new PackageManifest();
 
-		m.Urn					= xon.One(nameof(Urn))?.Parse(v => Urn.Parse(v));
+		//m.Urn					= xon.One(nameof(Urn))?.Parse(v => Urn.Parse(v));
 		m.CompleteDependencies	= xon.One(nameof(CompleteDependencies))?.Nodes.Select(Dependency.FromXon).ToArray() ?? [];
 		m.Parents				= xon.One(nameof(Parents))?.Nodes.Select(ParentPackage.FromXon).ToArray() ?? [];
 
 		return m;
 	}
 
-	public void TranslateAddressToId(Func<Ura, AutoId> getid)
-	{
-		foreach(var c in CompleteDependencies)
-		{
-			c.Id = getid(c.Address);
-		}
-
-		foreach(var p in Parents)
-		{
-			p.Id = getid(p.Address);
-
-			foreach(var a in p.AddedDependencies)
-			{
-				a.Id = getid(a.Address);
-			}
-
-			foreach(var r in p.RemovedDependencies)
-			{
-				r.Id = getid(r.Address);
-			}
-		}
-	}
+// 	public void TranslateAddressToId(Func<Ura, AutoId> getid)
+// 	{
+// 		foreach(var c in CompleteDependencies)
+// 		{
+// 			c.Id = getid(c.Address);
+// 		}
+// 
+// 		foreach(var p in Parents)
+// 		{
+// 			p.Id = getid(p.Address);
+// 
+// 			foreach(var a in p.AddedDependencies)
+// 			{
+// 				a.Id = getid(a.Address);
+// 			}
+// 
+// 			foreach(var r in p.RemovedDependencies)
+// 			{
+// 				r.Id = getid(r.Address);
+// 			}
+// 		}
+// 	}
 }

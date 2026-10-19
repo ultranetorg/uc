@@ -20,6 +20,11 @@ public abstract class Apc
 	public int				Limit { get; set; }
 }
 
+public abstract class Fpc<R> : Apc where R : class
+{
+
+}
+
 public class ApiSettings : Settings
 {
 	public string			LocalAddress { get; set; }

@@ -52,7 +52,7 @@ public class Start : IBinarySerializable
 
 public class PackageInstruction : IBinarySerializable
 {
-	public const string				Extension = ".rdnpi";
+	public const string				Extension = "rdnpi";
 
 	public Start[]					Start { get; set; }
 

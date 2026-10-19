@@ -127,10 +127,8 @@ public class Xon// : INestedSerializable
 		return p;	 
 	}
 	
-	public List<Xon> Many(string name)
+	public IEnumerable<Xon> Many(string name)
 	{
-		var o = new List<Xon>();
-
 		var p = this;
 		var i = name.LastIndexOf('/');
 		var last = name;
@@ -146,11 +144,9 @@ public class Xon// : INestedSerializable
 		{
 			if(j.Name == last)
 			{
-				o.Add(j);
+				yield return j;
 			}
 		}
-
-		return o;
 	}
 
 	public O Get<O>()

@@ -60,7 +60,7 @@ public class PackageDownload
 
 		lock(hub.Lock)
 		{
-			if(hub.IsAvailable(package.Id))
+			if(hub.IsAvailable(package.Address))
 			{
 				IsDownloaded = true;
 				return;
@@ -77,19 +77,26 @@ public class PackageDownload
 										//if(r != null && r.Meaning != Meaning.Package_Software_VersionManifest)
 										//	throw new PackageException(PackageError.IncorrectContentType, $"{package.Id} is not {Meaning.Package_Software_VersionManifest}");
 
-										Seeker = new SeedSeeker(node, Package.Manifest.Urn, flow);
+										Seeker = new SeedSeeker(node, Package.Urn, flow);
 
-
-										var findex = node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Manifest.Urn as Blake3Urn).Hash), Seeker, flow);
+										var findex = node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Release.Address as Blake3Urn).Hash), Seeker, flow);
 
 										var xindex = new Xon(findex.Read());
+
+										node.ResourceHub.GetFile(	Package.Release, 
+																	false, 
+																	PackageManifest.Extension, 
+																	Path.Join(hub.AddressToReleases(Package.Release.Address), PackageManifest.Extension), 
+																	new DHIntegrity(xindex.Get<byte[]>(PackageManifest.Extension)), 
+																	Seeker, 
+																	flow);
 
 										if(xindex.Has(PackageInstruction.Extension))
 										{
 											node.ResourceHub.GetFile(Package.Release, 
 																	 false, 
 																	 PackageInstruction.Extension, 
-																	 Path.Join(hub.AddressToReleases(Package.Manifest.Urn), PackageInstruction.Extension), 
+																	 Path.Join(hub.AddressToReleases(Package.Release.Address), PackageInstruction.Extension), 
 																	 new DHIntegrity(xindex.Get<byte[]>(PackageInstruction.Extension)), 
 																	 Seeker, 
 																	 flow);
@@ -99,13 +106,13 @@ public class PackageDownload
 
 										lock(hub.Lock)
 										{
-											hub.DetermineDelta(Package.Manifest, out file, out List<Dependency> deps);
+											hub.DetermineDelta(Package.Manifest, out file, out var deps);
 								
 											foreach(var i in deps.Where(i => i.Need == DependencyNeed.Critical))
 											{
-												if(!hub.ExistsRecursively(i.Id))
+												if(!hub.ExistsRecursively(i.Address))
 												{
-													var dd = hub.StartDownload(i.Id, flow);
+													var dd = hub.StartDownload(i.Address, flow);
 													Dependencies.Add(dd);
 												}
 											}
@@ -115,7 +122,7 @@ public class PackageDownload
  											FileDownload = node.ResourceHub.DownloadFile(	Package.Release, 
 																							false,
 																							file, 
-																							Path.Join(hub.AddressToReleases(Package.Manifest.Urn), file),
+																							Path.Join(hub.AddressToReleases(Package.Release.Address), file),
 																							new DHIntegrity(Package.Release.LoadIndex().One(file).Get<byte[]>()),
 																							Seeker,
 																							flow);
@@ -127,10 +134,10 @@ public class PackageDownload
 
 										lock(node.ResourceHub.Lock)
 										{
-											if(Package.Release.IsReady(Package.Complete))
+											if(Package.Release.IsReady(Package.CompleteFile))
 												a |= Availability.Complete;
 
-											if(Package.Release.Files.Any(i => uint.TryParse(i.Path, out var _) && i.Status == ReleaseFileStatus.Completed))
+											if(Package.Release.Files.Any(i => Path.GetExtension(i.Path) == "." + Package.DeltaExtention && i.Status == ReleaseFileStatus.Completed))
 												a |= Availability.Delta;
 										}
 

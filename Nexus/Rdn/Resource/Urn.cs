@@ -14,7 +14,7 @@ public enum UrnNamespace : uint
 
 public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITextSerialisable
 {
-	public abstract UrnNamespace				Nid { get; }
+	public abstract UrnNamespace		Namespace { get; }
  	public abstract byte[]				MemberOrderKey { get; }
  	public byte[]						Raw => _Raw ??= (this as IBinarySerializable).ToRaw();
 	byte[]								_Raw;
@@ -76,18 +76,18 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
 
 	public void WriteVirtual(Writer writer)
 	{
-		writer.Write(Nid);
+		writer.Write(Namespace);
 		WriteMore(writer);
 	}
 
 	public static Urn ReadVirtual(Reader reader)
 	{
 		var a = reader.Read<UrnNamespace>()	switch
-										{
-											UrnNamespace.Blake3 => new Blake3Urn() as Urn,
-											//UrrScheme.Urrsd => new Urrsd(),
-											_ => throw new FormatException()
-										};
+											{
+												UrnNamespace.Blake3 => new Blake3Urn() as Urn,
+												//UrrScheme.Urrsd => new Urrsd(),
+												_ => throw new FormatException()
+											};
 		
 		a.ReadMore(reader);
 		
@@ -114,7 +114,7 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
  
 public class Blake3Urn : Urn /// Rdn Resource Release Hash
 {
-	public override UrnNamespace	Nid => UrnNamespace.Blake3; 
+	public override UrnNamespace	Namespace => UrnNamespace.Blake3; 
 
 	public byte[]					Hash { get; set; }
  	public override byte[]			MemberOrderKey => Hash;
@@ -134,7 +134,7 @@ public class Blake3Urn : Urn /// Rdn Resource Release Hash
 
 	public override string ToString()
 	{
-		return $"urn:{Nid.ToString().ToLowerInvariant()}:{Hash.ToHex()}";
+		return $"urn:{Namespace.ToString().ToLowerInvariant()}:{Hash.ToHex()}";
 	}
 
 	public override void ParseSpecific(ReadOnlySpan<char> t)

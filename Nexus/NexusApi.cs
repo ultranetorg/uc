@@ -58,17 +58,17 @@ public class NexusApiClient : JsonApiClient
 		Options = NexusJsonConfiguration.CreateOptions();
 	}
 
-	public PackageApe DeployPackage(AutoId address, string destination, Flow flow)
+	public PackageApe DeployPackage(Ura address, string destination, Flow flow)
 	{
 		Send(new PackageDeployApc {Address = address, To = destination}, flow);
 
 		do
 		{
-			var d = Call<PackageActivityProgress>(new PackageActivityProgressApc {Id = address}, flow);
+			var d = Call<PackageActivityProgress>(new PackageActivityProgressApc {Address = address}, flow);
 
 			if(d is null)
 			{
-				return Call<PackageApe>(new LocalPackageApc {Id = address}, flow);
+				return Call<PackageApe>(new LocalPackageApc {Address = address}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{

@@ -133,6 +133,21 @@ public class JsonClient
 			}
 		}
 	}
+	
+	public R Call<R>(Fpc<R> request, Flow flow, string credentials = null) where R : class
+	{
+		using(var rp = Send(request, flow, credentials))
+		{
+			try
+			{
+				return JsonSerializer.Deserialize<R>(rp.Content.ReadAsStringAsync().Result, Options);
+			}
+			catch(Exception ex)
+			{
+				throw new ApiCallException("Deserialization error", ex);
+			}
+		}
+	}
 
 	public async Task<Rp> CallAsync<Rp>(Apc request, Flow flow, string credentials = null)
 	{
