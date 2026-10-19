@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Uccs.Fair;
 
 public enum PublicationFlags : byte
@@ -16,7 +18,7 @@ public class Publication : IBinarySerializable, ITableEntry<AutoId>
 	//public AutoId							Creator { get; set; }
 	public AutoId							Product { get; set; }
 	public int								ProductVersion { get; set; }
-	public AutoId[]							Reviews { get; set; }
+	public ImmutableList<AutoId>			Reviews { get; set; }
 	public PublicationFlags					Flags { get; set; }
 	public byte								Rating { get; set; }
 	public long								AuthorRank { get; set; }
@@ -77,7 +79,7 @@ public class Publication : IBinarySerializable, ITableEntry<AutoId>
 		Category		= reader.ReadNullable<AutoId>();
 		Product			= reader.Read<AutoId>();
 		ProductVersion	= reader.Read7BitEncodedInt();
-		Reviews			= reader.ReadArray<AutoId>();
+		Reviews			= reader.ReadImmutableList<AutoId>();
 		Flags			= reader.Read<PublicationFlags>();
 		Rating			= reader.ReadByte();
 		AuthorRank		= reader.Read7BitEncodedInt64();

@@ -208,7 +208,7 @@ public class Store : ITableEntry<AutoId>, IBinarySerializable, IEnergyHolder, IS
 																									  							 
 						new (FairOperationClass.ReviewCreation,			u, 		   va),
 						new (FairOperationClass.ReviewEdit,				u, 		   va),
-						new (FairOperationClass.ReviewStatusChange,		m, 		   va)];
+						new (FairOperationClass.ReviewDeletion,			u|m,	   va)];
 	}																									
 
 	public Store()

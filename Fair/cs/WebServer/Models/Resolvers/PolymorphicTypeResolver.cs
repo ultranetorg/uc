@@ -26,7 +26,7 @@ public class PolymorphicTypeResolver : DefaultJsonTypeInfoResolver
 					new JsonDerivedType(typeof(PublicationUnpublishModel), "publication-unpublish"),
 					new JsonDerivedType(typeof(PublicationUpdationModel), "publication-updation"),
 					new JsonDerivedType(typeof(ReviewCreationModel), "review-creation"),
-					new JsonDerivedType(typeof(ReviewStatusChangeModel), "review-status-change"),
+					new JsonDerivedType(typeof(ReviewDeletionModel), "review-status-change"),
 					new JsonDerivedType(typeof(StoreApprovalPolicyChangeModel), "store-approval-policy-change"),
 					new JsonDerivedType(typeof(StoreAuthorsRemovalModel), "store-authors-removal"),
 					new JsonDerivedType(typeof(StoreAvatarChangeModel), "store-avatar-change"),

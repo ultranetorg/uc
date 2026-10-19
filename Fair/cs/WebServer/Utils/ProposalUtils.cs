@@ -37,7 +37,7 @@ public static class ProposalUtils
 			PublicationUnpublish operation => CreatePublicationUnpublishModel(mcv, operation),
 			ReviewEdit operation => new ReviewEditModel(operation),
 			ReviewCreation operation => new ReviewCreationModel(operation),
-			ReviewStatusChange operation => new ReviewStatusChangeModel(operation),
+			ReviewDeletion operation => new ReviewDeletionModel(operation),
 			StoreApprovalPolicyChange operation => new StoreApprovalPolicyChangeModel(operation),
 			StoreAuthorsRemoval operation => CreateStoreAuthorsRemovalModel(mcv, operation),
 			StoreAvatarChange operation => new StoreAvatarChangeModel(operation),

@@ -69,7 +69,7 @@ public class StoreCreation : FairOperation
 																																						
 						new (FairOperationClass.ReviewCreation,			Role.User, 										ApprovalRequirement.AnyModerator),
 						new (FairOperationClass.ReviewEdit,				Role.User, 										ApprovalRequirement.AnyModerator),
-						new (FairOperationClass.ReviewStatusChange,		Role.Moderator, 								ApprovalRequirement.AnyModerator)];
+						new (FairOperationClass.ReviewDeletion,			Role.User|Role.Moderator, 						ApprovalRequirement.AnyModerator)];
 
 		s.Surveys = s.Policies.Select(i =>	{
  												var z = new Survey();
