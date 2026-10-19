@@ -62,12 +62,17 @@ public class PackageHub
  		return Path.Join(packagespath, resource.ToString().EscapeFilePath());
  	}
 
+ 	public static string AddressToDeployment(string packagespath, Ura resource, string other)
+ 	{
+ 		return Path.Join(packagespath, resource.ToString().EscapeFilePath(), other);
+ 	}
+
  	public string AddressToReleases(Urn release)
  	{
  		return Path.Join(Node.Settings.Seed.Releases, release.ToString().EscapeFilePath());
  	}
 
-	public bool IsAvailable(Ura package)
+	public bool IsReady(Ura package)
 	{
 		var p = Find(package);
 		
@@ -77,13 +82,15 @@ public class PackageHub
 		if(p.Release == null)
 			return false;
 
+		if(p.Manifest == null)
+			return false;
+
 		lock(Node.ResourceHub.Lock)
 		{
-			if(	p.Manifest != null &&
-				(p.Release.Availability.HasFlag(Availability.Complete) || 
-				p.Release.Availability.HasFlag(Availability.Delta) && p.Manifest.Parents.Any(i => IsAvailable(i.Address))))
+			if(	p.Release.Availability.HasFlag(Availability.Complete) || 
+				p.Release.Availability.HasFlag(Availability.Delta) && p.Manifest.Parents.Any(i => IsReady(i.Address)))
 			{
-				return p.Manifest.CriticalDependencies.All(i => IsAvailable(i.Address));
+				return p.Manifest.CriticalDependencies.All(i => IsReady(i.Address));
 			}
 			else
 				return false;
@@ -104,21 +111,21 @@ public class PackageHub
  		return p;
  	}
 
-	public bool ExistsRecursively(Ura release)
-	{
-		var p = Find(release);
-
-		if(p?.Manifest == null)
-			return false;
-
-		foreach(var i in p.Manifest.CompleteDependencies)
-		{
-			if(i.Need == DependencyNeed.Critical && !ExistsRecursively(i.Address))
-				return false;
-		}
-
-		return true;
-	}
+//	public bool ExistsRecursively(Ura release)
+//	{
+//		var p = Find(release);
+//
+//		if(p?.Manifest == null)
+//			return false;
+//
+//		foreach(var i in p.Manifest.CompleteDependencies)
+//		{
+//			if(i.Need == DependencyNeed.Critical && !ExistsRecursively(i.Address))
+//				return false;
+//		}
+//
+//		return true;
+//	}
 
 	public void Build(Stream stream, Dictionary<string, string> files, IEnumerable<string> removals, Dictionary<string, byte[]> patches, Flow flow)
 	{
@@ -234,7 +241,7 @@ public class PackageHub
 
 	public void DetermineDelta(PackageManifest manifest, out string file, out List<Dependency> dependencies)
 	{
-		var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Address));
+		var from = manifest.Parents?.LastOrDefault(i => IsReady(i.Address));
 	
 		if(from != null)
 		{
@@ -351,7 +358,7 @@ public class PackageHub
 		{
 			var p = Find(address);
 
-			if(p == null || !IsAvailable(address))
+			if(p == null || !IsReady(address))
 			{
 				StartDownload(address, flow).Task.ContinueWith(t =>	{
 																		lock(Lock)
@@ -360,16 +367,13 @@ public class PackageHub
 			}
 			else
 				deploy();
-
 		}
 
 		void deploy()
 		{
 			var p = Find(address);
-			
-			var pi = Path.Join(AddressToDeployment(packagespath, address), PackageInstruction.Extension);
 
-			if(File.Exists(pi) && Bytes.Equal(p.Release.Hashify(PackageInstruction.Extension), Node.Net.Cryptography.HashFile(File.ReadAllBytes(pi))))
+			if(File.Exists(AddressToDeployment(packagespath, address, Package.Deployed)))
 				return;
 
 			var	d = new Deployment();
@@ -403,7 +407,7 @@ public class PackageHub
 																else
 																	throw new PackageException(PackageError.Busy);
 
-																var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Address));
+																var pp = p.Manifest.Parents.LastOrDefault(i => IsReady(i.Address));
 
 																if(pp == null)
 																	throw new PackageException(PackageError.ParentPackagesNotFound);
@@ -502,7 +506,7 @@ public class PackageHub
 
 										foreach(var j in Directory.EnumerateFiles(AddressToDeployment(packagespath, i.Address), "*", SearchOption.AllDirectories))
 										{
-											var fd = Path.Join(AddressToDeployment(packagespath, s.Target.Address), j.Substring(AddressToDeployment(packagespath, i.Address).Length + 1));
+											var fd = AddressToDeployment(packagespath, s.Target.Address, j.Substring(AddressToDeployment(packagespath, i.Address).Length + 1));
 											Directory.CreateDirectory(Path.GetDirectoryName(fd));
 
 											File.Copy(j, fd, true);
@@ -510,8 +514,9 @@ public class PackageHub
 										//var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									}
 
-									///	if(s.Complete.Release.IsReady(PackageInstruction.Extension))
-									///		File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Address), PackageInstruction.Extension), true);
+									///if(s.Complete.Release.IsReady(PackageInstruction.Extension))
+									///	File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Address), PackageInstruction.Extension), true);
+									File.WriteAllText(AddressToDeployment(packagespath, s.Target.Address, Package.Deployed),  null);
 
 									s.Complete.Activity = null;
 								}

@@ -60,7 +60,7 @@ public class PackageDownload
 
 		lock(hub.Lock)
 		{
-			if(hub.IsAvailable(package.Address))
+			if(hub.IsReady(package.Address))
 			{
 				IsDownloaded = true;
 				return;
@@ -110,7 +110,7 @@ public class PackageDownload
 								
 											foreach(var i in deps.Where(i => i.Need == DependencyNeed.Critical))
 											{
-												if(!hub.ExistsRecursively(i.Address))
+												if(!hub.IsReady(i.Address))
 												{
 													var dd = hub.StartDownload(i.Address, flow);
 													Dependencies.Add(dd);
@@ -128,7 +128,7 @@ public class PackageDownload
 																							flow);
 
 
-										Task.WaitAll(DependenciesRecursive.Select(i => i.Task).Append(FileDownload.Task).ToArray());
+										Task.WaitAll([..DependenciesRecursive.Select(i => i.Task), FileDownload.Task]);
 
 										var a = Availability.None;
 
