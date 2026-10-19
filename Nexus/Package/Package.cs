@@ -12,6 +12,8 @@ public class Package
 	public const string		Patch = "patch";
 	public const string		Renaming = "rename"; /// TODO Maximion
 
+	public const string		Deployed = ".deployed";
+
 	public AutoId			Id;
 	public Ura				Address;
 	public Urn				Urn;

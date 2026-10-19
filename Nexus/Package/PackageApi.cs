@@ -26,7 +26,7 @@ public class PackageApe
 		Id			= package.Id;
 		Manifest	= package.Manifest;
 		Release		= new LocalReleaseApe(package.Release);
-		Available	= package.Hub.IsAvailable(package.Address);
+		Available	= package.Hub.IsReady(package.Address);
 	}
 }
 
