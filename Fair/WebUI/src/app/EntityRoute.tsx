@@ -118,12 +118,19 @@ export const EntityRoute = () => {
           <Route path="search" element={<SearchPage />} />
           <Route path="about" element={<AboutPage />} />
 
-          {/* Governance */}
           <Route
             path="referendums/new"
             element={
               <CreateProposalProvider>
                 <CreateReferendumPage />
+              </CreateProposalProvider>
+            }
+          />
+          <Route
+            path="proposals/new"
+            element={
+              <CreateProposalProvider>
+                <CreateDiscussionPage />
               </CreateProposalProvider>
             }
           />
@@ -133,20 +140,11 @@ export const EntityRoute = () => {
           <Route path="referendums" element={<ReferendumsPage />} />
           <Route path="referendums/:referendumId" element={<ReferendumPage />} />
 
-          {/* Moderation */}
-          <Route
-            path="proposals/new"
-            element={
-              <CreateProposalProvider>
-                <CreateDiscussionPage />
-              </CreateProposalProvider>
-            }
-          />
           <Route path="publications/new" element={<CreatePublicationPage />} />
           <Route path="publications/preview" element={<PreviewPage />} />
+
           <Route element={<ModerationLayout />}>
             // Proposals
-            <Route path="proposals2" element={<ProposalsPage />} />
             <Route path="proposals" element={<ProposalsPage />} />
             <Route path="proposals/:proposalId" element={<ProposalPage />} />
             // Moderators

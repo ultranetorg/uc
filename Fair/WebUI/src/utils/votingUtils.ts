@@ -54,9 +54,6 @@ export const isVotingRequired = (operation?: OperationType, store?: Store, polic
   }
 }
 
-export const calculateVotesRequiredToWinPerpetualSurvey = (storePublishersCount: number) =>
-  storePublishersCount / 2 + (storePublishersCount & 1)
-
 export const calculateVotesRequiredToWinProposal = (
   operation?: OperationType,
   store?: Store,

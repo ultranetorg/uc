@@ -54,10 +54,11 @@ export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem
     isPublisherCanVote(operation, policies) && isVotingRequired(operation, store, policies)
 
   const isOperationVisibleForStaff = (operation: OperationType) =>
-    (isModerator && (isModeratorShouldVote(operation) || isPublisherCanCreate(operation, policies))) ||
-    (isPublisher && (isPublisherShouldVote(operation) || isModeratorCanCreate(operation, policies))) ||
-    ((isModerator || isPublisher) && isUserCanCreate(operation, policies)) ||
-    ((isModerator || isPublisher) && isCandidateCanCreate(operation))
+    (isModerator &&
+      (isModeratorShouldVote(operation) ||
+        isPublisherCanCreate(operation, policies) ||
+        isModeratorCanCreate(operation, policies))) ||
+    (isPublisher && (isPublisherShouldVote(operation) || isPublisherCanCreate(operation, policies)))
 
   const isReferendumsVisible = operationTypesWithoutSection.some(isOperationVisibleForStaff)
   const isProposalsVisible = operationTypesWithoutSection.some(isOperationVisibleForStaff)

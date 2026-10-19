@@ -83,7 +83,7 @@ const operationRules: Record<OperationType, InvalidationRule> = {
   "user-unregistration": ({ storeId }) => [storesKeys.users(storeId), proposalsKeys.userUnregistrations(storeId)],
 }
 
-// Смена политики голосования (perpetual survey) для любой операции.
+// Смена политики голосования (policy survey) для любой операции.
 const policyChangeRule: InvalidationRule = ({ storeId }) => [storesKeys.policies(storeId), surveysKeys.all(storeId)]
 
 // Любое изменение предложения (создание, голосование, комментарий): список, детали и комментарии.
