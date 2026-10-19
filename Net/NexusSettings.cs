@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 
 namespace Uccs.Net;
 
-
 public class NexusSessionSettings
 {
 	public string			Net { get; set; }
@@ -15,7 +14,7 @@ public class NexusSessionSettings
 public class DeployedNode
 {
 	public string			Net;
-	public AutoId			Package;
+	public Snq				Package;
 	public Process			Process;
 }
 

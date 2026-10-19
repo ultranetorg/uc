@@ -155,11 +155,11 @@ public class Nexus : IProgram
 			
 				if(s == Iccp.Scheme) /// deploy node software
 				{
-					var r = RdnNode.Peering.Call(new ResourceByAddressPpc(Ura.Parse(wi.Software)), Flow)?.Resource;
+					//var r = RdnNode.Peering.Call(new ResourceByAddressPpc(Ura.Parse(wi.Software)), Flow);
 
-					var p = DeployProduct(r.Id, Flow);
+					var p = DeployProduct(Ura.Parse(wi.Software), Flow);
 
-					node = new DeployedNode {Net = net, Package = p.Id};
+					node = new DeployedNode {Net = net, Package = p.Address.ToSnq()};
 					Settings.Nodes.Add(node);
 				}
 				else
@@ -169,7 +169,7 @@ public class Nexus : IProgram
 				throw new NexusException("No node software");
 		}
 
-		node.Process = Run(node.Package);
+		node.Process = Run(new Ura(node.Package));
 
 		return node;
 	}
@@ -178,9 +178,7 @@ public class Nexus : IProgram
 	{
 		if(snq.Net == null || snq.Net == Icn.Root)
 		{
-			var r = RdnNode.Peering.Call(new ResourceByAddressPpc(new Ura(snq)), Flow)?.Resource;
-
-			return RdnDo(r.Id, flow);
+			return RdnDo(new Ura(snq), flow);
 		}
 		else
 		{
@@ -207,16 +205,16 @@ public class Nexus : IProgram
 		}
 	}
 
-	Package DeployProduct(AutoId ura, Flow flow)
+	Package DeployProduct(Ura ura, Flow flow)
 	{
-		var r = RdnNode.Peering.Call(new ResourceByIdPpc(ura), flow)?.Resource;
+		var r = RdnNode.Peering.Call(new ResourceByAddressPpc(ura), flow)?.Resource;
 		//var d = RdnNode.ResourceHub.Find(ura)?.Last;
 				
 		if(r.Data == null)
 			throw new NexusException("No data");
 	
-		//Ura apr = null;
-		AutoId aprv = null;
+		Ura p = null;
+		//AutoId aprv = null;
 	
 		if(r.Data.Meaning == Meaning.Package_Software_ProductManifest)
 		{
@@ -224,33 +222,35 @@ public class Nexus : IProgram
 	
 			//lock(RdnNode.ResourceHub.Lock)
 			{
-				using var rd = new Reader(r.Data.Value);
-				var m = rd.Read<ProductManifest>();
+				var m = new Reader(r.Data.Value).Read<ProductManifest>();
 	
-				aprv = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
+				var l = m.Realizations.FirstOrDefault(i => i.Condition.Match(Platform.Current)).Latest;
+
+				p = RdnNode.Peering.Call(new ResourceByIdPpc(l), flow)?.Address;
+
 			}
 		}
 		else if(r.Data.Meaning == Meaning.Package_Software_PackageManifest)
 		{
-			aprv = ura;
+			p = ura;
 		}
 		else
 			throw new NexusException("Incorrect resource type");
 	
-		return PackageHub.Deploy(aprv, flow);
+		return PackageHub.Deploy(p, flow);
 
 	}
 
-	byte[] RdnDo(AutoId ura, Flow flow)
+	byte[] RdnDo(Ura ura, Flow flow)
 	{
 		var p = DeployProduct(ura, flow);
 
-		Run(p.Id);
+		Run(p.Address);
 
 		return null;
 	}
 
-	Process Run(AutoId package)
+	Process Run(Ura package)
 	{
 //		var vmpath = Directory.EnumerateFiles(PackageHub.AddressToDeployment(Settings.Packages, package), "*." + PackageManifest.Extension).First();
 //	
@@ -274,7 +274,7 @@ public class Nexus : IProgram
 		return ps;
 	}
 
-	public void SetupApplicationEnvironemnt(AutoId address)
+	public void SetupApplicationEnvironemnt(Ura address)
 	{
 		Environment.SetEnvironmentVariable(NetBoot.ZoneEnvironmentKey,		Settings.Zone.ToString());
 		Environment.SetEnvironmentVariable(NetBoot.ProfileEnvironmentKey,	Settings.Profile);

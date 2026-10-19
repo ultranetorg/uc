@@ -26,7 +26,7 @@ public class PackageApe
 		Id			= package.Id;
 		Manifest	= package.Manifest;
 		Release		= new LocalReleaseApe(package.Release);
-		Available	= package.Hub.IsAvailable(package.Id);
+		Available	= package.Hub.IsAvailable(package.Address);
 	}
 }
 
@@ -96,7 +96,7 @@ public class PackageUpdateApc :  Apc, INexusApc
 //	}
 //}
 
-public class PackageCreateApc : Apc, INexusApc
+public class PackageCreateApc : Fpc<PackageApe>, INexusApc
 {
 	public Ura						Address { get; set; }
 	public IEnumerable<string>		Sources { get; set; }
@@ -131,7 +131,7 @@ public class PackageCreateApc : Apc, INexusApc
 
 public class StartPackageDownloadApc : Apc, INexusApc
 {
-	public AutoId		Id { get; set; }
+	public Ura		Id { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -146,9 +146,9 @@ public class StartPackageDownloadApc : Apc, INexusApc
 	}
 }
 
-public class PackageActivityProgressApc : Apc, INexusApc
+public class PackageActivityProgressApc : Fpc<PackageActivityProgress>, INexusApc
 {
-	public AutoId	Id { get; set; }
+	public Ura	Address { get; set; }
 	
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -157,7 +157,7 @@ public class PackageActivityProgressApc : Apc, INexusApc
 
 		lock(nexus.PackageHub.Lock)
 		{
-			var p = nexus.PackageHub.Find(Id);
+			var p = nexus.PackageHub.Find(Address);
 
 			if(p == null)
 				throw new ResourceException(ResourceError.NotFound);
@@ -173,9 +173,9 @@ public class PackageActivityProgressApc : Apc, INexusApc
 	}
 }
 
-public class LocalPackageApc : Apc, INexusApc
+public class LocalPackageApc : Fpc<PackageApe>, INexusApc
 {
-	public AutoId	Id { get; set; }
+	public Ura	Address { get; set; }
 	
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -184,7 +184,7 @@ public class LocalPackageApc : Apc, INexusApc
 
 		lock(nexus.PackageHub.Lock)
 		{
-			var p = nexus.PackageHub.Find(Id);
+			var p = nexus.PackageHub.Find(Address);
 
 			if(p == null)
 				throw new ResourceException(ResourceError.NotFound);
@@ -194,7 +194,7 @@ public class LocalPackageApc : Apc, INexusApc
 	}
 }
 
-public class LocalPackageSearchApc : Apc, INexusApc
+public class LocalPackageSearchApc : Fpc<PackageApe[]>, INexusApc
 {
 	public string	Query { get; set; }
 	
@@ -212,7 +212,7 @@ public class LocalPackageSearchApc : Apc, INexusApc
 
 public class PackageDeployApc : Apc, INexusApc
 {
-	public AutoId		Address { get; set; }
+	public Ura			Address { get; set; }
 	public string		To { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)

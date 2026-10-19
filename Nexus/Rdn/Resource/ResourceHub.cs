@@ -9,7 +9,7 @@ public class ResourceHub
 	public const long				PieceMaxLength = 512 * 1024;
 	public const int				MembersPerDeclaration = 3;
 	public const string				ReleaseFamilyName = nameof(Releases);
-	public const string				ResourceFamilyName = nameof(Resources);
+	//public const string				ResourceFamilyName = nameof(Resources);
 
 	public List<Release>			Releases = new();
 	public List<CachedResource>		Resources = new();
@@ -17,7 +17,7 @@ public class ResourceHub
 	public object					Lock = new object();
 	public McvNet					Net;
 	public ColumnFamilyHandle		ReleaseFamily => Node.Database.GetColumnFamily(ReleaseFamilyName);
-	public ColumnFamilyHandle		ResourceFamily => Node.Database.GetColumnFamily(ResourceFamilyName);
+	//public ColumnFamilyHandle		ResourceFamily => Node.Database.GetColumnFamily(ResourceFamilyName);
 	public SeedSettings				Settings;
 	Thread							DeclaringThread;
 
@@ -32,7 +32,7 @@ public class ResourceHub
 		Directory.CreateDirectory(Settings.Releases);
 
 		if(!Node.Database.TryGetColumnFamily(ReleaseFamilyName, out var cf))	Node.Database.CreateColumnFamily(new (), ReleaseFamilyName);
-		if(!Node.Database.TryGetColumnFamily(ResourceFamilyName, out cf))		Node.Database.CreateColumnFamily(new (), ResourceFamilyName);
+		//if(!Node.Database.TryGetColumnFamily(ResourceFamilyName, out cf))		Node.Database.CreateColumnFamily(new (), ResourceFamilyName);
 
 		using(var i = Node.Database.NewIterator(ReleaseFamily))
 		{
@@ -121,32 +121,52 @@ public class ResourceHub
 		}
 		else
 		{
-			var d = Node.Database.Get(id.Raw, ResourceFamily);
-									
-			if(d != null)
-			{
-				c = new Reader(d).Read<CachedResource>();
-				Resources.Add(c);
-			}
+			var r = Node.Peering.Call(new ResourceByIdPpc(id), Node.Flow); 
+
+			c = new CachedResource
+				{
+					Id		= r.Resource.Id,
+					Address = r.Address,
+					Data	= r.Resource.Data,
+					Updated = DateTime.UtcNow
+				};
+
+			Resources.Add(c);
+		}
+
+		return c;
+	}
+
+	public CachedResource Get(Ura address)
+	{
+		var c = Resources.Find(i => i.Address == address);
+
+		if(c != null)
+		{	
+			if(DateTime.UtcNow - c.Updated < TimeSpan.FromSeconds(10))
+				return c;
 			else
 			{	
-				var r = Node.Peering.Call(new ResourceByIdPpc(id), Node.Flow); 
+				var r = Node.Peering.Call(new ResourceByAddressPpc(address), Node.Flow);
 
-				c = new CachedResource
-					{
-						Id		= r.Resource.Id,
-						Address = r.Address,
-						Data	= r.Resource.Data,
-						Updated = DateTime.UtcNow
-					};
-
-				Resources.Add(c);
-
-				if(r.Resource.Data != null && r.Resource.Flags.HasFlag(ResourceFlags.Locked))
-				{
-					Node.Database.Put(id.Raw, (r as IBinarySerializable).ToRaw(), ResourceFamily);
-				}
+				c.Id		= r.Resource.Id;
+				c.Data		= r.Resource.Data;
+				c.Updated	= DateTime.UtcNow;
 			}
+		}
+		else
+		{
+			var r = Node.Peering.Call(new ResourceByAddressPpc(address), Node.Flow); 
+
+			c = new CachedResource
+				{
+					Id		= r.Resource.Id,
+					Address = address,
+					Data	= r.Resource.Data,
+					Updated = DateTime.UtcNow
+				};
+
+			Resources.Add(c);
 		}
 
 		return c;

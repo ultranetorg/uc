@@ -55,26 +55,38 @@ public class PackageCommand : NexusCommand
 								if(mt != null)
 								{
 									m = PackageManifest.Parse(mt);
-									m.TranslateAddressToId(a => { 
-																	var r = Rapi.Ppc(new ResourceByAddressPpc(a), Flow).Resource;
-
-																	Report($"Resource address resolved {a} -> {r.Id}");
-
-																	return r.Id;
-																});
-									mt = m.ToXon().ToString();
-									m = PackageManifest.Parse(mt);
+									//m.TranslateAddressToId(a => { 
+									//								var r = Rapi.Ppc(new ResourceByAddressPpc(a), Flow).Resource;
+									//
+									//								Report($"Resource address resolved {a} -> {r.Id}");
+									//
+									//								return r.Id;
+									//							});
+									//mt = m.ToXon().ToString();
+									//m = PackageManifest.Parse(mt);
 								}
 
-								var p = Api<PackageApe>(new PackageCreateApc   
-														{
-															Address			= Address,
-															Sources			= Args.Where(i => i.Name == source).Select(i => i.Get<string>()), 
-															Manifest		= mt,
-															Instruction		= it,
-															Previous		= m?.Parents.FirstOrDefault()?.Id,
-															AddressCreator	= new (UrnNamespace.Blake3)
-														});
+								AutoId getid(Ura addres) 
+								{ 
+									if(addres == null)
+										return null;
+
+									var r = Rapi.Ppc(new ResourceByAddressPpc(addres), Flow).Resource;
+									
+									Report($"Resource address resolved {addres} -> {r.Id}");
+									
+									return r.Id;
+								}
+
+								var p = Api(new PackageCreateApc   
+											{
+												Address			= Address,
+												Sources			= Args.Where(i => i.Name == source).Select(i => i.Get<string>()), 
+												Manifest		= mt,
+												Instruction		= it,
+												Previous		= getid(m?.Parents.FirstOrDefault()?.Address),
+												AddressCreator	= new (UrnNamespace.Blake3)
+											});
 								
 								Report($"Release created");
 								Flow.Log.Dump(p);
@@ -83,7 +95,7 @@ public class PackageCommand : NexusCommand
 
 								if(Has(publish))
 								{
-									ops.Add(new ResourceCreation(Address, new ResourceData(Meaning.Package_Software_PackageManifest, p.Manifest), Has(depandable)));
+									ops.Add(new ResourceCreation(Address, new ResourceData(Meaning.Package_Software_PackageManifest, p.Release.Address), Has(depandable)));
 								}
 
 								if(Has(link))
@@ -92,9 +104,9 @@ public class PackageCommand : NexusCommand
 														  : Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
 	
 									if(m?.Parents.FirstOrDefault() != null)
-										ops.Add(new ResourceLinkCreation(id, m?.Parents.First().Id, ResourceLinkType.Dependency));
+										ops.Add(new ResourceLinkCreation(id, getid(m.Parents.First().Address), ResourceLinkType.Dependency));
 
-									ops.AddRange(p.Manifest.CompleteDependencies.Select(i => new ResourceLinkCreation(id, i.Id, ResourceLinkType.Dependency)));
+									ops.AddRange(p.Manifest.CompleteDependencies.Select(i => new ResourceLinkCreation(id, getid(i.Address), ResourceLinkType.Dependency)));
 								}
 								
 								if(ops.Any())
@@ -117,7 +129,7 @@ public class PackageCommand : NexusCommand
 
 										Rapi.Send(	new ReleaseUpdateApc
 													{
-														Address = p.Manifest.Urn,
+														Address = p.Release.Address,
 														Id= r.Id,
 													}, 
 													Flow);
@@ -145,7 +157,7 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								var r = Api<PackageApe>(new LocalPackageApc {Id = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id});
+								var r = Api(new LocalPackageApc {Address = Address});
 				
 								Flow.Log.Dump(r);
 
@@ -166,9 +178,9 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								var r = Api<PackageApe[]>(new LocalPackageSearchApc {Query = GetString(query)});
+								var r = Api(new LocalPackageSearchApc {Query = GetString(query)});
 				
-								Flow.Log.Dump(r, ["Address", "Id", "Urn"], [i => i.Address, i => i.Id, i => i.Manifest.Urn]);
+								Flow.Log.Dump(r, ["Address", "Id", "Urn"], [i => i.Address, i => i.Id, i => i.Release.Address]);
 
 								return null;
 							};
@@ -185,19 +197,17 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								var id = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
-
-								Api(new StartPackageDownloadApc {Id = id});
+								Api(new StartPackageDownloadApc {Id = Address});
 
 								try
 								{
 									do
 									{
-										var d = Api<PackageActivityProgress>(new PackageActivityProgressApc {Id = id});
+										var d = Api(new PackageActivityProgressApc {Address = Address});
 						
 										if(d is null)
 										{	
-											if(!Api<PackageApe>(new LocalPackageApc {Id = id}).Available)
+											if(!Api(new LocalPackageApc {Address = Address}).Available)
 											{
 												Flow.Log?.ReportError(this, "Failed");
 											}
@@ -233,11 +243,9 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								var id = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
-
 								Api(new PackageDeployApc
 									{
-										Address = id,
+										Address = Address,
 										To = GetString(to, null)}
 									);
 
@@ -245,11 +253,11 @@ public class PackageCommand : NexusCommand
 								{
 									do
 									{
-										var d = Api<PackageActivityProgress>(new PackageActivityProgressApc {Id = id });
+										var d = Api(new PackageActivityProgressApc {Address = Address});
 						
 										if(d is null)
 										{	
-											if(!Api<PackageApe>(new LocalPackageApc {Id = id}).Available)
+											if(!Api(new LocalPackageApc {Address = Address}).Available)
 											{
 												Flow.Log?.ReportError(this, "Failed");
 											}
@@ -266,6 +274,7 @@ public class PackageCommand : NexusCommand
 								catch(OperationCanceledException)
 								{
 								}
+							
 								return null;
 							};
 		return a;

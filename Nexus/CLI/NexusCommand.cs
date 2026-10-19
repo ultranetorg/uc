@@ -38,7 +38,7 @@ public abstract class NexusCommand : NetCommand
 		throw new Exception();
 	}
 
-	public override R Api<R>(Apc call)
+	public R Api<R>(Fpc<R> call) where R : class 
 	{
 		ApplyTimeouts(call);
 

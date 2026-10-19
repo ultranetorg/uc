@@ -36,7 +36,7 @@ public class PackageHub
 							 {
 								Address	 = new Reader(i.Key()).Read<Ura>(),
 								Id		 = v.ReadNullable<AutoId>(),
-								Manifest = v.Read<PackageManifest>(),
+								Urn		 = v.ReadVirtual<Urn>(),
 							 });
 			}
 		}
@@ -50,16 +50,16 @@ public class PackageHub
 		var w = new Writer(s, Rdn.Rdn.Any.Constructor);
 
 		w.WriteNullable(package.Id);
-		w.Write(package.Manifest);
+		w.WriteVirtual(package.Urn);
 
 		b.Put((package.Address as IBinarySerializable).ToRaw(), s.ToArray());
 
 		Node.Database.Write(b);
 	}
 
- 	public static string AddressToDeployment(string packagespath, AutoId resource)
+ 	public static string AddressToDeployment(string packagespath, Ura resource)
  	{
- 		return Path.Join(packagespath, resource.ToString());
+ 		return Path.Join(packagespath, resource.ToString().EscapeFilePath());
  	}
 
  	public string AddressToReleases(Urn release)
@@ -67,7 +67,7 @@ public class PackageHub
  		return Path.Join(Node.Settings.Seed.Releases, release.ToString().EscapeFilePath());
  	}
 
-	public bool IsAvailable(AutoId package)
+	public bool IsAvailable(Ura package)
 	{
 		var p = Find(package);
 		
@@ -79,10 +79,11 @@ public class PackageHub
 
 		lock(Node.ResourceHub.Lock)
 		{
-			if(	p.Release.Availability.HasFlag(Availability.Complete) || 
-				p.Release.Availability.HasFlag(Availability.Delta) && p.Manifest.Parents.Any(i => IsAvailable(i.Id)))
+			if(	p.Manifest != null &&
+				(p.Release.Availability.HasFlag(Availability.Complete) || 
+				p.Release.Availability.HasFlag(Availability.Delta) && p.Manifest.Parents.Any(i => IsAvailable(i.Address))))
 			{
-				return p.Manifest.CriticalDependencies.All(i => IsAvailable(i.Id));
+				return p.Manifest.CriticalDependencies.All(i => IsAvailable(i.Address));
 			}
 			else
 				return false;
@@ -103,7 +104,7 @@ public class PackageHub
  		return p;
  	}
 
-	public bool ExistsRecursively(AutoId release)
+	public bool ExistsRecursively(Ura release)
 	{
 		var p = Find(release);
 
@@ -112,7 +113,7 @@ public class PackageHub
 
 		foreach(var i in p.Manifest.CompleteDependencies)
 		{
-			if(i.Need == DependencyNeed.Critical && !ExistsRecursively(i.Id))
+			if(i.Need == DependencyNeed.Critical && !ExistsRecursively(i.Address))
 				return false;
 		}
 
@@ -121,35 +122,34 @@ public class PackageHub
 
 	public void Build(Stream stream, Dictionary<string, string> files, IEnumerable<string> removals, Dictionary<string, byte[]> patches, Flow flow)
 	{
-		using(var arch = new ZipArchive(stream, ZipArchiveMode.Create, true))
+		using var arch = new ZipArchive(stream, ZipArchiveMode.Create, true);
+		
+		foreach(var f in files)
 		{
-			foreach(var f in files)
-			{
-				arch.CreateEntryFromFile(f.Key, f.Value);
-				flow.Log?.Report(this, "Packed", f.Value);
-			}
+			arch.CreateEntryFromFile(f.Key, $"{Package.New}{f.Value}");
+			flow.Log?.Report(this, "Packed", f.Value);
+		}
 
-			if(removals.Any())
-			{
-				var e = arch.CreateEntry(Package.Removals);
-				var f = string.Join('\n', removals);
+		if(removals.Any())
+		{
+			var e = arch.CreateEntry(Package.Deletion);
+			var f = string.Join('\n', removals);
 					
-				using var s = e.Open();
-				s.Write(Encoding.UTF8.GetBytes(f));
-			}
+			using var s = e.Open();
+			s.Write(Encoding.UTF8.GetBytes(f));
+		}
 
-			if(patches.Any())
-			{
-				var e = arch.CreateEntry(Package.Patches);
+		if(patches.Any())
+		{
+			var e = arch.CreateEntry(Package.Patch);
 					
-				using var s = e.Open();
-				var w = new Writer(s);
+			using var s = e.Open();
+			var w = new Writer(s);
 
-				foreach(var i in patches)
-				{
-					w.WriteUtf8(i.Key);
-					w.WriteBytes(i.Value);
-				}
+			foreach(var i in patches)
+			{
+				w.WriteUtf8(i.Key);
+				w.WriteBytes(i.Value);
 			}
 		}
 	}
@@ -166,17 +166,19 @@ public class PackageHub
 		string ppath;
 			
 		lock(Node.ResourceHub)
-			ppath = complete.Find(Package.Complete).DataPath;
+			ppath = complete.Find(Package.CompleteFile).DataPath;
 
 		using(var ps = new FileStream(ppath, FileMode.Open))
 		{
 			using(var pzip = new ZipArchive(ps, ZipArchiveMode.Read))
 			{
-				foreach(var e in pzip.Entries)
+				foreach(var e in pzip.Entries.Where(i => i.FullName.StartsWith(Package.New)))
 				{
-					olds.Add(e.FullName);
+					var path = e.FullName.Substring(Package.New.Length);
 
-					var f = all.FirstOrDefault(i => i.Value == e.FullName);
+					olds.Add(path);
+
+					var f = all.FirstOrDefault(i => i.Value == path);
 				
 					if(f.Key != null) /// new package contains a file from the old one
 					{
@@ -211,8 +213,8 @@ public class PackageHub
 					}
 					else /// a file is removed in the new package
 					{
-						rems.Add(e.FullName);
-						flow.Log?.Report(this, "Removed", e.FullName);
+						rems.Add(path);
+						flow.Log?.Report(this, "Removed", path);
 					}
 				}
 			}
@@ -232,11 +234,11 @@ public class PackageHub
 
 	public void DetermineDelta(PackageManifest manifest, out string file, out List<Dependency> dependencies)
 	{
-		var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Id));
+		var from = manifest.Parents?.LastOrDefault(i => IsAvailable(i.Address));
 	
 		if(from != null)
 		{
-			var deps = Find(from.Id).Manifest.CompleteDependencies.ToList();
+			var deps = Find(from.Address).Manifest.CompleteDependencies.ToList();
 
 			deps.AddRange(from.AddedDependencies);
 			deps.RemoveAll(i => from.RemovedDependencies.Contains(i));
@@ -245,12 +247,12 @@ public class PackageHub
 			deps.RemoveAll(i => !manifest.CompleteDependencies.Contains(i));
 				
 			dependencies = deps;
-			file = from.Id.ToString(); /// we have all incremental packages since last complete one
+			file = from.Address.ToString().EscapeFilePath() + "." + Package.DeltaExtention; /// we have all delta packages since last complete one
 		}
 		else
 		{
 			dependencies = manifest.CompleteDependencies.ToList();
-			file = Package.Complete;
+			file = Package.CompleteFile;
 		}
 	}
 
@@ -308,17 +310,18 @@ public class PackageHub
 			i.AddedDependencies		= manifest.CompleteDependencies.Where(i => !parent.Manifest.CompleteDependencies.Contains(i)).ToArray();
 			i.RemovedDependencies	= parent.Manifest.CompleteDependencies.Where(i => !manifest.CompleteDependencies.Contains(i)).ToArray();
 
-			x[ds.ToArray()] = parent.Id.ToString();
+			x[ds.ToArray()] = parent.Address.ToString().EscapeFilePath() + "." + Package.DeltaExtention;
 		}
 		
 	 	var p = new Package(this);
 
 		p.Address = address;
-		p.Manifest = manifest;
+		//p.Manifest = manifest;
 	 	
 	 	Packages.Add(p);
 
-		x[completed] = Package.Complete;
+		x[(manifest as IBinarySerializable).ToRaw()] = PackageManifest.Extension;
+		x[completed] = Package.CompleteFile;
 
 		if(instruction != null)
 			x[(instruction as IBinarySerializable).ToRaw()] = PackageInstruction.Extension;
@@ -329,7 +332,7 @@ public class PackageHub
 
 			r.Complete(Availability.Complete|(manifest.Parents.Any() ? Availability.Delta : 0));
 
-			manifest.Urn = r.Address;
+			p.Urn = r.Address;
 
 			flow.Log?.Report(this, $"Release built: {r.Address}");
 
@@ -340,7 +343,7 @@ public class PackageHub
 		return p;
 	}
 
-	public void StartDeploy(AutoId address, string packagespath, Flow flow)
+	public void StartDeploy(Ura address, string packagespath, Flow flow)
 	{
 		packagespath ??= DeploymentPath;
 
@@ -371,81 +374,82 @@ public class PackageHub
 
 			var	d = new Deployment();
 
-			void collect(Package parent, AutoId address){
-															var m = new DeploymentMerge {Target = Find(address)};
-															d.Merges.Add(m);
+			void collect(Package parent, Ura address){
+														var m = new DeploymentMerge {Target = Find(address)};
+														d.Merges.Add(m);
 
-															var p = m.Target;
+														var p = m.Target;
 
-															while(flow.Active)
+														while(flow.Active)
+														{
+															if(p.Release == null)
 															{
-																if(p.Release == null)
-																{
-																}
-																else if(p.Release.Availability.HasFlag(Availability.Complete))
-																{
-																	if(p.Activity == null)
-																		p.Activity = d;
-																	else
-																		throw new PackageException(PackageError.Busy);
+															}
+															else if(p.Release.Availability.HasFlag(Availability.Complete))
+															{
+																if(p.Activity == null)
+																	p.Activity = d;
+																else
+																	throw new PackageException(PackageError.Busy);
 				
-																	m.Complete = p;
+																m.Complete = p;
 
-																	break;
-																}
-																else if(p.Release.Availability.HasFlag(Availability.Delta))
-																{	
-																	if(p.Activity == null)
-																		p.Activity = d;
-																	else
-																		throw new PackageException(PackageError.Busy);
+																break;
+															}
+															else if(p.Release.Availability.HasFlag(Availability.Delta))
+															{	
+																if(p.Activity == null)
+																	p.Activity = d;
+																else
+																	throw new PackageException(PackageError.Busy);
 
-																	var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Id));
+																var pp = p.Manifest.Parents.LastOrDefault(i => ExistsRecursively(i.Address));
 
-																	if(pp == null)
-																		throw new PackageException(PackageError.ParentPackagesNotFound);
+																if(pp == null)
+																	throw new PackageException(PackageError.ParentPackagesNotFound);
 
-																	m.Deltas.Insert(0, new (p, pp));
+																m.Deltas.Insert(0, new (p, pp));
 
-																	p = Find(pp.Id);
-																}
-
-																Thread.Sleep(10);
+																p = Find(pp.Address);
 															}
 
-															//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
-			
-															var deps = new HashSet<AutoId>();
-
-															foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
-																deps.Add(j.Id);
-
-															foreach(var i in m.Deltas.AsEnumerable().Reverse())
-															{
-																foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
-																	deps.Add(j.Id);
-	
-																foreach(var j in i.Value.RemovedDependencies)
-																	deps.Remove(j.Id);
-															}
-
-															foreach(var i in deps)
-																collect(p, i);
+															Monitor.Exit(Lock);
+															Thread.Sleep(10);
+															Monitor.Enter(Lock);
 														}
 
-			collect(null, address);
+														//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
+			
+														var deps = new HashSet<Ura>();
+
+														foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
+															deps.Add(j.Address);
+
+														foreach(var i in m.Deltas.AsEnumerable().Reverse())
+														{
+															foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
+																deps.Add(j.Address);
+	
+															foreach(var j in i.Value.RemovedDependencies)
+																deps.Remove(j.Address);
+														}
+
+														foreach(var i in deps)
+															collect(p, i);
+													}
+			collect(null, p.Address);
 
 			Task.Run(() =>	{ 
 								foreach(var s in d.Merges.AsEnumerable().Reverse())
 								{
-									using var cfs = new FileStream(s.Complete.Release.Find(Package.Complete).DataPath, FileMode.Open);
+									using var cfs = new FileStream(s.Complete.Release.Find(Package.CompleteFile).DataPath, FileMode.Open);
 									using var ca = new ZipArchive(cfs, ZipArchiveMode.Read);
 									
-									var deplpath = AddressToDeployment(packagespath, s.Target.Id); 
+									var deplpath = AddressToDeployment(packagespath, s.Target.Address); 
 
 									foreach(var e in ca.Entries) /// extract from complete
 									{
-										var f = Path.Join(deplpath, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+										var f = Path.Join(deplpath, e.FullName.Substring(Package.New.Length).Replace('/', Path.DirectorySeparatorChar));
 								
 										Directory.CreateDirectory(Path.GetDirectoryName(f));
 										e.ExtractToFile(f, true);
@@ -455,30 +459,30 @@ public class PackageHub
 
 									foreach(var i in s.Deltas)
 									{
-										using var ifs = new FileStream(i.Key.Release.Find(prev.Id.ToString()).DataPath, FileMode.Open);
+										using var ifs = new FileStream(i.Key.Release.Find(prev.Address.ToString().EscapeFilePath() + "." + Package.DeltaExtention).DataPath, FileMode.Open);
 										using var z = new ZipArchive(ifs, ZipArchiveMode.Read);
-											
-										foreach(var e in z.Entries)
+										
+										foreach(var e in z.Entries.Where(i => i.FullName.StartsWith(Package.New)))
 										{
-											if(e.Name != Package.Removals)
-											{
-												var f = Path.Join(deplpath, e.FullName.Replace('/', Path.DirectorySeparatorChar));
+											var f = Path.Join(deplpath, e.FullName.Substring(Package.New.Length).Replace('/', Path.DirectorySeparatorChar));
 								
-												Directory.CreateDirectory(Path.GetDirectoryName(f));
-												e.ExtractToFile(f, true);
-											} 
-											else
-											{
-												using var es = e.Open();
-												var sr = new StreamReader(es);
-
-												while(!sr.EndOfStream)
-												{
-													File.Delete(Path.Join(deplpath, sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
-												}
-											}
+											Directory.CreateDirectory(Path.GetDirectoryName(f));
+											e.ExtractToFile(f, true);
 										}
 
+										var d = z.GetEntry(Package.Deletion);
+										
+										if(d != null)
+										{
+											using var es = d.Open();
+											var sr = new StreamReader(es);
+
+											while(!sr.EndOfStream)
+											{
+												File.Delete(Path.Join(deplpath, sr.ReadLine().Replace('/', Path.DirectorySeparatorChar)));
+											}
+										}
+									
 										prev = i.Key;
 
 										i.Key.Activity = null;
@@ -488,7 +492,7 @@ public class PackageHub
 
 									foreach(var i in s.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical && i.Flags.HasFlag(DependencyFlag.Merge)))
 									{
-										var d = Find(i.Id);
+										var d = Find(i.Address);
 									
 										while(d == null || d.Activity != null)
 											if(flow.Active)
@@ -496,19 +500,18 @@ public class PackageHub
 											else
 												return;
 
-										foreach(var j in Directory.EnumerateFiles(AddressToDeployment(packagespath, i.Id), "*", SearchOption.AllDirectories).Where(i => Path.GetExtension(i) != PackageInstruction.Extension))
+										foreach(var j in Directory.EnumerateFiles(AddressToDeployment(packagespath, i.Address), "*", SearchOption.AllDirectories))
 										{
-											var fd = Path.Join(AddressToDeployment(packagespath, s.Target.Id), j.Substring(AddressToDeployment(packagespath, i.Id).Length + 1));
+											var fd = Path.Join(AddressToDeployment(packagespath, s.Target.Address), j.Substring(AddressToDeployment(packagespath, i.Address).Length + 1));
 											Directory.CreateDirectory(Path.GetDirectoryName(fd));
 
 											File.Copy(j, fd, true);
 										}
 										//var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
-									
 									}
 
-									if(s.Complete.Release.Find(PackageInstruction.Extension) != null)
-										File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Id), PackageInstruction.Extension), true);
+									///	if(s.Complete.Release.IsReady(PackageInstruction.Extension))
+									///		File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Address), PackageInstruction.Extension), true);
 
 									s.Complete.Activity = null;
 								}
@@ -516,24 +519,24 @@ public class PackageHub
 		}
 	}
 
-	public PackageDownload StartDownload(AutoId id, Flow flow)
+	public PackageDownload StartDownload(Ura address, Flow flow)
 	{
-		var p = Find(id);
+		var p = Find(address);
 		
 		if(p == null)
 		{
-			var r = Node.ResourceHub.Get(id);
+			var r = Node.ResourceHub.Get(address);
 
 			p = new Package(this)
 				{
-					Id		 = id,
-					Address	 = r.Address,
-					Manifest = r.Data.Get<PackageManifest>(),
+					Id		= r.Id,
+					Address	= r.Address,
+					Urn		= r.Data.GetVirtual<Urn>(),
 				};
 
 			Packages.Add(p);
 
-			Node.ResourceHub.Add(p.Manifest.Urn, id);
+			Node.ResourceHub.Add(p.Urn, p.Id);
 		}
 
 		if(p.Activity is PackageDownload d)
@@ -546,7 +549,7 @@ public class PackageHub
 		return d;
 	}
 
-	public Package Deploy(AutoId address, Flow flow)
+	public Package Deploy(Ura address, Flow flow)
 	{
 		StartDeploy(address, DeploymentPath, flow);
 
