@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Uccs.Fair;
 
-[Route("api/author/stores/{storeId}/surveys/policies")]
+[Route("api/stores/{storeId}/surveys/policies")]
 public class PolicySurveysController
 (
 #if DEBUG

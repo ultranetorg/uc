@@ -8,12 +8,15 @@ import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
 import { routes } from "utils"
+
+import { ModeratorProposalsTab } from "./ModeratorProposalsTab"
+import { ModeratorRemovalsTab } from "./ModeratorRemovalsTab"
 import { ModeratorsTab } from "./ModeratorsTab"
-import { ModeratorsProposalsTab } from "./ModeratorsProposalsTab"
 
 const routeToTabKey: Record<string, string> = {
-  new: "new",
+  moderators: "moderators",
   removals: "removals",
+  additions: "additions",
 }
 
 export const ModeratorsPage = () => {
@@ -35,9 +38,9 @@ export const ModeratorsPage = () => {
 
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { key: "new", label: t("common:new"), route: "new" },
-      { key: "removals", label: t("common:removals"), route: "removals" },
       { key: "moderators", label: t("common:moderators"), route: "moderators" },
+      { key: "removals", label: t("common:removals"), route: "removals" },
+      { key: "additions", label: t("common:additions"), route: "additions" },
     ],
     [t],
   )
@@ -64,6 +67,7 @@ export const ModeratorsPage = () => {
             )}
           </>
         }
+        showModeratorsCount={true}
       />
       <TabsProvider defaultKey={key || "moderators"}>
         <div className="flex flex-col gap-6">
@@ -78,8 +82,11 @@ export const ModeratorsPage = () => {
           <TabContent when="moderators">
             <ModeratorsTab />
           </TabContent>
-          <TabContent when="new">
-            <ModeratorsProposalsTab />
+          <TabContent when="removals">
+            <ModeratorRemovalsTab />
+          </TabContent>
+          <TabContent when="additions">
+            <ModeratorProposalsTab />
           </TabContent>
         </div>
       </TabsProvider>

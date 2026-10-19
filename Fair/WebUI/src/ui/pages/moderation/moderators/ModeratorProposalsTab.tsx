@@ -1,18 +1,37 @@
 import { useNavigate } from "react-router-dom"
-import { useCallback, useMemo, useState } from "react"
+import { ReactNode, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { TFunction } from "i18next"
 import { isNumber } from "lodash"
 
 import { useStoreContext, useStorePoliciesContext } from "app"
-import { useGetModeratorProposals } from "entities"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
+import { useGetModeratorProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
-import { Pagination, Table, TableEmptyState } from "ui/components"
+import { ModeratorProposal } from "types"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { renderUser, renderUsersList } from "ui/renderers2"
+import { renderActionShort, renderCommon } from "ui/renderers/utils"
 import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
 
-import { getModeratorsProposalsItemRenderer } from "./moderatorProposalsItemRenderer"
+const getModeratorsProposalsItemRenderer =
+  (t: TFunction, votesRequired?: number) =>
+  (item: TableItem, column: TableColumn): ReactNode => {
+    const proposal = item as ModeratorProposal
 
-export const ModeratorsProposalsTab = () => {
+    switch (column.type) {
+      case "account":
+        return renderUser(proposal.by)
+      case "accounts-list":
+        return renderUsersList(proposal.moderators)
+      case "action-short":
+        return renderActionShort(t, proposal.operation)
+    }
+
+    return renderCommon(t, column, proposal, votesRequired)
+  }
+
+export const ModeratorProposalsTab = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const { store } = useStoreContext()

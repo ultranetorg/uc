@@ -4,10 +4,10 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-public class ModeratorRecallSurveysService
+public class ModeratorSurveysService
 (
 #if DEBUG
-	ILogger<ModeratorRecallSurveysService> logger,
+	ILogger<ModeratorSurveysService> logger,
 #endif
 	FairMcv mcv
 )
@@ -19,7 +19,7 @@ public class ModeratorRecallSurveysService
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorRecallSurveysService), nameof(ModeratorRecallSurveysService.GetSurveys), storeId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorSurveysService), nameof(ModeratorSurveysService.GetSurveys), storeId, page, pageSize);
 #endif
 
 		AutoId entityId = AutoId.Parse(storeId);
@@ -29,17 +29,18 @@ public class ModeratorRecallSurveysService
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		IEnumerable<Survey> filteredAndPagedSurveys = store.Surveys.Where(x => x.Options[0].Operation is StoreModeratorRemoval)
+		Survey[] moderatorSurveys = store.Surveys.Where(x => x.Options[0].Operation is StoreModeratorRemoval).ToArray();
+		IEnumerable<Survey> filteredAndPagedSurveys = moderatorSurveys
 			.Skip(page * pageSize)
 			.Take(pageSize);
 
-		return ToPerpetualSurveys(filteredAndPagedSurveys, store.Surveys.Count, store.Publishers.Length);
+		return ToPerpetualSurveys(moderatorSurveys, moderatorSurveys.Length, store.Publishers.Length);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	TotalItemsResult<SurveyModel> ToPerpetualSurveys(IEnumerable<Survey> surveys, int totalSurveysCount, int storePublishersCount)
 	{
-		IEnumerable<SurveyModel> items = surveys.Select(x => ToModeratorRecallSurvey(x, storePublishersCount));
+		IEnumerable<SurveyModel> items = surveys.Select(x => ToSurvey(x, storePublishersCount));
 		return new TotalItemsResult<SurveyModel>
 		{
 			TotalItems = totalSurveysCount,
@@ -48,7 +49,7 @@ public class ModeratorRecallSurveysService
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	SurveyModel? ToModeratorRecallSurvey(Survey survey, int storePublishersCount)
+	SurveyModel? ToSurvey(Survey survey, int storePublishersCount)
 	{
 		int totalVotes = survey.Options.Sum(x => x.Yes.Length);
 
@@ -56,17 +57,10 @@ public class ModeratorRecallSurveysService
 			new SurveyOptionModel
 			{
 				Operation = ProposalUtils.ToBaseVotableOperationModel(mcv, x.Operation),
-				VotePercents = totalVotes != 0 ? (sbyte)(x.Yes.Length * 100f / totalVotes) : (sbyte) 0
+				VotePercents = totalVotes != 0 ? (sbyte)(x.Yes.Length * 100f / totalVotes) : (sbyte) 0,
+				Yes = x.Yes
 			}
 		);
-
-		StoreModeratorRemoval operation = survey.Options[0].Operation as StoreModeratorRemoval;
-		if (operation == null)
-		{
-			return null;
-		}
-
-		FairUser user = (FairUser) mcv.Users.Latest(operation.Moderator);
 
 		return new SurveyModel
 		{

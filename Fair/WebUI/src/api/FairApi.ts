@@ -129,6 +129,8 @@ export type FairApi = {
   getPolicySurveys(storeId: string): Promise<Survey[]>
   getPolicySurveyDetails(storeId: string, surveyId: string): Promise<SurveyDetails>
 
+  getModeratorSurveys(storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Survey>>
+
   getAuthorReferendum(storeId: string, referendumId: string): Promise<ProposalDetails>
   getAuthorReferendums(
     storeId: string,

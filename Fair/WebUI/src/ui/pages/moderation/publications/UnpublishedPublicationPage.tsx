@@ -79,6 +79,7 @@ export const UnpublishedPublicationPage = () => {
             )}
           </>
         }
+        showModeratorsCount={true}
       />
 
       <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">

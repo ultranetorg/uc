@@ -10,7 +10,7 @@ export const useGetPolicySurveys = (storeId?: string) => {
   const queryFn = () => api.getPolicySurveys(storeId!)
 
   const { isFetching, isError, data } = useQuery({
-    queryKey: surveysKeys.all(storeId!),
+    queryKey: surveysKeys.policy(storeId!),
     queryFn: queryFn,
     enabled: !!storeId,
   })

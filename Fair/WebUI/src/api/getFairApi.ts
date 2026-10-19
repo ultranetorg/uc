@@ -283,10 +283,23 @@ const getAuthorFiles = async (
 }
 
 const getPolicySurveys = (storeId: string): Promise<Survey[]> =>
-  fetch(`${BASE_URL}/author/stores/${storeId}/surveys/policies`).then(res => res.json())
+  fetch(`${BASE_URL}/stores/${storeId}/surveys/policies`).then(res => res.json())
 
 const getPolicySurveyDetails = (storeId: string, surveyId: string): Promise<SurveyDetails> =>
-  fetchApi(fetch(`${BASE_URL}/author/stores/${storeId}/surveys/policies/${surveyId}`))
+  fetchApi(fetch(`${BASE_URL}/stores/${storeId}/surveys/policies/${surveyId}`))
+
+const getModeratorSurveys = async (
+  storeId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<Survey>> => {
+  const params = buildUrlParams(
+    { page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/surveys/moderators` + params)
+  return await toTotalItemsResult(res)
+}
 
 const getAuthorReferendum = (storeId: string, referendumId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/author/stores/${storeId}/referendums/${referendumId}`).then(res => res.json())
@@ -519,6 +532,8 @@ const api: FairApi = {
 
   getPolicySurveys,
   getPolicySurveyDetails,
+
+  getModeratorSurveys,
 
   getAuthorReferendum,
   getAuthorReferendums,

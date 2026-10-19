@@ -3,12 +3,12 @@ export * from "./hooks"
 
 export * from "./Category"
 export * from "./Index_"
-export * from "./Publication"
 export * from "./Stores"
 
 export * from "./AboutPage"
 export * from "./AuthorPage"
 export * from "./ProfilePage"
+export * from "./PublicationPage"
 export * from "./PublisherPage"
 export * from "./ReviewerPage"
 export * from "./SearchPage"

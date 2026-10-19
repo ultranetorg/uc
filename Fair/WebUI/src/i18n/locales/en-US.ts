@@ -6,6 +6,7 @@ export const enUS = {
     action: "Action",
     actions: "actions",
     add: "add",
+    additions: "additions",
     anbb: "A / N / B / B",
     anbbFull: "Any / Neither / Ban / Banish",
     answers: "answers",
@@ -314,6 +315,9 @@ export const enUS = {
     bannedTill: "Banned Till",
     noModerators: "No moderators",
     removeModerator: "Remove moderator",
+    noModeratorSurveys: "No moderator recall surveys",
+    totalVotes: "Total Votes",
+    votesRequired: "Votes Required",
   },
   policySurveyPage: {
     title: "Change approval policy for {{operation}}",
