@@ -1,17 +1,55 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react"
+import { Link } from "react-router-dom"
+import { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
-import { isNumber } from "lodash"
+import { isNumber, truncate } from "lodash"
 
 import { useOperationPolicy } from "app"
 import { SvgSearchMd, SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
 import { useGetStorePublishers } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
-import { Input, Pagination, Table, TableEmptyState } from "ui/components"
-import { parseInteger } from "utils"
+import { Publisher } from "types"
+import { ButtonPrimary, TableColumn, TableItem, Input, Pagination, Table, TableEmptyState } from "ui/components"
+import { renderAuthor } from "ui/renderers/utils"
+import { parseInteger, routes } from "utils"
 
-import { getPublishersTabItemRenderer } from "./publishersTabItemRenderer"
+const getPublishersTabItemRenderer =
+  (t: TFunction, storeId: string, pathname: string) =>
+  (item: TableItem, column: TableColumn): ReactNode => {
+    const publisher = item as unknown as Publisher
+
+    switch (column.type) {
+      case "author":
+        return (
+          <Link to={routes.moderation.publisher(storeId, publisher.author.id)}> {renderAuthor(publisher.author)}</Link>
+        )
+
+      case "banned":
+        return publisher.bannedTill !== 0 ? publisher.bannedTill : ""
+
+      case "actions":
+        return (
+          <div className="flex justify-end">
+            <Link
+              to={routes.moderation.createProposal(storeId)}
+              state={{
+                parentBreadcrumbs: [{ path: routes.moderation.publishers(storeId), title: t("common:proposals") }],
+                previousPath: pathname,
+                title: `Remove author "${truncate(publisher.author.title, { length: 48 })}"`,
+                type: "store-authors-removal",
+                authors: [publisher.author],
+                redirectAfterProposalCreation: routes.moderation.publishers(storeId, "proposals"),
+                redirectAfterProposalExecution: location.pathname,
+              }}
+            >
+              <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />
+            </Link>
+          </div>
+        )
+    }
+  }
 
 export const PublishersTab = () => {
   const storeId = useResolveStoreId()

@@ -80,7 +80,8 @@ public class PolicySurveysService
 			var newOption = new TOption
 			{
 				Operation = ProposalUtils.ToBaseVotableOperationModel(mcv, x.Operation),
-				VotePercents = totalVotes != 0 ? (sbyte)(x.Yes.Length * 100f / totalVotes) : (sbyte)0
+				VotePercents = totalVotes != 0 ? (sbyte)(x.Yes.Length * 100f / totalVotes) : (sbyte) 0,
+				Yes = x.Yes
 			};
 
 			if(mapOption != null)

@@ -23,8 +23,10 @@ export const getRemoveUsersTabItemRenderer =
     switch (column.type) {
       case "user":
         return renderUser(proposal.userId, proposal.userName)
+
       case "created-by":
         return renderUser(proposal.by)
+
       case "actions":
         return renderActions(
           t,
