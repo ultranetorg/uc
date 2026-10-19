@@ -52,31 +52,24 @@ public class PackageDownload
 	public int								DependenciesRecursiveSuccesses => Dependencies.Count(i => i.Succeeded) + Dependencies.Sum(i => i.DependenciesRecursiveSuccesses);
 	public IEnumerable<PackageDownload>		DependenciesRecursive => Dependencies.Concat(Dependencies.SelectMany(i => i.DependenciesRecursive)).DistinctBy(i => i.Package);
 
+	public PackageDownload(PackageHub hub, Package package)
+	{
+		Package			= package;
+		Task			= Task.CompletedTask;
+		IsDownloaded	= true;
+	}
+
 	public PackageDownload(PackageHub hub, Package package, Flow flow)
 	{
 		Package = package;
 
-		var node = hub.Node;
-
-		lock(hub.Lock)
-		{
-			if(hub.IsReady(package.Address))
-			{
-				IsDownloaded = true;
-				return;
-			}
-		}
-
 		Package.Activity = this;
+
+		var node = hub.Node;
 
 		Task = Task.Run(() =>	{
 									try
 									{
-										//var r = hub.Get(Package.Id);
-										
-										//if(r != null && r.Meaning != Meaning.Package_Software_VersionManifest)
-										//	throw new PackageException(PackageError.IncorrectContentType, $"{package.Id} is not {Meaning.Package_Software_VersionManifest}");
-
 										Seeker = new SeedSeeker(node, Package.Urn, flow);
 
 										var findex = node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Release.Address as Blake3Urn).Hash), Seeker, flow);

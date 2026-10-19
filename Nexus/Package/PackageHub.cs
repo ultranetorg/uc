@@ -373,7 +373,8 @@ public class PackageHub
 		{
 			var p = Find(address);
 
-			if(File.Exists(AddressToDeployment(packagespath, address, Package.Deployed)))
+			if(	File.Exists(AddressToDeployment(packagespath, address, Package.Deployed)) &&
+				File.ReadAllText(AddressToDeployment(packagespath, address, Package.Deployed)) == p.Urn.ToString())
 				return;
 
 			var	d = new Deployment();
@@ -516,7 +517,7 @@ public class PackageHub
 
 									///if(s.Complete.Release.IsReady(PackageInstruction.Extension))
 									///	File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Address), PackageInstruction.Extension), true);
-									File.WriteAllText(AddressToDeployment(packagespath, s.Target.Address, Package.Deployed),  null);
+									File.WriteAllText(AddressToDeployment(packagespath, s.Target.Address, Package.Deployed),  s.Target.Urn.ToString());
 
 									s.Complete.Activity = null;
 								}
@@ -540,9 +541,11 @@ public class PackageHub
 				};
 
 			Packages.Add(p);
-
 			Node.ResourceHub.Add(p.Urn, p.Id);
 		}
+
+		if(IsReady(address))
+			return new PackageDownload(this, p);
 
 		if(p.Activity is PackageDownload d)
 			return d;

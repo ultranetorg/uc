@@ -1,36 +1,10 @@
 ﻿namespace Uccs.Fair;
 
-public enum ReviewStatus : byte
-{
-	None,
-	Accepted,
-	Rejected,
-}
-
-//public class ReviewVersion  : IBinarySerializable
-//{
-//	public EntityId		Review { get; set; }
-//	public byte			Version { get; set; }
-//
-//	public void Read(Reader reader)
-//	{
-//		Review = reader.Read<EntityId>();
-//		Version = reader.ReadByte();
-//	}
-//
-//	public void Write(Writer writer)
-//	{
-//		writer.Write(Review);
-//		writer.Write(Version);
-//	}
-//}
-
 public class Review : IBinarySerializable, ITableEntry<AutoId>
 {
 	public AutoId			Id { get; set; }
 	public AutoId			Publication { get; set; }
     public AutoId			Creator { get; set; }
-	public ReviewStatus		Status { get; set; }
 	public byte				Rating { get; set; }
     public string			Text { get; set; }
     public Time	    		Created { get; set; }
@@ -52,7 +26,6 @@ public class Review : IBinarySerializable, ITableEntry<AutoId>
 		return new Review(Mcv) {Id			= Id,
 								Publication = Publication,
 								Creator		= Creator,
-								Status		= Status,
 								Rating		= Rating,
 								Text		= Text,
 								Created		= Created};
@@ -78,7 +51,6 @@ public class Review : IBinarySerializable, ITableEntry<AutoId>
 		Id			= reader.Read<AutoId>();
 		Publication	= reader.Read<AutoId>();
 		Creator		= reader.Read<AutoId>();
-		Status		= reader.Read<ReviewStatus>();
 		Rating		= reader.ReadByte();
 		Text		= reader.ReadUtf8();
 		Created		= reader.Read<Time>();
@@ -89,7 +61,6 @@ public class Review : IBinarySerializable, ITableEntry<AutoId>
 		writer.Write(Id);
 		writer.Write(Publication);
 		writer.Write(Creator);
-		writer.Write(Status);
 		writer.Write(Rating);
 		writer.WriteUtf8(Text);
 		writer.Write(Created);
