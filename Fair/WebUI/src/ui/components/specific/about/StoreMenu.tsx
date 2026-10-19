@@ -9,7 +9,7 @@ export const StoreMenu = memo(({ className }: PropsWithClassName) => {
   const { isModerator, isPublisher } = useStoreRolesContext()
   const storeId = useResolveStoreId()
 
-  const storeItems = useStoreChangeMenuItems(storeId!, { moderators: isModerator, publishers: isPublisher })
+  const storeItems = useStoreChangeMenuItems(storeId!, { isModerator, isPublisher })
 
   const menuItems = useMemo(() => [...storeItems], [storeItems])
 

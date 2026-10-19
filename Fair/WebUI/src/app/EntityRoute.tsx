@@ -6,6 +6,28 @@ import { useBackgroundLocation, useParams } from "hooks"
 import { BaseLayout, StoreLayout } from "ui/layouts"
 import { ConstrainedWidthLayout, ModerationLayout, PublishersLayout, UsersSectionLayout } from "ui/layouts/moderation"
 import {
+  ChangedPublicationPage,
+  CreateDiscussionPage,
+  CreatePublicationPage,
+  CreateReferendumPage,
+  ModerationPublicationPage,
+  ModeratorProposalPage,
+  ModeratorsPage,
+  PolicySurveyPage,
+  PolicySurveysPage,
+  PreviewPage,
+  ProposalPage,
+  ProposalsPage,
+  PublicationsPage,
+  PublisherProposalPage,
+  PublishersPage,
+  ReferendumPage,
+  ReferendumsPage,
+  ReviewsPage,
+  UnpublishedPublicationPage,
+  UsersPage,
+} from "ui/pages/moderation"
+import {
   AboutPage,
   AuthorPage,
   CategoryPage,
@@ -15,30 +37,6 @@ import {
   SearchPage,
   StorePage,
 } from "ui/pages"
-import {
-  CreateReferendumPage,
-  PerpetualSurveyPage,
-  PerpetualSurveysPage,
-  ReferendumPage,
-  ReferendumsPage,
-} from "ui/pages/governance"
-import {
-  CreateDiscussionPage,
-  ModeratorChangedPublicationPage,
-  ModeratorCreatePublicationPage,
-  ModeratorProposalPage,
-  ModeratorPublicationPage,
-  ModeratorsPage,
-  PreviewPage,
-  ProposalPage,
-  ProposalsPage,
-  PublicationsPage,
-  PublisherProposalPage,
-  PublishersPage,
-  ReviewsPage,
-  UnpublishedPublicationPage,
-  UsersPage,
-} from "ui/pages/moderation"
 import { FullscreenPageView, CreateProposalProvider } from "ui/views"
 import { ENTITY_PREFIXES, EntityParam } from "utils"
 
@@ -130,8 +128,8 @@ export const EntityRoute = () => {
             }
           />
 
-          <Route path="surveys" element={<PerpetualSurveysPage />} />
-          <Route path="surveys/:perpetualSurveyId" element={<PerpetualSurveyPage />} />
+          <Route path="policy-surveys" element={<PolicySurveysPage />} />
+          <Route path="policy-surveys/:surveyId" element={<PolicySurveyPage />} />
           <Route path="referendums" element={<ReferendumsPage />} />
           <Route path="referendums/:referendumId" element={<ReferendumPage />} />
 
@@ -144,18 +142,19 @@ export const EntityRoute = () => {
               </CreateProposalProvider>
             }
           />
-          <Route path="publications/new" element={<ModeratorCreatePublicationPage />} />
+          <Route path="publications/new" element={<CreatePublicationPage />} />
           <Route path="publications/preview" element={<PreviewPage />} />
           <Route element={<ModerationLayout />}>
             // Proposals
+            <Route path="proposals2" element={<ProposalsPage />} />
             <Route path="proposals" element={<ProposalsPage />} />
             <Route path="proposals/:proposalId" element={<ProposalPage />} />
             // Moderators
             <Route path="moderators/proposals/:proposalId" element={<ModeratorProposalPage />} />
             <Route path="moderators/:tabKey?" element={<ModeratorsPage />} />
             // Publications
-            <Route path="publications/proposals/:proposalId" element={<ModeratorPublicationPage />} />
-            <Route path="publications/changed/:publicationId" element={<ModeratorChangedPublicationPage />} />
+            <Route path="publications/proposals/:proposalId" element={<ModerationPublicationPage />} />
+            <Route path="publications/changed/:publicationId" element={<ChangedPublicationPage />} />
             <Route path="publications/unpublished/:publicationId" element={<UnpublishedPublicationPage />} />
             <Route path="publications/:tabKey?" element={<PublicationsPage />} />
             // Publishers

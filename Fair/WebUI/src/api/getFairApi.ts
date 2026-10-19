@@ -10,8 +10,8 @@ import {
   File,
   Moderator,
   ModeratorProposal,
-  PerpetualSurvey,
-  PerpetualSurveyDetails,
+  Survey,
+  SurveyDetails,
   Policy,
   ProductAuthor,
   ProductDetails,
@@ -282,11 +282,11 @@ const getAuthorFiles = async (
   return await toTotalItemsResult(res)
 }
 
-const getAuthorPerpetualSurveys = (storeId: string): Promise<PerpetualSurvey[]> =>
-  fetch(`${BASE_URL}/author/stores/${storeId}/perpetual-surveys`).then(res => res.json())
+const getPolicySurveys = (storeId: string): Promise<Survey[]> =>
+  fetch(`${BASE_URL}/author/stores/${storeId}/surveys/policies`).then(res => res.json())
 
-const getAuthorPerpetualSurveyDetails = (storeId: string, perpetualSurveyId: string): Promise<PerpetualSurveyDetails> =>
-  fetch(`${BASE_URL}/author/stores/${storeId}/perpetual-surveys/${perpetualSurveyId}`).then(res => res.json())
+const getPolicySurveyDetails = (storeId: string, surveyId: string): Promise<SurveyDetails> =>
+  fetchApi(fetch(`${BASE_URL}/author/stores/${storeId}/surveys/policies/${surveyId}`))
 
 const getAuthorReferendum = (storeId: string, referendumId: string): Promise<ProposalDetails> =>
   fetch(`${BASE_URL}/author/stores/${storeId}/referendums/${referendumId}`).then(res => res.json())
@@ -517,8 +517,8 @@ const api: FairApi = {
 
   getAuthorFiles,
 
-  getAuthorPerpetualSurveys,
-  getAuthorPerpetualSurveyDetails,
+  getPolicySurveys,
+  getPolicySurveyDetails,
 
   getAuthorReferendum,
   getAuthorReferendums,

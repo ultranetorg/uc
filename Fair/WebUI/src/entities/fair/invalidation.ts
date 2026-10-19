@@ -4,7 +4,7 @@ import { QueryKey, useQueryClient } from "@tanstack/react-query"
 import { OperationType } from "types"
 
 import { categoriesKeys } from "./categories"
-import { perpetualSurveysKeys } from "./perpetualSurveys"
+import { surveysKeys } from "./surveys"
 import { proposalCommentsKeys } from "./proposalComments"
 import { proposalsKeys } from "./proposals"
 import { publicationsKeys } from "./publications"
@@ -84,10 +84,7 @@ const operationRules: Record<OperationType, InvalidationRule> = {
 }
 
 // Смена политики голосования (perpetual survey) для любой операции.
-const policyChangeRule: InvalidationRule = ({ storeId }) => [
-  storesKeys.policies(storeId),
-  perpetualSurveysKeys.all(storeId),
-]
+const policyChangeRule: InvalidationRule = ({ storeId }) => [storesKeys.policies(storeId), surveysKeys.all(storeId)]
 
 // Любое изменение предложения (создание, голосование, комментарий): список, детали и комментарии.
 const proposalRule: InvalidationRule = ({ storeId, proposalId }) => [

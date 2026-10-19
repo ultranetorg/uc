@@ -57,7 +57,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
 
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
   const parentPath =
-    proposalType === "discussion" ? routes.moderation.proposals(storeId!) : routes.governance.referendums(storeId!)
+    proposalType === "discussion" ? routes.moderation.proposals(storeId!) : routes.moderation.referendums(storeId!)
   const isRequiredVoting = isVotingRequired(formData.type, store, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])

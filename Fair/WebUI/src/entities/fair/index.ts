@@ -1,16 +1,16 @@
 export * from "./authors"
 export * from "./categories"
-export * from "./perpetualSurveys"
+
+export * from "./moderator"
 export * from "./products"
 export * from "./proposals"
 export * from "./proposalComments"
 export * from "./publications"
 export * from "./reviews"
 export * from "./stores"
-export * from "./users"
-
-export * from "./moderator"
+export * from "./surveys"
 export * from "./unpublishedPublications"
+export * from "./users"
 
 export * from "./invalidation"
 

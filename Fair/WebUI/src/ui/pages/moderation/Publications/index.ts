@@ -1,5 +1,0 @@
-export * from "./ModeratorChangedPublicationPage"
-export * from "./ModeratorCreatePublicationPage"
-export * from "./ModeratorPublicationPage"
-export * from "./PublicationsPage"
-export * from "./UnpublishedPublicationPage"

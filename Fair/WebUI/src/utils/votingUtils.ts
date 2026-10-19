@@ -1,35 +1,47 @@
-import { ApprovalRequirement, OperationType, Policy, Store } from "types"
+import { ApprovalRequirement, OperationType, Policy, RoleName, Store } from "types"
 
-export const isPublisherVoting = (operation?: OperationType, policies?: Policy[]) => {
-  if (!operation || !policies) return undefined
+const findPolicy = (operation?: OperationType, policies?: Policy[]) =>
+  operation && policies ? policies.find(x => x.operationClass === operation) : undefined
 
-  const policy = policies.find(x => x.operationClass === operation)
-  if (!policy) return undefined
+const canCreate = (creator: RoleName, operation?: OperationType, policies?: Policy[]) =>
+  findPolicy(operation, policies)?.creators.includes(creator)
 
-  return policy.approval === "publishers-majority"
+export const isPublisherCanCreate = (operation?: OperationType, policies?: Policy[]) =>
+  canCreate("publisher", operation, policies)
+
+export const isModeratorCanCreate = (operation?: OperationType, policies?: Policy[]) =>
+  canCreate("moderator", operation, policies)
+
+export const isUserCanCreate = (operation?: OperationType, policies?: Policy[]) =>
+  canCreate("user", operation, policies)
+
+export const isCandidateCanCreate = (operation?: OperationType, policies?: Policy[]) =>
+  canCreate("candidate", operation, policies)
+
+export const isPublisherCanVote = (operation?: OperationType, policies?: Policy[]) => {
+  const policy = findPolicy(operation, policies)
+  return policy && policy.approval === "publishers-majority"
 }
 
-export const isModeratorVoting = (operation?: OperationType, policies?: Policy[]) => {
-  if (!operation || !policies) return undefined
-
-  const policy = policies.find(x => x.operationClass === operation)
-  if (!policy) return undefined
-
-  return policy.approval !== "publishers-majority"
+export const isModeratorCanVote = (operation?: OperationType, policies?: Policy[]) => {
+  const policy = findPolicy(operation, policies)
+  return policy && policy.approval !== "publishers-majority"
 }
+
+// Moderators-majority approval is a referendum, any other approval is a discussion.
+export const isReferendum = (operation?: OperationType, policies?: Policy[]) =>
+  findPolicy(operation, policies)?.approval === "moderators-majority"
 
 export const isVotingRequired = (operation?: OperationType, store?: Store, policies?: Policy[]): boolean => {
-  if (!operation || !store || !policies) return true
-
-  const policy = policies.find(x => x.operationClass === operation)
-  if (!policy) return true
+  const policy = findPolicy(operation, policies)
+  if (!store || !policy) return true
 
   switch (policy.approval) {
     case "any-moderator":
       return false
 
     case "moderators-majority":
-      return store.authorsIds.length > 2
+      return store.moderatorsIds.length > 1
 
     case "publishers-majority":
       return store.authorsIds.length > 2
@@ -50,9 +62,8 @@ export const calculateVotesRequiredToWinProposal = (
   store?: Store,
   policies?: Policy[],
 ): number => {
-  if (!operation || !store || !policies) return -1
-  const policy = policies.find(x => x.operationClass === operation)
-  if (!policy) return -1
+  const policy = findPolicy(operation, policies)
+  if (!store || !policy) return -1
 
   return calculateVotesRequiredToWinProposalByApproval(policy.approval, store)
 }

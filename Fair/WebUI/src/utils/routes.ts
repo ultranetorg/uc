@@ -32,26 +32,38 @@ export const routes = {
 
   author: (authorId: string) => `/${addPrefix("authorId", authorId)}`,
 
-  governance: {
-    surveys: (storeId: string) => `${storePath(storeId)}/surveys`,
-    survey: (storeId: string, surveyId: string) => `${storePath(storeId)}/surveys/${surveyId}`,
-
-    createReferendum: (storeId: string) => `${storePath(storeId)}/referendums/new`,
-    referendums: (storeId: string) => `${storePath(storeId)}/referendums`,
-    referendum: (storeId: string, referendumId: string) => `${storePath(storeId)}/referendums/${referendumId}`,
-  },
-
   moderation: {
     createProposal: (storeId: string) => `${storePath(storeId)}/proposals/new`,
+    createReferendum: (storeId: string) => `${storePath(storeId)}/referendums/new`,
+
+    preview: (storeId: string) => `${storePath(storeId)}/publications/preview`,
+
+    // Policy Surveys
+    policySurveys: (storeId: string) => `${storePath(storeId)}/policy-surveys`,
+    policySurveyDetails: (storeId: string, surveyId: string) => `${storePath(storeId)}/policy-surveys/${surveyId}`,
+
+    // Referendums
+    referendums: (storeId: string) => `${storePath(storeId)}/referendums`,
+    referendum: (storeId: string, referendumId: string) => `${storePath(storeId)}/referendums/${referendumId}`,
+    // Proposals
     proposals: (storeId: string) => `${storePath(storeId)}/proposals`,
     proposal: (storeId: string, discussionId: string) => `${storePath(storeId)}/proposals/${discussionId}`,
 
+    // Moderators
     moderators: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/moderators`, tabKey),
     moderatorProposal: (storeId: string, proposalId: string) =>
       `${storePath(storeId)}/moderators/proposals/${proposalId}`,
+    // Publishers
+    publishers: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/publishers`, tabKey),
+    publisherProposal: (storeId: string, proposalId: string) =>
+      `${storePath(storeId)}/publishers/proposals/${proposalId}`,
+    publisher: (storeId: string, publisherId: string) => `${storePath(storeId)}/publishers/details/${publisherId}`,
+    // Users
+    users: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/users`, tabKey),
+    user: (storeId: string, userId: string) => `${storePath(storeId)}/users/details/${userId}`,
 
+    // Publications
     createPublication: (storeId: string) => `${storePath(storeId)}/publications/new`,
-    preview: (storeId: string) => `${storePath(storeId)}/publications/preview`,
     publications: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/publications`, tabKey),
     moderatorPublication: (storeId: string, proposalId: string) =>
       `${storePath(storeId)}/publications/proposals/${proposalId}`,
@@ -59,15 +71,7 @@ export const routes = {
       `${storePath(storeId)}/publications/changed/${publicationId}`,
     unpublishedPublication: (storeId: string, publicationId: string) =>
       `${storePath(storeId)}/publications/unpublished/${publicationId}`,
-
-    publishers: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/publishers`, tabKey),
-    publisherProposal: (storeId: string, proposalId: string) =>
-      `${storePath(storeId)}/publishers/proposals/${proposalId}`,
-    publisher: (storeId: string, publisherId: string) => `${storePath(storeId)}/publishers/details/${publisherId}`,
-
+    // Reviews
     reviews: (storeId: string) => `${storePath(storeId)}/reviews`,
-
-    users: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/users`, tabKey),
-    user: (storeId: string, userId: string) => `${storePath(storeId)}/users/details/${userId}`,
   },
 } as const
