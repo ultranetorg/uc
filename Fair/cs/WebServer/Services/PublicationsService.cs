@@ -54,12 +54,12 @@ public class PublicationsService
 		};
 	}
 
-	public PublicationVersionInfo GetVersions([NotEmpty][NotNull] string publicationId)
+	public PublicationVersionInfo GetLatestVersion([NotEmpty][NotNull] string publicationId)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(publicationId);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(PublicationsService.GetVersions), publicationId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {PublicationId}", nameof(PublicationsService), nameof(PublicationsService.GetLatestVersion), publicationId);
 #endif
 
 		AutoId id = AutoId.Parse(publicationId);
@@ -381,14 +381,14 @@ public class PublicationsService
 		};
 	}
 
-	public TotalItemsResult<ChangedPublicationModel> GetChangedPublicationsAll([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ChangedPublicationModel> GetChangedPublications([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetChangedPublicationsAll), storeId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(PublicationsService), nameof(PublicationsService.GetChangedPublications), storeId, page, pageSize);
 #endif
 
 		AutoId id = AutoId.Parse(storeId);

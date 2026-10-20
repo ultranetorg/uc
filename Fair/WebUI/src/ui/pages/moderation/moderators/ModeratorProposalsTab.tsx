@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { TFunction } from "i18next"
 import { isNumber } from "lodash"
 
-import { useStoreContext, useStorePoliciesContext } from "app"
+import { useStoreContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
@@ -12,7 +12,7 @@ import { ModeratorProposal } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import { renderUser, renderUsersList } from "ui/renderers2"
 import { renderActionShort, renderCommon } from "ui/renderers/utils"
-import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
+import { calculateVotesRequiredToWinSurvey, parseInteger, routes } from "utils"
 
 const getModeratorsProposalsItemRenderer =
   (t: TFunction, votesRequired?: number) =>
@@ -35,7 +35,6 @@ export const ModeratorProposalsTab = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("moderatorsProposalsTab")
 
   const [state, setState] = useUrlParamsState({
@@ -60,19 +59,13 @@ export const ModeratorProposalsTab = () => {
         type: "accounts-list",
         className: "w-[30%] first-letter:uppercase",
       },
-      { accessor: "by", label: t("common:createdBy"), type: "account", className: "w-[12%]" },
       { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[12%]" },
-      { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for", className: "w-[12%]" },
       { accessor: "votes", label: t("common:votes"), type: "votes", className: "capitalize w-[12%] text-center" },
-      { accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull"), className: "w-[12%]" },
     ],
     [t],
   )
 
-  const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("store-moderator-removal", store, policies),
-    [policies, store],
-  )
+  const votesRequired = useMemo(() => calculateVotesRequiredToWinSurvey(store), [store])
 
   const itemRenderer = useMemo(() => getModeratorsProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 

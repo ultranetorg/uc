@@ -6,12 +6,10 @@ import { useStoreChangeMenuItems } from "hooks"
 import { OperationType } from "types"
 import { SimpleMenuItem } from "ui/components"
 import {
-  isCandidateCanCreate,
   isModeratorCanCreate,
   isModeratorCanVote,
   isPublisherCanCreate,
   isPublisherCanVote,
-  isUserCanCreate,
   isVotingRequired,
   routes,
 } from "utils"
@@ -37,7 +35,7 @@ const publicationsOperations: OperationType[] = [
   "publication-updation",
 ]
 
-const reviewsOperations: OperationType[] = ["review-creation", "review-edit", "review-status-change"]
+const reviewsOperations: OperationType[] = ["review-creation", "review-edit", "review-deletion"]
 
 export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem[] => {
   const { t } = useTranslation("storeDropdownMenu")

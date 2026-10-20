@@ -64,7 +64,7 @@ public class SearchService
 		}
 	}
 
-	public IEnumerable<PublicationBaseModel> SearchLitePublications(string storeId, string query, int page, int pageSize, CancellationToken cancellationToken)
+	public IEnumerable<PublicationBaseModel> SearchPublicationsLite(string storeId, string query, int page, int pageSize, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(query);
@@ -72,7 +72,7 @@ public class SearchService
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchLitePublications), storeId, query, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchPublicationsLite), storeId, query, page, pageSize);
 #endif
 
 		if(cancellationToken.IsCancellationRequested)
@@ -195,14 +195,14 @@ public class SearchService
 		}
 	}
 
-	public IEnumerable<StoreSearchLiteModel> SearchLiteStores([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public IEnumerable<StoreSearchLiteModel> SearchStoresLite([NotEmpty, NotNull] string query, [NonNegativeValue] int page, [NonNegativeValue, NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(query);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchLiteStores), query, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Page}, {PageSize}", nameof(SearchService), nameof(SearchService.SearchStoresLite), query, page, pageSize);
 #endif
 
 		if(cancellationToken.IsCancellationRequested)
@@ -260,12 +260,12 @@ public class SearchService
 		return result;
 	}
 
-	public IEnumerable<UserBaseAvatarModel> SearchUser([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
+	public IEnumerable<UserBaseAvatarModel> SearchUsers([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(query);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchUser), query, limit);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchUsers), query, limit);
 #endif
 
 		if(cancellationToken.IsCancellationRequested)

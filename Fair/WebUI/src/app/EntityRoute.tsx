@@ -169,7 +169,7 @@ export const EntityRoute = () => {
               }
             />
             // Reviews
-            <Route path="reviews" element={<ReviewsPage />} />
+            <Route path="reviews/:tabKey?" element={<ReviewsPage />} />
             // Users
             <Route path="users" element={<UsersSectionLayout />}>
               <Route path=":tabKey?" element={<UsersPage />} />

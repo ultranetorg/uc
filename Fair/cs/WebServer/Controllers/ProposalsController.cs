@@ -13,10 +13,10 @@ public class ProposalsController
 ) : BaseController
 {
 	[HttpGet("moderators")]
-	public IEnumerable<ModeratorProposalModel> GetModeratorProposals(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ModeratorProposalModel> GetModerators(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(ProposalsController), nameof(ProposalsController.GetModeratorProposals), storeId, search, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(ProposalsController), nameof(ProposalsController.GetModerators), storeId, search, pagination);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
@@ -29,10 +29,10 @@ public class ProposalsController
 	}
 
 	[HttpGet("publishers")]
-	public IEnumerable<PublisherProposalModel> GetPublisherProposals(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<PublisherProposalModel> GetPublishers(string storeId, [FromQuery] string search, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(ProposalsController), nameof(ProposalsController.GetPublisherProposals), storeId, search, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Search}, {Pagination}", nameof(ProposalsController), nameof(ProposalsController.GetPublishers), storeId, search, pagination);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());

@@ -11,7 +11,9 @@ public static class ProposalUtils
 	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
 		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationUpdation or PublicationUnpublish;
 
-	public static bool IsReviewOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;
+	public static bool IsReviewCreationOrEditOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;
+
+	internal static bool IsReviewDeletionOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewDeletion;
 
 	public static bool IsUserRegistrationOperation(Proposal proposal) => proposal.Options[0].Operation is UserRegistration;
 

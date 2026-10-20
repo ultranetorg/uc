@@ -10,7 +10,7 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { useStoreRolesContext, useUserContext } from "app"
+import { useUserContext } from "app"
 import { SvgThreeDotsVertical } from "assets"
 import { useScrollOrResize } from "hooks"
 import { PropsWithClassName } from "types"
@@ -19,14 +19,14 @@ import { SimpleMenu } from "ui/components"
 import { useModeratorUserMenuItems } from "./useModeratorUserMenuItems"
 
 type ModeratorUserMenuBaseProps = {
+  isModerator: boolean
   userId: string
   userName: string
 }
 
 export type ModeratorUserMenuProps = PropsWithClassName & ModeratorUserMenuBaseProps
 
-export const ModeratorUserMenu = memo(({ userId, userName }: ModeratorUserMenuProps) => {
-  const { isModerator } = useStoreRolesContext()
+export const ModeratorUserMenu = memo(({ isModerator, userId, userName }: ModeratorUserMenuProps) => {
   const { menuItems } = useModeratorUserMenuItems(userId, userName)
   const { user } = useUserContext()
 
@@ -60,6 +60,7 @@ export const ModeratorUserMenu = memo(({ userId, userName }: ModeratorUserMenuPr
         <FloatingPortal>
           <SimpleMenu
             ref={refs.setFloating}
+            className="z-60"
             items={menuItems}
             style={floatingStyles}
             onClick={handleMenuClick}

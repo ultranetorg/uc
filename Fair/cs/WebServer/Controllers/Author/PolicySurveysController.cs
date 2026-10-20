@@ -13,15 +13,15 @@ public class PolicySurveysController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<SurveyModel> Get(string storeId, CancellationToken cancellationToken)
+	public IEnumerable<SurveyModel> GetAll(string storeId, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(PolicySurveysController), nameof(PolicySurveysController.Get), storeId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(PolicySurveysController), nameof(PolicySurveysController.GetAll), storeId);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 
-		return policySurveysService.GetPerpetualReferendums(storeId, cancellationToken);
+		return policySurveysService.GetAll(storeId, cancellationToken);
 	}
 
 	[HttpGet("{surveyId}")]
@@ -34,7 +34,7 @@ public class PolicySurveysController
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		AutoIdValidator.Validate(surveyId, nameof(Survey).ToLower());
 
-		return policySurveysService.GetPerpetualReferendumDetails(storeId, surveyId);
+		return policySurveysService.GetDetails(storeId, surveyId);
 	}
 }
 
@@ -48,7 +48,7 @@ public class PolicySurveysController
 //	paginationValidator.Validate(pagination);
 
 //	(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-//	var comments = proposalsService.GetPerpetualReferendumComments(storeId, perpetualSurveyId, page, pageSize, cancellationToken);
+//	var comments = proposalsService.GetComments(storeId, perpetualSurveyId, page, pageSize, cancellationToken);
 
 //	return this.OkPaged(comments.Items, page, pageSize, comments.TotalItems);
 //}

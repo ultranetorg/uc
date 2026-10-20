@@ -3,6 +3,7 @@ import { useState } from "react"
 import { getFairApi } from "api"
 import { useLoadMorePaginationQuery } from "hooks"
 import { Review, TotalItemsResult } from "types"
+import { reviewKeys } from "./reviewKeys"
 
 const api = getFairApi()
 
@@ -18,7 +19,7 @@ export const useGetPaginatedReviews = (publicationId?: string, pageSize?: number
     error,
     refetch,
   } = useLoadMorePaginationQuery<Review>({
-    queryKey: ["publications", publicationId, "reviews"],
+    queryKey: reviewKeys.all(publicationId!),
     queryFn: async (page, size) => {
       const res = await api.getReviews(publicationId!, page, size)
       setTotalItems(res.totalItems)

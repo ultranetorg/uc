@@ -195,7 +195,14 @@ export type FairApi = {
     pageSize?: number,
   ): Promise<TotalItemsResult<PublisherProposal>>
 
-  getReviewProposals(
+  getReviewCreationsProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<ReviewProposal>>
+
+  getReviewDeletionsProposals(
     storeId: string,
     page?: number,
     pageSize?: number,

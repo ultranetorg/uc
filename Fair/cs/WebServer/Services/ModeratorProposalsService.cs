@@ -11,58 +11,6 @@ public class ModeratorProposalsService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<ReviewProposalModel> GetReviewProposalsNotOptimized
-		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
-	{
-		ArgumentException.ThrowIfNullOrEmpty(storeId);
-		ArgumentOutOfRangeException.ThrowIfNegative(page);
-		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
-
-#if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetReviewProposalsNotOptimized), storeId, page, pageSize, search);
-#endif
-
-		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsReviewOperation, CreateReviewProposalModel, cancellationToken);
-	}
-
-	ReviewProposalModel CreateReviewProposalModel(Proposal proposal, Store store)
-	{
-		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
-
-		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
-		{
-			Publication? publication = mcv.Publications.Latest(reviewCreation.Publication);
-			return CreateReviewModel(proposal, store, by, publication, reviewCreation.Text);
-		}
-		if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
-		{
-			Review review = mcv.Reviews.Latest(reviewEdit.Review);
-			Publication publication = mcv.Publications.Latest(review.Publication);
-			return CreateReviewModel(proposal, store, by, publication, reviewEdit.Text);
-		}
-
-		throw new InvalidOperationException("Unexpected operation type for review proposal");
-	}
-
-	ReviewProposalModel CreateReviewModel(Proposal proposal, Store store, FairUser by, Publication? publication, string reviewText)
-	{
-		PublicationImageBaseModel model = null;
-
-		if (publication != null)
-		{
-			Product product = mcv.Products.Latest(publication.Product);
-			Category category = mcv.Categories.Latest(publication.Category);
-			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
-
-			model = new PublicationImageBaseModel(publication, product, category.Title, fileId);
-		}
-
-		return new ReviewProposalModel(proposal, by, model, reviewText)
-		{
-			IsStalled = model == null
-		};
-	}
-
 	public PublicationProposalModel GetPublicationProposal([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string proposalId)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(proposalId);
@@ -77,7 +25,7 @@ public class ModeratorProposalsService
 		return GetProposalByType<PublicationProposalModel>(storeId, proposalId, EntityNames.UserEntityName, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel);
 	}
 
-	public TotalItemsResult<PublicationProposalModel> GetPublicationsProposalsNotOptimized
+	public TotalItemsResult<PublicationProposalModel> GetPublicationProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
@@ -86,7 +34,7 @@ public class ModeratorProposalsService
 
 #if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}",
-			nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationsProposalsNotOptimized), storeId, page, pageSize, search);
+			nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationProposalsNotOptimized), storeId, page, pageSize, search);
 #endif
 
 		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel, cancellationToken);
@@ -168,7 +116,7 @@ public class ModeratorProposalsService
 		return createFunc(proposal, store);
 	}
 
-	TotalItemsResult<T> GetProposalsByTypeNotOptimized<T>
+	internal TotalItemsResult<T> GetProposalsByTypeNotOptimized<T>
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, Predicate<Proposal> checkFunc, Func<Proposal, Store, T> createFunc, CancellationToken cancellationToken)
 		where T : ProposalModel
 	{
@@ -199,10 +147,6 @@ public class ModeratorProposalsService
 				return new TotalItemsResult<T>{Items = items, TotalItems = totalItems};
 
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
-			//if (!ProposalUtils.IsDiscussion(store, proposal))
-			//{
-			//	continue;
-			//}
 			if (!checkFunc(proposal) || !SearchUtils.IsMatch(proposal, query))
 			{
 				continue;

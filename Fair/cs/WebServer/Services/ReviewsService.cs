@@ -67,10 +67,9 @@ public class ReviewsService
 			if(cancellationToken.IsCancellationRequested)
 				return new TotalItemsResult<ReviewModel>{Items = result, TotalItems = reviewsIds.Count()};
 
-			Review review = mcv.Reviews.Latest(id);
-
 			if(loadedItems >= page * pageSize && loadedItems < (page + 1) * pageSize)
 			{
+				Review review = mcv.Reviews.Latest(id);
 				FairUser account = (FairUser)mcv.Users.Latest(review.Creator);
 				Publication publication = mcv.Publications.Latest(review.Publication);
 				Product product = mcv.Products.Latest(publication.Product);

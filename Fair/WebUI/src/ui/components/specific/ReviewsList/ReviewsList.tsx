@@ -59,6 +59,7 @@ export const ReviewsList = memo(
               rating={r.rating}
               user={r.creatorUser}
               created={r.created}
+              publication={{ id: r.publicationId, title: r.publicationTitle }}
               contextMenu={contextMenu}
             />
           ))}

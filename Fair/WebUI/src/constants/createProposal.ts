@@ -7,6 +7,6 @@ export const CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES: OperationType[] = [
   "publication-publish",
   "publication-unpublish",
   "publication-updation",
-  "review-status-change",
+  "review-deletion",
   "user-unregistration",
 ] as const

@@ -23,7 +23,7 @@ public class ModeratorPublicationsController
 		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<PublicationProposalModel> result = moderatorProposalService.GetPublicationsProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<PublicationProposalModel> result = moderatorProposalService.GetPublicationProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
 	}

@@ -1,6 +1,7 @@
+export * from "./moderation"
+
 export * from "./authors"
 export * from "./categories"
-
 export * from "./moderator"
 export * from "./products"
 export * from "./proposals"
@@ -17,6 +18,5 @@ export * from "./invalidation"
 export * from "./ChangedPublications"
 export * from "./PublicationProposal"
 export * from "./Referendum"
-export * from "./ReviewProposal"
 export * from "./StoreFiles"
 export * from "./UnpublishedProducts"

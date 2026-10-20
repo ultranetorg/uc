@@ -10,7 +10,6 @@ export type FieldValueType =
   | "file"
   | "moderators-additions"
   | "moderators-removals"
-  | "review-status"
   | "string"
   | "string-multiline"
   | "version"

@@ -54,6 +54,9 @@ export const isVotingRequired = (operation?: OperationType, store?: Store, polic
   }
 }
 
+export const calculateVotesRequiredToWinSurvey = (store?: Store) =>
+  store ? Math.floor(store.authorsIds.length / 2) + (store.authorsIds.length & 1) : -1
+
 export const calculateVotesRequiredToWinProposal = (
   operation?: OperationType,
   store?: Store,

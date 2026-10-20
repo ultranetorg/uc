@@ -13,10 +13,10 @@ public class ModeratorDiscussionCommentsController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<ProposalCommentModel> GetDiscussionComments(string storeId, string discussionId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ProposalCommentModel> GetAll(string storeId, string discussionId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {DiscussionId}, {Pagination}", nameof(ModeratorDiscussionCommentsController), nameof(ModeratorDiscussionCommentsController.GetDiscussionComments), storeId, discussionId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {DiscussionId}, {Pagination}", nameof(ModeratorDiscussionCommentsController), nameof(ModeratorDiscussionCommentsController.GetAll), storeId, discussionId, pagination);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());

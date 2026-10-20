@@ -14,13 +14,13 @@ public class StoresController
 ) : BaseController
 {
 	[HttpGet("default")]
-	public IEnumerable<StoreBaseModel> Default(CancellationToken cancellationToken)
+	public IEnumerable<StoreBaseModel> GetDefault(CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called without parameters", nameof(StoresController), nameof(StoresController.Default));
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called without parameters", nameof(StoresController), nameof(StoresController.GetDefault));
 #endif
 
-		return storesService.GetDefaultStores(cancellationToken);
+		return storesService.GetDefault(cancellationToken);
 	}
 
 	[HttpGet("{storeId}/users")]
@@ -40,10 +40,10 @@ public class StoresController
 	}
 
 	[HttpGet("{storeId}/users/search")]
-	public IEnumerable<UserModel> SearchStoreUsers(string storeId, [FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
+	public IEnumerable<UserModel> SearchUsers(string storeId, [FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {StoreId}, {Query}, {Limit}", nameof(StoresController), nameof(StoresController.SearchStoreUsers), storeId, query, limit);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {StoreId}, {Query}, {Limit}", nameof(StoresController), nameof(StoresController.SearchUsers), storeId, query, limit);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store));
@@ -118,7 +118,7 @@ public class StoresController
 
 		SearchQueryValidator.Validate(query);
 
-		return searchService.SearchLiteStores(query, 0, StoreConstants.SearchLitePageSize, cancellationToken);
+		return searchService.SearchStoresLite(query, 0, StoreConstants.SearchLitePageSize, cancellationToken);
 	}
 
 	[HttpGet("{storeId}")]

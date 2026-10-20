@@ -12,12 +12,12 @@ public class PolicySurveysService
 	FairMcv mcv
 )
 {
-	public IEnumerable<SurveyModel> GetPerpetualReferendums([NotNull][NotEmpty] string storeId, CancellationToken cancellationToken)
+	public IEnumerable<SurveyModel> GetAll([NotNull][NotEmpty] string storeId, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(PolicySurveysService), nameof(PolicySurveysService.GetPerpetualReferendums), storeId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}", nameof(PolicySurveysService), nameof(PolicySurveysService.GetAll), storeId);
 #endif
 
 		AutoId entityId = AutoId.Parse(storeId);
@@ -39,13 +39,13 @@ public class PolicySurveysService
 		return surveys.Select(x => ToPerpetualSurvey<SurveyModel, SurveyOptionModel>(storePublishersCount, x));
 	}
 
-	public SurveyDetailsModel GetPerpetualReferendumDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string surveyId)
+	public SurveyDetailsModel GetDetails([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string surveyId)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentException.ThrowIfNullOrEmpty(surveyId);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {SurveyId}", nameof(PolicySurveysService), nameof(PolicySurveysService.GetPerpetualReferendumDetails), storeId, surveyId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {SurveyId}", nameof(PolicySurveysService), nameof(PolicySurveysService.GetDetails), storeId, surveyId);
 #endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
@@ -100,7 +100,7 @@ public class PolicySurveysService
 		};
 	}
 
-	public TotalItemsResult<ProposalCommentModel> GetPerpetualReferendumComments([NotNull][NotEmpty] string storeId, [NonNegativeValue] int surveyIndex, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ProposalCommentModel> GetComments([NotNull][NotEmpty] string storeId, [NonNegativeValue] int surveyIndex, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(surveyIndex);
@@ -108,7 +108,7 @@ public class PolicySurveysService
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {SurveyIndex}, {Page}, {PageSize}", nameof(PolicySurveysService), nameof(PolicySurveysService.GetPerpetualReferendumComments), storeId, surveyIndex, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {SurveyIndex}, {Page}, {PageSize}", nameof(PolicySurveysService), nameof(PolicySurveysService.GetComments), storeId, surveyIndex, page, pageSize);
 #endif
 
 		AutoId entityId = AutoId.Parse(storeId);

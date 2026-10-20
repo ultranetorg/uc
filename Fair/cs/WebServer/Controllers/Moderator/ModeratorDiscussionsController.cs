@@ -13,10 +13,10 @@ public class ModeratorDiscussionsController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<ProposalModel> Get(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	public IEnumerable<ProposalModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorDiscussionsController), nameof(ModeratorDiscussionsController.Get), storeId, pagination, search);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorDiscussionsController), nameof(ModeratorDiscussionsController.GetAll), storeId, pagination, search);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
@@ -29,15 +29,15 @@ public class ModeratorDiscussionsController
 	}
 
 	[HttpGet("{discussionId}")]
-	public ProposalDetailsModel Get(string storeId, string discussionId)
+	public ProposalDetailsModel GetDetails(string storeId, string discussionId)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {DiscussionId}", nameof(ModeratorDiscussionsController), nameof(ModeratorDiscussionsController.Get), storeId, discussionId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {DiscussionId}", nameof(ModeratorDiscussionsController), nameof(ModeratorDiscussionsController.GetDetails), storeId, discussionId);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		AutoIdValidator.Validate(discussionId, nameof(Proposal).ToLower());
 
-		return proposalsService.GetDiscussion(storeId, discussionId);
+		return proposalsService.GetDiscussionDetails(storeId, discussionId);
 	}
 }

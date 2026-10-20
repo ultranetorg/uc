@@ -4,11 +4,13 @@ import { QueryKey, useQueryClient } from "@tanstack/react-query"
 import { OperationType } from "types"
 
 import { categoriesKeys } from "./categories"
-import { surveysKeys } from "./surveys"
+import { moderationReviewKeys } from "./moderation"
 import { proposalCommentsKeys } from "./proposalComments"
 import { proposalsKeys } from "./proposals"
 import { publicationsKeys } from "./publications"
+import { reviewKeys } from "./reviews"
 import { storesKeys } from "./stores"
+import { surveysKeys } from "./surveys"
 import { unpublishedPublicationsKeys } from "./unpublishedPublications"
 import { usersKeys } from "./users"
 
@@ -61,9 +63,23 @@ const operationRules: Record<OperationType, InvalidationRule> = {
   "review-creation": ({ storeId, publicationId }) => [
     publicationsKeys.categoriesPublications(storeId),
     publicationsKeys.detail(publicationId!),
+    reviewKeys.all(publicationId!),
+    moderationReviewKeys.creations(storeId),
   ],
-  "review-edit": ({ publicationId }) => [publicationsKeys.detail(publicationId!)],
-  "review-status-change": () => [],
+  "review-edit": ({ storeId, publicationId }) => [
+    publicationsKeys.detail(publicationId!),
+    reviewKeys.all(publicationId!),
+    moderationReviewKeys.creations(storeId),
+  ],
+  // The publication id may be unknown (e.g. voting from the proposal page), then everything related to
+  // publications is refreshed: the reviews lists and the rating shown in the publication details.
+  "review-deletion": ({ storeId, publicationId }) => [
+    publicationId ? reviewKeys.all(publicationId) : reviewKeys.root(),
+    publicationId ? publicationsKeys.detail(publicationId) : publicationsKeys.root(),
+    publicationsKeys.categoriesPublications(storeId),
+    publicationsKeys.categoriesPublicationsAll(),
+    moderationReviewKeys.deletions(storeId),
+  ],
 
   "store-authors-removal": ({ storeId }) => [storesKeys.publishers(storeId), proposalsKeys.publishers(storeId)],
   "store-moderator-addition": ({ storeId }) => [storesKeys.moderators(storeId), proposalsKeys.moderators(storeId!)],
@@ -86,9 +102,16 @@ const operationRules: Record<OperationType, InvalidationRule> = {
 // Смена политики голосования (policy survey) для любой операции.
 const policyChangeRule: InvalidationRule = ({ storeId }) => [storesKeys.policies(storeId), surveysKeys.all(storeId)]
 
-// Любое изменение предложения (создание, голосование, комментарий): список, детали и комментарии.
+// Любое изменение предложения (создание, голосование, комментарий): списки предложений всех видов и комментарии.
+// Создание предложения с голосованием не выполняет операцию, поэтому правило операции не вызывается, а списки
+// (например, moderator/stores/{storeId}/reviews/deletions) должны обновиться.
 const proposalRule: InvalidationRule = ({ storeId, proposalId }) => [
   proposalsKeys.proposals(storeId),
+  proposalsKeys.publications(storeId),
+  proposalsKeys.moderators(storeId),
+  proposalsKeys.publishers(storeId),
+  proposalsKeys.userUnregistrations(storeId),
+  moderationReviewKeys.all(storeId),
   ...(proposalId ? [proposalCommentsKeys.all(storeId, proposalId)] : []),
 ]
 

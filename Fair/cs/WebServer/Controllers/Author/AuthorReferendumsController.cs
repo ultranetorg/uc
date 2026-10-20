@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/author/stores/{storeId}/referendums")]
+[Route("api/stores/{storeId}/referendums")]
 public class AuthorReferendumsController
 (
 #if DEBUG
@@ -29,15 +29,15 @@ public class AuthorReferendumsController
 	}
 
 	[HttpGet("{referendumId}")]
-	public ProposalDetailsModel Get(string storeId, string referendumId)
+	public ProposalDetailsModel GetDetails(string storeId, string referendumId)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ReferendumId}", nameof(AuthorReferendumsController), nameof(AuthorReferendumsController.Get), storeId, referendumId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ReferendumId}", nameof(AuthorReferendumsController), nameof(AuthorReferendumsController.GetDetails), storeId, referendumId);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		AutoIdValidator.Validate(referendumId, nameof(Proposal).ToLower());
 
-		return proposalsService.GetReferendum(storeId, referendumId);
+		return proposalsService.GetReferendumDetails(storeId, referendumId);
 	}
 }

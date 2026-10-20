@@ -12,14 +12,14 @@ public class ModeratorSurveysService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<SurveyModel> GetSurveys([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<SurveyModel> GetAll([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorSurveysService), nameof(ModeratorSurveysService.GetSurveys), storeId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(ModeratorSurveysService), nameof(ModeratorSurveysService.GetAll), storeId, page, pageSize);
 #endif
 
 		AutoId entityId = AutoId.Parse(storeId);

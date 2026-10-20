@@ -16,6 +16,7 @@ export type CommentStyle = "default" | "compact"
 
 export type CommentContextMenuProps = {
   id: string
+  publicationId: string
   reviewerId: string
   reviewerName: string
   text: string
@@ -55,7 +56,15 @@ export const Comment = memo(
                 <LinkFullscreen to={routes.reviewer(storeId!, user.id)} className={NAME_CLASSNAME} title={displayName}>
                   {displayName}
                 </LinkFullscreen>
-                {ContextMenu && <ContextMenu id={id} reviewerId={user.id} reviewerName={user.nickname} text={text} />}
+                {ContextMenu && publication && (
+                  <ContextMenu
+                    id={id}
+                    reviewerId={user.id}
+                    publicationId={publication.id}
+                    reviewerName={user.nickname}
+                    text={text}
+                  />
+                )}
               </div>
               <span className={DATE_CLASSNAME}>{formatDate(created)}</span>
             </div>
