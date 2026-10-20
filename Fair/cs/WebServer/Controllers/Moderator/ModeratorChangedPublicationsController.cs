@@ -36,7 +36,7 @@ public class ModeratorChangedPublicationsController
 		PaginationValidator.Validate(pagination);
 
 		(int pageValue, int pageSizeValue) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ChangedPublicationModel> products = publicationsService.GetChangedPublicationsAll(storeId, pageValue, pageSizeValue, cancellationToken);
+		TotalItemsResult<ChangedPublicationModel> products = publicationsService.GetChangedPublications(storeId, pageValue, pageSizeValue, cancellationToken);
 
 		return this.OkPaged(products.Items, pageValue, pageSizeValue, products.TotalItems);
 	}

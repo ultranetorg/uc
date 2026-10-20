@@ -12,10 +12,10 @@ public class PublicationReviewsController
 ) : BaseController
 {
 	[HttpGet("~/api/publications/{publicationId}/reviews")]
-	public IEnumerable<ReviewModel> Get(string publicationId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ReviewModel> GetAll(string publicationId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}, {Pagination}", nameof(PublicationReviewsController), nameof(PublicationReviewsController.Get), publicationId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}, {Pagination}", nameof(PublicationReviewsController), nameof(PublicationReviewsController.GetAll), publicationId, pagination);
 #endif
 
 		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());

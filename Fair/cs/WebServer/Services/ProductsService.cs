@@ -112,14 +112,14 @@ public class ProductsService
 		};
 	}
 
-	public TotalItemsResult<ProductStoreModel> GetProductStores([NotNull][NotEmpty] string productId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ProductStoreModel> GetStores([NotNull][NotEmpty] string productId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(productId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegative(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.GetProductStores), productId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.GetStores), productId, page, pageSize);
 #endif
 
 		AutoId id = AutoId.Parse(productId);
@@ -219,14 +219,14 @@ public class ProductsService
 		}
 	}
 
-	public TotalItemsResult<ProductPublicationModel> GetProductPublications(string productId, int page, int pageSize, CancellationToken cancellationToken)
+	public TotalItemsResult<ProductPublicationModel> GetPublications(string productId, int page, int pageSize, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(productId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.GetProductPublications), productId, page, pageSize);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {ProductId}, {Page}, {PageSize}", nameof(ProductsService), nameof(ProductsService.GetPublications), productId, page, pageSize);
 #endif
 
 		AutoId id = AutoId.Parse(productId);

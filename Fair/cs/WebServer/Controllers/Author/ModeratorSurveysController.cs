@@ -13,17 +13,17 @@ public class ModeratorSurveysController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<SurveyModel> Get(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<SurveyModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(ModeratorSurveysController), nameof(ModeratorSurveysController.Get), storeId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}", nameof(ModeratorSurveysController), nameof(ModeratorSurveysController.GetAll), storeId);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<SurveyModel> result = moderatorSurveysService.GetSurveys(storeId, page, pageSize, cancellationToken);
+		TotalItemsResult<SurveyModel> result = moderatorSurveysService.GetAll(storeId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
 	}

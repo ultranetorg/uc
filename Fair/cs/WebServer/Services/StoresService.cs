@@ -11,10 +11,10 @@ public class StoresService
 	FairMcv mcv
 )
 {
-	public IEnumerable<StoreBaseModel> GetDefaultStores(CancellationToken cancellationToken)
+	public IEnumerable<StoreBaseModel> GetDefault(CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called", nameof(StoresService), nameof(StoresService.GetDefaultStores));
+		logger.LogDebug("{ClassName}.{MethodName} method called", nameof(StoresService), nameof(StoresService.GetDefault));
 #endif
 
 		if (cancellationToken.IsCancellationRequested)

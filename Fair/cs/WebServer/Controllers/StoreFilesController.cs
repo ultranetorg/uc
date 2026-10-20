@@ -13,10 +13,10 @@ public class StoreFilesController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<FileModel> Get(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<FileModel> GetAll(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(StoreFilesController), nameof(StoreFilesController.Get), storeId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}", nameof(StoreFilesController), nameof(StoreFilesController.GetAll), storeId, pagination);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());

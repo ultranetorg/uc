@@ -25,10 +25,10 @@ public class AuthorsController
 	}
 
 	[HttpGet]
-	public IEnumerable<AuthorBaseAvatarModel> SearchAuthors([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
+	public IEnumerable<AuthorBaseAvatarModel> Search([FromQuery] string? query, [FromQuery] int? limit, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(AuthorsController), nameof(AuthorsController.SearchAuthors), query, limit);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {Query}, {Limit}", nameof(AuthorsController), nameof(AuthorsController.Search), query, limit);
 #endif
 
 		SearchQueryValidator.Validate(query);

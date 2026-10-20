@@ -302,7 +302,7 @@ const getModeratorSurveys = async (
 }
 
 const getAuthorReferendum = (storeId: string, referendumId: string): Promise<ProposalDetails> =>
-  fetch(`${BASE_URL}/author/stores/${storeId}/referendums/${referendumId}`).then(res => res.json())
+  fetch(`${BASE_URL}/stores/${storeId}/referendums/${referendumId}`).then(res => res.json())
 
 const getAuthorReferendumComments = async (
   storeId: string,
@@ -314,7 +314,7 @@ const getAuthorReferendumComments = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/author/stores/${storeId}/referendums/${referendumId}/comments` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/referendums/${referendumId}/comments` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -328,7 +328,7 @@ const getAuthorReferendums = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/author/stores/${storeId}/referendums` + params)
+  const res = await fetch(`${BASE_URL}/stores/${storeId}/referendums` + params)
   return await toTotalItemsResult(res)
 }
 

@@ -53,12 +53,12 @@ public class UsersService
 		}).ToArray();
 	}
 
-	public UserModel GetUserByName([NotNull][NotEmpty] string name)
+	public UserModel GetByName([NotNull][NotEmpty] string name)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(name);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(UsersService.GetUserByName), name);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {Name}", nameof(UsersService), nameof(UsersService.GetByName), name);
 #endif
 
 		FairUser user = (FairUser) mcv.Users.Latest(name);
@@ -115,12 +115,12 @@ public class UsersService
 		}).ToArray();
 	}
 
-	public UserAuthorsModel GetUserAuthors([NotNull][NotEmpty] string userId)
+	public UserAuthorsModel GetAuthors([NotNull][NotEmpty] string userId)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(userId);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(UsersService.GetUserAuthors), userId);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {UserId}", nameof(UsersService), nameof(UsersService.GetAuthors), userId);
 #endif
 
 		AutoId userEntityId = AutoId.Parse(userId);

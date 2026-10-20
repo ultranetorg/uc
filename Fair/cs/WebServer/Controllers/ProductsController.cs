@@ -26,17 +26,17 @@ public class ProductsController
 	}
 
 	[HttpGet("{productId}/publications")]
-	public IEnumerable<ProductPublicationModel> GetProductPublications(string productId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ProductPublicationModel> GetPublications(string productId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(ProductsController.GetProductPublications), productId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(ProductsController.GetPublications), productId, pagination);
 #endif
 
 		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
 		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		var result = productsService.GetProductPublications(productId, page, pageSize, cancellationToken);
+		var result = productsService.GetPublications(productId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(result.Items, page, pageSize, result.TotalItems);
 	}
@@ -54,17 +54,17 @@ public class ProductsController
 	}
 
 	[HttpGet("{productId}/stores")]
-	public IEnumerable<ProductStoreModel> GetProductStores(string productId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ProductStoreModel> GetStores(string productId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(ProductsController.GetProductStores), productId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {ProductId}, {Pagination}", nameof(ProductsController), nameof(ProductsController.GetStores), productId, pagination);
 #endif
 
 		AutoIdValidator.Validate(productId, nameof(Product).ToLower());
 		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ProductStoreModel> productStores = productsService.GetProductStores(productId, page, pageSize, cancellationToken);
+		TotalItemsResult<ProductStoreModel> productStores = productsService.GetStores(productId, page, pageSize, cancellationToken);
 
 		return this.OkPaged(productStores.Items, page, pageSize, productStores.TotalItems);
 	}

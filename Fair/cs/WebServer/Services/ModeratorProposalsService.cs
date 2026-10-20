@@ -25,7 +25,7 @@ public class ModeratorProposalsService
 		return GetProposalByType<PublicationProposalModel>(storeId, proposalId, EntityNames.UserEntityName, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel);
 	}
 
-	public TotalItemsResult<PublicationProposalModel> GetPublicationsProposalsNotOptimized
+	public TotalItemsResult<PublicationProposalModel> GetPublicationProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
@@ -34,7 +34,7 @@ public class ModeratorProposalsService
 
 #if DEBUG
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}",
-			nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationsProposalsNotOptimized), storeId, page, pageSize, search);
+			nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationProposalsNotOptimized), storeId, page, pageSize, search);
 #endif
 
 		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel, cancellationToken);

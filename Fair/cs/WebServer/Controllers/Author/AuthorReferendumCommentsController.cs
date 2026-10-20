@@ -3,7 +3,7 @@ using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
 
-[Route("api/author/stores/{storeId}/referendums/{referendumId}/comments")]
+[Route("api/stores/{storeId}/referendums/{referendumId}/comments")]
 public class AuthorReferendumCommentsController
 (
 #if DEBUG
@@ -13,10 +13,10 @@ public class AuthorReferendumCommentsController
 ) : BaseController
 {
 	[HttpGet]
-	public IEnumerable<ProposalCommentModel> GetDiscussionComments(string storeId, string referendumId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
+	public IEnumerable<ProposalCommentModel> GetAll(string storeId, string referendumId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ReferendumId}, {Pagination}", nameof(AuthorReferendumCommentsController), nameof(AuthorReferendumCommentsController.GetDiscussionComments), storeId, referendumId, pagination);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {ReferendumId}, {Pagination}", nameof(AuthorReferendumCommentsController), nameof(AuthorReferendumCommentsController.GetAll), storeId, referendumId, pagination);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());

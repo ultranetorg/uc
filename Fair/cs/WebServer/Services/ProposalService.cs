@@ -11,13 +11,13 @@ public class ProposalService
 	FairMcv mcv
 )
 {
-	public ProposalDetailsModel GetDiscussion([NotEmpty][NotNull] string storeId, [NotEmpty][NotNull] string proposalId) =>
+	public ProposalDetailsModel GetDiscussionDetails([NotEmpty][NotNull] string storeId, [NotEmpty][NotNull] string proposalId) =>
 		GetProposalDetails(storeId, proposalId, true);
 
 	public TotalItemsResult<ProposalModel> GetDiscussions([NotEmpty][NotNull] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>
 		GetProposals(storeId, true, page, pageSize, search, cancellationToken);
 
-	public ProposalDetailsModel GetReferendum([NotEmpty][NotNull] string storeId, [NotEmpty][NotNull] string proposalId) =>
+	public ProposalDetailsModel GetReferendumDetails([NotEmpty][NotNull] string storeId, [NotEmpty][NotNull] string proposalId) =>
 		GetProposalDetails(storeId, proposalId, false);
 
 	public TotalItemsResult<ProposalModel> GetReferendums([NotEmpty][NotNull] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>

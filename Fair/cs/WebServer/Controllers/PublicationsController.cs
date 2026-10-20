@@ -26,15 +26,15 @@ public class PublicationsController
 	}
 
 	[HttpGet("{publicationId}/versions")]
-	public PublicationVersionInfo GetVersionLatest(string publicationId)
+	public PublicationVersionInfo GetLatestVersion(string publicationId)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}", nameof(PublicationsController), nameof(PublicationsController.GetVersionLatest), publicationId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {PublicationId}", nameof(PublicationsController), nameof(PublicationsController.GetLatestVersion), publicationId);
 #endif
 
 		AutoIdValidator.Validate(publicationId, nameof(Publication).ToLower());
 
-		return publicationsService.GetVersions(publicationId);
+		return publicationsService.GetLatestVersion(publicationId);
 	}
 
 	[HttpGet("{publicationId}/diff")]
@@ -93,7 +93,7 @@ public class PublicationsController
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		SearchQueryValidator.Validate(query);
 
-		return searchService.SearchLitePublications(storeId, query, 0, StoreConstants.SearchLitePageSize, cancellationToken);
+		return searchService.SearchPublicationsLite(storeId, query, 0, StoreConstants.SearchLitePageSize, cancellationToken);
 	}
 
 	[HttpGet("~/api/categories/{categoryId}/publications")]

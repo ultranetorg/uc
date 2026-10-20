@@ -14,27 +14,27 @@ public class UsersController
 ) : BaseController
 {
 	[HttpGet("{name}")]
-	public UserModel GetUser(string name)
+	public UserModel Get(string name)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(UsersController.GetUser), name);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {Name}", nameof(UsersController), nameof(UsersController.Get), name);
 #endif
 
 		UserNameValidator.Validate(name);
 
-		return usersService.GetUserByName(name);
+		return usersService.GetByName(name);
 	}
 
 	[HttpGet("{userId}/authors")]
-	public UserAuthorsModel GetUserAuthors(string userId)
+	public UserAuthorsModel GetAuthors(string userId)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}", nameof(UsersController), nameof(UsersController.GetUserAuthors), userId);
+		logger.LogInformation("GET {ControllerName}.{ActionName} called with {UserId}", nameof(UsersController), nameof(UsersController.GetAuthors), userId);
 #endif
 
 		AutoIdValidator.Validate(userId, nameof(User));
 
-		return usersService.GetUserAuthors(userId);
+		return usersService.GetAuthors(userId);
 	}
 
 	[HttpGet("{name}/details")]
@@ -112,6 +112,6 @@ public class UsersController
 		SearchQueryValidator.Validate(query);
 		LimitValidator.Validate(limit);
 
-		return searchService.SearchUser(query, limit ?? SearchConstants.SearchUsersLimit, cancellationToken);
+		return searchService.SearchUsers(query, limit ?? SearchConstants.SearchUsersLimit, cancellationToken);
 	}
 }
