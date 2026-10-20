@@ -443,7 +443,7 @@ const getPublisherProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getReviewProposals = async (
+const getReviewCreationsProposals = async (
   storeId: string,
   page?: number,
   pageSize?: number,
@@ -453,7 +453,21 @@ const getReviewProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/reviews` + params)
+  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/reviews/creations` + params)
+  return await toTotalItemsResult(res)
+}
+
+const getReviewDeletionsProposals = async (
+  storeId: string,
+  page?: number,
+  pageSize?: number,
+  search?: string,
+): Promise<TotalItemsResult<ReviewProposal>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/reviews/deletions` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -552,7 +566,8 @@ const api: FairApi = {
   getPublicationDetailsDiff,
   getModeratorProposals,
   getPublisherProposals,
-  getReviewProposals,
+  getReviewCreationsProposals,
+  getReviewDeletionsProposals,
 
   // Proposals
   getUserRegistrationProposals,

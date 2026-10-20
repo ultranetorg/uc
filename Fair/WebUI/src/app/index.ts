@@ -10,3 +10,4 @@ export * from "./StoreRolesProvider"
 export * from "./UserProvider"
 
 export * from "./useOperationPolicy"
+export * from "./useOperationVoterIdentity"

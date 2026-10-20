@@ -9,21 +9,37 @@ public class ModeratorReviewsController
 #if DEBUG
 	ILogger<ModeratorReviewsController> logger,
 #endif
-	ModeratorProposalsService moderatorProposalsService
+	ModeratorReviewProposalsService moderatorReviewProposalsService
 ) : BaseController
 {
-	[HttpGet]
-	public IEnumerable<ReviewProposalModel> Get(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	[HttpGet("creations")]
+	public IEnumerable<ReviewProposalModel> GetCreations(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
 	{
 #if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorReviewsController), nameof(ModeratorReviewsController.Get), storeId, pagination, search);
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorReviewsController), nameof(ModeratorReviewsController.GetCreations), storeId, pagination, search);
 #endif
 
 		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
 		PaginationValidator.Validate(pagination);
 
 		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
-		TotalItemsResult<ReviewProposalModel> reviews = moderatorProposalsService.GetReviewProposalsNotOptimized(storeId, page, pageSize, search, cancellationToken);
+		TotalItemsResult<ReviewProposalModel> reviews = moderatorReviewProposalsService.GetCreationsNotOptimized(storeId, page, pageSize, search, cancellationToken);
+
+		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
+	}
+
+	[HttpGet("deletions")]
+	public IEnumerable<ReviewProposalModel> GetDeletions(string storeId, [FromQuery] PaginationRequest pagination, [FromQuery] string? search, CancellationToken cancellationToken)
+	{
+#if DEBUG
+		logger.LogInformation("GET {ControllerName}.{ActionName} method called with {StoreId}, {Pagination}, {Search}", nameof(ModeratorReviewsController), nameof(ModeratorReviewsController.GetDeletions), storeId, pagination, search);
+#endif
+
+		AutoIdValidator.Validate(storeId, nameof(Store).ToLower());
+		PaginationValidator.Validate(pagination);
+
+		(int page, int pageSize) = PaginationUtils.GetPaginationParams(pagination);
+		TotalItemsResult<ReviewProposalModel> reviews = moderatorReviewProposalsService.GetDeletionsNotOptimized(storeId, page, pageSize, search, cancellationToken);
 
 		return this.OkPaged(reviews.Items, page, pageSize, reviews.TotalItems);
 	}

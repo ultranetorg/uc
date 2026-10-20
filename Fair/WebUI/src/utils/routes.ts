@@ -72,6 +72,6 @@ export const routes = {
     unpublishedPublication: (storeId: string, publicationId: string) =>
       `${storePath(storeId)}/publications/unpublished/${publicationId}`,
     // Reviews
-    reviews: (storeId: string) => `${storePath(storeId)}/reviews`,
+    reviews: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/reviews`, tabKey),
   },
 } as const

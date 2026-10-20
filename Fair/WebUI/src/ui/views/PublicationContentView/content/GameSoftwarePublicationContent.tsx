@@ -34,6 +34,7 @@ export const GameSoftwarePublicationContent = memo(
     error,
     onLeaveReview,
     onEditReview,
+    onDeleteReview,
     onShowMore,
     hasMoreReviews,
   }: ContentProps) => {
@@ -102,8 +103,15 @@ export const GameSoftwarePublicationContent = memo(
 
     const commentContextMenu = useMemo(
       () => (props: CommentContextMenuProps) =>
-        onEditReview ? <CommentContextMenu {...props} onEditReview={onEditReview} /> : undefined,
-      [onEditReview],
+        onEditReview ? (
+          <CommentContextMenu
+            {...props}
+            publicationId={productOrPublication.id}
+            onEditReview={onEditReview}
+            onDeleteReview={onDeleteReview!}
+          />
+        ) : undefined,
+      [onDeleteReview, onEditReview, productOrPublication.id],
     )
 
     useEffect(() => {

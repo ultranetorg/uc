@@ -10,7 +10,7 @@ import {
   RemoveAuthorPanelList,
   RemoveModeratorPanelList,
 } from "./components"
-import { CATEGORY_TYPES, REVIEW_STATUSES } from "./constants"
+import { CATEGORY_TYPES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
 
 export const renderByParameterValueType: Record<
@@ -121,16 +121,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
     <ValidationWrapper message={errorMessage}>
       <RemoveModeratorPanelList value={value as UserBase[]} onChange={onChange} />
     </ValidationWrapper>
-  ),
-  "review-status": ({ field, value, onChange }) => (
-    <DropdownWithTranslation
-      isMulti={false}
-      translationKey="reviewStatuses"
-      items={REVIEW_STATUSES}
-      placeholder={field.placeholder}
-      value={value as string}
-      onChange={item => onChange(item.value)}
-    />
   ),
   string: ({ errorMessage, field, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>

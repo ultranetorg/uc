@@ -21,6 +21,7 @@ export const PublicationContentView = ({
   reviews,
   onLeaveReview,
   onEditReview,
+  onDeleteReview,
   onShowMore,
   hasMoreReviews,
 }: PublicationContentViewProps) => {
@@ -40,6 +41,7 @@ export const PublicationContentView = ({
       reviews={reviews}
       onLeaveReview={onLeaveReview}
       onEditReview={onEditReview}
+      onDeleteReview={onDeleteReview}
       onShowMore={onShowMore}
       hasMoreReviews={hasMoreReviews}
     />

@@ -43,28 +43,26 @@ export const UsersPage = () => {
   )
 
   return (
-    <>
-      <TabsProvider defaultKey={key || "new-users"}>
-        <div className="flex flex-col gap-6">
-          <TabsList
-            className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
-            itemClassName="h-6 cursor-pointer hover:text-gray-800 first-letter:uppercase"
-            activeItemClassName="border-box border-b-2 border-gray-950 pb-2 text-gray-800"
-            onTabSelect={handleTabSelect}
-            items={tabsItems}
-          />
+    <TabsProvider defaultKey={key || "new-users"}>
+      <div className="flex flex-col gap-6">
+        <TabsList
+          className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
+          itemClassName="h-6 cursor-pointer hover:text-gray-800 first-letter:uppercase"
+          activeItemClassName="border-box border-b-2 border-gray-950 pb-2 text-gray-800"
+          onTabSelect={handleTabSelect}
+          items={tabsItems}
+        />
 
-          <TabContent when="new-users">
-            <NewUsersTab />
-          </TabContent>
-          <TabContent when="users-removals">
-            <UsersRemovalsTab />
-          </TabContent>
-          <TabContent when="users">
-            <UsersTab />
-          </TabContent>
-        </div>
-      </TabsProvider>
-    </>
+        <TabContent when="new-users">
+          <NewUsersTab />
+        </TabContent>
+        <TabContent when="users-removals">
+          <UsersRemovalsTab />
+        </TabContent>
+        <TabContent when="users">
+          <UsersTab />
+        </TabContent>
+      </div>
+    </TabsProvider>
   )
 }

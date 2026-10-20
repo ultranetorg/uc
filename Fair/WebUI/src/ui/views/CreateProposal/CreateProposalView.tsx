@@ -72,7 +72,11 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
       onSuccess: () => {
         invalidateProposal({ storeId: storeId! })
         if (!isRequiredVoting) {
-          invalidateOperation(data.type, { storeId: storeId!, userName: user?.name })
+          invalidateOperation(data.type, {
+            storeId: storeId!,
+            userName: user?.name,
+            publicationId: data.publicationId ?? location.state?.publicationId,
+          })
         }
 
         const translationKey = isRequiredVoting ? "toast:proposalCreated" : "toast:proposalExecuted"

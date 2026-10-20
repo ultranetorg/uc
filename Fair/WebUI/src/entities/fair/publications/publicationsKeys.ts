@@ -12,7 +12,8 @@ export const publicationsKeys = {
   categoryPublications: (categoryId: string, page?: number) =>
     [...publicationsKeys.categoriesPublicationsAll(), categoryId, { page }] as const,
 
-  detail: (publicationId: string) => ["publications", publicationId] as const,
+  root: () => ["publications"] as const,
+  detail: (publicationId: string) => [...publicationsKeys.root(), publicationId] as const,
   diff: (publicationId: string, version: number) =>
     [...publicationsKeys.detail(publicationId), "diff", { version }] as const,
   lastVersion: (publicationId: string) => [...publicationsKeys.detail(publicationId), "versions", "latest"] as const,

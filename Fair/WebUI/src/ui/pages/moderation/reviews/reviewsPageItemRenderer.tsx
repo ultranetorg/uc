@@ -1,18 +1,51 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import { ReviewProposal } from "types"
+import { OperationType, ReviewProposal } from "types"
 import { renderUser, renderVotes } from "ui/renderers2"
-import { TableColumn, TableItem } from "ui/components"
+import { ButtonOutline, ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { isUserVoted } from "utils"
 import { renderActions, renderCommon, renderPublication, renderText } from "ui/renderers/utils"
+
+const renderDeleteActions = (
+  t: TFunction,
+  onApprove: () => void,
+  onReject: () => void,
+  loadingAction?: "approve" | "reject",
+  locked?: boolean,
+) => (
+  <div className="flex justify-end gap-5">
+    <ButtonPrimary
+      className="h-9 w-20 capitalize"
+      label={t("common:delete")}
+      loading={loadingAction === "approve"}
+      disabled={loadingAction === "reject" || locked}
+      onClick={e => {
+        onApprove()
+        e.stopPropagation()
+        e.preventDefault()
+      }}
+    />
+    <ButtonOutline
+      className="h-9 w-20 capitalize"
+      label={t("common:cancel")}
+      loading={loadingAction === "reject"}
+      disabled={loadingAction === "approve" || locked}
+      onClick={e => {
+        onReject()
+        e.stopPropagation()
+        e.preventDefault()
+      }}
+    />
+  </div>
+)
 
 export const getReviewsPageItemRenderer =
   (
     t: TFunction,
     onApprove: (id: string) => void,
     onReject: (id: string) => void,
-    votesRequired: { create: number; edit: number },
+    votesRequired: Partial<Record<OperationType, number>>,
     loadingItem?: { id: string; action: "approve" | "reject" } | undefined,
     currentUserId?: string,
   ) =>
@@ -39,16 +72,20 @@ export const getReviewsPageItemRenderer =
           isVoted || (loadingItem && loadingItem.id !== item.id),
         )
 
+      case "delete-actions":
+        return renderDeleteActions(
+          t,
+          () => onApprove(proposal.id),
+          () => onReject(proposal.id),
+          loadingItem?.id === item.id ? loadingItem.action : undefined,
+          isVoted || (loadingItem && loadingItem.id !== item.id),
+        )
+
       case "votes":
-        return proposal.operation === "review-creation"
-          ? renderVotes(
-              proposal.yes.map(x => x.length),
-              votesRequired.create,
-            )
-          : renderVotes(
-              proposal.yes.map(x => x.length),
-              votesRequired.edit,
-            )
+        return renderVotes(
+          proposal.yes.map(x => x.length),
+          votesRequired[proposal.operation] ?? 0,
+        )
     }
 
     return renderCommon(t, column, proposal)

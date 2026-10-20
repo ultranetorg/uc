@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStoreContext } from "app"
+import { useStoreContext, useUserContext } from "app"
 import avatarFallback from "assets/fallback/user-30.png"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback, Pagination } from "ui/components"
@@ -26,11 +26,12 @@ export const UserDetailsView = memo(
   ({ storeId, user, reviews, reviewsPage, onReviewsPageChange }: UserDetailsViewProps) => {
     const { store } = useStoreContext()
     const { t } = useTranslation("userDetailsView")
+    const { user: currentUser } = useUserContext()
 
     if (!user || !reviews) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
 
-    const isPublisher = isUserPublisher(store, user)
-    const isModerator = isUserModerator(store, user)
+    const isPublisher = isUserPublisher(store, currentUser)
+    const isModerator = isUserModerator(store, currentUser)
     const pagesCount =
       reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / REVIEWS_PAGE_SIZE) : 0
 
@@ -40,7 +41,7 @@ export const UserDetailsView = memo(
           <div className="relative h-57.5">
             <div className="relative h-42.5 bg-gray-500">
               <div className="absolute right-6 top-6">
-                <ModeratorUserMenu userId={user.id} userName={user.name} />
+                <ModeratorUserMenu isModerator={isModerator} userId={user.id} userName={user.name} />
               </div>
             </div>
             <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">

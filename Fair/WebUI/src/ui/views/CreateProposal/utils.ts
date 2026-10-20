@@ -42,9 +42,8 @@ const mapOptionOperation = (type: OperationType, data: CreateProposalData, optio
       return { publication: data.publicationId }
 
     // Review
-    case "review-status-change":
-      // @ts-expect-error fix
-      return { review: data.reviewId, status: option.status }
+    case "review-deletion":
+      return { review: data.reviewId }
 
     // Store
     case "store-authors-removal":

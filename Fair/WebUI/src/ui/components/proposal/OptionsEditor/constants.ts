@@ -1,6 +1,6 @@
 import { TFunction } from "i18next"
 
-import { CreateProposalData, ProductType, ReviewStatus } from "types"
+import { CreateProposalData, ProductType } from "types"
 
 import { EditorOperationFields } from "./types"
 import {
@@ -20,8 +20,6 @@ const atLeastOneStoreInfoField = (_: unknown, formValues: CreateProposalData) =>
   )
 
 export const CATEGORY_TYPES: ProductType[] = ["book", "game", "movie", "music", "software"] as const
-
-export const REVIEW_STATUSES: ReviewStatus[] = ["none", "accepted", "rejected"] as const
 
 export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[] =>
   [
@@ -149,18 +147,10 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
 
     // Review
     {
-      operationType: "review-status-change",
+      operationType: "review-deletion",
       parameterValueType: "review",
       parameterName: "reviewId",
       parameterLabel: t("common:review"),
-      parameterPlaceholder: t("placeholders:selectReview"),
-      fields: [
-        {
-          valueType: "review-status",
-          name: "status",
-          placeholder: t("placeholders:selectReviewStatus"),
-        },
-      ],
     },
 
     // Store

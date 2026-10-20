@@ -1,168 +1,66 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { isNumber, isString } from "lodash"
+import { useNavigate } from "react-router-dom"
 
-import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
-import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetReviewProposals, useInvalidation } from "entities"
-import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
-import { ProposalVoting, SpecialChoice } from "types"
-import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
+import { useStoreContext } from "app"
+import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
-import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
+import { routes } from "utils"
 
-import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
+import { ReviewCreationsTab } from "./ReviewCreationsTab"
+import { ReviewDeletionsTab } from "./ReviewDeletionsTab"
+
+const routeToTabKey: Record<string, string> = {
+  new: "new",
+  deletions: "deletions",
+}
 
 export const ReviewsPage = () => {
-  const { voterId } = useOperationPolicy("review-creation")
+  const navigate = useNavigate()
+  const { tabKey } = useParams()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
   const { t } = useTranslation("reviewsPage")
 
   useStoreTitle(store?.title, "Reviews")
 
-  const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
-  const [selectedReviewText, setSelectedReviewText] = useState<string | undefined>()
-  const [state, setState] = useUrlParamsState({
-    page: {
-      defaultValue: 0,
-      parse: v => parseInteger(v),
-      validate: v => isNumber(v) && v >= 0,
-    },
-  })
+  const key = routeToTabKey[tabKey!]
 
-  const [page, setPage] = useState(state.page)
-  const [loadingItem, setLoadingItem] = useState<{ id: string; action: "approve" | "reject" } | undefined>()
+  const handleTabSelect = useCallback(
+    (item: TabsListItem & { route?: string }) => navigate(routes.moderation.reviews(storeId!, item.route)),
+    [navigate, storeId],
+  )
 
-  const { data: reviews, refetch } = useGetReviewProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
-  const pagesCount =
-    reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
-
-  const { mutate } = useTransactMutationWithStatus()
-  const { invalidateOperation } = useInvalidation()
-
-  const columns = useMemo(
+  const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
-      { accessor: "author", label: t("common:reviewer"), type: "account", className: "w-[15%]" },
-      { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
-      { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
-      //{ accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull") },
-      ...(voterId
-        ? [{ accessor: "action", label: t("common:action"), type: "review-action", className: "w-[20%] text-center" }]
-        : []),
+      { key: "new", label: t("common:new") },
+      { key: "deletions", label: t("common:deletions"), route: "deletions" },
     ],
-    [t, voterId],
-  )
-
-  const handleTableRowClick = useCallback(
-    (id: string) => {
-      setSelectedReviewId(id)
-      const review = reviews?.items.find(x => x.id === id)
-      setSelectedReviewText(review?.reviewText)
-    },
-    [reviews],
-  )
-
-  const handleCloseModal = useCallback(() => {
-    setSelectedReviewText(undefined)
-    setSelectedReviewId(undefined)
-  }, [])
-
-  const vote = useCallback(
-    (id: string, action: "approve" | "reject") => {
-      setLoadingItem({ id: id, action })
-
-      const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : SpecialChoice.Neither)
-      mutate(operation, {
-        onSuccess: () => {
-          if (action === "approve") {
-            const review = reviews?.items.find(x => x.id === id)
-            invalidateOperation(review?.operation, { storeId: storeId!, publicationId: review?.publication?.id })
-          }
-
-          const message = action === "approve" ? t("toast:reviewApproved") : t("toast:reviewRejected")
-          showToast(message, "success")
-        },
-        onError: err => {
-          showToast(err.toString(), "error")
-        },
-        onSettled: () => {
-          setLoadingItem(undefined)
-          refetch()
-        },
-      })
-    },
-    [invalidateOperation, mutate, refetch, reviews, storeId, t, voterId],
-  )
-
-  const handleApproveClick = useCallback(
-    (value?: unknown) => {
-      const reviewId = isString(value) ? value : selectedReviewId
-      vote(reviewId!, "approve")
-      handleCloseModal()
-    },
-    [handleCloseModal, selectedReviewId, vote],
-  )
-
-  const handleRejectClick = useCallback(
-    (value?: unknown) => {
-      const reviewId = isString(value) ? value : selectedReviewId
-      vote(reviewId!, "reject")
-      handleCloseModal()
-    },
-    [handleCloseModal, selectedReviewId, vote],
-  )
-
-  const handlePageChange = useCallback(
-    (page: number) => {
-      setState({ page: page })
-      setPage(page)
-    },
-    [setState],
-  )
-
-  const votesRequired = useMemo(
-    () => ({
-      create: calculateVotesRequiredToWinProposal("review-creation", store, policies),
-      edit: calculateVotesRequiredToWinProposal("review-edit", store, policies),
-    }),
-    [policies, store],
-  )
-
-  const itemRenderer = useMemo(
-    () => getReviewsPageItemRenderer(t, handleApproveClick, handleRejectClick, votesRequired, loadingItem, voterId),
-    [handleApproveClick, handleRejectClick, loadingItem, t, voterId, votesRequired],
+    [t],
   )
 
   return (
     <>
       <ModerationHeader title={t("title")} showModeratorsCount={true} />
-      <Table
-        columns={columns}
-        items={reviews?.items}
-        itemRenderer={itemRenderer}
-        tableBodyClassName="text-2sm leading-5"
-        emptyState={<TableEmptyState message={t("noReviews")} />}
-        onRowClick={voterId && !loadingItem ? handleTableRowClick : undefined}
-      />
-      <div className="flex w-full justify-end">
-        <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
-      </div>
-      {selectedReviewId && selectedReviewText && (
-        <TextModal
-          size="compact"
-          title={t("reviewModalTitle")}
-          text={selectedReviewText}
-          onCancel={handleRejectClick}
-          onConfirm={handleApproveClick}
-          onClose={handleCloseModal}
-          confirmLabel={t("common:approve")}
-          cancelLabel={t("common:reject")}
-        />
-      )}
+      <TabsProvider defaultKey={key || "new"}>
+        <div className="flex flex-col gap-6">
+          <TabsList
+            className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
+            itemClassName="h-6 cursor-pointer hover:text-gray-800 first-letter:uppercase"
+            activeItemClassName="border-box border-b-2 border-gray-950 pb-2 text-gray-800"
+            onTabSelect={handleTabSelect}
+            items={tabsItems}
+          />
+
+          <TabContent when="new">
+            <ReviewCreationsTab />
+          </TabContent>
+          <TabContent when="deletions">
+            <ReviewDeletionsTab />
+          </TabContent>
+        </div>
+      </TabsProvider>
     </>
   )
 }
