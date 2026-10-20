@@ -77,12 +77,6 @@ internal class SearchUtils
 			return true;
 		}
 
-		string status = review.Status.ToString();
-		if (status == search)
-		{
-			return true;
-		}
-
 		if (review.Text != null && review.Text.IndexOf(search, StringComparison.OrdinalIgnoreCase) != -1)
 		{
 			return true;

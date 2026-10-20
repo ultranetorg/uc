@@ -58,7 +58,6 @@ public class ReviewCreation : VotableOperation
 
 		v.Publication	= Publication;
 		v.Creator		= User.Id;
-		v.Status		= ReviewStatus.Accepted;
 		v.Rating		= Rating;
 		v.Text			= Text;
 		v.Created		= execution.Time;

@@ -90,7 +90,7 @@ public class PackageHub
 			if(	p.Release.Availability.HasFlag(Availability.Complete) || 
 				p.Release.Availability.HasFlag(Availability.Delta) && p.Manifest.Parents.Any(i => IsReady(i.Address)))
 			{
-				return p.Manifest.CriticalDependencies.All(i => IsReady(i.Address));
+				return p.Manifest.Criticals.All(i => IsReady(i.Address));
 			}
 			else
 				return false;
@@ -239,26 +239,24 @@ public class PackageHub
 		Build(stream, upds, rems, pchs, flow);
 	}
 
-	public void DetermineDelta(PackageManifest manifest, out string file, out List<Dependency> dependencies)
+	public void DetermineDelta(PackageManifest manifest, out string file)
 	{
 		var from = manifest.Parents?.LastOrDefault(i => IsReady(i.Address));
 	
 		if(from != null)
 		{
-			var deps = Find(from.Address).Manifest.CompleteDependencies.ToList();
-
-			deps.AddRange(from.AddedDependencies);
-			deps.RemoveAll(i => from.RemovedDependencies.Contains(i));
-							
-			deps.AddRange(manifest.CompleteDependencies.Where(i => !deps.Contains(i)));
-			deps.RemoveAll(i => !manifest.CompleteDependencies.Contains(i));
+			//var deps = Find(from.Address).Manifest.CompleteDependencies.ToList();
+			//
+			//deps.AddRange(from.AddedDependencies);
+			//deps.RemoveAll(i => from.RemovedDependencies.Contains(i));
+			//				
+			//deps.AddRange(manifest.CompleteDependencies.Where(i => !deps.Contains(i)));
+			//deps.RemoveAll(i => !manifest.CompleteDependencies.Contains(i));
 				
-			dependencies = deps;
 			file = from.Address.ToString().EscapeFilePath() + "." + Package.DeltaExtention; /// we have all delta packages since last complete one
 		}
 		else
 		{
-			dependencies = manifest.CompleteDependencies.ToList();
 			file = Package.CompleteFile;
 		}
 	}
@@ -314,8 +312,8 @@ public class PackageHub
 
 			BuildIncremental(ds, parent.Release, files, flow);
 
-			i.AddedDependencies		= manifest.CompleteDependencies.Where(i => !parent.Manifest.CompleteDependencies.Contains(i)).ToArray();
-			i.RemovedDependencies	= parent.Manifest.CompleteDependencies.Where(i => !manifest.CompleteDependencies.Contains(i)).ToArray();
+			//i.AddedDependencies		= manifest.CompleteDependencies.Where(i => !parent.Manifest.CompleteDependencies.Contains(i)).ToArray();
+			//i.RemovedDependencies	= parent.Manifest.CompleteDependencies.Where(i => !manifest.CompleteDependencies.Contains(i)).ToArray();
 
 			x[ds.ToArray()] = parent.Address.ToString().EscapeFilePath() + "." + Package.DeltaExtention;
 		}
@@ -360,10 +358,10 @@ public class PackageHub
 
 			if(p == null || !IsReady(address))
 			{
-				StartDownload(address, flow).Task.ContinueWith(t =>	{
-																		lock(Lock)
-																			deploy();
-																	});
+				StartDownload(address, true, flow).Task.ContinueWith(t =>	{
+																				lock(Lock)
+																					deploy();
+																			});
 			}
 			else
 				deploy();
@@ -425,22 +423,22 @@ public class PackageHub
 
 														//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
 			
-														var deps = new HashSet<Ura>();
+														//var deps = new HashSet<Ura>();
+														//
+														//foreach(var j in m.Complete.Manifest.Dependencies.Where(i => i.Need == DependencyNeed.Critical))
+														//	deps.Add(j.Address);
+														//
+														//foreach(var i in m.Deltas.AsEnumerable().Reverse())
+														//{
+														//	foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
+														//		deps.Add(j.Address);
+														//
+														//	foreach(var j in i.Value.RemovedDependencies)
+														//		deps.Remove(j.Address);
+														//}
 
-														foreach(var j in m.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical))
-															deps.Add(j.Address);
-
-														foreach(var i in m.Deltas.AsEnumerable().Reverse())
-														{
-															foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
-																deps.Add(j.Address);
-	
-															foreach(var j in i.Value.RemovedDependencies)
-																deps.Remove(j.Address);
-														}
-
-														foreach(var i in deps)
-															collect(p, i);
+														foreach(var i in m.Complete.Manifest.Criticals)
+															collect(p, i.Address);
 													}
 			collect(null, p.Address);
 
@@ -495,7 +493,7 @@ public class PackageHub
 
 									//File.WriteAllText(Path.Join(todeployment(s.Target.Resource.Address), ".hash"), s.Target.Manifest.CompleteHash.ToHex());
 
-									foreach(var i in s.Complete.Manifest.CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical && i.Flags.HasFlag(DependencyFlag.Merge)))
+									foreach(var i in s.Complete.Manifest.Criticals.Where(i => i.Flags.HasFlag(DependencyFlag.Merge)))
 									{
 										var d = Find(i.Address);
 									
@@ -525,7 +523,7 @@ public class PackageHub
 		}
 	}
 
-	public PackageDownload StartDownload(Ura address, Flow flow)
+	public PackageDownload StartDownload(Ura address, bool recursive, Flow flow)
 	{
 		var p = Find(address);
 		
@@ -552,7 +550,7 @@ public class PackageHub
 		else if(p.Activity != null)
 			throw new ResourceException(ResourceError.Busy);
 			
-		d = new PackageDownload(this, p, flow);
+		d = new PackageDownload(this, p, recursive, flow);
 
 		return d;
 	}

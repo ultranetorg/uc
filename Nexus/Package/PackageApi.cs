@@ -140,7 +140,7 @@ public class StartPackageDownloadApc : Apc, INexusApc
 
 		lock(nexus.PackageHub.Lock)
 		{	
-			nexus.PackageHub.StartDownload(Id, workflow);
+			nexus.PackageHub.StartDownload(Id, true, workflow);
 			return null;
 		}
 	}

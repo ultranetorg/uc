@@ -20,11 +20,9 @@ public enum DependencyFlag : byte
 
 public class Dependency : IEquatable<Dependency>, IBinarySerializable
 {
-	//public AutoId			Id { get; set; }
 	public Ura				Address { get; set; }
 	public DependencyNeed	Need { get; set; }
 	public DependencyFlag	Flags { get; set; }
-	public Dependency[]		Dependencies { get; set; } = [];
 
 	public override string ToString()
 	{
@@ -36,7 +34,6 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		Address			= reader.Read<Ura>();
 		Need			= reader.Read<DependencyNeed>();
 		Flags			= reader.Read<DependencyFlag>();
-		Dependencies	= reader.ReadArray<Dependency>();
 	}
 	
 	public void Write(Writer writer)
@@ -44,7 +41,6 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		writer.Write(Address);
 		writer.Write(Need);
 		writer.Write(Flags);
-		writer.Write(Dependencies);
 	}
 
 	public override bool Equals(object obj)
@@ -77,7 +73,6 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		var d = new Dependency();
 		
 		d.Address		= Ura.Parse(xon.Name);
-		d.Dependencies	= [..(xon.One(nameof(Dependencies))?.Nodes ?? []).Select(Dependency.FromXon)];
 		d.Need			= Enum.Parse<DependencyNeed>(xon.Get<string>("Need"));
 		d.Flags			|= xon.Has(DependencyFlag.Merge.ToString()) ? DependencyFlag.Merge : DependencyFlag.None;
 		d.Flags			|= xon.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
@@ -90,18 +85,17 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		var x = new Xon(serializator);
 
 		x.Name = Address.ToString();
+// 
+// 		if(Dependencies.Any())
+// 		{
+// 			var d = x.Add(nameof(Dependencies));
+// 			
+// 			foreach(var i in Dependencies)
+// 			{
+// 				d.Nodes.Add(i.ToXon(serializator));
+// 			}
+// 		}
 
-		if(Dependencies.Any())
-		{
-			var d = x.Add(nameof(Dependencies));
-			
-			foreach(var i in Dependencies)
-			{
-				d.Nodes.Add(i.ToXon(serializator));
-			}
-		}
-
-		//x.Value = Id?.ToString();
 		x.Add("Need").Value = Need;
 		
 		foreach(var i in Enum.GetValues<DependencyFlag>().Where(i => i != DependencyFlag.None))
@@ -123,26 +117,19 @@ public enum ParentPackageFlag : byte
 
 public class ParentPackage : IBinarySerializable
 {
-	//public AutoId				Id { get; set; }
 	public Ura					Address { get; set; }
 	public ParentPackageFlag	Flags { get; set; }
-	public Dependency[]			AddedDependencies { get; set; } = [];
-	public Dependency[]			RemovedDependencies { get; set; } = [];
 
 	public void Write(Writer w)
 	{
 		w.Write(Address);
 		w.Write(Flags);
-		w.Write(AddedDependencies);
-		w.Write(RemovedDependencies);
 	}
 	
 	public void Read(Reader r)
 	{						
 		Address				= r.Read<Ura>();
 		Flags				= r.Read<ParentPackageFlag>();
-		AddedDependencies	= r.ReadArray<Dependency>();
-		RemovedDependencies = r.ReadArray<Dependency>();
 	}
 
 	public static ParentPackage FromXon(Xon xon)
@@ -151,8 +138,6 @@ public class ParentPackage : IBinarySerializable
 
 		d.Address				= Ura.Parse(xon.Name);
 		d.Flags					= xon.GetEnum<ParentPackageFlag>("Flags", ParentPackageFlag.None);
-		d.AddedDependencies		= [..xon.One("Add")?.Nodes.Select(Dependency.FromXon) ?? []];
-		d.RemovedDependencies	= [..xon.One("Remove")?.Nodes.Select(Dependency.FromXon) ?? []];
 
 		return d;
 	}
@@ -163,12 +148,6 @@ public class ParentPackage : IBinarySerializable
 	
 		x.Name = Address.ToString();
 		x.Add("Flags").Value = Flags;
-
-		if(AddedDependencies.Any())
-			x.Add("Add").Nodes.AddRange(AddedDependencies.Select(i => i.ToXon(serializator)));
-
-		if(RemovedDependencies.Any())
-			x.Add("Remove").Nodes.AddRange(RemovedDependencies.Select(i => i.ToXon(serializator)));
 
 		return x;
 	}
@@ -185,12 +164,11 @@ public class PackageManifest : IBinarySerializable
 {
 	public const string				Extension = "rdnpm";
 
-	//public Urn						Urn { get; set; }
-	public Dependency[]				CompleteDependencies { get; set; } = [];
+	public Dependency[]				Dependencies { get; set; } = []; /// All dependencies and its dependencies recursively
 	public ParentPackage[]			Parents { get; set; } = [];
 
 	[JsonIgnore]
-	public IEnumerable<Dependency>	CriticalDependencies => CompleteDependencies.Where(i => i.Need == DependencyNeed.Critical);
+	public IEnumerable<Dependency>	Criticals => Dependencies.Where(i => i.Need == DependencyNeed.Critical);
 
 	public PackageManifest()
 	{
@@ -203,18 +181,14 @@ public class PackageManifest : IBinarySerializable
 
 	public void Write(Writer writer)
 	{
-		//writer.WriteVirtual(Urn); /// URN HEADER: MUST GO FIRST
-
-		writer.Write(CompleteDependencies);
+		writer.Write(Dependencies);
 		writer.Write(Parents);
 	}
 
 	public void Read(Reader reader)
 	{
-		//Urn						= reader.ReadVirtual<Urn>(); /// URN HEADER: MUST GO FIRST
-
-		CompleteDependencies	= reader.ReadArray<Dependency>();
-		Parents					= reader.ReadArray<ParentPackage>();
+		Dependencies	= reader.ReadArray<Dependency>();
+		Parents			= reader.ReadArray<ParentPackage>();
 	}
 
 	public static PackageManifest Parse(string text)
@@ -237,11 +211,9 @@ public class PackageManifest : IBinarySerializable
 		serializator ??= new XonTextValueSerializator();
 
 		var x = new Xon(serializator);
-
-		//x.Add(nameof(Urn)).Value = Urn?.ToString();
 		
-		if(CompleteDependencies.Any())
-			x.Add(nameof(CompleteDependencies)).Nodes.AddRange(CompleteDependencies.Select(i => i.ToXon(serializator)));
+		if(Dependencies.Any())
+			x.Add(nameof(Dependencies)).Nodes.AddRange(Dependencies.Select(i => i.ToXon(serializator)));
 
 		if(Parents.Any())
 			x.Add(nameof(Parents)).Nodes.AddRange(Parents.Select(i => i.ToXon(serializator)));
@@ -253,9 +225,8 @@ public class PackageManifest : IBinarySerializable
 	{
 		var m = new PackageManifest();
 
-		//m.Urn					= xon.One(nameof(Urn))?.Parse(v => Urn.Parse(v));
-		m.CompleteDependencies	= xon.One(nameof(CompleteDependencies))?.Nodes.Select(Dependency.FromXon).ToArray() ?? [];
-		m.Parents				= xon.One(nameof(Parents))?.Nodes.Select(ParentPackage.FromXon).ToArray() ?? [];
+		m.Dependencies	= xon.One(nameof(Dependencies))?.Nodes.Select(Dependency.FromXon).ToArray() ?? [];
+		m.Parents		= xon.One(nameof(Parents))?.Nodes.Select(ParentPackage.FromXon).ToArray() ?? [];
 
 		return m;
 	}

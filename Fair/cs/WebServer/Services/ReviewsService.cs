@@ -68,8 +68,6 @@ public class ReviewsService
 				return new TotalItemsResult<ReviewModel>{Items = result, TotalItems = reviewsIds.Count()};
 
 			Review review = mcv.Reviews.Latest(id);
-			if(review.Status != ReviewStatus.Accepted)
-				continue;
 
 			if(loadedItems >= page * pageSize && loadedItems < (page + 1) * pageSize)
 			{

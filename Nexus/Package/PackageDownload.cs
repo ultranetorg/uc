@@ -59,7 +59,7 @@ public class PackageDownload
 		IsDownloaded	= true;
 	}
 
-	public PackageDownload(PackageHub hub, Package package, Flow flow)
+	public PackageDownload(PackageHub hub, Package package, bool recursive, Flow flow)
 	{
 		Package = package;
 
@@ -83,45 +83,50 @@ public class PackageDownload
 																	new DHIntegrity(xindex.Get<byte[]>(PackageManifest.Extension)), 
 																	Seeker, 
 																	flow);
-
-										if(xindex.Has(PackageInstruction.Extension))
-										{
-											node.ResourceHub.GetFile(Package.Release, 
-																	 false, 
-																	 PackageInstruction.Extension, 
-																	 Path.Join(hub.AddressToReleases(Package.Release.Address), PackageInstruction.Extension), 
-																	 new DHIntegrity(xindex.Get<byte[]>(PackageInstruction.Extension)), 
-																	 Seeker, 
-																	 flow);
-										}
-
 										string file;
 
 										lock(hub.Lock)
 										{
-											hub.DetermineDelta(Package.Manifest, out file, out var deps);
+											hub.DetermineDelta(Package.Manifest, out file);
 								
-											foreach(var i in deps.Where(i => i.Need == DependencyNeed.Critical))
+											if(recursive)
 											{
-												if(!hub.IsReady(i.Address))
+												foreach(var i in Package.Manifest.Criticals)
 												{
-													var dd = hub.StartDownload(i.Address, flow);
-													Dependencies.Add(dd);
+													if(!hub.IsReady(i.Address))
+													{
+														var dd = hub.StartDownload(i.Address, false, flow);
+														Dependencies.Add(dd);
+													}
 												}
 											}
 										}
 
+										List<Task> downloads = [..DependenciesRecursive.Select(i => i.Task)];
+
 										lock(node.ResourceHub)
- 											FileDownload = node.ResourceHub.DownloadFile(	Package.Release, 
+										{
+ 											downloads.Add(node.ResourceHub.DownloadFile(Package.Release, 
+																						false,
+																						file, 
+																						Path.Join(hub.AddressToReleases(Package.Release.Address), file),
+																						new DHIntegrity(Package.Release.LoadIndex().One(file).Get<byte[]>()),
+																						Seeker,
+																						flow).Task);
+
+											if(xindex.Has(PackageInstruction.Extension))
+											{
+ 												downloads.Add(node.ResourceHub.DownloadFile(Package.Release, 
 																							false,
-																							file, 
-																							Path.Join(hub.AddressToReleases(Package.Release.Address), file),
-																							new DHIntegrity(Package.Release.LoadIndex().One(file).Get<byte[]>()),
+																							PackageInstruction.Extension, 
+																							Path.Join(hub.AddressToReleases(Package.Release.Address), PackageInstruction.Extension), 
+																							new DHIntegrity(xindex.Get<byte[]>(PackageInstruction.Extension)), 
 																							Seeker,
-																							flow);
+																							flow).Task);
+											}
+										}
 
-
-										Task.WaitAll([..DependenciesRecursive.Select(i => i.Task), FileDownload.Task]);
+										Task.WaitAll(downloads, flow.Cancellation);
 
 										var a = Availability.None;
 

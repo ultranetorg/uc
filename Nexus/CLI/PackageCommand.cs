@@ -106,7 +106,7 @@ public class PackageCommand : NexusCommand
 									if(m?.Parents.FirstOrDefault() != null)
 										ops.Add(new ResourceLinkCreation(id, getid(m.Parents.First().Address), ResourceLinkType.Dependency));
 
-									ops.AddRange(p.Manifest.CompleteDependencies.Select(i => new ResourceLinkCreation(id, getid(i.Address), ResourceLinkType.Dependency)));
+									ops.AddRange(p.Manifest.Dependencies.Select(i => new ResourceLinkCreation(id, getid(i.Address), ResourceLinkType.Dependency)));
 								}
 								
 								if(ops.Any())
