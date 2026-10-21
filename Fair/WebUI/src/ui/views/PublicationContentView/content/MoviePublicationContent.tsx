@@ -5,7 +5,7 @@ import { SvgStarXxs } from "assets"
 import { LinkFullscreen } from "ui/components"
 import { ReviewsList } from "ui/components/specific"
 import { AuthorImageTitle } from "ui/components/publication/SoftwareInfo/components"
-import { buildFileUrl, routes } from "utils"
+import { buildFileUrl, formatAverageRating, routes } from "utils"
 
 import { ContentProps } from "../types"
 
@@ -75,7 +75,7 @@ export const MoviePublicationContent = memo(
                   <span className="flex items-center gap-1">
                     {productOrPublication.rating > 0 ? (
                       <>
-                        <span className="font-semibold">{productOrPublication.rating}</span>
+                        <span className="font-semibold">{formatAverageRating(productOrPublication.rating)}</span>
                         <SvgStarXxs className="fill-favorite" />
                       </>
                     ) : (

@@ -50,7 +50,9 @@ public class PublicationsService
 			AuthorTitle = author.Title,
 			AuthorLogoId = author.Avatar,
 			Path = path,
-			Rating = isPublicationPublished ? publication.Rating : null
+			Rating = isPublicationPublished && publication.RatingCount > 0
+				? PublicationUtils.CalculateRating(publication.RatingSum, publication.RatingCount)
+				: null
 		};
 	}
 
@@ -375,7 +377,7 @@ public class PublicationsService
 			LatestVersion = product.Versions.Last().Id,
 			CategoryId = category.Id,
 			CategoryTitle = category.Title,
-			Rating = publication.Rating,
+			Rating = PublicationUtils.CalculateRating(publication.RatingSum, publication.RatingCount),
 			Fields = fields,
 			FieldsTo = fieldsTo
 		};

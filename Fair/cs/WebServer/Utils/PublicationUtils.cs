@@ -39,4 +39,6 @@ public static class PublicationUtils
 			category = category.Parent != null ? mcv.Categories.Latest(category.Parent) : null;
 		} while(category != null);
 	}
+
+	public static byte CalculateRating(int ratingSum, int ratingCount) => (byte)(ratingCount > 0 ? (int)(ratingSum / ratingCount) : 0);
 }

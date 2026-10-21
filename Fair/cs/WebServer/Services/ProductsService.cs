@@ -107,7 +107,7 @@ public class ProductsService
 			AuthorTitle = author.Title,
 			AuthorLogoId = author.Avatar,
 			Path = path,
-			Rating = publication.Rating,
+			Rating = PublicationUtils.CalculateRating(publication.RatingSum, publication.RatingCount),
 			FieldsTo = fieldsTo
 		};
 	}
@@ -214,7 +214,7 @@ public class ProductsService
 				PublicationId = publication.Id,
 				StoreId = store.Id,
 				StoreTitle = store.Title,
-				Rating = publication.Rating,
+				Rating = PublicationUtils.CalculateRating(publication.RatingSum, publication.RatingCount),
 			};
 		}
 	}
