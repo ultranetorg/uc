@@ -63,8 +63,10 @@ public class ReviewCreation : VotableOperation
 		v.Created		= execution.Time;
 
 		var p = execution.Publications.Affect(Publication);
+		
 		p.Reviews = [..p.Reviews, v.Id];
-		p.Rating = p.Rating != 0 ? (byte)((p.Rating + v.Rating)/2) : v.Rating;
+		p.RatingSum += Rating;
+		p.RatingCount++;
 
 		User.Reviews = User.Reviews.Add(v.Id);
 

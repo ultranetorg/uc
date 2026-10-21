@@ -43,6 +43,8 @@ public class ReviewDeletion : VotableOperation
 
 		var p = execution.Publications.Affect(v.Publication);
 		p.Reviews = p.Reviews.Remove(v.Id);
+		p.RatingSum -= v.Rating;
+		p.RatingCount--;
 
 		var u = execution.AffectUser(v.Creator);
 		u.Reviews = u.Reviews.Remove(v.Id);
