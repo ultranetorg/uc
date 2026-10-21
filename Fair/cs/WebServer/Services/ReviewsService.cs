@@ -70,12 +70,19 @@ public class ReviewsService
 			if(loadedItems >= page * pageSize && loadedItems < (page + 1) * pageSize)
 			{
 				Review review = mcv.Reviews.Latest(id);
-				FairUser account = (FairUser)mcv.Users.Latest(review.Creator);
+				FairUser account = (FairUser) mcv.Users.Latest(review.Creator);
 				Publication publication = mcv.Publications.Latest(review.Publication);
 				Product product = mcv.Products.Latest(publication.Product);
 
-				var model = new ReviewModel(review, account)
+				var model = new ReviewModel
 				{
+					Id = review.Id,
+					Text = review.Text,
+					CreatorId = account.Id,
+					CreatorName = account.Name,
+					CreatorAvatarId = account.Id,
+					Created = review.Created,
+					Rating = review.Rating,
 					PublicationId = publication.Id,
 					PublicationTitle = product.Title
 				};

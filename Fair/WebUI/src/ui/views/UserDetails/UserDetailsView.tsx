@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next"
 
 import { useStoreContext, useUserContext } from "app"
 import avatarFallback from "assets/fallback/user-30.png"
+import { REVIEWS_PAGE_SIZE } from "config"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback, Pagination } from "ui/components"
 import { ModeratorUserMenu } from "ui/components/specific"
 import { buildUserAvatarByIdUrl, formatRole, isUserModerator, isUserPublisher } from "utils"
 
-import { REVIEWS_PAGE_SIZE } from "config"
 import { ReviewsList } from "./ReviewsList"
 import { PublishersList } from "./PublishersList"
 

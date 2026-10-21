@@ -1,3 +1,5 @@
-import { CommentBase } from "types"
+import { BaseComment } from "types"
 
-export type ProposalComment = CommentBase
+export type ProposalComment = BaseComment & {
+  proposalId: string
+}

@@ -1,6 +1,8 @@
 import { memo } from "react"
 
 import { ProposalComment, Review } from "types"
+import { useResolveStoreId } from "hooks"
+import { buildFileUrl, buildUserAvatarByIdUrl, routes } from "utils"
 
 import { Comment } from "./Comment"
 import { CommentInput } from "./CommentInput"
@@ -29,39 +31,61 @@ export const CommentsList = memo(
     noCommentsLabel,
     showCommentInput,
     onCommentSubmit,
-  }: CommentsListProps) => (
-    <div className="flex flex-col gap-4">
-      {isFetching || !comments ? (
-        <div>Loading{import.meta.env.DEV ? " (CommentsList)" : ""}</div>
-      ) : comments.length === 0 ? (
-        <>
-          {showCommentInput ? (
-            <CommentInput
-              disabled={inputDisabled}
-              loading={inputLoading}
-              placeholder={commentInputPlaceholder}
-              onCommentSubmit={onCommentSubmit}
-            />
-          ) : (
-            <CommentsListEmptyState label={noCommentsLabel} />
-          )}
-        </>
-      ) : (
-        <>
-          {showCommentInput && (
-            <CommentInput
-              disabled={inputDisabled}
-              loading={inputLoading}
-              placeholder={commentInputPlaceholder}
-              onCommentSubmit={onCommentSubmit}
-            />
-          )}
-          {comments.map(r => (
-            <Comment key={r.id} id={r.id} text={r.text} rating={r.rating} user={r.creatorUser} created={r.created} />
-          ))}
-          {/* <ButtonOutline className="mx-auto h-9" label={showMoreCommentsLabel} /> */}
-        </>
-      )}
-    </div>
-  ),
+  }: CommentsListProps) => {
+    const storeId = useResolveStoreId()
+
+    return (
+      <div className="flex flex-col gap-4">
+        {isFetching || !comments ? (
+          <div>Loading{import.meta.env.DEV ? " (CommentsList)" : ""}</div>
+        ) : comments.length === 0 ? (
+          <>
+            {showCommentInput ? (
+              <CommentInput
+                disabled={inputDisabled}
+                loading={inputLoading}
+                placeholder={commentInputPlaceholder}
+                onCommentSubmit={onCommentSubmit}
+              />
+            ) : (
+              <CommentsListEmptyState label={noCommentsLabel} />
+            )}
+          </>
+        ) : (
+          <>
+            {showCommentInput && (
+              <CommentInput
+                disabled={inputDisabled}
+                loading={inputLoading}
+                placeholder={commentInputPlaceholder}
+                onCommentSubmit={onCommentSubmit}
+              />
+            )}
+            {comments.map(r => (
+              <Comment
+                key={r.id}
+                id={r.id}
+                text={r.text}
+                rating={"rating" in r ? r.rating : undefined}
+                creatorId={r.creatorId}
+                creatorName={r.creatorName}
+                creatorAvatarSrc={
+                  r.creatorAs == "moderator"
+                    ? buildUserAvatarByIdUrl(r.creatorAvatarId)
+                    : buildFileUrl(r.creatorAvatarId)
+                }
+                creatorLink={
+                  r.creatorAs == "moderator"
+                    ? routes.reviewer(storeId!, r.creatorId)
+                    : routes.publisher(storeId!, r.creatorId)
+                }
+                created={r.created}
+              />
+            ))}
+            {/* <ButtonOutline className="mx-auto h-9" label={showMoreCommentsLabel} /> */}
+          </>
+        )}
+      </div>
+    )
+  },
 )
