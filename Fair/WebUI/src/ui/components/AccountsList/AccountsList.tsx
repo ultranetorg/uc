@@ -2,6 +2,7 @@ import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
+import { buildUserAvatarByIdUrl } from "utils"
 
 import { AccountsListItem, AccountsListItemProps } from "./AccountsListItem"
 
@@ -20,6 +21,7 @@ export const AccountsList = memo(({ className, items, fallbackSrc, onItemRemove 
         <AccountsListItem
           key={x.id}
           {...x}
+          avatarSrc={buildUserAvatarByIdUrl(x.id)}
           onRemove={onItemRemove ? () => onItemRemove(x.id) : undefined}
           fallbackSrc={fallbackSrc}
         />
