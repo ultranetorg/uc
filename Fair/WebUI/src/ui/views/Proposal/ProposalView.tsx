@@ -65,15 +65,15 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
   const { isFetching: isCommentsFetching, data: comments } = useGetProposalComments(storeId, proposal?.id)
 
   const NestedContent = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
-  const isPublicationMode = !!NestedContent
+  const isPublicationProposal = !!NestedContent
 
   const productId = useMemo(
-    () => (isPublicationMode ? getProductId(proposal) : undefined),
-    [isPublicationMode, proposal],
+    () => (isPublicationProposal ? getProductId(proposal) : undefined),
+    [isPublicationProposal, proposal],
   )
   const publicationId = useMemo(
-    () => (isPublicationMode ? getPublicationId(proposal) : undefined),
-    [isPublicationMode, proposal],
+    () => (isPublicationProposal ? getPublicationId(proposal) : undefined),
+    [isPublicationProposal, proposal],
   )
 
   const headerBreadcrumbs = useMemo(
@@ -157,7 +157,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
   const handleCommentSubmit = useCallback(
     (comment: string) => {
       setCommentSubmitting(true)
-      if (!isPublicationMode) setVotedValue(ALREADY_VOTED)
+      if (!isPublicationProposal) setVotedValue(ALREADY_VOTED)
       const operation = new ProposalCommentCreation(proposal!.id, approval!.id, comment)
       mutate(operation, {
         onSuccess: () => {
@@ -167,17 +167,17 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
         onError: err => showToast(err.toString(), "error"),
         onSettled: () => {
           setCommentSubmitting(false)
-          if (!isPublicationMode) setVotedValue(undefined)
+          if (!isPublicationProposal) setVotedValue(undefined)
         },
       })
     },
-    [isPublicationMode, mutate, proposal, invalidateProposal, storeId, t, approval],
+    [isPublicationProposal, mutate, proposal, invalidateProposal, storeId, t, approval],
   )
 
   useEffect(() => {
     if (!approval) return
 
-    if (isPublicationMode) {
+    if (isPublicationProposal) {
       if (isVoted(approval!.id, proposal)) {
         setVoteStatus("voted")
       }
@@ -188,7 +188,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
         setVotedValue(votedIndex)
       }
     }
-  }, [isPublicationMode, proposal, approval])
+  }, [isPublicationProposal, proposal, approval])
 
   if (!proposal || !comments) {
     return <div>Loading{import.meta.env.DEV ? " (ProposalView)" : ""}</div>
@@ -200,7 +200,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
         title={proposal.title ?? proposal.id}
         parentBreadcrumbs={headerBreadcrumbs}
         components={
-          isPublicationMode && !!approval && voteStatus !== "voted" ? (
+          isPublicationProposal && !!approval && voteStatus !== "voted" ? (
             <ButtonBar className="items-center">
               <ButtonPrimary
                 className="h-11 w-43.75"
@@ -242,7 +242,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
       {NestedContent && <NestedContent t={t} storeId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
       <div className="flex gap-8">
         <div className="flex w-full flex-col gap-8">
-          {!isPublicationMode && (
+          {!isPublicationProposal && (
             <DefaultContent
               t={t}
               storeId={storeId!}
@@ -254,7 +254,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
               onVoteClick={handleVoteClick}
             />
           )}
-          {!isPublicationMode && !!approval && (
+          {!isPublicationProposal && !!approval && !isReferendum && (
             <AlternativeOptions
               hideVoteButton={voteStatus === "voted"}
               votedValue={votedValue}
@@ -278,7 +278,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
             createdBy={proposal.by}
             createdAt={proposal.creationTime}
           />
-          {!isPublicationMode &&
+          {!isPublicationProposal &&
             (pageState === "voting" ? (
               <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
             ) : (

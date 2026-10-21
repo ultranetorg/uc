@@ -8,5 +8,5 @@ public class PublicationDetailsModel : ProductDetailsModel
 	public IEnumerable<CategoryPathItem>? Path { get; init; }
 
 	// NOTE: Field can be null for unpublished publication. Unpublished publication have no rating.
-	public int? Rating { get; init; }
+	public byte? Rating { get; init; }
 }

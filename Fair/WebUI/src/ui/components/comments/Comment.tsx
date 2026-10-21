@@ -1,12 +1,10 @@
 import { ComponentType, memo } from "react"
-
-import { Link } from "react-router-dom"
+import { Link, To } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+
 import avatarFallback from "assets/fallback/user-10.png"
-import { useResolveStoreId } from "hooks"
-import { UserBaseAvatar } from "types"
 import { ImageFallback, LinkFullscreen, RatingBar } from "ui/components"
-import { buildUserAvatarByIdUrl, formatDate, routes } from "utils"
+import { formatDate, routes } from "utils"
 
 const NAME_CLASSNAME = "text-2sm font-semibold leading-4.5"
 const TEXT_CLASSNAME = "text-2sm leading-5"
@@ -22,10 +20,11 @@ export type CommentContextMenuProps = {
   text: string
 }
 
-export type CommentProps = {
-  style?: CommentStyle
-  user: UserBaseAvatar
+type CommentBaseProps = {
   id: string
+  creatorId: string
+  creatorName: string
+  creatorAvatarSrc?: string
   created: number
   rating?: number
   text: string
@@ -33,74 +32,69 @@ export type CommentProps = {
   contextMenu?: ComponentType<CommentContextMenuProps>
 }
 
-export const Comment = memo(
-  ({ style = "default", user, id, created, rating, text, publication, contextMenu: ContextMenu }: CommentProps) => {
-    const storeId = useResolveStoreId()
-    const { t } = useTranslation()
+export type CommentProps =
+  | (CommentBaseProps & { style?: Extract<CommentStyle, "default">; creatorLink: To })
+  | (CommentBaseProps & { style: Extract<CommentStyle, "compact">; creatorLink?: undefined })
 
-    const displayName = user.nickname ?? user.id
+export const Comment = memo((props: CommentProps) => {
+  const { creatorId, creatorName, creatorAvatarSrc, id, created, rating, text, publication } = props
+  const ContextMenu = props.contextMenu
+  const { t } = useTranslation()
 
-    return style === "default" ? (
-      <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-4.5">
-            <div className="size-13 overflow-hidden rounded-full">
-              <ImageFallback
-                src={buildUserAvatarByIdUrl(user.id)}
-                fallbackSrc={avatarFallback}
-                className="size-full object-cover"
-              />
-            </div>
-            <div className="flex flex-1 flex-col justify-center gap-2">
-              <div className="flex items-center justify-between">
-                <LinkFullscreen to={routes.reviewer(storeId!, user.id)} className={NAME_CLASSNAME} title={displayName}>
-                  {displayName}
-                </LinkFullscreen>
-                {ContextMenu && publication && (
-                  <ContextMenu
-                    id={id}
-                    reviewerId={user.id}
-                    publicationId={publication.id}
-                    reviewerName={user.nickname}
-                    text={text}
-                  />
-                )}
-              </div>
-              <span className={DATE_CLASSNAME}>{formatDate(created)}</span>
-            </div>
+  const displayName = creatorName ?? creatorId
+
+  return props.style !== "compact" ? (
+    <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-4.5">
+          <div className="size-13 overflow-hidden rounded-full">
+            <ImageFallback src={creatorAvatarSrc} fallbackSrc={avatarFallback} className="size-full object-cover" />
           </div>
-          {rating && <RatingBar value={rating} />}
-        </div>
-        <span className={TEXT_CLASSNAME}>{text}</span>
-      </div>
-    ) : (
-      <div className="flex flex-col gap-4 rounded-lg border border-gray-300 bg-white p-4">
-        <div className="flex items-center gap-2">
-          <div className="size-10 overflow-hidden rounded-full">
-            <ImageFallback
-              src={buildUserAvatarByIdUrl(user.id)}
-              fallbackSrc={avatarFallback}
-              className="size-full object-cover"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1 leading-4.5">
-              <span className={NAME_CLASSNAME}>{displayName}</span>
-              {publication && (
-                <>
-                  <span>{t("common:to")}:</span>
-                  <Link to={routes.publication(publication.id)} className="text-sm font-semibold">
-                    {publication.title}
-                  </Link>
-                </>
+          <div className="flex flex-1 flex-col justify-center gap-2">
+            <div className="flex items-center justify-between">
+              <LinkFullscreen to={props.creatorLink} className={NAME_CLASSNAME} title={displayName}>
+                {displayName}
+              </LinkFullscreen>
+              {ContextMenu && publication && (
+                <ContextMenu
+                  id={id}
+                  reviewerId={creatorId}
+                  publicationId={publication.id}
+                  reviewerName={displayName}
+                  text={text}
+                />
               )}
             </div>
             <span className={DATE_CLASSNAME}>{formatDate(created)}</span>
           </div>
         </div>
         {rating && <RatingBar value={rating} />}
-        <span className={TEXT_CLASSNAME}>{text}</span>
       </div>
-    )
-  },
-)
+      <span className={TEXT_CLASSNAME}>{text}</span>
+    </div>
+  ) : (
+    <div className="flex flex-col gap-4 rounded-lg border border-gray-300 bg-white p-4">
+      <div className="flex items-center gap-2">
+        <div className="size-10 overflow-hidden rounded-full">
+          <ImageFallback src={creatorAvatarSrc} fallbackSrc={avatarFallback} className="size-full object-cover" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1 leading-4.5">
+            <span className={NAME_CLASSNAME}>{displayName}</span>
+            {publication && (
+              <>
+                <span>{t("common:to")}:</span>
+                <Link to={routes.publication(publication.id)} className="text-sm font-semibold">
+                  {publication.title}
+                </Link>
+              </>
+            )}
+          </div>
+          <span className={DATE_CLASSNAME}>{formatDate(created)}</span>
+        </div>
+      </div>
+      {rating && <RatingBar value={rating} />}
+      <span className={TEXT_CLASSNAME}>{text}</span>
+    </div>
+  )
+})

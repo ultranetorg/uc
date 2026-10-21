@@ -1,8 +1,10 @@
 import { memo } from "react"
 
+import { useResolveStoreId } from "hooks"
 import { TotalItemsResult, Review } from "types"
 import { ButtonOutline } from "ui/components"
 import { Comment, CommentProps } from "ui/components/comments/Comment"
+import { buildUserAvatarByIdUrl, routes } from "utils"
 
 import { ReviewsListEmptyState } from "./ReviewsListEmptyState"
 
@@ -34,43 +36,50 @@ export const ReviewsList = memo(
     contextMenu,
     onShowMore,
     hasMoreReviews = true,
-  }: ReviewsListProps) => (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2 text-xl font-extrabold leading-6">
-          <span className="text-gray-800">{reviewLabel}</span>
-          {/* <span className="text-gray-500">{reviews?.totalItems}</span> */}
+  }: ReviewsListProps) => {
+    const storeId = useResolveStoreId()
+
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2 text-xl font-extrabold leading-6">
+            <span className="text-gray-800">{reviewLabel}</span>
+            {/* <span className="text-gray-500">{reviews?.totalItems}</span> */}
+          </div>
+          {onLeaveReviewClick && <ButtonOutline label={leaveReviewLabel} onClick={onLeaveReviewClick} />}
         </div>
-        {onLeaveReviewClick && <ButtonOutline label={leaveReviewLabel} onClick={onLeaveReviewClick} />}
-      </div>
-      {error ? (
-        <div>{error.message}</div>
-      ) : isPending || !reviews ? (
-        <div>Loading{import.meta.env.DEV ? " (ReviewsList)" : ""}</div>
-      ) : reviews.items.length === 0 ? (
-        <ReviewsListEmptyState label={noReviewsLabel} />
-      ) : (
-        <>
-          {reviews.items.map(r => (
-            <Comment
-              key={r.id}
-              id={r.id}
-              text={r.text}
-              rating={r.rating}
-              user={r.creatorUser}
-              created={r.created}
-              publication={{ id: r.publicationId, title: r.publicationTitle }}
-              contextMenu={contextMenu}
+        {error ? (
+          <div>{error.message}</div>
+        ) : isPending || !reviews ? (
+          <div>Loading{import.meta.env.DEV ? " (ReviewsList)" : ""}</div>
+        ) : reviews.items.length === 0 ? (
+          <ReviewsListEmptyState label={noReviewsLabel} />
+        ) : (
+          <>
+            {reviews.items.map(r => (
+              <Comment
+                key={r.id}
+                id={r.id}
+                text={r.text}
+                rating={r.rating}
+                creatorId={r.creatorId}
+                creatorName={r.creatorName}
+                creatorAvatarSrc={buildUserAvatarByIdUrl(r.creatorId)}
+                creatorLink={routes.reviewer(storeId!, r.creatorId)}
+                created={r.created}
+                publication={{ id: r.publicationId, title: r.publicationTitle }}
+                contextMenu={contextMenu}
+              />
+            ))}
+            <ButtonOutline
+              className="mx-auto"
+              label={showMoreReviewsLabel}
+              onClick={onShowMore}
+              disabled={!hasMoreReviews}
             />
-          ))}
-          <ButtonOutline
-            className="mx-auto"
-            label={showMoreReviewsLabel}
-            onClick={onShowMore}
-            disabled={!hasMoreReviews}
-          />
-        </>
-      )}
-    </div>
-  ),
+          </>
+        )}
+      </div>
+    )
+  },
 )

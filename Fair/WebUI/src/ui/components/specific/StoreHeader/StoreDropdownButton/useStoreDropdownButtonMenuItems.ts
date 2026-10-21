@@ -83,11 +83,11 @@ export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem
       ...(isModeratorsVisible || isPublishersVisible || isUsersVisible
         ? [
             { separator: true },
-            ...(isModeratorsVisible
-              ? [{ label: t("common:moderators"), to: routes.moderation.moderators(storeId) }]
-              : []),
             ...(isPublishersVisible
               ? [{ label: t("common:publishers"), to: routes.moderation.publishers(storeId) }]
+              : []),
+            ...(isModeratorsVisible
+              ? [{ label: t("common:moderators"), to: routes.moderation.moderators(storeId) }]
               : []),
             ...(isUsersVisible ? [{ label: t("common:users"), to: routes.moderation.users(storeId) }] : []),
           ]

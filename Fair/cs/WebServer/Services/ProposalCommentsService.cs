@@ -61,8 +61,38 @@ public class ProposalCommentsService
 				return;
 
 			ProposalComment comment = mcv.ProposalComments.Latest(commentId);
-			FairUser account = (FairUser) mcv.Users.Latest(comment.Creator);
-			ProposalCommentModel model = new ProposalCommentModel(comment, account);
+
+			string creatorName = null;
+			AutoId creatorAvatarId = null;
+			if(comment.As == Role.Moderator)
+			{
+				FairUser account = (FairUser)mcv.Users.Latest(comment.Creator);
+				creatorName = account.Name;
+				creatorAvatarId = comment.Creator;
+			}
+			else if(comment.As == Role.Publisher)
+			{
+				Author author = mcv.Authors.Latest(comment.Creator);
+				creatorName = author.Name;
+				creatorAvatarId = author.Avatar;
+			}
+			else
+			{
+				throw new InvalidOperationException($"Unexpected comment role: {comment.As}");
+			}
+
+			ProposalCommentModel model = new ProposalCommentModel
+			{
+				Id = comment.Id,
+				Text = comment.Text,
+				CreatorId = comment.Creator,
+				CreatorName = creatorName,
+				CreatorAs = comment.As,
+				CreatorAvatarId = creatorAvatarId,
+				Created = comment.Created,
+				ProposalId = comment.Proposal
+			};
+
 			context.Items.Add(model);
 		}
 	}

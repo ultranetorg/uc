@@ -1,6 +1,6 @@
-import { CommentBase } from "./CommentBase"
+import { BaseComment } from "./BaseComment"
 
-export type Review = CommentBase & {
+export type Review = BaseComment & {
   rating: number
   publicationId: string
   publicationTitle: string
