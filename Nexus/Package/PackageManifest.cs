@@ -24,6 +24,17 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 	public DependencyNeed	Need { get; set; }
 	public DependencyFlag	Flags { get; set; }
 
+	public Dependency()
+	{
+	}
+
+	public Dependency(Ura address, DependencyNeed need = DependencyNeed.None, DependencyFlag flags = DependencyFlag.None)
+	{
+		Address = address;
+		Need = need;
+		Flags = flags;
+	}
+
 	public override string ToString()
 	{
 		return $"{Address}, {Need}, {Flags}";
@@ -119,6 +130,16 @@ public class ParentPackage : IBinarySerializable
 {
 	public Ura					Address { get; set; }
 	public ParentPackageFlag	Flags { get; set; }
+
+	public ParentPackage()
+	{
+	}
+
+	public ParentPackage(Ura address, ParentPackageFlag flags = ParentPackageFlag.None)
+	{
+		Address = address;
+		Flags = flags;
+	}
 
 	public void Write(Writer w)
 	{
