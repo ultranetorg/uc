@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, PropsWithChildren, useContext, useMemo } from "react"
 
 import { useGetUserDetails } from "entities"
 import { UserDetails } from "types"
@@ -17,22 +17,11 @@ const UserContext = createContext<UserContextType>({
 })
 
 export const UserProvider = ({ children }: PropsWithChildren) => {
-  const [currentUser, setCurrentUser] = useState<UserDetails | undefined>()
-
   const { selectedUserName } = useAuthenticationContext()
 
   const { isFetching, data: user, refetch } = useGetUserDetails(selectedUserName)
 
-  useEffect(() => setCurrentUser(user), [user])
-
-  const value = useMemo(
-    () => ({
-      isFetching,
-      user: currentUser,
-      refetch,
-    }),
-    [currentUser, isFetching, refetch],
-  )
+  const value = useMemo(() => ({ isFetching, user, refetch }), [user, isFetching, refetch])
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>
 }
