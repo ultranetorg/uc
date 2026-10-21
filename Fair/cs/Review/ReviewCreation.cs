@@ -49,6 +49,12 @@ public class ReviewCreation : VotableOperation
 			return false;
 		}
 
+		if(User.Reviews.Any(i => execution.Reviews.Find(i).Publication == Publication))
+		{
+			error = AlreadyExists;
+			return false;
+		}
+
 		return true;
 	}
 
