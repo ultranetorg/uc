@@ -47,22 +47,29 @@ public class ProposalCommentCreation : FairOperation
  			if(!IsModerator(execution, s.Id, out var _, out Error))
  				return;
 
-			c.Creator = User.Id;
+			c.Creator	= User.Id;
+			c.As		= Role.Moderator;
 
+ 			execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+			execution.PayOperationEnergy(s);
  		}
  		else if(s.IsReferendum(d.OptionClass))
  		{
- 			if(!IsPublisher(execution, s, Author, out _, out Error))
+ 			if(!IsPublisher(execution, s, Author, out var p, out Error))
  				return;
  
-			c.Creator = Author;
+			c.Creator	= Author;
+			c.As		= Role.Publisher;
+
+			var a = execution.Authors.Affect(p.Author);
+
+ 			execution.Allocate(a, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+			execution.PayOperationEnergy(a);
  		}
 		else
 		{
 			Error = Denied;
 			return;
 		}
-
- 		execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
 	}
 }

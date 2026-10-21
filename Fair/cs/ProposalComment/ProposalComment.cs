@@ -5,6 +5,7 @@ public class ProposalComment : IBinarySerializable, ITableEntry<AutoId>
 	public AutoId			Id { get; set; }
 	public AutoId			Proposal { get; set; }
     public AutoId			Creator { get; set; }
+	public Role				As { get; set; }
     public string			Text { get; set; }
     public Time	    		Created { get; set; }
 
@@ -27,6 +28,7 @@ public class ProposalComment : IBinarySerializable, ITableEntry<AutoId>
 					Id = Id,
 					Proposal = Proposal,
 					Creator = Creator,
+					As = As,
 					Text = Text,
 					Created = Created
 				};
@@ -49,8 +51,9 @@ public class ProposalComment : IBinarySerializable, ITableEntry<AutoId>
 	public void Read(Reader reader)
 	{
 		Id			= reader.Read<AutoId>();
-		Proposal		= reader.Read<AutoId>();
+		Proposal	= reader.Read<AutoId>();
 		Creator		= reader.Read<AutoId>();
+		As			= reader.Read<Role>();
 		Text		= reader.ReadUtf8();
 		Created		= reader.Read<Time>();
 	}
@@ -60,6 +63,7 @@ public class ProposalComment : IBinarySerializable, ITableEntry<AutoId>
 		writer.Write(Id);
 		writer.Write(Proposal);
 		writer.Write(Creator);
+		writer.Write(As);
 		writer.WriteUtf8(Text);
 		writer.Write(Created);
 	}

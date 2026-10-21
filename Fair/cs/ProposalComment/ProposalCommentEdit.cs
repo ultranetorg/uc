@@ -41,19 +41,17 @@ public class ProposalCommentEdit : FairOperation
 
 			execution.Free(s, s, Encoding.UTF8.GetByteCount(c.Text));
  			execution.Allocate(s, s, Encoding.UTF8.GetByteCount(Text));
-		
 			execution.PayOperationEnergy(s);
  		}
  		else
  		{
-			if(!IsReferendumCommentOwner(execution, s, Comment, out var m, out var _, out var _, out Error))
+			if(!IsReferendumCommentOwner(execution, s, Comment, out var p, out var _, out var _, out Error))
 				return;
 
-			var a = execution.Authors.Affect(m.Author);
+			var a = execution.Authors.Affect(p.Author);
 
 			execution.Free(a, a, Encoding.UTF8.GetByteCount(c.Text));
  			execution.Allocate(a, a, Encoding.UTF8.GetByteCount(Text));
-
 			execution.PayOperationEnergy(a);
  		}
 

@@ -63,8 +63,30 @@ public class StoreApprovalPolicyChange : StoreOperation
 
 		s.Policies = [..s.Policies];
 		
-		var i = Array.FindIndex(s.Policies, i => i.OperationClass == Operation);
+		var j = Array.FindIndex(s.Policies, i => i.OperationClass == Operation);
 
-		s.Policies[i] = new Policy(Operation, s.Policies[i].Creators, Approval);
+		s.Policies[j] = new Policy(Operation, s.Policies[j].Creators, Approval);
+
+		foreach(var i in s.Proposals.Where(i => execution.Proposals.Find(i).OptionClass == s.Policies[j].OperationClass))
+		{
+			var p = execution.Proposals.Affect(i);
+
+			p.Neither = [];
+			p.Any = [];
+			p.Ban = [];
+			p.Banish = [];
+
+			p.Options = [..p.Options];
+
+			for(int l = 0; l < p.Options.Length; l++)
+			{
+				p.Options[l] =	new () 
+								{
+									Title = p.Options[l].Title, 
+									Operation = p.Options[l].Operation, 
+									Yes = [], 
+								};
+			}
+		}
 	}
 }
