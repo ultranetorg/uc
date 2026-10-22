@@ -398,9 +398,9 @@ public abstract class FairOperation : Operation
 		return true;
 	}
 
- 	public bool IsReferendumCommentOwner(FairExecution execution, Store store, AutoId commentid, out Publisher citizen, out Proposal proposal, out ProposalComment comment, out string error)
+ 	public bool IsReferendumCommentOwner(FairExecution execution, Store store, AutoId commentid, out Publisher publisher, out Proposal proposal, out ProposalComment comment, out string error)
  	{
-		citizen = null;
+		publisher = null;
 		proposal = null;
 		comment = execution.ProposalComments.Find(commentid);
 		
@@ -412,10 +412,10 @@ public abstract class FairOperation : Operation
  
 		proposal = execution.Proposals.Find(comment.Proposal);
 
-		if(!IsPublisher(execution, store, comment.Creator, out citizen, out error))
+		if(!IsPublisher(execution, store, comment.Creator, out publisher, out error))
 			return false;
 
-		if(comment.Creator != citizen.Author)
+		if(comment.Creator != publisher.Author)
 		{
 			error = Denied;
 			return false; 

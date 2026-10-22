@@ -52,24 +52,36 @@ public class ProposalCommentCreation : FairOperation
 
  			execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
 			execution.PayOperationEnergy(s);
+		
+			return;
  		}
  		else if(s.IsReferendum(d.OptionClass))
  		{
- 			if(!IsPublisher(execution, s, Author, out var p, out Error))
- 				return;
+ 			if(IsPublisher(execution, s, Author, out var p, out Error))
+ 			{	
+				c.Creator	= Author;
+				c.As		= Role.Publisher;
+
+				var a = execution.Authors.Affect(p.Author);
+
+ 				execution.Allocate(a, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+				execution.PayOperationEnergy(a);
+			
+				return;
+			}
+			else if(IsModerator(execution, s.Id, out var _, out Error))
+			{	
+				c.Creator	= User.Id;
+				c.As		= Role.Moderator;
+
+ 				execution.Allocate(s, s, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
+				execution.PayOperationEnergy(s);
+			
+				return;
+			}
  
-			c.Creator	= Author;
-			c.As		= Role.Publisher;
-
-			var a = execution.Authors.Affect(p.Author);
-
- 			execution.Allocate(a, a, execution.Net.EntityLength + Encoding.UTF8.GetByteCount(Text));
-			execution.PayOperationEnergy(a);
  		}
-		else
-		{
-			Error = Denied;
-			return;
-		}
+
+		Error = Denied;
 	}
 }

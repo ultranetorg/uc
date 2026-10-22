@@ -32,18 +32,24 @@ public class ProposalCommentEdit : FairOperation
 		var d = execution.Proposals.Find(c.Proposal);
 		var s = execution.Stores.Find(d.Store);
 
-		if(s.IsDiscussion(d.OptionClass))
+		if(c.As == Role.Moderator)
  		{
- 			if(!IsModerator(execution, d.Store, out _, out Error))
+ 			if(!IsModerator(execution, s.Id, out _, out Error))
  				return;
- 
+
+ 			if(c.Creator != User.Id)
+ 			{	
+				Error = Denied;
+				return;
+			}
+			 
 			s = execution.Stores.Affect(s.Id);
 
 			execution.Free(s, s, Encoding.UTF8.GetByteCount(c.Text));
  			execution.Allocate(s, s, Encoding.UTF8.GetByteCount(Text));
 			execution.PayOperationEnergy(s);
  		}
- 		else
+ 		else if(c.As == Role.Publisher)
  		{
 			if(!IsReferendumCommentOwner(execution, s, Comment, out var p, out var _, out var _, out Error))
 				return;
@@ -54,6 +60,8 @@ public class ProposalCommentEdit : FairOperation
  			execution.Allocate(a, a, Encoding.UTF8.GetByteCount(Text));
 			execution.PayOperationEnergy(a);
  		}
+		else
+			throw new IntegrityException();
 
 		c.Text = Text; /// after all above
 	}
