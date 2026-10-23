@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 using Uccs.Net;
 using Uccs.Rdn;
 using Uccs.Rdn.CLI;
@@ -18,6 +19,35 @@ public class PackageCommand : NexusCommand
 
 	public PackageCommand()
 	{
+	}
+
+	PackageApe Download(Ura address)
+	{
+		PackageApe p = null;
+
+		Api(new StartPackageDownloadApc {Address = address});
+
+		do
+		{
+			var d = Api(new PackageActivityProgressApc {Address = address});
+						
+			if(d is null)
+			{	
+				p = Api(new LocalPackageApc {Address = address});
+													
+				if(p.Available)
+					return p;
+				else
+					throw new Exception($"Failed to get: {address}");
+			}
+
+			Report(d.ToString());
+
+			Thread.Sleep(500);
+		}
+		while(Flow.Active);
+
+		throw new OperationCanceledException();
 	}
 
 	public CommandAction Create_C()
@@ -47,23 +77,47 @@ public class PackageCommand : NexusCommand
 								];
 
 		a.Execute = () =>	{
-								var mt = Has(manifest) ? File.ReadAllText(GetString(manifest)) : null;
+								var mt = Has(manifest) ?  File.ReadAllText(GetString(manifest), Encoding.UTF8) : null;
 								var it = Has(instruction) ? File.ReadAllText(GetString(instruction)) : null;
 
 								PackageManifest m = null;
+								Dependency[] immidiate = [];
 
 								if(mt != null)
 								{
 									m = PackageManifest.Parse(mt);
-									//m.TranslateAddressToId(a => { 
-									//								var r = Rapi.Ppc(new ResourceByAddressPpc(a), Flow).Resource;
-									//
-									//								Report($"Resource address resolved {a} -> {r.Id}");
-									//
-									//								return r.Id;
-									//							});
-									//mt = m.ToXon().ToString();
-									//m = PackageManifest.Parse(mt);
+
+									immidiate = m.Dependencies;
+
+									var deps = new HashSet<Dependency>(EqualityComparer<Dependency>.Create((i, j) => i.Address.Equals(j.Address), i => i.GetHashCode()));
+
+									void download(Ura address)
+									{
+										var r = Rapi.Ppc(new ResourceByAddressPpc(address), Flow).Resource;
+
+										if(!r.Flags.HasFlag(ResourceFlags.Dependable))
+											throw new Exception($"Not dependable resource: {address}");
+
+										var p = Download(address);
+
+										if(p != null)
+										{
+											foreach(var i in p.Manifest.Criticals)
+											{
+												deps.Add(i);
+												download(i.Address);
+											}
+										}
+									}
+
+									foreach(var i in m.Dependencies.ToArray())
+									{
+										deps.Add(i);
+										download(i.Address);
+									}
+
+									m.Dependencies = [..deps];
+									mt = m.ToXon().ToString();
 								}
 
 								AutoId getid(Ura addres) 
@@ -106,7 +160,7 @@ public class PackageCommand : NexusCommand
 									if(m?.Parents.FirstOrDefault() != null)
 										ops.Add(new ResourceLinkCreation(id, getid(m.Parents.First().Address), ResourceLinkType.Dependency));
 
-									ops.AddRange(p.Manifest.Dependencies.Select(i => new ResourceLinkCreation(id, getid(i.Address), ResourceLinkType.Dependency)));
+									ops.AddRange(immidiate.Select(i => new ResourceLinkCreation(id, getid(i.Address), ResourceLinkType.Dependency)));
 								}
 								
 								if(ops.Any())
@@ -197,33 +251,7 @@ public class PackageCommand : NexusCommand
 						];
 
 		a.Execute = () =>	{
-								Api(new StartPackageDownloadApc {Id = Address});
-
-								try
-								{
-									do
-									{
-										var d = Api(new PackageActivityProgressApc {Address = Address});
-						
-										if(d is null)
-										{	
-											if(!Api(new LocalPackageApc {Address = Address}).Available)
-											{
-												Flow.Log?.ReportError(this, "Failed");
-											}
-
-											break;
-										}
-
-										Report(d.ToString());
-
-										Thread.Sleep(500);
-									}
-									while(Flow.Active);
-								}
-								catch(OperationCanceledException)
-								{
-								}
+								Download(Address);
 
 								return null;
 							};

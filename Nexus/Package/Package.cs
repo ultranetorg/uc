@@ -24,6 +24,17 @@ public class Package
 	PackageManifest			_Manifest;
 	PackageInstruction		_Instruction;
 
+	public bool IsDeployed(string packagespath)
+	{
+		return	File.Exists(PackageHub.AddressToDeployment(packagespath, Address, Package.Deployed)) &&
+				File.ReadAllText(PackageHub.AddressToDeployment(packagespath, Address, Package.Deployed)) == Urn.ToString();
+	}
+
+	public void SetDeployed(string packagespath)
+	{
+		File.WriteAllText(PackageHub.AddressToDeployment(packagespath, Address, Package.Deployed), Urn.ToString());
+	}
+
 	public PackageManifest Manifest
 	{
 		get

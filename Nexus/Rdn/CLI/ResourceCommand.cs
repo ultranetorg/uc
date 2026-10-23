@@ -7,7 +7,15 @@ public class ResourceCommand : RdnCommand
 	Argument	Data		=> new ("data", HEX, "Data to be associated with the resource", ArgumentFlag.Optional);
 	Argument	Dependable	=> new ("dependable", null, "Turns a resource into dependable one. Once linked by any number of Dependency links, this resources can not be changed or deleted", ArgumentFlag.Optional);
 
-	Resource  GetResource()
+	public ResourceCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
+	{
+	}
+
+	public ResourceCommand()
+	{
+	}
+
+	Resource GetResource()
 	{
 		if(Has(IdKeyword))
 		{	
@@ -21,14 +29,6 @@ public class ResourceCommand : RdnCommand
 		}
 		else
 			throw new SyntaxException("Neither 'id' nor 'name' arguments provided");
-	}
-
-	public ResourceCommand(RdnCli program, List<Xon> args, Flow flow) : base(program, args, flow)
-	{
-	}
-
-	public ResourceCommand()
-	{
 	}
 
 	public CommandAction Create_C()

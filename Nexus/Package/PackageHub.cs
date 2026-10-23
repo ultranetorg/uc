@@ -371,76 +371,61 @@ public class PackageHub
 		{
 			var p = Find(address);
 
-			if(	File.Exists(AddressToDeployment(packagespath, address, Package.Deployed)) &&
-				File.ReadAllText(AddressToDeployment(packagespath, address, Package.Deployed)) == p.Urn.ToString())
+			if(p.IsDeployed(packagespath))
 				return;
 
 			var	d = new Deployment();
 
-			void collect(Package parent, Ura address){
-														var m = new DeploymentMerge {Target = Find(address)};
-														d.Merges.Add(m);
+			void collect(Ura address)
+			{
+				var m = new DeploymentMerge {Target = Find(address)};
+				d.Merges.Add(m);
 
-														var p = m.Target;
+				var t = m.Target;
 
-														while(flow.Active)
-														{
-															if(p.Release == null)
-															{
-															}
-															else if(p.Release.Availability.HasFlag(Availability.Complete))
-															{
-																if(p.Activity == null)
-																	p.Activity = d;
-																else
-																	throw new PackageException(PackageError.Busy);
+				while(flow.Active)
+				{
+					if(t.Release == null)
+					{
+					}
+					else if(t.Release.Availability.HasFlag(Availability.Complete))
+					{
+						if(t.Activity == null)
+							t.Activity = d;
+						else
+							continue;
 				
-																m.Complete = p;
+						m.Complete = t;
 
-																break;
-															}
-															else if(p.Release.Availability.HasFlag(Availability.Delta))
-															{	
-																if(p.Activity == null)
-																	p.Activity = d;
-																else
-																	throw new PackageException(PackageError.Busy);
+						break;
+					}
+					else if(t.Release.Availability.HasFlag(Availability.Delta))
+					{	
+						if(t.Activity == null)
+							t.Activity = d;
+						else
+							continue;
 
-																var pp = p.Manifest.Parents.LastOrDefault(i => IsReady(i.Address));
+						var p = t.Manifest.Parents.LastOrDefault(i => IsReady(i.Address));
 
-																if(pp == null)
-																	throw new PackageException(PackageError.ParentPackagesNotFound);
+						if(p == null)
+							continue;;
 
-																m.Deltas.Insert(0, new (p, pp));
+						m.Deltas.Insert(0, new (t, p));
 
-																p = Find(pp.Address);
-															}
+						t = Find(p.Address);
+					}
 
-															Monitor.Exit(Lock);
-															Thread.Sleep(10);
-															Monitor.Enter(Lock);
-														}
+					Monitor.Exit(Lock);
+					Thread.Sleep(10);
+					Monitor.Enter(Lock);
+				}
+			}
 
-														//all.AddRange(s.Select(i => i.Key).AsEnumerable().Reverse());
-			
-														//var deps = new HashSet<Ura>();
-														//
-														//foreach(var j in m.Complete.Manifest.Dependencies.Where(i => i.Need == DependencyNeed.Critical))
-														//	deps.Add(j.Address);
-														//
-														//foreach(var i in m.Deltas.AsEnumerable().Reverse())
-														//{
-														//	foreach(var j in i.Value.AddedDependencies.Where(i => i.Need == DependencyNeed.Critical))
-														//		deps.Add(j.Address);
-														//
-														//	foreach(var j in i.Value.RemovedDependencies)
-														//		deps.Remove(j.Address);
-														//}
+			collect(p.Address);
 
-														foreach(var i in m.Complete.Manifest.Criticals)
-															collect(p, i.Address);
-													}
-			collect(null, p.Address);
+			foreach(var i in p.Manifest.Criticals)
+				collect(i.Address);
 
 			Task.Run(() =>	{ 
 								foreach(var s in d.Merges.AsEnumerable().Reverse())
@@ -513,9 +498,7 @@ public class PackageHub
 										//var f = Path.Join(todeployment(s.Target.Resource.Address), e.FullName.Replace('/', Path.DirectorySeparatorChar));
 									}
 
-									///if(s.Complete.Release.IsReady(PackageInstruction.Extension))
-									///	File.Copy(s.Complete.Release.Find(PackageInstruction.Extension).DataPath, Path.Join(AddressToDeployment(packagespath, s.Target.Address), PackageInstruction.Extension), true);
-									File.WriteAllText(AddressToDeployment(packagespath, s.Target.Address, Package.Deployed),  s.Target.Urn.ToString());
+									s.Target.SetDeployed(packagespath);
 
 									s.Complete.Activity = null;
 								}

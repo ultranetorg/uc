@@ -131,7 +131,7 @@ public class PackageCreateApc : Fpc<PackageApe>, INexusApc
 
 public class StartPackageDownloadApc : Apc, INexusApc
 {
-	public Ura		Id { get; set; }
+	public Ura		Address { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow workflow)
 	{
@@ -140,7 +140,7 @@ public class StartPackageDownloadApc : Apc, INexusApc
 
 		lock(nexus.PackageHub.Lock)
 		{	
-			nexus.PackageHub.StartDownload(Id, true, workflow);
+			nexus.PackageHub.StartDownload(Address, true, workflow);
 			return null;
 		}
 	}
