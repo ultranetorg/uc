@@ -14,7 +14,9 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
 export const NewReviewsTab = () => {
-  const approval = useApprovalIdentityForOperation("review-creation")
+  const creationApproval = useApprovalIdentityForOperation("review-creation")
+  const editApproval = useApprovalIdentityForOperation("review-edit")
+
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
@@ -48,20 +50,22 @@ export const NewReviewsTab = () => {
       { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
       { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
       { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
-      ...(approval
+      ...(creationApproval || editApproval
         ? [{ accessor: "action", label: t("common:action"), type: "review-action", className: "w-[20%] text-center" }]
         : []),
     ],
-    [t, approval],
+    [t, creationApproval, editApproval],
   )
 
   const handleTableRowClick = useCallback(
     (id: string) => {
-      setSelectedReviewId(id)
       const review = reviews?.items.find(x => x.id === id)
+      if (!(review?.operation === "review-edit" ? editApproval : creationApproval)) return
+
+      setSelectedReviewId(id)
       setSelectedReviewText(review?.reviewText)
     },
-    [reviews],
+    [creationApproval, editApproval, reviews],
   )
 
   const handleCloseModal = useCallback(() => {
@@ -73,7 +77,14 @@ export const NewReviewsTab = () => {
     (id: string, action: "approve" | "reject") => {
       setLoadingItem({ id: id, action })
 
-      const operation = new ProposalVoting(id, approval!.id, action === "approve" ? 0 : SpecialChoice.Neither)
+      const proposal = reviews?.items.find(x => x.id === id)
+      const approval = proposal?.operation === "review-edit" ? editApproval : creationApproval
+      if (!approval) {
+        setLoadingItem(undefined)
+        return
+      }
+
+      const operation = new ProposalVoting(id, approval.id, action === "approve" ? 0 : SpecialChoice.Neither)
       mutate(operation, {
         onSuccess: () => {
           if (action === "approve") {
@@ -93,7 +104,7 @@ export const NewReviewsTab = () => {
         },
       })
     },
-    [approval, invalidateOperation, mutate, refetch, reviews?.items, storeId, t],
+    [creationApproval, editApproval, invalidateOperation, mutate, refetch, reviews?.items, storeId, t],
   )
 
   const handleApproveClick = useCallback(
@@ -132,8 +143,16 @@ export const NewReviewsTab = () => {
 
   const itemRenderer = useMemo(
     () =>
-      getReviewsPageItemRenderer(t, handleApproveClick, handleRejectClick, votesRequired, loadingItem, approval?.id),
-    [approval?.id, handleApproveClick, handleRejectClick, loadingItem, t, votesRequired],
+      getReviewsPageItemRenderer(
+        t,
+        handleApproveClick,
+        handleRejectClick,
+        votesRequired,
+        loadingItem,
+        creationApproval?.id,
+        editApproval?.id,
+      ),
+    [creationApproval?.id, editApproval?.id, handleApproveClick, handleRejectClick, loadingItem, t, votesRequired],
   )
 
   return (
@@ -144,7 +163,7 @@ export const NewReviewsTab = () => {
         itemRenderer={itemRenderer}
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("noNewReviews")} />}
-        onRowClick={approval && !loadingItem ? handleTableRowClick : undefined}
+        onRowClick={(creationApproval || editApproval) && !loadingItem ? handleTableRowClick : undefined}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
