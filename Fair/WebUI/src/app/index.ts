@@ -9,5 +9,7 @@ export * from "./StoreProvider"
 export * from "./StoreRolesProvider"
 export * from "./UserProvider"
 
+export * from "./useApprovalId"
+export * from "./useApprovalIdentityForOperation"
 export * from "./useOperationPolicy"
 export * from "./useOperationVoterIdentity"

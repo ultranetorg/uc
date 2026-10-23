@@ -56,7 +56,7 @@ export const useStoreChangeMenuItems = (
           return [
             {
               label: t(label),
-              to: routes.moderation.createReferendum(storeId),
+              to: routes.moderation.createProposal(storeId),
               state: {
                 title,
                 type,

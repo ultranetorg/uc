@@ -2,7 +2,7 @@ import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useStoreContext } from "app"
-import { useGetAuthorReferendum } from "entities"
+import { useGetProposalDetails } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
@@ -13,7 +13,7 @@ export const ModeratorProposalPage = memo(() => {
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
 
-  const { isFetching, data: proposal } = useGetAuthorReferendum(storeId, proposalId)
+  const { isFetching, data: proposal } = useGetProposalDetails(storeId, proposalId)
 
   useStoreTitle(store?.title, proposal?.title ? `Moderator Proposal - ${proposal?.title}` : "Moderator Proposal")
 

@@ -28,9 +28,12 @@ export const isModeratorCanVote = (operation?: OperationType, policies?: Policy[
   return policy && policy.approval !== "publishers-majority"
 }
 
-// Moderators-majority approval is a referendum, any other approval is a discussion.
+// Publishers-majority approval is a referendum, any other approval is a proposal.
 export const isReferendum = (operation?: OperationType, policies?: Policy[]) =>
-  findPolicy(operation, policies)?.approval === "moderators-majority"
+  findPolicy(operation, policies)?.approval === "publishers-majority"
+
+export const isProposal = (operation?: OperationType, policies?: Policy[]) =>
+  findPolicy(operation, policies)?.approval !== "publishers-majority"
 
 export const isVotingRequired = (operation?: OperationType, store?: Store, policies?: Policy[]): boolean => {
   const policy = findPolicy(operation, policies)

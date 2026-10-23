@@ -5,7 +5,7 @@ import { isNumber, startCase } from "lodash"
 
 import { useStoreContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetAuthorReferendums } from "entities"
+import { useGetReferendums } from "entities"
 import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ProposalsView } from "ui/views"
@@ -32,7 +32,7 @@ export const ReferendumsPage = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: referendums } = useGetAuthorReferendums(storeId, page, DEFAULT_PAGE_SIZE_20, state.query)
+  const { data: referendums } = useGetReferendums(storeId, page, DEFAULT_PAGE_SIZE_20, state.query)
   const pagesCount =
     referendums?.totalItems && referendums.totalItems > 0 ? Math.ceil(referendums.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 

@@ -131,31 +131,18 @@ export type FairApi = {
 
   getModeratorSurveys(storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Survey>>
 
-  getAuthorReferendum(storeId: string, referendumId: string): Promise<ProposalDetails>
-  getAuthorReferendums(
+  // Proposals
+  getReferendums(
     storeId: string,
     page?: number,
     pageSize?: number,
     search?: string,
   ): Promise<TotalItemsResult<Proposal>>
+  getProposals(storeId: string, page?: number, pageSize?: number, search?: string): Promise<TotalItemsResult<Proposal>>
 
-  getAuthorReferendumComments(
-    storeId: string,
-    discussionId: string,
-    page?: number,
-    pageSize?: number,
-  ): Promise<TotalItemsResult<ProposalComment>>
+  getProposalDetails(storeId: string, discussionId: string): Promise<ProposalDetails>
 
-  // Moderator
-  getModeratorDiscussion(storeId: string, discussionId: string): Promise<ProposalDetails>
-  getModeratorDiscussions(
-    storeId: string,
-    page?: number,
-    pageSize?: number,
-    search?: string,
-  ): Promise<TotalItemsResult<Proposal>>
-
-  getModeratorDiscussionComments(
+  getProposalComments(
     storeId: string,
     discussionId: string,
     page?: number,
@@ -168,8 +155,6 @@ export type FairApi = {
     pageSize?: number,
     search?: string,
   ): Promise<TotalItemsResult<PublicationProposal>>
-
-  getModeratorUser(name: string): Promise<User>
 
   getProductDetails(productId: string): Promise<ProductDetails>
   getProductStores(productId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<ProductStore>>

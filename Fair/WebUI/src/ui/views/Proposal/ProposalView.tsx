@@ -2,7 +2,7 @@ import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useOperationPolicy, useSignInContext } from "app"
+import { useSignInContext, useApprovalId, useStorePoliciesContext, useApprovalIdentityForOperation } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import { useGetProposalComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -11,7 +11,7 @@ import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
 import { ModerationHeader, ModerationHeaderProps } from "ui/components/specific"
-import { getVotedIndex, isVoted, routes, showToast } from "utils"
+import { getVotedIndex, isReferendum as isReferendum_, isVoted, routes, showToast } from "utils"
 
 import {
   DefaultContent,
@@ -23,6 +23,7 @@ import {
   VoteStatus,
 } from "./content"
 import { PageState } from "./types"
+import { useCanCreateComment } from "./useCanCreateComment"
 import { getProductId, getPublicationId } from "./utils"
 
 const renderByOperationType: Partial<Record<OperationType, ComponentType<ProposalViewContentProps>>> = {
@@ -34,7 +35,7 @@ const renderByOperationType: Partial<Record<OperationType, ComponentType<Proposa
 // Set voted value in order to disable all buttons inside OptionsCollapsesList.
 const ALREADY_VOTED = 100
 
-export type ProposalViewProps = {
+export interface ProposalViewProps {
   parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
   isFetching: boolean
   proposal?: ProposalDetails
@@ -43,18 +44,19 @@ export type ProposalViewProps = {
 }
 
 export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, headerProps }: ProposalViewProps) => {
-  const storeId = useResolveStoreId()
-  const { voter: approval, policy } = useOperationPolicy(proposal?.operation)
-  const { voterId } = useOperationPolicy(proposal?.operation)
-
   const navigate = useNavigate()
-  const { invalidateOperation, invalidateProposal } = useInvalidation()
-  const { mutate } = useTransactMutationWithStatus()
   const { t } = useTranslation("proposalView")
 
+  const approvalId = useApprovalId()
+  const canCreateComment = useCanCreateComment(proposal?.operation)
+  const { invalidateOperation, invalidateProposal } = useInvalidation()
+  const approval = useApprovalIdentityForOperation(proposal?.operation)
+  const storeId = useResolveStoreId()
   const { startSignIn } = useSignInContext()
+  const { policies } = useStorePoliciesContext()
+  const { mutate } = useTransactMutationWithStatus()
 
-  const isReferendum = policy?.approval === "publishers-majority"
+  const isReferendum = isReferendum_(proposal?.operation, policies)
 
   const [voteStatus, setVoteStatus] = useState<VoteStatus>("idle")
   const [pageState, setPageState] = useState<PageState>("voting")
@@ -158,7 +160,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
     (comment: string) => {
       setCommentSubmitting(true)
       if (!isPublicationProposal) setVotedValue(ALREADY_VOTED)
-      const operation = new ProposalCommentCreation(proposal!.id, approval!.id, comment)
+      const operation = new ProposalCommentCreation(proposal!.id, approvalId!, comment)
       mutate(operation, {
         onSuccess: () => {
           invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
@@ -171,7 +173,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
         },
       })
     },
-    [isPublicationProposal, mutate, proposal, invalidateProposal, storeId, t, approval],
+    [isPublicationProposal, proposal, approvalId, mutate, invalidateProposal, storeId, t],
   )
 
   useEffect(() => {
@@ -188,7 +190,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
         setVotedValue(votedIndex)
       }
     }
-  }, [isPublicationProposal, proposal, approval])
+  }, [isPublicationProposal, proposal, approval, productId])
 
   if (!proposal || !comments) {
     return <div>Loading{import.meta.env.DEV ? " (ProposalView)" : ""}</div>
@@ -247,7 +249,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
               t={t}
               storeId={storeId!}
               proposal={proposal}
-              showVoteButton={!!approval && voteStatus !== "voted" && !!voterId}
+              showVoteButton={!!approval && voteStatus !== "voted"}
               pageState={pageState}
               voteStatus={voteStatus}
               votedValue={votedValue}
@@ -265,7 +267,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
           <CommentsSection
             inputDisabled={voteStatus === "voting" || commentSubmitting}
             inputLoading={commentSubmitting}
-            showCommentInput={!!approval}
+            showCommentInput={canCreateComment}
             isFetching={isCommentsFetching}
             comments={comments}
             onCommentSubmit={handleCommentSubmit}

@@ -4,12 +4,12 @@ import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
-import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
+import { useOperationPolicy, useStoreContext, useStorePoliciesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId } from "hooks"
-import { CreateProposalData, ProposalCreation, ProposalType, Role } from "types"
+import { CreateProposalData, ProposalCreation } from "types"
 import {
   BreadcrumbsItemProps,
   ButtonOutline,
@@ -29,18 +29,13 @@ import { prepareProposalOptions } from "./utils"
 
 const LABEL_CLASSNAME = "first-letter:uppercase font-medium leading-4 text-2xs"
 
-export type CreateProposalViewProps = {
-  proposalType: ProposalType
-}
-
-export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProps) => {
+export const CreateProposalView = memo(() => {
   const location = useLocation()
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
   const { invalidateOperation, invalidateProposal } = useInvalidation()
   const { t } = useTranslation("createProposal")
 
-  const { isModerator, isPublisher } = useStoreRolesContext()
   const { policies } = useStorePoliciesContext()
   const { store } = useStoreContext()
   const { user } = useUserContext()
@@ -52,12 +47,12 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     watch,
   } = useFormContext<CreateProposalData>()
   const formData: CreateProposalData = watch() // TODO: should be removed.
+  const { creator } = useOperationPolicy(formData.type)
 
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
-  const parentPath =
-    proposalType === "discussion" ? routes.moderation.proposals(storeId!) : routes.moderation.referendums(storeId!)
+  const parentPath = routes.moderation.proposals(storeId!)
   const isRequiredVoting = isVotingRequired(formData.type, store, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])
@@ -65,9 +60,7 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
   const handleFormSubmit = (data: CreateProposalData) => {
     const options = prepareProposalOptions(data)
 
-    const by = proposalType === "discussion" ? user!.id : user!.authorsIds[0]
-    const role = proposalType === "discussion" ? Role.Moderator : Role.Publisher
-    const operation = new ProposalCreation(storeId!, by, role, data.title, options, data.description)
+    const operation = new ProposalCreation(storeId!, creator!.id, creator!.role, data.title, options, data.description)
     mutate(operation, {
       onSuccess: () => {
         invalidateProposal({ storeId: storeId! })
@@ -93,16 +86,11 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
     })
   }
 
-  const validRole = (proposalType === "discussion" && isModerator) || (proposalType === "referendum" && isPublisher)
-  if (!user || !validRole) {
+  if (!user || !creator) {
     return <Navigate to={parentPath} />
   }
 
-  const title = isRequiredVoting
-    ? proposalType === "discussion"
-      ? t("createDiscussion")
-      : t("createReferendum")
-    : t("common:ok")
+  const title = isRequiredVoting ? t("createProposal") : t("common:ok")
 
   if (
     !formData.type ||
@@ -117,21 +105,8 @@ export const CreateProposalView = memo(({ proposalType }: CreateProposalViewProp
       <PageHeader
         storeId={storeId!}
         homeLabel={t("common:home")}
-        title={
-          (location.state?.title as string)
-            ? location.state?.title
-            : proposalType === "discussion"
-              ? t("createDiscussion")
-              : t("createReferendum")
-        }
-        parentBreadcrumbs={
-          parentBreadcrumbs
-            ? parentBreadcrumbs
-            : {
-                title: t(`${proposalType === "discussion" ? "moderation" : "governance"}:title`),
-                path: parentPath,
-              }
-        }
+        title={(location.state?.title as string) ? location.state?.title : t("createProposal")}
+        parentBreadcrumbs={parentBreadcrumbs ? parentBreadcrumbs : { title: t("moderation:title"), path: parentPath }}
       />
 
       <form className="flex flex-col gap-6" onSubmit={handleSubmit(handleFormSubmit)}>
