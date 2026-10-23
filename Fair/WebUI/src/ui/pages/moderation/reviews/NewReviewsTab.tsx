@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber, isString } from "lodash"
 
-import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
+import { useApprovalIdentityForOperation, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewCreationsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -13,8 +13,8 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
-export const ReviewCreationsTab = () => {
-  const { voterId } = useOperationPolicy("review-creation")
+export const NewReviewsTab = () => {
+  const approval = useApprovalIdentityForOperation("review-creation")
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const { policies } = useStorePoliciesContext()
@@ -48,11 +48,11 @@ export const ReviewCreationsTab = () => {
       { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
       { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
       { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
-      ...(voterId
+      ...(approval
         ? [{ accessor: "action", label: t("common:action"), type: "review-action", className: "w-[20%] text-center" }]
         : []),
     ],
-    [t, voterId],
+    [t, approval],
   )
 
   const handleTableRowClick = useCallback(
@@ -73,7 +73,7 @@ export const ReviewCreationsTab = () => {
     (id: string, action: "approve" | "reject") => {
       setLoadingItem({ id: id, action })
 
-      const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : SpecialChoice.Neither)
+      const operation = new ProposalVoting(id, approval!.id, action === "approve" ? 0 : SpecialChoice.Neither)
       mutate(operation, {
         onSuccess: () => {
           if (action === "approve") {
@@ -93,7 +93,7 @@ export const ReviewCreationsTab = () => {
         },
       })
     },
-    [invalidateOperation, mutate, refetch, reviews, storeId, t, voterId],
+    [approval, invalidateOperation, mutate, refetch, reviews?.items, storeId, t],
   )
 
   const handleApproveClick = useCallback(
@@ -131,8 +131,9 @@ export const ReviewCreationsTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getReviewsPageItemRenderer(t, handleApproveClick, handleRejectClick, votesRequired, loadingItem, voterId),
-    [handleApproveClick, handleRejectClick, loadingItem, t, voterId, votesRequired],
+    () =>
+      getReviewsPageItemRenderer(t, handleApproveClick, handleRejectClick, votesRequired, loadingItem, approval?.id),
+    [approval?.id, handleApproveClick, handleRejectClick, loadingItem, t, votesRequired],
   )
 
   return (
@@ -143,7 +144,7 @@ export const ReviewCreationsTab = () => {
         itemRenderer={itemRenderer}
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("noNewReviews")} />}
-        onRowClick={voterId && !loadingItem ? handleTableRowClick : undefined}
+        onRowClick={approval && !loadingItem ? handleTableRowClick : undefined}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

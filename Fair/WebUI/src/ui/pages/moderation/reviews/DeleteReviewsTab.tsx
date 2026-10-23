@@ -13,7 +13,7 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
-export const ReviewDeletionsTab = () => {
+export const DeleteReviewsTab = () => {
   const voter = useOperationVoterIdentity("review-deletion")
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
