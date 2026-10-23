@@ -18,7 +18,7 @@ public class DeploymentMergeProgress
 {
 	public AutoId	Target { get; set; }	
 	public AutoId	Complete { get; set; }	
-	public AutoId[]	Incrementals { get; set; }	
+	public AutoId[]	Deltas { get; set; }	
 
 	public DeploymentMergeProgress()
 	{
@@ -26,9 +26,9 @@ public class DeploymentMergeProgress
 
 	public DeploymentMergeProgress(DeploymentMerge merge)
 	{
-		Target			= merge.Target.Id;
-		Complete		= merge.Complete.Id;
-		Incrementals	= merge.Deltas.Select(i => i.Key.Id).ToArray();
+		Target		= merge.Target.Id;
+		Complete	= merge.Complete?.Id;
+		Deltas		= merge.Deltas.Select(i => i.Key.Id).ToArray();
 	}
 }
 
@@ -47,6 +47,6 @@ public class DeploymentProgress : PackageActivityProgress
 
 	public override string ToString()
 	{
-		return $"deploment: {Merges.Length}, packages: {Merges.Sum(i => i.Incrementals.Length + 1)}";
+		return $"deploment: {Merges.Length}, packages: {Merges.Sum(i => i.Deltas.Length + 1)}";
 	}
 }

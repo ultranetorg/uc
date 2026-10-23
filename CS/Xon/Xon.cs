@@ -69,14 +69,7 @@ public class Xon// : INestedSerializable
 
 	public override string ToString()
 	{
-		using(var s = new MemoryStream())
-		{
-			Save(new XonTextWriter(s, Encoding.UTF8));
-
-			s.TryGetBuffer(out var a);
-
-			return Encoding.UTF8.GetString(a);
-		}
+		return XonTextWriter.ToString(this);
 	}
 
 	public object this[string name]

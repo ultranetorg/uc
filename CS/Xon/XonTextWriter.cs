@@ -30,7 +30,19 @@ public class XonTextWriter : StreamWriter, IXonWriter
 		Write(s);
 	}
 
-	string Quotate(string v, bool isname)
+	public static string ToString(Xon root)
+	{
+		var s = new StringBuilder();
+	
+		foreach(var i in root.Nodes)
+		{
+			Write(s, i, 0);
+		}
+
+		return s.ToString();
+	}
+
+	static string Quotate(string v, bool isname)
 	{
 		var s = new StringBuilder();
 
@@ -55,7 +67,7 @@ public class XonTextWriter : StreamWriter, IXonWriter
 		return s.ToString();
 	}
 
-	public void Write(StringBuilder s, Xon n, int d)
+	public static void Write(StringBuilder s, Xon n, int d)
 	{
 		string t = new string('\t', d);
 
