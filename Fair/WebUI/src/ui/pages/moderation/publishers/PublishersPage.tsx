@@ -8,7 +8,7 @@ import { ModerationHeader } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
 
-import { PublishersTab } from "./PublishersTab"
+import { PublishersListTab } from "./PublishersListTab"
 import { PublishersProposalsTab } from "./PublishersProposalsTab"
 
 const routeToTabKey: Record<string, string> = {
@@ -54,7 +54,7 @@ export const PublishersPage = () => {
           />
 
           <TabContent when="publishers">
-            <PublishersTab />
+            <PublishersListTab />
           </TabContent>
           <TabContent when="proposals">
             <PublishersProposalsTab />

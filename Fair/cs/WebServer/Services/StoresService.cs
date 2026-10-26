@@ -11,19 +11,6 @@ public class StoresService
 	FairMcv mcv
 )
 {
-	public IEnumerable<StoreBaseModel> GetDefault(CancellationToken cancellationToken)
-	{
-#if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called", nameof(StoresService), nameof(StoresService.GetDefault));
-#endif
-
-		if (cancellationToken.IsCancellationRequested)
-			return [];
-
-		var result = new List<StoreBaseModel>(StoreConstants.DefaultStoresIds.Length);
-		return LoadStores(StoreConstants.DefaultStoresIds, result, cancellationToken);
-	}
-
 	IList<StoreBaseModel> LoadStores(AutoId[] storesIds, IList<StoreBaseModel> result, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)

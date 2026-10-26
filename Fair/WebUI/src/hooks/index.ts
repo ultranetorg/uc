@@ -1,4 +1,3 @@
-export * from "./useCategoryCreationMenuItem"
 export * from "./useCloseFullscreen"
 export * from "./useCloseOnScrollOrResize"
 export * from "./useConfirmationModal"

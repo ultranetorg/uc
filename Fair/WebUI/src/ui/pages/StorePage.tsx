@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useStoreContext } from "app"
 import { useGetCategoriesPublications } from "entities"
 import { useResolveStoreId, useStoreTitle } from "hooks"
-import { CategoriesPublicationsList, ModeratorStoreMenu } from "ui/components/specific"
+import { CategoriesPublicationsList, StoreThreeDotsMenu } from "ui/components/specific"
 import { MessageBox } from "ui/components"
 
 import { ChildCategoriesList } from "./Category/ChildCategoriesList"
@@ -25,7 +25,7 @@ export const StorePage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ModeratorStoreMenu className="self-end" />
+      <StoreThreeDotsMenu className="self-end" />
       <div className="flex flex-col gap-6">
         {categoriesPublications && categoriesPublications.length ? (
           <CategoriesPublicationsList

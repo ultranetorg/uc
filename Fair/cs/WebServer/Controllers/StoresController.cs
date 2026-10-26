@@ -13,16 +13,6 @@ public class StoresController
 	SearchService searchService
 ) : BaseController
 {
-	[HttpGet("default")]
-	public IEnumerable<StoreBaseModel> GetDefault(CancellationToken cancellationToken)
-	{
-#if DEBUG
-		logger.LogInformation("GET {ControllerName}.{ActionName} method called without parameters", nameof(StoresController), nameof(StoresController.GetDefault));
-#endif
-
-		return storesService.GetDefault(cancellationToken);
-	}
-
 	[HttpGet("{storeId}/users")]
 	public IEnumerable<UserModel> GetUsers(string storeId, [FromQuery] PaginationRequest pagination, CancellationToken cancellationToken)
 	{

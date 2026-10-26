@@ -48,10 +48,12 @@ export const getReviewsPageItemRenderer =
     votesRequired: Partial<Record<OperationType, number>>,
     loadingItem?: { id: string; action: "approve" | "reject" } | undefined,
     currentUserId?: string,
+    editUserId?: string,
   ) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const proposal = item as ReviewProposal
-    const isVoted = isUserVoted(currentUserId, proposal)
+    const voterId = proposal.operation === "review-edit" ? editUserId : currentUserId
+    const isButtonsDisabled = !voterId || isUserVoted(voterId, proposal)
 
     switch (column.type) {
       case "account":
@@ -69,7 +71,7 @@ export const getReviewsPageItemRenderer =
           () => onApprove(proposal.id),
           () => onReject(proposal.id),
           loadingItem?.id === item.id ? loadingItem.action : undefined,
-          isVoted || (loadingItem && loadingItem.id !== item.id),
+          isButtonsDisabled || (loadingItem && loadingItem.id !== item.id),
         )
 
       case "delete-actions":
@@ -78,7 +80,7 @@ export const getReviewsPageItemRenderer =
           () => onApprove(proposal.id),
           () => onReject(proposal.id),
           loadingItem?.id === item.id ? loadingItem.action : undefined,
-          isVoted || (loadingItem && loadingItem.id !== item.id),
+          isButtonsDisabled || (loadingItem && loadingItem.id !== item.id),
         )
 
       case "votes":

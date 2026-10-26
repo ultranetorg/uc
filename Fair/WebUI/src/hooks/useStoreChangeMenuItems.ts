@@ -29,7 +29,7 @@ export const useStoreChangeMenuItems = (
   { isModerator, isPublisher }: UseStoreChangeMenuItemsOptions = {},
 ): SimpleMenuItem[] => {
   const location = useLocation()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { t } = useTranslation("storeDropdownMenu")
 
   return useMemo(
@@ -56,7 +56,7 @@ export const useStoreChangeMenuItems = (
           return [
             {
               label: t(label),
-              to: routes.moderation.createReferendum(storeId),
+              to: routes.moderation.createProposal(storeId),
               state: {
                 title,
                 type,

@@ -7,6 +7,5 @@ export * from "./referendums"
 export * from "./reviews"
 export * from "./users"
 
-export * from "./CreateDiscussionPage"
-export * from "./CreateReferendumPage"
+export * from "./CreateProposalPage"
 export * from "./PreviewPage"

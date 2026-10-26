@@ -3,8 +3,9 @@ import { twMerge } from "tailwind-merge"
 import { Link } from "react-router-dom"
 import { TFunction } from "i18next"
 
-import { useOperationPolicy, useStoreRolesContext, useUserContext } from "app"
+import { useStoreRolesContext, useUserContext } from "app"
 import { useCreateProposal } from "hooks"
+import { Role } from "types"
 import { routes, showToast } from "utils"
 
 import { MENU_ITEM_STYLE } from "./styles"
@@ -15,14 +16,13 @@ export type UserProfileButtonProps = {
 }
 
 export const UserProfileButton = memo(({ storeId, t }: UserProfileButtonProps) => {
-  const { creator } = useOperationPolicy("user-registration")
   const { isJoined } = useStoreRolesContext()
   const { user } = useUserContext()
 
   const { execute, isExecuting } = useCreateProposal(
     // @ts-expect-error fix
     { $type: "UserRegistration" },
-    creator,
+    { id: user?.id, role: Role.User },
     () => showToast(t("toast:userRegistrationRequested"), "success"),
     () => showToast(t("toast:userRegistrationFailed"), "error"),
   )

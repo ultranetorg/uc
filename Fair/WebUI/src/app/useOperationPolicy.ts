@@ -15,7 +15,7 @@ type OperationPolicyResult = {
 
 export const useOperationPolicy = (operation?: OperationType): OperationPolicyResult => {
   const { isModerator, isPublisher } = useStoreRolesContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { user } = useUserContext()
 
   return useMemo<OperationPolicyResult>(() => {

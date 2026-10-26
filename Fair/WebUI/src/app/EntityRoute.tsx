@@ -7,9 +7,8 @@ import { BaseLayout, StoreLayout } from "ui/layouts"
 import { ConstrainedWidthLayout, ModerationLayout, PublishersLayout, UsersSectionLayout } from "ui/layouts/moderation"
 import {
   ChangedPublicationPage,
-  CreateDiscussionPage,
+  CreateProposalPage,
   CreatePublicationPage,
-  CreateReferendumPage,
   ModerationPublicationPage,
   ModeratorProposalPage,
   ModeratorsPage,
@@ -119,18 +118,10 @@ export const EntityRoute = () => {
           <Route path="about" element={<AboutPage />} />
 
           <Route
-            path="referendums/new"
-            element={
-              <CreateProposalProvider>
-                <CreateReferendumPage />
-              </CreateProposalProvider>
-            }
-          />
-          <Route
             path="proposals/new"
             element={
               <CreateProposalProvider>
-                <CreateDiscussionPage />
+                <CreateProposalPage />
               </CreateProposalProvider>
             }
           />

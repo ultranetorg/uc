@@ -6,4 +6,5 @@ export type Survey = {
   lastWin: number
   totalVotes: number
   votesRequiredToWin: number
+  isVariableApproval: boolean
 }

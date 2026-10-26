@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom"
 import { useStoreContext } from "app"
 import { useGetStorePolicies, useGetPolicySurveys as useGetPolicySurveys } from "entities"
 import { useResolveStoreId, useStoreTitle } from "hooks"
-import { Table, TableEmptyState } from "ui/components"
+import { Survey } from "types"
+import { Table, TableEmptyState, TableItem } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
-import { surveysItemRenderer } from "ui/renderers"
 import { routes } from "utils"
+
+import { surveysItemRenderer } from "./surveysItemRenderer"
 
 export const PolicySurveysPage = () => {
   const storeId = useResolveStoreId()
@@ -60,6 +62,8 @@ export const PolicySurveysPage = () => {
     [navigate, storeId],
   )
 
+  const isRowClickable = useCallback((item: TableItem) => (item as Survey).isVariableApproval === true, [])
+
   const itemRenderer = useMemo(() => surveysItemRenderer(t, policies), [policies, t])
 
   return (
@@ -71,6 +75,7 @@ export const PolicySurveysPage = () => {
         itemRenderer={itemRenderer}
         emptyState={<TableEmptyState message={t("noSurveys")} />}
         onRowClick={handleTableRowClick}
+        isRowClickable={isRowClickable}
       />
     </div>
   )

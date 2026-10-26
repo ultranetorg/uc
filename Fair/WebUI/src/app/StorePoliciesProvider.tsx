@@ -1,24 +1,18 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from "react"
+import { createContext, PropsWithChildren, useContext } from "react"
 
 import { useGetStorePolicies } from "entities"
 import { Policy } from "types"
 
 import { useStoreContext } from "./StoreProvider"
 
-type StorePoliciesContextType = {
-  policies?: Policy[]
-}
-
-const StorePoliciesContext = createContext<StorePoliciesContextType>({})
+const StorePoliciesContext = createContext<Policy[] | undefined>(undefined)
 
 export const StorePoliciesProvider = ({ children }: PropsWithChildren) => {
   const { store } = useStoreContext()
 
   const { data: policies } = useGetStorePolicies(true, store?.id)
 
-  const value = useMemo<StorePoliciesContextType>(() => ({ policies }), [policies])
-
-  return <StorePoliciesContext.Provider value={value}>{children}</StorePoliciesContext.Provider>
+  return <StorePoliciesContext.Provider value={policies}>{children}</StorePoliciesContext.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

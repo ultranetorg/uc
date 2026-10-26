@@ -34,7 +34,6 @@ export const routes = {
 
   moderation: {
     createProposal: (storeId: string) => `${storePath(storeId)}/proposals/new`,
-    createReferendum: (storeId: string) => `${storePath(storeId)}/referendums/new`,
 
     preview: (storeId: string) => `${storePath(storeId)}/publications/preview`,
 

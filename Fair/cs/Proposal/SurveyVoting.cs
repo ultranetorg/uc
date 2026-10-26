@@ -66,13 +66,12 @@ public class SurveyVoting : FairOperation
 		var o = r.Options[Choice];
  
  		var oprev = r.Options.Find(i => i.Yes.Contains(Publisher));
-
 		if(oprev == o)
 		{
- 			Error = AlreadyExists;
- 			return;
+			Error = AlreadyExists;
+			return;
 		}
-		 
+
 		bool won(AutoId[] votes)
 		{
  			return votes.Length >= s.Publishers.Length/2 + (s.Publishers.Length & 1);

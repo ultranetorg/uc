@@ -2,16 +2,16 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useOperationPolicy, useStoreContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ModerationHeader } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 
-import { routes } from "utils"
+import { isModeratorCanCreate, isPublisherCanCreate, routes } from "utils"
 
-import { ModeratorProposalsTab } from "./ModeratorProposalsTab"
-import { ModeratorRemovalsTab } from "./ModeratorRemovalsTab"
+import { AddModeratorsTab } from "./AddModeratorsTab"
 import { ModeratorsTab } from "./ModeratorsTab"
+import { RemoveModeratorsTab } from "./RemoveModeratorsTab"
 
 const routeToTabKey: Record<string, string> = {
   moderators: "moderators",
@@ -21,10 +21,11 @@ const routeToTabKey: Record<string, string> = {
 
 export const ModeratorsPage = () => {
   const navigate = useNavigate()
-  const { voterId } = useOperationPolicy("store-moderator-addition")
   const { tabKey } = useParams()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
+  const policies = useStorePoliciesContext()
+  const { isModerator, isPublisher } = useStoreRolesContext()
   const { t } = useTranslation("moderatorsPage")
 
   useStoreTitle(store?.title, "Moderators")
@@ -45,15 +46,19 @@ export const ModeratorsPage = () => {
     [t],
   )
 
+  const canAddModerator =
+    (isPublisher && isPublisherCanCreate("store-moderator-addition", policies)) ||
+    (isModerator && isModeratorCanCreate("store-moderator-addition", policies))
+
   return (
     <>
       <ModerationHeader
         title={t("title")}
         components={
           <>
-            {voterId && (
+            {canAddModerator && (
               <Link
-                to={routes.moderation.createReferendum(storeId!)}
+                to={routes.moderation.createProposal(storeId!)}
                 state={{
                   parentBreadcrumbs: [{ path: routes.moderation.moderators(storeId!), title: t("title") }],
                   title: t("addModerator"),
@@ -83,10 +88,10 @@ export const ModeratorsPage = () => {
             <ModeratorsTab />
           </TabContent>
           <TabContent when="removals">
-            <ModeratorRemovalsTab />
+            <RemoveModeratorsTab />
           </TabContent>
           <TabContent when="additions">
-            <ModeratorProposalsTab />
+            <AddModeratorsTab />
           </TabContent>
         </div>
       </TabsProvider>

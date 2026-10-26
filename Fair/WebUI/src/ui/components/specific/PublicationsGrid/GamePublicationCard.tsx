@@ -3,7 +3,7 @@ import { memo } from "react"
 import { useStoreRolesContext } from "app"
 import { SvgStarXxs } from "assets"
 import { TEST_GAME_SRC } from "testConfig"
-import { ModeratorPublicationContextMenu } from "ui/components/specific"
+import { PublicationCardContextThreeDotsMenu } from "ui/components/specific"
 import { formatAverageRating } from "utils"
 
 import { PublicationCardProps } from "./types"
@@ -31,7 +31,7 @@ export const GamePublicationCard = memo(({ id, title, authorTitle, categoryTitle
       </div>
 
       {isModerator && (
-        <ModeratorPublicationContextMenu
+        <PublicationCardContextThreeDotsMenu
           publicationId={id}
           publicationTitle={title}
           className="absolute right-1 top-1"

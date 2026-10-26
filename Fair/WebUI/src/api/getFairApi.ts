@@ -10,8 +10,6 @@ import {
   File,
   Moderator,
   ModeratorProposal,
-  Survey,
-  SurveyDetails,
   Policy,
   ProductAuthor,
   ProductDetails,
@@ -41,6 +39,8 @@ import {
   Store,
   StoreBase,
   StoreLiteSearch,
+  Survey,
+  SurveyDetails,
   TotalItemsResult,
   User,
   UserAuthors,
@@ -207,41 +207,6 @@ const getPublication = (publicationId: string): Promise<PublicationDetails> =>
 const getPublicationVersions = (publicationId: string): Promise<PublicationVersionInfo> =>
   fetch(`${BASE_URL}/publications/${publicationId}/versions`).then(res => res.json())
 
-const getChangedPublication = (storeId: string, changedPublicationId: string): Promise<PublicationChangedDetails> =>
-  fetch(`${BASE_URL}/stores/${storeId}/publications/changed/${changedPublicationId}`).then(res => res.json())
-
-const getChangedPublications = async (
-  storeId: string,
-  page?: number,
-  pageSize?: number,
-): Promise<TotalItemsResult<PublicationChanged>> => {
-  const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/publications/changed` + params)
-  return await toTotalItemsResult(res)
-}
-
-const getUnpublishedStoreProduct = async (storeId: string, unpublishedProductId: string): Promise<ProductDetails> => {
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/products/unpublished/${unpublishedProductId}`)
-  if (!res.ok) {
-    throw new Error()
-  }
-
-  return await res.json()
-}
-
-const getUnpublishedPublication = (storeId: string, publicationId: string): Promise<ProductDetails> =>
-  fetch(`${BASE_URL}/stores/${storeId}/publications/unpublished/${publicationId}`).then(res => res.json())
-
-const getUnpublishedPublications = async (
-  storeId: string,
-  page?: number,
-  pageSize?: number,
-): Promise<TotalItemsResult<PublicationUnpublished>> => {
-  const params = buildUrlParams({ page, pageSize })
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/publications/unpublished` + params)
-  return await toTotalItemsResult(res)
-}
-
 const getPublisherPublications = async (
   storeId: string,
   publisherId: string,
@@ -282,11 +247,13 @@ const getAuthorFiles = async (
   return await toTotalItemsResult(res)
 }
 
+// Moderation
+
 const getPolicySurveys = (storeId: string): Promise<Survey[]> =>
-  fetch(`${BASE_URL}/stores/${storeId}/surveys/policies`).then(res => res.json())
+  fetch(`${BASE_URL}/moderation/stores/${storeId}/surveys/policies`).then(res => res.json())
 
 const getPolicySurveyDetails = (storeId: string, surveyId: string): Promise<SurveyDetails> =>
-  fetchApi(fetch(`${BASE_URL}/stores/${storeId}/surveys/policies/${surveyId}`))
+  fetchApi(fetch(`${BASE_URL}/moderation/stores/${storeId}/surveys/policies/${surveyId}`))
 
 const getModeratorSurveys = async (
   storeId: string,
@@ -297,28 +264,11 @@ const getModeratorSurveys = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/surveys/moderators` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/surveys/moderators` + params)
   return await toTotalItemsResult(res)
 }
 
-const getAuthorReferendum = (storeId: string, referendumId: string): Promise<ProposalDetails> =>
-  fetch(`${BASE_URL}/stores/${storeId}/referendums/${referendumId}`).then(res => res.json())
-
-const getAuthorReferendumComments = async (
-  storeId: string,
-  referendumId: string,
-  page?: number,
-  pageSize?: number,
-): Promise<TotalItemsResult<ProposalComment>> => {
-  const params = buildUrlParams(
-    { page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
-  )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/referendums/${referendumId}/comments` + params)
-  return await toTotalItemsResult(res)
-}
-
-const getAuthorReferendums = async (
+const getReferendums = async (
   storeId: string,
   page?: number,
   pageSize?: number,
@@ -328,12 +278,26 @@ const getAuthorReferendums = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/referendums` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/referendums` + params)
   return await toTotalItemsResult(res)
 }
 
-const getModeratorDiscussion = async (storeId: string, discussionId: string): Promise<ProposalDetails> => {
-  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/discussions/${discussionId}`)
+const getProposals = async (
+  storeId: string,
+  page?: number,
+  pageSize?: number,
+  search?: string,
+): Promise<TotalItemsResult<Proposal>> => {
+  const params = buildUrlParams(
+    { search, page, pageSize },
+    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
+  )
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals` + params)
+  return await toTotalItemsResult(res)
+}
+
+const getProposalDetails = async (storeId: string, discussionId: string): Promise<ProposalDetails> => {
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/${discussionId}`)
   if (!res.ok) {
     throw new Error()
   }
@@ -341,9 +305,9 @@ const getModeratorDiscussion = async (storeId: string, discussionId: string): Pr
   return await res.json()
 }
 
-const getModeratorDiscussionComments = async (
+const getProposalComments = async (
   storeId: string,
-  discussionId: string,
+  proposalId: string,
   page?: number,
   pageSize?: number,
 ): Promise<TotalItemsResult<ProposalComment>> => {
@@ -351,21 +315,7 @@ const getModeratorDiscussionComments = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/discussions/${discussionId}/comments` + params)
-  return await toTotalItemsResult(res)
-}
-
-const getModeratorDiscussions = async (
-  storeId: string,
-  page?: number,
-  pageSize?: number,
-  search?: string,
-): Promise<TotalItemsResult<Proposal>> => {
-  const params = buildUrlParams(
-    { search, page, pageSize },
-    { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
-  )
-  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/discussions` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/${proposalId}/comments` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -379,12 +329,44 @@ const getPublicationProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/publications` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/publications` + params)
   return await toTotalItemsResult(res)
 }
 
-const getModeratorUser = (name: string): Promise<User> =>
-  fetch(`${BASE_URL}/moderator/users/${name}`).then(res => res.json())
+const getChangedPublication = (storeId: string, changedPublicationId: string): Promise<PublicationChangedDetails> =>
+  fetch(`${BASE_URL}/moderation/stores/${storeId}/publications/changed/${changedPublicationId}`).then(res => res.json())
+
+const getChangedPublications = async (
+  storeId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<PublicationChanged>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/publications/changed` + params)
+  return await toTotalItemsResult(res)
+}
+
+const getUnpublishedStoreProduct = async (storeId: string, unpublishedProductId: string): Promise<ProductDetails> => {
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/products/unpublished/${unpublishedProductId}`)
+  if (!res.ok) {
+    throw new Error()
+  }
+
+  return await res.json()
+}
+
+const getUnpublishedPublication = (storeId: string, publicationId: string): Promise<ProductDetails> =>
+  fetch(`${BASE_URL}/moderation/stores/${storeId}/publications/unpublished/${publicationId}`).then(res => res.json())
+
+const getUnpublishedPublications = async (
+  storeId: string,
+  page?: number,
+  pageSize?: number,
+): Promise<TotalItemsResult<PublicationUnpublished>> => {
+  const params = buildUrlParams({ page, pageSize })
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/publications/unpublished` + params)
+  return await toTotalItemsResult(res)
+}
 
 const getProductDetails = (productId: string): Promise<ProductDetails> =>
   fetch(`${BASE_URL}/products/${productId}`).then(res => res.json())
@@ -425,7 +407,7 @@ const getModeratorProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/proposals/moderators` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/moderators` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -439,7 +421,7 @@ const getPublisherProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/proposals/publishers` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/publishers` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -453,7 +435,7 @@ const getReviewCreationsProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/reviews/creations` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/reviews/creations` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -467,7 +449,7 @@ const getReviewDeletionsProposals = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/moderator/stores/${storeId}/reviews/deletions` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/reviews/deletions` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -480,7 +462,7 @@ const getUserRegistrationProposals = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/proposals/user-registrations` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/user/registrations` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -493,7 +475,7 @@ const getUserUnregistrationProposals = async (
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/proposals/user-unregistrations` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/user/unregistrations` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -549,15 +531,11 @@ const api: FairApi = {
 
   getModeratorSurveys,
 
-  getAuthorReferendum,
-  getAuthorReferendums,
-  getAuthorReferendumComments,
+  getReferendums,
 
-  getModeratorDiscussion,
-  getModeratorDiscussions,
-  getModeratorDiscussionComments,
+  getProposalDetails,
+  getProposals,
   getPublicationProposals,
-  getModeratorUser,
 
   getProductDetails,
   getProductStores,
@@ -572,6 +550,9 @@ const api: FairApi = {
   // Proposals
   getUserRegistrationProposals,
   getUserUnregistrationProposals,
+
+  // Proposals new
+  getProposalComments,
 }
 
 export const getFairApi = () => api

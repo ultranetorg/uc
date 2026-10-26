@@ -26,7 +26,7 @@ export const CreatePublicationPage = () => {
 
   const { voterId } = useOperationPolicy("publication-creation")
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { isModerator } = useStoreRolesContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
   const { invalidateOperation } = useInvalidation()

@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useOperationPolicy, useStoreContext, useStorePoliciesContext } from "app"
+import { useApprovalIdentityForOperation, useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserRegistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -14,10 +14,10 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 
 export const NewUsersTab = () => {
   const storeId = useResolveStoreId()
-  const { voterId } = useOperationPolicy("user-registration")
+  const approval = useApprovalIdentityForOperation("user-registration")
   const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -45,7 +45,7 @@ export const NewUsersTab = () => {
         type: "votes",
         className: "first-letter:uppercase w-[15%] text-center",
       },
-      ...(voterId
+      ...(approval
         ? [
             {
               accessor: "actions",
@@ -56,14 +56,14 @@ export const NewUsersTab = () => {
           ]
         : []),
     ],
-    [t, voterId],
+    [t, approval],
   )
 
   const vote = useCallback(
     (id: string, name: string, action: "approve" | "reject") => {
       setLoadingItem({ id: id, action })
 
-      const operation = new ProposalVoting(id, voterId!, action === "approve" ? 0 : -1)
+      const operation = new ProposalVoting(id, approval!.id, action === "approve" ? 0 : -1)
       mutate(operation, {
         onSuccess: () => {
           const message =
@@ -82,7 +82,7 @@ export const NewUsersTab = () => {
         },
       })
     },
-    [mutate, invalidateOperation, refetch, storeId, t, voterId],
+    [approval, mutate, t, invalidateOperation, storeId, refetch],
   )
 
   const handleApprove = useCallback((id: string, name: string) => vote(id, name, "approve"), [vote])
@@ -95,8 +95,8 @@ export const NewUsersTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getUsersItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, voterId),
-    [handleApprove, handleReject, loadingItem, t, voterId, votesRequired],
+    () => getUsersItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval?.id),
+    [approval?.id, handleApprove, handleReject, loadingItem, t, votesRequired],
   )
 
   const handlePageChange = useCallback(

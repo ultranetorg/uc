@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { useStoreContext } from "app"
-import { useGetAuthorReferendum } from "entities"
+import { useGetProposalDetails } from "entities"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
@@ -12,7 +12,7 @@ export const ReferendumPage = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation()
 
-  const { isFetching, data: proposal } = useGetAuthorReferendum(storeId, referendumId)
+  const { isFetching, data: proposal } = useGetProposalDetails(storeId, referendumId)
 
   useStoreTitle(store?.title, proposal?.title ? `Referendum - ${proposal?.title}` : "Referendum")
 

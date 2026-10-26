@@ -1,0 +1,22 @@
+import Markdown from "react-markdown"
+import { twMerge } from "tailwind-merge"
+
+import { PropsWithClassName } from "types"
+import { AboutThreeDotsMenu } from "ui/components/specific"
+
+type AboutBaseInfo = {
+  title: string
+  description: string
+}
+
+export type AboutInfo = PropsWithClassName & AboutBaseInfo
+
+export const AboutInfo = ({ className, title, description }: AboutInfo) => (
+  <div className={twMerge("flex flex-col gap-6 rounded-lg bg-gray-100 p-6 text-gray-800", className)}>
+    <div className="flex items-center justify-between">
+      <span className="text-3.5xl font-semibold leading-10">{title}</span>
+      <AboutThreeDotsMenu />
+    </div>
+    <Markdown skipHtml={true}>{description}</Markdown>
+  </div>
+)

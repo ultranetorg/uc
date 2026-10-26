@@ -51,7 +51,7 @@ export const UnpublishedPublicationPage = () => {
                   state={{
                     parentBreadcrumbs,
                     title: publication.title
-                      ? `Publish "${truncate(publication.title, { length: 46 })}" product`
+                      ? truncate(`Publish "${publication.title}" product`, { length: 64 })
                       : t("publishNoTitle"),
                     type: "publication-publish" as OperationType,
                     publicationId: publication.id,

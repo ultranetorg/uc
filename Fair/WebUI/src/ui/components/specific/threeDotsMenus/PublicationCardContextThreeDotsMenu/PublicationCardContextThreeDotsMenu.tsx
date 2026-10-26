@@ -1,0 +1,77 @@
+import { memo, useCallback, useState } from "react"
+import {
+  FloatingPortal,
+  offset,
+  safePolygon,
+  useDismiss,
+  useFloating,
+  useHover,
+  useInteractions,
+  useRole,
+} from "@floating-ui/react"
+import { twMerge } from "tailwind-merge"
+
+import { SvgThreeDotsSm } from "assets"
+import { useScrollOrResize } from "hooks"
+import { PropsWithClassName } from "types"
+import { SimpleMenu } from "ui/components"
+
+import { usePublicationCardContextThreeDotsMenu } from "./usePublicationCardContextThreeDotsMenu"
+
+type ContextMenuButtonSize = "medium" | "large"
+
+type PublicationCardContextThreeDotsMenuBaseProps = {
+  publicationId: string
+  publicationTitle?: string
+  size?: ContextMenuButtonSize
+}
+
+export type PublicationCardContextThreeDotsMenuProps = PropsWithClassName & PublicationCardContextThreeDotsMenuBaseProps
+
+export const PublicationCardContextThreeDotsMenu = memo(
+  ({ className, publicationId, publicationTitle, size = "medium" }: PublicationCardContextThreeDotsMenuProps) => {
+    const menuItems = usePublicationCardContextThreeDotsMenu(publicationId, publicationTitle, true)
+
+    const [isExpanded, setExpanded] = useState(false)
+
+    useScrollOrResize(() => setExpanded(false), isExpanded)
+
+    const { context, floatingStyles, refs } = useFloating({
+      middleware: [offset(4)],
+      open: isExpanded,
+      placement: "bottom-end",
+      onOpenChange: setExpanded,
+    })
+    const dismiss = useDismiss(context)
+    const hover = useHover(context, { handleClose: safePolygon() })
+    const role = useRole(context)
+    const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, hover, role])
+
+    const handleMenuClick = useCallback(() => setExpanded(false), [])
+
+    return (
+      <>
+        <div className={className} ref={refs.setReference} {...getReferenceProps()}>
+          <SvgThreeDotsSm
+            className={twMerge(
+              "size-5 cursor-pointer rounded bg-white fill-gray-500 opacity-50 hover:fill-gray-800 hover:opacity-80",
+              size === "large" && "size-8",
+            )}
+          />
+        </div>
+        {isExpanded && (
+          <FloatingPortal>
+            <SimpleMenu
+              menuItemClassName="w-44"
+              ref={refs.setFloating}
+              items={menuItems}
+              style={floatingStyles}
+              onClick={handleMenuClick}
+              {...getFloatingProps()}
+            />
+          </FloatingPortal>
+        )}
+      </>
+    )
+  },
+)
