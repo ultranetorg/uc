@@ -19,6 +19,7 @@ export * from "./StoreHeader"
 export * from "./StoresGrid"
 export * from "./threeDotsMenus"
 
+export * from "./AboutInfo"
 export * from "./ActiveUser"
 export * from "./InstallModal"
 export * from "./ModerationHeader"

@@ -5,7 +5,7 @@ import { useResolveStoreId, useStoreChangeMenuItems } from "hooks"
 import { PropsWithClassName } from "types"
 import { ThreeDotsMenu } from "ui/components"
 
-export const StoreMenu = memo(({ className }: PropsWithClassName) => {
+export const AboutThreeDotsMenu = memo(({ className }: PropsWithClassName) => {
   const { isModerator, isPublisher } = useStoreRolesContext()
   const storeId = useResolveStoreId()
 
