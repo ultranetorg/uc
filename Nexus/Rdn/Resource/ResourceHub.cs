@@ -11,7 +11,7 @@ public class ResourceHub
 	public const string				ReleaseFamilyName = nameof(Releases);
 	//public const string				ResourceFamilyName = nameof(Resources);
 
-	public List<Release>			Releases = new();
+	public List<LocalRelease>		Releases = new();
 	public List<CachedResource>		Resources = new();
 	public RdnNode					Node;
 	public object					Lock = new object();
@@ -38,7 +38,7 @@ public class ResourceHub
 		{
 			for(i.SeekToFirst(); i.Valid(); i.Next())
 			{
- 				Releases.Add(new Release(this, Urn.FromRaw(i.Key())));
+ 				Releases.Add(new LocalRelease(this, Urn.FromRaw(i.Key())));
 			}
 		}
 	}
@@ -58,22 +58,21 @@ public class ResourceHub
 		return Path.Join(Settings.Releases, urr.ToString().EscapeFilePath());
 	}
 
-	public Release Add(Urn address, AutoId id)
+	public LocalRelease Add(Urn address)
 	{
 		if(Releases.Any(i => i.Address == address))
 			throw new ResourceException(ResourceError.AlreadyExists);
 
-		var r = new Release(this, address);
-		r.Resource		= id;
+		var r = new LocalRelease(this, address);
 
 		Releases.Add(r);
 
 		return r;
 	}
 
-	public Release Add(Dictionary<object, string> files)
+	public LocalRelease Add(Dictionary<object, string> files)
 	{
-		var r = new Release(this, files);
+		var r = new LocalRelease(this, files);
 
 		if(Releases.Any(i => i.Address == r.Address))
 			throw new ResourceException(ResourceError.AlreadyExists);
@@ -83,7 +82,7 @@ public class ResourceHub
 		return r;
 	}
 
-	public Release Find(Urn address)
+	public LocalRelease Find(Urn address)
 	{
 		var r = Releases.Find(i => i.Address == address);
 
@@ -94,7 +93,7 @@ public class ResourceHub
 
 		if(d != null)
 		{
-			r = new Release(this, address);
+			r = new LocalRelease(this, address);
 			Releases.Add(r);
 			return r;
 		}
@@ -172,7 +171,7 @@ public class ResourceHub
 		return c;
 	}
 
-	public Release Add(IEnumerable<string> sources, ReleaseAddressCreator address, Flow workflow)
+	public LocalRelease Add(IEnumerable<string> sources, ReleaseAddressCreator address, Flow workflow)
 	{
 		var files = new Dictionary<object, string>();
 
@@ -227,14 +226,14 @@ public class ResourceHub
 		return r;
 	}
 
-	public Release Add(string localpath, ReleaseAddressCreator address, Flow workflow)
+	public LocalRelease Add(string localpath, ReleaseAddressCreator address, Flow workflow)
 	{
 		using var b = File.OpenRead(localpath);
 
 		var h = Net.Cryptography.HashFile(b);
 		var a = address.Create(null/*Node.Vault*/, h);
  			
-		var r = Add(a, null);
+		var r = Add(a);
 
  		r.AddCompleted("", localpath, null);
 		r.Complete(Availability.Full);
@@ -242,7 +241,7 @@ public class ResourceHub
 		return r;
 	}
 
-	public ReleaseFile GetFile(Release release, bool single, string file, string localpath, IIntegrity integrity, SeedSeeker harvester, Flow workflow)
+	public ReleaseFile GetFile(LocalRelease release, bool single, string file, string localpath, IIntegrity integrity, SeedSeeker harvester, Flow workflow)
 	{
 		var t = Task.CompletedTask;
 
@@ -291,25 +290,22 @@ public class ResourceHub
 				continue;
 			}
 
-			var ds = new Dictionary<RdnGenerator, Dictionary<AutoId, Release>>();
+			var ds = new Dictionary<RdnGenerator, List<LocalRelease>>();
 
 			lock(Lock)
 			{
-				foreach(var r in Releases.Where(i => i.Resource != null))
+				foreach(var r in Releases.Where(i => i.Availability != Availability.None))
 				{
-					if(r.Availability != Availability.None)
+					foreach(var m in mr.Members	.OrderByHash(i => i.Generator.Raw, r.Address.MemberOrderKey)
+												.Take(MembersPerDeclaration)
+												.Where(m =>	{
+																var d = r.DeclaredOn.Find(dm => dm.Member.Generator == m.Generator);
+																return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
+															})
+												.Cast<RdnGenerator>())
 					{
-						foreach(var m in mr.Members	.OrderByHash(i => i.Generator.Raw, r.Address.MemberOrderKey)
-													.Take(MembersPerDeclaration)
-													.Where(m =>	{
-																	var d = r.DeclaredOn.Find(dm => dm.Member.Generator == m.Generator);
-																	return d == null || d.Status == DeclarationStatus.Failed && DateTime.UtcNow - d.Failed > TimeSpan.FromSeconds(3);
-																})
-													.Cast<RdnGenerator>())
-						{
-							var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = new());
-							rss[r.Resource] = r;
-						}
+						var rss = ds.TryGetValue(m, out var x) ? x : (ds[m] = []);
+						rss.Add(r);
 					}
 				}
 			}
@@ -330,7 +326,7 @@ public class ResourceHub
 			{
 				foreach(var i in ds)
 				{
-					foreach(var r in i.Value.Select(i => i.Value))
+					foreach(var r in i.Value)
 					{
 						var d = r.DeclaredOn.Find(j => j.Member.Generator == i.Key.Generator);
 
@@ -341,21 +337,20 @@ public class ResourceHub
 					}
 
 					var t = Task.Run(() =>	{
-												DeclareReleasePpr drr;
-												ResourceDeclaration[] rds;
+												ReleaseDeclarationPpr drr;
+												ReleaseDeclaration[] rds;
 
 												lock(Lock)
-													rds = i.Value.Select(rs =>	new ResourceDeclaration
+													rds = i.Value.Select(rs =>	new ReleaseDeclaration
 																				{
-																					Resource		= rs.Key, 
-																					Urn			= rs.Value.Address, 
-																					Availability	= rs.Value.Availability
+																					Urn				= rs.Address, 
+																					Availability	= rs.Availability
 																				})
 																				.ToArray();
 
 												try
 												{
-													drr = Node.Peering.Call(i.Key.SeedhubPpiEndpoints.Random(), new DeclareReleasePpc {Resources = rds}, Node.Flow);
+													drr = Node.Peering.Call(i.Key.SeedhubPpiEndpoints.Random(), new ReleaseDeclarationPpc {Resources = rds}, Node.Flow);
 												}
 												catch(CodeException)/// when(!Debugger.IsAttached)
 												{
@@ -394,7 +389,7 @@ public class ResourceHub
 		}
 	}
 
-	public FileDownload DownloadFile(Release release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow workflow)
+	public FileDownload DownloadFile(LocalRelease release, bool single, string path, string localpath, IIntegrity integrity, SeedSeeker seeker, Flow workflow)
 	{
 		var f = release.Files.Find(i => i.Path == path);
 		
@@ -411,7 +406,7 @@ public class ResourceHub
 		return d;
 	}
 
-	public DirectoryDownload DownloadDirectory(Release release, string localpath, IIntegrity integrity, Flow workflow)
+	public DirectoryDownload DownloadDirectory(LocalRelease release, string localpath, IIntegrity integrity, Flow workflow)
 	{
 		if(release.Activity is DirectoryDownload d)
 			return d;

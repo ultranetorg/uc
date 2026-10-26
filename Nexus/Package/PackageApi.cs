@@ -11,7 +11,6 @@ public abstract class PackageActivityProgress
 public class PackageApe
 {
 	public Ura					Address { get; set; }
-	public AutoId				Id { get; set; }
 	public LocalReleaseApe		Release { get; set; }
 	public PackageManifest		Manifest { get; set; }
 	public bool					Available { get; set; }
@@ -23,7 +22,6 @@ public class PackageApe
 	public PackageApe(Package package)
 	{
 		Address		= package.Address;
-		Id			= package.Id;
 		Manifest	= package.Manifest;
 		Release		= new LocalReleaseApe(package.Release);
 		Available	= package.Hub.IsReady(package.Address);
@@ -31,29 +29,29 @@ public class PackageApe
 }
 
 
-public class PackageUpdateApc :  Apc, INexusApc
-{
-	public Ura		Address { get; set; }
-	public AutoId	Id { get; set; }
-
-	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		lock(nexus.PackageHub.Lock)
-		{
-			var p = nexus.PackageHub.Find(Address);
-			
-			if(p != null)
-			{
-				p.Id = Id;
-				nexus.PackageHub.Save(p);
-			}
-			else
-				throw new PackageException(PackageError.NotFound, null);
-		}
-
-		return null;
-	}
-}
+//public class PackageUpdateApc :  Apc, INexusApc
+//{
+//	public Ura		Address { get; set; }
+//	public AutoId	Id { get; set; }
+//
+//	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+//	{
+//		lock(nexus.PackageHub.Lock)
+//		{
+//			var p = nexus.PackageHub.Find(Address);
+//			
+//			if(p != null)
+//			{
+//				p.Id = Id;
+//				nexus.PackageHub.Save(p);
+//			}
+//			else
+//				throw new PackageException(PackageError.NotFound, null);
+//		}
+//
+//		return null;
+//	}
+//}
 
 //public class PackageAddApc : Apc, INexusApc 
 //{
@@ -102,7 +100,6 @@ public class PackageCreateApc : Fpc<PackageApe>, INexusApc
 	public IEnumerable<string>		Sources { get; set; }
 	public string					Manifest { get; set; }
 	public string					Instruction { get; set; }
-	public AutoId					Previous { get; set; }
 	public ReleaseAddressCreator	AddressCreator { get; set; }
 
 	public object Execute(Nexus nexus, HttpListenerRequest request, HttpListenerResponse response, Flow flow)

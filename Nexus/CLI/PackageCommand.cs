@@ -81,31 +81,33 @@ public class PackageCommand : NexusCommand
 								var it = Has(instruction) ? File.ReadAllText(GetString(instruction)) : null;
 
 								PackageManifest m = null;
-								Dependency[] immidiate = [];
+								Dependency[] immediate = [];
 
 								if(mt != null)
 								{
 									m = PackageManifest.Parse(mt);
 
-									immidiate = m.Dependencies;
+									immediate = m.Dependencies;
 
 									var deps = new HashSet<Dependency>(EqualityComparer<Dependency>.Create((i, j) => i.Address.Equals(j.Address), i => i.GetHashCode()));
 
-									void download(Ura address)
+									void collect(Dependency dependency)
 									{
-										var r = Rapi.Ppc(new ResourceByAddressPpc(address), Flow).Resource;
+										var r = Rapi.Ppc(new ResourceByAddressPpc(dependency.Address), Flow).Resource;
+
+										dependency.Name = r.Data.Get<Urn>();
 
 										if(!r.Flags.HasFlag(ResourceFlags.Dependable))
-											throw new Exception($"Not dependable resource: {address}");
+											throw new Exception($"Not dependable resource: {dependency.Address}");
 
-										var p = Download(address);
+										var p = Download(dependency.Address);
 
 										if(p != null)
 										{
 											foreach(var i in p.Manifest.Criticals)
 											{
 												deps.Add(i);
-												download(i.Address);
+												collect(i);
 											}
 										}
 									}
@@ -113,43 +115,42 @@ public class PackageCommand : NexusCommand
 									foreach(var i in m.Dependencies.ToArray())
 									{
 										deps.Add(i);
-										download(i.Address);
+										collect(i);
 									}
 
 									m.Dependencies = [..deps];
 									mt = m.ToXon().ToString();
 								}
 
-								AutoId getid(Ura addres) 
+								AutoId getid(Ura address) 
 								{ 
-									if(addres == null)
+									if(address == null)
 										return null;
 
-									var r = Rapi.Ppc(new ResourceByAddressPpc(addres), Flow).Resource;
+									var r = Rapi.Ppc(new ResourceByAddressPpc(address), Flow).Resource;
 									
-									Report($"Resource address resolved {addres} -> {r.Id}");
+									Report($"Resource address resolved {address} -> {r.Id}");
 									
 									return r.Id;
 								}
 
-								var p = Api(new PackageCreateApc   
+								var p = Api(new PackageCreateApc
 											{
 												Address			= Address,
 												Sources			= Args.Where(i => i.Name == source).Select(i => i.Get<string>()), 
 												Manifest		= mt,
 												Instruction		= it,
-												Previous		= getid(m?.Parents.FirstOrDefault()?.Address),
 												AddressCreator	= new (UrnNamespace.Blake3)
 											});
 								
-								Report($"Release created");
+								Report($"Release created:");
 								Flow.Log.Dump(p);
 								
 								List<Operation> ops = [];
 
 								if(Has(publish))
 								{
-									ops.Add(new ResourceCreation(Address, new ResourceData(Meaning.Package_Software_PackageManifest, p.Release.Address), Has(depandable)));
+									ops.Add(new ResourceCreation(Address, new ResourceData(Meaning.ExternalContent, ContentType.Software_Package, p.Release.Address), Has(depandable)));
 								}
 
 								if(Has(link))
@@ -157,38 +158,38 @@ public class PackageCommand : NexusCommand
 									var id = Has(publish) ? AutoId.LastCreated 
 														  : Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource.Id;
 	
-									if(m?.Parents.FirstOrDefault() != null)
-										ops.Add(new ResourceLinkCreation(id, getid(m.Parents.First().Address), ResourceLinkType.Dependency));
+									foreach(var i in m.Parents)
+										ops.Add(new ResourceLinkCreation(id, getid(i.Address), ResourceLinkType.Dependency));
 
-									ops.AddRange(immidiate.Select(i => new ResourceLinkCreation(id, getid(i.Address), ResourceLinkType.Dependency)));
+									ops.AddRange(immediate.Select(i => new ResourceLinkCreation(id, getid(i.Address), ResourceLinkType.Dependency)));
 								}
 								
 								if(ops.Any())
 								{	
 									Transact(Rapi, ops, GetString(ByKeyword), GetLong(BoostKeyword, 0), McvCommand.GetActionOnResult(Args));
-
+																	
 									var r = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource;
-
+									
 									if(Has(publish))
 									{
 										Report($"Published under the resource with Id={r.Id}");
 
-										Api(new PackageUpdateApc
-											{
-												Address = Address,
-												Id = r.Id,
-											});
+										//Api(new PackageUpdateApc
+										//	{
+										//		Address = Address,
+										//		Id = r.Id,
+										//	});
+										//
+										//Report($"Resource Id assigned to package");
 
-										Report($"Resource Id assigned to package");
-
-										Rapi.Send(	new ReleaseUpdateApc
-													{
-														Address = p.Release.Address,
-														Id= r.Id,
-													}, 
-													Flow);
-
-										Report($"Id assigned to release");
+										//Rapi.Send(	new ReleaseUpdateApc
+										//			{
+										//				Address = p.Release.Address,
+										//				Id= r.Id,
+										//			}, 
+										//			Flow);
+										//
+										//Report($"Id assigned to release");
 									}
 
 									if(Has(link))
@@ -234,7 +235,7 @@ public class PackageCommand : NexusCommand
 		a.Execute = () =>	{
 								var r = Api(new LocalPackageSearchApc {Query = GetString(query)});
 				
-								Flow.Log.Dump(r, ["Address", "Id", "Urn"], [i => i.Address, i => i.Id, i => i.Release.Address]);
+								Flow.Log.Dump(r, ["Address", "Urn"], [i => i.Address, i => i.Release.Address]);
 
 								return null;
 							};

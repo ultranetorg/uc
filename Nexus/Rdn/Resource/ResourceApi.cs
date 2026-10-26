@@ -37,15 +37,15 @@ public class ResourceDownloadApc : RdnApc
 		if(d == null)
 			throw new ResourceException(ResourceError.NoData);
 
-		if(!d.Data.IsCexInvolved(out var urn))
+		if(!d.Data.IsRexInvolved(out var urn))
 			throw new ResourceException(ResourceError.NotSupportedDataType);
 
 		IIntegrity itg;
 
-		switch(urn)
+		switch(urn.Namespace)
 		{ 
-			case Blake3Urn a :
-				itg = new DHIntegrity(a.Hash); 
+			case UrnNamespace.Blake3:
+				itg = new DHIntegrity(urn.Hash); 
 				break;
 				
 			default:
@@ -54,7 +54,7 @@ public class ResourceDownloadApc : RdnApc
 
 		lock(node.ResourceHub.Lock)
 		{
-			var lrl = node.ResourceHub.Find(urn) ?? node.ResourceHub.Add(urn, Id);
+			var lrl = node.ResourceHub.Find(urn) ?? node.ResourceHub.Add(urn);
 
 			if(ResourceData.IsFile(d.Data.Content))
 			{
@@ -140,26 +140,26 @@ public class LocalReleaseBuildApc : RdnApc
 //	}
 //}
 
-public class ReleaseUpdateApc : RdnApc
-{
-	public Urn		Address { get; set; }
-	public AutoId	Id { get; set; }
-
-	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
-	{
-		lock(node.ResourceHub.Lock)
-		{
-			var r = node.ResourceHub.Find(Address);
-			
-			if(r != null)
-			{
-				r.Resource = Id;
-			}
-		}
-
-		return null;
-	}
-}
+// public class ReleaseUpdateApc : RdnApc
+// {
+// 	public Urn		Address { get; set; }
+// 	public AutoId	Id { get; set; }
+// 
+// 	public override object Execute(RdnNode node, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
+// 	{
+// 		lock(node.ResourceHub.Lock)
+// 		{
+// 			var r = node.ResourceHub.Find(Address);
+// 			
+// 			if(r != null)
+// 			{
+// 				r.Resource = Id;
+// 			}
+// 		}
+// 
+// 		return null;
+// 	}
+// }
 
 public class LocalReleaseActivityProgressApc : RdnApc
 {
@@ -274,7 +274,7 @@ public class LocalReleaseApe
 	{
 	}
 
-	public LocalReleaseApe(Release release)
+	public LocalReleaseApe(LocalRelease release)
 	{
 		Address		= release.Address;
 		DeclaredOn	= release.DeclaredOn.Select(i => i.Member).ToArray();

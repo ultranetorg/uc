@@ -84,6 +84,8 @@ public class ResourceUpdation : RdnOperation
 					execution.Free(User, d, r.Data.Value.Length);
 				}
 
+				UpdateReleasesIfRexInvolved(r.Data, Data, execution);
+
 				r.Flags		|= ResourceFlags.Data;
 				r.Data		= Data;
 				r.Updated	= execution.Time;

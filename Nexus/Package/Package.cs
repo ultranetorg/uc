@@ -14,10 +14,9 @@ public class Package
 
 	public const string		Deployed = ".deployed";
 
-	public AutoId			Id;
 	public Ura				Address;
 	public Urn				Urn;
-	public Release			Release => Hub.Node.ResourceHub.Find(Urn);
+	public LocalRelease		Release => Hub.Node.ResourceHub.Find(Urn);
 	public PackageHub		Hub;
 	public volatile object	Activity;
 	
@@ -26,8 +25,8 @@ public class Package
 
 	public bool IsDeployed(string packagespath)
 	{
-		return	File.Exists(PackageHub.AddressToDeployment(packagespath, Address, Package.Deployed)) &&
-				File.ReadAllText(PackageHub.AddressToDeployment(packagespath, Address, Package.Deployed)) == Urn.ToString();
+		var path = PackageHub.AddressToDeployment(packagespath, Address, Package.Deployed);
+		return File.Exists(path) && File.ReadAllText(path) == Urn.ToString();
 	}
 
 	public void SetDeployed(string packagespath)
@@ -45,7 +44,7 @@ public class Package
 				{
 					lock(Hub.Node.ResourceHub.Lock)
 					{
-						_Manifest = new Reader(File.ReadAllBytes(Release.Find(PackageManifest.Extension).DataPath)).Read<PackageManifest>();
+						_Manifest = new Reader(File.ReadAllBytes(Release.Find(PackageManifest.Extension).DataPath), Rdn.Rdn.Any.Constructor).Read<PackageManifest>();
 					}
 				}
 			}
@@ -64,7 +63,7 @@ public class Package
 				{
 					lock(Hub.Node.ResourceHub.Lock)
 					{
-						_Instruction = new Reader(File.ReadAllBytes(Release.Find(PackageInstruction.Extension).DataPath)).Read<PackageInstruction>();
+						_Instruction = new Reader(File.ReadAllBytes(Release.Find(PackageInstruction.Extension).DataPath), Rdn.Rdn.Any.Constructor).Read<PackageInstruction>();
 					}
 				}
 			}

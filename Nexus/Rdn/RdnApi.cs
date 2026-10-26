@@ -84,11 +84,11 @@ public class RdnApiClient : McvApiClient
 
 		do
 		{
-			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.GetVirtual<Urn>(Rdn.Any.Constructor)}, flow);
+			var d = Call<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Get<Urn>()}, flow);
 
 			if(d is null)
 			{
-				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.GetVirtual<Urn>(Rdn.Any.Constructor)}, flow);
+				return Call<LocalReleaseApe>(new LocalReleaseApc {Address = r.Data.Get<Urn>()}, flow);
 
 				//if(lrr.Availability == Availability.Full)
 				//{
@@ -135,31 +135,31 @@ public class HttpGetApc : RdnApc
 			if(r.Data.Meaning != Meaning.ExternalContent)
 				 throw new ResourceException(ResourceError.NotSupportedDataType);
 
-			var ra = r.Data?.GetVirtual<Urn>(rdn.Net.Constructor)
+			var ra = r.Data?.Get<Urn>()
 					 ??	
 					 throw new ResourceException(ResourceError.NotFound);
 
 			ResourceData s;
-			Release z;
+			LocalRelease z;
 
 			lock(rdn.ResourceHub.Lock)
 			{
 				s = rdn.ResourceHub.Get(r.Id).Data;
-				z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra, r.Id);
+				z = rdn.ResourceHub.Find(ra) ?? rdn.ResourceHub.Add(ra);
 			}
 
 			IIntegrity itg = null;
 
-			switch(ra)
+			switch(ra.Namespace)
 			{ 
-				case Blake3Urn x :
+				case UrnNamespace.Blake3 :
 					if(ResourceData.IsFile(r.Data.Content))
 					{
-						itg = new DHIntegrity(x.Hash); 
+						itg = new DHIntegrity(ra.Hash); 
 					}
 					else if(ResourceData.IsDirectory(r.Data.Content))
 					{
-						var	f = rdn.ResourceHub.GetFile(z, false, Release.Index, null, new DHIntegrity(x.Hash), null, workflow);
+						var	f = rdn.ResourceHub.GetFile(z, false, LocalRelease.Index, null, new DHIntegrity(ra.Hash), null, workflow);
 
 						var index = new Xon(f.Read());
 

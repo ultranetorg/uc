@@ -19,16 +19,16 @@ public class ResourceCommand : RdnCommand
 	{
 		if(Has(IdKeyword))
 		{	
-			var r = Ppc(new ResourceByIdPpc(GetAutoId(IdKeyword)));
+			var r = Ppc(new ResourceByIdPpc(Id));
 			return r.Resource;
 		}
 		else if(Has(AddressKeyword))
 		{	
-			var r = Ppc(new ResourceByAddressPpc(Ura.Parse(GetString(AddressKeyword))));
+			var r = Ppc(new ResourceByAddressPpc(Ura.Parse(Address)));
 			return r.Resource;
 		}
 		else
-			throw new SyntaxException("Neither 'id' nor 'name' arguments provided");
+			throw new SyntaxException($"Neither '{IdKeyword}' nor '{AddressKeyword}' arguments provided");
 	}
 
 	public CommandAction Create_C()
@@ -46,18 +46,18 @@ public class ResourceCommand : RdnCommand
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.TransactingTimeout);
 															
-								Transacted = () =>	{ 
-														var	r = GetResource();
-
-														if(r.Data != null && r.Data.IsCexInvolved(out var urn))
-														{
-															Api(new ReleaseUpdateApc
-																{
-																	Address = urn,
-																	Id= r.Id,
-																});
-														}
-													};
+								//Transacted = () =>	{ 
+								//						var	r = GetResource();
+								//
+								//						if(r.Data != null && r.Data.IsRexInvolved(out var urn))
+								//						{
+								//							Api(new ReleaseUpdateApc
+								//								{
+								//									Address = urn,
+								//									Id= r.Id,
+								//								});
+								//						}
+								//					};
 
 								return new ResourceCreation(Ura.Parse(Address), GetData(), Has(Dependable.Name));
 							};
@@ -127,21 +127,21 @@ public class ResourceCommand : RdnCommand
 
 								var	r = GetResource();
 
-								Transacted = () =>	{ 
-														if(Has(Data.Name))
-														{
-															var d = GetData();
-
-															if(d != null && d.IsCexInvolved(out var urn))
-															{
-																Api(new ReleaseUpdateApc
-																	{
-																		Address = urn,
-																		Id= r.Id,
-																	});
-															}
-														}
-													};
+								//Transacted = () =>	{ 
+								//						if(Has(Data.Name))
+								//						{
+								//							var d = GetData();
+								//
+								//							if(d != null && d.IsRexInvolved(out var urn))
+								//							{
+								//								Api(new ReleaseUpdateApc
+								//									{
+								//										Address = urn,
+								//										Id= r.Id,
+								//									});
+								//							}
+								//						}
+								//					};
 
 								var o =	new ResourceUpdation(r.Id);
 
@@ -249,7 +249,7 @@ public class ResourceCommand : RdnCommand
 								{
 									while(Flow.Active)
 									{
-										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.GetVirtual<Urn>(Cli.Net.Constructor)});
+										var p = Api<ResourceActivityProgress>(new LocalReleaseActivityProgressApc {Release = r.Data.Get<Urn>()});
 	
 										if(p is null)
 											break;

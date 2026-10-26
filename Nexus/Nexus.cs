@@ -216,7 +216,7 @@ public class Nexus : IProgram
 		Ura p = null;
 		//AutoId aprv = null;
 	
-		if(r.Data.Meaning == Meaning.Package_Software_ProductManifest)
+		if(r.Data.Content == ContentType.Software_ProductManifest)
 		{
 			//var lrr = RdnNode.Download(r, flow);
 	
@@ -230,7 +230,7 @@ public class Nexus : IProgram
 
 			}
 		}
-		else if(r.Data.Meaning == Meaning.Package_Software_PackageManifest)
+		else if(r.Data.Content == ContentType.Software_Package)
 		{
 			p = ura;
 		}

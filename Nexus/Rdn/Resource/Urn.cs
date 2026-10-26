@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Numerics;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Uccs.Rdn;
@@ -12,26 +13,45 @@ public enum UrnNamespace : uint
 	None, Blake3
 }
 
-public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITextSerialisable
+public class Urn : EntityId, IBinarySerializable, IEquatable<Urn>, ITextSerialisable
 {
-	public abstract UrnNamespace		Namespace { get; }
- 	public abstract byte[]				MemberOrderKey { get; }
- 	public byte[]						Raw => _Raw ??= (this as IBinarySerializable).ToRaw();
-	byte[]								_Raw;
-
-	public override abstract bool		Equals(object other);
-  	public abstract bool				Equals(Urn other);
-	public override abstract int		GetHashCode();
-	public abstract void				ParseSpecific(ReadOnlySpan<char> t);
-	public override abstract string		ToString();
+	public UrnNamespace					Namespace { get; set; }
+	public byte[]						Hash { get; set; }
+ 	public byte[]						MemberOrderKey => Hash;
+	public override int					Bucket => BitConverter.ToInt32(Hash);
+	
+	public override int					GetHashCode() => BitConverter.ToInt32(Hash);
+ 	public override bool				Equals(object obj) => Equals(obj as Urn);
+	public bool							Equals(Urn a) => a is not null && Namespace == a.Namespace && Bytes.Equal(Hash, a.Hash);
 
 	static Urn()
 	{
 	}
 
+	public Urn()
+	{
+	}
+
+	public static Urn Blake3(byte[] hash)
+	{
+		var u = new Urn();
+		u.Namespace = UrnNamespace.Blake3;
+		u.Hash = hash;
+
+		return u;
+	}
+
 	public void Read(string text)
 	{
 		Parse(text);
+	}
+
+	public override string ToString()
+	{
+		if(Namespace == UrnNamespace.None)
+			throw new InvalidOperationException("Namespace not defined");
+
+		return $"urn:{Namespace.ToString().ToLowerInvariant()}:{Hash.ToHex()}";
 	}
 
 	public static Urn Parse(string t)
@@ -43,62 +63,58 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
 		if(i == -1)
 			throw new FormatException();
 
-		var a = Enum.Parse<UrnNamespace>(n.AsSpan(0, i),  true)	switch
-															{
-																UrnNamespace.Blake3 => new Blake3Urn() as Urn,
-																//UrrScheme.Urrsd => new Urrsd(),
-																_ => throw new FormatException()
-															};
+ 		var u = new Urn();
+		u.Namespace = Enum.Parse<UrnNamespace>(n.AsSpan(0, i), true);
 
-		a.ParseSpecific(n.AsSpan(i + 1));
+ 		switch(u.Namespace)
+ 		{
+ 			case UrnNamespace.Blake3 :
+ 			{
+ 				var h = n.AsSpan(i + 1);
+ 				
+ 				if(h.Length/2 != Cryptography.HashLength)
+ 					throw new FormatException();
+ 				
+ 				u.Hash = h.FromHex();
+ 
+ 				return u;
+ 			}
 
-		return a;
+ 			default:
+				throw new FormatException();
+ 		};
 	}
 
-	
-	protected virtual void WriteMore(Writer writer)
+	protected void WriteMore(Writer writer)
 	{
+ 		writer.Write(Hash);
 	}
 
-	protected virtual void ReadMore(Reader reader)
+	protected void ReadMore(Reader reader)
 	{
+ 		Hash = reader.ReadBytes(Cryptography.HashLength);
 	}
 
-	public virtual void Write(Writer writer)
-	{
-		WriteMore(writer);
-	}
-
-	public virtual void Read(Reader reader)
-	{
-		ReadMore(reader);
-	}
-
-	public void WriteVirtual(Writer writer)
+	public override void Write(Writer writer)
 	{
 		writer.Write(Namespace);
 		WriteMore(writer);
 	}
 
-	public static Urn ReadVirtual(Reader reader)
+	public override void Read(Reader reader)
 	{
-		var a = reader.Read<UrnNamespace>()	switch
-											{
-												UrnNamespace.Blake3 => new Blake3Urn() as Urn,
-												//UrrScheme.Urrsd => new Urrsd(),
-												_ => throw new FormatException()
-											};
-		
-		a.ReadMore(reader);
-		
-		return a;
+		Namespace = reader.Read<UrnNamespace>();
+		ReadMore(reader);
 	}
 
  	public static Urn FromRaw(byte[] bytes)
  	{
  		using var r = new Reader(bytes);
  
- 		return ReadVirtual(r);
+		var u = new Urn();
+ 		u.Read(r);
+
+		return u;
  	}
  
  	public static bool operator == (Urn a, Urn b)
@@ -110,54 +126,20 @@ public abstract class Urn : ITypeCode, IBinarySerializable, IEquatable<Urn>, ITe
  	{
  		return !(a == b);
  	}
-}
- 
-public class Blake3Urn : Urn /// Rdn Resource Release Hash
-{
-	public override UrnNamespace	Namespace => UrnNamespace.Blake3; 
 
-	public byte[]					Hash { get; set; }
- 	public override byte[]			MemberOrderKey => Hash;
- 		
-	public override int				GetHashCode() => BitConverter.ToInt32(Hash);
- 	public override bool			Equals(object obj) => Equals(obj as Blake3Urn);
-	public override bool			Equals(Urn o) => o is Blake3Urn a && Bytes.Equal(Hash, a.Hash);
-
-	public Blake3Urn()
+	public override bool Equals(EntityId other)
 	{
+		return Equals((Urn)other);
 	}
 
-	public Blake3Urn(byte[] hash)
+	public override int CompareTo(EntityId other)
 	{
-		Hash = hash;
-	}
-
-	public override string ToString()
-	{
-		return $"urn:{Namespace.ToString().ToLowerInvariant()}:{Hash.ToHex()}";
-	}
-
-	public override void ParseSpecific(ReadOnlySpan<char> t)
-	{
-		if(t.Length/2 != Cryptography.HashLength)
-			throw new FormatException();
-
-		Hash = t.FromHex();
+		return Bytes.Comparer.Compare(Hash, (other as Urn).Hash);
 	}
 
 	public bool Verify(byte[] hash)
 	{
 		return Hash.SequenceEqual(hash);
-	}
-
-	protected override void WriteMore(Writer writer)
-	{
- 		writer.Write(Hash);
-	}
-
-	protected override void ReadMore(Reader reader)
-	{
- 		Hash = reader.ReadBytes(Cryptography.HashLength);
 	}
 }
 
@@ -176,7 +158,7 @@ public class UrrJsonConverter : JsonConverter<Urn>
 
 public class ReleaseAddressCreator
 {
-	public UrnNamespace			Type { get; set; }
+	public UrnNamespace		Type { get; set; }
 	public PublicKey		Owner { get; set; }
 	public Ura				Resource { get; set; }
 
@@ -189,7 +171,7 @@ public class ReleaseAddressCreator
 	{
 		return Type	switch
 					{
-						UrnNamespace.Blake3 => new Blake3Urn {Hash = hash},
+						UrnNamespace.Blake3 => Urn.Blake3(hash),
 						///UrrScheme.Urrsd => Urrsd.Create(vault.Cryptography, vault.Find(Owner).Key, Resource, hash),
 						_ => throw new ResourceException(ResourceError.UnknownAddressType)
 					};

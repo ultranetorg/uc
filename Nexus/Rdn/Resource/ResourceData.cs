@@ -12,10 +12,6 @@ public enum Meaning : ushort
 		Redirect_Uri						= 01_001,
 	
 	ExternalContent							= 02_000,
-
-	Package									= 03_000,
-		Package_Software_ProductManifest	= 03_001,
-		Package_Software_PackageManifest	= 03_002,
 	
 	Ampp									= 04_000,
 		Ampp_Council						= 04_001,
@@ -27,16 +23,20 @@ public enum Meaning : ushort
 
 public enum ContentType : uint
 {
-	Undefined					= 0,
-	File						= 01_00_000_000,
-		File_Text				= 01_01_000_000,
-		File_Image				= 01_02_000_000,
-		File_Audio				= 01_03_000_000,
-		File_Video				= 01_04_000_000,
-		File_Font				= 01_05_000_000,
-		File_End				= 01_99_999_999,
+	Undefined							= 0,
+	File								= 01_00_000_000,
+		Text							= 01_01_000_000,
+		Image							= 01_02_000_000,
+		Audio							= 01_03_000_000,
+		Video							= 01_04_000_000,
+		Font							= 01_05_000_000,
+		File_End						= 01_99_999_999,
 
-	Directory					= 02_00_000_000,
+	Directory							= 02_00_000_000,
+		Package							= 02_01_000_000,
+			Software_ProductManifest	= 02_01_000_001,
+			Software_Package			= 02_01_000_002,
+		Directory_End					= 02_99_999_999,
 }
 
 public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
@@ -82,16 +82,15 @@ public class ResourceData : IBinarySerializable, IEquatable<ResourceData>
 		Value = Serialize(value);
 	}
 	
-	public bool IsCexInvolved(out Urn urn)
+	public bool IsRexInvolved(out Urn urn)
 	{ 
-		if(	Meaning != Meaning.ExternalContent &&
-			Meaning != Meaning.Package_Software_PackageManifest)
+		if(Meaning != Meaning.ExternalContent)
 		{	
 			urn = null;
 			return false;
 		}
 
-		urn = new Reader(Value, Rdn.Any.Constructor).ReadVirtual<Urn>();
+		urn = new Reader(Value).Read<Urn>();
 		
 		if(urn.Namespace != UrnNamespace.Blake3)
 			return false;

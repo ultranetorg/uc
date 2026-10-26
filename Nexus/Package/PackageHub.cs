@@ -35,8 +35,7 @@ public class PackageHub
  				Packages.Add(new Package(this)
 							 {
 								Address	 = new Reader(i.Key()).Read<Ura>(),
-								Id		 = v.ReadNullable<AutoId>(),
-								Urn		 = v.ReadVirtual<Urn>(),
+								Urn		 = v.Read<Urn>(),
 							 });
 			}
 		}
@@ -49,8 +48,7 @@ public class PackageHub
 		var s = new MemoryStream();
 		var w = new Writer(s, Rdn.Rdn.Any.Constructor);
 
-		w.WriteNullable(package.Id);
-		w.WriteVirtual(package.Urn);
+		w.Write(package.Urn);
 
 		b.Put((package.Address as IBinarySerializable).ToRaw(), s.ToArray());
 
@@ -96,13 +94,6 @@ public class PackageHub
 				return false;
 		}
 	}
-
- 	public Package Find(AutoId id)
- 	{
- 		var p = Packages.Find(i => i.Id == id);
- 
- 		return p;
- 	}
 
  	public Package Find(Ura address)
  	{
@@ -161,7 +152,7 @@ public class PackageHub
 		}
 	}
 	
-	void BuildIncremental(Stream stream, Release complete, IDictionary<string, string> all, Flow flow)
+	void BuildIncremental(Stream stream, LocalRelease complete, IDictionary<string, string> all, Flow flow)
 	{
 		var rems = new List<string>();
 		var upds = new Dictionary<string, string>();
@@ -325,7 +316,7 @@ public class PackageHub
 	 	
 	 	Packages.Add(p);
 
-		x[(manifest as IBinarySerializable).ToRaw()] = PackageManifest.Extension;
+		x[(manifest as IBinarySerializable).ToRaw(Rdn.Rdn.Any.Constructor)] = PackageManifest.Extension;
 		x[completed] = Package.CompleteFile;
 
 		if(instruction != null)
@@ -516,16 +507,44 @@ public class PackageHub
 
 			p = new Package(this)
 				{
-					Id		= r.Id,
 					Address	= r.Address,
-					Urn		= r.Data.GetVirtual<Urn>(),
+					Urn		= r.Data.Get<Urn>(),
 				};
 
 			Packages.Add(p);
-			Node.ResourceHub.Add(p.Urn, p.Id);
+			Node.ResourceHub.Add(p.Urn);
 		}
 
 		if(IsReady(address))
+			return new PackageDownload(this, p);
+
+		if(p.Activity is PackageDownload d)
+			return d;
+		else if(p.Activity != null)
+			throw new ResourceException(ResourceError.Busy);
+			
+		d = new PackageDownload(this, p, recursive, flow);
+
+		return d;
+	}
+
+	public PackageDownload StartDownload(Dependency dependency, bool recursive, Flow flow)
+	{
+		var p = Find(dependency.Address);
+		
+		if(p == null)
+		{
+			p = new Package(this)
+				{
+					Address	= dependency.Address,
+					Urn		= dependency.Name,
+				};
+
+			Packages.Add(p);
+			Node.ResourceHub.Add(p.Urn);
+		}
+
+		if(IsReady(dependency.Address))
 			return new PackageDownload(this, p);
 
 		if(p.Activity is PackageDownload d)

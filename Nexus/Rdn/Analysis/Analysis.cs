@@ -71,7 +71,7 @@ public class Analysis : IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Release			= Urn.ReadVirtual(reader);
+		Release			= reader.Read<Urn>();
 		Consil			= reader.Read<AutoId>();
 		EnergyReward	= reader.Read7BitEncodedInt64();
 		SpacetimeReward	= reader.Read7BitEncodedInt64();
@@ -84,7 +84,7 @@ public class Analysis : IBinarySerializable
 
 	public void Write(Writer writer)
 	{
-		Release.WriteVirtual(writer);
+		writer.Write(Release);
 		writer.Write(Consil);
 		writer.Write7BitEncodedInt64(EnergyReward);
 		writer.Write7BitEncodedInt64(SpacetimeReward);

@@ -7,7 +7,7 @@ public enum RdnPpcClass : uint
 	None = 0, 
 	RdnMembers = McvPpcClass._Last + 1, 
 	DomainByName, DomainById,
-	ResourceByAddress, ResourceById, QueryResource, DeclareRelease, LocateRelease, FileInfo, DownloadRelease
+	ResourceByAddress, ResourceById, QueryResource, ReleaseDeclaration, LocateRelease, FileInfo, DownloadRelease
 }
 
 public abstract class RdnPpc<R> : McvPpc<R> where R : Result

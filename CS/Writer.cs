@@ -14,7 +14,7 @@ public interface IBinarySerializable
 	void			Write(Writer writer);
 	void			Read(Reader reader);
 
-	public byte[] ToRaw()	
+	public byte[] ToRaw()
 	{
 		using var s = new MemoryStream();
 		var w = new Writer(s);

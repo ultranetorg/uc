@@ -72,7 +72,7 @@ public class PackageDownload
 									{
 										Seeker = new SeedSeeker(node, Package.Urn, flow);
 
-										var findex = node.ResourceHub.GetFile(Package.Release, false, Release.Index, null, new DHIntegrity((Package.Release.Address as Blake3Urn).Hash), Seeker, flow);
+										var findex = node.ResourceHub.GetFile(Package.Release, false, LocalRelease.Index, null, new DHIntegrity(Package.Release.Address.Hash), Seeker, flow);
 
 										var xindex = new Xon(findex.Read());
 

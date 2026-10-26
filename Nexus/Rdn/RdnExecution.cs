@@ -9,6 +9,7 @@ public class RdnExecution : Execution
 	public DomainNameExecution		DomainNames;
 	public DomainExecution			Domains;
 	public ResourceExecution		Resources;
+	public ReleaseExecution			Releases;
 	public NameExecution			UserNames;
 	public ResourceNameExecution	ResourceNames;
 
@@ -17,6 +18,7 @@ public class RdnExecution : Execution
 		DomainNames = new(this);
 		Domains = new(this);
 		Resources = new(this);
+		Releases = new(this);
 		UserNames = new(this);
 		ResourceNames = new(this);
 	}
@@ -39,6 +41,7 @@ public class RdnExecution : Execution
 		if(table == Mcv.DomainNames.Id)			return DomainNames;
 		if(table == Mcv.Domains.Id)				return Domains;
 		if(table == Mcv.Resources.Id)			return Resources;
+		if(table == Mcv.Releases.Id)			return Releases;
 		if(table == Mcv.UserNames.Id)			return UserNames;
 		if(table == Mcv.ResourceNames.Id)		return ResourceNames;
 
@@ -47,8 +50,9 @@ public class RdnExecution : Execution
 
 	public override IBaseTableEntry Affect(byte table, EntityId id)
 	{
-		if(Mcv.Domains.Id == table)			return Domains.Find(id as AutoId) != null ?		(IBaseTableEntry)Domains.Affect(id as AutoId) : null;
-		if(Mcv.Resources.Id == table)		return Resources.Find(id as AutoId) != null ?	(IBaseTableEntry)Resources.Affect(id as AutoId) : null;
+		if(Mcv.Domains.Id == table)			return Domains.Find(id as AutoId) != null ?		Domains.Affect(id as AutoId) : null;
+		if(Mcv.Resources.Id == table)		return Resources.Find(id as AutoId) != null ?	Resources.Affect(id as AutoId) : null;
+		if(Mcv.Releases.Id == table)		return Releases.Find(id as Urn) != null ?		Releases.Affect(id as Urn) : null;
 
 		return base.Affect(table, id);
 	}

@@ -11,6 +11,7 @@ public enum RdnTable : byte
 	DomainName,
 	Domain,
 	Resource, 
+	Release, 
 	UserName,
 	ResourceName,
 }
@@ -27,6 +28,7 @@ public class RdnMcv : Mcv
 	public DomainNameTable			DomainNames;
 	public DomainTable				Domains;
 	public ResourceTable			Resources;
+	public ReleaseTable				Releases;
 	public NameIndex				UserNames;
 	public ResourceNameIndex		ResourceNames;
 	Endpoint[]						GraphIPs;
@@ -69,10 +71,11 @@ public class RdnMcv : Mcv
 		DomainNames		= new (this);
 		Domains			= new (this);
 		Resources		= new (this);
+		Releases		= new (this);
 		UserNames		= new (this);
 		ResourceNames	= new (this);
 
-		Tables = [Metas, Users, Friends, DomainNames, Domains, Resources, UserNames, ResourceNames];
+		Tables = [Metas, Users, Friends, DomainNames, Domains, Resources, Releases, UserNames, ResourceNames];
 	}
 
 	protected override void GenesisInitilize(Round round)

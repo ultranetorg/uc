@@ -4,18 +4,20 @@ namespace Uccs.Rdn;
 
 public class RdnRound : Round
 {
-	public new RdnMcv															Mcv => base.Mcv as RdnMcv;
-	public TableState<StringId, DomainName, DomainNameTable>				DomainNames;
-	public TableState<AutoId, Domain, DomainTable>								Domains;
-	public TableState<AutoId, Resource, ResourceTable>							Resources;
-	public TableState<StringId, TextToEntity, ResourceNameIndex>				ResourceNames;
-	public TableState<StringId, TextToEntity, NameIndex>						UserNames;
+	public new RdnMcv												Mcv => base.Mcv as RdnMcv;
+	public TableState<StringId, DomainName, DomainNameTable>		DomainNames;
+	public TableState<AutoId, Domain, DomainTable>					Domains;
+	public TableState<AutoId, Resource, ResourceTable>				Resources;
+	public TableState<Urn, Release, ReleaseTable>					Releases;
+	public TableState<StringId, TextToEntity, ResourceNameIndex>	ResourceNames;
+	public TableState<StringId, TextToEntity, NameIndex>			UserNames;
 
 	public RdnRound(RdnMcv mcv) : base(mcv)
 	{
 		DomainNames	= new (mcv.DomainNames);
 		Domains			= new (mcv.Domains);
 		Resources		= new (mcv.Resources);
+		Releases		= new (mcv.Releases);
 		UserNames		= new (mcv.UserNames);
 		ResourceNames	= new (mcv.ResourceNames);
 	}
@@ -32,9 +34,10 @@ public class RdnRound : Round
 
 	public override System.Collections.IDictionary AffectedByTable(TableBase table)
 	{
-		if(table == Mcv.DomainNames)	return DomainNames.Affected;
+		if(table == Mcv.DomainNames)		return DomainNames.Affected;
 		if(table == Mcv.Domains)			return Domains.Affected;
 		if(table == Mcv.Resources)			return Resources.Affected;
+		if(table == Mcv.Releases)			return Releases.Affected;
 		if(table == Mcv.UserNames)			return UserNames.Affected;
 		if(table == Mcv.ResourceNames)		return ResourceNames.Affected;
 
@@ -48,15 +51,17 @@ public class RdnRound : Round
 		DomainNames.Affected.Clear();
 		Domains.Affected.Clear();
 		Resources.Affected.Clear();
+		Releases.Affected.Clear();
 		UserNames.Affected.Clear();
 		ResourceNames.Affected.Clear();
 	}
 
 	public override S FindState<S>(TableBase table)
 	{
-		if(table == Mcv.DomainNames)	return DomainNames as S;
+		if(table == Mcv.DomainNames)		return DomainNames as S;
 		if(table == Mcv.Domains)			return Domains as S;
 		if(table == Mcv.Resources)			return Resources as S;
+		if(table == Mcv.Releases)			return Releases as S;
 		if(table == Mcv.UserNames)			return UserNames as S;
 		if(table == Mcv.ResourceNames)		return ResourceNames as S;
 
@@ -72,6 +77,7 @@ public class RdnRound : Round
 		DomainNames.Absorb(e.DomainNames);
 		Domains.Absorb(e.Domains);
 		Resources.Absorb(e.Resources);
+		Releases.Absorb(e.Releases);
 		UserNames.Absorb(e.UserNames);
 		ResourceNames.Absorb(e.ResourceNames);
 	}

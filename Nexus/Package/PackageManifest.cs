@@ -21,6 +21,7 @@ public enum DependencyFlag : byte
 public class Dependency : IEquatable<Dependency>, IBinarySerializable
 {
 	public Ura				Address { get; set; }
+	public Urn				Name { get; set; }
 	public DependencyNeed	Need { get; set; }
 	public DependencyFlag	Flags { get; set; }
 
@@ -42,14 +43,16 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 
 	public void Read(Reader reader)
 	{
-		Address			= reader.Read<Ura>();
-		Need			= reader.Read<DependencyNeed>();
-		Flags			= reader.Read<DependencyFlag>();
+		Address		= reader.Read<Ura>();
+		Name		= reader.Read<Urn>();
+		Need		= reader.Read<DependencyNeed>();
+		Flags		= reader.Read<DependencyFlag>();
 	}
 	
 	public void Write(Writer writer)
 	{
 		writer.Write(Address);
+		writer.Write(Name);
 		writer.Write(Need);
 		writer.Write(Flags);
 	}
@@ -84,6 +87,7 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		var d = new Dependency();
 		
 		d.Address		= Ura.Parse(xon.Name);
+		d.Name			= xon.Parse(Urn.Parse);
 		d.Need			= Enum.Parse<DependencyNeed>(xon.Get<string>("Need"));
 		d.Flags			|= xon.Has(DependencyFlag.Merge.ToString()) ? DependencyFlag.Merge : DependencyFlag.None;
 		d.Flags			|= xon.Has(DependencyFlag.AutoUpdateAllowed.ToString()) ? DependencyFlag.AutoUpdateAllowed : DependencyFlag.None;
@@ -96,16 +100,7 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 		var x = new Xon(serializator);
 
 		x.Name = Address.ToString();
-// 
-// 		if(Dependencies.Any())
-// 		{
-// 			var d = x.Add(nameof(Dependencies));
-// 			
-// 			foreach(var i in Dependencies)
-// 			{
-// 				d.Nodes.Add(i.ToXon(serializator));
-// 			}
-// 		}
+		x.Value = Name?.ToString();
 
 		x.Add("Need").Value = Need;
 		

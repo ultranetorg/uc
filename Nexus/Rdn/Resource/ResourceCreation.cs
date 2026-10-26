@@ -58,9 +58,11 @@ public class ResourceCreation : RdnOperation
 
 		if(Changes.HasFlag(ResourceChanges.SetData))
 		{
-			r.Data		= Data;
-			r.Flags		|= ResourceFlags.Data;
-			r.Updated	= execution.Time;
+			UpdateReleasesIfRexInvolved(r.Data, Data, execution);
+
+			r.Data = Data;
+			r.Flags |= ResourceFlags.Data;
+			r.Updated = execution.Time;
 		}
 
 		if(Changes.HasFlag(ResourceChanges.Dependable))

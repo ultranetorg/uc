@@ -54,6 +54,31 @@ public abstract class RdnOperation : Operation
 		Execute(execution as RdnExecution);
 	}
 
+	protected void UpdateReleasesIfRexInvolved(ResourceData old, ResourceData @new, RdnExecution execution)
+	{
+		if(old != null && old.IsRexInvolved(out var urn))
+		{
+			var z = execution.Releases.Affect(urn);
+			z.Refs--;
+
+			if(z.Refs == 0)
+				z.Deleted = true;
+		}
+
+		if(@new.IsRexInvolved(out urn))
+		{
+			var z = execution.Releases.Find(urn);
+
+			if(z == null)
+				z = execution.Releases.Create(urn);
+			else
+				z = execution.Releases.Affect(urn);
+
+			z.Id = urn;
+			z.Refs++;
+		}
+	}
+
 	public bool RequireDomainName(RdnExecution execution, string name, out DomainName domainname)
 	{
 		domainname = execution.DomainNames.Find(name);
