@@ -1,6 +1,6 @@
 import { memo, ReactNode } from "react"
 
-import { ModeratorOptionsMenu, SoftwarePublicationLogo } from "ui/components/specific"
+import { PublicationDetailsThreeDotsMenu, SoftwarePublicationLogo } from "ui/components/specific"
 
 export type PublicationHeaderProps = {
   id?: string
@@ -13,7 +13,7 @@ export type PublicationHeaderProps = {
 export const PublicationHeader = memo(({ id, title, logoFileId, categories, components }: PublicationHeaderProps) => (
   <div className="flex items-center justify-between">
     <SoftwarePublicationLogo logoFileId={logoFileId} title={title} categories={categories} />
-    {id && <ModeratorOptionsMenu className="ml-auto" publicationId={id} publicationTitle={title} />}
+    {id && <PublicationDetailsThreeDotsMenu className="ml-auto" publicationId={id} publicationTitle={title} />}
     {components}
   </div>
 ))

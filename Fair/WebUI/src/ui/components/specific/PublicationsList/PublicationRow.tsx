@@ -6,7 +6,7 @@ import { SvgStarXxs } from "assets"
 import { SvgSoftwareLogo } from "assets/fallback"
 import { Publication, PublicationExtended } from "types"
 import { ImageFallback } from "ui/components"
-import { ModeratorPublicationContextMenu } from "ui/components/specific"
+import { PublicationCardContextThreeDotsMenu } from "ui/components/specific"
 import { buildFileUrl, formatAverageRating } from "utils"
 
 export type PublicationRowBaseProps = { showPublicationType?: boolean }
@@ -51,7 +51,7 @@ export const PublicationRow = memo(
         </span>
 
         {isModerator && (
-          <ModeratorPublicationContextMenu
+          <PublicationCardContextThreeDotsMenu
             publicationId={id}
             publicationTitle={title}
             size="large"

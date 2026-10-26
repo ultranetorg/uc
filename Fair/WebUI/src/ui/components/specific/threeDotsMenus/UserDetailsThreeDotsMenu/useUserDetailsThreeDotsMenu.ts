@@ -5,7 +5,7 @@ import { truncate } from "lodash"
 import { useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
-export const useModeratorUserMenuItems = (userId: string, userName?: string) => {
+export const useUserDetailsThreeDotsMenu = (userId: string, userName?: string) => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("moderatorUserMenu")
 

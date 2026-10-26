@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
 import { SvgChevronDown, SvgFolderSoftwareXl } from "assets"
-import { ModeratorCategoryContextMenu } from "ui/components/specific"
+import { CategoryTreeContextThreeDotsMenu } from "ui/components/specific"
 import { buildFileUrl, CategoryTreeItem, routes } from "utils"
 
 type CategoryTreeRootItemBaseProps = {
@@ -39,7 +39,11 @@ export const CategoryTreeRootItem = memo(
         <span className="min-w-0 flex-1 truncate" title={title}>
           {title}
         </span>
-        <ModeratorCategoryContextMenu categoryId={id} categoryTitle={title} className="invisible group-hover:visible" />
+        <CategoryTreeContextThreeDotsMenu
+          categoryId={id}
+          categoryTitle={title}
+          className="invisible group-hover:visible"
+        />
       </Link>
     )
   },

@@ -9,6 +9,8 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
+import { useTranslation } from "react-i18next"
+import { twMerge } from "tailwind-merge"
 
 import { useStoreRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
@@ -16,19 +18,21 @@ import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
 import { PropsWithClassName } from "types"
 
-import { useModeratorCategoryMenuItems } from "./useModeratorCategoryMenuItems"
+import { usePublicationCardContextThreeDotsMenu } from "./PublicationCardContextThreeDotsMenu"
 
-type ModeratorCategoryContextMenuBaseProps = {
-  categoryId: string
-  categoryTitle: string
+type PublicationDetailsThreeDotsMenuBaseProps = {
+  publicationId: string
+  publicationTitle?: string
 }
 
-export type ModeratorCategoryContextMenuProps = PropsWithClassName & ModeratorCategoryContextMenuBaseProps
+export type PublicationDetailsThreeDotsMenuProps = PropsWithClassName & PublicationDetailsThreeDotsMenuBaseProps
 
-export const ModeratorCategoryContextMenu = memo(
-  ({ className, categoryId, categoryTitle }: ModeratorCategoryContextMenuProps) => {
+export const PublicationDetailsThreeDotsMenu = memo(
+  ({ className, publicationId, publicationTitle }: PublicationDetailsThreeDotsMenuProps) => {
+    const { t } = useTranslation("moderatorOptionsMenu")
+
     const { isModerator } = useStoreRolesContext()
-    const { menuItems } = useModeratorCategoryMenuItems(categoryId, categoryTitle)
+    const { menuItems } = usePublicationCardContextThreeDotsMenu(publicationId, publicationTitle)
 
     const [isExpanded, setExpanded] = useState(false)
 
@@ -53,14 +57,22 @@ export const ModeratorCategoryContextMenu = memo(
 
     return (
       <>
-        <div className={className} ref={refs.setReference} {...getReferenceProps()}>
-          <SvgThreeDotsSm className="size-5 cursor-pointer rounded bg-white fill-gray-500 opacity-50 hover:fill-gray-800 hover:opacity-80" />
+        <div
+          className={twMerge(
+            "flex cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-3 py-2 hover:border-gray-400",
+            className,
+          )}
+          ref={refs.setReference}
+          {...getReferenceProps()}
+        >
+          <span className="text-2xs font-medium leading-4">{t("label")}</span>
+          <SvgThreeDotsSm className="size-6 fill-gray-800" />
         </div>
         {isExpanded && (
           <FloatingPortal>
             <SimpleMenu
+              menuItemClassName="w-44"
               ref={refs.setFloating}
-              menuItemClassName="w-auto"
               items={menuItems}
               style={floatingStyles}
               onClick={handleMenuClick}

@@ -5,7 +5,7 @@ import { Trans } from "react-i18next"
 import { SvgImageSlash } from "assets"
 import { CommentContextMenuProps, Slider, TagsList, TextModal } from "ui/components"
 import { Description, StoreLink, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
-import { CommentContextMenu, ReviewsList } from "ui/components/specific"
+import { CommentContextThreeDotsMenu, ReviewsList } from "ui/components/specific"
 
 import { ContentProps } from "../types"
 
@@ -104,7 +104,7 @@ export const GameSoftwarePublicationContent = memo(
     const commentContextMenu = useMemo(
       () => (props: CommentContextMenuProps) =>
         onEditReview ? (
-          <CommentContextMenu
+          <CommentContextThreeDotsMenu
             {...props}
             publicationId={productOrPublication.id}
             onEditReview={onEditReview}

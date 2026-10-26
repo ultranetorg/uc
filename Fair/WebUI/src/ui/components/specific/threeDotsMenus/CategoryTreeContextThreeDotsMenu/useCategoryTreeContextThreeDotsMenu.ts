@@ -6,7 +6,7 @@ import { truncate } from "lodash"
 import { useParams, useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
-export const useModeratorCategoryMenuItems = (categoryId: string, categoryTitle: string) => {
+export const useCategoryContextThreeDotsMenu = (categoryId: string, categoryTitle: string) => {
   const location = useLocation()
   const { t } = useTranslation("moderatorCategoryMenu")
   const { categoryId: paramCategoryId } = useParams()

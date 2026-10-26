@@ -16,18 +16,18 @@ import { useScrollOrResize } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
 
-import { useModeratorUserMenuItems } from "./useModeratorUserMenuItems"
+import { useUserDetailsThreeDotsMenu } from "./useUserDetailsThreeDotsMenu"
 
-type ModeratorUserMenuBaseProps = {
+type UserDetailsThreeDotsMenuBaseProps = {
   isModerator: boolean
   userId: string
   userName: string
 }
 
-export type ModeratorUserMenuProps = PropsWithClassName & ModeratorUserMenuBaseProps
+export type UserDetailsThreeDotsMenuProps = PropsWithClassName & UserDetailsThreeDotsMenuBaseProps
 
-export const ModeratorUserMenu = memo(({ isModerator, userId, userName }: ModeratorUserMenuProps) => {
-  const { menuItems } = useModeratorUserMenuItems(userId, userName)
+export const UserDetailsThreeDotsMenu = memo(({ isModerator, userId, userName }: UserDetailsThreeDotsMenuProps) => {
+  const { menuItems } = useUserDetailsThreeDotsMenu(userId, userName)
   const { user } = useUserContext()
 
   const [isExpanded, setExpanded] = useState(false)

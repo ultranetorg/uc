@@ -5,7 +5,7 @@ import { truncate } from "lodash"
 import { useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
-export const useModeratorPublicationMenuItems = (
+export const usePublicationCardContextThreeDotsMenu = (
   publicationId: string,
   publicationTitle?: string,
   isFromContextMenu: boolean = false,

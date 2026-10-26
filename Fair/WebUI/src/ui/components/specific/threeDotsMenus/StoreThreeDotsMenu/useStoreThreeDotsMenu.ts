@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom"
 import { SimpleMenuItem } from "ui/components"
 import { routes } from "utils"
 
-export const useCategoryCreationMenuItem = (storeId: string): SimpleMenuItem => {
+export const useStoreThreeDotsMenu = (storeId: string): SimpleMenuItem => {
   const location = useLocation()
   const { t } = useTranslation()
 

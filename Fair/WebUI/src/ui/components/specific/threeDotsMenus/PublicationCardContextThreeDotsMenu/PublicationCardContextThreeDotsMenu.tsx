@@ -16,21 +16,21 @@ import { useScrollOrResize } from "hooks"
 import { PropsWithClassName } from "types"
 import { SimpleMenu } from "ui/components"
 
-import { useModeratorPublicationMenuItems } from "./useModeratorPublicationMenuItems"
+import { usePublicationCardContextThreeDotsMenu } from "./usePublicationCardContextThreeDotsMenu"
 
 type ContextMenuButtonSize = "medium" | "large"
 
-type ModeratorPublicationContextMenuBaseProps = {
+type PublicationCardContextThreeDotsMenuBaseProps = {
   publicationId: string
   publicationTitle?: string
   size?: ContextMenuButtonSize
 }
 
-export type ModeratorPublicationContextMenuProps = PropsWithClassName & ModeratorPublicationContextMenuBaseProps
+export type PublicationCardContextThreeDotsMenuProps = PropsWithClassName & PublicationCardContextThreeDotsMenuBaseProps
 
-export const ModeratorPublicationContextMenu = memo(
-  ({ className, publicationId, publicationTitle, size = "medium" }: ModeratorPublicationContextMenuProps) => {
-    const { menuItems } = useModeratorPublicationMenuItems(publicationId, publicationTitle, true)
+export const PublicationCardContextThreeDotsMenu = memo(
+  ({ className, publicationId, publicationTitle, size = "medium" }: PublicationCardContextThreeDotsMenuProps) => {
+    const { menuItems } = usePublicationCardContextThreeDotsMenu(publicationId, publicationTitle, true)
 
     const [isExpanded, setExpanded] = useState(false)
 

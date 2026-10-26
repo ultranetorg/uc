@@ -6,7 +6,7 @@ import avatarFallback from "assets/fallback/user-30.png"
 import { REVIEWS_PAGE_SIZE } from "config"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback, Pagination } from "ui/components"
-import { ModeratorUserMenu } from "ui/components/specific"
+import { UserDetailsThreeDotsMenu } from "ui/components/specific"
 import { buildUserAvatarByIdUrl, formatRole, isUserModerator, isUserPublisher } from "utils"
 
 import { ReviewsList } from "./ReviewsList"
@@ -41,7 +41,7 @@ export const UserDetailsView = memo(
           <div className="relative h-57.5">
             <div className="relative h-42.5 bg-gray-500">
               <div className="absolute right-6 top-6">
-                <ModeratorUserMenu isModerator={isModerator} userId={user.id} userName={user.name} />
+                <UserDetailsThreeDotsMenu isModerator={isModerator} userId={user.id} userName={user.name} />
               </div>
             </div>
             <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">

@@ -5,7 +5,7 @@ import { useStoreRolesContext } from "app"
 import { SvgStarXxs } from "assets"
 import { SvgSoftwareLogo } from "assets/fallback"
 import { ImageFallback } from "ui/components"
-import { ModeratorPublicationContextMenu } from "ui/components/specific"
+import { PublicationCardContextThreeDotsMenu } from "ui/components/specific"
 import { buildFileUrl, formatAverageRating } from "utils"
 
 import { PublicationCardProps } from "./types"
@@ -41,7 +41,7 @@ export const DefaultPublicationCard = memo(
           </span>
         )}
         {isModerator && (
-          <ModeratorPublicationContextMenu
+          <PublicationCardContextThreeDotsMenu
             publicationId={id}
             publicationTitle={title}
             className="absolute right-1 top-1"

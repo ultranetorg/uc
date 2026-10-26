@@ -7,15 +7,15 @@ import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize, useSubmenu } from "hooks"
 import { SimpleMenu } from "ui/components"
 
-import { useModeratorCategoryMenuItems } from "./useModeratorCategoryMenuItems"
+import { useCategoryContextThreeDotsMenu } from "./CategoryTreeContextThreeDotsMenu"
 
-export type ModeratorCategoryMenuProps = {
+export type CategoryThreeDotsMenuProps = {
   categoryId: string
   categoryTitle: string
 }
 
-export const ModeratorCategoryMenu = memo(({ categoryId, categoryTitle }: ModeratorCategoryMenuProps) => {
-  const { menuItems } = useModeratorCategoryMenuItems(categoryId, categoryTitle)
+export const CategoryThreeDotsMenu = memo(({ categoryId, categoryTitle }: CategoryThreeDotsMenuProps) => {
+  const { menuItems } = useCategoryContextThreeDotsMenu(categoryId, categoryTitle)
   const { isModerator } = useStoreRolesContext()
 
   const menu = useSubmenu({ placement: "bottom-end" })

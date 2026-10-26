@@ -2,7 +2,7 @@ import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Category } from "types"
-import { ModeratorCategoryMenu, ToggleViewButton, ViewType } from "ui/components/specific"
+import { CategoryThreeDotsMenu, ToggleViewButton, ViewType } from "ui/components/specific"
 import { formatTitle } from "utils"
 
 export type CategoryHeaderProps = {
@@ -28,7 +28,7 @@ export const CategoryHeader = memo(({ category, view, onViewChange }: CategoryHe
           {/* <Pagination onPageChange={page => console.log(page)} page={1} pagesCount={3} /> */}
           {/* <FiltersDropdownButton label={t("filters")} /> */}
           <ToggleViewButton onChange={onViewChange} view={view} gridTitle={t("grid")} listTitle={t("list")} />
-          <ModeratorCategoryMenu categoryId={category.id} categoryTitle={category.title} />
+          <CategoryThreeDotsMenu categoryId={category.id} categoryTitle={category.title} />
         </div>
       </div>
     </div>

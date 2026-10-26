@@ -18,23 +18,31 @@ import { useResolveStoreId, useScrollOrResize } from "hooks"
 import { CommentContextMenuProps, SimpleMenu, SimpleMenuItem } from "ui/components"
 import { routes } from "utils"
 
-import { useModeratorUserMenuItems } from "./ModeratorUserMenu/useModeratorUserMenuItems"
+import { useUserDetailsThreeDotsMenu } from "./UserDetailsThreeDotsMenu"
 
 type CommentContextMenuBaseProps = {
   onEditReview: (id: string, text: string) => void
   onDeleteReview: (id: string, text: string) => void
 }
 
-export type CommentContextMenu = CommentContextMenuProps & CommentContextMenuBaseProps
+export type CommentContextThreeDotsMenu = CommentContextMenuProps & CommentContextMenuBaseProps
 
-export const CommentContextMenu = memo(
-  ({ id, publicationId, text, reviewerId, reviewerName, onEditReview, onDeleteReview }: CommentContextMenu) => {
+export const CommentContextThreeDotsMenu = memo(
+  ({
+    id,
+    publicationId,
+    text,
+    reviewerId,
+    reviewerName,
+    onEditReview,
+    onDeleteReview,
+  }: CommentContextThreeDotsMenu) => {
     const { t } = useTranslation("commentContextMenu")
 
     const storeId = useResolveStoreId()
     const { isModerator } = useStoreRolesContext()
     const { user } = useUserContext()
-    const { menuItems: moderatorMenuItems } = useModeratorUserMenuItems(reviewerId, reviewerName)
+    const { menuItems: moderatorMenuItems } = useUserDetailsThreeDotsMenu(reviewerId, reviewerName)
 
     const [isExpanded, setExpanded] = useState(false)
 
