@@ -42,7 +42,7 @@ export const CommentContextThreeDotsMenu = memo(
     const storeId = useResolveStoreId()
     const { isModerator } = useStoreRolesContext()
     const { user } = useUserContext()
-    const { menuItems: moderatorMenuItems } = useUserDetailsThreeDotsMenu(reviewerId, reviewerName)
+    const moderatorMenuItems = useUserDetailsThreeDotsMenu(reviewerId, reviewerName)
 
     const [isExpanded, setExpanded] = useState(false)
 

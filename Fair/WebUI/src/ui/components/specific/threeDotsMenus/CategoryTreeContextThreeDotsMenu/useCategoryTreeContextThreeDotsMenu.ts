@@ -18,7 +18,7 @@ export const useCategoryContextThreeDotsMenu = (categoryId: string, categoryTitl
         label: t("moderatorCategoryMenu:avatarChange"),
         to: routes.moderation.createProposal(storeId!),
         state: {
-          title: `Change category "${truncate(categoryTitle, { length: 39 })}" avatar`,
+          title: truncate(`Change category "${categoryTitle}" avatar`, { length: 64 }),
           type: "category-avatar-change",
           categoryId,
           parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId!), title: t("common:proposals") }],
@@ -30,7 +30,7 @@ export const useCategoryContextThreeDotsMenu = (categoryId: string, categoryTitl
         label: t("moderatorCategoryMenu:typeChange"),
         to: routes.moderation.createProposal(storeId!),
         state: {
-          title: `Change category "${truncate(categoryTitle, { length: 41 })}" type`,
+          title: truncate(`Change category "${categoryTitle}" type`, { length: 64 }),
           type: "category-type-change",
           categoryId,
           parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId!), title: t("common:proposals") }],
@@ -42,7 +42,7 @@ export const useCategoryContextThreeDotsMenu = (categoryId: string, categoryTitl
         label: t("moderatorCategoryMenu:move"),
         to: routes.moderation.createProposal(storeId!),
         state: {
-          title: `Move "${truncate(categoryTitle, { length: 48 })}" category`,
+          title: truncate(`Move "${categoryTitle}" category`, { length: 64 }),
           type: "category-movement",
           categoryId,
           parentBreadcrumbs: [
@@ -75,7 +75,7 @@ export const useCategoryContextThreeDotsMenu = (categoryId: string, categoryTitl
         label: t("moderatorCategoryMenu:remove"),
         to: routes.moderation.createProposal(storeId!),
         state: {
-          title: `Remove category "${truncate(categoryTitle, { length: 46 })}"`,
+          title: truncate(`Remove category "${categoryTitle}"`, { length: 64 }),
           type: "category-deletion",
           categoryId,
           parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId!), title: t("common:proposals") }],
@@ -87,5 +87,5 @@ export const useCategoryContextThreeDotsMenu = (categoryId: string, categoryTitl
     [t, storeId, categoryTitle, categoryId, location.pathname, paramCategoryId],
   )
 
-  return { menuItems }
+  return menuItems
 }

@@ -15,7 +15,7 @@ export type CategoryThreeDotsMenuProps = {
 }
 
 export const CategoryThreeDotsMenu = memo(({ categoryId, categoryTitle }: CategoryThreeDotsMenuProps) => {
-  const { menuItems } = useCategoryContextThreeDotsMenu(categoryId, categoryTitle)
+  const menuItems = useCategoryContextThreeDotsMenu(categoryId, categoryTitle)
   const { isModerator } = useStoreRolesContext()
 
   const menu = useSubmenu({ placement: "bottom-end" })

@@ -32,7 +32,7 @@ export const PublicationDetailsThreeDotsMenu = memo(
     const { t } = useTranslation("moderatorOptionsMenu")
 
     const { isModerator } = useStoreRolesContext()
-    const { menuItems } = usePublicationCardContextThreeDotsMenu(publicationId, publicationTitle)
+    const menuItems = usePublicationCardContextThreeDotsMenu(publicationId, publicationTitle)
 
     const [isExpanded, setExpanded] = useState(false)
 

@@ -15,7 +15,7 @@ export const useUserDetailsThreeDotsMenu = (userId: string, userName?: string) =
         label: t("unregisterUser"),
         to: routes.moderation.createProposal(storeId!),
         state: {
-          title: `Unregister user "${truncate(`${userName} (${userId})`, { length: 46 })}"`,
+          title: truncate(`Unregister user "${userName} (${userId})"`, { length: 64 }),
           type: "user-unregistration",
           userId,
           parentBreadcrumbs: [
@@ -30,5 +30,5 @@ export const useUserDetailsThreeDotsMenu = (userId: string, userName?: string) =
     [storeId, t, userId, userName],
   )
 
-  return { menuItems }
+  return menuItems
 }

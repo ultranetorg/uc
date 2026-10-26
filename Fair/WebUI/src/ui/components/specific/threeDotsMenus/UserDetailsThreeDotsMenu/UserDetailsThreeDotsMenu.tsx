@@ -27,7 +27,7 @@ type UserDetailsThreeDotsMenuBaseProps = {
 export type UserDetailsThreeDotsMenuProps = PropsWithClassName & UserDetailsThreeDotsMenuBaseProps
 
 export const UserDetailsThreeDotsMenu = memo(({ isModerator, userId, userName }: UserDetailsThreeDotsMenuProps) => {
-  const { menuItems } = useUserDetailsThreeDotsMenu(userId, userName)
+  const menuItems = useUserDetailsThreeDotsMenu(userId, userName)
   const { user } = useUserContext()
 
   const [isExpanded, setExpanded] = useState(false)

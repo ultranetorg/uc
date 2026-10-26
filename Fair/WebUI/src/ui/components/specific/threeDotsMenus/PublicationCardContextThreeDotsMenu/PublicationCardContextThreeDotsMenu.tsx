@@ -30,7 +30,7 @@ export type PublicationCardContextThreeDotsMenuProps = PropsWithClassName & Publ
 
 export const PublicationCardContextThreeDotsMenu = memo(
   ({ className, publicationId, publicationTitle, size = "medium" }: PublicationCardContextThreeDotsMenuProps) => {
-    const { menuItems } = usePublicationCardContextThreeDotsMenu(publicationId, publicationTitle, true)
+    const menuItems = usePublicationCardContextThreeDotsMenu(publicationId, publicationTitle, true)
 
     const [isExpanded, setExpanded] = useState(false)
 

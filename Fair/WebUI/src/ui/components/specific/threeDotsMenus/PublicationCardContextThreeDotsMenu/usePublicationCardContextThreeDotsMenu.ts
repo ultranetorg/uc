@@ -20,7 +20,7 @@ export const usePublicationCardContextThreeDotsMenu = (
         to: routes.moderation.createProposal(storeId!),
         state: {
           title: publicationTitle
-            ? `Unpublish publication "${truncate(publicationTitle, { length: 40 })}"`
+            ? truncate(`Unpublish publication "${publicationTitle}"`, { length: 64 })
             : "Unpublish publication",
           type: "publication-unpublish",
           publicationId,
@@ -38,7 +38,7 @@ export const usePublicationCardContextThreeDotsMenu = (
         to: routes.moderation.createProposal(storeId!),
         state: {
           title: publicationTitle
-            ? `Remove publication "${truncate(publicationTitle, { length: 43 })}"`
+            ? truncate(`Remove publication "${publicationTitle}"`, { length: 64 })
             : "Remove publication",
           type: "publication-deletion",
           publicationId,
@@ -54,5 +54,5 @@ export const usePublicationCardContextThreeDotsMenu = (
     [isFromContextMenu, publicationId, publicationTitle, storeId, t],
   )
 
-  return { menuItems }
+  return menuItems
 }

@@ -28,7 +28,7 @@ export type CategoryTreeContextThreeDotsMenuProps = PropsWithClassName & Categor
 export const CategoryTreeContextThreeDotsMenu = memo(
   ({ className, categoryId, categoryTitle }: CategoryTreeContextThreeDotsMenuProps) => {
     const { isModerator } = useStoreRolesContext()
-    const { menuItems } = useCategoryContextThreeDotsMenu(categoryId, categoryTitle)
+    const menuItems = useCategoryContextThreeDotsMenu(categoryId, categoryTitle)
 
     const [isExpanded, setExpanded] = useState(false)
 
