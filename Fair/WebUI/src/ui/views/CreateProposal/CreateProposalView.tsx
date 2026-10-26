@@ -36,7 +36,7 @@ export const CreateProposalView = memo(() => {
   const { invalidateOperation, invalidateProposal } = useInvalidation()
   const { t } = useTranslation("createProposal")
 
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { store } = useStoreContext()
   const { user } = useUserContext()
 

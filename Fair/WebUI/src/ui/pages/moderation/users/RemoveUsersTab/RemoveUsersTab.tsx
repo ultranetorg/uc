@@ -15,10 +15,10 @@ import { getRemoveUsersTabItemRenderer } from "./removeUsersTabItemRenderer"
 
 export const UsersRemovalsTab = () => {
   const storeId = useResolveStoreId()
-  const approval = useApprovalIdentityForOperation("user-registration")
+  const approval = useApprovalIdentityForOperation("user-unregistration")
   const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -97,7 +97,7 @@ export const UsersRemovalsTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getRemoveUsersTabItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval!.id),
+    () => getRemoveUsersTabItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval?.id),
     [approval, handleApprove, handleReject, loadingItem, t, votesRequired],
   )
 

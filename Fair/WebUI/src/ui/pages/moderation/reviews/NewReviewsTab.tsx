@@ -19,7 +19,7 @@ export const NewReviewsTab = () => {
 
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { t } = useTranslation("reviewsPage")
 
   useStoreTitle(store?.title, "Reviews")

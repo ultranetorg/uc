@@ -14,7 +14,7 @@ interface ApprovalIdentity {
 
 export const useApprovalIdentityForOperation = (operation?: OperationType): ApprovalIdentity | undefined => {
   const { isModerator, isPublisher } = useStoreRolesContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { user } = useUserContext()
 
   return useMemo<ApprovalIdentity | undefined>(() => {

@@ -7,15 +7,18 @@ import { TableRow } from "./TableRow"
 
 export type TableBodyProps = Pick<
   TableProps,
-  "columns" | "emptyState" | "items" | "tableBodyClassName" | "itemRenderer" | "onRowClick"
+  "columns" | "emptyState" | "items" | "tableBodyClassName" | "itemRenderer" | "onRowClick" | "isRowClickable"
 >
 
 export const TableBody = memo(
-  ({ columns, emptyState, items, tableBodyClassName, itemRenderer, onRowClick }: TableBodyProps) => (
+  ({ columns, emptyState, items, tableBodyClassName, itemRenderer, onRowClick, isRowClickable }: TableBodyProps) => (
     <tbody className={tableBodyClassName}>
       {items && items.length > 0 ? (
         items.map(item => (
-          <TableRow key={item.id} onClick={onRowClick ? () => onRowClick?.(item.id) : undefined}>
+          <TableRow
+            key={item.id}
+            onClick={onRowClick && (!isRowClickable || isRowClickable(item)) ? () => onRowClick(item.id) : undefined}
+          >
             {columns.map(column => {
               const value = get(item, column.accessor)
               const renderedValue = itemRenderer && itemRenderer(item, column)

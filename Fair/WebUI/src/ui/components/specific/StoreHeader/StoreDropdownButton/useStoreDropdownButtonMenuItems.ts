@@ -39,7 +39,7 @@ const reviewsOperations: OperationType[] = ["review-creation", "review-edit", "r
 
 export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem[] => {
   const { t } = useTranslation("storeDropdownMenu")
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { store } = useStoreContext()
   const { isPublisher, isModerator } = useStoreRolesContext()
 

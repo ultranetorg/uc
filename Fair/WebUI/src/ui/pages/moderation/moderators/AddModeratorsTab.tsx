@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { TFunction } from "i18next"
 import { isNumber } from "lodash"
 
-import { useStoreContext } from "app"
+import { useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
@@ -12,7 +12,7 @@ import { ModeratorProposal } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import { renderUser, renderUsersList } from "ui/renderers2"
 import { renderActionShort, renderCommon } from "ui/renderers/utils"
-import { calculateVotesRequiredToWinSurvey, parseInteger, routes } from "utils"
+import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
 
 const getModeratorsProposalsItemRenderer =
   (t: TFunction, votesRequired?: number) =>
@@ -31,11 +31,13 @@ const getModeratorsProposalsItemRenderer =
     return renderCommon(t, column, proposal, votesRequired)
   }
 
-export const ModeratorProposalsTab = () => {
-  const storeId = useResolveStoreId()
+export const AddModeratorsTab = () => {
   const navigate = useNavigate()
-  const { store } = useStoreContext()
   const { t } = useTranslation("moderatorsProposalsTab")
+
+  const storeId = useResolveStoreId()
+  const { store } = useStoreContext()
+  const policies = useStorePoliciesContext()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -65,7 +67,10 @@ export const ModeratorProposalsTab = () => {
     [t],
   )
 
-  const votesRequired = useMemo(() => calculateVotesRequiredToWinSurvey(store), [store])
+  const votesRequired = useMemo(
+    () => calculateVotesRequiredToWinProposal("store-moderator-addition", store, policies),
+    [policies, store],
+  )
 
   const itemRenderer = useMemo(() => getModeratorsProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 

@@ -24,4 +24,5 @@ export type TableProps = {
   tableBodyClassName?: string
   itemRenderer?: TableItemRenderer
   onRowClick?: (id: string) => void
+  isRowClickable?: (item: TableItem) => boolean
 }

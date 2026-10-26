@@ -16,7 +16,7 @@ export const PublishersProposalsTab = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { t } = useTranslation("publishersProposalsTab")
 
   const [state, setState] = useUrlParamsState({

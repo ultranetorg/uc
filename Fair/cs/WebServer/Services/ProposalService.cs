@@ -72,14 +72,14 @@ public class ProposalService
 	public TotalItemsResult<ProposalModel> GetReferendums([NotEmpty][NotNull] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string search, CancellationToken cancellationToken) =>
 		GetProposals(storeId, false, page, pageSize, search, cancellationToken);
 
-	TotalItemsResult<ProposalModel> GetProposals(string storeId, bool discussionOrReferendums, int page, int pageSize, string? search, CancellationToken cancellationToken)
+	TotalItemsResult<ProposalModel> GetProposals(string storeId, bool isDiscussion, int page, int pageSize, string? search, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
 #if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {DiscussionOrReferendums}, {Page}, {PageSize}, {Search}", nameof(ProposalService), nameof(ProposalService.GetProposals), storeId, discussionOrReferendums, page, pageSize, search);
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {IsDiscussion}, {Page}, {PageSize}, {Search}", nameof(ProposalService), nameof(ProposalService.GetProposals), storeId, isDiscussion, page, pageSize, search);
 #endif
 
 		AutoId storeEntityId = AutoId.Parse(storeId);
@@ -90,11 +90,11 @@ public class ProposalService
 			throw new EntityNotFoundException(nameof(Store).ToLower(), storeId);
 		}
 
-		return LoadProposalsOrReferendumsPaged(store, discussionOrReferendums, page, pageSize, search, cancellationToken);
+		return LoadProposalsOrReferendumsPaged(store, isDiscussion, page, pageSize, search, cancellationToken);
 	}
 
-	/// <param name="discussionsOrReferendums">`true` for Proposal, `false` for Referendum</param>
-	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Store store, bool discussionsOrReferendums, int page, int pageSize, string search, CancellationToken cancellationToken)
+	/// <param name="isDiscussion">`true` for Proposal, `false` for Referendum</param>
+	TotalItemsResult<ProposalModel> LoadProposalsOrReferendumsPaged(Store store, bool isDiscussion, int page, int pageSize, string search, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return TotalItemsResult<ProposalModel>.Empty;
@@ -110,9 +110,12 @@ public class ProposalService
 
 			Proposal proposal = mcv.Proposals.Latest(proposalId);
 
-			if (discussionsOrReferendums != ProposalUtils.IsDiscussion(store, proposal) ||
-				ProposalUtils.IsReviewCreationOrEditOperation(proposal) || ProposalUtils.IsPublicationOperation(proposal) || ProposalUtils.IsUserRegistrationOperation(proposal) ||
-				ProposalUtils.IsUserUnregistrationOperation(proposal) || ProposalUtils.IsModeratorOperation(proposal) || ProposalUtils.IsPublisherOperation(proposal))
+			if (isDiscussion != ProposalUtils.IsDiscussion(store, proposal) ||
+				ProposalUtils.IsReviewCreationOrEditOperation(proposal) || ProposalUtils.IsReviewDeletionOperation(proposal) ||
+				ProposalUtils.IsPublicationOperation(proposal) ||
+				ProposalUtils.IsUserRegistrationOperation(proposal) || ProposalUtils.IsUserUnregistrationOperation(proposal) ||
+				ProposalUtils.IsModeratorOperation(proposal) ||
+				ProposalUtils.IsPublisherOperation(proposal))
 			{
 				continue;
 			}

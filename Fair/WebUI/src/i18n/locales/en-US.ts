@@ -636,7 +636,7 @@ export const enUS = {
     "store-moderator-addition": "Add Store Moderators",
     "store-moderator-removal": "Remove Store Moderator",
     "store-renaming": "Rename Store",
-    "store-info-updation": "Update Store information",
+    "store-info-updation": "Update Store Information",
     "user-registration": "Register User",
     "user-unregistration": "Unregister User",
   },

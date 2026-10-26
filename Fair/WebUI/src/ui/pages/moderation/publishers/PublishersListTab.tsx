@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { useDebounceValue } from "usehooks-ts"
 import { isNumber, truncate } from "lodash"
 
-import { useOperationPolicy } from "app"
+import { useStorePoliciesContext, useStoreRolesContext } from "app"
 import { SvgSearchMd, SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
 import { useGetStorePublishers } from "entities"
@@ -13,7 +13,7 @@ import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Publisher } from "types"
 import { ButtonPrimary, TableColumn, TableItem, Input, Pagination, Table, TableEmptyState } from "ui/components"
 import { renderAuthor } from "ui/renderers/utils"
-import { parseInteger, routes } from "utils"
+import { isModeratorCanCreate, isPublisherCanCreate, parseInteger, routes } from "utils"
 
 const getPublishersTabItemRenderer =
   (t: TFunction, storeId: string, pathname: string) =>
@@ -51,10 +51,17 @@ const getPublishersTabItemRenderer =
     }
   }
 
-export const PublishersTab = () => {
-  const storeId = useResolveStoreId()
-  const { voterId } = useOperationPolicy("store-authors-removal")
+export const PublishersListTab = () => {
   const { t } = useTranslation("publishersPage")
+
+  const policies = useStorePoliciesContext()
+  const { isModerator, isPublisher } = useStoreRolesContext()
+
+  const canRemovePublisher =
+    (isPublisher && isPublisherCanCreate("store-authors-removal", policies)) ||
+    (isModerator && isModeratorCanCreate("store-authors-removal", policies))
+
+  const storeId = useResolveStoreId()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -79,7 +86,7 @@ export const PublishersTab = () => {
     () => [
       { accessor: "author", label: t("common:author"), type: "author", className: "w-[45%]" },
       { accessor: "bannedTill", label: t("bannedTill"), type: "banned", className: "w-[40%]" },
-      ...(voterId
+      ...(canRemovePublisher
         ? [
             {
               accessor: "actions",
@@ -90,7 +97,7 @@ export const PublishersTab = () => {
           ]
         : []),
     ],
-    [t, voterId],
+    [t, canRemovePublisher],
   )
 
   const itemRenderer = useMemo(() => getPublishersTabItemRenderer(t, storeId!, location.pathname), [storeId, t])

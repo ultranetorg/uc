@@ -9,9 +9,9 @@ import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from 
 
 import { isModeratorCanCreate, isPublisherCanCreate, routes } from "utils"
 
-import { ModeratorProposalsTab } from "./ModeratorProposalsTab"
-import { ModeratorRemovalsTab } from "./ModeratorRemovalsTab"
+import { AddModeratorsTab } from "./AddModeratorsTab"
 import { ModeratorsTab } from "./ModeratorsTab"
+import { RemoveModeratorsTab } from "./RemoveModeratorsTab"
 
 const routeToTabKey: Record<string, string> = {
   moderators: "moderators",
@@ -24,7 +24,7 @@ export const ModeratorsPage = () => {
   const { tabKey } = useParams()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
   const { t } = useTranslation("moderatorsPage")
 
@@ -88,10 +88,10 @@ export const ModeratorsPage = () => {
             <ModeratorsTab />
           </TabContent>
           <TabContent when="removals">
-            <ModeratorRemovalsTab />
+            <RemoveModeratorsTab />
           </TabContent>
           <TabContent when="additions">
-            <ModeratorProposalsTab />
+            <AddModeratorsTab />
           </TabContent>
         </div>
       </TabsProvider>

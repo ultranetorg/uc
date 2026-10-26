@@ -53,7 +53,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
   const approval = useApprovalIdentityForOperation(proposal?.operation)
   const storeId = useResolveStoreId()
   const { startSignIn } = useSignInContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { mutate } = useTransactMutationWithStatus()
 
   const isReferendum = isReferendum_(proposal?.operation, policies)

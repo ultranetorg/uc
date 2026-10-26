@@ -29,7 +29,7 @@ export const useStoreChangeMenuItems = (
   { isModerator, isPublisher }: UseStoreChangeMenuItemsOptions = {},
 ): SimpleMenuItem[] => {
   const location = useLocation()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { t } = useTranslation("storeDropdownMenu")
 
   return useMemo(

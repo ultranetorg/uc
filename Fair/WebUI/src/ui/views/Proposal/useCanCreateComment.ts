@@ -8,7 +8,7 @@ import { isReferendum } from "utils"
  * @returns `true` if current user can create comment, otherwise `false`.
  */
 export const useCanCreateComment = (operation?: OperationType) => {
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
 
   return isModerator || (isPublisher && isReferendum(operation, policies))

@@ -13,7 +13,7 @@ type UseOperationVoterIdentityResult = {
 
 export const useOperationVoterIdentity = (operation?: OperationType): UseOperationVoterIdentityResult | undefined => {
   const { isModerator, isPublisher } = useStoreRolesContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { user } = useUserContext()
 
   return useMemo<UseOperationVoterIdentityResult | undefined>(() => {

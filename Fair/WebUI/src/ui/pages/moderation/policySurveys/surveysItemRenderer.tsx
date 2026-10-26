@@ -30,19 +30,25 @@ export const surveysItemRenderer =
   (item: TableItem, column: TableColumn): ReactNode => {
     const survey = item as Survey
 
-    switch (column.type) {
-      case "operation": {
-        const operation = getOperation(survey, 0)
-        if (!operation) return undefined
+    if (column.type === "operation") {
+      const operation = getOperation(survey, 0)
+      if (!operation) return undefined
 
-        return t(`operations:${operation.operation}`)
-      }
+      return t(`operations:${operation.operation}`)
+    }
+    if (column.type === "voted-approval") {
+      return getVotedApproval(t, survey, policies)
+    }
 
-      case "voted-approval": {
-        return getVotedApproval(t, survey, policies)
-      }
-
-      case "win-percentage":
-        return survey.lastWin !== -1 ? formatPercents(survey.options[survey.lastWin].votePercents) : ""
+    if (column.accessor === "totalVotes") {
+      return survey.isVariableApproval ? survey.totalVotes : ""
+    }
+    if (column.accessor === "votesRequiredToWin") {
+      return survey.isVariableApproval ? survey.votesRequiredToWin : ""
+    }
+    if (column.type === "win-percentage") {
+      return survey.lastWin !== -1 && survey.isVariableApproval
+        ? formatPercents(survey.options[survey.lastWin].votePercents)
+        : ""
     }
   }

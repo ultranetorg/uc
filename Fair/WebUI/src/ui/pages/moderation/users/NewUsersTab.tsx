@@ -17,7 +17,7 @@ export const NewUsersTab = () => {
   const approval = useApprovalIdentityForOperation("user-registration")
   const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({

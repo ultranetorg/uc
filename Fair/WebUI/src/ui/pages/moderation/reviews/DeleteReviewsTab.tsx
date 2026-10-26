@@ -17,7 +17,7 @@ export const DeleteReviewsTab = () => {
   const voter = useOperationVoterIdentity("review-deletion")
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
-  const { policies } = useStorePoliciesContext()
+  const policies = useStorePoliciesContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
   const { t } = useTranslation("reviewsPage")
 

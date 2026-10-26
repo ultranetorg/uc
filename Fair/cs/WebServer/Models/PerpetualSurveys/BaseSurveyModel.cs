@@ -9,4 +9,6 @@ public abstract class BaseSurveyModel<T> where T : SurveyOptionModel
 
 	public int TotalVotes { get; init; }
 	public int VotesRequiredToWin { get; init; }
+
+	public bool IsVariableApproval { get; init; }
 }
