@@ -288,6 +288,9 @@ export const enUS = {
     grid: "Grid View",
     list: "List View",
   },
+  changedPublicationPage: {
+    updatePublication: "Update publication",
+  },
   createPublicationPage: {
     productNotFound: "We didn’t find anything. Try a different or shorter search.",
     productHasNoField: "Specified product has no fields.",
@@ -308,8 +311,6 @@ export const enUS = {
     title: "Explore Multiple\nDecentralized Stores",
   },
   moderation: {
-    createDiscussion: "Create discussion",
-    discussions: "Discussions",
     reviews: "Reviews",
     title: "Moderation",
     userRegistrations: "User registrations",

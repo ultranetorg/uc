@@ -20,6 +20,10 @@ export const ThreeDotsMenu = memo(({ className, items }: ThreeDotsMenuProps) => 
 
   const handleMenuClick = useCallback(() => menu.setOpen(false), [menu])
 
+  if (items.length === 0) {
+    return null
+  }
+
   return (
     <>
       <div

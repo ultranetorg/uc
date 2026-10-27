@@ -6,13 +6,13 @@ import { proposalsKeys } from "./proposalsKeys"
 
 const api = getFairApi()
 
-export const useGetProposalDetails = (storeId?: string, discussionId?: string) => {
-  const queryFn = () => api.getProposalDetails(storeId!, discussionId!)
+export const useGetProposalDetails = (storeId?: string, proposalId?: string) => {
+  const queryFn = () => api.getProposalDetails(storeId!, proposalId!)
 
   const { isFetching, error, data } = useQuery({
-    queryKey: proposalsKeys.detail(storeId!, discussionId!),
+    queryKey: proposalsKeys.detail(storeId!, proposalId!),
     queryFn: queryFn,
-    enabled: !!storeId && !!discussionId,
+    enabled: !!storeId && !!proposalId,
   })
 
   return { isFetching, error: error ?? undefined, data }

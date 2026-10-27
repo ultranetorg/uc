@@ -2,8 +2,8 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { useOperationPolicy, useStoreContext } from "app"
-import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { useStoreContext } from "app"
+import { useIsOperationVisibleForCreator, useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
@@ -20,11 +20,12 @@ const routeToTabKey: Record<string, string> = {
 
 export const PublicationsPage = () => {
   const navigate = useNavigate()
-  const { voterId } = useOperationPolicy("publication-creation")
   const { tabKey } = useParams()
+  const { t } = useTranslation("publicationsPage")
+
+  const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
-  const { t } = useTranslation("publicationsPage")
 
   useStoreTitle(store?.title, "Publications")
 
@@ -55,7 +56,9 @@ export const PublicationsPage = () => {
         title={t("title")}
         components={
           <>
-            {!!voterId && <ButtonPrimary className="w-48" label={t("searchProduct")} onClick={handleSearchProduct} />}
+            {isOperationVisibleForCreator("publication-creation") && (
+              <ButtonPrimary className="w-48" label={t("searchProduct")} onClick={handleSearchProduct} />
+            )}
           </>
         }
         showModeratorsCount={true}

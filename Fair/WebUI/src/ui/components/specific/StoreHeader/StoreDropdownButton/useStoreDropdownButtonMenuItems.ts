@@ -1,18 +1,11 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
-import { useStoreChangeMenuItems } from "hooks"
+import { useStoreRolesContext } from "app"
+import { useIsOperationVisibleForStaff, useStoreChangeMenuItems } from "hooks"
 import { OperationType } from "types"
 import { SimpleMenuItem } from "ui/components"
-import {
-  isModeratorCanCreate,
-  isModeratorCanVote,
-  isPublisherCanCreate,
-  isPublisherCanVote,
-  isVotingRequired,
-  routes,
-} from "utils"
+import { routes } from "utils"
 
 const operationTypesWithoutSection: OperationType[] = [
   "category-creation",
@@ -39,24 +32,10 @@ const reviewsOperations: OperationType[] = ["review-creation", "review-edit", "r
 
 export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem[] => {
   const { t } = useTranslation("storeDropdownMenu")
-  const policies = useStorePoliciesContext()
-  const { store } = useStoreContext()
   const { isPublisher, isModerator } = useStoreRolesContext()
 
   const storeItems = useStoreChangeMenuItems(storeId, { isPublisher, isModerator })
-
-  const isModeratorShouldVote = (operation: OperationType) =>
-    isModeratorCanVote(operation, policies) && isVotingRequired(operation, store, policies)
-
-  const isPublisherShouldVote = (operation: OperationType) =>
-    isPublisherCanVote(operation, policies) && isVotingRequired(operation, store, policies)
-
-  const isOperationVisibleForStaff = (operation: OperationType) =>
-    (isModerator &&
-      (isModeratorShouldVote(operation) ||
-        isPublisherCanCreate(operation, policies) ||
-        isModeratorCanCreate(operation, policies))) ||
-    (isPublisher && (isPublisherShouldVote(operation) || isPublisherCanCreate(operation, policies)))
+  const isOperationVisibleForStaff = useIsOperationVisibleForStaff()
 
   const isReferendumsVisible = operationTypesWithoutSection.some(isOperationVisibleForStaff)
   const isProposalsVisible = operationTypesWithoutSection.some(isOperationVisibleForStaff)

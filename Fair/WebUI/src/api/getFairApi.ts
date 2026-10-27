@@ -296,8 +296,8 @@ const getProposals = async (
   return await toTotalItemsResult(res)
 }
 
-const getProposalDetails = async (storeId: string, discussionId: string): Promise<ProposalDetails> => {
-  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/${discussionId}`)
+const getProposalDetails = async (storeId: string, proposalId: string): Promise<ProposalDetails> => {
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/proposals/${proposalId}`)
   if (!res.ok) {
     throw new Error()
   }

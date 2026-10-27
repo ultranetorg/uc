@@ -1,7 +1,6 @@
 import { memo } from "react"
 
 import { Trans } from "react-i18next"
-import { useStoreRolesContext } from "app"
 import { SvgStarXxs } from "assets"
 import { SvgSoftwareLogo } from "assets/fallback"
 import { Publication, PublicationExtended } from "types"
@@ -17,8 +16,6 @@ export type PublicationRowProps = Publication &
 
 export const PublicationRow = memo(
   ({ id, title, logoFileId, authorTitle, categoryTitle, rating, type, showPublicationType }: PublicationRowProps) => {
-    const { isModerator } = useStoreRolesContext()
-
     const formattedRating = formatAverageRating(rating)
 
     return (
@@ -50,14 +47,12 @@ export const PublicationRow = memo(
           )}
         </span>
 
-        {isModerator && (
-          <PublicationCardContextThreeDotsMenu
-            publicationId={id}
-            publicationTitle={title}
-            size="large"
-            className="w-8 flex-none"
-          />
-        )}
+        <PublicationCardContextThreeDotsMenu
+          publicationId={id}
+          publicationTitle={title}
+          size="large"
+          className="w-8 flex-none"
+        />
       </div>
     )
   },

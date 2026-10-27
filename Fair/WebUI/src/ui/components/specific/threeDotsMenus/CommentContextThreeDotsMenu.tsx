@@ -14,7 +14,7 @@ import { truncate } from "lodash"
 
 import { useStoreRolesContext, useUserContext } from "app"
 import { SvgThreeDotsVertical } from "assets"
-import { useResolveStoreId, useScrollOrResize } from "hooks"
+import { useIsOperationVisibleForCreator, useResolveStoreId, useScrollOrResize } from "hooks"
 import { CommentContextMenuProps, SimpleMenu, SimpleMenuItem } from "ui/components"
 import { routes } from "utils"
 
@@ -43,6 +43,9 @@ export const CommentContextThreeDotsMenu = memo(
     const { isModerator } = useStoreRolesContext()
     const { user } = useUserContext()
     const moderatorMenuItems = useUserDetailsThreeDotsMenu(reviewerId, reviewerName)
+    const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
+
+    const isReviewDeletionVisible = isOperationVisibleForCreator("review-deletion")
 
     const [isExpanded, setExpanded] = useState(false)
 
@@ -89,9 +92,9 @@ export const CommentContextThreeDotsMenu = memo(
               },
             ]
           : []),
-        ...(isModerator
+        ...(canEdit && (isReviewDeletionVisible || moderatorMenuItems.length > 0) ? [{ separator: true }] : []),
+        ...(isReviewDeletionVisible
           ? [
-              ...(canEdit ? [{ separator: true }] : []),
               {
                 label: t("deleteReview"),
                 to: routes.moderation.createProposal(storeId!),
@@ -107,9 +110,9 @@ export const CommentContextThreeDotsMenu = memo(
                   redirectAfterProposalExecution: routes.publication(publicationId),
                 },
               },
-              ...moderatorMenuItems,
             ]
           : []),
+        ...moderatorMenuItems,
       ],
       [
         canEdit,
@@ -117,6 +120,7 @@ export const CommentContextThreeDotsMenu = memo(
         handleEditClick,
         id,
         isModerator,
+        isReviewDeletionVisible,
         moderatorMenuItems,
         publicationId,
         reviewerName,

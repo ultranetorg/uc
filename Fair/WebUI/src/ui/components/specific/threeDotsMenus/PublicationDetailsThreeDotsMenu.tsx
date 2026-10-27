@@ -12,7 +12,6 @@ import {
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { useStoreRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
@@ -31,7 +30,6 @@ export const PublicationDetailsThreeDotsMenu = memo(
   ({ className, publicationId, publicationTitle }: PublicationDetailsThreeDotsMenuProps) => {
     const { t } = useTranslation("moderatorOptionsMenu")
 
-    const { isModerator } = useStoreRolesContext()
     const menuItems = usePublicationCardContextThreeDotsMenu(publicationId, publicationTitle)
 
     const [isExpanded, setExpanded] = useState(false)
@@ -51,7 +49,7 @@ export const PublicationDetailsThreeDotsMenu = memo(
 
     const handleMenuClick = useCallback(() => setExpanded(false), [])
 
-    if (!isModerator) {
+    if (menuItems.length === 0) {
       return null
     }
 

@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react"
+import { memo } from "react"
 
 import { useStoreRolesContext } from "app"
 import { useResolveStoreId, useStoreChangeMenuItems } from "hooks"
@@ -9,13 +9,7 @@ export const AboutThreeDotsMenu = memo(({ className }: PropsWithClassName) => {
   const { isModerator, isPublisher } = useStoreRolesContext()
   const storeId = useResolveStoreId()
 
-  const storeItems = useStoreChangeMenuItems(storeId!, { isModerator, isPublisher })
-
-  const menuItems = useMemo(() => [...storeItems], [storeItems])
-
-  if ((!isModerator && !isPublisher) || menuItems.length === 0) {
-    return null
-  }
+  const menuItems = useStoreChangeMenuItems(storeId!, { isModerator, isPublisher })
 
   return <ThreeDotsMenu className={className} items={menuItems} />
 })

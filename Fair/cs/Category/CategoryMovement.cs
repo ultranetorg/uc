@@ -60,6 +60,7 @@ public class CategoryMovement : VotableOperation
 		if(Parent == null)
 		{
 			Store.Categories = [..Store.Categories, c.Id];
+			c.Parent = null;
 		} 
 		else
 		{

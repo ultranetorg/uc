@@ -1,6 +1,5 @@
 import { memo } from "react"
 
-import { useStoreRolesContext } from "app"
 import { SvgStarXxs } from "assets"
 import { TEST_BOOK_SRC } from "testConfig"
 import { PublicationCardContextThreeDotsMenu } from "ui/components/specific"
@@ -9,7 +8,6 @@ import { formatAverageRating } from "utils"
 import { PublicationCardProps } from "./types"
 
 export const BookPublicationCard = memo(({ id, title, categoryTitle, rating }: PublicationCardProps) => {
-  const { isModerator } = useStoreRolesContext()
   const formattedRating = formatAverageRating(rating)
 
   return (
@@ -29,13 +27,11 @@ export const BookPublicationCard = memo(({ id, title, categoryTitle, rating }: P
         <span className="truncate text-2xs leading-4 text-gray-500">{categoryTitle}</span>
       </div>
 
-      {isModerator && (
-        <PublicationCardContextThreeDotsMenu
-          publicationId={id}
-          publicationTitle={title}
-          className="absolute right-1 top-1"
-        />
-      )}
+      <PublicationCardContextThreeDotsMenu
+        publicationId={id}
+        publicationTitle={title}
+        className="absolute right-1 top-1"
+      />
     </div>
   )
 })
