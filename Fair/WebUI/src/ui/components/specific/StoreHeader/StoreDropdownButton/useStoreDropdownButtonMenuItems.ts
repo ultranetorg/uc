@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useStoreRolesContext } from "app"
-import { useIsOperationVisibleForStaff, useStoreChangeMenuItems } from "hooks"
+import { useCanSeeOperation, useStoreChangeMenuItems } from "hooks"
 import { OperationType } from "types"
 import { SimpleMenuItem } from "ui/components"
 import { routes } from "utils"
@@ -35,17 +35,17 @@ export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem
   const { isPublisher, isModerator } = useStoreRolesContext()
 
   const storeItems = useStoreChangeMenuItems(storeId, { isPublisher, isModerator })
-  const isOperationVisibleForStaff = useIsOperationVisibleForStaff()
+  const canSeeOperation = useCanSeeOperation()
 
-  const isReferendumsVisible = operationTypesWithoutSection.some(isOperationVisibleForStaff)
-  const isProposalsVisible = operationTypesWithoutSection.some(isOperationVisibleForStaff)
+  const isReferendumsVisible = operationTypesWithoutSection.some(canSeeOperation)
+  const isProposalsVisible = operationTypesWithoutSection.some(canSeeOperation)
 
-  const isModeratorsVisible = isOperationVisibleForStaff("store-moderator-addition")
-  const isPublishersVisible = isOperationVisibleForStaff("store-authors-removal")
-  const isUsersVisible = userOperations.some(isOperationVisibleForStaff)
+  const isModeratorsVisible = canSeeOperation("store-moderator-addition")
+  const isPublishersVisible = canSeeOperation("store-authors-removal")
+  const isUsersVisible = userOperations.some(canSeeOperation)
 
-  const isPublicationsVisible = publicationsOperations.some(isOperationVisibleForStaff)
-  const isReviewsVisible = reviewsOperations.some(isOperationVisibleForStaff)
+  const isPublicationsVisible = publicationsOperations.some(canSeeOperation)
+  const isReviewsVisible = reviewsOperations.some(canSeeOperation)
 
   const menuItems = useMemo(
     () => [

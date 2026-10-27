@@ -10,7 +10,7 @@ import {
   isVotingRequired,
 } from "utils"
 
-export const useIsOperationVisibleForStaff = () => {
+export const useCanSeeOperation = () => {
   const policies = useStorePoliciesContext()
   const { store } = useStoreContext()
   const { isPublisher, isModerator } = useStoreRolesContext()
