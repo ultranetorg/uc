@@ -2,11 +2,11 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useApprovalIdentityForOperation, useOperationPolicy, useStoreContext, useStoreRolesContext } from "app"
+import { useApprovalIdentityForOperation, useStoreContext, useStoreRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { useCanCreateOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import {
   ModerationHeader,
@@ -23,11 +23,14 @@ export const ChangedPublicationPage = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("changedPublicationPage")
 
-  const approval = useApprovalIdentityForOperation("publication-unpublish")
+  const approval = useApprovalIdentityForOperation("publication-updation")
   const { invalidateOperation } = useInvalidation()
+  const canCreateOperation = useCanCreateOperation()
   const { store } = useStoreContext()
   const { isModerator } = useStoreRolesContext()
   const { mutate } = useTransactMutationWithStatus()
+
+  const isUpdateButtonVisible = canCreateOperation("publication-updation")
 
   const [isPending, setPending] = useState<boolean | undefined>()
 
@@ -79,7 +82,7 @@ export const ChangedPublicationPage = () => {
         parentBreadcrumbs={parentBreadcrumbs}
         components={
           <>
-            {!!approval && (
+            {!!isUpdateButtonVisible && (
               <ButtonBar className="items-center">
                 <ButtonPrimary
                   className="h-11 w-43.75"

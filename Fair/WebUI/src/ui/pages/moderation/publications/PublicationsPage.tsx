@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useStoreContext } from "app"
-import { useIsOperationVisibleForCreator, useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { useCanCreateOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
@@ -23,7 +23,7 @@ export const PublicationsPage = () => {
   const { tabKey } = useParams()
   const { t } = useTranslation("publicationsPage")
 
-  const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
+  const canCreateOperation = useCanCreateOperation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
 
@@ -56,7 +56,7 @@ export const PublicationsPage = () => {
         title={t("title")}
         components={
           <>
-            {isOperationVisibleForCreator("publication-creation") && (
+            {canCreateOperation("publication-creation") && (
               <ButtonPrimary className="w-48" label={t("searchProduct")} onClick={handleSearchProduct} />
             )}
           </>

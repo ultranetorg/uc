@@ -2,15 +2,16 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
-import { useIsOperationVisibleForCreator, useResolveStoreId } from "hooks"
+import { useCanCreateOperation, useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
 export const useUserDetailsThreeDotsMenu = (userId: string, userName?: string) => {
-  const storeId = useResolveStoreId()
   const { t } = useTranslation("moderatorUserMenu")
-  const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
 
-  const isUnregistrationVisible = isOperationVisibleForCreator("user-unregistration")
+  const canCreateOperation = useCanCreateOperation()
+  const storeId = useResolveStoreId()
+
+  const isUnregistrationVisible = canCreateOperation("user-unregistration")
 
   return useMemo(
     () =>

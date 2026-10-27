@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
-import { useIsOperationVisibleForCreator, useResolveStoreId } from "hooks"
+import { useCanCreateOperation, useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
 export const usePublicationCardContextThreeDotsMenu = (
@@ -10,12 +10,13 @@ export const usePublicationCardContextThreeDotsMenu = (
   publicationTitle?: string,
   isFromContextMenu: boolean = false,
 ) => {
-  const storeId = useResolveStoreId()
   const { t } = useTranslation("moderatorPublicationMenu")
 
-  const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
-  const isUnpublishVisible = isOperationVisibleForCreator("publication-unpublish")
-  const isDeletionVisible = isOperationVisibleForCreator("publication-deletion")
+  const canCreateOperation = useCanCreateOperation()
+  const storeId = useResolveStoreId()
+
+  const isUnpublishVisible = canCreateOperation("publication-unpublish")
+  const isDeletionVisible = canCreateOperation("publication-deletion")
 
   return useMemo(
     () => [

@@ -3,21 +3,22 @@ import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 import { truncate } from "lodash"
 
-import { useIsOperationVisibleForCreator, useParams, useResolveStoreId } from "hooks"
+import { useCanCreateOperation, useParams, useResolveStoreId } from "hooks"
 import { routes } from "utils"
 
 export const useCategoryContextThreeDotsMenu = (categoryId: string, categoryTitle: string) => {
   const location = useLocation()
-  const { t } = useTranslation("moderatorCategoryMenu")
   const { categoryId: paramCategoryId } = useParams()
-  const storeId = useResolveStoreId()
-  const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
+  const { t } = useTranslation("moderatorCategoryMenu")
 
-  const isAvatarChangeVisible = isOperationVisibleForCreator("category-avatar-change")
-  const isTypeChangeVisible = isOperationVisibleForCreator("category-type-change")
-  const isMovementVisible = isOperationVisibleForCreator("category-movement")
-  const isCreationVisible = isOperationVisibleForCreator("category-creation")
-  const isDeletionVisible = isOperationVisibleForCreator("category-deletion")
+  const storeId = useResolveStoreId()
+  const canCreateOperation = useCanCreateOperation()
+
+  const isAvatarChangeVisible = canCreateOperation("category-avatar-change")
+  const isTypeChangeVisible = canCreateOperation("category-type-change")
+  const isMovementVisible = canCreateOperation("category-movement")
+  const isCreationVisible = canCreateOperation("category-creation")
+  const isDeletionVisible = canCreateOperation("category-deletion")
 
   return useMemo(() => {
     const changeItems = [

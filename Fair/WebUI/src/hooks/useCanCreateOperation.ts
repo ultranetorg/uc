@@ -4,7 +4,7 @@ import { useStorePoliciesContext, useStoreRolesContext } from "app"
 import { isModeratorCanCreate, isPublisherCanCreate } from "utils"
 import { OperationType } from "types"
 
-export const useIsOperationVisibleForCreator = () => {
+export const useCanCreateOperation = () => {
   const policies = useStorePoliciesContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
 

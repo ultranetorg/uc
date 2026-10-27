@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
 import { useApprovalId, useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
-import { useIsOperationVisibleForCreator, useResolveStoreId, useStoreTitle } from "hooks"
+import { useCanCreateOperation, useResolveStoreId, useStoreTitle } from "hooks"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedStoreProduct, useInvalidation } from "entities"
@@ -25,7 +25,7 @@ export const CreatePublicationPage = () => {
   const { t } = useTranslation("createPublicationPage")
 
   const approvalId = useApprovalId()
-  const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
+  const canCreateOperation = useCanCreateOperation()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
   const { isModerator } = useStoreRolesContext()
@@ -115,7 +115,7 @@ export const CreatePublicationPage = () => {
               authorTitle={product.authorTitle}
               components={
                 <>
-                  {isProductValid && isOperationVisibleForCreator("publication-creation") && (
+                  {isProductValid && canCreateOperation("publication-creation") && (
                     <ButtonBar className="items-center">
                       <ButtonPrimary
                         className="h-11 w-40 capitalize"

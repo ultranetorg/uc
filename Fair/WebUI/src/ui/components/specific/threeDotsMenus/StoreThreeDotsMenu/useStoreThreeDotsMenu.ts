@@ -2,15 +2,16 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 
-import { useIsOperationVisibleForCreator } from "hooks"
+import { useCanCreateOperation } from "hooks"
 import { routes } from "utils"
 
 export const useStoreThreeDotsMenu = (storeId: string) => {
   const location = useLocation()
   const { t } = useTranslation()
-  const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
 
-  const isCategoryCreationVisible = isOperationVisibleForCreator("category-creation")
+  const canCreateOperation = useCanCreateOperation()
+
+  const isCategoryCreationVisible = canCreateOperation("category-creation")
 
   return useMemo(
     () =>

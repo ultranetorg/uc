@@ -14,7 +14,7 @@ import { truncate } from "lodash"
 
 import { useStoreRolesContext, useUserContext } from "app"
 import { SvgThreeDotsVertical } from "assets"
-import { useIsOperationVisibleForCreator, useResolveStoreId, useScrollOrResize } from "hooks"
+import { useCanCreateOperation, useResolveStoreId, useScrollOrResize } from "hooks"
 import { CommentContextMenuProps, SimpleMenu, SimpleMenuItem } from "ui/components"
 import { routes } from "utils"
 
@@ -43,9 +43,9 @@ export const CommentContextThreeDotsMenu = memo(
     const { isModerator } = useStoreRolesContext()
     const { user } = useUserContext()
     const moderatorMenuItems = useUserDetailsThreeDotsMenu(reviewerId, reviewerName)
-    const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
+    const canCreateOperation = useCanCreateOperation()
 
-    const isReviewDeletionVisible = isOperationVisibleForCreator("review-deletion")
+    const isReviewDeletionVisible = canCreateOperation("review-deletion")
 
     const [isExpanded, setExpanded] = useState(false)
 

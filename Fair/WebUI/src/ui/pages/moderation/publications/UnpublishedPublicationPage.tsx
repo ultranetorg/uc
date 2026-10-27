@@ -6,7 +6,7 @@ import { truncate } from "lodash"
 import { useStoreContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetUnpublishedPublication } from "entities"
-import { useIsOperationVisibleForCreator, useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { useCanCreateOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { OperationType } from "types"
 import {
   ModerationHeader,
@@ -21,11 +21,11 @@ export const UnpublishedPublicationPage = () => {
   const { publicationId } = useParams()
   const { t } = useTranslation("unpublishedPublicationPage")
 
-  const isOperationVisibleForCreator = useIsOperationVisibleForCreator()
+  const canCreateOperation = useCanCreateOperation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
 
-  const isPublishVisible = isOperationVisibleForCreator("publication-publish")
+  const isPublishVisible = canCreateOperation("publication-publish")
 
   const parentBreadcrumbs = useMemo(
     () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!, "unpublished") }],
