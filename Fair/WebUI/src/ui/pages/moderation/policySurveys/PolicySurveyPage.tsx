@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { startCase } from "lodash"
 
 import { useSignInContext, useStoreContext, useStoreRolesContext, useUserContext } from "app"
-import { useGetPolicySurveyDetails, useInvalidation } from "entities"
+import { useGetAuthor, useGetPolicySurveyDetails, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { SurveyVoting, StoreApprovalPolicyChange } from "types"
@@ -25,6 +25,7 @@ export const PolicySurveyPage = () => {
 
   const { startSignIn, openAuthorRoleRequiredModal } = useSignInContext()
   const { publisherIds } = useStoreRolesContext()
+  const { data: publisher } = useGetAuthor(publisherIds?.[0])
   const { mutate } = useTransactMutationWithStatus()
 
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()
@@ -61,7 +62,7 @@ export const PolicySurveyPage = () => {
         onSuccess: () => {
           invalidatePolicyChange({ storeId: storeId! })
           navigate(routes.moderation.policySurveys(storeId!))
-          showToast(t("toast:surveyVoted", { publisher: publisherId }))
+          showToast(t("toast:surveyVoted", { publisher: publisher?.title ?? publisherId }))
         },
         onError: err => showToast(err.toString(), "error"),
         onSettled: () => refetch(),
@@ -69,6 +70,7 @@ export const PolicySurveyPage = () => {
     },
     [
       publisherIds,
+      publisher?.title,
       storeId,
       surveyId,
       mutate,

@@ -5,7 +5,7 @@ import { TFunction } from "i18next"
 
 import { useStoreRolesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetModeratorSurveys, useInvalidation } from "entities"
+import { useGetAuthor, useGetModeratorSurveys, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { StoreModeratorRemoval, Survey, SurveyVoting } from "types"
@@ -80,6 +80,7 @@ export const RemoveModeratorsTab = () => {
   const storeId = useResolveStoreId()
   const { publisherIds } = useStoreRolesContext()
   const publisherId = publisherIds && publisherIds[0]
+  const { data: publisher } = useGetAuthor(publisherId)
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -103,7 +104,7 @@ export const RemoveModeratorsTab = () => {
       mutate(operation, {
         onSuccess: () => {
           invalidateOperation("store-moderator-removal", { storeId: storeId! })
-          showToast(t("toast:surveyVoted", { publisher: publisherId }))
+          showToast(t("toast:surveyVoted", { publisher: publisher?.title ?? publisherId }))
         },
         onError: err => showToast(err.toString(), "error"),
         onSettled: async () => {
@@ -112,7 +113,7 @@ export const RemoveModeratorsTab = () => {
         },
       })
     },
-    [storeId, publisherId, mutate, invalidateOperation, t, refetch],
+    [storeId, publisherId, publisher?.title, mutate, invalidateOperation, t, refetch],
   )
 
   const columns = useMemo(() => getColumns(t, publisherIds !== undefined && publisherIds.length > 0), [publisherIds, t])
