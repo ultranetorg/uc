@@ -7,9 +7,9 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewCreationsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
-import { ProposalVoting, SpecialChoice } from "types"
-import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
-import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
+import { ProposalVoting, ReviewProposal, SpecialChoice } from "types"
+import { Pagination, Table, TableEmptyState, TableItem, TextModal } from "ui/components"
+import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
@@ -60,12 +60,19 @@ export const NewReviewsTab = () => {
   const handleTableRowClick = useCallback(
     (id: string) => {
       const review = reviews?.items.find(x => x.id === id)
-      if (!(review?.operation === "review-edit" ? editApproval : creationApproval)) return
-
       setSelectedReviewId(id)
       setSelectedReviewText(review?.reviewText)
     },
-    [creationApproval, editApproval, reviews],
+    [reviews],
+  )
+
+  const isRowClickable = useCallback(
+    (item: TableItem) => {
+      const review = item as ReviewProposal
+      const approval = review.operation === "review-edit" ? editApproval : creationApproval
+      return !!approval && !isUserVoted(approval.id, review)
+    },
+    [creationApproval, editApproval],
   )
 
   const handleCloseModal = useCallback(() => {
@@ -164,6 +171,7 @@ export const NewReviewsTab = () => {
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("noNewReviews")} />}
         onRowClick={(creationApproval || editApproval) && !loadingItem ? handleTableRowClick : undefined}
+        isRowClickable={isRowClickable}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
