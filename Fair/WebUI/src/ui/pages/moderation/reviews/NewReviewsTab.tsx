@@ -14,13 +14,17 @@ import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToa
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
 export const NewReviewsTab = () => {
+  const { t } = useTranslation("reviewsPage")
+
   const creationApproval = useApprovalIdentityForOperation("review-creation")
   const editApproval = useApprovalIdentityForOperation("review-edit")
-
+  const { invalidateOperation } = useInvalidation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
-  const { t } = useTranslation("reviewsPage")
+  const { mutate } = useTransactMutationWithStatus()
+
+  const canApproveOrReject = !!(creationApproval || editApproval)
 
   useStoreTitle(store?.title, "Reviews")
 
@@ -41,14 +45,16 @@ export const NewReviewsTab = () => {
   const pagesCount =
     reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  const { mutate } = useTransactMutationWithStatus()
-  const { invalidateOperation } = useInvalidation()
-
   const columns = useMemo<TableColumn[]>(
     () => [
       { accessor: "author", label: t("common:columns.reviewer"), type: "account", className: "w-[15%]" },
       { accessor: "publication", label: t("common:columns.publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "text", label: t("common:columns.text"), type: "text", className: "w-[23%]" },
+      {
+        accessor: "text",
+        label: t("common:columns.text"),
+        type: "text",
+        className: canApproveOrReject ? "w-[23%]" : "w-[43%]",
+      },
       {
         accessor: "votes",
         label: t("common:columns.votes.label"),
@@ -56,7 +62,7 @@ export const NewReviewsTab = () => {
         type: "votes",
         className: "text-center",
       },
-      ...(creationApproval || editApproval
+      ...(canApproveOrReject
         ? [
             {
               accessor: "action",
@@ -67,7 +73,7 @@ export const NewReviewsTab = () => {
           ]
         : []),
     ],
-    [t, creationApproval, editApproval],
+    [t, canApproveOrReject],
   )
 
   const handleTableRowClick = useCallback(
@@ -183,7 +189,7 @@ export const NewReviewsTab = () => {
         itemRenderer={itemRenderer}
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("noNewReviews")} />}
-        onRowClick={(creationApproval || editApproval) && !loadingItem ? handleTableRowClick : undefined}
+        onRowClick={canApproveOrReject && !loadingItem ? handleTableRowClick : undefined}
         isRowClickable={isRowClickable}
       />
       <div className="flex w-full justify-end">
