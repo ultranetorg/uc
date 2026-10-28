@@ -38,22 +38,23 @@ export const UsersRemovalsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "user", label: t("common:user"), type: "user", className: "w-[30%]" },
-      { accessor: "createdBy", label: t("common:createdBy"), type: "created-by", className: "w-[15%]" },
-      { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for", className: "w-[15%]" },
+      { accessor: "user", label: t("common:columns.user"), type: "user", className: "w-[30%]" },
+      { accessor: "createdBy", label: t("common:columns.createdBy"), type: "created-by", className: "w-[15%]" },
+      { accessor: "lastsFor", label: t("common:columns.lastsFor"), type: "lasts-for", className: "w-[15%]" },
       {
         accessor: "votes",
-        label: t("common:votes"),
+        label: t("common:columns.votes.label"),
+        title: t("common:columns.votes.title"),
         type: "votes",
-        className: "first-letter:uppercase w-[15%] text-center",
+        className: "w-[15%] text-center",
       },
       ...(approval
         ? [
             {
               accessor: "actions",
-              label: t("common:actions"),
+              label: t("common:columns.actions"),
               type: "actions",
-              className: "w-[20%] text-center first-letter:uppercase",
+              className: "w-[20%] text-center",
             },
           ]
         : []),

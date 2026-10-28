@@ -16,27 +16,27 @@ import { isPublisherVotedInSurvey, parseInteger, showToast } from "utils"
 const getColumns = (t: TFunction, canVote: boolean) => [
   {
     accessor: "account",
-    label: t("common:moderators"),
+    label: t("common:columns.moderators"),
     type: "account",
-    className: "first-letter:uppercase w-1/5",
+    className: "w-1/5",
   },
   {
     accessor: "totalVotes",
-    label: t("totalVotes"),
-    className: "w-1/5 first-letter:uppercase text-right",
+    label: t("common:columns.totalVotes"),
+    className: "w-1/5 text-right",
   },
   {
     accessor: "votesRequiredToWin",
-    label: t("votesRequired"),
-    className: "w-1/5 first-letter:uppercase text-right",
+    label: t("common:columns.votesRequired"),
+    className: "w-1/5 text-right",
   },
   ...(canVote
     ? [
         {
           accessor: "actions",
-          label: t("common:actions"),
+          label: t("common:columns.actions"),
           type: "actions",
-          className: "w-1/5 first-letter:uppercase text-center",
+          className: "w-1/5 text-center",
         },
       ]
     : []),

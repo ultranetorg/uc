@@ -28,7 +28,7 @@ export const UsersTab = () => {
   const { data: users, isPending } = useGetStoreUsers(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  const columns = useMemo(() => [{ accessor: "user", label: t("common:user"), type: "user" }], [t])
+  const columns = useMemo(() => [{ accessor: "user", label: t("common:columns.user"), type: "user" }], [t])
 
   const handleRowClick = useCallback(
     (id: string) => navigate(routes.moderation.user(storeId!, id)),

@@ -45,12 +45,25 @@ export const DeleteReviewsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "author", label: t("common:reviewer"), type: "account", className: "w-[15%]" },
-      { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
-      { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
+      { accessor: "author", label: t("common:columns.reviewer"), type: "account", className: "w-[15%]" },
+      { accessor: "publication", label: t("common:columns.publication"), type: "publication", className: "w-[17%]" },
+      { accessor: "text", label: t("common:columns.text"), type: "text", className: "w-[23%]" },
+      {
+        accessor: "votes",
+        label: t("common:columns.votes.label"),
+        title: t("common:columns.votes.title"),
+        type: "votes",
+        className: "text-center",
+      },
       ...(approval && (isModerator || isPublisher)
-        ? [{ accessor: "action", label: t("common:action"), type: "delete-actions", className: "w-[20%] text-center" }]
+        ? [
+            {
+              accessor: "action",
+              label: t("common:columns.action"),
+              type: "delete-actions",
+              className: "w-[20%] text-center",
+            },
+          ]
         : []),
     ],
     [isModerator, isPublisher, t, approval],

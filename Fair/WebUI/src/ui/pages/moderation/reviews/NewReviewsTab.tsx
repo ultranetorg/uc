@@ -8,7 +8,7 @@ import { useGetReviewCreationsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, ReviewProposal, SpecialChoice } from "types"
-import { Pagination, Table, TableEmptyState, TableItem, TextModal } from "ui/components"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem, TextModal } from "ui/components"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
@@ -44,14 +44,27 @@ export const NewReviewsTab = () => {
   const { mutate } = useTransactMutationWithStatus()
   const { invalidateOperation } = useInvalidation()
 
-  const columns = useMemo(
+  const columns = useMemo<TableColumn[]>(
     () => [
-      { accessor: "author", label: t("common:reviewer"), type: "account", className: "w-[15%]" },
-      { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
-      { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
+      { accessor: "author", label: t("common:columns.reviewer"), type: "account", className: "w-[15%]" },
+      { accessor: "publication", label: t("common:columns.publication"), type: "publication", className: "w-[17%]" },
+      { accessor: "text", label: t("common:columns.text"), type: "text", className: "w-[23%]" },
+      {
+        accessor: "votes",
+        label: t("common:columns.votes.label"),
+        title: t("common:columns.votes.title"),
+        type: "votes",
+        className: "text-center",
+      },
       ...(creationApproval || editApproval
-        ? [{ accessor: "action", label: t("common:action"), type: "review-action", className: "w-[20%] text-center" }]
+        ? [
+            {
+              accessor: "action",
+              label: t("common:columns.action"),
+              type: "review-action",
+              className: "w-[20%] text-center",
+            },
+          ]
         : []),
     ],
     [t, creationApproval, editApproval],
