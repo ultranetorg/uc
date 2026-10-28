@@ -5,4 +5,5 @@ public class ReviewProposalModel(Proposal proposal, CreatorModel creator, Public
 	public PublicationImageBaseModel Publication { get; } = publication;
 
 	public string? ReviewText { get; } = reviewText;
+	public required byte Rating { get; set; }
 }

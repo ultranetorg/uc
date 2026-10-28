@@ -8,7 +8,8 @@ import { useGetReviewCreationsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, ReviewProposal, SpecialChoice } from "types"
-import { Pagination, Table, TableColumn, TableEmptyState, TableItem, TextModal } from "ui/components"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { ReviewModal } from "ui/components/specific"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
@@ -30,6 +31,7 @@ export const NewReviewsTab = () => {
 
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
   const [selectedReviewText, setSelectedReviewText] = useState<string | undefined>()
+  const [selectedReviewRating, setSelectedReviewRating] = useState<number | undefined>()
   const [state, setState] = useUrlParamsState({
     page: {
       defaultValue: 0,
@@ -47,13 +49,19 @@ export const NewReviewsTab = () => {
 
   const columns = useMemo<TableColumn[]>(
     () => [
-      { accessor: "author", label: t("common:columns.reviewer"), type: "account", className: "w-[15%]" },
       { accessor: "publication", label: t("common:columns.publication"), type: "publication", className: "w-[17%]" },
+      { accessor: "author", label: t("common:columns.reviewer"), type: "account", className: "w-[15%]" },
       {
         accessor: "text",
         label: t("common:columns.text"),
         type: "text",
         className: canApproveOrReject ? "w-[23%]" : "w-[43%]",
+      },
+      {
+        accessor: "rating",
+        type: "rating",
+        label: t("common:columns.rating"),
+        className: "w-[8%] text-right",
       },
       {
         accessor: "votes",
@@ -81,6 +89,7 @@ export const NewReviewsTab = () => {
       const review = reviews?.items.find(x => x.id === id)
       setSelectedReviewId(id)
       setSelectedReviewText(review?.reviewText)
+      setSelectedReviewRating(review?.rating)
     },
     [reviews],
   )
@@ -96,6 +105,7 @@ export const NewReviewsTab = () => {
 
   const handleCloseModal = useCallback(() => {
     setSelectedReviewText(undefined)
+    setSelectedReviewRating(undefined)
     setSelectedReviewId(undefined)
   }, [])
 
@@ -195,11 +205,12 @@ export const NewReviewsTab = () => {
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
       </div>
-      {selectedReviewId && selectedReviewText && (
-        <TextModal
+      {selectedReviewId && selectedReviewText && selectedReviewRating !== undefined && (
+        <ReviewModal
           size="compact"
           title={t("reviewModalTitle")}
           text={selectedReviewText}
+          rating={selectedReviewRating}
           onCancel={handleRejectClick}
           onConfirm={handleApproveClick}
           onClose={handleCloseModal}

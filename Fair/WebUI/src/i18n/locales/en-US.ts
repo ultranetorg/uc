@@ -57,7 +57,6 @@ export const enUS = {
     publisher_one: "publisher",
     publisher_other: "publishers",
     publishers: "publishers",
-    rating: "Rating",
     recommended: "Recommended",
     referendums: "referendums",
     remove: "remove",
@@ -108,6 +107,7 @@ export const enUS = {
       product: "Product",
       publication: "Publication",
       publishers: "Publishers",
+      rating: "Rating",
       reviewer: "Reviewer",
       text: "Text",
       title: "Title",
@@ -125,6 +125,7 @@ export const enUS = {
       createdBy: "Created By:",
       createdAt: "Created At:",
       lastsFor: "Lasts For:",
+      rating: "Rating:",
     },
   },
   productToken: {

@@ -47,13 +47,13 @@ public class ModeratorReviewProposalsService
 		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
 		{
 			Publication? publication = mcv.Publications.Latest(reviewCreation.Publication);
-			return CreateReviewModel(proposal, store, creator, publication, reviewCreation.Text);
+			return CreateReviewModel(proposal, store, creator, publication, reviewCreation.Text, reviewCreation.Rating);
 		}
 		if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
 		{
 			Review review = mcv.Reviews.Latest(reviewEdit.Review);
 			Publication? publication = review != null ? mcv.Publications.Latest(review.Publication) : null;
-			return CreateReviewModel(proposal, store, creator, publication, reviewEdit.Text);
+			return CreateReviewModel(proposal, store, creator, publication, reviewEdit.Text, review.Rating);
 		}
 
 		throw new InvalidOperationException("Unexpected operation type for review proposal");
@@ -67,13 +67,13 @@ public class ModeratorReviewProposalsService
 			Review review = mcv.Reviews.Latest(reviewDeletion.Review);
 			CreatorModel creator = McvUtils.LoadCreator(mcv, review.Creator, Role.User);
 			Publication publication = mcv.Publications.Latest(review.Publication);
-			return CreateReviewModel(proposal, store, creator, publication, review.Text);
+			return CreateReviewModel(proposal, store, creator, publication, review.Text, review.Rating);
 		}
 
 		throw new InvalidOperationException("Unexpected operation type for review proposal");
 	}
 
-	ReviewProposalModel CreateReviewModel(Proposal proposal, Store store, CreatorModel creator, Publication? publication, string reviewText)
+	ReviewProposalModel CreateReviewModel(Proposal proposal, Store store, CreatorModel creator, Publication? publication, string reviewText, byte rating)
 	{
 		PublicationImageBaseModel model = null;
 
@@ -88,7 +88,8 @@ public class ModeratorReviewProposalsService
 
 		return new ReviewProposalModel(proposal, creator, model, reviewText)
 		{
-			IsStalled = model == null
+			IsStalled = model == null,
+			Rating = rating,
 		};
 	}
 }

@@ -2,29 +2,33 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber, isString } from "lodash"
 
-import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
+import { useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewDeletionsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, SpecialChoice } from "types"
-import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
+import { Pagination, Table, TableEmptyState } from "ui/components"
+import { ReviewModal } from "ui/components/specific"
 import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
 export const DeleteReviewsTab = () => {
+  const { t } = useTranslation("reviewsPage")
+
   const approval = useApprovalIdentityForOperation("review-deletion")
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
-  const { isModerator, isPublisher } = useStoreRolesContext()
-  const { t } = useTranslation("reviewsPage")
+
+  const canDeleteOrCancel = !!approval
 
   useStoreTitle(store?.title, "Reviews")
 
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
   const [selectedReviewText, setSelectedReviewText] = useState<string | undefined>()
+  const [selectedReviewRating, setSelectedReviewRating] = useState<number | undefined>()
   const [state, setState] = useUrlParamsState({
     page: {
       defaultValue: 0,
@@ -45,9 +49,20 @@ export const DeleteReviewsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "author", label: t("common:columns.reviewer"), type: "account", className: "w-[15%]" },
       { accessor: "publication", label: t("common:columns.publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "text", label: t("common:columns.text"), type: "text", className: "w-[23%]" },
+      { accessor: "author", label: t("common:columns.reviewer"), type: "account", className: "w-[15%]" },
+      {
+        accessor: "text",
+        label: t("common:columns.text"),
+        type: "text",
+        className: canDeleteOrCancel ? "w-[23%]" : "w-[43%]",
+      },
+      {
+        accessor: "rating",
+        type: "rating",
+        label: t("common:columns.rating"),
+        className: "w-[8%] text-right",
+      },
       {
         accessor: "votes",
         label: t("common:columns.votes.label"),
@@ -55,7 +70,7 @@ export const DeleteReviewsTab = () => {
         type: "votes",
         className: "text-center",
       },
-      ...(approval && (isModerator || isPublisher)
+      ...(canDeleteOrCancel
         ? [
             {
               accessor: "action",
@@ -66,7 +81,7 @@ export const DeleteReviewsTab = () => {
           ]
         : []),
     ],
-    [isModerator, isPublisher, t, approval],
+    [t, canDeleteOrCancel],
   )
 
   const handleTableRowClick = useCallback(
@@ -74,12 +89,14 @@ export const DeleteReviewsTab = () => {
       setSelectedReviewId(id)
       const review = reviews?.items.find(x => x.id === id)
       setSelectedReviewText(review?.reviewText)
+      setSelectedReviewRating(review?.rating)
     },
     [reviews],
   )
 
   const handleCloseModal = useCallback(() => {
     setSelectedReviewText(undefined)
+    setSelectedReviewRating(undefined)
     setSelectedReviewId(undefined)
   }, [])
 
@@ -155,16 +172,17 @@ export const DeleteReviewsTab = () => {
         itemRenderer={itemRenderer}
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("newReviewDeletions")} />}
-        onRowClick={approval && !loadingItem ? handleTableRowClick : undefined}
+        onRowClick={canDeleteOrCancel && !loadingItem ? handleTableRowClick : undefined}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
       </div>
-      {selectedReviewId && selectedReviewText && (
-        <TextModal
+      {selectedReviewId && selectedReviewText && selectedReviewRating !== undefined && (
+        <ReviewModal
           size="compact"
           title={t("reviewModalTitle")}
           text={selectedReviewText}
+          rating={selectedReviewRating}
           onCancel={handleRejectClick}
           onConfirm={handleApproveClick}
           onClose={handleCloseModal}

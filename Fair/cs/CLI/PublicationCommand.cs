@@ -35,6 +35,7 @@ public class PublicationCommand : FairCommand
 								var o = new ProposalCreation
 										{
 											As = a.Stores.Contains(GetAutoId(store)) ? Role.Publisher : Role.Candidate, 
+											By = a.Id,
 											Store = GetAutoId(store), 
 											Options = [new Option(new PublicationCreation(GetAutoId(product)))]
 										};
