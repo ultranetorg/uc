@@ -2,11 +2,11 @@ import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useSignInContext, useApprovalId, useStorePoliciesContext, useApprovalIdentityForOperation } from "app"
+import { useSignInContext, useStorePoliciesContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import { useGetProposalComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveStoreId } from "hooks"
+import { useApprovalId, useApprovalIdentityForOperation, useResolveStoreId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
@@ -180,11 +180,11 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
     if (!approval) return
 
     if (isPublicationProposal) {
-      if (isVoted(approval!.id, proposal)) {
+      if (isVoted(approval.id, proposal)) {
         setVoteStatus("voted")
       }
     } else {
-      const votedIndex = getVotedIndex(approval!.id, proposal)
+      const votedIndex = getVotedIndex(approval.id, proposal)
       if (votedIndex !== undefined) {
         setVoteStatus("voted")
         setVotedValue(votedIndex)

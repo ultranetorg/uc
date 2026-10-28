@@ -2,11 +2,11 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber, isString } from "lodash"
 
-import { useOperationVoterIdentity, useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewDeletionsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
+import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, SpecialChoice } from "types"
 import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
 import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
@@ -14,7 +14,7 @@ import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "ut
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
 export const DeleteReviewsTab = () => {
-  const voter = useOperationVoterIdentity("review-deletion")
+  const approval = useApprovalIdentityForOperation("review-deletion")
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
@@ -49,11 +49,11 @@ export const DeleteReviewsTab = () => {
       { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
       { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
       { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
-      ...(voter && (isModerator || isPublisher)
+      ...(approval && (isModerator || isPublisher)
         ? [{ accessor: "action", label: t("common:action"), type: "delete-actions", className: "w-[20%] text-center" }]
         : []),
     ],
-    [isModerator, isPublisher, t, voter],
+    [isModerator, isPublisher, t, approval],
   )
 
   const handleTableRowClick = useCallback(
@@ -74,7 +74,7 @@ export const DeleteReviewsTab = () => {
     (id: string, action: "approve" | "reject") => {
       setLoadingItem({ id: id, action })
 
-      const operation = new ProposalVoting(id, voter!.id, action === "approve" ? 0 : SpecialChoice.Neither)
+      const operation = new ProposalVoting(id, approval!.id, action === "approve" ? 0 : SpecialChoice.Neither)
       mutate(operation, {
         onSuccess: () => {
           if (action === "approve") {
@@ -94,7 +94,7 @@ export const DeleteReviewsTab = () => {
         },
       })
     },
-    [invalidateOperation, mutate, refetch, reviews, storeId, t, voter],
+    [invalidateOperation, mutate, refetch, reviews, storeId, t, approval],
   )
 
   const handleApproveClick = useCallback(
@@ -129,8 +129,9 @@ export const DeleteReviewsTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getReviewsPageItemRenderer(t, handleApproveClick, handleRejectClick, votesRequired, loadingItem, voter?.id),
-    [handleApproveClick, handleRejectClick, loadingItem, t, voter, votesRequired],
+    () =>
+      getReviewsPageItemRenderer(t, handleApproveClick, handleRejectClick, votesRequired, loadingItem, approval?.id),
+    [handleApproveClick, handleRejectClick, loadingItem, t, approval, votesRequired],
   )
 
   return (
@@ -141,7 +142,7 @@ export const DeleteReviewsTab = () => {
         itemRenderer={itemRenderer}
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("newReviewDeletions")} />}
-        onRowClick={voter && !loadingItem ? handleTableRowClick : undefined}
+        onRowClick={approval && !loadingItem ? handleTableRowClick : undefined}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

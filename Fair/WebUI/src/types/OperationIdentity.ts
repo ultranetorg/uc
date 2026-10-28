@@ -1,6 +1,6 @@
 import { Role } from "types"
 
-export type OperationCreator = {
+export type OperationIdentity = {
   id: string
   role: Role
 }

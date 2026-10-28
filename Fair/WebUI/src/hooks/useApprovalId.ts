@@ -1,7 +1,6 @@
 import { useMemo } from "react"
 
-import { useStoreRolesContext } from "./StoreRolesProvider"
-import { useUserContext } from "./UserProvider"
+import { useStoreRolesContext, useUserContext } from "app"
 
 export const useApprovalId = (): string | undefined => {
   const { isModerator, isPublisher } = useStoreRolesContext()

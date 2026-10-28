@@ -26,15 +26,15 @@ export const ProposalInfo = memo(({ className, storeId, createdBy, createdAt }: 
       )}
     >
       <div className="flex flex-col gap-2">
-        <span className="text-gray-500">Created By:</span>
+        <span className="text-gray-500">{t("common:labels.createdBy")}</span>
         <LinkFullscreen to={routes.reviewer(storeId, createdBy.id)}>{renderUser(createdBy)}</LinkFullscreen>
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-gray-500">Created At:</span>
+        <span className="text-gray-500">{t("common:labels.createdAt")}</span>
         <span>{formatDate(createdAt)}</span>
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-gray-500">Lasts for:</span>
+        <span className="text-gray-500">{t("common:labels.lastsFor")}</span>
         <span>{getLastsFor(t, createdAt)}</span>
       </div>
     </div>

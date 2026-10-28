@@ -2,11 +2,17 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useApprovalIdentityForOperation, useStoreContext, useStoreRolesContext } from "app"
+import { useStoreContext, useStoreRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useCanCreateOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import {
+  useApprovalIdentityForOperation,
+  useCanCreateOperation,
+  useParams,
+  useResolveStoreId,
+  useStoreTitle,
+} from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import {
   ModerationHeader,

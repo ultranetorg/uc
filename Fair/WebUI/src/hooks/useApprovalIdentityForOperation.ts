@@ -1,23 +1,15 @@
 import { useMemo } from "react"
 
-import { OperationType, Role } from "types"
+import { useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
+import { OperationIdentity, OperationType, Role } from "types"
 import { isProposal, isReferendum } from "utils"
 
-import { useStorePoliciesContext } from "./StorePoliciesProvider"
-import { useStoreRolesContext } from "./StoreRolesProvider"
-import { useUserContext } from "./UserProvider"
-
-interface ApprovalIdentity {
-  id: string
-  role: Role
-}
-
-export const useApprovalIdentityForOperation = (operation?: OperationType): ApprovalIdentity | undefined => {
+export const useApprovalIdentityForOperation = (operation?: OperationType): OperationIdentity | undefined => {
   const { isModerator, isPublisher } = useStoreRolesContext()
   const policies = useStorePoliciesContext()
   const { user } = useUserContext()
 
-  return useMemo<ApprovalIdentity | undefined>(() => {
+  return useMemo<OperationIdentity | undefined>(() => {
     if (!operation) return undefined
     if (!user) return undefined
 

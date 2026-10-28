@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
-import { useOperationPolicy, useStoreContext, useStorePoliciesContext, useUserContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveStoreId } from "hooks"
+import { useCreatorIdentityForOperation, useResolveStoreId } from "hooks"
 import { CreateProposalData, ProposalCreation } from "types"
 import {
   BreadcrumbsItemProps,
@@ -47,7 +47,7 @@ export const CreateProposalView = memo(() => {
     watch,
   } = useFormContext<CreateProposalData>()
   const formData: CreateProposalData = watch() // TODO: should be removed.
-  const { creator } = useOperationPolicy(formData.type)
+  const creator = useCreatorIdentityForOperation(formData.type)
 
   const { mutate, isPending } = useTransactMutationWithStatus()
 

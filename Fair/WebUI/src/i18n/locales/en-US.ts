@@ -100,6 +100,12 @@ export const enUS = {
     upload: "upload",
     username: "Username",
     invalidUrl: "Invalid URL",
+
+    labels: {
+      createdBy: "Created By:",
+      createdAt: "Created At:",
+      lastsFor: "Lasts For:",
+    },
   },
   productToken: {
     none: "None",
