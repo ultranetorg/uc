@@ -2,14 +2,14 @@ import { memo } from "react"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { PropsWithClassName, User } from "types"
+import { Creator, PropsWithClassName } from "types"
 import { LinkFullscreen } from "ui/components"
-import { renderUser } from "ui/renderers2"
-import { getLastsFor, formatDate, routes } from "utils"
+import { renderCreator } from "ui/renderers2"
+import { buildCreatorLink, getLastsFor, formatDate } from "utils"
 
 type ProposalInfoBaseProps = {
   storeId: string
-  createdBy: User
+  createdBy: Creator
   createdAt: number
 }
 
@@ -27,7 +27,7 @@ export const ProposalInfo = memo(({ className, storeId, createdBy, createdAt }: 
     >
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">{t("common:labels.createdBy")}</span>
-        <LinkFullscreen to={routes.reviewer(storeId, createdBy.id)}>{renderUser(createdBy)}</LinkFullscreen>
+        <LinkFullscreen to={buildCreatorLink(storeId, createdBy)}>{renderCreator(createdBy)}</LinkFullscreen>
       </div>
       <div className="flex flex-col gap-2">
         <span className="text-gray-500">{t("common:labels.createdAt")}</span>

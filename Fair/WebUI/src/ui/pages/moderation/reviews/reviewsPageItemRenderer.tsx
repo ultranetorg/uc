@@ -2,7 +2,7 @@ import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
 import { OperationType, ReviewProposal } from "types"
-import { renderUser, renderVotes } from "ui/renderers2"
+import { renderCreator, renderVotes } from "ui/renderers2"
 import { ButtonOutline, ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import { isUserVoted } from "utils"
 import { renderActions, renderCommon, renderPublication, renderText } from "ui/renderers/utils"
@@ -57,7 +57,7 @@ export const getReviewsPageItemRenderer =
 
     switch (column.type) {
       case "account":
-        return renderUser(proposal.by)
+        return renderCreator(proposal.creator)
 
       case "publication":
         return proposal.publication !== null ? renderPublication(proposal.publication) : "Publication removed"

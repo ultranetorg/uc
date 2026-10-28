@@ -1,4 +1,4 @@
-import { OperationType, User } from "types"
+import { Creator, OperationType } from "types"
 
 import { ProposalOption } from "./ProposalOption"
 
@@ -22,6 +22,6 @@ export type Proposal = {
 
   options: ProposalOption[]
 
-  by: User
+  creator: Creator
   multipleOptions: boolean
 }

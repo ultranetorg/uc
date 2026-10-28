@@ -4,7 +4,7 @@ import { TFunction } from "i18next"
 import { UserUnregistrationProposal } from "types"
 import { TableColumn, TableItem } from "ui/components"
 import { renderActions, renderCommon } from "ui/renderers/utils"
-import { renderUser } from "ui/renderers2"
+import { renderCreator, renderUser } from "ui/renderers2"
 import { isUserVoted } from "utils"
 
 export const getRemoveUsersTabItemRenderer =
@@ -25,13 +25,13 @@ export const getRemoveUsersTabItemRenderer =
         return renderUser(proposal.userId, proposal.userName)
 
       case "created-by":
-        return renderUser(proposal.by)
+        return renderCreator(proposal.creator)
 
       case "actions":
         return renderActions(
           t,
-          () => onApprove(item.id, proposal.by.name),
-          () => onReject(item.id, proposal.by.name),
+          () => onApprove(item.id, proposal.creator.title),
+          () => onReject(item.id, proposal.creator.title),
           loadingItem?.id === item.id ? loadingItem.action : undefined,
           isVoted || (loadingItem && loadingItem.id !== item.id),
         )

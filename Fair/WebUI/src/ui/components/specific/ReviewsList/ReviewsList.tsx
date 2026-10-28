@@ -4,7 +4,7 @@ import { useResolveStoreId } from "hooks"
 import { TotalItemsResult, Review } from "types"
 import { ButtonOutline } from "ui/components"
 import { Comment, CommentProps } from "ui/components/comments/Comment"
-import { buildUserAvatarByIdUrl, routes } from "utils"
+import { buildCreatorAvatarUrl, buildCreatorLink } from "utils"
 
 import { ReviewsListEmptyState } from "./ReviewsListEmptyState"
 
@@ -62,10 +62,10 @@ export const ReviewsList = memo(
                 id={r.id}
                 text={r.text}
                 rating={r.rating}
-                creatorId={r.creatorId}
-                creatorName={r.creatorName}
-                creatorAvatarSrc={buildUserAvatarByIdUrl(r.creatorId)}
-                creatorLink={routes.reviewer(storeId!, r.creatorId)}
+                creatorId={r.creator.id}
+                creatorName={r.creator.title}
+                creatorAvatarSrc={buildCreatorAvatarUrl(r.creator)}
+                creatorLink={buildCreatorLink(storeId!, r.creator)}
                 created={r.created}
                 publication={{ id: r.publicationId, title: r.publicationTitle }}
                 contextMenu={contextMenu}

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ProposalDetailsModel(Proposal proposal, FairUser account, int votesRequiredToWin) : ProposalModel(proposal, account)
+public class ProposalDetailsModel(Proposal proposal, CreatorModel creator, int votesRequiredToWin) : ProposalModel(proposal, creator)
 {
 	public IEnumerable<ProposalOptionModel> Options { get; init; } = null!;
 

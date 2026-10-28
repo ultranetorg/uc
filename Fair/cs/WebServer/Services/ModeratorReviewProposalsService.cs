@@ -42,18 +42,18 @@ public class ModeratorReviewProposalsService
 
 	ReviewProposalModel CreateReviewCreationEditProposalModel(Proposal proposal, Store store)
 	{
-		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+		CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
 
 		if(proposal.Options[0].Operation is ReviewCreation reviewCreation)
 		{
 			Publication? publication = mcv.Publications.Latest(reviewCreation.Publication);
-			return CreateReviewModel(proposal, store, by, publication, reviewCreation.Text);
+			return CreateReviewModel(proposal, store, creator, publication, reviewCreation.Text);
 		}
 		if(proposal.Options[0].Operation is ReviewEdit reviewEdit)
 		{
 			Review review = mcv.Reviews.Latest(reviewEdit.Review);
 			Publication? publication = review != null ? mcv.Publications.Latest(review.Publication) : null;
-			return CreateReviewModel(proposal, store, by, publication, reviewEdit.Text);
+			return CreateReviewModel(proposal, store, creator, publication, reviewEdit.Text);
 		}
 
 		throw new InvalidOperationException("Unexpected operation type for review proposal");
@@ -65,7 +65,7 @@ public class ModeratorReviewProposalsService
 		if(proposal.Options[0].Operation is ReviewDeletion reviewDeletion)
 		{
 			Review review = mcv.Reviews.Latest(reviewDeletion.Review);
-			FairUser creator = (FairUser)mcv.Users.Latest(review.Creator);
+			CreatorModel creator = McvUtils.LoadCreator(mcv, review.Creator, Role.User);
 			Publication publication = mcv.Publications.Latest(review.Publication);
 			return CreateReviewModel(proposal, store, creator, publication, review.Text);
 		}
@@ -73,7 +73,7 @@ public class ModeratorReviewProposalsService
 		throw new InvalidOperationException("Unexpected operation type for review proposal");
 	}
 
-	ReviewProposalModel CreateReviewModel(Proposal proposal, Store store, FairUser by, Publication? publication, string reviewText)
+	ReviewProposalModel CreateReviewModel(Proposal proposal, Store store, CreatorModel creator, Publication? publication, string reviewText)
 	{
 		PublicationImageBaseModel model = null;
 
@@ -86,7 +86,7 @@ public class ModeratorReviewProposalsService
 			model = new PublicationImageBaseModel(publication, product, category.Title, fileId);
 		}
 
-		return new ReviewProposalModel(proposal, by, model, reviewText)
+		return new ReviewProposalModel(proposal, creator, model, reviewText)
 		{
 			IsStalled = model == null
 		};

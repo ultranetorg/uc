@@ -4,7 +4,7 @@ import { ReactNode } from "react"
 import { PublisherProposal } from "types"
 import { TableColumn, TableItem } from "ui/components"
 import { renderActionShort, renderAuthor2, renderCommon } from "ui/renderers/utils"
-import { renderUser } from "ui/renderers2"
+import { renderCreator } from "ui/renderers2"
 
 export const getPublisherProposalsItemRenderer =
   (t: TFunction, votesRequired: number) =>
@@ -14,7 +14,7 @@ export const getPublisherProposalsItemRenderer =
 
     switch (column.type) {
       case "account":
-        return renderUser(proposal.by)
+        return renderCreator(proposal.creator)
 
       case "accounts-list":
         return renderAuthor2(author!.title!, author!.avatarId)

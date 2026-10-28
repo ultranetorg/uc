@@ -277,7 +277,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
           <ProposalInfo
             className="w-87.5"
             storeId={storeId!}
-            createdBy={proposal.by}
+            createdBy={proposal.creator}
             createdAt={proposal.creationTime}
           />
           {!isPublicationProposal &&

@@ -10,7 +10,7 @@ import { useGetModeratorProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ModeratorProposal } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import { renderUser, renderUsersList } from "ui/renderers2"
+import { renderCreator, renderUsersList } from "ui/renderers2"
 import { renderActionShort, renderCommon } from "ui/renderers/utils"
 import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
 
@@ -21,7 +21,7 @@ const getModeratorsProposalsItemRenderer =
 
     switch (column.type) {
       case "account":
-        return renderUser(proposal.by)
+        return renderCreator(proposal.creator)
       case "accounts-list":
         return renderUsersList(proposal.moderators)
       case "action-short":

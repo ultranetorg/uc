@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ProposalModel(Proposal proposal, FairUser by)
+public class ProposalModel(Proposal proposal, CreatorModel creator)
 {
 	public AutoId Id { get; } = proposal.Id;
 
@@ -19,6 +19,6 @@ public class ProposalModel(Proposal proposal, FairUser by)
 	public string Title { get; } = proposal.Title;
 	public string Text { get; } = proposal.Text;
 
-	public UserModel By { get; } = new UserModel(by);
+	public CreatorModel Creator { get; } = creator;
 	public bool MultipleOptions { get; } = proposal.Options.Length > 1;
 }
