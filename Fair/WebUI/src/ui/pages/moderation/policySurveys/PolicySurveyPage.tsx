@@ -8,8 +8,8 @@ import { useGetAuthor, useGetPolicySurveyDetails, useGetStorePolicies, useInvali
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { SurveyVoting, StoreApprovalPolicyChange } from "types"
-import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
+import { ModerationHeader } from "ui/components/specific"
 import { routes, showToast } from "utils"
 
 import { PolicySurveyInfo } from "./PolicySurveyInfo"
@@ -115,20 +115,12 @@ export const PolicySurveyPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Breadcrumbs
-          fullPath={true}
-          items={[
-            { path: routes.store(storeId!), title: t("home") },
-            { title: t("common:policySurveys"), path: routes.moderation.policySurveys(storeId!) },
-            { title: title! },
-          ]}
-        />
-        <div className="flex flex-col gap-4">
-          <span className="text-3.5xl font-semibold leading-10">{t("title", { operation: title })}</span>
-          <span className="text-2sm text-gray-500">{t(`policySurveysPage:${operation}`)}</span>
-        </div>
-      </div>
+      <ModerationHeader
+        title={t("title", { operation: title })}
+        subtitle={t(`policySurveysPage:${operation}`)}
+        breadcrumbTitle={title}
+        parentBreadcrumbs={{ title: t("common:policySurveys"), path: routes.moderation.policySurveys(storeId!) }}
+      />
       <div className="flex items-start gap-8">
         <div className="flex w-full max-w-187.5 flex-col gap-8">
           <OptionsCollapsesList

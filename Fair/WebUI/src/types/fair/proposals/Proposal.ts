@@ -9,6 +9,7 @@ export type Proposal = {
 
   operation: OperationType
 
+  optionTitles?: string[]
   yes: string[][]
   neither: string[]
   any: string[]

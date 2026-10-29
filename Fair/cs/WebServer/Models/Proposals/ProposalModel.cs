@@ -8,6 +8,7 @@ public class ProposalModel(Proposal proposal, CreatorModel creator)
 
 	public FairOperationClass Operation { get; } = proposal.OptionClass;
 
+	public IEnumerable<string> OptionTitles { get; } = proposal.Options.Select(x => x.Title);
 	public IEnumerable<IEnumerable<AutoId>> Yes { get; } = proposal.Options.Select(x => x.Yes);
 	public IEnumerable<AutoId> Neither { get; } = proposal.Neither;
 	public IEnumerable<AutoId> Any { get; } = proposal.Any;

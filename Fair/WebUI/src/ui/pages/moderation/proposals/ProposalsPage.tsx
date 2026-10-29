@@ -67,6 +67,7 @@ export const ProposalsPage = () => {
       <ModerationHeader title={startCase(t("common:proposals"))} />
       <ProposalsView
         t={t}
+        proposalType="proposal"
         proposals={proposals}
         page={page}
         pagesCount={pagesCount}

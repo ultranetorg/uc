@@ -1,5 +1,6 @@
 export * from "./CreateProposal"
 export * from "./Proposal"
+export * from "./ProposalsView"
 export * from "./PublicationContentView"
 export * from "./UserDetails"
 

@@ -44,8 +44,11 @@ export const enUS = {
     nickname: "nickname",
     no: "No",
     noResults: "no results",
+    notVoted: "Not voted",
+    noVotesYet: "No votes yet",
     officialStore: "official store",
     ok: "ok",
+    optionNumber: "Option {{number}}",
     options: "Options",
     parentCategory: "Parent category",
     preview: "preview",
@@ -104,11 +107,13 @@ export const enUS = {
     moderators: "Moderators",
     nabb: "N / A / B / B",
     nabbFull: "Neither / Any / Ban / Banish",
+    openFor: "Open For",
     operation: "Operation",
     product: "Product",
     progress: {
       label: "Progress",
       title: "Votes for the leading option / Votes required to win",
+      proposalTitle: "Votes for the leading option plus Any votes / Votes required to win",
     },
     publication: "Publication",
     publishers: "Publishers",
@@ -127,11 +132,12 @@ export const enUS = {
     yourVote: "Your Vote",
   },
   labels: {
+    action: "Action:",
     createdBy: "Created By:",
     createdAt: "Created At:",
     currentPolicy: "Current Approval Policy:",
-    lastsFor: "Lasts For:",
     leadingOption: "Leading Option:",
+    openFor: "Open For:",
     progress: "Progress:",
     rating: "Rating:",
     totalVotes: "Total Votes:",
@@ -375,7 +381,6 @@ export const enUS = {
       review: "Reviews",
       user: "Users",
     },
-    notVoted: "Not voted",
     votingHint:
       "An option wins as soon as it gets {{count}} votes, and the policy changes immediately. You can change your vote at any time.",
     unchangeablePolicy: "This policy can not be changed",
@@ -414,7 +419,6 @@ export const enUS = {
     uploadAvatar: "Upload avatar",
   },
   proposalsPage: {
-    searchProposal: "Search proposal",
     noProposals: "No open proposals",
   },
   publicationPage: {
@@ -486,7 +490,6 @@ export const enUS = {
     votingTitle: "Current voting results",
   },
   referendumsPage: {
-    searchProposal: "Search referendum",
     noProposals: "No open referendums",
   },
   reviewsPage: {
@@ -737,6 +740,8 @@ export const enUS = {
     enterSlogan: "Enter slogan",
     enterTitle: "Enter title",
     enterUserNameOrId: "Enter user name or id",
+    searchProposals: "Search Proposals",
+    searchReferendums: "Search Referendums",
     selectApprovalPolicy: "Select approval policy",
     selectCategory: "Select category",
     selectImage: "Select image",

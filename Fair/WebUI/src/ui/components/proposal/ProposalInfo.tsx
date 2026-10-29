@@ -2,10 +2,11 @@ import { memo, PropsWithChildren } from "react"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { Creator, PropsWithClassName } from "types"
+import { Policy, Proposal, PropsWithClassName, Store } from "types"
 import { LinkFullscreen } from "ui/components"
+import { renderAction, renderLeadingOption, renderProposalProgress, renderYourVote } from "ui/renderers/utils"
 import { renderCreator } from "ui/renderers2"
-import { buildCreatorLink, getLastsFor, formatDate } from "utils"
+import { buildCreatorLink, getLastsFor, formatDate, calculateVotesRequiredToWinProposal } from "utils"
 
 type InfoRowBaseProps = {
   label: string
@@ -21,15 +22,18 @@ const InfoRow = ({ label, children }: InfoRowProps) => (
 )
 
 type ProposalInfoBaseProps = {
-  storeId: string
-  createdBy: Creator
-  createdAt: number
+  store: Store
+  proposal: Proposal
+  policies: Policy[]
+  voterIds: string[]
 }
 
 export type ProposalInfoProps = ProposalInfoBaseProps & PropsWithClassName
 
-export const ProposalInfo = memo(({ className, storeId, createdBy, createdAt }: ProposalInfoProps) => {
+export const ProposalInfo = memo(({ className, store, proposal, policies, voterIds }: ProposalInfoProps) => {
   const { t } = useTranslation()
+
+  const requiredToWin = calculateVotesRequiredToWinProposal(proposal.operation, store, policies)
 
   return (
     <div
@@ -39,13 +43,19 @@ export const ProposalInfo = memo(({ className, storeId, createdBy, createdAt }: 
       )}
     >
       <InfoRow label={t("labels:createdBy")}>
-        <LinkFullscreen to={buildCreatorLink(storeId, createdBy)}>{renderCreator(createdBy)}</LinkFullscreen>
+        <LinkFullscreen to={buildCreatorLink(store.id, proposal.creator)}>
+          {renderCreator(proposal.creator)}
+        </LinkFullscreen>
       </InfoRow>
       <InfoRow label={t("labels:createdAt")}>
-        <span>{formatDate(createdAt)}</span>
+        <span>{formatDate(proposal.creationTime)}</span>
       </InfoRow>
-      <InfoRow label={t("labels:lastsFor")}>
-        <span>{getLastsFor(t, createdAt)}</span>
+      <InfoRow label={t("labels:action")}>{renderAction(t, proposal.operation)}</InfoRow>
+      <InfoRow label={t("labels:leadingOption")}>{renderLeadingOption(t, proposal)}</InfoRow>
+      <InfoRow label={t("labels:progress")}>{renderProposalProgress(t, proposal, requiredToWin)}</InfoRow>
+      <InfoRow label={t("labels:yourVote")}>{renderYourVote(t, proposal, voterIds)}</InfoRow>
+      <InfoRow label={t("labels:openFor")}>
+        <span>{getLastsFor(t, proposal.creationTime)}</span>
       </InfoRow>
     </div>
   )

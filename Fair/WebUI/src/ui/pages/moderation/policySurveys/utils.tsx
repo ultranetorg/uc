@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 
 import { SvgLock } from "assets"
 import { ApprovalRequirement, Policy, StoreApprovalPolicyChange, Survey } from "types"
-import { Tooltip } from "ui/components"
+import { NotVotedBadge, Tooltip, VotesProgress } from "ui/components"
 
 export const CELL_CLASSNAME = "flex items-center gap-2"
 
@@ -72,32 +72,16 @@ export const renderLeadingOption = (t: TFunction, survey: Survey, policies?: Pol
   return <span className={twMerge(isCurrent && "text-gray-500")}>{text}</span>
 }
 
-export const renderProgress = (survey: Survey): ReactNode => {
-  const leadingVotes = getLeadingVotes(survey)
-  const { votesRequiredToWin } = survey
-  const percents = votesRequiredToWin > 0 ? Math.min(100, (leadingVotes * 100) / votesRequiredToWin) : 0
-
-  return (
-    <div className={CELL_CLASSNAME}>
-      <div className="h-1.5 w-full min-w-10 overflow-hidden rounded-full bg-gray-200">
-        <div
-          className={twMerge("h-full rounded-full bg-gray-500", leadingVotes >= votesRequiredToWin && "bg-light-green")}
-          style={{ width: `${percents}%` }}
-        />
-      </div>
-      <span className="whitespace-nowrap">
-        {leadingVotes} / {votesRequiredToWin}
-      </span>
-    </div>
-  )
-}
+export const renderProgress = (survey: Survey): ReactNode => (
+  <VotesProgress votes={getLeadingVotes(survey)} votesRequired={survey.votesRequiredToWin} />
+)
 
 export const renderYourVote = (t: TFunction, survey: Survey, publisherIds?: string[]): ReactNode => {
   if (!publisherIds || publisherIds.length === 0) return "-"
 
   const approval = getPublisherVotedApproval(survey, publisherIds)
   if (!approval) {
-    return <span className="rounded bg-warning px-2 py-0.5 text-2xs">{t("notVoted")}</span>
+    return <NotVotedBadge />
   }
 
   return t(`approvalRequirement:${approval}`)

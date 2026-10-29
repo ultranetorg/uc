@@ -1,5 +1,4 @@
 export * from "./changedPublicationItemRenderer"
-export * from "./proposalsItemRenderer"
 export * from "./publicationsItemRenderer"
 export * from "./unpublishedPublicationsItemRenderer"
 export * from "./usersItemRenderer"

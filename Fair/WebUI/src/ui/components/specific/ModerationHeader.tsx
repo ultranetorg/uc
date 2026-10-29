@@ -9,6 +9,7 @@ import { routes } from "utils"
 
 export type ModerationHeaderProps = {
   title: string
+  subtitle?: string
   breadcrumbTitle?: string
   parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
   components?: ReactNode
@@ -16,7 +17,14 @@ export type ModerationHeaderProps = {
 }
 
 export const ModerationHeader = memo(
-  ({ title, breadcrumbTitle, parentBreadcrumbs, components, showModeratorsCount = false }: ModerationHeaderProps) => {
+  ({
+    title,
+    subtitle,
+    breadcrumbTitle,
+    parentBreadcrumbs,
+    components,
+    showModeratorsCount = false,
+  }: ModerationHeaderProps) => {
     const storeId = useResolveStoreId()
     const { store } = useStoreContext()
     const { isModerator } = useStoreRolesContext()
@@ -51,9 +59,10 @@ export const ModerationHeader = memo(
               </Link>
             ))}
         </div>
-        <div className="my-5 flex h-11 items-center justify-between gap-4">
-          <div className="flex min-w-0 gap-2 text-3.5xl font-semibold leading-11">
-            <span className="truncate">{title}</span>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 flex-col gap-2">
+            <span className="truncate text-3.5xl font-semibold leading-11">{title}</span>
+            {subtitle && <span className="truncate text-2sm text-gray-500">{subtitle}</span>}
           </div>
           {components}
         </div>
