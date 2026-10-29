@@ -38,13 +38,13 @@ export const UsersRemovalsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "user", label: t("common:columns.user"), type: "user", className: "w-[30%]" },
-      { accessor: "createdBy", label: t("common:columns.createdBy"), type: "created-by", className: "w-[15%]" },
-      { accessor: "lastsFor", label: t("common:columns.lastsFor"), type: "lasts-for", className: "w-[15%]" },
+      { accessor: "user", label: t("columns:user"), type: "user", className: "w-[30%]" },
+      { accessor: "createdBy", label: t("columns:createdBy"), type: "created-by", className: "w-[15%]" },
+      { accessor: "lastsFor", label: t("columns:lastsFor"), type: "lasts-for", className: "w-[15%]" },
       {
         accessor: "votes",
-        label: t("common:columns.votes.label"),
-        title: t("common:columns.votes.title"),
+        label: t("columns:votes.label"),
+        title: t("columns:votes.title"),
         type: "votes",
         className: "w-[15%] text-center",
       },
@@ -52,7 +52,7 @@ export const UsersRemovalsTab = () => {
         ? [
             {
               accessor: "actions",
-              label: t("common:columns.actions"),
+              label: t("columns:actions"),
               type: "actions",
               className: "w-[20%] text-center",
             },

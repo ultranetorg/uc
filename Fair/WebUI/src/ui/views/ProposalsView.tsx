@@ -7,15 +7,15 @@ import { Input, Pagination, Table, TableColumn, TableEmptyState } from "ui/compo
 import { getProposalsItemRenderer } from "ui/renderers"
 
 const getVotingColumns = (t: TFunction): TableColumn[] => [
-  { accessor: "lastsFor", label: t("common:columns.lastsFor"), type: "lasts-for" },
+  { accessor: "lastsFor", label: t("columns:lastsFor"), type: "lasts-for" },
   {
     accessor: "votes",
-    label: t("common:columns.votes.label"),
-    title: t("common:columns.votes.title"),
+    label: t("columns:votes.label"),
+    title: t("columns:votes.title"),
     type: "votes",
     className: "text-center",
   },
-  { accessor: "nabb", label: t("common:columns.nabb"), type: "nabb", title: t("common:columns.nabbFull") },
+  { accessor: "nabb", label: t("columns:nabb"), type: "nabb", title: t("columns:nabbFull") },
 ]
 
 export type ProposalsViewProps = {
@@ -44,9 +44,9 @@ export const ProposalsView = memo(
   }: ProposalsViewProps) => {
     const columns = useMemo(
       () => [
-        { accessor: "text", label: t("common:columns.title"), type: "title", className: "w-[24%]" },
-        { accessor: "createdBy", label: t("common:columns.createdBy"), type: "account", className: "w-[15%]" },
-        { accessor: "action", label: t("common:columns.action"), type: "action", className: "w-[20%]" },
+        { accessor: "text", label: t("columns:title"), type: "title", className: "w-[24%]" },
+        { accessor: "createdBy", label: t("columns:createdBy"), type: "account", className: "w-[15%]" },
+        { accessor: "action", label: t("columns:action"), type: "action", className: "w-[20%]" },
         ...getVotingColumns(t),
       ],
       [t],

@@ -37,12 +37,12 @@ export const NewUsersTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "signer", label: t("common:columns.user"), type: "account", className: "w-[40%]" },
-      { accessor: "lastsFor", label: t("common:columns.lastsFor"), type: "lasts-for", className: "w-[15%]" },
+      { accessor: "signer", label: t("columns:user"), type: "account", className: "w-[40%]" },
+      { accessor: "lastsFor", label: t("columns:lastsFor"), type: "lasts-for", className: "w-[15%]" },
       {
         accessor: "votes",
-        label: t("common:columns.votes.label"),
-        title: t("common:columns.votes.title"),
+        label: t("columns:votes.label"),
+        title: t("columns:votes.title"),
         type: "votes",
         className: "w-[15%] text-center",
       },
@@ -50,7 +50,7 @@ export const NewUsersTab = () => {
         ? [
             {
               accessor: "actions",
-              label: t("common:columns.actions"),
+              label: t("columns:actions"),
               type: "actions",
               className: "w-[20%] text-center",
             },

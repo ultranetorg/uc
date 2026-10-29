@@ -24,29 +24,29 @@ export const PolicySurveysPage = () => {
     () => [
       {
         accessor: "operation",
-        label: t("common:columns.operation"),
+        label: t("columns:operation"),
         type: "operation",
         className: "w-2/5",
       },
       {
         accessor: "votedApproval",
-        label: t("common:columns.currentPolicy"),
+        label: t("columns:currentPolicy"),
         type: "voted-approval",
         className: "w-1/5",
       },
       {
         accessor: "totalVotes",
-        label: t("common:columns.totalVotes"),
+        label: t("columns:totalVotes"),
         className: "w-1/5 text-right",
       },
       {
         accessor: "votesRequiredToWin",
-        label: t("common:columns.votesRequired"),
+        label: t("columns:votesRequired"),
         className: "w-1/5 text-right",
       },
       {
         accessor: "winPercentage",
-        label: t("common:columns.winPercentage"),
+        label: t("columns:winPercentage"),
         type: "win-percentage",
         className: "w-1/5 text-right",
       },

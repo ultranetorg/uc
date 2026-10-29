@@ -84,13 +84,13 @@ export const PublishersListTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "author", label: t("common:columns.author"), type: "author", className: "w-[45%]" },
-      { accessor: "bannedTill", label: t("common:columns.bannedTill"), type: "banned", className: "w-[40%]" },
+      { accessor: "author", label: t("columns:author"), type: "author", className: "w-[45%]" },
+      { accessor: "bannedTill", label: t("columns:bannedTill"), type: "banned", className: "w-[40%]" },
       ...(canRemovePublisher
         ? [
             {
               accessor: "actions",
-              label: t("common:columns.actions"),
+              label: t("columns:actions"),
               type: "actions",
               className: "w-[10%] text-center",
             },

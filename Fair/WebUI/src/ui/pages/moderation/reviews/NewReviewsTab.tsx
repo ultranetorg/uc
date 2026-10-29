@@ -49,24 +49,24 @@ export const NewReviewsTab = () => {
 
   const columns = useMemo<TableColumn[]>(
     () => [
-      { accessor: "publication", label: t("common:columns.publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "author", label: t("common:columns.reviewer"), type: "account", className: "w-[15%]" },
+      { accessor: "publication", label: t("columns:publication"), type: "publication", className: "w-[17%]" },
+      { accessor: "author", label: t("columns:reviewer"), type: "account", className: "w-[15%]" },
       {
         accessor: "text",
-        label: t("common:columns.text"),
+        label: t("columns:text"),
         type: "text",
         className: canApproveOrReject ? "w-[23%]" : "w-[43%]",
       },
       {
         accessor: "rating",
         type: "rating",
-        label: t("common:columns.rating"),
+        label: t("columns:rating"),
         className: "w-[8%] text-right",
       },
       {
         accessor: "votes",
-        label: t("common:columns.votes.label"),
-        title: t("common:columns.votes.title"),
+        label: t("columns:votes.label"),
+        title: t("columns:votes.title"),
         type: "votes",
         className: "text-center",
       },
@@ -74,7 +74,7 @@ export const NewReviewsTab = () => {
         ? [
             {
               accessor: "action",
-              label: t("common:columns.action"),
+              label: t("columns:action"),
               type: "review-action",
               className: "w-[20%] text-center",
             },

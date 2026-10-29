@@ -33,12 +33,12 @@ export const PublicationsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "publication", label: t("common:columns.product"), type: "publication", className: "w-[33%]" },
-      { accessor: "author", label: t("common:columns.author"), type: "author", className: "w-[17%]" },
-      { accessor: "action", label: t("common:columns.action"), type: "action-short", className: "w-[13%]" },
-      { accessor: "lastsFor", label: t("common:columns.lastsFor"), type: "lasts-for" },
-      { accessor: "ar", label: t("common:columns.ar"), type: "ar", title: t("common:columns.approvedRejected") },
-      { accessor: "by", label: t("common:columns.createdBy"), type: "account", className: "w-[15%]" },
+      { accessor: "publication", label: t("columns:product"), type: "publication", className: "w-[33%]" },
+      { accessor: "author", label: t("columns:author"), type: "author", className: "w-[17%]" },
+      { accessor: "action", label: t("columns:action"), type: "action-short", className: "w-[13%]" },
+      { accessor: "lastsFor", label: t("columns:lastsFor"), type: "lasts-for" },
+      { accessor: "ar", label: t("columns:ar"), type: "ar", title: t("columns:approvedRejected") },
+      { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[15%]" },
     ],
     [t],
   )

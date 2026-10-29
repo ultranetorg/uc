@@ -35,26 +35,26 @@ export const ChangedPublicationsTab = () => {
     () => [
       {
         accessor: "publication",
-        label: t("common:columns.product"),
+        label: t("columns:product"),
         type: "publication",
         className: "w-[18%]",
       },
-      { accessor: "author", label: t("common:columns.author"), type: "account", className: "w-[15%]" },
+      { accessor: "author", label: t("columns:author"), type: "account", className: "w-[15%]" },
       {
         accessor: "category",
-        label: t("common:columns.category"),
+        label: t("columns:category"),
         type: "category",
         className: "w-[13%]",
       },
       {
         accessor: "currentVersion",
-        label: t("common:columns.currentVersion"),
+        label: t("columns:currentVersion"),
         type: "version",
         className: "w-[10%] text-right",
       },
       {
         accessor: "latestVersion",
-        label: t("common:columns.latestVersion"),
+        label: t("columns:latestVersion"),
         type: "version",
         className: "w-[10%] text-right",
       },

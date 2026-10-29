@@ -30,11 +30,11 @@ export const ModeratorsTab = () => {
     () => [
       {
         accessor: "account",
-        label: t("common:columns.moderators"),
+        label: t("columns:moderators"),
         type: "account",
         className: "w-[45%]",
       },
-      { accessor: "bannedTill", label: t("common:columns.bannedTill"), type: "banned", className: "w-[40%]" },
+      { accessor: "bannedTill", label: t("columns:bannedTill"), type: "banned", className: "w-[40%]" },
     ],
     [t],
   )

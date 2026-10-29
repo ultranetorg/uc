@@ -36,7 +36,7 @@ export const ReviewModal = memo(
         onClose={handleClose}
       >
         <div className="flex items-center gap-1 text-sm font-medium">
-          {t("common:labels.rating")} {formatRating(rating)} <SvgStarXxs className="fill-favorite" />
+          {t("labels:rating")} {formatRating(rating)} <SvgStarXxs className="fill-favorite" />
         </div>
         <div className="max-h-[60vh] overflow-y-auto pr-1 text-sm">
           <MultilineText>{text}</MultilineText>

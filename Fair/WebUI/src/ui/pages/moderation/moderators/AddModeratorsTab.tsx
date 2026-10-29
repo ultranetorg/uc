@@ -57,15 +57,15 @@ export const AddModeratorsTab = () => {
     () => [
       {
         accessor: "moderators",
-        label: t("common:columns.moderators"),
+        label: t("columns:moderators"),
         type: "accounts-list",
         className: "w-[30%]",
       },
-      { accessor: "action", label: t("common:columns.action"), type: "action-short", className: "w-[12%]" },
+      { accessor: "action", label: t("columns:action"), type: "action-short", className: "w-[12%]" },
       {
         accessor: "votes",
-        label: t("common:columns.votes.label"),
-        title: t("common:columns.votes.title"),
+        label: t("columns:votes.label"),
+        title: t("columns:votes.title"),
         type: "votes",
         className: "w-[12%] text-center",
       },
