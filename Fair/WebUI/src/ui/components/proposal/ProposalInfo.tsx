@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, PropsWithChildren } from "react"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
@@ -6,6 +6,19 @@ import { Creator, PropsWithClassName } from "types"
 import { LinkFullscreen } from "ui/components"
 import { renderCreator } from "ui/renderers2"
 import { buildCreatorLink, getLastsFor, formatDate } from "utils"
+
+type InfoRowBaseProps = {
+  label: string
+}
+
+type InfoRowProps = PropsWithChildren & InfoRowBaseProps
+
+const InfoRow = ({ label, children }: InfoRowProps) => (
+  <div className="flex flex-col gap-2">
+    <span className="text-gray-500">{label}</span>
+    {children}
+  </div>
+)
 
 type ProposalInfoBaseProps = {
   storeId: string
@@ -25,18 +38,15 @@ export const ProposalInfo = memo(({ className, storeId, createdBy, createdAt }: 
         className,
       )}
     >
-      <div className="flex flex-col gap-2">
-        <span className="text-gray-500">{t("labels:createdBy")}</span>
+      <InfoRow label={t("labels:createdBy")}>
         <LinkFullscreen to={buildCreatorLink(storeId, createdBy)}>{renderCreator(createdBy)}</LinkFullscreen>
-      </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-gray-500">{t("labels:createdAt")}</span>
+      </InfoRow>
+      <InfoRow label={t("labels:createdAt")}>
         <span>{formatDate(createdAt)}</span>
-      </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-gray-500">{t("labels:lastsFor")}</span>
+      </InfoRow>
+      <InfoRow label={t("labels:lastsFor")}>
         <span>{getLastsFor(t, createdAt)}</span>
-      </div>
+      </InfoRow>
     </div>
   )
 })

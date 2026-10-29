@@ -4,13 +4,15 @@ import { useTranslation } from "react-i18next"
 import { startCase } from "lodash"
 
 import { useSignInContext, useStoreContext, useStoreRolesContext, useUserContext } from "app"
-import { useGetAuthor, useGetPolicySurveyDetails, useInvalidation } from "entities"
+import { useGetAuthor, useGetPolicySurveyDetails, useGetStorePolicies, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { SurveyVoting, StoreApprovalPolicyChange } from "types"
 import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
 import { routes, showToast } from "utils"
+
+import { PolicySurveyInfo } from "./PolicySurveyInfo"
 
 export type PageState = "voting" | "results"
 
@@ -30,6 +32,7 @@ export const PolicySurveyPage = () => {
 
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()
 
+  const { data: policies } = useGetStorePolicies(true, storeId)
   const { data: survey, isFetching, refetch, error } = useGetPolicySurveyDetails(storeId, surveyId)
   if (error) throw error
 
@@ -123,9 +126,10 @@ export const PolicySurveyPage = () => {
         />
         <div className="flex flex-col gap-4">
           <span className="text-3.5xl font-semibold leading-10">{t("title", { operation: title })}</span>
+          <span className="text-2sm text-gray-500">{t(`policySurveysPage:${operation}`)}</span>
         </div>
       </div>
-      <div className="flex gap-8">
+      <div className="flex items-start gap-8">
         <div className="flex w-full max-w-187.5 flex-col gap-8">
           <OptionsCollapsesList
             items={items!}
@@ -137,6 +141,7 @@ export const PolicySurveyPage = () => {
             expandAll={true}
           />
         </div>
+        <PolicySurveyInfo className="w-87.5 shrink-0" survey={survey} policies={policies} publisherIds={publisherIds} />
       </div>
     </div>
   )
