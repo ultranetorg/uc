@@ -19,14 +19,13 @@ import { SimpleMenu } from "ui/components"
 import { useUserDetailsThreeDotsMenu } from "./useUserDetailsThreeDotsMenu"
 
 type UserDetailsThreeDotsMenuBaseProps = {
-  isModerator: boolean
   userId: string
   userName: string
 }
 
 export type UserDetailsThreeDotsMenuProps = PropsWithClassName & UserDetailsThreeDotsMenuBaseProps
 
-export const UserDetailsThreeDotsMenu = memo(({ isModerator, userId, userName }: UserDetailsThreeDotsMenuProps) => {
+export const UserDetailsThreeDotsMenu = memo(({ userId, userName }: UserDetailsThreeDotsMenuProps) => {
   const menuItems = useUserDetailsThreeDotsMenu(userId, userName)
   const { user } = useUserContext()
 
@@ -47,7 +46,7 @@ export const UserDetailsThreeDotsMenu = memo(({ isModerator, userId, userName }:
 
   const handleMenuClick = useCallback(() => setExpanded(false), [])
 
-  if (!isModerator || userId === user!.id) {
+  if (menuItems.length === 0 || userId === user!.id) {
     return null
   }
 

@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class PublicationProposalModel(Proposal proposal, FairUser by, Product product, Author author, PublicationImageBaseModel? publication = null) : ProposalModel(proposal, by)
+public class PublicationProposalModel(Proposal proposal, CreatorModel creator, Product product, Author author, PublicationImageBaseModel? publication = null) : ProposalModel(proposal, creator)
 {
 	public Time Updated { get; } = product.Updated;
 

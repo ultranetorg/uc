@@ -2,11 +2,17 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useOperationPolicy, useStoreContext, useStoreRolesContext } from "app"
+import { useStoreContext, useStoreRolesContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetChangedPublication, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import {
+  useApprovalIdentityForOperation,
+  useCanCreateOperation,
+  useParams,
+  useResolveStoreId,
+  useStoreTitle,
+} from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
 import {
   ModerationHeader,
@@ -21,13 +27,16 @@ export const ChangedPublicationPage = () => {
   const navigate = useNavigate()
   const { publicationId } = useParams()
   const storeId = useResolveStoreId()
-  const { t } = useTranslation()
+  const { t } = useTranslation("changedPublicationPage")
 
-  const { voterId } = useOperationPolicy("publication-updation")
+  const approval = useApprovalIdentityForOperation("publication-updation")
   const { invalidateOperation } = useInvalidation()
+  const canCreateOperation = useCanCreateOperation()
   const { store } = useStoreContext()
   const { isModerator } = useStoreRolesContext()
   const { mutate } = useTransactMutationWithStatus()
+
+  const isUpdateButtonVisible = canCreateOperation("publication-updation")
 
   const [isPending, setPending] = useState<boolean | undefined>()
 
@@ -55,7 +64,7 @@ export const ChangedPublicationPage = () => {
       },
     ] as ProposalOption[]
 
-    const operation = new ProposalCreation(storeId!, voterId!, role, "", options, "")
+    const operation = new ProposalCreation(storeId!, approval!.id, role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
         invalidateOperation("publication-updation", { storeId: storeId!, publicationId })
@@ -64,7 +73,7 @@ export const ChangedPublicationPage = () => {
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [invalidateOperation, isModerator, mutate, navigate, publication, publicationId, storeId, t, voterId])
+  }, [approval, invalidateOperation, isModerator, mutate, navigate, publication, publicationId, storeId, t])
 
   if (!storeId || isLoading) return <div>Loading{import.meta.env.DEV ? " (ModeratorChangedPublicationPage)" : ""}</div>
 
@@ -79,11 +88,11 @@ export const ChangedPublicationPage = () => {
         parentBreadcrumbs={parentBreadcrumbs}
         components={
           <>
-            {!!voterId && (
+            {!!isUpdateButtonVisible && (
               <ButtonBar className="items-center">
                 <ButtonPrimary
                   className="h-11 w-43.75"
-                  label="Update publication"
+                  label={t("updatePublication")}
                   onClick={handleUpdatePublication}
                   disabled={!!isPending}
                   loading={!!isPending}

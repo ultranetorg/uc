@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useOperationPolicy, useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
-import { useResolveStoreId, useStoreTitle } from "hooks"
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
+import { useApprovalId, useCanCreateOperation, useResolveStoreId, useStoreTitle } from "hooks"
 import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedStoreProduct, useInvalidation } from "entities"
@@ -24,7 +24,8 @@ export const CreatePublicationPage = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("createPublicationPage")
 
-  const { voterId } = useOperationPolicy("publication-creation")
+  const approvalId = useApprovalId()
+  const canCreateOperation = useCanCreateOperation()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
   const { isModerator } = useStoreRolesContext()
@@ -62,7 +63,7 @@ export const CreatePublicationPage = () => {
       },
     ] as ProposalOption[]
 
-    const operation = new ProposalCreation(storeId!, voterId!, role, "", options, "")
+    const operation = new ProposalCreation(storeId!, approvalId!, role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
         invalidateOperation("publication-creation", { storeId: storeId! })
@@ -77,7 +78,7 @@ export const CreatePublicationPage = () => {
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [invalidateOperation, isModerator, isRequiredVoting, mutate, navigate, product, storeId, t, voterId])
+  }, [approvalId, invalidateOperation, isModerator, isRequiredVoting, mutate, navigate, product, storeId, t])
 
   const isProductValid = !isError && !!product && !!product.fields && product.fields.length > 0
 
@@ -114,7 +115,7 @@ export const CreatePublicationPage = () => {
               authorTitle={product.authorTitle}
               components={
                 <>
-                  {isProductValid && !!voterId && (
+                  {isProductValid && canCreateOperation("publication-creation") && (
                     <ButtonBar className="items-center">
                       <ButtonPrimary
                         className="h-11 w-40 capitalize"

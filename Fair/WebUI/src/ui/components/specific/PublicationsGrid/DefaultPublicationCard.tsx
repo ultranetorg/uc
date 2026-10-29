@@ -1,18 +1,17 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { useStoreRolesContext } from "app"
 import { SvgStarXxs } from "assets"
 import { SvgSoftwareLogo } from "assets/fallback"
 import { ImageFallback } from "ui/components"
-import { PublicationCardContextThreeDotsMenu } from "ui/components/specific"
+import { PublicationCardContextThreeDotsMenu, usePublicationCardContextThreeDotsMenu } from "ui/components/specific"
 import { buildFileUrl, formatAverageRating } from "utils"
 
 import { PublicationCardProps } from "./types"
 
 export const DefaultPublicationCard = memo(
   ({ id, title, logoFileId, authorTitle, categoryTitle, rating }: PublicationCardProps) => {
-    const { isModerator } = useStoreRolesContext()
+    const hasContextMenu = usePublicationCardContextThreeDotsMenu(id, title, true).length > 0
     const formattedRating = formatAverageRating(rating)
 
     return (
@@ -34,19 +33,17 @@ export const DefaultPublicationCard = memo(
 
         {rating > 0 && (
           <span
-            className={twMerge("absolute top-2.5 flex items-center", !isModerator ? "right-2.5" : "left-2.5")}
+            className={twMerge("absolute top-2.5 flex items-center", hasContextMenu ? "left-2.5" : "right-2.5")}
             title={formattedRating}
           >
             {formattedRating} <SvgStarXxs className="fill-favorite" />
           </span>
         )}
-        {isModerator && (
-          <PublicationCardContextThreeDotsMenu
-            publicationId={id}
-            publicationTitle={title}
-            className="absolute right-1 top-1"
-          />
-        )}
+        <PublicationCardContextThreeDotsMenu
+          publicationId={id}
+          publicationTitle={title}
+          className="absolute right-1 top-1"
+        />
       </div>
     )
   },

@@ -140,11 +140,11 @@ export type FairApi = {
   ): Promise<TotalItemsResult<Proposal>>
   getProposals(storeId: string, page?: number, pageSize?: number, search?: string): Promise<TotalItemsResult<Proposal>>
 
-  getProposalDetails(storeId: string, discussionId: string): Promise<ProposalDetails>
+  getProposalDetails(storeId: string, proposalId: string): Promise<ProposalDetails>
 
   getProposalComments(
     storeId: string,
-    discussionId: string,
+    proposalId: string,
     page?: number,
     pageSize?: number,
   ): Promise<TotalItemsResult<ProposalComment>>

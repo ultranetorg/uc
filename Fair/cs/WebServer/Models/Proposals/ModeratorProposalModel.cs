@@ -1,6 +1,6 @@
 ﻿namespace Uccs.Fair;
 
-public class ModeratorProposalModel(Proposal proposal, FairUser by) : ProposalModel(proposal, by)
+public class ModeratorProposalModel(Proposal proposal, CreatorModel creator) : ProposalModel(proposal, creator)
 {
 	public IEnumerable<UserModel> Moderators { get; init; }
 }

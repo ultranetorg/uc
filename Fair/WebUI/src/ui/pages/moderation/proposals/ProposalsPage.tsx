@@ -32,9 +32,9 @@ export const ProposalsPage = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: discussions } = useGetProposals(storeId, page, DEFAULT_PAGE_SIZE_20, state.query)
+  const { data: proposals } = useGetProposals(storeId, page, DEFAULT_PAGE_SIZE_20, state.query)
   const pagesCount =
-    discussions?.totalItems && discussions.totalItems > 0 ? Math.ceil(discussions.totalItems / DEFAULT_PAGE_SIZE_20) : 0
+    proposals?.totalItems && proposals.totalItems > 0 ? Math.ceil(proposals.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -67,7 +67,8 @@ export const ProposalsPage = () => {
       <ModerationHeader title={startCase(t("common:proposals"))} />
       <ProposalsView
         t={t}
-        proposals={discussions}
+        proposalType="proposal"
+        proposals={proposals}
         page={page}
         pagesCount={pagesCount}
         search={state.query}

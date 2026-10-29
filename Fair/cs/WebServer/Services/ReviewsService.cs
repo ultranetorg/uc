@@ -70,7 +70,6 @@ public class ReviewsService
 			if(loadedItems >= page * pageSize && loadedItems < (page + 1) * pageSize)
 			{
 				Review review = mcv.Reviews.Latest(id);
-				FairUser account = (FairUser) mcv.Users.Latest(review.Creator);
 				Publication publication = mcv.Publications.Latest(review.Publication);
 				Product product = mcv.Products.Latest(publication.Product);
 
@@ -78,9 +77,7 @@ public class ReviewsService
 				{
 					Id = review.Id,
 					Text = review.Text,
-					CreatorId = account.Id,
-					CreatorName = account.Name,
-					CreatorAvatarId = account.Id,
+					Creator = McvUtils.LoadCreator(mcv, review.Creator, Role.User),
 					Created = review.Created,
 					Rating = review.Rating,
 					PublicationId = publication.Id,

@@ -3,10 +3,10 @@ import { Link } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { truncate } from "lodash"
 
-import { useOperationPolicy, useStoreContext } from "app"
+import { useStoreContext } from "app"
 import { SvgEyeSm } from "assets"
 import { useGetUnpublishedPublication } from "entities"
-import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { useCanCreateOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { OperationType } from "types"
 import {
   ModerationHeader,
@@ -19,11 +19,13 @@ import { routes } from "utils"
 
 export const UnpublishedPublicationPage = () => {
   const { publicationId } = useParams()
-  const storeId = useResolveStoreId()
   const { t } = useTranslation("unpublishedPublicationPage")
 
-  const { voterId } = useOperationPolicy("publication-updation")
+  const canCreateOperation = useCanCreateOperation()
+  const storeId = useResolveStoreId()
   const { store } = useStoreContext()
+
+  const isPublishVisible = canCreateOperation("publication-publish")
 
   const parentBreadcrumbs = useMemo(
     () => [{ title: t("common:publications"), path: routes.moderation.publications(storeId!, "unpublished") }],
@@ -44,7 +46,7 @@ export const UnpublishedPublicationPage = () => {
         parentBreadcrumbs={parentBreadcrumbs}
         components={
           <>
-            {!!voterId && (
+            {isPublishVisible && (
               <ButtonBar className="items-center">
                 <Link
                   to={routes.moderation.createProposal(storeId!)}

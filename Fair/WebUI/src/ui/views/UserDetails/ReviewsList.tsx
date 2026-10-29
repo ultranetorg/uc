@@ -2,7 +2,7 @@ import { memo } from "react"
 
 import { Review, TotalItemsResult } from "types"
 import { Comment } from "ui/components/comments"
-import { buildUserAvatarByIdUrl } from "utils"
+import { buildCreatorAvatarUrl } from "utils"
 
 export type ReviewsListProps = {
   reviews: TotalItemsResult<Review>
@@ -17,9 +17,9 @@ export const ReviewsList = memo(({ reviews }: ReviewsListProps) => (
         id={x.id}
         text={x.text}
         rating={x.rating}
-        creatorId={x.creatorId}
-        creatorName={x.creatorName}
-        creatorAvatarSrc={buildUserAvatarByIdUrl(x.creatorId)}
+        creatorId={x.creator.id}
+        creatorName={x.creator.title}
+        creatorAvatarSrc={buildCreatorAvatarUrl(x.creator)}
         created={x.created}
         publication={{ id: x.publicationId, title: x.publicationTitle }}
       />

@@ -1,4 +1,6 @@
-import { BaseVotableOperation, OperationType, Proposal, ProposalDetails, SpecialChoice } from "types"
+import { BaseVotableOperation, OperationType, Policy, Proposal, ProposalDetails, SpecialChoice } from "types"
+
+import { isModeratorCanVote, isPublisherCanVote } from "./votingUtils"
 
 export const getFirstOperation = <T extends BaseVotableOperation>(
   proposal: Proposal,
@@ -19,6 +21,40 @@ export const getVotedIndex = (voterId?: string, proposal?: ProposalDetails): num
   }
 
   return undefined
+}
+
+export const getLeadingVotes = (proposal: Proposal): number => Math.max(0, ...proposal.yes.map(x => x.length))
+
+export const getLeadingOptionIndexes = (proposal: Proposal): number[] => {
+  const leadingVotes = getLeadingVotes(proposal)
+  if (leadingVotes === 0) return []
+
+  return proposal.yes.flatMap((x, i) => (x.length === leadingVotes ? [i] : []))
+}
+
+export const getVotedChoice = (voterIds: string[], proposal: Proposal): number | undefined => {
+  const hasVoted = (ids: string[]) => ids.some(id => voterIds.includes(id))
+
+  const choice = proposal.yes.findIndex(hasVoted)
+  if (choice !== -1) return choice
+  if (hasVoted(proposal.neither)) return SpecialChoice.Neither
+  if (hasVoted(proposal.any)) return SpecialChoice.Any
+  if (hasVoted(proposal.ban)) return SpecialChoice.Ban
+  if (hasVoted(proposal.banish)) return SpecialChoice.Banish
+
+  return undefined
+}
+
+export const getVoterIds = (
+  operation: OperationType,
+  policies?: Policy[],
+  moderatorId?: string,
+  publisherIds?: string[],
+): string[] => {
+  if (isModeratorCanVote(operation, policies)) return moderatorId ? [moderatorId] : []
+  if (isPublisherCanVote(operation, policies)) return publisherIds ?? []
+
+  return []
 }
 
 export const isVoted = (voterId?: string, proposal?: ProposalDetails): boolean | undefined =>

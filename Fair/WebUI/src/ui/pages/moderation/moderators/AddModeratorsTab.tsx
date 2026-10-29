@@ -10,7 +10,7 @@ import { useGetModeratorProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ModeratorProposal } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import { renderUser, renderUsersList } from "ui/renderers2"
+import { renderCreator, renderUsersList } from "ui/renderers2"
 import { renderActionShort, renderCommon } from "ui/renderers/utils"
 import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
 
@@ -21,7 +21,7 @@ const getModeratorsProposalsItemRenderer =
 
     switch (column.type) {
       case "account":
-        return renderUser(proposal.by)
+        return renderCreator(proposal.creator)
       case "accounts-list":
         return renderUsersList(proposal.moderators)
       case "action-short":
@@ -57,12 +57,18 @@ export const AddModeratorsTab = () => {
     () => [
       {
         accessor: "moderators",
-        label: t("common:moderators"),
+        label: t("columns:moderators"),
         type: "accounts-list",
-        className: "w-[30%] first-letter:uppercase",
+        className: "w-[30%]",
       },
-      { accessor: "action", label: t("common:action"), type: "action-short", className: "w-[12%]" },
-      { accessor: "votes", label: t("common:votes"), type: "votes", className: "capitalize w-[12%] text-center" },
+      { accessor: "action", label: t("columns:action"), type: "action-short", className: "w-[12%]" },
+      {
+        accessor: "votes",
+        label: t("columns:votes.label"),
+        title: t("columns:votes.title"),
+        type: "votes",
+        className: "w-[12%] text-center",
+      },
     ],
     [t],
   )

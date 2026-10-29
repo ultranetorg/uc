@@ -2,16 +2,16 @@ import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
-import { useSignInContext, useApprovalId, useStorePoliciesContext, useApprovalIdentityForOperation } from "app"
+import { useSignInContext, useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
 import { useGetProposalComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveStoreId } from "hooks"
+import { useApprovalId, useApprovalIdentityForOperation, useResolveStoreId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
 import { ModerationHeader, ModerationHeaderProps } from "ui/components/specific"
-import { getVotedIndex, isReferendum as isReferendum_, isVoted, routes, showToast } from "utils"
+import { getVoterIds, getVotedIndex, isReferendum as isReferendum_, isVoted, routes, showToast } from "utils"
 
 import {
   DefaultContent,
@@ -53,10 +53,18 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
   const approval = useApprovalIdentityForOperation(proposal?.operation)
   const storeId = useResolveStoreId()
   const { startSignIn } = useSignInContext()
+  const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
+  const { isModerator, publisherIds } = useStoreRolesContext()
+  const { user } = useUserContext()
   const { mutate } = useTransactMutationWithStatus()
 
   const isReferendum = isReferendum_(proposal?.operation, policies)
+
+  const voterIds = useMemo(
+    () => (proposal ? getVoterIds(proposal.operation, policies, isModerator ? user?.id : undefined, publisherIds) : []),
+    [proposal, policies, isModerator, user?.id, publisherIds],
+  )
 
   const [voteStatus, setVoteStatus] = useState<VoteStatus>("idle")
   const [pageState, setPageState] = useState<PageState>("voting")
@@ -180,11 +188,11 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
     if (!approval) return
 
     if (isPublicationProposal) {
-      if (isVoted(approval!.id, proposal)) {
+      if (isVoted(approval.id, proposal)) {
         setVoteStatus("voted")
       }
     } else {
-      const votedIndex = getVotedIndex(approval!.id, proposal)
+      const votedIndex = getVotedIndex(approval.id, proposal)
       if (votedIndex !== undefined) {
         setVoteStatus("voted")
         setVotedValue(votedIndex)
@@ -200,6 +208,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
     <div className="flex flex-col gap-6">
       <ModerationHeader
         title={proposal.title ?? proposal.id}
+        subtitle={t(`policySurveysPage:${proposal?.operation}`)}
         parentBreadcrumbs={headerBreadcrumbs}
         components={
           isPublicationProposal && !!approval && voteStatus !== "voted" ? (
@@ -276,9 +285,10 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
         <div className="flex flex-col gap-6">
           <ProposalInfo
             className="w-87.5"
-            storeId={storeId!}
-            createdBy={proposal.by}
-            createdAt={proposal.creationTime}
+            store={store!}
+            proposal={proposal}
+            policies={policies!}
+            voterIds={voterIds}
           />
           {!isPublicationProposal &&
             (pageState === "voting" ? (

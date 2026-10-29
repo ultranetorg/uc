@@ -4,13 +4,15 @@ import { useTranslation } from "react-i18next"
 import { startCase } from "lodash"
 
 import { useSignInContext, useStoreContext, useStoreRolesContext, useUserContext } from "app"
-import { useGetPolicySurveyDetails, useInvalidation } from "entities"
+import { useGetAuthor, useGetPolicySurveyDetails, useGetStorePolicies, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { SurveyVoting, StoreApprovalPolicyChange } from "types"
-import { Breadcrumbs } from "ui/components"
 import { OptionsCollapsesList, OptionsCollapsesListItem } from "ui/components/proposal"
+import { ModerationHeader } from "ui/components/specific"
 import { routes, showToast } from "utils"
+
+import { PolicySurveyInfo } from "./PolicySurveyInfo"
 
 export type PageState = "voting" | "results"
 
@@ -25,10 +27,12 @@ export const PolicySurveyPage = () => {
 
   const { startSignIn, openAuthorRoleRequiredModal } = useSignInContext()
   const { publisherIds } = useStoreRolesContext()
+  const { data: publisher } = useGetAuthor(publisherIds?.[0])
   const { mutate } = useTransactMutationWithStatus()
 
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()
 
+  const { data: policies } = useGetStorePolicies(true, storeId)
   const { data: survey, isFetching, refetch, error } = useGetPolicySurveyDetails(storeId, surveyId)
   if (error) throw error
 
@@ -61,7 +65,7 @@ export const PolicySurveyPage = () => {
         onSuccess: () => {
           invalidatePolicyChange({ storeId: storeId! })
           navigate(routes.moderation.policySurveys(storeId!))
-          showToast(t("toast:surveyVoted", { publisher: publisherId }))
+          showToast(t("toast:surveyVoted", { publisher: publisher?.title ?? publisherId }))
         },
         onError: err => showToast(err.toString(), "error"),
         onSettled: () => refetch(),
@@ -69,6 +73,7 @@ export const PolicySurveyPage = () => {
     },
     [
       publisherIds,
+      publisher?.title,
       storeId,
       surveyId,
       mutate,
@@ -110,20 +115,13 @@ export const PolicySurveyPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Breadcrumbs
-          fullPath={true}
-          items={[
-            { path: routes.store(storeId!), title: t("home") },
-            { title: t("common:policySurveys"), path: routes.moderation.policySurveys(storeId!) },
-            { title: title! },
-          ]}
-        />
-        <div className="flex flex-col gap-4">
-          <span className="text-3.5xl font-semibold leading-10">{t("title", { operation: title })}</span>
-        </div>
-      </div>
-      <div className="flex gap-8">
+      <ModerationHeader
+        title={t("title", { operation: title })}
+        subtitle={t(`policySurveysPage:${operation}`)}
+        breadcrumbTitle={title}
+        parentBreadcrumbs={{ title: t("common:policySurveys"), path: routes.moderation.policySurveys(storeId!) }}
+      />
+      <div className="flex items-start gap-8">
         <div className="flex w-full max-w-187.5 flex-col gap-8">
           <OptionsCollapsesList
             items={items!}
@@ -135,6 +133,7 @@ export const PolicySurveyPage = () => {
             expandAll={true}
           />
         </div>
+        <PolicySurveyInfo className="w-87.5 shrink-0" survey={survey} policies={policies} publisherIds={publisherIds} />
       </div>
     </div>
   )

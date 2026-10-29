@@ -2,8 +2,8 @@ import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
 import { Proposal } from "types"
-import { renderUser } from "ui/renderers2"
 import { TableColumn, TableItem } from "ui/components"
+import { renderCreator } from "ui/renderers2"
 import { isUserVoted } from "utils"
 
 import { renderActions, renderCommon, renderTitle } from "./utils"
@@ -26,13 +26,13 @@ export const getUsersItemRenderer =
         return renderTitle(proposal.title, proposal.text)
 
       case "account":
-        return renderUser(proposal.by)
+        return renderCreator(proposal.creator)
 
       case "actions":
         return renderActions(
           t,
-          () => onApprove(item.id, proposal.by.name),
-          () => onReject(item.id, proposal.by.name),
+          () => onApprove(item.id, proposal.creator.title),
+          () => onReject(item.id, proposal.creator.title),
           loadingItem?.id === item.id ? loadingItem.action : undefined,
           isVoted || (loadingItem && loadingItem.id !== item.id),
         )

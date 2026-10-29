@@ -68,19 +68,19 @@ public class ModeratorProposalsService
 
 	PublicationProposalModel CreatePublicationModelFromProduct(Proposal proposal, Store store, AutoId productId)
 	{
-		FairUser by = (FairUser)mcv.Users.Latest(proposal.By);
+		CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
 		Product product = mcv.Products.Latest(productId);
 		Author author = mcv.Authors.Latest(product.Author);
 		AutoId? fileId = PublicationUtils.GetLatestLogo(product);
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(product, fileId);
 
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
+		return new PublicationProposalModel(proposal, creator, product, author, publicationImage);
 	}
 
 	PublicationProposalModel CreatePublicationModel(Proposal proposal, Store store, AutoId publicationId)
 	{
-		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+		CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
 		Publication publication = mcv.Publications.Latest(publicationId);
 		Product product = mcv.Products.Latest(publication.Product);
 		Author author = mcv.Authors.Latest(product.Author);
@@ -89,7 +89,7 @@ public class ModeratorProposalsService
 
 		PublicationImageBaseModel publicationImage = new PublicationImageBaseModel(publication, product, null, fileId);
 
-		return new PublicationProposalModel(proposal, by, product, author, publicationImage);
+		return new PublicationProposalModel(proposal, creator, product, author, publicationImage);
 	}
 
 	T GetProposalByType<T>(string storeId, string proposalId, string entityName, Predicate<Proposal> checkFunc, Func<Proposal, Store, T> createFunc) where T : ProposalModel
@@ -180,13 +180,12 @@ public class ModeratorProposalsService
 
 	ModeratorProposalModel CreateModeratorProposalModel(Proposal proposal, Store store)
 	{
-		Author author = mcv.Authors.Latest(proposal.By);
-		FairUser by = (FairUser) mcv.Users.Latest(author.Owners[0]); // TODO Elwray: handle multiple Authors.
+		CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
 
 		if(proposal.Options[0].Operation is StoreModeratorAddition addition)
 		{
 			IEnumerable<UserModel> moderators = McvUtils.LoadUsers(mcv, addition.Candidates, CancellationToken.None);
-			return new ModeratorProposalModel(proposal, by)
+			return new ModeratorProposalModel(proposal, creator)
 			{
 				Moderators = moderators,
 			};
@@ -211,12 +210,12 @@ public class ModeratorProposalsService
 
 	PublisherProposalModel CreatePublisherProposalModel(Proposal proposal, Store store)
 	{
-		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+		CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
 
 		if(proposal.Options[0].Operation is StoreAuthorsRemoval removal)
 		{
 			IEnumerable<AuthorBaseAvatarModel> removals = McvUtils.LoadAuthors(mcv, removal.Authors, CancellationToken.None);
-			return new PublisherProposalModel(proposal, by, removals);
+			return new PublisherProposalModel(proposal, creator, removals);
 		}
 
 		return null;
@@ -252,8 +251,8 @@ public class ModeratorProposalsService
 
 	ProposalModel CreateUserProposalModel(Proposal proposal, Store store)
 	{
-		FairUser by = (FairUser)mcv.Users.Latest(proposal.By);
-		return new ProposalModel(proposal, by);
+		CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
+		return new ProposalModel(proposal, creator);
 	}
 
 	UserUnregistrationProposalModel CreateUserUnregistrationModel(Proposal proposal, Store store)
@@ -262,9 +261,9 @@ public class ModeratorProposalsService
 		AutoId userId = operation.User;
 		FairUser userToUnregister = (FairUser) mcv.Users.Latest(userId);
 
-		FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
+		CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
 
-		return new UserUnregistrationProposalModel(proposal, by)
+		return new UserUnregistrationProposalModel(proposal, creator)
 		{
 			UserId = userToUnregister.Id,
 			UserName = userToUnregister.Name

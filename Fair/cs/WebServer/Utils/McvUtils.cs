@@ -41,4 +41,29 @@ public static class McvUtils
 
 		return result;
 	}
+
+	public static CreatorModel LoadCreator(FairMcv mcv, Proposal proposal) => LoadCreator(mcv, proposal.By, proposal.As);
+
+	public static CreatorModel LoadCreator(FairMcv mcv, AutoId id, Role role)
+	{
+		switch(role)
+		{
+			case Role.Moderator:
+			case Role.User:
+			{
+				FairUser user = (FairUser) mcv.Users.Latest(id);
+				return new CreatorModel {Id = id, Title = user.Name, As = role, AvatarId = id};
+			}
+			case Role.Publisher:
+			{
+				Author author = mcv.Authors.Latest(id);
+				return new CreatorModel {Id = id, Title = author.Title, As = role, AvatarId = author.Avatar};
+			}
+			default:
+			{
+				throw new InvalidOperationException($"Unexpected creator role: {role}");	
+			}
+				
+		}
+	}
 }

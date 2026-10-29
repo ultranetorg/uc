@@ -1,19 +1,30 @@
 import { memo, useMemo } from "react"
 import { TFunction } from "i18next"
 
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { SvgSearchMd, SvgX } from "assets"
 import { Proposal, TotalItemsResult } from "types"
 import { Input, Pagination, Table, TableColumn, TableEmptyState } from "ui/components"
-import { getProposalsItemRenderer } from "ui/renderers"
+import { ProposalType } from "types/ProposalType"
+
+import { getProposalsItemRenderer } from "./proposalsItemRenderer"
 
 const getVotingColumns = (t: TFunction): TableColumn[] => [
-  { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for" },
-  { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
-  { accessor: "nabb", label: t("common:nabb"), type: "nabb", title: t("common:nabbFull") },
+  { accessor: "leadingOption", label: t("columns:leadingOption"), type: "leading-option", className: "w-[16%]" },
+  {
+    accessor: "progress",
+    label: t("columns:progress.label"),
+    title: t("columns:progress.proposalTitle"),
+    type: "progress",
+    className: "w-[13%]",
+  },
+  { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[12%]" },
+  { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[8%]" },
 ]
 
 export type ProposalsViewProps = {
   t: TFunction
+  proposalType: ProposalType
   proposals?: TotalItemsResult<Proposal>
   page: number
   pagesCount: number
@@ -27,6 +38,7 @@ export type ProposalsViewProps = {
 export const ProposalsView = memo(
   ({
     t,
+    proposalType,
     proposals,
     page,
     pagesCount,
@@ -38,22 +50,33 @@ export const ProposalsView = memo(
   }: ProposalsViewProps) => {
     const columns = useMemo(
       () => [
-        { accessor: "text", label: t("common:title"), type: "title", className: "w-[24%]" },
-        { accessor: "createdBy", label: t("common:createdBy"), type: "account", className: "w-[15%]" },
-        { accessor: "action", label: t("common:action"), type: "action", className: "w-[20%]" },
+        { accessor: "text", label: t("columns:title"), type: "title", className: "w-[22%]" },
+        { accessor: "createdBy", label: t("columns:createdBy"), type: "account", className: "w-[13%]" },
+        { accessor: "action", label: t("columns:action"), type: "action", className: "w-[16%]" },
         ...getVotingColumns(t),
       ],
       [t],
     )
 
-    const itemRenderer = useMemo(() => getProposalsItemRenderer(t), [t])
+    const { store } = useStoreContext()
+    const policies = useStorePoliciesContext()
+    const { isModerator, publisherIds } = useStoreRolesContext()
+    const { user } = useUserContext()
+
+    const moderatorId = isModerator ? user?.id : undefined
+    const itemRenderer = useMemo(
+      () => getProposalsItemRenderer(t, { store, policies, moderatorId, publisherIds }),
+      [t, store, policies, moderatorId, publisherIds],
+    )
 
     return (
       <>
         <div className="flex flex-col justify-between gap-4 xl:flex-row">
           <div className="w-full max-w-120">
             <Input
-              placeholder={t("searchProposal")}
+              placeholder={
+                proposalType === "proposal" ? t("placeholders:searchProposals") : t("placeholders:searchReferendums")
+              }
               value={search}
               onChange={onSearchChange}
               elementAfter={

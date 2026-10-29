@@ -33,9 +33,9 @@ export const UnpublishedPublicationsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[40%]" },
-      { accessor: "type", label: t("common:type"), type: "type", className: "w-[15%] capitalize" },
-      { accessor: "author", label: t("common:author"), type: "author", className: "w-[45%]" },
+      { accessor: "publication", label: t("columns:publication"), type: "publication", className: "w-[40%]" },
+      { accessor: "type", label: t("columns:type"), type: "type", className: "w-[15%] capitalize" },
+      { accessor: "author", label: t("columns:author"), type: "author", className: "w-[45%]" },
     ],
     [t],
   )

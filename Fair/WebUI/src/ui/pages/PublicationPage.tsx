@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useOperationPolicy, useSignInContext, useStoreContext } from "app"
+import { useSignInContext, useStoreContext } from "app"
 import { REVIEWS_PAGE_SIZE } from "config"
 import { useGetPaginatedReviews, useGetPublicationDetails, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useParams, useStoreTitle } from "hooks"
+import { useCreatorIdentityForOperation, useParams, useStoreTitle } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption } from "types"
 import { TextModal } from "ui/components"
 import { ReviewModal, PublicationHeader } from "ui/components/publication"
@@ -14,8 +14,8 @@ import { showToast } from "utils"
 
 export const PublicationPage = () => {
   const { t } = useTranslation("publicationPage")
-  const { creator: create } = useOperationPolicy("review-creation")
-  const { creator: deleteCreator } = useOperationPolicy("review-deletion")
+  const create = useCreatorIdentityForOperation("review-creation")
+  const deleteCreator = useCreatorIdentityForOperation("review-deletion")
   const { publicationId } = useParams()
   const { store } = useStoreContext()
 

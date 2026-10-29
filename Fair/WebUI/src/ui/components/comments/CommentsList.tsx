@@ -2,7 +2,7 @@ import { memo } from "react"
 
 import { ProposalComment, Review } from "types"
 import { useResolveStoreId } from "hooks"
-import { buildFileUrl, buildUserAvatarByIdUrl, routes } from "utils"
+import { buildCreatorAvatarUrl, buildCreatorLink } from "utils"
 
 import { Comment } from "./Comment"
 import { CommentInput } from "./CommentInput"
@@ -67,18 +67,10 @@ export const CommentsList = memo(
                 id={r.id}
                 text={r.text}
                 rating={"rating" in r ? r.rating : undefined}
-                creatorId={r.creatorId}
-                creatorName={r.creatorName}
-                creatorAvatarSrc={
-                  r.creatorAs == "moderator"
-                    ? buildUserAvatarByIdUrl(r.creatorAvatarId)
-                    : buildFileUrl(r.creatorAvatarId)
-                }
-                creatorLink={
-                  r.creatorAs == "moderator"
-                    ? routes.reviewer(storeId!, r.creatorId)
-                    : routes.publisher(storeId!, r.creatorId)
-                }
+                creatorId={r.creator.id}
+                creatorName={r.creator.title}
+                creatorAvatarSrc={buildCreatorAvatarUrl(r.creator)}
+                creatorLink={buildCreatorLink(storeId!, r.creator)}
                 created={r.created}
               />
             ))}

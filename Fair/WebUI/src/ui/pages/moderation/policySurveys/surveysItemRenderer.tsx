@@ -1,32 +1,22 @@
 import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
-import { Survey, Policy, StoreApprovalPolicyChange } from "types"
-import { TableColumn, TableItem } from "ui/components/Table"
-import { formatPercents } from "utils"
+import { SvgInfoCircle } from "assets"
+import { Survey, Policy } from "types"
+import { Tooltip, TableColumn, TableItem } from "ui/components"
 
-const getOperation = (survey: Survey, index: number): StoreApprovalPolicyChange | undefined =>
-  survey?.options && survey.options.length > 0 && index < survey.options.length
-    ? (survey.options[index].operation as StoreApprovalPolicyChange)
-    : undefined
-
-const getVotedApproval = (t: TFunction, survey: Survey, policies?: Policy[]): string => {
-  if (survey.lastWin === -1) {
-    const operation = getOperation(survey, 0)
-    if (!operation || !policies) return "-"
-
-    const approval = policies.find(x => x.operationClass === operation.operation)
-    if (!approval) return "-"
-
-    return t(`approvalRequirement:${approval.approval}`)
-  }
-
-  const winOperation = getOperation(survey, survey.lastWin)!
-  return t(`approvalRequirement:${winOperation.approval}`)
-}
+import {
+  CELL_CLASSNAME,
+  getOperation,
+  renderLeadingOption,
+  renderProgress,
+  renderVotedApproval,
+  renderYourVote,
+  stopPropagation,
+} from "./utils"
 
 export const surveysItemRenderer =
-  (t: TFunction, policies?: Policy[]) =>
+  (t: TFunction, policies?: Policy[], publisherIds?: string[]) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const survey = item as Survey
 
@@ -34,21 +24,28 @@ export const surveysItemRenderer =
       const operation = getOperation(survey, 0)
       if (!operation) return undefined
 
-      return t(`operations:${operation.operation}`)
+      return (
+        <div className={CELL_CLASSNAME}>
+          {t(`operations:${operation.operation}`)}{" "}
+          <Tooltip text={t(operation.operation)}>
+            <SvgInfoCircle className="cursor-default stroke-gray-800" onClick={stopPropagation} />
+          </Tooltip>
+        </div>
+      )
     }
     if (column.type === "voted-approval") {
-      return getVotedApproval(t, survey, policies)
+      return renderVotedApproval(t, survey, policies)
     }
 
-    if (column.accessor === "totalVotes") {
-      return survey.isVariableApproval ? survey.totalVotes : ""
+    if (!survey.isVariableApproval) return "-"
+
+    if (column.type === "leading-option") {
+      return renderLeadingOption(t, survey, policies)
     }
-    if (column.accessor === "votesRequiredToWin") {
-      return survey.isVariableApproval ? survey.votesRequiredToWin : ""
+    if (column.type === "progress") {
+      return renderProgress(survey)
     }
-    if (column.type === "win-percentage") {
-      return survey.lastWin !== -1 && survey.isVariableApproval
-        ? formatPercents(survey.options[survey.lastWin].votePercents)
-        : ""
+    if (column.type === "your-vote") {
+      return renderYourVote(t, survey, publisherIds)
     }
   }

@@ -49,6 +49,10 @@ export const PublicationCardContextThreeDotsMenu = memo(
 
     const handleMenuClick = useCallback(() => setExpanded(false), [])
 
+    if (menuItems.length === 0) {
+      return null
+    }
+
     return (
       <>
         <div className={className} ref={refs.setReference} {...getReferenceProps()}>

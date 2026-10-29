@@ -5,4 +5,5 @@ import { Proposal } from "./Proposal"
 export type ReviewProposal = {
   publication: PublicationImageBase | null
   reviewText: string
+  rating: number
 } & Proposal

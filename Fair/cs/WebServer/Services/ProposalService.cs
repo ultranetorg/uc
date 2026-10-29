@@ -36,14 +36,14 @@ public class ProposalService
 			throw new EntityNotFoundException(nameof(Proposal).ToLower(), storeId);
 		}
 
-		FairUser account = (FairUser)mcv.Users.Latest(proposal.By);
+		CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
 
 		IEnumerable<ProposalOptionModel> options = LoadOptions(proposal);
 
 		Policy proposalPolicy = store.Policies.FirstOrDefault(p => p.OperationClass == proposal.OptionClass);
 		int votesRequiredToWin = VotingUtils.CalculateVotesRequiredToWinProposal(proposalPolicy.Approval, store);
 
-		return new ProposalDetailsModel(proposal, account, votesRequiredToWin)
+		return new ProposalDetailsModel(proposal, creator, votesRequiredToWin)
 		{
 			Options = options
 		};
@@ -141,8 +141,8 @@ public class ProposalService
 		IList<ProposalModel> result = new List<ProposalModel>(proposals.Count);
 		foreach(Proposal proposal in proposals)
 		{
-			FairUser by = (FairUser) mcv.Users.Latest(proposal.By);
-			ProposalModel model = new ProposalModel(proposal, by);
+			CreatorModel creator = McvUtils.LoadCreator(mcv, proposal);
+			ProposalModel model = new ProposalModel(proposal, creator);
 			result.Add(model);
 		}
 

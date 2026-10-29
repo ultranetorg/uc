@@ -2,30 +2,36 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber, isString } from "lodash"
 
-import { useApprovalIdentityForOperation, useStoreContext, useStorePoliciesContext } from "app"
+import { useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewCreationsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
-import { ProposalVoting, SpecialChoice } from "types"
-import { Pagination, Table, TableEmptyState, TextModal } from "ui/components"
-import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
+import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
+import { ProposalVoting, ReviewProposal, SpecialChoice } from "types"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { ReviewModal } from "ui/components/specific"
+import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
 export const NewReviewsTab = () => {
+  const { t } = useTranslation("reviewsPage")
+
   const creationApproval = useApprovalIdentityForOperation("review-creation")
   const editApproval = useApprovalIdentityForOperation("review-edit")
-
+  const { invalidateOperation } = useInvalidation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
-  const { t } = useTranslation("reviewsPage")
+  const { mutate } = useTransactMutationWithStatus()
+
+  const canApproveOrReject = !!(creationApproval || editApproval)
 
   useStoreTitle(store?.title, "Reviews")
 
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>()
   const [selectedReviewText, setSelectedReviewText] = useState<string | undefined>()
+  const [selectedReviewRating, setSelectedReviewRating] = useState<number | undefined>()
   const [state, setState] = useUrlParamsState({
     page: {
       defaultValue: 0,
@@ -41,35 +47,65 @@ export const NewReviewsTab = () => {
   const pagesCount =
     reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  const { mutate } = useTransactMutationWithStatus()
-  const { invalidateOperation } = useInvalidation()
-
-  const columns = useMemo(
+  const columns = useMemo<TableColumn[]>(
     () => [
-      { accessor: "author", label: t("common:reviewer"), type: "account", className: "w-[15%]" },
-      { accessor: "publication", label: t("common:publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "text", label: t("common:text"), type: "text", className: "w-[23%]" },
-      { accessor: "votes", label: t("common:votes"), type: "votes", className: "first-letter:uppercase text-center" },
-      ...(creationApproval || editApproval
-        ? [{ accessor: "action", label: t("common:action"), type: "review-action", className: "w-[20%] text-center" }]
+      { accessor: "publication", label: t("columns:publication"), type: "publication", className: "w-[17%]" },
+      { accessor: "author", label: t("columns:reviewer"), type: "account", className: "w-[15%]" },
+      {
+        accessor: "text",
+        label: t("columns:text"),
+        type: "text",
+        className: canApproveOrReject ? "w-[23%]" : "w-[43%]",
+      },
+      {
+        accessor: "rating",
+        type: "rating",
+        label: t("columns:rating"),
+        className: "w-[8%] text-right",
+      },
+      {
+        accessor: "votes",
+        label: t("columns:votes.label"),
+        title: t("columns:votes.title"),
+        type: "votes",
+        className: "text-center",
+      },
+      ...(canApproveOrReject
+        ? [
+            {
+              accessor: "action",
+              label: t("columns:action"),
+              type: "review-action",
+              className: "w-[20%] text-center",
+            },
+          ]
         : []),
     ],
-    [t, creationApproval, editApproval],
+    [t, canApproveOrReject],
   )
 
   const handleTableRowClick = useCallback(
     (id: string) => {
       const review = reviews?.items.find(x => x.id === id)
-      if (!(review?.operation === "review-edit" ? editApproval : creationApproval)) return
-
       setSelectedReviewId(id)
       setSelectedReviewText(review?.reviewText)
+      setSelectedReviewRating(review?.rating)
     },
-    [creationApproval, editApproval, reviews],
+    [reviews],
+  )
+
+  const isRowClickable = useCallback(
+    (item: TableItem) => {
+      const review = item as ReviewProposal
+      const approval = review.operation === "review-edit" ? editApproval : creationApproval
+      return !!approval && !isUserVoted(approval.id, review)
+    },
+    [creationApproval, editApproval],
   )
 
   const handleCloseModal = useCallback(() => {
     setSelectedReviewText(undefined)
+    setSelectedReviewRating(undefined)
     setSelectedReviewId(undefined)
   }, [])
 
@@ -163,16 +199,18 @@ export const NewReviewsTab = () => {
         itemRenderer={itemRenderer}
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("noNewReviews")} />}
-        onRowClick={(creationApproval || editApproval) && !loadingItem ? handleTableRowClick : undefined}
+        onRowClick={canApproveOrReject && !loadingItem ? handleTableRowClick : undefined}
+        isRowClickable={isRowClickable}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
       </div>
-      {selectedReviewId && selectedReviewText && (
-        <TextModal
+      {selectedReviewId && selectedReviewText && selectedReviewRating !== undefined && (
+        <ReviewModal
           size="compact"
           title={t("reviewModalTitle")}
           text={selectedReviewText}
+          rating={selectedReviewRating}
           onCancel={handleRejectClick}
           onConfirm={handleApproveClick}
           onClose={handleCloseModal}

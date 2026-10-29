@@ -2,11 +2,11 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useApprovalIdentityForOperation, useStoreContext, useStorePoliciesContext } from "app"
+import { useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserRegistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useResolveStoreId, useUrlParamsState } from "hooks"
+import { useApprovalIdentityForOperation, useResolveStoreId, useUrlParamsState } from "hooks"
 import { ProposalVoting } from "types"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { getUsersItemRenderer } from "ui/renderers"
@@ -37,21 +37,22 @@ export const NewUsersTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "signer", label: t("common:user"), type: "account", className: "w-[40%]" },
-      { accessor: "lastsFor", label: t("common:lastsFor"), type: "lasts-for", className: "w-[15%]" },
+      { accessor: "signer", label: t("columns:user"), type: "account", className: "w-[40%]" },
+      { accessor: "lastsFor", label: t("columns:lastsFor"), type: "lasts-for", className: "w-[15%]" },
       {
         accessor: "votes",
-        label: t("common:votes"),
+        label: t("columns:votes.label"),
+        title: t("columns:votes.title"),
         type: "votes",
-        className: "first-letter:uppercase w-[15%] text-center",
+        className: "w-[15%] text-center",
       },
       ...(approval
         ? [
             {
               accessor: "actions",
-              label: t("common:actions"),
+              label: t("columns:actions"),
               type: "actions",
-              className: "w-[20%] text-center first-letter:uppercase",
+              className: "w-[20%] text-center",
             },
           ]
         : []),

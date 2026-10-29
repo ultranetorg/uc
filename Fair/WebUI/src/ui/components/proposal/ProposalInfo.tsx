@@ -1,22 +1,39 @@
-import { memo } from "react"
+import { memo, PropsWithChildren } from "react"
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { PropsWithClassName, User } from "types"
+import { Policy, Proposal, PropsWithClassName, Store } from "types"
 import { LinkFullscreen } from "ui/components"
-import { renderUser } from "ui/renderers2"
-import { getLastsFor, formatDate, routes } from "utils"
+import { renderAction, renderLeadingOption, renderProposalProgress, renderYourVote } from "ui/renderers/utils"
+import { renderCreator } from "ui/renderers2"
+import { buildCreatorLink, getLastsFor, formatDate, calculateVotesRequiredToWinProposal } from "utils"
+
+type InfoRowBaseProps = {
+  label: string
+}
+
+type InfoRowProps = PropsWithChildren & InfoRowBaseProps
+
+const InfoRow = ({ label, children }: InfoRowProps) => (
+  <div className="flex flex-col gap-2">
+    <span className="text-gray-500">{label}</span>
+    {children}
+  </div>
+)
 
 type ProposalInfoBaseProps = {
-  storeId: string
-  createdBy: User
-  createdAt: number
+  store: Store
+  proposal: Proposal
+  policies: Policy[]
+  voterIds: string[]
 }
 
 export type ProposalInfoProps = ProposalInfoBaseProps & PropsWithClassName
 
-export const ProposalInfo = memo(({ className, storeId, createdBy, createdAt }: ProposalInfoProps) => {
+export const ProposalInfo = memo(({ className, store, proposal, policies, voterIds }: ProposalInfoProps) => {
   const { t } = useTranslation()
+
+  const requiredToWin = calculateVotesRequiredToWinProposal(proposal.operation, store, policies)
 
   return (
     <div
@@ -25,18 +42,21 @@ export const ProposalInfo = memo(({ className, storeId, createdBy, createdAt }: 
         className,
       )}
     >
-      <div className="flex flex-col gap-2">
-        <span className="text-gray-500">Created By:</span>
-        <LinkFullscreen to={routes.reviewer(storeId, createdBy.id)}>{renderUser(createdBy)}</LinkFullscreen>
-      </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-gray-500">Created At:</span>
-        <span>{formatDate(createdAt)}</span>
-      </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-gray-500">Lasts for:</span>
-        <span>{getLastsFor(t, createdAt)}</span>
-      </div>
+      <InfoRow label={t("labels:createdBy")}>
+        <LinkFullscreen to={buildCreatorLink(store.id, proposal.creator)}>
+          {renderCreator(proposal.creator)}
+        </LinkFullscreen>
+      </InfoRow>
+      <InfoRow label={t("labels:createdAt")}>
+        <span>{formatDate(proposal.creationTime)}</span>
+      </InfoRow>
+      <InfoRow label={t("labels:action")}>{renderAction(t, proposal.operation)}</InfoRow>
+      <InfoRow label={t("labels:leadingOption")}>{renderLeadingOption(t, proposal)}</InfoRow>
+      <InfoRow label={t("labels:progress")}>{renderProposalProgress(t, proposal, requiredToWin)}</InfoRow>
+      <InfoRow label={t("labels:yourVote")}>{renderYourVote(t, proposal, voterIds)}</InfoRow>
+      <InfoRow label={t("labels:openFor")}>
+        <span>{getLastsFor(t, proposal.creationTime)}</span>
+      </InfoRow>
     </div>
   )
 })

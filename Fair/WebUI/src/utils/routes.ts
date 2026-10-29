@@ -46,7 +46,7 @@ export const routes = {
     referendum: (storeId: string, referendumId: string) => `${storePath(storeId)}/referendums/${referendumId}`,
     // Proposals
     proposals: (storeId: string) => `${storePath(storeId)}/proposals`,
-    proposal: (storeId: string, discussionId: string) => `${storePath(storeId)}/proposals/${discussionId}`,
+    proposal: (storeId: string, proposalId: string) => `${storePath(storeId)}/proposals/${proposalId}`,
 
     // Moderators
     moderators: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/moderators`, tabKey),

@@ -10,7 +10,6 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { useStoreRolesContext } from "app"
 import { SvgThreeDotsSm } from "assets"
 import { useScrollOrResize } from "hooks"
 import { SimpleMenu } from "ui/components"
@@ -27,7 +26,6 @@ export type CategoryTreeContextThreeDotsMenuProps = PropsWithClassName & Categor
 
 export const CategoryTreeContextThreeDotsMenu = memo(
   ({ className, categoryId, categoryTitle }: CategoryTreeContextThreeDotsMenuProps) => {
-    const { isModerator } = useStoreRolesContext()
     const menuItems = useCategoryContextThreeDotsMenu(categoryId, categoryTitle)
 
     const [isExpanded, setExpanded] = useState(false)
@@ -47,7 +45,7 @@ export const CategoryTreeContextThreeDotsMenu = memo(
 
     const handleMenuClick = useCallback(() => setExpanded(false), [])
 
-    if (!isModerator) {
+    if (menuItems.length === 0) {
       return null
     }
 

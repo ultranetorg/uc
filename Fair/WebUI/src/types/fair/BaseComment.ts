@@ -1,13 +1,10 @@
-import { RoleName } from "./RoleName"
+import { Creator } from "./Creator"
 
 export type BaseComment = {
   id: string
   text: string
 
-  creatorId: string
-  creatorName: string
-  creatorAs: RoleName
-  creatorAvatarId?: string
+  creator: Creator
 
   created: number
 }
