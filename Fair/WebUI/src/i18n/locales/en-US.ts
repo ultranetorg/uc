@@ -326,7 +326,7 @@ export const enUS = {
     list: "List View",
   },
   changedPublicationPage: {
-    updatePublication: "Update publication",
+    updatePublication: "Update Publication",
   },
   createPublicationPage: {
     productNotFound: "We didn’t find anything. Try a different or shorter search.",
