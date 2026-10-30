@@ -11,7 +11,7 @@ import { renderBannedStatus } from "ui/renderers/utils"
 
 import { renderModerator } from "./utils"
 
-const getModeratorsTabItemRenderer =
+const getItemRenderer =
   (t: TFunction, currentUserId?: string) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const moderator = item as unknown as Moderator
@@ -25,7 +25,7 @@ const getModeratorsTabItemRenderer =
     }
   }
 
-export const ModeratorsTab = () => {
+export const ModeratorsListTab = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("moderatorsPage")
   const { user } = useUserContext()
@@ -45,7 +45,7 @@ export const ModeratorsTab = () => {
     [t],
   )
 
-  const itemRenderer = useMemo(() => getModeratorsTabItemRenderer(t, user?.id), [t, user?.id])
+  const itemRenderer = useMemo(() => getItemRenderer(t, user?.id), [t, user?.id])
 
   const items = useMemo(
     () =>

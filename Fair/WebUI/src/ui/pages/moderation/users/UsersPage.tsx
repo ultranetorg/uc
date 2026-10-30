@@ -7,9 +7,9 @@ import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
 
-import { NewUsersTab } from "./NewUsersTab"
-import { RemoveUsersTab } from "./RemoveUsersTab"
-import { UsersTab } from "./UsersTab"
+import { UsersNewTab } from "./UsersNewTab"
+import { UsersRemovalsTab } from "./UsersRemovalsTab"
+import { UsersListTab } from "./UsersListTab"
 
 const routeToTabKey: Record<string, string> = {
   new: "new-users",
@@ -54,13 +54,13 @@ export const UsersPage = () => {
         />
 
         <TabContent when="new-users">
-          <NewUsersTab />
+          <UsersNewTab />
         </TabContent>
         <TabContent when="users-removals">
-          <RemoveUsersTab />
+          <UsersRemovalsTab />
         </TabContent>
         <TabContent when="users">
-          <UsersTab />
+          <UsersListTab />
         </TabContent>
       </div>
     </TabsProvider>

@@ -10,7 +10,7 @@ import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger, routes } from "utils"
 
-import { getPublisherProposalsItemRenderer } from "./publisherProposalsItemRenderer"
+import { getPublishersRemovalsItemRenderer } from "./publishersRemovalsItemRenderer"
 
 export const PublishersRemovalsTab = () => {
   const storeId = useResolveStoreId()
@@ -19,7 +19,7 @@ export const PublishersRemovalsTab = () => {
   const policies = useStorePoliciesContext()
   const { isModerator, publisherIds } = useStoreRolesContext()
   const { user } = useUserContext()
-  const { t } = useTranslation("publishersProposalsTab")
+  const { t } = useTranslation("publishersRemovalsTab")
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -59,7 +59,7 @@ export const PublishersRemovalsTab = () => {
 
   const moderatorId = isModerator ? user?.id : undefined
   const itemRenderer = useMemo(
-    () => getPublisherProposalsItemRenderer(t, { store, policies, moderatorId, publisherIds }),
+    () => getPublishersRemovalsItemRenderer(t, { store, policies, moderatorId, publisherIds }),
     [t, store, policies, moderatorId, publisherIds],
   )
 

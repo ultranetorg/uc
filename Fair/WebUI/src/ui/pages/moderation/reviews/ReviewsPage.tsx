@@ -8,8 +8,8 @@ import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
 
-import { NewReviewsTab } from "./NewReviewsTab"
-import { DeleteReviewsTab } from "./DeleteReviewsTab"
+import { ReviewsNewTab } from "./ReviewsNewTab"
+import { ReviewsDeletionsTab } from "./ReviewsDeletionsTab"
 
 const routeToTabKey: Record<string, string> = {
   new: "new",
@@ -54,10 +54,10 @@ export const ReviewsPage = () => {
           />
 
           <TabContent when="new">
-            <NewReviewsTab />
+            <ReviewsNewTab />
           </TabContent>
           <TabContent when="deletions">
-            <DeleteReviewsTab />
+            <ReviewsDeletionsTab />
           </TabContent>
         </div>
       </TabsProvider>

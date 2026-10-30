@@ -103,7 +103,7 @@ const getItemRenderer =
     }
   }
 
-export const RemoveModeratorsTab = () => {
+export const ModeratorsRemovalsTab = () => {
   const { mutate } = useTransactMutationWithStatus()
   const { t } = useTranslation("moderatorsPage")
 

@@ -640,22 +640,22 @@ export const enUS = {
   },
 
   /* Tabs */
-  moderatorsProposalsTab: {
+  moderatorsAdditionsTab: {
     noProposals: "No moderator proposals",
   },
-  publishersProposalsTab: {
+  publishersRemovalsTab: {
     noProposals: "No publisher proposals",
   },
-  tabChangedPublications: {
+  publicationsChangedTab: {
     noPublications: "No changed publications",
   },
-  tabPublications: {
+  publicationsProposalsTab: {
     noPublications: "No publications",
   },
-  tabUnpublishedPublications: {
+  publicationsUnpublishedTab: {
     noPublications: "No unpublished publications",
   },
-  usersTab: {
+  usersListTab: {
     noUsers: "No users",
   },
 

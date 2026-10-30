@@ -13,7 +13,7 @@ import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/c
 import { renderAuthor2, renderPublication2, renderWithYouBadge } from "ui/renderers/utils"
 import { parseInteger, routes } from "utils"
 
-const getUnpublishedPublicationsItemRenderer =
+const getItemRenderer =
   (t: TFunction, publisherIds?: string[]) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const publication = item as PublicationUnpublished
@@ -32,8 +32,8 @@ const getUnpublishedPublicationsItemRenderer =
     return undefined
   }
 
-export const UnpublishedPublicationsTab = () => {
-  const { t } = useTranslation("tabUnpublishedPublications")
+export const PublicationsUnpublishedTab = () => {
+  const { t } = useTranslation("publicationsUnpublishedTab")
   const navigate = useNavigate()
 
   const storeId = useResolveStoreId()
@@ -64,7 +64,7 @@ export const UnpublishedPublicationsTab = () => {
     [t],
   )
 
-  const itemRenderer = useMemo(() => getUnpublishedPublicationsItemRenderer(t, publisherIds), [t, publisherIds])
+  const itemRenderer = useMemo(() => getItemRenderer(t, publisherIds), [t, publisherIds])
 
   const handleTableRowClick = useCallback(
     (id: string) => navigate(routes.moderation.unpublishedPublication(storeId!, id)),

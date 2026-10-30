@@ -9,9 +9,9 @@ import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from 
 
 import { isModeratorCanCreate, isPublisherCanCreate, routes } from "utils"
 
-import { AddModeratorsTab } from "./AddModeratorsTab"
-import { ModeratorsTab } from "./ModeratorsTab"
-import { RemoveModeratorsTab } from "./RemoveModeratorsTab"
+import { ModeratorsAdditionsTab } from "./ModeratorsAdditionsTab"
+import { ModeratorsListTab } from "./ModeratorsListTab"
+import { ModeratorsRemovalsTab } from "./ModeratorsRemovalsTab"
 
 const routeToTabKey: Record<string, string> = {
   moderators: "moderators",
@@ -85,13 +85,13 @@ export const ModeratorsPage = () => {
           />
 
           <TabContent when="moderators">
-            <ModeratorsTab />
+            <ModeratorsListTab />
           </TabContent>
           <TabContent when="removals">
-            <RemoveModeratorsTab />
+            <ModeratorsRemovalsTab />
           </TabContent>
           <TabContent when="additions">
-            <AddModeratorsTab />
+            <ModeratorsAdditionsTab />
           </TabContent>
         </div>
       </TabsProvider>

@@ -20,7 +20,7 @@ import {
 import { renderCreator, renderUser } from "ui/renderers2"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
-const getRemoveUsersTabItemRenderer =
+const getItemRenderer =
   (
     t: TFunction,
     onApprove: (id: string, name: string) => void,
@@ -60,7 +60,7 @@ const getRemoveUsersTabItemRenderer =
     return renderCommon(t, column, proposal, votesRequired)
   }
 
-export const RemoveUsersTab = () => {
+export const UsersRemovalsTab = () => {
   const storeId = useResolveStoreId()
   const approval = useApprovalIdentityForOperation("user-unregistration")
   const { invalidateOperation } = useInvalidation()
@@ -147,8 +147,7 @@ export const RemoveUsersTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () =>
-      getRemoveUsersTabItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval?.id, user?.id),
+    () => getItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval?.id, user?.id),
     [approval, handleApprove, handleReject, loadingItem, t, user?.id, votesRequired],
   )
 

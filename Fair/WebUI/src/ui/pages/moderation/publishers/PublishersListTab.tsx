@@ -15,7 +15,7 @@ import { Badge, ButtonPrimary, TableColumn, TableItem, Input, Pagination, Table,
 import { renderAuthor, renderBannedStatus } from "ui/renderers/utils"
 import { isModeratorCanCreate, isPublisherCanCreate, parseInteger, routes } from "utils"
 
-const getPublishersTabItemRenderer =
+const getItemRenderer =
   (t: TFunction, storeId: string, pathname: string, publisherIds?: string[]) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const publisher = item as unknown as Publisher
@@ -115,7 +115,7 @@ export const PublishersListTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getPublishersTabItemRenderer(t, storeId!, location.pathname, publisherIds),
+    () => getItemRenderer(t, storeId!, location.pathname, publisherIds),
     [publisherIds, storeId, t],
   )
 

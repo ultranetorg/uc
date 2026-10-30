@@ -13,7 +13,7 @@ import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/c
 import { renderAuthor2, renderCategory, renderPublication2, renderWithYouBadge } from "ui/renderers/utils"
 import { parseInteger, routes } from "utils"
 
-const getChangedPublicationItemRenderer =
+const getItemRenderer =
   (t: TFunction, publisherIds?: string[]) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const publication = item as PublicationChanged
@@ -36,8 +36,8 @@ const getChangedPublicationItemRenderer =
     return undefined
   }
 
-export const ChangedPublicationsTab = () => {
-  const { t } = useTranslation("tabChangedPublications")
+export const PublicationsChangedTab = () => {
+  const { t } = useTranslation("publicationsChangedTab")
   const navigate = useNavigate()
 
   const storeId = useResolveStoreId()
@@ -90,7 +90,7 @@ export const ChangedPublicationsTab = () => {
     [t],
   )
 
-  const itemRenderer = useMemo(() => getChangedPublicationItemRenderer(t, publisherIds), [t, publisherIds])
+  const itemRenderer = useMemo(() => getItemRenderer(t, publisherIds), [t, publisherIds])
 
   const handleTableRowClick = useCallback(
     (id: string) => navigate(routes.moderation.changedPublication(storeId!, id)),

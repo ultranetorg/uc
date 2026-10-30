@@ -4,28 +4,25 @@ import { isNumber, isString } from "lodash"
 
 import { useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetReviewCreationsProposals, useInvalidation } from "entities"
+import { useGetReviewDeletionsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
-import { ProposalVoting, ReviewProposal, SpecialChoice } from "types"
-import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { ProposalVoting, SpecialChoice } from "types"
+import { Pagination, Table, TableEmptyState } from "ui/components"
 import { ReviewModal } from "ui/components/specific"
-import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
+import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
-export const NewReviewsTab = () => {
+export const ReviewsDeletionsTab = () => {
   const { t } = useTranslation("reviewsPage")
 
-  const creationApproval = useApprovalIdentityForOperation("review-creation")
-  const editApproval = useApprovalIdentityForOperation("review-edit")
-  const { invalidateOperation } = useInvalidation()
+  const approval = useApprovalIdentityForOperation("review-deletion")
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
-  const { mutate } = useTransactMutationWithStatus()
 
-  const canApproveOrReject = !!(creationApproval || editApproval)
+  const canDeleteOrCancel = !!approval
 
   useStoreTitle(store?.title, "Reviews")
 
@@ -43,11 +40,14 @@ export const NewReviewsTab = () => {
   const [page, setPage] = useState(state.page)
   const [loadingItem, setLoadingItem] = useState<{ id: string; action: "approve" | "reject" } | undefined>()
 
-  const { data: reviews, refetch } = useGetReviewCreationsProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: reviews, refetch } = useGetReviewDeletionsProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
     reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  const columns = useMemo<TableColumn[]>(
+  const { mutate } = useTransactMutationWithStatus()
+  const { invalidateOperation } = useInvalidation()
+
+  const columns = useMemo(
     () => [
       { accessor: "publication", label: t("columns:publication"), type: "publication", className: "w-[17%]" },
       { accessor: "author", label: t("columns:reviewer"), type: "account", className: "w-[15%]" },
@@ -55,7 +55,7 @@ export const NewReviewsTab = () => {
         accessor: "text",
         label: t("columns:text"),
         type: "text",
-        className: canApproveOrReject ? "w-[23%]" : "w-[43%]",
+        className: canDeleteOrCancel ? "w-[23%]" : "w-[43%]",
       },
       {
         accessor: "rating",
@@ -70,37 +70,28 @@ export const NewReviewsTab = () => {
         type: "progress",
         className: "w-[12%]",
       },
-      ...(canApproveOrReject
+      ...(canDeleteOrCancel
         ? [
             {
               accessor: "action",
               label: t("columns:action"),
-              type: "review-action",
+              type: "delete-actions",
               className: "w-[20%] text-center",
             },
           ]
         : []),
     ],
-    [t, canApproveOrReject],
+    [t, canDeleteOrCancel],
   )
 
   const handleTableRowClick = useCallback(
     (id: string) => {
-      const review = reviews?.items.find(x => x.id === id)
       setSelectedReviewId(id)
+      const review = reviews?.items.find(x => x.id === id)
       setSelectedReviewText(review?.reviewText)
       setSelectedReviewRating(review?.rating)
     },
     [reviews],
-  )
-
-  const isRowClickable = useCallback(
-    (item: TableItem) => {
-      const review = item as ReviewProposal
-      const approval = review.operation === "review-edit" ? editApproval : creationApproval
-      return !!approval && !isUserVoted(approval.id, review)
-    },
-    [creationApproval, editApproval],
   )
 
   const handleCloseModal = useCallback(() => {
@@ -113,22 +104,15 @@ export const NewReviewsTab = () => {
     (id: string, action: "approve" | "reject") => {
       setLoadingItem({ id: id, action })
 
-      const proposal = reviews?.items.find(x => x.id === id)
-      const approval = proposal?.operation === "review-edit" ? editApproval : creationApproval
-      if (!approval) {
-        setLoadingItem(undefined)
-        return
-      }
-
-      const operation = new ProposalVoting(id, approval.id, action === "approve" ? 0 : SpecialChoice.Neither)
+      const operation = new ProposalVoting(id, approval!.id, action === "approve" ? 0 : SpecialChoice.Neither)
       mutate(operation, {
         onSuccess: () => {
           if (action === "approve") {
             const review = reviews?.items.find(x => x.id === id)
-            invalidateOperation(review?.operation, { storeId: storeId!, publicationId: review?.publication?.id })
+            invalidateOperation("review-deletion", { storeId: storeId!, publicationId: review?.publication?.id })
           }
 
-          const message = action === "approve" ? t("toast:reviewApproved") : t("toast:reviewRejected")
+          const message = action === "approve" ? t("toast:reviewDeletionApproved") : t("toast:reviewDeletionRejected")
           showToast(message, "success")
         },
         onError: err => {
@@ -140,7 +124,7 @@ export const NewReviewsTab = () => {
         },
       })
     },
-    [creationApproval, editApproval, invalidateOperation, mutate, refetch, reviews?.items, storeId, t],
+    [invalidateOperation, mutate, refetch, reviews, storeId, t, approval],
   )
 
   const handleApproveClick = useCallback(
@@ -170,25 +154,14 @@ export const NewReviewsTab = () => {
   )
 
   const votesRequired = useMemo(
-    () => ({
-      "review-creation": calculateVotesRequiredToWinProposal("review-creation", store, policies),
-      "review-edit": calculateVotesRequiredToWinProposal("review-edit", store, policies),
-    }),
+    () => ({ "review-deletion": calculateVotesRequiredToWinProposal("review-deletion", store, policies) }),
     [policies, store],
   )
 
   const itemRenderer = useMemo(
     () =>
-      getReviewsPageItemRenderer(
-        t,
-        handleApproveClick,
-        handleRejectClick,
-        votesRequired,
-        loadingItem,
-        creationApproval?.id,
-        editApproval?.id,
-      ),
-    [creationApproval?.id, editApproval?.id, handleApproveClick, handleRejectClick, loadingItem, t, votesRequired],
+      getReviewsPageItemRenderer(t, handleApproveClick, handleRejectClick, votesRequired, loadingItem, approval?.id),
+    [handleApproveClick, handleRejectClick, loadingItem, t, approval, votesRequired],
   )
 
   return (
@@ -198,9 +171,8 @@ export const NewReviewsTab = () => {
         items={reviews?.items}
         itemRenderer={itemRenderer}
         tableBodyClassName="text-2sm leading-5"
-        emptyState={<TableEmptyState message={t("noNewReviews")} />}
-        onRowClick={canApproveOrReject && !loadingItem ? handleTableRowClick : undefined}
-        isRowClickable={isRowClickable}
+        emptyState={<TableEmptyState message={t("newReviewDeletions")} />}
+        onRowClick={canDeleteOrCancel && !loadingItem ? handleTableRowClick : undefined}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

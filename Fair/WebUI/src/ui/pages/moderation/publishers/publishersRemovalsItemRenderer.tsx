@@ -30,7 +30,7 @@ const renderPublishers = (t: TFunction, proposal: PublisherProposal, publisherId
   )
 }
 
-export const getPublisherProposalsItemRenderer =
+export const getPublishersRemovalsItemRenderer =
   (t: TFunction, { store, policies, moderatorId, publisherIds }: PublisherProposalsVoting = {}) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const proposal = item as PublisherProposal

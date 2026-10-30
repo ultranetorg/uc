@@ -22,7 +22,7 @@ type ModeratorsProposalsVoting = {
   publisherIds?: string[]
 }
 
-const getModeratorsProposalsItemRenderer =
+const getItemRenderer =
   (t: TFunction, { store, policies, currentUserId, moderatorId, publisherIds }: ModeratorsProposalsVoting = {}) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const proposal = item as ModeratorProposal
@@ -53,9 +53,9 @@ const getModeratorsProposalsItemRenderer =
     return renderCommon(t, column, proposal)
   }
 
-export const AddModeratorsTab = () => {
+export const ModeratorsAdditionsTab = () => {
   const navigate = useNavigate()
-  const { t } = useTranslation("moderatorsProposalsTab")
+  const { t } = useTranslation("moderatorsAdditionsTab")
 
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
@@ -102,7 +102,7 @@ export const AddModeratorsTab = () => {
   const currentUserId = user?.id
   const moderatorId = isModerator ? currentUserId : undefined
   const itemRenderer = useMemo(
-    () => getModeratorsProposalsItemRenderer(t, { store, policies, currentUserId, moderatorId, publisherIds }),
+    () => getItemRenderer(t, { store, policies, currentUserId, moderatorId, publisherIds }),
     [t, store, policies, currentUserId, moderatorId, publisherIds],
   )
 

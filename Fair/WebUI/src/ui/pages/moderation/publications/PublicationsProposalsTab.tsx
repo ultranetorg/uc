@@ -30,7 +30,7 @@ type PublicationsVoting = {
   publisherIds?: string[]
 }
 
-const getPublicationsItemRenderer =
+const getItemRenderer =
   (t: TFunction, { store, policies, moderatorId, publisherIds }: PublicationsVoting = {}) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const proposal = item as PublicationProposal
@@ -63,8 +63,8 @@ const getPublicationsItemRenderer =
     return renderCommon(t, column, proposal)
   }
 
-export const PublicationsTab = () => {
-  const { t } = useTranslation("tabPublications")
+export const PublicationsProposalsTab = () => {
+  const { t } = useTranslation("publicationsProposalsTab")
   const navigate = useNavigate()
 
   const storeId = useResolveStoreId()
@@ -110,7 +110,7 @@ export const PublicationsTab = () => {
 
   const moderatorId = isModerator ? user?.id : undefined
   const itemRenderer = useMemo(
-    () => getPublicationsItemRenderer(t, { store, policies, moderatorId, publisherIds }),
+    () => getItemRenderer(t, { store, policies, moderatorId, publisherIds }),
     [t, store, policies, moderatorId, publisherIds],
   )
 

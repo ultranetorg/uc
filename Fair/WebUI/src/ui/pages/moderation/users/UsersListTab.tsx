@@ -1,21 +1,36 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useState, ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { TFunction } from "i18next"
 import { isNumber } from "lodash"
 
 import { useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetStoreUsers } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
-import { Pagination, Table, TableEmptyState } from "ui/components"
+import { User } from "types"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { renderWithYouBadge } from "ui/renderers/utils"
+import { renderUser } from "ui/renderers2"
 import { parseInteger, routes } from "utils"
 
-import { getUsersTabItemRenderer } from "./usersTabItemRenderer"
+const getUsersListItemRenderer =
+  (t: TFunction, currentUserId?: string) =>
+  (item: TableItem, column: TableColumn): ReactNode => {
+    const user = item as User
 
-export const UsersTab = () => {
+    switch (column.type) {
+      case "user":
+        return renderWithYouBadge(t, renderUser(user), user.id === currentUserId)
+    }
+
+    return null
+  }
+
+export const UsersListTab = () => {
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
-  const { t } = useTranslation("usersTab")
+  const { t } = useTranslation("usersListTab")
   const { user } = useUserContext()
 
   const [state, setState] = useUrlParamsState({
@@ -32,7 +47,7 @@ export const UsersTab = () => {
 
   const columns = useMemo(() => [{ accessor: "user", label: t("columns:user"), type: "user" }], [t])
 
-  const itemRenderer = useMemo(() => getUsersTabItemRenderer(t, user?.id), [t, user?.id])
+  const itemRenderer = useMemo(() => getUsersListItemRenderer(t, user?.id), [t, user?.id])
 
   const handleRowClick = useCallback(
     (id: string) => navigate(routes.moderation.user(storeId!, id)),
@@ -47,7 +62,7 @@ export const UsersTab = () => {
     [setState],
   )
 
-  if (!users || isPending) return <div>Loading{import.meta.env.DEV ? " (UsersTab)" : ""}</div>
+  if (!users || isPending) return <div>Loading{import.meta.env.DEV ? " (UsersListTab)" : ""}</div>
 
   return (
     <>
