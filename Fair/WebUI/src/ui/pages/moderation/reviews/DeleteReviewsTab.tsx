@@ -64,11 +64,11 @@ export const DeleteReviewsTab = () => {
         className: "w-[8%] text-right",
       },
       {
-        accessor: "votes",
-        label: t("columns:votes.label"),
-        title: t("columns:votes.title"),
-        type: "votes",
-        className: "text-center",
+        accessor: "progress",
+        label: t("columns:progress.label"),
+        title: t("columns:progress.proposalTitle"),
+        type: "progress",
+        className: "w-[12%]",
       },
       ...(canDeleteOrCancel
         ? [

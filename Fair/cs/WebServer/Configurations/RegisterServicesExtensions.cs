@@ -22,6 +22,7 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<CategoriesService>();
 		services.AddSingleton<FilesService>();
 		services.AddSingleton<ModeratorProposalsService>();
+		services.AddSingleton<ModeratorsService>();
 		services.AddSingleton<ModeratorReviewProposalsService>();
 		services.AddSingleton<ModeratorSurveysService>();
 		services.AddSingleton<PolicySurveysService>();
@@ -29,9 +30,11 @@ public static class RegisterServicesExtensions
 		services.AddSingleton<ProposalCommentsService>();
 		services.AddSingleton<ProposalService>();
 		services.AddSingleton<PublicationsService>();
+		services.AddSingleton<PublishersService>();
 		services.AddSingleton<ReviewsService>();
 		services.AddSingleton<SearchService>();
 		services.AddSingleton<StoresService>();
+		services.AddSingleton<StoreUsersService>();
 		services.AddSingleton<UnpublishedPublicationsService>();
 		services.AddSingleton<UnpublishedStoreProductsService>();
 		services.AddSingleton<UserService>();

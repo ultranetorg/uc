@@ -12,7 +12,7 @@ import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils
 
 import { getPublisherProposalsItemRenderer } from "./publisherProposalsItemRenderer"
 
-export const PublishersProposalsTab = () => {
+export const PublishersRemovalsTab = () => {
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const { store } = useStoreContext()
@@ -70,7 +70,7 @@ export const PublishersProposalsTab = () => {
   const itemRenderer = useMemo(() => getPublisherProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.moderation.publisherProposal(storeId!, id)),
+    (id: string) => navigate(routes.moderation.publisherRemoval(storeId!, id)),
     [navigate, storeId],
   )
 

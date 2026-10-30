@@ -214,52 +214,6 @@ public class SearchService
 		return result.Select(x => new StoreSearchLiteModel(x.Store.Id, x.Store.Title));
 	}
 
-	public IEnumerable<UserModel> SearchStoreUsers([NotNull][NotEmpty] string storeId, [NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
-	{
-		ArgumentException.ThrowIfNullOrEmpty(storeId);
-		ArgumentException.ThrowIfNullOrEmpty(query);
-		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limit);
-
-#if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Query}, {Limit}", nameof(SearchService), nameof(SearchService.SearchStoreUsers), storeId, query, limit);
-#endif
-
-		AutoId storeEntityId = AutoId.Parse(storeId);
-
-		if(AutoId.TryParse(query, out AutoId entityId))
-		{
-			FairUser user = (FairUser)mcv.Users.Latest(entityId);
-			return user != null && user.Stores.Contains(storeEntityId) ? [new UserModel(user)] : [];
-		}
-
-		string lowercase = query.ToLower();
-		IEnumerable<AutoId> searchResult = mcv.Names.Search(EntityTextField.UserName, lowercase, limit);
-
-		return LoadUsers(storeEntityId, searchResult, cancellationToken);
-	}
-
-	IEnumerable<UserModel> LoadUsers(AutoId storeId, IEnumerable<AutoId> usersIds, CancellationToken cancellationToken)
-	{
-		cancellationToken.ThrowIfCancellationRequested();
-
-		var result = new List<UserModel>(usersIds.Count());
-
-		foreach(AutoId id in usersIds)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			FairUser user = (FairUser)mcv.Users.Latest(id);
-
-			if(user.Stores.Contains(storeId))
-			{
-				var model = new UserModel(user);
-				result.Add(model);
-			}
-		}
-
-		return result;
-	}
-
 	public IEnumerable<UserBaseAvatarModel> SearchUsers([NotNull][NotEmpty] string query, [NonNegativeValue][NonZeroValue] int limit, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(query);

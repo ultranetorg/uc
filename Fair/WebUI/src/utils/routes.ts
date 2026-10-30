@@ -54,7 +54,7 @@ export const routes = {
       `${storePath(storeId)}/moderators/proposals/${proposalId}`,
     // Publishers
     publishers: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/publishers`, tabKey),
-    publisherProposal: (storeId: string, proposalId: string) =>
+    publisherRemoval: (storeId: string, proposalId: string) =>
       `${storePath(storeId)}/publishers/proposals/${proposalId}`,
     publisher: (storeId: string, publisherId: string) => `${storePath(storeId)}/publishers/details/${publisherId}`,
     // Users

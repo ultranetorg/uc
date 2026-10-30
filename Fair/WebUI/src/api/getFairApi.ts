@@ -66,7 +66,7 @@ const getStoreUsers = async (storeId: string, page?: number, pageSize?: number):
     { page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/users` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/users` + params)
   return await toTotalItemsResult(res)
 }
 
@@ -80,12 +80,12 @@ const getStorePublishers = async (
     { search, page, pageSize },
     { pageSize: x => x !== DEFAULT_PAGE_SIZE_20, page: x => !!x && x > 0 },
   )
-  const res = await fetch(`${BASE_URL}/stores/${storeId}/publishers` + params)
+  const res = await fetch(`${BASE_URL}/moderation/stores/${storeId}/publishers` + params)
   return await toTotalItemsResult(res)
 }
 
 const getStoreModerators = (storeId: string): Promise<Moderator[]> =>
-  fetch(`${BASE_URL}/stores/${storeId}/moderators`).then(res => res.json())
+  fetch(`${BASE_URL}/moderation/stores/${storeId}/moderators`).then(res => res.json())
 
 const getStoreFiles = async (storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<File>> => {
   const params = buildUrlParams({ page, pageSize })
@@ -95,8 +95,8 @@ const getStoreFiles = async (storeId: string, page?: number, pageSize?: number):
 }
 
 const searchStoreUsers = (storeId: string, query?: string, limit?: number): Promise<User[]> =>
-  fetch(`${BASE_URL}/stores/${storeId}/users/search?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(res =>
-    res.json(),
+  fetch(`${BASE_URL}/moderation/stores/${storeId}/users/search?query=${query}&limit=${limit ?? LIMIT_DEFAULT}`).then(
+    res => res.json(),
   )
 
 const searchUsers = (query?: string, limit?: number): Promise<UserBase[]> =>

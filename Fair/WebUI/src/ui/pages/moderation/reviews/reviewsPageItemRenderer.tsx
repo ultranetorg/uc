@@ -2,10 +2,10 @@ import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
 import { OperationType, ReviewProposal } from "types"
-import { renderCreator, renderVotes } from "ui/renderers2"
 import { ButtonOutline, ButtonPrimary, TableColumn, TableItem } from "ui/components"
+import { renderActions, renderCommon, renderProposalProgress, renderPublication, renderText } from "ui/renderers/utils"
+import { renderCreator } from "ui/renderers2"
 import { formatRating, isUserVoted } from "utils"
-import { renderActions, renderCommon, renderPublication, renderText } from "ui/renderers/utils"
 
 const renderDeleteActions = (
   t: TFunction,
@@ -86,11 +86,8 @@ export const getReviewsPageItemRenderer =
           isButtonsDisabled || (loadingItem && loadingItem.id !== item.id),
         )
 
-      case "votes":
-        return renderVotes(
-          proposal.yes.map(x => x.length),
-          votesRequired[proposal.operation] ?? 0,
-        )
+      case "progress":
+        return renderProposalProgress(t, proposal, votesRequired[proposal.operation] ?? 0)
     }
 
     return renderCommon(t, column, proposal)

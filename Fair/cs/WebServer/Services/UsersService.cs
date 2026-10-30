@@ -14,45 +14,6 @@ public class UsersService
 	FairMcv mcv
 )
 {
-	public TotalItemsResult<UserModel> GetStoreUsers([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonZeroValue][NonNegativeValue] int pageSize, CancellationToken cancellationToken)
-	{
-		ArgumentException.ThrowIfNullOrEmpty(storeId);
-		ArgumentOutOfRangeException.ThrowIfNegative(page);
-		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
-
-#if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}", nameof(UsersService), nameof(UsersService.GetStoreUsers), storeId, page, pageSize);
-#endif
-
-		AutoId entityId = AutoId.Parse(storeId);
-
-		Store store = mcv.Stores.Latest(entityId);
-		if(store == null)
-		{
-			throw new EntityNotFoundException(nameof(Store), storeId);
-		}
-
-		IEnumerable<AutoId> paged = store.Users.Skip(page * pageSize).Take(pageSize);
-		IEnumerable<UserModel> items = store.Users.Length > 0 ? LoadUsers(paged, cancellationToken) : [];
-
-		return new TotalItemsResult<UserModel>
-		{
-			Items = items,
-			TotalItems = store.Users.Length
-		};
-	}
-
-	IEnumerable<UserModel> LoadUsers(IEnumerable<AutoId> usersIds, CancellationToken cancellationToken)
-	{
-		return usersIds.Select(id =>
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			FairUser user = (FairUser) mcv.Users.Latest(id);
-			return new UserModel(user);
-		}).ToArray();
-	}
-
 	public UserModel GetByName([NotNull][NotEmpty] string name)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(name);

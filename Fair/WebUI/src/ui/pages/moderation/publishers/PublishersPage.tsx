@@ -9,11 +9,11 @@ import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
 
 import { PublishersListTab } from "./PublishersListTab"
-import { PublishersProposalsTab } from "./PublishersProposalsTab"
+import { PublishersRemovalsTab } from "./PublishersRemovalsTab"
 
 const routeToTabKey: Record<string, string> = {
   publishers: "publishers",
-  proposals: "proposals",
+  removals: "removals",
 }
 
 export const PublishersPage = () => {
@@ -35,7 +35,7 @@ export const PublishersPage = () => {
   const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
     () => [
       { key: "publishers", label: t("common:publishers") },
-      { key: "proposals", label: t("common:proposals"), route: "proposals" },
+      { key: "removals", label: t("common:removals"), route: "removals" },
     ],
     [t],
   )
@@ -56,8 +56,8 @@ export const PublishersPage = () => {
           <TabContent when="publishers">
             <PublishersListTab />
           </TabContent>
-          <TabContent when="proposals">
-            <PublishersProposalsTab />
+          <TabContent when="removals">
+            <PublishersRemovalsTab />
           </TabContent>
         </div>
       </TabsProvider>
