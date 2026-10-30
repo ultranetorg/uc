@@ -2,14 +2,7 @@ import { ReactNode } from "react"
 import { TFunction } from "i18next"
 
 import avatarFallback from "assets/fallback/author-16.png"
-import {
-  AuthorBaseAvatar,
-  OperationType,
-  Proposal,
-  PublicationImageBase,
-  PublicationProposal,
-  SpecialChoice,
-} from "types"
+import { AuthorBaseAvatar, OperationType, Proposal, PublicationImageBase, SpecialChoice } from "types"
 import {
   ButtonOutline,
   ButtonPrimary,
@@ -23,8 +16,6 @@ import { renderVotes } from "ui/renderers2"
 import {
   formatNabb,
   formatNabbShort,
-  formatArShort,
-  formatAr,
   buildFileUrl,
   getLastsFor,
   getLeadingOptionIndexes,
@@ -61,16 +52,6 @@ export const renderAction = (t: TFunction, operationType: OperationType) => {
 export const renderActionShort = (t: TFunction, operationType: OperationType) => (
   <span title={t(`operations:${operationType}`)}>{t(`operationsShort:${operationType}`)}</span>
 )
-
-export const renderAr = (t: TFunction, proposal: PublicationProposal) => {
-  const title = formatAr(t, proposal.yes[0].length, proposal.neither.length)
-  const value = formatArShort(proposal.yes[0].length, proposal.neither.length)
-  return (
-    <div className="truncate" title={title}>
-      {value}
-    </div>
-  )
-}
 
 export const renderNabb = (t: TFunction, proposal: Proposal) => {
   const title = formatNabb(t, proposal.neither.length, proposal.any.length, proposal.ban.length, proposal.banish.length)
