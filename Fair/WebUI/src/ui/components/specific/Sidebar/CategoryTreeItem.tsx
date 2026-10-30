@@ -19,7 +19,7 @@ export const CategoryTreeItem = memo(({ id, title, depth, active, expanded, hasC
   return (
     <Link
       className={twMerge(
-        "group flex h-6 min-w-0 cursor-pointer select-none items-center gap-1 rounded-md pr-1.5 text-2xs leading-4 hover:bg-gray-100",
+        "group flex h-6 min-w-0 cursor-pointer select-none items-center gap-1 rounded-md pr-1.5 text-2xs leading-4 hover:bg-gray-200",
         active && "bg-gray-100",
       )}
       style={{ paddingLeft: ROOT_INDENT_PX + (depth - 1) * INDENT_PX }}
