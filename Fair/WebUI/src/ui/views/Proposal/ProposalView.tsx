@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 
 import { useSignInContext, useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { SvgArrowLeft, SvgEyeSm } from "assets"
+import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetProposalComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalId, useApprovalIdentityForOperation, useResolveStoreId } from "hooks"
@@ -72,7 +73,13 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
   const [voteAction, setVoteAction] = useState<VoteAction | undefined>()
   const [commentSubmitting, setCommentSubmitting] = useState(false)
 
-  const { isFetching: isCommentsFetching, data: comments } = useGetProposalComments(storeId, proposal?.id)
+  const [commentsPage, setCommentsPage] = useState(0)
+  const { isFetching: isCommentsFetching, data: comments } = useGetProposalComments(
+    storeId,
+    proposal?.id,
+    commentsPage,
+    DEFAULT_PAGE_SIZE_20,
+  )
 
   const NestedContent = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
   const isPublicationProposal = !!NestedContent
@@ -279,6 +286,9 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
             showCommentInput={canCreateComment}
             isFetching={isCommentsFetching}
             comments={comments}
+            page={commentsPage}
+            pageSize={DEFAULT_PAGE_SIZE_20}
+            onPageChange={setCommentsPage}
             onCommentSubmit={handleCommentSubmit}
           />
         </div>

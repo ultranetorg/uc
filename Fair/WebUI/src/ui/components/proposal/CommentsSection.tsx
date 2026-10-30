@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { ProposalComment, TotalItemsResult } from "types"
-import { CommentsList, CommentsSectionHeader } from "ui/components"
+import { CommentsList, CommentsSectionHeader, Pagination } from "ui/components"
 
 export type CommentsSectionProps = {
   inputDisabled?: boolean
@@ -9,6 +9,9 @@ export type CommentsSectionProps = {
   showCommentInput?: boolean
   isFetching: boolean
   comments: TotalItemsResult<ProposalComment> | undefined
+  page: number
+  pageSize: number
+  onPageChange: (page: number) => void
   onCommentSubmit: (comment: string) => void
 }
 
@@ -18,13 +21,19 @@ export const CommentsSection = ({
   showCommentInput,
   isFetching,
   comments,
+  page,
+  pageSize,
+  onPageChange,
   onCommentSubmit,
 }: CommentsSectionProps) => {
   const { t } = useTranslation("proposalView")
+  const pagesCount = Math.ceil((comments?.totalItems ?? 0) / pageSize)
 
   return (
     <div className="flex flex-col gap-4">
-      <CommentsSectionHeader label={t("common:comments")} totalItems={comments?.totalItems} />
+      <CommentsSectionHeader label={t("common:comments")} totalItems={comments?.totalItems}>
+        {pagesCount > 1 && <Pagination page={page} pagesCount={pagesCount} onPageChange={onPageChange} />}
+      </CommentsSectionHeader>
       <CommentsList
         inputDisabled={inputDisabled}
         inputLoading={inputLoading}
@@ -36,6 +45,9 @@ export const CommentsSection = ({
         showCommentInput={showCommentInput}
         onCommentSubmit={onCommentSubmit}
       />
+      {pagesCount > 1 && (
+        <Pagination className="justify-end" page={page} pagesCount={pagesCount} onPageChange={onPageChange} />
+      )}
     </div>
   )
 }

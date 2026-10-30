@@ -1,2 +1,3 @@
 1. Git Workflow: Always work in the current branch. Never create new branches or worktrees.
 2. Context: Before starting any task, check git diff --cached to see staged changes. Always take staged files into account as they represent the current work-in-progress state.
+3. При добавлении нового кода располагай импорты в алфавитном порядке. Импорты дели на группы: сначала "системные" импорты - React, i18n и т.д, затем импорты проекта, затем импорты из верхней-верхней папки, затем из текущей папки. Между группами ставь пустой перенос.

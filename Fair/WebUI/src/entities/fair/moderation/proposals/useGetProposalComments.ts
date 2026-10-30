@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 
 import { getFairApi } from "api"
 
@@ -13,6 +13,7 @@ export const useGetProposalComments = (storeId?: string, proposalId?: string, pa
     queryKey: [...proposalCommentsKeys.all(storeId!, proposalId!), { page, pageSize }],
     queryFn: queryFn,
     enabled: !!storeId && !!proposalId,
+    placeholderData: keepPreviousData,
   })
 
   return { isFetching, error: error ?? undefined, data, refetch }
