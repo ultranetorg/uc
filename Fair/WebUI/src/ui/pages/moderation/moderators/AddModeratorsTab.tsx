@@ -4,31 +4,53 @@ import { useTranslation } from "react-i18next"
 import { TFunction } from "i18next"
 import { isNumber } from "lodash"
 
-import { useStoreContext, useStorePoliciesContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
-import { ModeratorProposal } from "types"
-import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { ModeratorProposal, Policy, Store } from "types"
+import { Badge, Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import { renderCreator, renderUsersList } from "ui/renderers2"
-import { renderActionShort, renderCommon } from "ui/renderers/utils"
-import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
+import { renderCommon, renderProposalProgress, renderYourVote } from "ui/renderers/utils"
+import { calculateVotesRequiredToWinProposal, getVoterIds, parseInteger, routes } from "utils"
+
+type ModeratorsProposalsVoting = {
+  store?: Store
+  policies?: Policy[]
+  currentUserId?: string
+  moderatorId?: string
+  publisherIds?: string[]
+}
 
 const getModeratorsProposalsItemRenderer =
-  (t: TFunction, votesRequired?: number) =>
+  (t: TFunction, { store, policies, currentUserId, moderatorId, publisherIds }: ModeratorsProposalsVoting = {}) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const proposal = item as ModeratorProposal
 
     switch (column.type) {
       case "account":
         return renderCreator(proposal.creator)
+
       case "accounts-list":
-        return renderUsersList(proposal.moderators)
-      case "action-short":
-        return renderActionShort(t, proposal.operation)
+        return (
+          <div className="flex items-center gap-2">
+            {renderUsersList(proposal.moderators)}
+            {proposal.moderators.some(x => x.id === currentUserId) && <Badge>{t("common:you")}</Badge>}
+          </div>
+        )
+
+      case "progress":
+        return renderProposalProgress(
+          t,
+          proposal,
+          calculateVotesRequiredToWinProposal(proposal.operation, store, policies),
+        )
+
+      case "your-vote":
+        return renderYourVote(t, proposal, getVoterIds(proposal.operation, policies, moderatorId, publisherIds))
     }
 
-    return renderCommon(t, column, proposal, votesRequired)
+    return renderCommon(t, column, proposal)
   }
 
 export const AddModeratorsTab = () => {
@@ -38,6 +60,8 @@ export const AddModeratorsTab = () => {
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
+  const { isModerator, publisherIds } = useStoreRolesContext()
+  const { user } = useUserContext()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -59,26 +83,28 @@ export const AddModeratorsTab = () => {
         accessor: "moderators",
         label: t("columns:moderators"),
         type: "accounts-list",
-        className: "w-[30%]",
+        className: "w-[36%]",
       },
-      { accessor: "action", label: t("columns:action"), type: "action-short", className: "w-[12%]" },
+      { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[16%]" },
       {
-        accessor: "votes",
-        label: t("columns:votes.label"),
-        title: t("columns:votes.title"),
-        type: "votes",
-        className: "w-[12%] text-center",
+        accessor: "progress",
+        label: t("columns:progress.label"),
+        title: t("columns:progress.proposalTitle"),
+        type: "progress",
+        className: "w-[18%]",
       },
+      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[14%]" },
     ],
     [t],
   )
 
-  const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("store-moderator-addition", store, policies),
-    [policies, store],
+  const currentUserId = user?.id
+  const moderatorId = isModerator ? currentUserId : undefined
+  const itemRenderer = useMemo(
+    () => getModeratorsProposalsItemRenderer(t, { store, policies, currentUserId, moderatorId, publisherIds }),
+    [t, store, policies, currentUserId, moderatorId, publisherIds],
   )
-
-  const itemRenderer = useMemo(() => getModeratorsProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 
   const handleTableRowClick = useCallback(
     (id: string) => navigate(routes.moderation.moderatorProposal(storeId!, id)),

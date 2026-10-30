@@ -6,28 +6,41 @@ import { useDebounceValue } from "usehooks-ts"
 import { isNumber, truncate } from "lodash"
 
 import { useStorePoliciesContext, useStoreRolesContext } from "app"
-import { SvgSearchMd, SvgX } from "assets"
+import { SvgCheckCircleFill, SvgSearchMd, SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
 import { useGetStorePublishers } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Publisher } from "types"
-import { ButtonPrimary, TableColumn, TableItem, Input, Pagination, Table, TableEmptyState } from "ui/components"
-import { renderAuthor } from "ui/renderers/utils"
+import { Badge, ButtonPrimary, TableColumn, TableItem, Input, Pagination, Table, TableEmptyState } from "ui/components"
+import { renderAuthor, renderBannedStatus } from "ui/renderers/utils"
 import { isModeratorCanCreate, isPublisherCanCreate, parseInteger, routes } from "utils"
 
 const getPublishersTabItemRenderer =
-  (t: TFunction, storeId: string, pathname: string) =>
+  (t: TFunction, storeId: string, pathname: string, publisherIds?: string[]) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const publisher = item as unknown as Publisher
 
     switch (column.type) {
       case "author":
         return (
-          <Link to={routes.moderation.publisher(storeId, publisher.author.id)}> {renderAuthor(publisher.author)}</Link>
+          <div className="flex items-center gap-2">
+            <Link to={routes.moderation.publisher(storeId, publisher.author.id)}>{renderAuthor(publisher.author)}</Link>
+            {publisherIds?.includes(publisher.author.id) && <Badge>{t("common:you")}</Badge>}
+          </div>
         )
 
-      case "banned":
-        return publisher.bannedTill !== 0 ? publisher.bannedTill : ""
+      case "verified":
+        return publisher.verifiedWebdomainRank ? (
+          <div className="flex items-center gap-1.5" title={t("verifiedRankTitle")}>
+            <SvgCheckCircleFill className="size-5 shrink-0 fill-light-green" />
+            <span>{publisher.verifiedWebdomainRank}</span>
+          </div>
+        ) : (
+          ""
+        )
+
+      case "status":
+        return renderBannedStatus(t, publisher.bannedTill)
 
       case "actions":
         return (
@@ -55,7 +68,7 @@ export const PublishersListTab = () => {
   const { t } = useTranslation("publishersPage")
 
   const policies = useStorePoliciesContext()
-  const { isModerator, isPublisher } = useStoreRolesContext()
+  const { isModerator, isPublisher, publisherIds } = useStoreRolesContext()
 
   const canRemovePublisher =
     (isPublisher && isPublisherCanCreate("store-authors-removal", policies)) ||
@@ -84,8 +97,9 @@ export const PublishersListTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "author", label: t("columns:author"), type: "author", className: "w-[45%]" },
-      { accessor: "bannedTill", label: t("columns:bannedTill"), type: "banned", className: "w-[40%]" },
+      { accessor: "author", label: t("columns:author"), type: "author", className: "w-[55%]" },
+      { accessor: "verifiedWebdomainRank", label: t("columns:verifiedDomain"), type: "verified", className: "w-[15%]" },
+      { accessor: "bannedTill", label: t("columns:status"), type: "status", className: "w-[20%]" },
       ...(canRemovePublisher
         ? [
             {
@@ -100,7 +114,10 @@ export const PublishersListTab = () => {
     [t, canRemovePublisher],
   )
 
-  const itemRenderer = useMemo(() => getPublishersTabItemRenderer(t, storeId!, location.pathname), [storeId, t])
+  const itemRenderer = useMemo(
+    () => getPublishersTabItemRenderer(t, storeId!, location.pathname, publisherIds),
+    [publisherIds, storeId, t],
+  )
 
   const items = useMemo(
     () =>

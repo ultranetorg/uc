@@ -1,24 +1,72 @@
-import { useCallback, useMemo, useState } from "react"
+import { ReactNode, useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { TFunction } from "i18next"
 import { isNumber } from "lodash"
 
-import { useStoreContext, useStorePoliciesContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserUnregistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useUrlParamsState } from "hooks"
-import { ProposalVoting } from "types"
-import { Pagination, Table, TableEmptyState } from "ui/components"
-import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
+import { ProposalVoting, UserUnregistrationProposal } from "types"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import {
+  renderActions,
+  renderCommon,
+  renderProposalProgress,
+  renderWithYouBadge,
+  renderYourVote,
+} from "ui/renderers/utils"
+import { renderCreator, renderUser } from "ui/renderers2"
+import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
-import { getRemoveUsersTabItemRenderer } from "./removeUsersTabItemRenderer"
+const getRemoveUsersTabItemRenderer =
+  (
+    t: TFunction,
+    onApprove: (id: string, name: string) => void,
+    onReject: (id: string, name: string) => void,
+    votesRequired: number,
+    loadingItem?: { id: string; action: "approve" | "reject" } | undefined,
+    currentUserId?: string,
+    userId?: string,
+  ) =>
+  (item: TableItem, column: TableColumn): ReactNode => {
+    const proposal = item as UserUnregistrationProposal
+    const isVoted = isUserVoted(currentUserId, proposal)
 
-export const UsersRemovalsTab = () => {
+    switch (column.type) {
+      case "user":
+        return renderWithYouBadge(t, renderUser(proposal.userId, proposal.userName), proposal.userId === userId)
+
+      case "created-by":
+        return renderCreator(proposal.creator)
+
+      case "progress":
+        return renderProposalProgress(t, proposal, votesRequired)
+
+      case "your-vote":
+        return renderYourVote(t, proposal, currentUserId ? [currentUserId] : [])
+
+      case "actions":
+        return renderActions(
+          t,
+          () => onApprove(item.id, proposal.creator.title),
+          () => onReject(item.id, proposal.creator.title),
+          loadingItem?.id === item.id ? loadingItem.action : undefined,
+          isVoted || (loadingItem && loadingItem.id !== item.id),
+        )
+    }
+
+    return renderCommon(t, column, proposal, votesRequired)
+  }
+
+export const RemoveUsersTab = () => {
   const storeId = useResolveStoreId()
   const approval = useApprovalIdentityForOperation("user-unregistration")
   const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
+  const { user } = useUserContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -38,16 +86,17 @@ export const UsersRemovalsTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "user", label: t("columns:user"), type: "user", className: "w-[30%]" },
-      { accessor: "createdBy", label: t("columns:createdBy"), type: "created-by", className: "w-[15%]" },
-      { accessor: "lastsFor", label: t("columns:lastsFor"), type: "lasts-for", className: "w-[15%]" },
+      { accessor: "user", label: t("columns:user"), type: "user", className: "w-[22%]" },
+      { accessor: "createdBy", label: t("columns:createdBy"), type: "created-by", className: "w-[14%]" },
       {
-        accessor: "votes",
-        label: t("columns:votes.label"),
-        title: t("columns:votes.title"),
-        type: "votes",
-        className: "w-[15%] text-center",
+        accessor: "progress",
+        label: t("columns:progress.label"),
+        title: t("columns:progress.proposalTitle"),
+        type: "progress",
+        className: "w-[14%]",
       },
+      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[12%]" },
       ...(approval
         ? [
             {
@@ -98,8 +147,9 @@ export const UsersRemovalsTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getRemoveUsersTabItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval?.id),
-    [approval, handleApprove, handleReject, loadingItem, t, votesRequired],
+    () =>
+      getRemoveUsersTabItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval?.id, user?.id),
+    [approval, handleApprove, handleReject, loadingItem, t, user?.id, votesRequired],
   )
 
   const handlePageChange = useCallback(

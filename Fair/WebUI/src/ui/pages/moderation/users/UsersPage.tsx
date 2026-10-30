@@ -8,7 +8,7 @@ import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes } from "utils"
 
 import { NewUsersTab } from "./NewUsersTab"
-import { UsersRemovalsTab } from "./RemoveUsersTab"
+import { RemoveUsersTab } from "./RemoveUsersTab"
 import { UsersTab } from "./UsersTab"
 
 const routeToTabKey: Record<string, string> = {
@@ -57,7 +57,7 @@ export const UsersPage = () => {
           <NewUsersTab />
         </TabContent>
         <TabContent when="users-removals">
-          <UsersRemovalsTab />
+          <RemoveUsersTab />
         </TabContent>
         <TabContent when="users">
           <UsersTab />

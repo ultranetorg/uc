@@ -5,7 +5,7 @@ import { useDebounceValue } from "usehooks-ts"
 import { capitalize } from "lodash"
 
 import { SEARCH_DELAY } from "config"
-import { useSearchStoreUsers } from "entities"
+import { useGetUserAuthors, useSearchStoreUsers } from "entities"
 import { useParams, useResolveStoreId } from "hooks"
 import { DropdownSearchAccountsItem, DropdownSearchAccount } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
@@ -21,6 +21,7 @@ export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
   const [debouncedQuery] = useDebounceValue(query, SEARCH_DELAY)
 
   const { data: searchUsers } = useSearchStoreUsers(storeId!, debouncedQuery)
+  const { data: user } = useGetUserAuthors(userId)
 
   const items = useMemo<DropdownSearchAccountsItem[]>(
     () =>
@@ -52,7 +53,7 @@ export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
     <>
       <ModerationHeader
         title={headerTitle}
-        breadcrumbTitle={!userId ? t("title") : userId}
+        breadcrumbTitle={!userId ? t("title") : (user?.name ?? userId)}
         parentBreadcrumbs={
           userId !== undefined
             ? { path: routes.moderation.users(storeId!, "users"), title: t("common:users") }

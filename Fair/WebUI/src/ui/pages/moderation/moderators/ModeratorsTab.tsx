@@ -1,28 +1,34 @@
 import { ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { TFunction } from "i18next"
 
+import { useUserContext } from "app"
 import { useGetStoreModerators } from "entities"
 import { useResolveStoreId } from "hooks"
 import { Moderator } from "types"
 import { Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import { renderUser } from "ui/renderers2"
-import { formatDate } from "utils"
+import { renderBannedStatus } from "ui/renderers/utils"
 
-const moderatorsTabItemRenderer = (item: TableItem, column: TableColumn): ReactNode => {
-  const moderator = item as unknown as Moderator
+import { renderModerator } from "./utils"
 
-  switch (column.type) {
-    case "account":
-      return renderUser(moderator.user.id, moderator.user.nickname)
+const getModeratorsTabItemRenderer =
+  (t: TFunction, currentUserId?: string) =>
+  (item: TableItem, column: TableColumn): ReactNode => {
+    const moderator = item as unknown as Moderator
 
-    case "banned":
-      return moderator.bannedTill !== 0 ? formatDate(moderator.bannedTill) : ""
+    switch (column.type) {
+      case "account":
+        return renderModerator(t, moderator.user.id, moderator.user.nickname, currentUserId)
+
+      case "status":
+        return renderBannedStatus(t, moderator.bannedTill)
+    }
   }
-}
 
 export const ModeratorsTab = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("moderatorsPage")
+  const { user } = useUserContext()
 
   const { data: moderators } = useGetStoreModerators(storeId)
 
@@ -32,12 +38,14 @@ export const ModeratorsTab = () => {
         accessor: "account",
         label: t("columns:moderators"),
         type: "account",
-        className: "w-[45%]",
+        className: "w-[85%]",
       },
-      { accessor: "bannedTill", label: t("columns:bannedTill"), type: "banned", className: "w-[40%]" },
+      { accessor: "bannedTill", label: t("columns:status"), type: "status", className: "w-[15%]" },
     ],
     [t],
   )
+
+  const itemRenderer = useMemo(() => getModeratorsTabItemRenderer(t, user?.id), [t, user?.id])
 
   const items = useMemo(
     () =>
@@ -52,7 +60,7 @@ export const ModeratorsTab = () => {
     <Table
       columns={columns}
       items={items}
-      itemRenderer={moderatorsTabItemRenderer}
+      itemRenderer={itemRenderer}
       tableBodyClassName="text-2sm leading-5"
       emptyState={<TableEmptyState message={t("noModerators")} />}
     />

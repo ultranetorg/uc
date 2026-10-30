@@ -3,18 +3,20 @@ import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
+import { useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetStoreUsers } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger, routes } from "utils"
 
-import { usersTabItemRenderer } from "./usersTabItemRenderer"
+import { getUsersTabItemRenderer } from "./usersTabItemRenderer"
 
 export const UsersTab = () => {
   const navigate = useNavigate()
   const storeId = useResolveStoreId()
   const { t } = useTranslation("usersTab")
+  const { user } = useUserContext()
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -29,6 +31,8 @@ export const UsersTab = () => {
   const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const columns = useMemo(() => [{ accessor: "user", label: t("columns:user"), type: "user" }], [t])
+
+  const itemRenderer = useMemo(() => getUsersTabItemRenderer(t, user?.id), [t, user?.id])
 
   const handleRowClick = useCallback(
     (id: string) => navigate(routes.moderation.user(storeId!, id)),
@@ -51,7 +55,7 @@ export const UsersTab = () => {
         columns={columns}
         items={users?.items}
         tableBodyClassName="text-2sm leading-5"
-        itemRenderer={usersTabItemRenderer}
+        itemRenderer={itemRenderer}
         onRowClick={handleRowClick}
         emptyState={<TableEmptyState message={t("noUsers")} />}
       />

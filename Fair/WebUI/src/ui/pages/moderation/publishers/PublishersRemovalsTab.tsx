@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useStoreContext, useStorePoliciesContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublisherProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
-import { calculateVotesRequiredToWinProposal, parseInteger, routes } from "utils"
+import { parseInteger, routes } from "utils"
 
 import { getPublisherProposalsItemRenderer } from "./publisherProposalsItemRenderer"
 
@@ -17,6 +17,8 @@ export const PublishersRemovalsTab = () => {
   const navigate = useNavigate()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
+  const { isModerator, publisherIds } = useStoreRolesContext()
+  const { user } = useUserContext()
   const { t } = useTranslation("publishersProposalsTab")
 
   const [state, setState] = useUrlParamsState({
@@ -39,35 +41,27 @@ export const PublishersRemovalsTab = () => {
         accessor: "publishers",
         label: t("columns:publishers"),
         type: "accounts-list",
-        className: "w-[30%]",
+        className: "w-[36%]",
       },
-      { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[12%]" },
-      { accessor: "action", label: t("columns:action"), type: "action-short", className: "w-[12%]" },
-      { accessor: "lastsFor", label: t("columns:lastsFor"), type: "lasts-for", className: "w-[12%]" },
+      { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[16%]" },
       {
-        accessor: "votes",
-        label: t("columns:votes.label"),
-        title: t("columns:votes.title"),
-        type: "votes",
-        className: "w-[12%] text-center",
+        accessor: "progress",
+        label: t("columns:progress.label"),
+        title: t("columns:progress.proposalTitle"),
+        type: "progress",
+        className: "w-[18%]",
       },
-      {
-        accessor: "nabb",
-        label: t("columns:nabb"),
-        type: "nabb",
-        title: t("columns:nabbFull"),
-        className: "w-[12%]",
-      },
+      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[14%]" },
     ],
     [t],
   )
 
-  const votesRequired = useMemo(
-    () => calculateVotesRequiredToWinProposal("store-authors-removal", store, policies),
-    [policies, store],
+  const moderatorId = isModerator ? user?.id : undefined
+  const itemRenderer = useMemo(
+    () => getPublisherProposalsItemRenderer(t, { store, policies, moderatorId, publisherIds }),
+    [t, store, policies, moderatorId, publisherIds],
   )
-
-  const itemRenderer = useMemo(() => getPublisherProposalsItemRenderer(t, votesRequired), [t, votesRequired])
 
   const handleTableRowClick = useCallback(
     (id: string) => navigate(routes.moderation.publisherRemoval(storeId!, id)),

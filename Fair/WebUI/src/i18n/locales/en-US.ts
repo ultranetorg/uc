@@ -3,6 +3,7 @@ export const enUS = {
   common: {
     any: "Any",
     about: "about",
+    active: "Active",
     add: "add",
     additions: "additions",
     anbb: "A / N / B / B",
@@ -13,6 +14,7 @@ export const enUS = {
     author: "Author",
     back: "back",
     ban: "Ban",
+    bannedUntil: "Banned until {{date}}",
     banish: "Banish",
     category: "category",
     categories_one: "{{count}} category",
@@ -84,6 +86,7 @@ export const enUS = {
     votes: "votes",
     yes: "Yes",
     yesVotes: "Yes votes",
+    you: "You",
     unpublished: "unpublished",
     unsupportedTag: "Your browser does not support the tag.",
     upload: "upload",
@@ -119,11 +122,13 @@ export const enUS = {
     publishers: "Publishers",
     rating: "Rating",
     reviewer: "Reviewer",
+    status: "Status",
     text: "Text",
     title: "Title",
     totalVotes: "Total Votes",
     type: "Type",
     user: "User",
+    verifiedDomain: "Verified Domain",
     votes: {
       label: "Votes",
       title: "Votes / Votes Required",
@@ -481,6 +486,7 @@ export const enUS = {
     addPublisher: "Add new publisher",
     noPublishers: "No publishers",
     removeAuthor: "Remove author",
+    verifiedRankTitle: "Web domain is verified. Value is the domain rank",
   },
   referendum: {
     createdAt: "Created At:",
@@ -791,6 +797,7 @@ export const enUS = {
 
   /* Misc */
   date: {
+    lessThanHour: "< 1 hour",
     hour_one: "{{count}} hour",
     hour_other: "{{count}} hours",
     day_one: "{{count}} day",

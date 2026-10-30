@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 
-import { useStoreContext, useStorePoliciesContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetUserRegistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -18,6 +18,7 @@ export const NewUsersTab = () => {
   const { invalidateOperation } = useInvalidation()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
+  const { user } = useUserContext()
   const { t } = useTranslation("usersPage")
 
   const [state, setState] = useUrlParamsState({
@@ -37,15 +38,16 @@ export const NewUsersTab = () => {
 
   const columns = useMemo(
     () => [
-      { accessor: "signer", label: t("columns:user"), type: "account", className: "w-[40%]" },
-      { accessor: "lastsFor", label: t("columns:lastsFor"), type: "lasts-for", className: "w-[15%]" },
+      { accessor: "signer", label: t("columns:user"), type: "account", className: "w-[28%]" },
       {
-        accessor: "votes",
-        label: t("columns:votes.label"),
-        title: t("columns:votes.title"),
-        type: "votes",
-        className: "w-[15%] text-center",
+        accessor: "progress",
+        label: t("columns:progress.label"),
+        title: t("columns:progress.proposalTitle"),
+        type: "progress",
+        className: "w-[16%]",
       },
+      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[12%]" },
       ...(approval
         ? [
             {
@@ -96,8 +98,8 @@ export const NewUsersTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getUsersItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval?.id),
-    [approval?.id, handleApprove, handleReject, loadingItem, t, votesRequired],
+    () => getUsersItemRenderer(t, handleApprove, handleReject, votesRequired, loadingItem, approval?.id, user?.id),
+    [approval?.id, handleApprove, handleReject, loadingItem, t, user?.id, votesRequired],
   )
 
   const handlePageChange = useCallback(

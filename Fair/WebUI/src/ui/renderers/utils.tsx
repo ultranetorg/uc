@@ -14,7 +14,7 @@ import {
   ButtonOutline,
   ButtonPrimary,
   MemberInfo,
-  NotVotedBadge,
+  Badge,
   PublicationInfo,
   TableColumn,
   VotesProgress,
@@ -29,6 +29,7 @@ import {
   getLastsFor,
   getLeadingOptionIndexes,
   getLeadingVotes,
+  formatDate,
   getVotedChoice,
 } from "utils"
 
@@ -245,7 +246,7 @@ export const renderYourVote = (t: TFunction, proposal: Proposal, voterIds: strin
 
   const choice = getVotedChoice(voterIds, proposal)
   if (choice === undefined) {
-    return <NotVotedBadge />
+    return <Badge variant="warning">{t("common:notVoted")}</Badge>
   }
 
   const text = choice >= 0 ? getOptionTitle(t, proposal, choice) : t(SPECIAL_CHOICE_KEYS[choice])
@@ -255,3 +256,20 @@ export const renderYourVote = (t: TFunction, proposal: Proposal, voterIds: strin
     </div>
   )
 }
+
+export const renderBannedStatus = (t: TFunction, bannedTill: number) =>
+  bannedTill !== 0 ? (
+    <Badge variant="warning">{t("common:bannedUntil", { date: formatDate(bannedTill) })}</Badge>
+  ) : (
+    <span className="text-gray-500">{t("common:active")}</span>
+  )
+
+export const renderWithYouBadge = (t: TFunction, content: ReactNode, isYou: boolean) =>
+  isYou ? (
+    <div className="flex items-center gap-2">
+      {content}
+      <Badge>{t("common:you")}</Badge>
+    </div>
+  ) : (
+    content
+  )

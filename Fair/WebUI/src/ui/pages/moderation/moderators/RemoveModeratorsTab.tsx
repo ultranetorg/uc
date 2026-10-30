@@ -3,32 +3,45 @@ import { useTranslation } from "react-i18next"
 import { isNumber } from "lodash"
 import { TFunction } from "i18next"
 
-import { useStoreRolesContext } from "app"
+import { useStoreRolesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthor, useGetModeratorSurveys, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { StoreModeratorRemoval, Survey, SurveyVoting } from "types"
-import { ButtonPrimary, Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import { renderUser } from "ui/renderers2"
+import {
+  Badge,
+  ButtonPrimary,
+  Pagination,
+  Table,
+  TableColumn,
+  TableEmptyState,
+  TableItem,
+  VotesProgress,
+} from "ui/components"
 import { isPublisherVotedInSurvey, parseInteger, showToast } from "utils"
+
+import { renderModerator } from "./utils"
 
 const getColumns = (t: TFunction, canVote: boolean) => [
   {
     accessor: "account",
     label: t("columns:moderators"),
     type: "account",
+    className: "w-[30%]",
+  },
+  {
+    accessor: "progress",
+    label: t("columns:progress.label"),
+    title: t("columns:progress.title"),
+    type: "progress",
     className: "w-1/5",
   },
   {
-    accessor: "totalVotes",
-    label: t("columns:totalVotes"),
-    className: "w-1/5 text-right",
-  },
-  {
-    accessor: "votesRequiredToWin",
-    label: t("columns:votesRequired"),
-    className: "w-1/5 text-right",
+    accessor: "yourVote",
+    label: t("columns:yourVote"),
+    type: "your-vote",
+    className: "w-1/5",
   },
   ...(canVote
     ? [
@@ -43,15 +56,33 @@ const getColumns = (t: TFunction, canVote: boolean) => [
 ]
 
 const getItemRenderer =
-  (t: TFunction, onVote: (surveyId: string) => void, votingSurveyId?: string, publisherId?: string) =>
+  (
+    t: TFunction,
+    onVote: (surveyId: string) => void,
+    votingSurveyId?: string,
+    publisherId?: string,
+    currentUserId?: string,
+  ) =>
   (item: TableItem, column: TableColumn) => {
     const survey = item as unknown as Survey
 
     switch (column.type) {
       case "account": {
         const option = survey.options[0].operation as unknown as StoreModeratorRemoval
-        return renderUser(option.moderator.id, option.moderator.name)
+        return renderModerator(t, option.moderator.id, option.moderator.name, currentUserId)
       }
+
+      case "progress":
+        return <VotesProgress votes={survey.totalVotes} votesRequired={survey.votesRequiredToWin} />
+
+      case "your-vote":
+        if (!publisherId) return "-"
+
+        return isPublisherVotedInSurvey(survey, publisherId) ? (
+          t("common:yes")
+        ) : (
+          <Badge variant="warning">{t("common:notVoted")}</Badge>
+        )
 
       case "actions":
         return (
@@ -79,6 +110,7 @@ export const RemoveModeratorsTab = () => {
   const { invalidateOperation } = useInvalidation()
   const storeId = useResolveStoreId()
   const { publisherIds } = useStoreRolesContext()
+  const { user } = useUserContext()
   const publisherId = publisherIds && publisherIds[0]
   const { data: publisher } = useGetAuthor(publisherId)
 
@@ -127,8 +159,8 @@ export const RemoveModeratorsTab = () => {
   )
 
   const itemRenderer = useMemo(
-    () => getItemRenderer(t, handleVote, votingSurveyId, publisherId!),
-    [handleVote, publisherId, t, votingSurveyId],
+    () => getItemRenderer(t, handleVote, votingSurveyId, publisherId, user?.id),
+    [handleVote, publisherId, t, user?.id, votingSurveyId],
   )
 
   return (

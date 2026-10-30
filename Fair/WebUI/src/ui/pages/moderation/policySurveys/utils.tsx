@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 
 import { SvgLock } from "assets"
 import { ApprovalRequirement, Policy, StoreApprovalPolicyChange, Survey } from "types"
-import { NotVotedBadge, Tooltip, VotesProgress } from "ui/components"
+import { Badge, Tooltip, VotesProgress } from "ui/components"
 
 export const CELL_CLASSNAME = "flex items-center gap-2"
 
@@ -81,7 +81,7 @@ export const renderYourVote = (t: TFunction, survey: Survey, publisherIds?: stri
 
   const approval = getPublisherVotedApproval(survey, publisherIds)
   if (!approval) {
-    return <NotVotedBadge />
+    return <Badge variant="warning">{t("common:notVoted")}</Badge>
   }
 
   return t(`approvalRequirement:${approval}`)

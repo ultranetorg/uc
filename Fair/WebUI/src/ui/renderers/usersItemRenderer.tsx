@@ -6,7 +6,14 @@ import { TableColumn, TableItem } from "ui/components"
 import { renderCreator } from "ui/renderers2"
 import { isUserVoted } from "utils"
 
-import { renderActions, renderCommon, renderTitle } from "./utils"
+import {
+  renderActions,
+  renderCommon,
+  renderProposalProgress,
+  renderTitle,
+  renderWithYouBadge,
+  renderYourVote,
+} from "./utils"
 
 export const getUsersItemRenderer =
   (
@@ -16,6 +23,7 @@ export const getUsersItemRenderer =
     votesRequired?: number,
     loadingItem?: { id: string; action: "approve" | "reject" } | undefined,
     currentUserId?: string,
+    userId?: string,
   ) =>
   (item: TableItem, column: TableColumn): ReactNode => {
     const proposal = item as Proposal
@@ -26,7 +34,13 @@ export const getUsersItemRenderer =
         return renderTitle(proposal.title, proposal.text)
 
       case "account":
-        return renderCreator(proposal.creator)
+        return renderWithYouBadge(t, renderCreator(proposal.creator), proposal.creator.id === userId)
+
+      case "progress":
+        return renderProposalProgress(t, proposal, votesRequired ?? 0)
+
+      case "your-vote":
+        return renderYourVote(t, proposal, currentUserId ? [currentUserId] : [])
 
       case "actions":
         return renderActions(
