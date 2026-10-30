@@ -16,7 +16,7 @@ type PaginationBaseProps = {
 export type PaginationProps = PropsWithClassName & PaginationBaseProps
 
 export const Pagination = memo(({ className, page, pagesCount, onPageChange }: PaginationProps) => {
-  if (pagesCount <= 0) {
+  if (pagesCount <= 1) {
     return null
   }
 

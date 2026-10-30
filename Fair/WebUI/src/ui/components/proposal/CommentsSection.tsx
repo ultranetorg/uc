@@ -32,7 +32,7 @@ export const CommentsSection = ({
   return (
     <div className="flex flex-col gap-4">
       <CommentsSectionHeader label={t("common:comments")} totalItems={comments?.totalItems}>
-        {pagesCount > 1 && <Pagination page={page} pagesCount={pagesCount} onPageChange={onPageChange} />}
+        <Pagination page={page} pagesCount={pagesCount} onPageChange={onPageChange} />
       </CommentsSectionHeader>
       <CommentsList
         inputDisabled={inputDisabled}
@@ -45,9 +45,7 @@ export const CommentsSection = ({
         showCommentInput={showCommentInput}
         onCommentSubmit={onCommentSubmit}
       />
-      {pagesCount > 1 && (
-        <Pagination className="justify-end" page={page} pagesCount={pagesCount} onPageChange={onPageChange} />
-      )}
+      <Pagination className="justify-end" page={page} pagesCount={pagesCount} onPageChange={onPageChange} />
     </div>
   )
 }
