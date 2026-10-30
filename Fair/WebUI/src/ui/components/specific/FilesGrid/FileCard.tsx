@@ -23,7 +23,7 @@ export const FileCard = memo(({ fileId, refs, selected, onClick, notUsedLabel, u
   >
     <div className="h-25 w-full overflow-hidden bg-gray-200">
       <img
-        className="size-full object-cover object-center"
+        className="size-full object-contain object-center"
         src={`${BASE_URL}/files/${fileId}`}
         title={fileId}
         loading="lazy"
