@@ -58,6 +58,8 @@ export const enUS = {
     product: "Product",
     proposals: "proposals",
     publication: "Publication",
+    publicationRemoved: "Publication removed",
+    publicationRemovedHint: "Stays here until voted on",
     publications: "publications",
     publisher_one: "publisher",
     publisher_other: "publishers",

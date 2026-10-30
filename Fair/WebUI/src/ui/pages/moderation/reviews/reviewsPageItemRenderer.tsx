@@ -3,7 +3,14 @@ import { TFunction } from "i18next"
 
 import { OperationType, ReviewProposal } from "types"
 import { ButtonOutline, ButtonPrimary, TableColumn, TableItem } from "ui/components"
-import { renderActions, renderCommon, renderProposalProgress, renderPublication, renderText } from "ui/renderers/utils"
+import {
+  renderActions,
+  renderCommon,
+  renderProposalProgress,
+  renderPublication,
+  renderRemovedPublication,
+  renderText,
+} from "ui/renderers/utils"
 import { renderCreator } from "ui/renderers2"
 import { formatRating, isUserVoted } from "utils"
 
@@ -60,7 +67,7 @@ export const getReviewsPageItemRenderer =
         return renderCreator(proposal.creator)
 
       case "publication":
-        return proposal.publication !== null ? renderPublication(proposal.publication) : "Publication removed"
+        return proposal.publication !== null ? renderPublication(proposal.publication) : renderRemovedPublication(t)
 
       case "rating":
         return formatRating(proposal.rating)
