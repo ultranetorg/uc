@@ -6,12 +6,12 @@ import { ButtonOutline, ButtonPrimary, TableColumn, TableItem } from "ui/compone
 import {
   renderActions,
   renderCommon,
+  renderCreator,
   renderProposalProgress,
   renderPublication,
   renderRemovedPublication,
   renderText,
-} from "ui/renderers/utils"
-import { renderCreator } from "ui/renderers2"
+} from "ui/renderers"
 import { formatRating, isUserVoted } from "utils"
 
 const renderDeleteActions = (

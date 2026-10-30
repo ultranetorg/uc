@@ -7,7 +7,7 @@ import { useGetStoreModerators } from "entities"
 import { useResolveStoreId } from "hooks"
 import { Moderator } from "types"
 import { Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import { renderBannedStatus } from "ui/renderers/utils"
+import { renderBannedStatus } from "ui/renderers"
 
 import { renderModerator } from "./utils"
 

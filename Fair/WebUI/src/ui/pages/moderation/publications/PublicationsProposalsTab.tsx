@@ -14,13 +14,13 @@ import {
   renderActionShort,
   renderAuthor2,
   renderCommon,
+  renderCreator,
   renderProposalProgress,
   renderPublication,
   renderTitle,
   renderWithYouBadge,
   renderYourVote,
-} from "ui/renderers/utils"
-import { renderCreator } from "ui/renderers2"
+} from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, getVoterIds, parseInteger, routes } from "utils"
 
 type PublicationsVoting = {

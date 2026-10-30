@@ -1,7 +1,7 @@
 import { TFunction } from "i18next"
 
 import { Badge } from "ui/components"
-import { renderUser } from "ui/renderers2"
+import { renderUser } from "ui/renderers"
 
 export const renderModerator = (t: TFunction, id: string, name: string, currentUserId?: string) => (
   <div className="flex items-center gap-2">

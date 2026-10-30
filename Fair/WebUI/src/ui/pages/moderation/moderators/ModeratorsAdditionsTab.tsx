@@ -10,8 +10,7 @@ import { useGetModeratorProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ModeratorProposal, Policy, Store } from "types"
 import { Badge, Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import { renderCreator, renderUsersList } from "ui/renderers2"
-import { renderCommon, renderProposalProgress, renderYourVote } from "ui/renderers/utils"
+import { renderCommon, renderCreator, renderProposalProgress, renderUsersList, renderYourVote } from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, getVoterIds, parseInteger, routes } from "utils"
 
 type ModeratorsProposalsVoting = {

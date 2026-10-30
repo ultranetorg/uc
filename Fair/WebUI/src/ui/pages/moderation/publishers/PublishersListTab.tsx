@@ -12,7 +12,7 @@ import { useGetStorePublishers } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Publisher } from "types"
 import { Badge, ButtonPrimary, TableColumn, TableItem, Input, Pagination, Table, TableEmptyState } from "ui/components"
-import { renderAuthor, renderBannedStatus } from "ui/renderers/utils"
+import { renderAuthor, renderBannedStatus } from "ui/renderers"
 import { isModeratorCanCreate, isPublisherCanCreate, parseInteger, routes } from "utils"
 
 const getItemRenderer =

@@ -3,8 +3,7 @@ import { TFunction } from "i18next"
 
 import { Policy, PublisherProposal, Store } from "types"
 import { Badge, TableColumn, TableItem } from "ui/components"
-import { renderAuthor2, renderCommon, renderProposalProgress, renderYourVote } from "ui/renderers/utils"
-import { renderCreator } from "ui/renderers2"
+import { renderAuthor2, renderCommon, renderCreator, renderProposalProgress, renderYourVote } from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, getVoterIds } from "utils"
 
 export type PublisherProposalsVoting = {

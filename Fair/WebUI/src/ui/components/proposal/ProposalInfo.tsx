@@ -4,8 +4,7 @@ import { twMerge } from "tailwind-merge"
 
 import { Policy, Proposal, PropsWithClassName, Store } from "types"
 import { LinkFullscreen } from "ui/components"
-import { renderAction, renderLeadingOption, renderProposalProgress, renderYourVote } from "ui/renderers/utils"
-import { renderCreator } from "ui/renderers2"
+import { renderAction, renderCreator, renderLeadingOption, renderProposalProgress, renderYourVote } from "ui/renderers"
 import { buildCreatorLink, getLastsFor, formatDate, calculateVotesRequiredToWinProposal } from "utils"
 
 type InfoRowBaseProps = {

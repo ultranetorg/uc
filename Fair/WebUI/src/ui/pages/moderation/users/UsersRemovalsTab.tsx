@@ -13,11 +13,12 @@ import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/c
 import {
   renderActions,
   renderCommon,
+  renderCreator,
   renderProposalProgress,
+  renderUser,
   renderWithYouBadge,
   renderYourVote,
-} from "ui/renderers/utils"
-import { renderCreator, renderUser } from "ui/renderers2"
+} from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 const getItemRenderer =

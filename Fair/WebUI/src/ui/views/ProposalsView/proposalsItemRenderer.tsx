@@ -6,12 +6,12 @@ import { TableColumn, TableItem } from "ui/components/Table"
 import {
   renderAction,
   renderCommon,
+  renderCreator,
   renderLeadingOption,
   renderProposalProgress,
   renderTitle,
   renderYourVote,
-} from "ui/renderers/utils"
-import { renderCreator } from "ui/renderers2"
+} from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, getVoterIds } from "utils"
 
 export type ProposalsVoting = {

@@ -10,7 +10,7 @@ import { useGetUnpublishedPublications } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { PublicationUnpublished } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import { renderAuthor2, renderPublication2, renderWithYouBadge } from "ui/renderers/utils"
+import { renderAuthor2, renderPublication2, renderWithYouBadge } from "ui/renderers"
 import { parseInteger, routes } from "utils"
 
 const getItemRenderer =
