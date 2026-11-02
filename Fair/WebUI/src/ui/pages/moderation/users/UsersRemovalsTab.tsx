@@ -100,8 +100,8 @@ export const UsersRemovalsTab = () => {
         type: "progress",
         className: "w-[14%]",
       },
-      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[12%]" },
+      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[12%] text-right" },
       ...(approval
         ? [
             {

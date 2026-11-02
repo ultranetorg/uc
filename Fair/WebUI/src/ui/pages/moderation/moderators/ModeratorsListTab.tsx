@@ -40,7 +40,7 @@ export const ModeratorsListTab = () => {
         type: "account",
         className: "w-[85%]",
       },
-      { accessor: "bannedTill", label: t("columns:status"), type: "status", className: "w-[15%]" },
+      { accessor: "bannedTill", label: t("columns:status"), type: "status", className: "w-[15%] text-center" },
     ],
     [t],
   )

@@ -105,8 +105,8 @@ export const PublicationsProposalsTab = () => {
         type: "progress",
         className: "w-[13%]",
       },
-      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[12%]" },
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[13%]" },
+      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[12%] text-center" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[13%] text-right" },
     ],
     [t],
   )
