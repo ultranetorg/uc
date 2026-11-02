@@ -102,6 +102,7 @@ public abstract class FairOperation : Operation
 	public const string			NotEmptyReferencies = "Not Empty References";
 	public const string			TypeAlreadyDefined = "Type already defined";
 	public const string			NotPublished = "Not published";
+	public const string			NotAllowedIfPublicationsExist = "Not Allowed If Publications Exist";
 	public const string			NotSupported = "Not supported";
 	public const string			NotApproved = "Not approved";
 	public const string			TypeMismatch = "Type mismatch";

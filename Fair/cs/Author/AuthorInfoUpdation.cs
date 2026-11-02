@@ -117,6 +117,12 @@ public class AuthorInfoUpdation : FairOperation
 			switch(i.Field)
 			{
 				case AuthorField.Title:
+					if(a.Products.Any(i => execution.Products.Find(i).Publications.Any()))
+					{
+						Error = NotAllowedIfPublicationsExist;
+						return;
+					}
+
 					execution.Free(a, a, Encoding.UTF8.GetByteCount(a.Title));
 
 					a.Title = i.X;
