@@ -3,7 +3,7 @@ import { TFunction } from "i18next"
 
 import { Policy, PublisherProposal, Store } from "types"
 import { Badge, TableColumn, TableItem } from "ui/components"
-import { renderAuthor2, renderCommon, renderCreator, renderProposalProgress, renderYourVote } from "ui/renderers"
+import { renderAuthor2, renderCreator, renderOpenFor, renderProposalProgress, renderYourVote } from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, getVoterIds } from "utils"
 
 export type PublisherProposalsVoting = {
@@ -38,7 +38,7 @@ export const getPublishersRemovalsItemRenderer =
       case "account":
         return renderCreator(proposal.creator)
 
-      case "accounts-list":
+      case "account-list":
         return renderPublishers(t, proposal, publisherIds)
 
       case "progress":
@@ -50,7 +50,10 @@ export const getPublishersRemovalsItemRenderer =
 
       case "your-vote":
         return renderYourVote(t, proposal, getVoterIds(proposal.operation, policies, moderatorId, publisherIds))
+
+      case "open-for":
+        return renderOpenFor(t, proposal.creationTime)
     }
 
-    return renderCommon(t, column, proposal)
+    return undefined
   }

@@ -75,7 +75,7 @@ export const ReviewsDeletionsTab = () => {
             {
               accessor: "action",
               label: t("columns:action"),
-              type: "delete-actions",
+              type: "delete-action-buttons",
               className: "w-[20%] text-center",
             },
           ]

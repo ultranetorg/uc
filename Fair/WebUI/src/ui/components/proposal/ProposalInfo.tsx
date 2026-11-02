@@ -4,8 +4,14 @@ import { twMerge } from "tailwind-merge"
 
 import { Policy, Proposal, PropsWithClassName, Store } from "types"
 import { LinkFullscreen } from "ui/components"
-import { renderAction, renderCreator, renderLeadingOption, renderProposalProgress, renderYourVote } from "ui/renderers"
-import { buildCreatorLink, getLastsFor, formatDate, calculateVotesRequiredToWinProposal } from "utils"
+import {
+  renderActionName,
+  renderCreator,
+  renderLeadingOption,
+  renderProposalProgress,
+  renderYourVote,
+} from "ui/renderers"
+import { buildCreatorLink, getOpenFor, formatDate, calculateVotesRequiredToWinProposal } from "utils"
 
 type InfoRowBaseProps = {
   label: string
@@ -49,12 +55,12 @@ export const ProposalInfo = memo(({ className, store, proposal, policies, voterI
       <InfoRow label={t("labels:createdAt")}>
         <span>{formatDate(proposal.creationTime)}</span>
       </InfoRow>
-      <InfoRow label={t("labels:action")}>{renderAction(t, proposal.operation)}</InfoRow>
+      <InfoRow label={t("labels:action")}>{renderActionName(t, proposal.operation)}</InfoRow>
       <InfoRow label={t("labels:leadingOption")}>{renderLeadingOption(t, proposal)}</InfoRow>
       <InfoRow label={t("labels:progress")}>{renderProposalProgress(t, proposal, requiredToWin)}</InfoRow>
       <InfoRow label={t("labels:yourVote")}>{renderYourVote(t, proposal, voterIds)}</InfoRow>
       <InfoRow label={t("labels:openFor")}>
-        <span>{getLastsFor(t, proposal.creationTime)}</span>
+        <span>{getOpenFor(t, proposal.creationTime)}</span>
       </InfoRow>
     </div>
   )

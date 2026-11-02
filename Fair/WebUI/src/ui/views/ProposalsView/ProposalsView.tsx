@@ -19,7 +19,7 @@ const getVotingColumns = (t: TFunction): TableColumn[] => [
     className: "w-[13%]",
   },
   { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[12%]" },
-  { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[8%]" },
+  { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[8%]" },
 ]
 
 export type ProposalsViewProps = {
@@ -52,7 +52,7 @@ export const ProposalsView = memo(
       () => [
         { accessor: "text", label: t("columns:title"), type: "title", className: "w-[22%]" },
         { accessor: "createdBy", label: t("columns:createdBy"), type: "account", className: "w-[13%]" },
-        { accessor: "action", label: t("columns:action"), type: "action", className: "w-[16%]" },
+        { accessor: "action", label: t("columns:action"), type: "action-name", className: "w-[16%]" },
         ...getVotingColumns(t),
       ],
       [t],

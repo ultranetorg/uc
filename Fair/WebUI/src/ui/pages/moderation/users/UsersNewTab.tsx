@@ -11,9 +11,9 @@ import { useApprovalIdentityForOperation, useResolveStoreId, useUrlParamsState }
 import { Proposal, ProposalVoting } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import {
-  renderActions,
-  renderCommon,
+  renderActionButtons,
   renderCreator,
+  renderOpenFor,
   renderProposalProgress,
   renderTitle,
   renderWithYouBadge,
@@ -48,17 +48,20 @@ const getItemRenderer =
       case "your-vote":
         return renderYourVote(t, proposal, currentUserId ? [currentUserId] : [])
 
-      case "actions":
-        return renderActions(
+      case "action-buttons":
+        return renderActionButtons(
           t,
           () => onApprove(item.id, proposal.creator.title),
           () => onReject(item.id, proposal.creator.title),
           loadingItem?.id === item.id ? loadingItem.action : undefined,
           isVoted || (loadingItem && loadingItem.id !== item.id),
         )
+
+      case "open-for":
+        return renderOpenFor(t, proposal.creationTime)
     }
 
-    return renderCommon(t, column, proposal, votesRequired)
+    return undefined
   }
 
 export const UsersNewTab = () => {
@@ -96,13 +99,13 @@ export const UsersNewTab = () => {
         className: "w-[16%]",
       },
       { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[12%]" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[12%]" },
       ...(approval
         ? [
             {
               accessor: "actions",
               label: t("columns:actions"),
-              type: "actions",
+              type: "action-buttons",
               className: "w-[20%] text-center",
             },
           ]

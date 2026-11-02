@@ -42,7 +42,7 @@ const getItemRenderer =
       case "status":
         return renderBannedStatus(t, publisher.bannedTill)
 
-      case "actions":
+      case "action-buttons":
         return (
           <div className="flex justify-end">
             <Link
@@ -105,7 +105,7 @@ export const PublishersListTab = () => {
             {
               accessor: "actions",
               label: t("columns:actions"),
-              type: "actions",
+              type: "action-buttons",
               className: "w-[10%] text-center",
             },
           ]

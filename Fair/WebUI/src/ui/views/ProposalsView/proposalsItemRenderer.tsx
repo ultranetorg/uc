@@ -4,10 +4,10 @@ import { TFunction } from "i18next"
 import { Policy, Proposal, Store } from "types"
 import { TableColumn, TableItem } from "ui/components/Table"
 import {
-  renderAction,
-  renderCommon,
+  renderActionName,
   renderCreator,
   renderLeadingOption,
+  renderOpenFor,
   renderProposalProgress,
   renderTitle,
   renderYourVote,
@@ -31,8 +31,8 @@ export const getProposalsItemRenderer =
         return renderTitle(proposal.title, proposal.text)
       case "account":
         return renderCreator(proposal.creator)
-      case "action":
-        return renderAction(t, proposal.operation)
+      case "action-name":
+        return renderActionName(t, proposal.operation)
       case "leading-option":
         return renderLeadingOption(t, proposal)
       case "progress":
@@ -43,7 +43,10 @@ export const getProposalsItemRenderer =
         )
       case "your-vote":
         return renderYourVote(t, proposal, getVoterIds(proposal.operation, policies, moderatorId, publisherIds))
+
+      case "open-for":
+        return renderOpenFor(t, proposal.creationTime)
     }
 
-    return renderCommon(t, column, proposal)
+    return undefined
   }

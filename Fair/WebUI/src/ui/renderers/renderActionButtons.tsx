@@ -2,7 +2,7 @@ import { TFunction } from "i18next"
 
 import { ButtonOutline, ButtonPrimary } from "ui/components"
 
-export const renderActions = (
+export const renderActionButtons = (
   t: TFunction,
   onApprove: () => void,
   onReject: () => void,
