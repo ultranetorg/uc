@@ -3,11 +3,12 @@ import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"
 
-type BadgeVariant = "default" | "warning"
+type BadgeVariant = "default" | "warning" | "chip"
 
 const VARIANT_CLASSNAMES: Record<BadgeVariant, string> = {
   default: "bg-gray-200",
   warning: "bg-warning",
+  chip: "rounded-full border border-gray-300 bg-gray-100 py-0 leading-4",
 }
 
 export type BadgeProps = PropsWithChildren<PropsWithClassName> & {
