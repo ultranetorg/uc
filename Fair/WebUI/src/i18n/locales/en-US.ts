@@ -46,8 +46,8 @@ export const enUS = {
     nickname: "nickname",
     no: "No",
     noResults: "no results",
-    notVoted: "Not voted",
-    noVotesYet: "No votes yet",
+    notVoted: "Not Voted",
+    noVotesYet: "No Votes Yet",
     officialStore: "official store",
     ok: "ok",
     optionNumber: "Option {{number}}",
@@ -664,10 +664,10 @@ export const enUS = {
   /* Type literals names */
   approvalRequirement: {
     none: "None",
-    "any-moderator": "Any moderator",
-    "moderators-majority": "Moderators majority",
-    "all-moderators": "All moderators",
-    "publishers-majority": "Publishers majority",
+    "any-moderator": "Any Moderator",
+    "moderators-majority": "Moderators Majority",
+    "all-moderators": "All Moderators",
+    "publishers-majority": "Publishers Majority",
   },
   categoryTypes: {
     none: "None",

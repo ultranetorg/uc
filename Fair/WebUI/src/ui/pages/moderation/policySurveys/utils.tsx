@@ -54,10 +54,10 @@ export const renderVotedApproval = (t: TFunction, survey: Survey, policies?: Pol
     text
   ) : (
     <div className={CELL_CLASSNAME}>
+      {text}
       <Tooltip text={t("unchangeablePolicy")}>
         <SvgLock fill="fill-gray-800" className="cursor-default" onClick={stopPropagation} />
       </Tooltip>
-      {text}
     </div>
   )
 }

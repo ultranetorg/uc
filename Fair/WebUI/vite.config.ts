@@ -4,14 +4,23 @@ import react from "@vitejs/plugin-react"
 import { viteSingleFile } from "vite-plugin-singlefile"
 import svgr from "vite-plugin-svgr"
 
-// https://vite.dev/config/
+const ramdiskDir = process.env.RAMDISK_DIR
+
 export default defineConfig({
   plugins: [react(), svgr({ svgrOptions: { ref: true } }), viteSingleFile()],
+
+  ...(ramdiskDir
+    ? {
+        cacheDir: path.resolve(ramdiskDir, "vite-cache", path.basename(process.cwd())),
+      }
+    : {}),
+
   build: {
     target: "esnext",
     assetsInlineLimit: 100_000_000,
     cssCodeSplit: false,
   },
+
   resolve: {
     alias: {
       api: path.resolve(__dirname, "src/api"),
