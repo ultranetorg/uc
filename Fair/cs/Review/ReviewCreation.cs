@@ -70,7 +70,7 @@ public class ReviewCreation : VotableOperation
 
 		var p = execution.Publications.Affect(Publication);
 		
-		p.Reviews = [..p.Reviews, v.Id];
+		p.Reviews = p.Reviews.Insert(0, v.Id);
 		p.RatingSum += Rating;
 		p.RatingCount++;
 

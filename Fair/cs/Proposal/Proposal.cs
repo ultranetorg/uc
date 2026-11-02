@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Uccs.Fair;
 
 public enum SpecialChoice : sbyte
@@ -12,7 +14,7 @@ public enum SpecialChoice : sbyte
 
 public class ProposalOption : Option
 {
-	public AutoId[]	Yes { get; set; }
+	public ImmutableList<AutoId>	Yes { get; set; }
 
 	public ProposalOption()
 	{
@@ -28,7 +30,7 @@ public class ProposalOption : Option
 	public override void Read(Reader reader)
 	{
 		base.Read(reader);
- 		Yes = reader.ReadArray<AutoId>();
+ 		Yes = reader.ReadImmutableList<AutoId>();
 	}
 
 	public override void Write(Writer writer)
@@ -41,23 +43,23 @@ public class ProposalOption : Option
 
 public class Proposal : IBinarySerializable, ITableEntry<AutoId>
 {
-	public AutoId				Id { get; set; }
-	public AutoId				Store { get; set; }
-	public AutoId				By { get; set; }
-	public Role					As { get; set; }
-	public PolicyFlag			Flags { get; set; }
-	public AutoId[]				Neither { get; set; }
-	public AutoId[]				Any { get; set; }
-	public AutoId[]				Ban { get; set; }
-	public AutoId[]				Banish { get; set; }
-	public Time					CreationTime { get; set; }
- 	public string				Title { get; set; }
- 	public string				Text { get; set; }
-	public ProposalOption[]		Options { get; set; }
-	public AutoId[]				Comments;
+	public AutoId					Id { get; set; }
+	public AutoId					Store { get; set; }
+	public AutoId					By { get; set; }
+	public Role						As { get; set; }
+	public PolicyFlag				Flags { get; set; }
+	public ImmutableList<AutoId>	Neither { get; set; }
+	public ImmutableList<AutoId>	Any { get; set; }
+	public ImmutableList<AutoId>	Ban { get; set; }
+	public ImmutableList<AutoId>	Banish { get; set; }
+	public Time						CreationTime { get; set; }
+ 	public string					Title { get; set; }
+ 	public string					Text { get; set; }
+	public ProposalOption[]			Options { get; set; }
+	public ImmutableList<AutoId>	Comments;
 
-	public bool					Deleted { get; set; }
-	FairMcv						Mcv;
+	public bool						Deleted { get; set; }
+	FairMcv							Mcv;
 		
     //public FairOperationClass	OptionClass => (FairOperationClass)Fair.OCodes[Options[0].Operation.GetType()];
     public FairOperationClass	OptionClass => (FairOperationClass)Mcv.Net.Constructor.Codes[Options[0].Operation.GetType()];
@@ -115,15 +117,15 @@ public class Proposal : IBinarySerializable, ITableEntry<AutoId>
 		By				= reader.Read<AutoId>();
 		As				= reader.Read<Role>();
 		Flags			= reader.Read<PolicyFlag>();
-		Neither			= reader.ReadArray<AutoId>();
-		Any				= reader.ReadArray<AutoId>();
-		Ban				= reader.ReadArray<AutoId>();
-		Banish			= reader.ReadArray<AutoId>();
+		Neither			= reader.ReadImmutableList<AutoId>();
+		Any				= reader.ReadImmutableList<AutoId>();
+		Ban				= reader.ReadImmutableList<AutoId>();
+		Banish			= reader.ReadImmutableList<AutoId>();
 		CreationTime	= reader.Read<Time>();
  		Title			= reader.ReadUtf8();
  		Text			= reader.ReadUtf8();
 		Options			= reader.ReadArray<ProposalOption>();
-		Comments		= reader.ReadArray<AutoId>();
+		Comments		= reader.ReadImmutableList<AutoId>();
 	}
 
 	public void Write(Writer writer)

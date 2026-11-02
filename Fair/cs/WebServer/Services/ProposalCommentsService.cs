@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Uccs.Web.Pagination;
 
 namespace Uccs.Fair;
@@ -47,13 +48,13 @@ public class ProposalCommentsService
 		};
 	}
 
-	private void LoadProposalComments(SearchContext<ProposalCommentModel> context, AutoId[] commentsIds, CancellationToken cancellationToken)
+	private void LoadProposalComments(SearchContext<ProposalCommentModel> context, ImmutableList<AutoId> commentsIds, CancellationToken cancellationToken)
 	{
 		if (cancellationToken.IsCancellationRequested)
 			return;
 
 		IEnumerable<AutoId> pagedItems = commentsIds.Skip(context.Page *  context.PageSize).Take(context.PageSize);
-		context.TotalItems = commentsIds.Length;
+		context.TotalItems = commentsIds.Count;
 
 		foreach (AutoId commentId in pagedItems)
 		{
