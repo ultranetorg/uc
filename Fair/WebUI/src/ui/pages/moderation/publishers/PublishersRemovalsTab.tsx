@@ -51,8 +51,8 @@ export const PublishersRemovalsTab = () => {
         type: "progress",
         className: "w-[18%]",
       },
-      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%]" },
+      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%] text-right" },
     ],
     [t],
   )

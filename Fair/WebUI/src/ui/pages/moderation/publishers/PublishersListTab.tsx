@@ -31,7 +31,7 @@ const getItemRenderer =
 
       case "verified":
         return publisher.verifiedWebdomainRank ? (
-          <div className="flex items-center gap-1.5" title={t("verifiedRankTitle")}>
+          <div className="flex items-center justify-center gap-1.5" title={t("verifiedRankTitle")}>
             <SvgCheckCircleFill className="size-5 shrink-0 fill-light-green" />
             <span>{publisher.verifiedWebdomainRank}</span>
           </div>
@@ -98,8 +98,13 @@ export const PublishersListTab = () => {
   const columns = useMemo(
     () => [
       { accessor: "author", label: t("columns:author"), type: "author", className: "w-[55%]" },
-      { accessor: "verifiedWebdomainRank", label: t("columns:verifiedDomain"), type: "verified", className: "w-[15%]" },
-      { accessor: "bannedTill", label: t("columns:status"), type: "status", className: "w-[20%]" },
+      {
+        accessor: "verifiedWebdomainRank",
+        label: t("columns:verifiedDomain"),
+        type: "verified",
+        className: "w-[15%] text-center",
+      },
+      { accessor: "bannedTill", label: t("columns:status"), type: "status", className: "w-[20%] text-center" },
       ...(canRemovePublisher
         ? [
             {
