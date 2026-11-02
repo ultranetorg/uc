@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Uccs.Fair;
 
 public class ProposalVoting : FairOperation
@@ -79,14 +81,14 @@ public class ProposalVoting : FairOperation
 
 		var policy = s.Policies.FirstOrDefault(i => i.OperationClass == c);
 
-		bool won(AutoId[] votes)
+		bool won(ImmutableList<AutoId> votes)
 		{
     		return policy.Approval	switch
  									{
-										ApprovalRequirement.AnyModerator		=> votes.Length + p.Any.Length == 1,
- 										ApprovalRequirement.ModeratorsMajority	=> votes.Length + p.Any.Length >= s.Moderators.Length/2 + (s.Moderators.Length & 1),
- 										ApprovalRequirement.AllModerators		=> votes.Length + p.Any.Length == s.Moderators.Length,
- 										ApprovalRequirement.PublishersMajority	=> votes.Length + p.Any.Length >= s.Publishers.Length/2 + (s.Publishers.Length & 1),
+										ApprovalRequirement.AnyModerator		=> votes.Count + p.Any.Count == 1,
+ 										ApprovalRequirement.ModeratorsMajority	=> votes.Count + p.Any.Count >= s.Moderators.Length/2 + (s.Moderators.Length & 1),
+ 										ApprovalRequirement.AllModerators		=> votes.Count + p.Any.Count == s.Moderators.Length,
+ 										ApprovalRequirement.PublishersMajority	=> votes.Count + p.Any.Count >= s.Publishers.Length/2 + (s.Publishers.Length & 1),
  										_ => throw new IntegrityException()
  									};
 		}
@@ -116,7 +118,7 @@ public class ProposalVoting : FairOperation
 				break;
  				
  			case SpecialChoice.Neither:
-				p.Neither = [..p.Neither, Voter];	
+				p.Neither = p.Neither.Add(Voter);	
 
 				if(won(p.Neither))
 				{
@@ -129,7 +131,7 @@ public class ProposalVoting : FairOperation
 				break;
  				
 			case SpecialChoice.Ban:
-				p.Ban = [..p.Ban, Voter];
+				p.Ban = p.Ban.Add(Voter);
 
 				if(won(p.Ban))
 				{
@@ -138,7 +140,7 @@ public class ProposalVoting : FairOperation
 				break;
  				
 			case SpecialChoice.Banish:
-				p.Banish = [..p.Banish, Voter];	
+				p.Banish = p.Banish.Add(Voter);
 
 				if(won(p.Banish))
 				{

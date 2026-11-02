@@ -38,7 +38,7 @@ public class ProposalCommentCreation : FairOperation
 		c.Created		= execution.Time;
 
 		d = execution.Proposals.Affect(d.Id);
-		d.Comments = [..d.Comments, c.Id];
+		d.Comments = d.Comments.Insert(0, c.Id);
 
 		var s = execution.Stores.Affect(d.Store);
 
