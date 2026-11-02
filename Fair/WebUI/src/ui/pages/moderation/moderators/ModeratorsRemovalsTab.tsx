@@ -48,7 +48,7 @@ const getColumns = (t: TFunction, canVote: boolean) => [
         {
           accessor: "actions",
           label: t("columns:actions"),
-          type: "actions",
+          type: "action-buttons",
           className: "w-1/5 text-center",
         },
       ]
@@ -84,7 +84,7 @@ const getItemRenderer =
           <Badge variant="warning">{t("common:notVoted")}</Badge>
         )
 
-      case "actions":
+      case "action-buttons":
         return (
           <div className="flex justify-center">
             <ButtonPrimary

@@ -2,7 +2,7 @@ import { TFunction } from "i18next"
 
 import { OperationType } from "types"
 
-export const renderAction = (t: TFunction, operationType: OperationType) => {
+export const renderActionName = (t: TFunction, operationType: OperationType) => {
   const value = t(`operations:${operationType}`)
   return (
     <div title={value} className="truncate">
@@ -11,6 +11,6 @@ export const renderAction = (t: TFunction, operationType: OperationType) => {
   )
 }
 
-export const renderActionShort = (t: TFunction, operationType: OperationType) => (
+export const renderActionNameShort = (t: TFunction, operationType: OperationType) => (
   <span title={t(`operations:${operationType}`)}>{t(`operationsShort:${operationType}`)}</span>
 )

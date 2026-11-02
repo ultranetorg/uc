@@ -40,7 +40,7 @@ export const PublishersRemovalsTab = () => {
       {
         accessor: "publishers",
         label: t("columns:publishers"),
-        type: "accounts-list",
+        type: "account-list",
         className: "w-[36%]",
       },
       { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[16%]" },
@@ -52,7 +52,7 @@ export const PublishersRemovalsTab = () => {
         className: "w-[18%]",
       },
       { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[14%]" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%]" },
     ],
     [t],
   )

@@ -75,7 +75,7 @@ export const ReviewsNewTab = () => {
             {
               accessor: "action",
               label: t("columns:action"),
-              type: "review-action",
+              type: "review-action-buttons",
               className: "w-[20%] text-center",
             },
           ]

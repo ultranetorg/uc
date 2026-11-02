@@ -7,18 +7,11 @@ const OS_DIVIDER = " | "
 const ROLES_DELIMITER = ", "
 const SOFTWARE_DELIMITER = ", "
 const THREE_DOTS = "..."
-const VOTES_DELIMITER = " / "
 
 export const formatAr = (t: TFunction, approved: number, rejected: number) =>
   `${t("common:approved")}: ${approved} / ${t("common:rejected")}: ${rejected}`
 
 export const formatArShort = (approved: number, rejected: number) => `${approved} / ${rejected}`
-
-export const formatNabb = (t: TFunction, neither: number, any: number, ban: number, banish: number) =>
-  `${t("common:neither")}: ${neither} / ${t("common:any")}: ${any} / ${t("common:ban")}: ${ban} / ${t("common:banish")}: ${banish}`
-
-export const formatNabbShort = (neither: number, any: number, ban: number, banish: number) =>
-  `${neither} / ${any} / ${ban} / ${banish}`
 
 export const formatDate = (seconds: number): string =>
   new Intl.DateTimeFormat(undefined).format(new Date(Date.UTC(2026, 0, 1) + seconds * 1000))
@@ -88,8 +81,6 @@ export const formatTitle = (title: string, maxLength: number = 40, endLength: nu
   const end = title.slice(-endLength)
   return `${start} ${THREE_DOTS} ${end}`
 }
-
-export const formatVotes = (votes: number[]): string => votes.join(VOTES_DELIMITER)
 
 export function ensureHttp(uri: string) {
   if (/^(https?:)?\/\//i.test(uri)) return uri

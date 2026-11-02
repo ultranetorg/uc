@@ -1,6 +1,7 @@
 import { TFunction } from "i18next"
 
 import { Proposal } from "types"
+import { Badge } from "ui/components"
 import { getLeadingOptionIndexes, getLeadingVotes } from "utils"
 
 import { getOptionTitle } from "./getOptionTitle"
@@ -32,9 +33,9 @@ export const renderLeadingOption = (t: TFunction, proposal: Proposal) => {
       {specials.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {specials.map(x => (
-            <span key={x.key} className="rounded-full border border-gray-300 bg-gray-100 px-2 text-2xs leading-4">
+            <Badge key={x.key} variant="chip">
               {t(x.key)} {x.count}
-            </span>
+            </Badge>
           ))}
         </div>
       )}

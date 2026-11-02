@@ -10,7 +10,7 @@ import { useGetModeratorProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { ModeratorProposal, Policy, Store } from "types"
 import { Badge, Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import { renderCommon, renderCreator, renderProposalProgress, renderUsersList, renderYourVote } from "ui/renderers"
+import { renderCreator, renderOpenFor, renderProposalProgress, renderUsersList, renderYourVote } from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, getVoterIds, parseInteger, routes } from "utils"
 
 type ModeratorsProposalsVoting = {
@@ -30,7 +30,7 @@ const getItemRenderer =
       case "account":
         return renderCreator(proposal.creator)
 
-      case "accounts-list":
+      case "account-list":
         return (
           <div className="flex items-center gap-2">
             {renderUsersList(proposal.moderators)}
@@ -47,9 +47,12 @@ const getItemRenderer =
 
       case "your-vote":
         return renderYourVote(t, proposal, getVoterIds(proposal.operation, policies, moderatorId, publisherIds))
+
+      case "open-for":
+        return renderOpenFor(t, proposal.creationTime)
     }
 
-    return renderCommon(t, column, proposal)
+    return undefined
   }
 
 export const ModeratorsAdditionsTab = () => {
@@ -81,7 +84,7 @@ export const ModeratorsAdditionsTab = () => {
       {
         accessor: "moderators",
         label: t("columns:moderators"),
-        type: "accounts-list",
+        type: "account-list",
         className: "w-[36%]",
       },
       { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[16%]" },
@@ -93,7 +96,7 @@ export const ModeratorsAdditionsTab = () => {
         className: "w-[18%]",
       },
       { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%]" },
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[14%]" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%]" },
     ],
     [t],
   )

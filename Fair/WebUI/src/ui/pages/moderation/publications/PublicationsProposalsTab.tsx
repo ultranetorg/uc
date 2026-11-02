@@ -11,10 +11,10 @@ import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Policy, PublicationProposal, Store } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import {
-  renderActionShort,
+  renderActionNameShort,
   renderAuthor2,
-  renderCommon,
   renderCreator,
+  renderOpenFor,
   renderProposalProgress,
   renderPublication,
   renderTitle,
@@ -46,8 +46,8 @@ const getItemRenderer =
           renderAuthor2(proposal.authorTitle, proposal.authorLogoId),
           !!publisherIds?.includes(proposal.authorId),
         )
-      case "action-short":
-        return renderActionShort(t, proposal.operation)
+      case "action-name-short":
+        return renderActionNameShort(t, proposal.operation)
       case "progress":
         return renderProposalProgress(
           t,
@@ -58,9 +58,12 @@ const getItemRenderer =
         return renderYourVote(t, proposal, getVoterIds(proposal.operation, policies, moderatorId, publisherIds))
       case "account":
         return renderCreator(proposal.creator)
+
+      case "open-for":
+        return renderOpenFor(t, proposal.creationTime)
     }
 
-    return renderCommon(t, column, proposal)
+    return undefined
   }
 
 export const PublicationsProposalsTab = () => {
@@ -93,7 +96,7 @@ export const PublicationsProposalsTab = () => {
     () => [
       { accessor: "publication", label: t("columns:product"), type: "publication", className: "w-[25%]" },
       { accessor: "author", label: t("columns:author"), type: "author", className: "w-[14%]" },
-      { accessor: "action", label: t("columns:action"), type: "action-short", className: "w-[11%]" },
+      { accessor: "action", label: t("columns:action"), type: "action-name-short", className: "w-[11%]" },
       { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[12%]" },
       {
         accessor: "progress",
@@ -103,7 +106,7 @@ export const PublicationsProposalsTab = () => {
         className: "w-[13%]",
       },
       { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[12%]" },
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "lasts-for", className: "w-[13%]" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[13%]" },
     ],
     [t],
   )

@@ -72,6 +72,14 @@ VITE_APP_API_BASE_URL=http://127.1.0.100:1080/api
 #VITE_APP_ICCP_NODE_TEST_URL=http://127.1.0.100:3160
 ```
 
+### RAMDISK_DIR (optional)
+
+Optional build-time flag read by `vite.config.ts` from the **process environment** (it is not read from `.env`, so set it in the shell before running Vite). When set, Vite's cache directory is moved to `<RAMDISK_DIR>/vite-cache/<project folder name>` instead of the default `node_modules/.vite`. Pointing it at a RAM disk speeds up dev server start and rebuilds and reduces disk wear. When unset, the default cache location is used.
+
+```bash
+RAMDISK_DIR=/mnt/ramdisk npm run dev
+```
+
 ## Links
 
 General:

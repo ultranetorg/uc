@@ -4,8 +4,7 @@ import { TFunction } from "i18next"
 import { OperationType, ReviewProposal } from "types"
 import { ButtonOutline, ButtonPrimary, TableColumn, TableItem } from "ui/components"
 import {
-  renderActions,
-  renderCommon,
+  renderActionButtons,
   renderCreator,
   renderProposalProgress,
   renderPublication,
@@ -75,8 +74,8 @@ export const getReviewsPageItemRenderer =
       case "text":
         return renderText(proposal.reviewText)
 
-      case "review-action":
-        return renderActions(
+      case "review-action-buttons":
+        return renderActionButtons(
           t,
           () => onApprove(proposal.id),
           () => onReject(proposal.id),
@@ -84,7 +83,7 @@ export const getReviewsPageItemRenderer =
           isButtonsDisabled || (loadingItem && loadingItem.id !== item.id),
         )
 
-      case "delete-actions":
+      case "delete-action-buttons":
         return renderDeleteActions(
           t,
           () => onApprove(proposal.id),
@@ -97,5 +96,5 @@ export const getReviewsPageItemRenderer =
         return renderProposalProgress(t, proposal, votesRequired[proposal.operation] ?? 0)
     }
 
-    return renderCommon(t, column, proposal)
+    return undefined
   }
