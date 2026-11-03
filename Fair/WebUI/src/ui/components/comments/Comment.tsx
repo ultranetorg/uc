@@ -1,4 +1,4 @@
-import { ComponentType, memo } from "react"
+import { ComponentType, memo, ReactNode } from "react"
 import { Link, To } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
@@ -30,6 +30,7 @@ type CommentBaseProps = {
   text: string
   publication?: { id: string; title?: string }
   contextMenu?: ComponentType<CommentContextMenuProps>
+  menu?: ReactNode
 }
 
 export type CommentProps =
@@ -37,7 +38,7 @@ export type CommentProps =
   | (CommentBaseProps & { style: Extract<CommentStyle, "compact">; creatorLink?: undefined })
 
 export const Comment = memo((props: CommentProps) => {
-  const { creatorId, creatorName, creatorAvatarSrc, id, created, rating, text, publication } = props
+  const { creatorId, creatorName, creatorAvatarSrc, id, created, rating, text, publication, menu } = props
   const ContextMenu = props.contextMenu
   const { t } = useTranslation()
 
@@ -64,6 +65,7 @@ export const Comment = memo((props: CommentProps) => {
                   text={text}
                 />
               )}
+              {menu}
             </div>
             <span className={DATE_CLASSNAME}>{formatDate(created)}</span>
           </div>

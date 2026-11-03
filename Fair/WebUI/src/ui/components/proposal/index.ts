@@ -4,4 +4,5 @@ export * from "./OptionsEditor"
 
 export * from "./AlternativeOptions"
 export * from "./CommentsSection"
+export * from "./ProposalCommentItem"
 export * from "./ProposalInfo"

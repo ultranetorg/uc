@@ -1,7 +1,10 @@
+import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ProposalComment, TotalItemsResult } from "types"
+import { ProposalComment, Review, TotalItemsResult } from "types"
 import { CommentsList, CommentsSectionHeader, Pagination } from "ui/components"
+
+import { ProposalCommentItem } from "./ProposalCommentItem"
 
 export type CommentsSectionProps = {
   inputDisabled?: boolean
@@ -29,6 +32,11 @@ export const CommentsSection = ({
   const { t } = useTranslation("proposalView")
   const pagesCount = Math.ceil((comments?.totalItems ?? 0) / pageSize)
 
+  const renderComment = useCallback(
+    (comment: Review | ProposalComment) => ("proposalId" in comment ? <ProposalCommentItem comment={comment} /> : null),
+    [],
+  )
+
   return (
     <div className="flex flex-col gap-4">
       <CommentsSectionHeader label={t("common:comments")} totalItems={comments?.totalItems}>
@@ -43,6 +51,7 @@ export const CommentsSection = ({
         noCommentsLabel={t("noComments")}
         showMoreCommentsLabel={t("showMore")}
         showCommentInput={showCommentInput}
+        renderComment={renderComment}
         onCommentSubmit={onCommentSubmit}
       />
       <Pagination className="justify-end" page={page} pagesCount={pagesCount} onPageChange={onPageChange} />
