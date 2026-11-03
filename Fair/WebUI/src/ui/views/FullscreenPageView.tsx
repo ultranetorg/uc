@@ -2,7 +2,7 @@ import { memo, PropsWithChildren } from "react"
 import { useRouteError } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
-import { SvgProfilePageClose } from "assets"
+import { SvgProfilePageClose2Xl } from "assets"
 import { useCloseFullscreen, useEscapeKey } from "hooks"
 import { routes } from "utils"
 
@@ -19,7 +19,7 @@ export const FullscreenPageView = memo(({ children }: PropsWithChildren) => {
           <div className="flex w-full gap-6">
             <div className="flex w-full flex-col gap-6 py-8">{children}</div>
             <div className="pt-7.5">
-              <SvgProfilePageClose className="cursor-pointer" onClick={handleClick} />
+              <SvgProfilePageClose2Xl className="cursor-pointer" onClick={handleClick} />
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { memo } from "react"
 import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
-import { SvgStoreLogo } from "assets/fallback"
+import { SvgStoreLogo4Xl } from "assets/fallback"
 import { ImageFallback } from "ui/components"
 import { buildFileUrl, routes } from "utils"
 
@@ -26,7 +26,7 @@ export const FavoriteStoreItem = memo(({ storeId, name, logoId, isPending }: Fav
         isPending && "animate-pulse hover:border-transparent",
       )}
     >
-      <ImageFallback className="size-8" src={buildFileUrl(logoId)} fallback={<SvgStoreLogo className="size-8" />} />
+      <ImageFallback className="size-8" src={buildFileUrl(logoId)} fallback={<SvgStoreLogo4Xl className="size-8" />} />
     </div>
   </Link>
 ))

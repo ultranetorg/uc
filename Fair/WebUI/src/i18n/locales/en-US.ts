@@ -16,6 +16,7 @@ export const enUS = {
     ban: "Ban",
     bannedUntil: "Banned until {{date}}",
     banish: "Banish",
+    categories: "categories",
     category: "category",
     categories_one: "{{count}} category",
     categories_other: "{{count}} categories",
@@ -65,7 +66,6 @@ export const enUS = {
     publisher_other: "publishers",
     publishers: "publishers",
     recommended: "Recommended",
-    referendums: "referendums",
     remove: "remove",
     reject: "reject",
     removals: "removals",
@@ -413,9 +413,6 @@ export const enUS = {
     title: "Title",
     uploadAvatar: "Upload avatar",
   },
-  proposalsPage: {
-    noProposals: "No open proposals",
-  },
   publicationPage: {
     title: "Publication - {{publicationId}} | Ultranet Fair",
     about: "About",
@@ -465,11 +462,49 @@ export const enUS = {
     yourRating: "Your Rating:",
     yourReview: "Your Review:",
   },
+  operationPolicyInfo: {
+    creationPolicy: "Creation policy",
+    moderators: "Moderators",
+    proposal: "Proposal",
+    publishers: "Publishers",
+    referendum: "Referendum",
+    roles: {
+      candidate: "Candidate",
+      moderator: "Moderator",
+      publisher: "Publisher",
+      user: "User",
+    },
+    votesRequired: "Votes required to accept",
+    votingPolicy: "Voting policy",
+    votingType: "Voting type",
+  },
+  categoriesPage: {
+    title: "Categories",
+    avatarChange: "Avatar change",
+    creation: "Creation",
+    deletion: "Deletion",
+    movement: "Movement",
+    typeChange: "Type change",
+  },
+  proposalsOperationTab: {
+    noProposals: "No proposals",
+  },
+  storeOperationsPage: {
+    title: "Store",
+    avatarChange: "Avatar change",
+    infoUpdation: "Information update",
+    renaming: "Renaming",
+  },
   publicationsPage: {
     title: "Publications",
     changed: "Changed",
+    creation: "Creation",
+    deletion: "Deletion",
+    publish: "Publish",
     searchProduct: "Search products by ID",
+    unpublish: "Unpublish",
     unpublished: "Unpublished",
+    updation: "Updation",
   },
   publishersPage: {
     title: "Publishers",
@@ -478,18 +513,10 @@ export const enUS = {
     removeAuthor: "Remove author",
     verifiedRankTitle: "Web domain is verified. Value is the domain rank",
   },
-  referendum: {
-    createdAt: "Created At:",
-    createdBy: "Created By:",
-    notVotedYet: "No participant has voted yet.",
-    title: "Referendum {{referendumId}}",
-    votingTitle: "Current voting results",
-  },
-  referendumsPage: {
-    noProposals: "No open referendums",
-  },
   reviewsPage: {
     title: "Reviews",
+    creation: "Creation",
+    edit: "Edit",
     noNewReviews: "No new reviews",
     newReviewDeletions: "No review deletions",
     reviewer: "Review user",
@@ -651,7 +678,7 @@ export const enUS = {
   publicationsChangedTab: {
     noPublications: "No changed publications",
   },
-  publicationsProposalsTab: {
+  publicationsOperationTab: {
     noPublications: "No publications",
   },
   publicationsUnpublishedTab: {
@@ -736,8 +763,6 @@ export const enUS = {
     enterSlogan: "Enter slogan",
     enterTitle: "Enter title",
     enterUserNameOrId: "Enter user name or id",
-    searchProposals: "Search Proposals",
-    searchReferendums: "Search Referendums",
     selectApprovalPolicy: "Select approval policy",
     selectCategory: "Select category",
     selectImage: "Select image",

@@ -23,7 +23,21 @@ public class ModeratorReviewProposalsService
 		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorReviewProposalsService), nameof(GetCreationsNotOptimized), storeId, page, pageSize, search);
 #endif
 
-		return moderatorProposalsService.GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsReviewCreationOrEditOperation, CreateReviewCreationEditProposalModel, cancellationToken);
+		return moderatorProposalsService.GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsReviewCreationOperation, CreateReviewCreationEditProposalModel, cancellationToken);
+	}
+
+	public TotalItemsResult<ReviewProposalModel> GetEditsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+	{
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
+
+#if DEBUG
+		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}", nameof(ModeratorReviewProposalsService), nameof(GetEditsNotOptimized), storeId, page, pageSize, search);
+#endif
+
+		return moderatorProposalsService.GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsReviewEditOperation, CreateReviewCreationEditProposalModel, cancellationToken);
 	}
 
 	public TotalItemsResult<ReviewProposalModel> GetDeletionsNotOptimized

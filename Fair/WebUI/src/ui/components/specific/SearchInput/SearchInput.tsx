@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo, useRef, useState, KeyboardEvent } from "rea
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { SvgSearchMd, SvgX } from "assets"
+import { SvgSearch, SvgX } from "assets"
 import { Input, InputProps, Separator } from "ui/components"
 
 import { SearchInputSelect, SearchInputSelectItem } from "./SearchInputSelect"
@@ -86,7 +86,7 @@ export const SearchInput = memo(
             {rest.value && (
               <SvgX className="cursor-pointer stroke-gray-500 hover:stroke-gray-950" onClick={handleClear} />
             )}
-            <SvgSearchMd
+            <SvgSearch
               className={twMerge("stroke-gray-500", rest.value && "cursor-pointer hover:stroke-gray-950")}
               onClick={handleSearch}
             />

@@ -3,10 +3,11 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useStoreContext } from "app"
-import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
-import { ModerationHeader } from "ui/components/specific"
+import { useCanVoteOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { OperationType } from "types"
+import { ModerationHeader, OperationPolicyInfo } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
-import { routes } from "utils"
+import { routes, sortTabsByVoting } from "utils"
 
 import { PublishersListTab } from "./PublishersListTab"
 import { PublishersRemovalsTab } from "./PublishersRemovalsTab"
@@ -25,6 +26,8 @@ export const PublishersPage = () => {
 
   useStoreTitle(store?.title, "Publishers")
 
+  const canVoteOperation = useCanVoteOperation()
+
   const key = routeToTabKey[tabKey!]
 
   const handleTabSelect = useCallback(
@@ -32,18 +35,27 @@ export const PublishersPage = () => {
     [navigate, storeId],
   )
 
-  const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
-    () => [
-      { key: "publishers", label: t("common:publishers") },
-      { key: "removals", label: t("common:removals"), route: "removals" },
-    ],
-    [t],
+  const tabsItems: (TabsListItem & { route?: string; operation?: OperationType })[] = useMemo(
+    () =>
+      sortTabsByVoting(
+        [
+          { key: "publishers", label: t("common:publishers"), route: "publishers" },
+          {
+            key: "removals",
+            label: t("common:removals"),
+            route: "removals",
+            operation: "store-authors-removal" as const,
+          },
+        ],
+        canVoteOperation,
+      ),
+    [canVoteOperation, t],
   )
 
   return (
     <>
       <ModerationHeader title={t("title")} showModeratorsCount={true} />
-      <TabsProvider defaultKey={key || "publishers"}>
+      <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">
           <TabsList
             className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
@@ -57,6 +69,7 @@ export const PublishersPage = () => {
             <PublishersListTab />
           </TabContent>
           <TabContent when="removals">
+            <OperationPolicyInfo operation="store-authors-removal" />
             <PublishersRemovalsTab />
           </TabContent>
         </div>

@@ -11,12 +11,13 @@ type StoreChangeOperation = {
   type: OperationType
   label: string
   title: string
+  tabKey: string
 }
 
 const operations: StoreChangeOperation[] = [
-  { type: "store-avatar-change", label: "avatarChange", title: "Change store avatar" },
-  { type: "store-renaming", label: "nameChange", title: "Rename store" },
-  { type: "store-info-updation", label: "textChange", title: "Update store information" },
+  { type: "store-avatar-change", label: "avatarChange", title: "Change store avatar", tabKey: "avatar-changes" },
+  { type: "store-renaming", label: "nameChange", title: "Rename store", tabKey: "renamings" },
+  { type: "store-info-updation", label: "textChange", title: "Update store information", tabKey: "info-updations" },
 ]
 
 export type UseStoreChangeMenuItemsOptions = {
@@ -34,7 +35,7 @@ export const useStoreChangeMenuItems = (
 
   return useMemo(
     () =>
-      operations.flatMap(({ type, label, title }): SimpleMenuItem[] => {
+      operations.flatMap(({ type, label, title, tabKey }): SimpleMenuItem[] => {
         if (isModerator && isModeratorCanCreate(type, policies)) {
           return [
             {
@@ -44,8 +45,8 @@ export const useStoreChangeMenuItems = (
                 title,
                 type,
                 storeId,
-                parentBreadcrumbs: [{ path: routes.moderation.proposals(storeId), title: t("common:proposals") }],
-                redirectAfterProposalCreation: routes.moderation.proposals(storeId),
+                parentBreadcrumbs: [{ path: routes.moderation.store(storeId), title: t("common:store") }],
+                redirectAfterProposalCreation: routes.moderation.store(storeId, tabKey),
                 redirectAfterProposalExecution: location.pathname,
               },
             },
@@ -61,8 +62,8 @@ export const useStoreChangeMenuItems = (
                 title,
                 type,
                 storeId,
-                parentBreadcrumbs: [{ path: routes.moderation.referendums(storeId), title: t("common:referendums") }],
-                redirectAfterProposalCreation: routes.moderation.referendums(storeId),
+                parentBreadcrumbs: [{ path: routes.moderation.store(storeId), title: t("common:store") }],
+                redirectAfterProposalCreation: routes.moderation.store(storeId, tabKey),
                 redirectAfterProposalExecution: location.pathname,
               },
             },

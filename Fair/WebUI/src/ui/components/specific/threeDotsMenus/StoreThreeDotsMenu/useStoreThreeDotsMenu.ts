@@ -23,12 +23,9 @@ export const useStoreThreeDotsMenu = (storeId: string) => {
               state: {
                 title: "Create category",
                 type: "category-creation",
-                parentBreadcrumbs: [
-                  { path: routes.moderation.proposals(storeId), title: t("common:proposals") },
-                  { path: routes.moderation.publications(storeId), title: t("common:publications") },
-                ],
+                parentBreadcrumbs: [{ path: routes.moderation.categories(storeId), title: t("common:categories") }],
                 categoryId: null,
-                redirectAfterProposalCreation: routes.moderation.proposals(storeId),
+                redirectAfterProposalCreation: routes.moderation.categories(storeId, "creations"),
                 redirectAfterProposalExecution: location.pathname,
               },
             },

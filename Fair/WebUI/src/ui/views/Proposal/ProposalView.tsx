@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
 import { useSignInContext, useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
-import { SvgArrowLeft, SvgEyeSm } from "assets"
+import { SvgArrowLeftSm, SvgEyeSm } from "assets"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetProposalComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -37,10 +37,10 @@ const renderByOperationType: Partial<Record<OperationType, ComponentType<Proposa
 const ALREADY_VOTED = 100
 
 export interface ProposalViewProps {
-  parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
+  parentBreadcrumbs: BreadcrumbsItemProps | BreadcrumbsItemProps[]
   isFetching: boolean
   proposal?: ProposalDetails
-  previousPath?: string
+  previousPath: string
   headerProps?: Partial<ModerationHeaderProps>
 }
 
@@ -94,13 +94,8 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
   )
 
   const headerBreadcrumbs = useMemo(
-    () =>
-      parentBreadcrumbs
-        ? Array.isArray(parentBreadcrumbs)
-          ? [...parentBreadcrumbs]
-          : [parentBreadcrumbs]
-        : { title: t("common:proposals"), path: routes.moderation.proposals(storeId!) },
-    [parentBreadcrumbs, storeId, t],
+    () => (Array.isArray(parentBreadcrumbs) ? [...parentBreadcrumbs] : [parentBreadcrumbs]),
+    [parentBreadcrumbs],
   )
 
   const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
@@ -123,7 +118,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
           invalidateOperation(proposal!.operation, { storeId: storeId! })
           invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
 
-          navigate(previousPath ?? routes.moderation.proposals(storeId!))
+          navigate(previousPath)
         },
         onError: err => {
           showToast(err.toString(), "error")
@@ -307,7 +302,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
               <ButtonPrimary
                 label="Back to options"
                 onClick={togglePageState}
-                iconBefore={<SvgArrowLeft className="fill-white" />}
+                iconBefore={<SvgArrowLeftSm className="fill-white" />}
               />
             ))}
         </div>

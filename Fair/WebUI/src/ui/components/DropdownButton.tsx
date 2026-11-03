@@ -3,7 +3,7 @@ import { FloatingPortal } from "@floating-ui/react"
 import { twMerge } from "tailwind-merge"
 import { useSubmenu } from "hooks"
 
-import { SvgChevronDown2Sm } from "assets"
+import { SvgChevronDownAltSm } from "assets"
 import { PropsWithClassName } from "types"
 
 import { SimpleMenu, SimpleMenuItem } from "./SimpleMenu"
@@ -38,7 +38,7 @@ export const DropdownButton = memo(
           {...menu.getReferenceProps()}
         >
           {label}
-          <SvgChevronDown2Sm className="stroke-white" />
+          <SvgChevronDownAltSm className="stroke-white" />
         </button>
         {items && menu.isOpen && (
           <FloatingPortal>

@@ -7,18 +7,17 @@ import { OperationType } from "types"
 import { SimpleMenuItem } from "ui/components"
 import { routes } from "utils"
 
-const operationTypesWithoutSection: OperationType[] = [
-  "category-creation",
-  "category-deletion",
-  "category-type-change",
-  "category-movement",
-  "category-avatar-change",
-  "store-renaming",
-  "store-info-updation",
-  "store-avatar-change",
-]
+const storeOperations: OperationType[] = ["store-renaming", "store-info-updation", "store-avatar-change"]
 
 const userOperations: OperationType[] = ["user-registration", "user-unregistration"]
+
+const categoriesOperations: OperationType[] = [
+  "category-creation",
+  "category-deletion",
+  "category-movement",
+  "category-type-change",
+  "category-avatar-change",
+]
 
 const publicationsOperations: OperationType[] = [
   "publication-creation",
@@ -37,43 +36,41 @@ export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem
   const storeItems = useStoreChangeMenuItems(storeId, { isPublisher, isModerator })
   const canSeeOperation = useCanSeeOperation()
 
-  const isReferendumsVisible = operationTypesWithoutSection.some(canSeeOperation)
-  const isProposalsVisible = operationTypesWithoutSection.some(canSeeOperation)
-
   const isModeratorsVisible = canSeeOperation("store-moderator-addition")
   const isPublishersVisible = canSeeOperation("store-authors-removal")
   const isUsersVisible = userOperations.some(canSeeOperation)
 
+  const isStoreOperationsVisible = storeOperations.some(canSeeOperation)
+  const isCategoriesVisible = categoriesOperations.some(canSeeOperation)
   const isPublicationsVisible = publicationsOperations.some(canSeeOperation)
   const isReviewsVisible = reviewsOperations.some(canSeeOperation)
 
   const menuItems = useMemo(
     () => [
-      { label: t("common:policySurveys"), to: routes.moderation.policySurveys(storeId) },
-      ...(isReferendumsVisible || isProposalsVisible
-        ? [
-            { separator: true },
-            ...(isReferendumsVisible
-              ? [{ label: t("common:referendums"), to: routes.moderation.referendums(storeId) }]
-              : []),
-            ...(isProposalsVisible ? [{ label: t("common:proposals"), to: routes.moderation.proposals(storeId) }] : []),
-          ]
+      ...(isPublisher || isModerator
+        ? [{ label: t("common:policySurveys"), to: routes.moderation.policySurveys(storeId) }]
         : []),
       ...(isModeratorsVisible || isPublishersVisible || isUsersVisible
         ? [
             { separator: true },
-            ...(isPublishersVisible
-              ? [{ label: t("common:publishers"), to: routes.moderation.publishers(storeId) }]
-              : []),
             ...(isModeratorsVisible
               ? [{ label: t("common:moderators"), to: routes.moderation.moderators(storeId) }]
+              : []),
+            ...(isPublishersVisible
+              ? [{ label: t("common:publishers"), to: routes.moderation.publishers(storeId) }]
               : []),
             ...(isUsersVisible ? [{ label: t("common:users"), to: routes.moderation.users(storeId) }] : []),
           ]
         : []),
-      ...(isPublicationsVisible || isReviewsVisible
+      ...(isStoreOperationsVisible || isCategoriesVisible || isPublicationsVisible || isReviewsVisible
         ? [
             { separator: true },
+            ...(isStoreOperationsVisible
+              ? [{ label: t("common:settings"), to: routes.moderation.store(storeId) }]
+              : []),
+            ...(isCategoriesVisible
+              ? [{ label: t("common:categories"), to: routes.moderation.categories(storeId) }]
+              : []),
             ...(isPublicationsVisible
               ? [{ label: t("common:publications"), to: routes.moderation.publications(storeId) }]
               : []),
@@ -83,12 +80,14 @@ export const useStoreDropdownButtonMenuItems = (storeId: string): SimpleMenuItem
       ...(storeItems.length > 0 ? [{ separator: true }, ...storeItems] : []),
     ],
     [
+      isCategoriesVisible,
+      isModerator,
       isModeratorsVisible,
-      isProposalsVisible,
       isPublicationsVisible,
+      isPublisher,
       isPublishersVisible,
-      isReferendumsVisible,
       isReviewsVisible,
+      isStoreOperationsVisible,
       isUsersVisible,
       storeId,
       storeItems,

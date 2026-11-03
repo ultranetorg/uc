@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { SvgArrowUp } from "assets"
+import { SvgArrowUpXs } from "assets"
 import { PropsWithClassName } from "types"
 
 type ScrollToTopButtonBaseProps = {
@@ -18,6 +18,6 @@ export const ScrollToTopButton = memo(({ className, onClick }: ScrollToTopButton
     )}
     onClick={onClick}
   >
-    <SvgArrowUp className="stroke-gray-100" />
+    <SvgArrowUpXs className="stroke-gray-100" />
   </div>
 ))

@@ -1,7 +1,7 @@
 import { memo, useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SvgChevronRightMd } from "assets"
+import { SvgChevronRightSm } from "assets"
 
 import { ProductFieldViewModel, SelectedProps } from "./types"
 import { getCompareStatus } from "./utils"
@@ -57,7 +57,7 @@ const TreeNode = memo(
         >
           <span className="size-4" onClick={() => setClosed(v => !v)}>
             {hasChildren && (
-              <SvgChevronRightMd className={`fill-gray-300 hover:fill-gray-400 ${closed ? "rotate-90" : "rotate-0"}`} />
+              <SvgChevronRightSm className={`fill-gray-300 hover:fill-gray-400 ${closed ? "rotate-90" : "rotate-0"}`} />
             )}
           </span>
           <div className={`flex flex-1 gap-2 px-1 hover:underline`} onClick={() => select()}>

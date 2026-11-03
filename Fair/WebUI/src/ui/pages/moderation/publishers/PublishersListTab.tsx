@@ -6,7 +6,7 @@ import { useDebounceValue } from "usehooks-ts"
 import { isNumber, truncate } from "lodash"
 
 import { useStorePoliciesContext, useStoreRolesContext } from "app"
-import { SvgCheckCircleFill, SvgSearchMd, SvgX } from "assets"
+import { SvgCheckCircleFill, SvgSearch, SvgX } from "assets"
 import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
 import { useGetStorePublishers } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
@@ -162,7 +162,7 @@ export const PublishersListTab = () => {
                   <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
                 </div>
               )}
-              <SvgSearchMd className="size-5 shrink-0 stroke-gray-500" />
+              <SvgSearch className="size-5 shrink-0 stroke-gray-500" />
             </>
           }
         />

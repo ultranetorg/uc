@@ -6,11 +6,16 @@ import { publicationProposalsKeys } from "./publicationProposalsKeys"
 
 const api = getFairApi()
 
-export const useGetPublicationProposals = (storeId?: string, page?: number, pageSize?: number, search?: string) => {
-  const queryFn = () => api.getPublicationProposals(storeId!, page, pageSize, search)
+export const useGetPublicationDeletionProposals = (
+  storeId?: string,
+  page?: number,
+  pageSize?: number,
+  search?: string,
+) => {
+  const queryFn = () => api.getPublicationDeletionProposals(storeId!, page, pageSize, search)
 
   const { isPending, isError, data } = useQuery({
-    queryKey: [...publicationProposalsKeys.all(storeId!), { page, pageSize, search }],
+    queryKey: [...publicationProposalsKeys.deletions(storeId!), { page, pageSize, search }],
     queryFn: queryFn,
     enabled: !!storeId,
   })

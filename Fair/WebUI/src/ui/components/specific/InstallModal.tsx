@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Trans, useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import uosIcon from "assets/uos.png"
+import uosIcon from "assets/uos-xs.png"
 import { ButtonPrimary, Modal, ModalProps } from "ui/components"
 
 const DOWNLOAD_CLIENT_URL = "https://www.ultranet.org/net/software/download"

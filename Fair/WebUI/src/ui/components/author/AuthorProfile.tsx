@@ -4,7 +4,7 @@ import { TFunction } from "i18next"
 import { Link } from "react-router-dom"
 
 import { useStoreContext } from "app"
-import avatarFallback from "assets/fallback/author-30.png"
+import avatarFallback from "assets/fallback/author-avatar-6xl.png"
 import { AuthorDetails, PropsWithClassName } from "types"
 import { ExpandableText, ImageFallback } from "ui/components"
 import { buildFileUrl, formatRole, isAuthorModerator, isAuthorPublisher, routes } from "utils"

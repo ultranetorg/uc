@@ -1,2 +1,2 @@
-export { default as SvgDropdownIndicator } from "./dropdown-indicator.svg?react"
-export { default as SvgProfilePageClose } from "./profile-page-close.svg?react"
+export { default as SvgDropdownIndicatorXs } from "./dropdown-indicator-xs.svg?react"
+export { default as SvgProfilePageClose2Xl } from "./profile-page-close-2xl.svg?react"

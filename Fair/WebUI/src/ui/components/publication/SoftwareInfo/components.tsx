@@ -2,7 +2,7 @@ import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { Link } from "react-router-dom"
-import avatarFallback from "assets/fallback/author-8.png"
+import avatarFallback from "assets/fallback/author-avatar-xl.png"
 import { ImageFallback } from "ui/components/ImageFallback"
 import { buildFileUrl } from "utils"
 import { ButtonPrimary } from "ui/components"

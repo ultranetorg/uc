@@ -1,5 +1,5 @@
 import { KeyboardEvent, ReactNode, useId, useState } from "react"
-import { SvgChevronRightMd } from "../../assets"
+import { SvgChevronRightSm } from "../../assets"
 
 export interface AccordionItem {
   id?: string
@@ -63,7 +63,7 @@ export const Accordion = ({ items, multi, defaultOpenIds = [], className = "" }:
             >
               <div className="flex justify-between">
                 <span className="text-2xs leading-6 text-gray-600">{it.title}</span>
-                <SvgChevronRightMd
+                <SvgChevronRightSm
                   className={`fill-gray-400 transition-transform duration-150 hover:fill-gray-500 ${isOpen ? "rotate-90" : "rotate-0"}`}
                 />
               </div>

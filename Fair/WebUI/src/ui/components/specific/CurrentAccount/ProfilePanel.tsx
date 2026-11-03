@@ -1,8 +1,8 @@
 import { forwardRef, memo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { SvgChevronRight, SvgPerson2, SvgPersonSquare, SvgX } from "assets"
-import avatarFallback from "assets/fallback/user-22.5.png"
+import { SvgChevronRight, SvgPerson, SvgPersonSquare, SvgX } from "assets"
+import avatarFallback from "assets/fallback/user-avatar-5xl.png"
 import { useSubmenu } from "hooks"
 import { UserBaseAvatar, PropsWithStyle } from "types"
 import { ImageFallback } from "ui/components"
@@ -44,7 +44,7 @@ export const ProfilePanel = memo(
             <div className="flex w-full flex-col items-center gap-4 p-2">
               <div className="size-[90px] overflow-hidden rounded-full" title={selectedUserName}>
                 <ImageFallback
-                  src={`${buildUserAvatarByNameUrl(selectedUserName!)}?v=${userSwitcherProps.avatarVersion ?? 0}`}
+                  src={`${buildUserAvatarByNameUrl(selectedUserName!)}?v=${userSwitcherProps.avatarVersions?.[selectedUserName!] ?? 0}`}
                   fallbackSrc={avatarFallback}
                 />
               </div>
@@ -73,7 +73,7 @@ export const ProfilePanel = memo(
               )}
               <ProfileButton
                 label={t("switchUsers")}
-                iconBefore={<SvgPerson2 className="fill-white" />}
+                iconBefore={<SvgPerson className="fill-white" />}
                 iconAfter={<SvgChevronRight className="stroke-white" />}
                 ref={accountMenu.refs.setReference}
                 {...accountMenu.getReferenceProps()}

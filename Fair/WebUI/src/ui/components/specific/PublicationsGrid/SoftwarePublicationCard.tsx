@@ -2,7 +2,7 @@ import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { SvgStarXxs } from "assets"
-import { SvgSoftwareLogo } from "assets/fallback"
+import { SvgSoftwareLogo3Xl } from "assets/fallback"
 import { PublicationCardContextThreeDotsMenu, usePublicationCardContextThreeDotsMenu } from "ui/components/specific"
 import { ImageFallback } from "ui/components"
 import { buildFileUrl, formatAverageRating } from "utils"
@@ -22,7 +22,7 @@ export const SoftwarePublicationCard = memo(
         <div className="size-14 overflow-hidden rounded-lg">
           <ImageFallback
             src={buildFileUrl(logoFileId)}
-            fallback={<SvgSoftwareLogo className="size-full object-cover" />}
+            fallback={<SvgSoftwareLogo3Xl className="size-full object-cover" />}
           />
         </div>
         <div className="flex w-40 flex-col gap-1 text-center">

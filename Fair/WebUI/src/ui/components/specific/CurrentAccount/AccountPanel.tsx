@@ -32,7 +32,7 @@ export const AccountPanel = memo(() => {
   const { startSignIn, openSignInModal } = useSignInContext()
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [avatarVersion, setAvatarVersion] = useState(0)
+  const [avatarVersions, setAvatarVersions] = useState<Record<string, number>>({})
 
   const userItems = useMemo(
     () =>
@@ -43,6 +43,11 @@ export const AccountPanel = memo(() => {
     [users],
   )
 
+  const bumpAvatarVersion = useCallback(
+    (userName: string) => setAvatarVersions(v => ({ ...v, [userName]: (v[userName] ?? 0) + 1 })),
+    [],
+  )
+
   const handleUpload = useCallback(
     async (file: File) => {
       const data = await fileToBase64(file)
@@ -50,7 +55,7 @@ export const AccountPanel = memo(() => {
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:avatarUploaded"), "success")
-          setAvatarVersion(v => v + 1)
+          bumpAvatarVersion(user!.name)
           refetch()
         },
         onError: err => {
@@ -58,7 +63,7 @@ export const AccountPanel = memo(() => {
         },
       })
     },
-    [mutate, refetch, t],
+    [bumpAvatarVersion, mutate, refetch, t, user],
   )
 
   const handleDeleteModalConfirm = useCallback(() => {
@@ -66,7 +71,7 @@ export const AccountPanel = memo(() => {
     mutate(operation, {
       onSuccess: () => {
         showToast(t("toast:avatarRemoved"), "success")
-        setAvatarVersion(v => v + 1)
+        bumpAvatarVersion(user!.name)
         refetch()
       },
       onError: err => {
@@ -74,7 +79,7 @@ export const AccountPanel = memo(() => {
       },
       onSettled: () => setDeleteModalOpen(false),
     })
-  }, [mutate, refetch, t])
+  }, [bumpAvatarVersion, mutate, refetch, t, user])
 
   const handleDeleteModalClose = useCallback(() => setDeleteModalOpen(false), [])
 
@@ -128,7 +133,7 @@ export const AccountPanel = memo(() => {
     () => ({
       items: userItems,
       selectedUserName,
-      avatarVersion,
+      avatarVersions,
       onAvatarChange: handleAvatarChange,
       onAvatarDelete: handleAvatarDelete,
       onAdd: handleAccountAdd,
@@ -138,7 +143,7 @@ export const AccountPanel = memo(() => {
     [
       userItems,
       selectedUserName,
-      avatarVersion,
+      avatarVersions,
       handleAvatarChange,
       handleAvatarDelete,
       handleAccountAdd,
@@ -166,7 +171,7 @@ export const AccountPanel = memo(() => {
       ) : (
         <AccountButton
           name={user.name}
-          avatarVersion={avatarVersion}
+          avatarVersion={avatarVersions[user.name]}
           ref={profileMenu.refs.setReference}
           {...profileMenu.getReferenceProps()}
         />

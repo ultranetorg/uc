@@ -1,8 +1,10 @@
+export * from "./categories"
 export * from "./moderator"
 export * from "./productsPublications"
 export * from "./proposals"
 export * from "./publisher"
 export * from "./reviews"
+export * from "./store"
 export * from "./surveys"
 export * from "./users"
 

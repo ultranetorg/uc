@@ -2,8 +2,8 @@ import { ReactNode } from "react"
 import { Trans } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import authorFallback from "assets/fallback/author-8.png"
-import userFallback from "assets/fallback/user-16.png"
+import authorFallback from "assets/fallback/author-avatar-xl.png"
+import userFallback from "assets/fallback/user-avatar-3xl.png"
 import {
   CategoryAvatarChange,
   CategoryCreation,

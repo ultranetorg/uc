@@ -6,6 +6,8 @@ import { useBackgroundLocation, useParams } from "hooks"
 import { BaseLayout, StoreLayout } from "ui/layouts"
 import { ConstrainedWidthLayout, ModerationLayout, PublishersLayout, UsersSectionLayout } from "ui/layouts/moderation"
 import {
+  CategoriesPage,
+  CategoryProposalPage,
   ChangedPublicationPage,
   CreateProposalPage,
   CreatePublicationPage,
@@ -15,14 +17,12 @@ import {
   PolicySurveyPage,
   PolicySurveysPage,
   PreviewPage,
-  ProposalPage,
-  ProposalsPage,
   PublicationsPage,
   PublisherProposalPage,
   PublishersPage,
-  ReferendumPage,
-  ReferendumsPage,
   ReviewsPage,
+  StoreOperationsPage,
+  StoreProposalPage,
   UnpublishedPublicationPage,
   UsersPage,
 } from "ui/pages/moderation"
@@ -128,16 +128,17 @@ export const EntityRoute = () => {
 
           <Route path="policy-surveys" element={<PolicySurveysPage />} />
           <Route path="policy-surveys/:surveyId" element={<PolicySurveyPage />} />
-          <Route path="referendums" element={<ReferendumsPage />} />
-          <Route path="referendums/:referendumId" element={<ReferendumPage />} />
 
           <Route path="publications/new" element={<CreatePublicationPage />} />
           <Route path="publications/preview" element={<PreviewPage />} />
 
           <Route element={<ModerationLayout />}>
-            // Proposals
-            <Route path="proposals" element={<ProposalsPage />} />
-            <Route path="proposals/:proposalId" element={<ProposalPage />} />
+            // Store
+            <Route path="store/proposals/:proposalId" element={<StoreProposalPage />} />
+            <Route path="store/:tabKey?" element={<StoreOperationsPage />} />
+            // Categories
+            <Route path="categories/proposals/:proposalId" element={<CategoryProposalPage />} />
+            <Route path="categories/:tabKey?" element={<CategoriesPage />} />
             // Moderators
             <Route path="moderators/proposals/:proposalId" element={<ModeratorProposalPage />} />
             <Route path="moderators/:tabKey?" element={<ModeratorsPage />} />

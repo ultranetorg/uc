@@ -12,7 +12,7 @@ import "swiper/css/pagination"
 
 import "./styles.css"
 
-import { SvgChevronLeftMd, SvgChevronRightMd } from "assets"
+import { SvgChevronLeftSm, SvgChevronRightSm } from "assets"
 
 import { SlideContent } from "./SlideContent"
 import { SliderProps } from "./types"
@@ -69,10 +69,10 @@ export const Slider = memo(({ items }: SliderProps) => {
         </Swiper>
 
         <div className="swiper-button-prev absolute left-2 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 text-transparent hover:bg-black/10">
-          <SvgChevronLeftMd className="stroke-white" />
+          <SvgChevronLeftSm className="stroke-white" />
         </div>
         <div className="swiper-button-next absolute right-2 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 text-transparent hover:bg-black/10">
-          <SvgChevronRightMd className="stroke-white" />
+          <SvgChevronRightSm className="stroke-white" />
         </div>
       </div>
 

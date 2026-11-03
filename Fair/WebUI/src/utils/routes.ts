@@ -41,13 +41,14 @@ export const routes = {
     policySurveys: (storeId: string) => `${storePath(storeId)}/policy-surveys`,
     policySurveyDetails: (storeId: string, surveyId: string) => `${storePath(storeId)}/policy-surveys/${surveyId}`,
 
-    // Referendums
-    referendums: (storeId: string) => `${storePath(storeId)}/referendums`,
-    referendum: (storeId: string, referendumId: string) => `${storePath(storeId)}/referendums/${referendumId}`,
-    // Proposals
-    proposals: (storeId: string) => `${storePath(storeId)}/proposals`,
-    proposal: (storeId: string, proposalId: string) => `${storePath(storeId)}/proposals/${proposalId}`,
+    // Store
+    store: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/store`, tabKey),
+    storeProposal: (storeId: string, proposalId: string) => `${storePath(storeId)}/store/proposals/${proposalId}`,
 
+    // Categories
+    categories: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/categories`, tabKey),
+    categoryProposal: (storeId: string, proposalId: string) =>
+      `${storePath(storeId)}/categories/proposals/${proposalId}`,
     // Moderators
     moderators: (storeId: string, tabKey?: string) => withTab(`${storePath(storeId)}/moderators`, tabKey),
     moderatorProposal: (storeId: string, proposalId: string) =>

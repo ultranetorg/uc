@@ -6,24 +6,13 @@ import { isNumber } from "lodash"
 
 import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetPublicationProposals } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
-import { Policy, PublicationProposal, Store } from "types"
+import { Policy, Proposal, Store, TotalItemsResult } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
-import {
-  renderActionNameShort,
-  renderAuthor2,
-  renderCreator,
-  renderOpenFor,
-  renderProposalProgress,
-  renderPublication,
-  renderTitle,
-  renderWithYouBadge,
-  renderYourVote,
-} from "ui/renderers"
-import { calculateVotesRequiredToWinProposal, getVoterIds, parseInteger, routes } from "utils"
+import { renderCreator, renderOpenFor, renderProposalProgress, renderTitle, renderYourVote } from "ui/renderers"
+import { calculateVotesRequiredToWinProposal, getVoterIds, parseInteger } from "utils"
 
-type PublicationsVoting = {
+type ProposalsVoting = {
   store?: Store
   policies?: Policy[]
   moderatorId?: string
@@ -31,23 +20,15 @@ type PublicationsVoting = {
 }
 
 const getItemRenderer =
-  (t: TFunction, { store, policies, moderatorId, publisherIds }: PublicationsVoting = {}) =>
+  (t: TFunction, { store, policies, moderatorId, publisherIds }: ProposalsVoting = {}) =>
   (item: TableItem, column: TableColumn): ReactNode => {
-    const proposal = item as PublicationProposal
+    const proposal = item as Proposal
 
     switch (column.type) {
       case "title":
         return renderTitle(proposal.title, proposal.text)
-      case "publication":
-        return renderPublication(proposal.publication)
-      case "author":
-        return renderWithYouBadge(
-          t,
-          renderAuthor2(proposal.authorTitle, proposal.authorLogoId),
-          !!publisherIds?.includes(proposal.authorId),
-        )
-      case "action-name-short":
-        return renderActionNameShort(t, proposal.operation)
+      case "account":
+        return renderCreator(proposal.creator)
       case "progress":
         return renderProposalProgress(
           t,
@@ -56,9 +37,6 @@ const getItemRenderer =
         )
       case "your-vote":
         return renderYourVote(t, proposal, getVoterIds(proposal.operation, policies, moderatorId, publisherIds))
-      case "account":
-        return renderCreator(proposal.creator)
-
       case "open-for":
         return renderOpenFor(t, proposal.creationTime)
     }
@@ -66,8 +44,18 @@ const getItemRenderer =
     return undefined
   }
 
-export const PublicationsProposalsTab = () => {
-  const { t } = useTranslation("publicationsProposalsTab")
+export type ProposalsOperationTabProps = {
+  useGetProposals: (
+    storeId?: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ) => { data?: TotalItemsResult<Proposal> }
+  getProposalPath: (storeId: string, proposalId: string) => string
+}
+
+export const ProposalsOperationTab = ({ useGetProposals, getProposalPath }: ProposalsOperationTabProps) => {
+  const { t } = useTranslation("proposalsOperationTab")
   const navigate = useNavigate()
 
   const storeId = useResolveStoreId()
@@ -86,27 +74,23 @@ export const PublicationsProposalsTab = () => {
 
   const [page, setPage] = useState(state.page)
 
-  const { data: publications } = useGetPublicationProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: proposals } = useGetProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
-    publications?.totalItems && publications.totalItems > 0
-      ? Math.ceil(publications.totalItems / DEFAULT_PAGE_SIZE_20)
-      : 0
+    proposals?.totalItems && proposals.totalItems > 0 ? Math.ceil(proposals.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  const columns = useMemo(
+  const columns = useMemo<TableColumn[]>(
     () => [
-      { accessor: "publication", label: t("columns:product"), type: "publication", className: "w-[25%]" },
-      { accessor: "author", label: t("columns:author"), type: "author", className: "w-[14%]" },
-      { accessor: "action", label: t("columns:action"), type: "action-name-short", className: "w-[11%]" },
-      { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[12%]" },
+      { accessor: "title", label: t("columns:title"), type: "title", className: "w-[34%]" },
+      { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[20%]" },
       {
         accessor: "progress",
         label: t("columns:progress.label"),
         title: t("columns:progress.proposalTitle"),
         type: "progress",
-        className: "w-[13%]",
+        className: "w-[16%]",
       },
-      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[12%] text-center" },
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[13%] text-right" },
+      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" },
+      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%] text-right" },
     ],
     [t],
   )
@@ -118,8 +102,8 @@ export const PublicationsProposalsTab = () => {
   )
 
   const handleTableRowClick = useCallback(
-    (id: string) => navigate(routes.moderation.moderatorPublication(storeId!, id)),
-    [navigate, storeId],
+    (id: string) => navigate(getProposalPath(storeId!, id)),
+    [getProposalPath, navigate, storeId],
   )
 
   const handlePageChange = useCallback(
@@ -134,10 +118,10 @@ export const PublicationsProposalsTab = () => {
     <div className="flex flex-col gap-6">
       <Table
         columns={columns}
-        items={publications?.items}
+        items={proposals?.items}
         tableBodyClassName="text-2sm leading-5"
         itemRenderer={itemRenderer}
-        emptyState={<TableEmptyState message={t("noPublications")} />}
+        emptyState={<TableEmptyState message={t("noProposals")} />}
         onRowClick={handleTableRowClick}
       />
       <div className="flex w-full justify-end">

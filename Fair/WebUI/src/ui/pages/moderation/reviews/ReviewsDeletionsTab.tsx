@@ -7,10 +7,10 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetReviewDeletionsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
-import { ProposalVoting, SpecialChoice } from "types"
-import { Pagination, Table, TableEmptyState } from "ui/components"
+import { ProposalVoting, ReviewProposal, SpecialChoice } from "types"
+import { Pagination, Table, TableEmptyState, TableItem } from "ui/components"
 import { ReviewModal } from "ui/components/specific"
-import { calculateVotesRequiredToWinProposal, parseInteger, showToast } from "utils"
+import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
@@ -94,6 +94,11 @@ export const ReviewsDeletionsTab = () => {
     [reviews],
   )
 
+  const isRowClickable = useCallback(
+    (item: TableItem) => !!approval && !isUserVoted(approval.id, item as ReviewProposal),
+    [approval],
+  )
+
   const handleCloseModal = useCallback(() => {
     setSelectedReviewText(undefined)
     setSelectedReviewRating(undefined)
@@ -173,6 +178,7 @@ export const ReviewsDeletionsTab = () => {
         tableBodyClassName="text-2sm leading-5"
         emptyState={<TableEmptyState message={t("newReviewDeletions")} />}
         onRowClick={canDeleteOrCancel && !loadingItem ? handleTableRowClick : undefined}
+        isRowClickable={isRowClickable}
       />
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />

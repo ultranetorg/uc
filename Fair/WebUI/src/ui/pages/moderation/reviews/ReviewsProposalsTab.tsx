@@ -4,17 +4,26 @@ import { isNumber, isString } from "lodash"
 
 import { useStoreContext, useStorePoliciesContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useGetReviewCreationsProposals, useInvalidation } from "entities"
+import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
-import { ProposalVoting, ReviewProposal, SpecialChoice } from "types"
+import { ProposalVoting, ReviewProposal, SpecialChoice, TotalItemsResult } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import { ReviewModal } from "ui/components/specific"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
 
-export const ReviewsNewTab = () => {
+export type ReviewsProposalsTabProps = {
+  useGetProposals: (
+    storeId?: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ) => { data?: TotalItemsResult<ReviewProposal>; refetch: () => unknown }
+}
+
+export const ReviewsProposalsTab = ({ useGetProposals }: ReviewsProposalsTabProps) => {
   const { t } = useTranslation("reviewsPage")
 
   const creationApproval = useApprovalIdentityForOperation("review-creation")
@@ -43,7 +52,7 @@ export const ReviewsNewTab = () => {
   const [page, setPage] = useState(state.page)
   const [loadingItem, setLoadingItem] = useState<{ id: string; action: "approve" | "reject" } | undefined>()
 
-  const { data: reviews, refetch } = useGetReviewCreationsProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: reviews, refetch } = useGetProposals(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount =
     reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 

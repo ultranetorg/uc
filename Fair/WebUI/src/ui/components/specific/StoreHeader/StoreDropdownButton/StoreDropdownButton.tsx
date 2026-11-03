@@ -13,6 +13,7 @@ export const StoreDropdownButton = ({ className }: PropsWithClassName) => {
   const { t } = useTranslation()
 
   const menuItems = useStoreDropdownButtonMenuItems(storeId!)
+  if (!menuItems || !menuItems.length) return null
 
   return (
     <HeaderDropdownButton

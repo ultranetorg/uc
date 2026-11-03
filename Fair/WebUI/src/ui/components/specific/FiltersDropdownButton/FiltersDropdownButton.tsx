@@ -13,7 +13,7 @@ import {
   useRole,
 } from "@floating-ui/react"
 
-import { SvgSliders } from "assets"
+import { SvgSlidersXs } from "assets"
 
 import { FiltersMenu } from "./FiltersMenu"
 
@@ -60,7 +60,7 @@ export const FiltersDropdownButton = memo(({ label }: FiltersDropdownButtonProps
         {...getReferenceProps()}
       >
         <span className="w-21 text-2xs font-medium leading-4 text-gray-800">{label}</span>
-        <SvgSliders className="stroke-gray-500" />
+        <SvgSlidersXs className="stroke-gray-500" />
       </div>
       {isExpanded && (
         <FloatingPortal>

@@ -2,7 +2,7 @@ import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useStoreContext, useUserContext } from "app"
-import avatarFallback from "assets/fallback/user-30.png"
+import avatarFallback from "assets/fallback/user-avatar-6xl.png"
 import { REVIEWS_PAGE_SIZE } from "config"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback, Pagination } from "ui/components"

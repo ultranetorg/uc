@@ -7,7 +7,7 @@ import {
   SvgGithubColored,
   SvgGlobe,
   SvgInstagramColored,
-  SvgLinkedInColored,
+  SvgLinkedinColored,
   SvgMediumColored,
   SvgRedditColored,
   SvgTelegramColored,
@@ -23,7 +23,7 @@ export const getSocialIconFromLink = (link: string): ReactNode => {
     if (lower.includes("facebook.com") || lower.includes("fb.com")) return <SvgFacebookColored />
     if (lower.includes("github.com")) return <SvgGithubColored />
     if (lower.includes("instagram.com")) return <SvgInstagramColored />
-    if (lower.includes("linkedin.com")) return <SvgLinkedInColored />
+    if (lower.includes("linkedin.com")) return <SvgLinkedinColored />
     if (lower.includes("medium.com")) return <SvgMediumColored />
     if (lower.includes("reddit.com")) return <SvgRedditColored />
     if (lower.includes("telegram.com") || lower.includes("t.me")) return <SvgTelegramColored />

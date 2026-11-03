@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
 import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
-import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
-import { ModerationHeader } from "ui/components/specific"
+import { useCanVoteOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { OperationType } from "types"
+import { ModerationHeader, OperationPolicyInfo } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
-
-import { isModeratorCanCreate, isPublisherCanCreate, routes } from "utils"
+import { isModeratorCanCreate, isPublisherCanCreate, routes, sortTabsByVoting } from "utils"
 
 import { ModeratorsAdditionsTab } from "./ModeratorsAdditionsTab"
 import { ModeratorsListTab } from "./ModeratorsListTab"
@@ -22,11 +22,13 @@ const routeToTabKey: Record<string, string> = {
 export const ModeratorsPage = () => {
   const navigate = useNavigate()
   const { tabKey } = useParams()
+  const { t } = useTranslation("moderatorsPage")
+
+  const canVoteOperation = useCanVoteOperation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
-  const { t } = useTranslation("moderatorsPage")
 
   useStoreTitle(store?.title, "Moderators")
 
@@ -37,13 +39,27 @@ export const ModeratorsPage = () => {
     [navigate, storeId],
   )
 
-  const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
-    () => [
-      { key: "moderators", label: t("common:moderators"), route: "moderators" },
-      { key: "removals", label: t("common:removals"), route: "removals" },
-      { key: "additions", label: t("common:additions"), route: "additions" },
-    ],
-    [t],
+  const tabsItems: (TabsListItem & { route?: string; operation?: OperationType })[] = useMemo(
+    () =>
+      sortTabsByVoting(
+        [
+          { key: "moderators", label: t("common:moderators"), route: "moderators" },
+          {
+            key: "removals",
+            label: t("common:removals"),
+            route: "removals",
+            operation: "store-moderator-removal" as const,
+          },
+          {
+            key: "additions",
+            label: t("common:additions"),
+            route: "additions",
+            operation: "store-moderator-addition" as const,
+          },
+        ],
+        canVoteOperation,
+      ),
+    [canVoteOperation, t],
   )
 
   const canAddModerator =
@@ -74,7 +90,7 @@ export const ModeratorsPage = () => {
         }
         showModeratorsCount={true}
       />
-      <TabsProvider defaultKey={key || "moderators"}>
+      <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">
           <TabsList
             className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
@@ -88,9 +104,11 @@ export const ModeratorsPage = () => {
             <ModeratorsListTab />
           </TabContent>
           <TabContent when="removals">
+            <OperationPolicyInfo operation="store-moderator-removal" />
             <ModeratorsRemovalsTab />
           </TabContent>
           <TabContent when="additions">
+            <OperationPolicyInfo operation="store-moderator-addition" />
             <ModeratorsAdditionsTab />
           </TabContent>
         </div>

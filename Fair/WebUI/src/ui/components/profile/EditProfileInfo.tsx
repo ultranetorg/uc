@@ -5,11 +5,11 @@ import { Controller, useForm } from "react-hook-form"
 
 import { useUserContext } from "app"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { PROFILE_SRC } from "testConfig"
 import { AccountNicknameChange } from "types"
 import { ButtonPrimary, Input, ValidationWrapper } from "ui/components"
 import { showToast } from "utils"
 
+import { SvgPersonSquare } from "assets"
 import pngBackground from "./background.png"
 
 interface IFromData {
@@ -64,7 +64,7 @@ export const EditProfileInfo = memo(({ t, nickname }: EditProfileInfoProps) => {
         </div>
         <div className="absolute left-6 top-26.5 size-32 rounded-full bg-white p-1">
           <div className="size-30 overflow-hidden">
-            <img src={PROFILE_SRC} className="size-full object-cover" />
+            <SvgPersonSquare className="fill-gray-300" />
           </div>
         </div>
         <div className="mb-2 ml-40 mt-5 flex h-8 items-center gap-4">

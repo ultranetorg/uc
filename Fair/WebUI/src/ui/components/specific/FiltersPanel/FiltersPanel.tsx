@@ -1,6 +1,13 @@
 import { memo } from "react"
 
-import { SvgBook, SvgController, SvgFileEarmarkCode, SvgFileEarmarkMusic, SvgFileEarmarkVideo, SvgGrid } from "assets"
+import {
+  SvgBookSm,
+  SvgControllerSm,
+  SvgFileEarmarkCodeSm,
+  SvgFileEarmarkMusicSm,
+  SvgFileEarmarkVideoSm,
+  SvgGridSm,
+} from "assets"
 import { ProductType } from "types"
 import { FilterButton, FilterButtonProps } from "./FilterButton"
 
@@ -14,36 +21,36 @@ export const FiltersPanel = memo(({ value, onChange }: FiltersPanelProps) => {
     {
       text: "All",
       type: "none",
-      icon: SvgGrid,
+      icon: SvgGridSm,
     },
     {
       text: "Software",
       type: "software",
-      icon: SvgFileEarmarkCode,
+      icon: SvgFileEarmarkCodeSm,
       iconColor: "stroke",
     },
     {
       text: "Games",
       type: "game",
-      icon: SvgController,
+      icon: SvgControllerSm,
       iconColor: "stroke",
     },
     {
       text: "Video",
       type: "movie",
-      icon: SvgFileEarmarkVideo,
+      icon: SvgFileEarmarkVideoSm,
       iconColor: "stroke",
     },
     {
       text: "Music",
       type: "music",
-      icon: SvgFileEarmarkMusic,
+      icon: SvgFileEarmarkMusicSm,
       iconColor: "stroke",
     },
     {
       text: "Books",
       type: "book",
-      icon: SvgBook,
+      icon: SvgBookSm,
       iconColor: "stroke",
     },
   ]

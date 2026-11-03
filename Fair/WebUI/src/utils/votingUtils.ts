@@ -1,6 +1,6 @@
 import { ApprovalRequirement, OperationType, Policy, RoleName, Store } from "types"
 
-const findPolicy = (operation?: OperationType, policies?: Policy[]) =>
+export const findPolicy = (operation?: OperationType, policies?: Policy[]) =>
   operation && policies ? policies.find(x => x.operationClass === operation) : undefined
 
 const canCreate = (creator: RoleName, operation?: OperationType, policies?: Policy[]) =>

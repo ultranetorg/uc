@@ -69,7 +69,7 @@ export const ChangedPublicationPage = () => {
       onSuccess: () => {
         invalidateOperation("publication-updation", { storeId: storeId!, publicationId })
         showToast(t("toast:publicationUpdated"), "success")
-        navigate(routes.moderation.publications(storeId!))
+        navigate(routes.moderation.publications(storeId!, "updations"))
       },
       onError: err => showToast(err.toString(), "error"),
     })

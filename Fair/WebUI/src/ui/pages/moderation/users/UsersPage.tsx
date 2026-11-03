@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useStoreContext } from "app"
-import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { useCanVoteOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { OperationType } from "types"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
-import { routes } from "utils"
+import { OperationPolicyInfo } from "ui/components/specific"
+import { routes, sortTabsByVoting } from "utils"
 
 import { UsersNewTab } from "./UsersNewTab"
 import { UsersRemovalsTab } from "./UsersRemovalsTab"
@@ -20,9 +22,11 @@ const routeToTabKey: Record<string, string> = {
 export const UsersPage = () => {
   const navigate = useNavigate()
   const { tabKey } = useParams()
+  const { t } = useTranslation("moderationUsersPage")
+
+  const canVoteOperation = useCanVoteOperation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
-  const { t } = useTranslation("moderationUsersPage")
 
   useStoreTitle(store?.title, "Users")
 
@@ -33,17 +37,26 @@ export const UsersPage = () => {
     [navigate, storeId],
   )
 
-  const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
-    () => [
-      { key: "new-users", label: t("common:new") },
-      { key: "users-removals", label: t("common:removals"), route: "remove" },
-      { key: "users", label: t("common:users"), route: "users" },
-    ],
-    [t],
+  const tabsItems: (TabsListItem & { route?: string; operation?: OperationType })[] = useMemo(
+    () =>
+      sortTabsByVoting(
+        [
+          { key: "new-users", label: t("common:new"), route: "new", operation: "user-registration" as const },
+          {
+            key: "users-removals",
+            label: t("common:removals"),
+            route: "remove",
+            operation: "user-unregistration" as const,
+          },
+          { key: "users", label: t("common:users"), route: "users" },
+        ],
+        canVoteOperation,
+      ),
+    [canVoteOperation, t],
   )
 
   return (
-    <TabsProvider defaultKey={key || "new-users"}>
+    <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
       <div className="flex flex-col gap-6">
         <TabsList
           className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
@@ -54,9 +67,11 @@ export const UsersPage = () => {
         />
 
         <TabContent when="new-users">
+          <OperationPolicyInfo operation="user-registration" />
           <UsersNewTab />
         </TabContent>
         <TabContent when="users-removals">
+          <OperationPolicyInfo operation="user-unregistration" />
           <UsersRemovalsTab />
         </TabContent>
         <TabContent when="users">

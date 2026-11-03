@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next"
 import { twMerge } from "tailwind-merge"
 
-import { SvgChevronDownCircle, SvgChevronUpCircle } from "assets"
-import { TEST_AUTHOR_IMG } from "testConfig"
+import { SvgChevronDownCircle, SvgChevronUpCircle, SvgPersonSquare } from "assets"
 import { AuthorExtended, AuthorPublications } from "types"
 import { PublicationsTable } from "ui/components/specific"
 
@@ -37,7 +36,7 @@ export const PublicationsCollapse = ({
       >
         <div className="flex grow gap-3">
           <div className="size-13 overflow-hidden rounded-full">
-            <img src={TEST_AUTHOR_IMG} className="size-full object-cover" />
+            <SvgPersonSquare className="fill-gray-300" />
           </div>
           <div className="flex flex-col justify-center gap-1">
             <span className="text-2sm font-semibold leading-4.5">{nickname}</span>

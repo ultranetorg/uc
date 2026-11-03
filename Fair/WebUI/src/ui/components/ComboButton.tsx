@@ -2,7 +2,7 @@ import { memo, useCallback } from "react"
 import { twMerge } from "tailwind-merge"
 import { FloatingPortal } from "@floating-ui/react"
 
-import { SvgChevronDown2Sm } from "assets"
+import { SvgChevronDownAltSm } from "assets"
 import { useSubmenu } from "hooks"
 import { PropsWithClassName } from "types"
 
@@ -37,7 +37,7 @@ export const ComboButton = memo(({ items, label, onButtonClick }: ComboButtonPro
           {label}
         </button>
         <div className="flex size-11 cursor-pointer items-center justify-center rounded-e bg-gray-800 group-hover:bg-gray-950">
-          <SvgChevronDown2Sm className="stroke-white" />
+          <SvgChevronDownAltSm className="stroke-white" />
         </div>
       </div>
       {items && menu.isOpen && (

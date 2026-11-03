@@ -32,10 +32,9 @@ export const usePublicationCardContextThreeDotsMenu = (
                 type: "publication-unpublish",
                 publicationId,
                 parentBreadcrumbs: [
-                  { path: routes.moderation.proposals(storeId!), title: t("common:proposals") },
                   { path: routes.moderation.publications(storeId!), title: t("common:publications") },
                 ],
-                redirectAfterProposalCreation: routes.moderation.publications(storeId!),
+                redirectAfterProposalCreation: routes.moderation.publications(storeId!, "unpublishes"),
                 redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.store(storeId!),
               },
             },
@@ -54,10 +53,9 @@ export const usePublicationCardContextThreeDotsMenu = (
                 type: "publication-deletion",
                 publicationId,
                 parentBreadcrumbs: [
-                  { path: routes.moderation.proposals(storeId!), title: t("common:proposals") },
                   { path: routes.moderation.publications(storeId!), title: t("common:publications") },
                 ],
-                redirectAfterProposalCreation: routes.moderation.publications(storeId!),
+                redirectAfterProposalCreation: routes.moderation.publications(storeId!, "deletions"),
                 redirectAfterProposalExecution: isFromContextMenu ? location.pathname : routes.store(storeId!),
               },
             },

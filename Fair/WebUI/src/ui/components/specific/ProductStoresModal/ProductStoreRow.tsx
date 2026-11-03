@@ -1,7 +1,7 @@
 import { memo } from "react"
 
 import { SvgChevronRight } from "assets"
-import storeFallback from "assets/fallback/store-fallback-8.png"
+import storeFallback from "assets/fallback/store-avatar-3xl.png"
 import { ImageFallback } from "ui/components/ImageFallback"
 import { buildFileUrl } from "utils"
 

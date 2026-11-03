@@ -1,7 +1,7 @@
 import Select, { components, ControlProps, IndicatorsContainerProps, OptionProps, Props } from "react-select"
 
 import { SvgSearchSm, SvgXSm } from "assets"
-import avatarFallback from "assets/fallback/user-8.png"
+import avatarFallback from "assets/fallback/user-avatar-xl.png"
 import { buildUserAvatarByIdUrl } from "utils"
 
 import { DropdownSearchAccountsItem } from "./types"

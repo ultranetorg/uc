@@ -1,4 +1,4 @@
-import avatarFallback from "assets/fallback/author-16.png"
+import avatarFallback from "assets/fallback/author-avatar-3xl.png"
 import { AuthorBaseAvatar } from "types"
 import { MemberInfo } from "ui/components"
 import { buildFileUrl } from "utils"

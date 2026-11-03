@@ -8,7 +8,7 @@ import Select, {
 } from "react-select"
 import { twMerge } from "tailwind-merge"
 
-import { SvgSearchMd, SvgSpinner, SvgX } from "assets"
+import { SvgSearch, SvgSpinner, SvgX } from "assets"
 import { HighlightText } from "ui/components"
 
 import { IndicatorsContainerSelectProps, MenuSelectProps, SearchDropdownItem } from "./types"
@@ -33,7 +33,7 @@ export const IndicatorsContainer = ({
       </div>
     )}
     <div onClick={onSearchClick} className={twMerge("p-1", inputValue && "group cursor-pointer")}>
-      <SvgSearchMd className="stroke-gray-500 group-hover:stroke-gray-950" />
+      <SvgSearch className="stroke-gray-500 group-hover:stroke-gray-950" />
     </div>
   </div>
 )
@@ -66,7 +66,7 @@ export const Menu = (props: MenuProps<SearchDropdownItem, false> & MenuBaseProps
 export const Option = (props: OptionProps<SearchDropdownItem>) => {
   return (
     <components.Option {...props}>
-      <SvgSearchMd className="size-4 stroke-gray-500" />
+      <SvgSearch className="size-4 stroke-gray-500" />
       <span>
         <HighlightText highlightText={props.selectProps.inputValue} className="font-bold text-dark-100">
           {props.data.label}

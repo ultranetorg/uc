@@ -132,14 +132,6 @@ export type FairApi = {
   getModeratorSurveys(storeId: string, page?: number, pageSize?: number): Promise<TotalItemsResult<Survey>>
 
   // Proposals
-  getReferendums(
-    storeId: string,
-    page?: number,
-    pageSize?: number,
-    search?: string,
-  ): Promise<TotalItemsResult<Proposal>>
-  getProposals(storeId: string, page?: number, pageSize?: number, search?: string): Promise<TotalItemsResult<Proposal>>
-
   getProposalDetails(storeId: string, proposalId: string): Promise<ProposalDetails>
 
   getProposalComments(
@@ -149,7 +141,31 @@ export type FairApi = {
     pageSize?: number,
   ): Promise<TotalItemsResult<ProposalComment>>
 
-  getPublicationProposals(
+  getPublicationCreationProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<PublicationProposal>>
+  getPublicationDeletionProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<PublicationProposal>>
+  getPublicationPublishProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<PublicationProposal>>
+  getPublicationUnpublishProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<PublicationProposal>>
+  getPublicationUpdationProposals(
     storeId: string,
     page?: number,
     pageSize?: number,
@@ -180,7 +196,70 @@ export type FairApi = {
     pageSize?: number,
   ): Promise<TotalItemsResult<PublisherProposal>>
 
+  getStoreRenamingProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<Proposal>>
+
+  getStoreInfoUpdationProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<Proposal>>
+
+  getStoreAvatarChangeProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<Proposal>>
+
+  getCategoryCreationProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<Proposal>>
+
+  getCategoryDeletionProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<Proposal>>
+
+  getCategoryMovementProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<Proposal>>
+
+  getCategoryTypeChangeProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<Proposal>>
+
+  getCategoryAvatarChangeProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<Proposal>>
+
   getReviewCreationsProposals(
+    storeId: string,
+    page?: number,
+    pageSize?: number,
+    search?: string,
+  ): Promise<TotalItemsResult<ReviewProposal>>
+
+  getReviewEditsProposals(
     storeId: string,
     page?: number,
     pageSize?: number,

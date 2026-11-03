@@ -6,6 +6,8 @@ import { useParams, useResolveStoreId, useStoreTitle } from "hooks"
 import { ProposalView } from "ui/views"
 import { routes } from "utils"
 
+import { PUBLICATION_PROPOSALS_TAB_KEYS } from "./tabs"
+
 export const ModerationPublicationPage = () => {
   const { proposalId } = useParams()
   const storeId = useResolveStoreId()
@@ -21,7 +23,10 @@ export const ModerationPublicationPage = () => {
       parentBreadcrumbs={{ title: t("common:publications"), path: routes.moderation.publications(storeId!) }}
       isFetching={isFetching}
       proposal={proposal}
-      previousPath={routes.moderation.publications(storeId!, "proposals")}
+      previousPath={routes.moderation.publications(
+        storeId!,
+        proposal?.operation ? PUBLICATION_PROPOSALS_TAB_KEYS[proposal.operation] : undefined,
+      )}
       headerProps={{ showModeratorsCount: true }}
     />
   )

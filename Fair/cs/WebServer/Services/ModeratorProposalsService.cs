@@ -25,19 +25,76 @@ public class ModeratorProposalsService
 		return GetProposalByType<PublicationProposalModel>(storeId, proposalId, EntityNames.UserEntityName, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel);
 	}
 
-	public TotalItemsResult<PublicationProposalModel> GetPublicationProposalsNotOptimized
+	public TotalItemsResult<PublicationProposalModel> GetPublicationCreationProposalsNotOptimized
 		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetPublicationProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationCreationOperation, cancellationToken);
+
+	public TotalItemsResult<PublicationProposalModel> GetPublicationDeletionProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetPublicationProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationDeletionOperation, cancellationToken);
+
+	public TotalItemsResult<PublicationProposalModel> GetPublicationPublishProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetPublicationProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationPublishOperation, cancellationToken);
+
+	public TotalItemsResult<PublicationProposalModel> GetPublicationUnpublishProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetPublicationProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationUnpublishOperation, cancellationToken);
+
+	public TotalItemsResult<PublicationProposalModel> GetPublicationUpdationProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetPublicationProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationUpdationOperation, cancellationToken);
+
+	TotalItemsResult<PublicationProposalModel> GetPublicationProposalsNotOptimized
+		(string storeId, int page, int pageSize, string? search, Predicate<Proposal> checkFunc, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrEmpty(storeId);
 		ArgumentOutOfRangeException.ThrowIfNegative(page);
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
 
-#if DEBUG
-		logger.LogDebug("{ClassName}.{MethodName} method called with {StoreId}, {Page}, {PageSize}, {Search}",
-			nameof(ModeratorProposalsService), nameof(ModeratorProposalsService.GetPublicationProposalsNotOptimized), storeId, page, pageSize, search);
-#endif
+		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, checkFunc, CreatePublicationProposalModel, cancellationToken);
+	}
 
-		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsPublicationOperation, CreatePublicationProposalModel, cancellationToken);
+	public TotalItemsResult<ProposalModel> GetCategoryCreationProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetSimpleProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsCategoryCreationOperation, cancellationToken);
+
+	public TotalItemsResult<ProposalModel> GetCategoryDeletionProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetSimpleProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsCategoryDeletionOperation, cancellationToken);
+
+	public TotalItemsResult<ProposalModel> GetCategoryMovementProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetSimpleProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsCategoryMovementOperation, cancellationToken);
+
+	public TotalItemsResult<ProposalModel> GetCategoryTypeChangeProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetSimpleProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsCategoryTypeChangeOperation, cancellationToken);
+
+	public TotalItemsResult<ProposalModel> GetCategoryAvatarChangeProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetSimpleProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsCategoryAvatarChangeOperation, cancellationToken);
+
+	public TotalItemsResult<ProposalModel> GetStoreRenamingProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetSimpleProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsStoreRenamingOperation, cancellationToken);
+
+	public TotalItemsResult<ProposalModel> GetStoreInfoUpdationProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetSimpleProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsStoreInfoUpdationOperation, cancellationToken);
+
+	public TotalItemsResult<ProposalModel> GetStoreAvatarChangeProposalsNotOptimized
+		([NotNull][NotEmpty] string storeId, [NonNegativeValue] int page, [NonNegativeValue][NonZeroValue] int pageSize, string? search, CancellationToken cancellationToken)
+		=> GetSimpleProposalsNotOptimized(storeId, page, pageSize, search, ProposalUtils.IsStoreAvatarChangeOperation, cancellationToken);
+
+	TotalItemsResult<ProposalModel> GetSimpleProposalsNotOptimized
+		(string storeId, int page, int pageSize, string? search, Predicate<Proposal> checkFunc, CancellationToken cancellationToken)
+	{
+		ArgumentException.ThrowIfNullOrEmpty(storeId);
+		ArgumentOutOfRangeException.ThrowIfNegative(page);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
+
+		return GetProposalsByTypeNotOptimized(storeId, page, pageSize, search, checkFunc, CreateUserProposalModel, cancellationToken);
 	}
 
 	PublicationProposalModel CreatePublicationProposalModel(Proposal proposal, Store store)

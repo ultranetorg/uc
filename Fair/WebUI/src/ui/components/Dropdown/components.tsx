@@ -8,7 +8,7 @@ import Select, {
   Props,
 } from "react-select"
 
-import { SvgCheckXs, SvgDropdownIndicator, SvgXXs } from "assets"
+import { SvgCheckXs, SvgDropdownIndicatorXs, SvgXXs } from "assets"
 
 import { DropdownItem } from "./types"
 import { CLEAR_ALL_VALUE } from "./constants"
@@ -19,7 +19,7 @@ export const CustomSelect = <IsMulti extends boolean>(props: CustomSelectProps<I
 
 export const DropdownIndicator = (props: DropdownIndicatorProps<DropdownItem, boolean>) => (
   <components.DropdownIndicator {...props}>
-    <SvgDropdownIndicator className="stroke-gray-500" />
+    <SvgDropdownIndicatorXs className="stroke-gray-500" />
   </components.DropdownIndicator>
 )
 

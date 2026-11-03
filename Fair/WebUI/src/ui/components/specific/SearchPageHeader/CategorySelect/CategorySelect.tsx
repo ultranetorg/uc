@@ -15,7 +15,7 @@ import {
 } from "@floating-ui/react"
 
 import { useStoreContext } from "app"
-import { SvgDropdownIndicator } from "assets"
+import { SvgDropdownIndicatorXs } from "assets"
 import { CategoryParentBaseWithChildren } from "types"
 import { ButtonPrimary, ResetAllButton } from "ui/components"
 
@@ -163,7 +163,7 @@ export const CategorySelect = memo(
           {...getReferenceProps()}
         >
           <span className="truncate text-2sm font-medium leading-4 text-gray-800">{label}</span>
-          <SvgDropdownIndicator className="shrink-0 stroke-gray-500" />
+          <SvgDropdownIndicatorXs className="shrink-0 stroke-gray-500" />
         </div>
         {isOpen && (
           <FloatingPortal>

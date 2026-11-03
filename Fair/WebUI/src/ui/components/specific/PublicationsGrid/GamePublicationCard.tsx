@@ -1,7 +1,6 @@
 import { memo } from "react"
 
-import { SvgStarXxs } from "assets"
-import { TEST_GAME_SRC } from "testConfig"
+import { SvgControllerSm, SvgStarXxs } from "assets"
 import { PublicationCardContextThreeDotsMenu } from "ui/components/specific"
 import { formatAverageRating } from "utils"
 
@@ -12,8 +11,8 @@ export const GamePublicationCard = memo(({ id, title, authorTitle, categoryTitle
 
   return (
     <div className="relative h-117.5 w-67.75 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
-      <div className="h-91.25 overflow-hidden">
-        <img src={TEST_GAME_SRC} className="size-full object-cover" />
+      <div className="flex h-91.25 items-center justify-center overflow-hidden bg-gray-400">
+        <SvgControllerSm className="size-20 stroke-gray-300" />
       </div>
       <div className="flex flex-col gap-1 p-3">
         <span className="flex h-5 items-center text-base" title={formattedRating}>

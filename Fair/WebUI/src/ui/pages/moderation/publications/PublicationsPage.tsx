@@ -3,17 +3,63 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { useStoreContext } from "app"
-import { useCanCreateOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import {
+  useGetPublicationCreationProposals,
+  useGetPublicationDeletionProposals,
+  useGetPublicationPublishProposals,
+  useGetPublicationUnpublishProposals,
+  useGetPublicationUpdationProposals,
+} from "entities"
+import { useCanCreateOperation, useCanVoteOperation, useParams, useResolveStoreId, useStoreTitle } from "hooks"
+import { OperationType } from "types"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
-import { ModerationHeader } from "ui/components/specific"
-import { routes } from "utils"
+import { ModerationHeader, OperationPolicyInfo } from "ui/components/specific"
+import { routes, sortTabsByVoting } from "utils"
 
 import { PublicationsChangedTab } from "./PublicationsChangedTab"
-import { PublicationsProposalsTab } from "./PublicationsProposalsTab"
+import { PublicationsOperationTab, PublicationsOperationTabProps } from "./PublicationsOperationTab"
 import { PublicationsUnpublishedTab } from "./PublicationsUnpublishedTab"
 
+const OPERATION_TABS: {
+  key: string
+  operation: OperationType
+  labelKey: string
+  useGetProposals: PublicationsOperationTabProps["useGetProposals"]
+}[] = [
+  {
+    key: "creations",
+    operation: "publication-creation",
+    labelKey: "creation",
+    useGetProposals: useGetPublicationCreationProposals,
+  },
+  {
+    key: "deletions",
+    operation: "publication-deletion",
+    labelKey: "deletion",
+    useGetProposals: useGetPublicationDeletionProposals,
+  },
+  {
+    key: "publishes",
+    operation: "publication-publish",
+    labelKey: "publish",
+    useGetProposals: useGetPublicationPublishProposals,
+  },
+  {
+    key: "unpublishes",
+    operation: "publication-unpublish",
+    labelKey: "unpublish",
+    useGetProposals: useGetPublicationUnpublishProposals,
+  },
+  {
+    key: "updations",
+    operation: "publication-updation",
+    labelKey: "updation",
+    useGetProposals: useGetPublicationUpdationProposals,
+  },
+]
+
 const routeToTabKey: Record<string, string> = {
-  proposals: "proposals",
+  ...Object.fromEntries(OPERATION_TABS.map(x => [x.key, x.key])),
   changed: "changed",
   unpublished: "unpublished",
 }
@@ -24,6 +70,7 @@ export const PublicationsPage = () => {
   const { t } = useTranslation("publicationsPage")
 
   const canCreateOperation = useCanCreateOperation()
+  const canVoteOperation = useCanVoteOperation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
 
@@ -41,13 +88,17 @@ export const PublicationsPage = () => {
     [navigate, storeId],
   )
 
-  const tabsItems: (TabsListItem & { route?: string })[] = useMemo(
-    () => [
-      { key: "proposals", label: t("common:proposals") },
-      { key: "changed", label: t("changed"), route: "changed" },
-      { key: "unpublished", label: t("unpublished"), route: "unpublished" },
-    ],
-    [t],
+  const tabsItems: (TabsListItem & { route?: string; operation?: OperationType })[] = useMemo(
+    () =>
+      sortTabsByVoting<TabsListItem & { route?: string; operation?: OperationType }>(
+        [
+          ...OPERATION_TABS.map(x => ({ key: x.key, label: t(x.labelKey), route: x.key, operation: x.operation })),
+          { key: "changed", label: t("changed"), route: "changed" },
+          { key: "unpublished", label: t("unpublished"), route: "unpublished" },
+        ],
+        canVoteOperation,
+      ),
+    [canVoteOperation, t],
   )
 
   return (
@@ -63,7 +114,7 @@ export const PublicationsPage = () => {
         }
         showModeratorsCount={true}
       />
-      <TabsProvider defaultKey={key || "proposals"}>
+      <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">
           <TabsList
             className="flex gap-6 border-b border-y-gray-300 text-2sm leading-4.5 text-gray-500"
@@ -73,9 +124,12 @@ export const PublicationsPage = () => {
             items={tabsItems}
           />
 
-          <TabContent when="proposals">
-            <PublicationsProposalsTab />
-          </TabContent>
+          {OPERATION_TABS.map(x => (
+            <TabContent key={x.key} when={x.key}>
+              <OperationPolicyInfo operation={x.operation} />
+              <PublicationsOperationTab useGetProposals={x.useGetProposals} />
+            </TabContent>
+          ))}
           <TabContent when="changed">
             <PublicationsChangedTab />
           </TabContent>

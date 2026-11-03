@@ -1,7 +1,7 @@
 import { memo, MouseEvent } from "react"
 
 import { SvgCheckCircleFill, SvgXSm } from "assets"
-import avatarFallbackXl from "assets/fallback/user-8.png"
+import avatarFallbackXl from "assets/fallback/user-avatar-xl.png"
 import { UserBase } from "types"
 import { buildUserAvatarByNameUrl, MakeOptional } from "utils"
 

@@ -2,7 +2,7 @@ import { memo } from "react"
 
 import { Trans } from "react-i18next"
 import { SvgStarXxs } from "assets"
-import { SvgSoftwareLogo } from "assets/fallback"
+import { SvgSoftwareLogo3Xl } from "assets/fallback"
 import { Publication, PublicationExtended } from "types"
 import { ImageFallback } from "ui/components"
 import { PublicationCardContextThreeDotsMenu } from "ui/components/specific"
@@ -27,7 +27,7 @@ export const PublicationRow = memo(
           <div className="size-8 flex-none overflow-hidden rounded-lg bg-gray-500">
             <ImageFallback
               src={buildFileUrl(logoFileId)}
-              fallback={<SvgSoftwareLogo className="size-full object-cover" />}
+              fallback={<SvgSoftwareLogo3Xl className="size-full object-cover" />}
             />
           </div>
           <span className="truncate font-medium">{title}</span>

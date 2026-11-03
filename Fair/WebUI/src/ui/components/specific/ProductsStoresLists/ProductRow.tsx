@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { SvgSoftwareLogo } from "assets/fallback"
+import { SvgSoftwareLogo3Xl } from "assets/fallback"
 import { ProductPublication, ProductSearchResult } from "types"
 import { DropdownItem, ImageFallback } from "ui/components"
 import { buildFileUrl, routes } from "utils"
@@ -100,7 +100,7 @@ export const ProductRow = memo(
           <div className="size-8 flex-none overflow-hidden rounded-lg">
             <ImageFallback
               src={buildFileUrl(productLogoId)}
-              fallback={<SvgSoftwareLogo className="size-full object-cover" />}
+              fallback={<SvgSoftwareLogo3Xl className="size-full object-cover" />}
             />
           </div>
           <span className="truncate text-2xs leading-4 text-gray-900">{productTitle}</span>

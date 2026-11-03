@@ -357,7 +357,7 @@ public class PublicationsService
 		Publication publication = mcv.Publications.Latest(entityChangedPublicationId);
 		Product product = mcv.Products.Latest(publication.Product);
 		Author author = mcv.Authors.Latest(product.Author);
-		Category category = mcv.Categories.Latest(publication.Category);
+		Category? category = publication.Category != null ? mcv.Categories.Latest(publication.Category) : null;
 		AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
 		var fields = ProductFieldsUtils.GetMappedFieldsVersion(product, publication.ProductVersion);
@@ -375,8 +375,8 @@ public class PublicationsService
 			AuthorLogoId = author.Avatar,
 			CurrentVersion = publication.ProductVersion,
 			LatestVersion = product.Versions.Last().Id,
-			CategoryId = category.Id,
-			CategoryTitle = category.Title,
+			CategoryId = category?.Id,
+			CategoryTitle = category?.Title,
 			Rating = PublicationUtils.CalculateRating(publication.RatingSum, publication.RatingCount),
 			Fields = fields,
 			FieldsTo = fieldsTo
@@ -446,7 +446,7 @@ public class PublicationsService
 			Publication publication = mcv.Publications.Latest(publicationId);
 			Product product = mcv.Products.Latest(publication.Product);
 			Author author = mcv.Authors.Latest(product.Author);
-			Category category = mcv.Categories.Latest(publication.Category);
+			Category? category = publication.Category != null ? mcv.Categories.Latest(publication.Category) : null;
 			AutoId? fileId = PublicationUtils.GetLogo(publication, product);
 
 			var model = new ChangedPublicationModel
@@ -459,8 +459,8 @@ public class PublicationsService
 				AuthorId = author.Id,
 				AuthorTitle = author.Title,
 				AuthorLogoId = author.Avatar,
-				CategoryId = category.Id,
-				CategoryTitle = category.Title,
+				CategoryId = category?.Id,
+				CategoryTitle = category?.Title,
 				CurrentVersion = publication.ProductVersion,
 				LatestVersion = product.Versions.Last().Id
 			};

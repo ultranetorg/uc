@@ -1,6 +1,6 @@
 import { memo } from "react"
 
-import { SvgImageSlash } from "assets"
+import { SvgImageSlash4Xl } from "assets"
 import { buildFileUrl, formatTitle } from "utils"
 import { CategoryParentBaseWithChildren } from "types"
 import { CategoryTreeContextThreeDotsMenu } from "ui/components/specific"
@@ -13,7 +13,7 @@ export const ChildCategory = memo(({ id, avatarId, title }: ChildCategoryProps) 
       {avatarId ? (
         <img src={buildFileUrl(avatarId)} className="size-full object-cover" />
       ) : (
-        <SvgImageSlash className="size-full stroke-gray-800" />
+        <SvgImageSlash4Xl className="size-full stroke-gray-800" />
       )}
     </div>
     <span className="text-2sm leading-4.5">{formatTitle(title)}</span>

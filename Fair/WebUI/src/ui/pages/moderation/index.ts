@@ -1,9 +1,9 @@
+export * from "./categories"
 export * from "./moderators"
 export * from "./policySurveys"
-export * from "./proposals"
 export * from "./publications"
 export * from "./publishers"
-export * from "./referendums"
+export * from "./store"
 export * from "./reviews"
 export * from "./users"
 

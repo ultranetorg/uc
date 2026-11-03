@@ -1,5 +1,5 @@
-import authorFallback from "assets/fallback/author-16.png"
-import userFallback from "assets/fallback/user-16.png"
+import authorFallback from "assets/fallback/author-avatar-3xl.png"
+import userFallback from "assets/fallback/user-avatar-3xl.png"
 import { Creator } from "types"
 import { MemberInfo } from "ui/components"
 import { buildCreatorAvatarUrl } from "utils"

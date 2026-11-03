@@ -11,7 +11,35 @@ public static class ProposalUtils
 	public static bool IsPublicationOperation(Proposal proposal) => proposal.Options[0].Operation
 		is PublicationCreation or PublicationDeletion or PublicationPublish or PublicationUnpublish or PublicationUpdation;
 
-	public static bool IsReviewCreationOrEditOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation or ReviewEdit;
+	public static bool IsPublicationCreationOperation(Proposal proposal) => proposal.Options[0].Operation is PublicationCreation;
+
+	public static bool IsPublicationDeletionOperation(Proposal proposal) => proposal.Options[0].Operation is PublicationDeletion;
+
+	public static bool IsPublicationPublishOperation(Proposal proposal) => proposal.Options[0].Operation is PublicationPublish;
+
+	public static bool IsPublicationUnpublishOperation(Proposal proposal) => proposal.Options[0].Operation is PublicationUnpublish;
+
+	public static bool IsPublicationUpdationOperation(Proposal proposal) => proposal.Options[0].Operation is PublicationUpdation;
+
+	public static bool IsCategoryCreationOperation(Proposal proposal) => proposal.Options[0].Operation is CategoryCreation;
+
+	public static bool IsCategoryDeletionOperation(Proposal proposal) => proposal.Options[0].Operation is CategoryDeletion;
+
+	public static bool IsCategoryMovementOperation(Proposal proposal) => proposal.Options[0].Operation is CategoryMovement;
+
+	public static bool IsCategoryTypeChangeOperation(Proposal proposal) => proposal.Options[0].Operation is CategoryTypeChange;
+
+	public static bool IsCategoryAvatarChangeOperation(Proposal proposal) => proposal.Options[0].Operation is CategoryAvatarChange;
+
+	public static bool IsStoreRenamingOperation(Proposal proposal) => proposal.Options[0].Operation is StoreRenaming;
+
+	public static bool IsStoreInfoUpdationOperation(Proposal proposal) => proposal.Options[0].Operation is StoreInfoUpdation;
+
+	public static bool IsStoreAvatarChangeOperation(Proposal proposal) => proposal.Options[0].Operation is StoreAvatarChange;
+
+	public static bool IsReviewCreationOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewCreation;
+
+	public static bool IsReviewEditOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewEdit;
 
 	internal static bool IsReviewDeletionOperation(Proposal proposal) => proposal.Options[0].Operation is ReviewDeletion;
 

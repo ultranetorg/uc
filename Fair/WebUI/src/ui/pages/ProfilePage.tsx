@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Link, Navigate } from "react-router-dom"
 
 import { useAuthenticationContext } from "app"
-import { SvgProfilePageClose } from "assets"
+import { SvgProfilePageClose2Xl } from "assets"
 import { ProfileTabs } from "ui/components/profile"
 import { useCloseFullscreen, useEscapeKey, useLocationState, useStoreTitle } from "hooks"
 import { routes } from "utils"
@@ -44,10 +44,10 @@ export const ProfilePage = () => {
             </div>
             <div className="pt-7.5">
               {backgroundLocation ? (
-                <SvgProfilePageClose className="cursor-pointer" onClick={close} />
+                <SvgProfilePageClose2Xl className="cursor-pointer" onClick={close} />
               ) : (
                 <Link to={routes.home()}>
-                  <SvgProfilePageClose className="cursor-pointer" />
+                  <SvgProfilePageClose2Xl className="cursor-pointer" />
                 </Link>
               )}
             </div>

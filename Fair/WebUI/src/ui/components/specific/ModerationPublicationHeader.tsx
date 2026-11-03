@@ -1,6 +1,6 @@
 import { memo, ReactNode } from "react"
 
-import { SvgSoftwareLogo } from "assets/fallback"
+import { SvgSoftwareLogo3Xl } from "assets/fallback"
 import { ImageFallback, LinkFullscreen } from "ui/components"
 import { buildFileUrl, routes } from "utils"
 
@@ -17,7 +17,7 @@ export const ModerationPublicationHeader = memo(
   ({ storeId, title, logoId, authorId, authorTitle, components }: ModerationPublicationHeaderProps) => (
     <div className="flex min-w-0 items-center justify-between gap-4">
       <div className="size-17 overflow-hidden rounded-2xl" title={title}>
-        <ImageFallback src={buildFileUrl(logoId)} fallback={<SvgSoftwareLogo className="size-17" />} />
+        <ImageFallback src={buildFileUrl(logoId)} fallback={<SvgSoftwareLogo3Xl className="size-17" />} />
       </div>
       <div className="flex flex-1 flex-col gap-1">
         {title && (

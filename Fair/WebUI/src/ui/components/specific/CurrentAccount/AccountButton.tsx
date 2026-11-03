@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, forwardRef, memo } from "react"
 
-import avatarFallback3xl from "assets/fallback/user-10.png"
+import avatarFallback3xl from "assets/fallback/user-avatar-2xl.png"
 import { PropsWithClassName } from "types"
 import { ImageFallback } from "ui/components"
 import { buildUserAvatarByNameUrl } from "utils"

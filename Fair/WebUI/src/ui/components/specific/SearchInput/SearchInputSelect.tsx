@@ -13,7 +13,7 @@ import {
 import { memo, useCallback, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { SvgChevronDown2Sm } from "assets"
+import { SvgChevronDownAltSm } from "assets"
 import { useCloseOnScrollOrResize } from "hooks"
 import { PropsWithClassName } from "types"
 
@@ -91,7 +91,7 @@ const SearchInputSelectInner = <T extends string>({
             </span>
           ))}
         </span>
-        <SvgChevronDown2Sm className="shrink-0 stroke-current" />
+        <SvgChevronDownAltSm className="shrink-0 stroke-current" />
       </div>
 
       {isOpen && (

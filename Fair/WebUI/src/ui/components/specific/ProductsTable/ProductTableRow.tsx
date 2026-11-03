@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 import { memo } from "react"
 
-import { SvgSoftwareLogo } from "assets/fallback"
+import { SvgSoftwareLogo3Xl } from "assets/fallback"
 import { ButtonOutline, ImageFallback } from "ui/components"
 import { buildFileUrl } from "utils"
 
@@ -23,7 +23,7 @@ export const ProductTableRow = memo(
           <div className="size-8 shrink-0 overflow-hidden rounded-lg">
             <ImageFallback
               src={buildFileUrl(logoId)}
-              fallback={<SvgSoftwareLogo className="size-8" />}
+              fallback={<SvgSoftwareLogo3Xl className="size-8" />}
               className="size-full object-cover"
             />
           </div>

@@ -5,7 +5,7 @@ import { useDebounceValue } from "usehooks-ts"
 
 import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
 import { useApprovalId, useCanCreateOperation, useResolveStoreId, useStoreTitle } from "hooks"
-import { SvgEyeSm, SvgSearchMd, SvgX } from "assets"
+import { SvgEyeSm, SvgSearch, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedStoreProduct, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -71,7 +71,7 @@ export const CreatePublicationPage = () => {
         showToast(t("toast:publicationCreated"), "success")
 
         if (isRequiredVoting) {
-          navigate(routes.moderation.publications(storeId!))
+          navigate(routes.moderation.publications(storeId!, "creations"))
         } else {
           navigate(routes.moderation.publications(storeId!, "unpublished"))
         }
@@ -99,7 +99,7 @@ export const CreatePublicationPage = () => {
                     <SvgX className="stroke-gray-400 hover:stroke-gray-950" />
                   </div>
                 )}
-                <SvgSearchMd className="size-5 shrink-0 stroke-gray-500" />
+                <SvgSearch className="size-5 shrink-0 stroke-gray-500" />
               </>
             }
           />

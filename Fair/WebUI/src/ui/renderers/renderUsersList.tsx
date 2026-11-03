@@ -1,6 +1,6 @@
 import { ReactNode } from "react"
 
-import avatarFallback from "assets/fallback/user-16.png"
+import avatarFallback from "assets/fallback/user-avatar-3xl.png"
 import { User } from "types"
 import { MemberInfo } from "ui/components"
 import { buildUserAvatarByIdUrl } from "utils"

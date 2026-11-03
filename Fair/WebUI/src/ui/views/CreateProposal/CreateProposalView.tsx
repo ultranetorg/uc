@@ -52,7 +52,7 @@ export const CreateProposalView = memo(() => {
   const { mutate, isPending } = useTransactMutationWithStatus()
 
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
-  const parentPath = routes.moderation.proposals(storeId!)
+  const parentPath = routes.store(storeId!)
   const isRequiredVoting = isVotingRequired(formData.type, store, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])

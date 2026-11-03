@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge"
 
 import { useUserContext, usePendingOperationsContext } from "app"
 import { SvgStar } from "assets"
-import { SvgStoreLogo } from "assets/fallback"
+import { SvgStoreLogo4Xl } from "assets/fallback"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { FavoriteStoreChange } from "types"
 import { ImageFallback } from "ui/components"
@@ -62,7 +62,7 @@ export const CurrentStore = memo(({ storeId, title, logoFileId, publishersCount 
           <ImageFallback
             className="size-8"
             src={buildFileUrl(logoFileId)}
-            fallback={<SvgStoreLogo className="size-8" />}
+            fallback={<SvgStoreLogo4Xl className="size-8" />}
           />
         </div>
       </Link>

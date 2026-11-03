@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { SvgCheckCircleFill, SvgChevronDown2Sm } from "assets"
+import { SvgCheckCircleFill, SvgChevronDownAltSm } from "assets"
 import { ButtonPrimary } from "ui/components"
 
 export type OptionCollapseProps = {
@@ -74,7 +74,7 @@ export const OptionCollapse = ({
               <span className="text-gray-500">({votePercents}%)</span>
             </div>
           )}
-          <SvgChevronDown2Sm
+          <SvgChevronDownAltSm
             className={twMerge("z-10 flex-shrink-0 stroke-gray-400", isExpanded && "rotate-180 stroke-gray-800")}
           />
         </div>

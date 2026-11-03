@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import avatarFallback3xl from "assets/fallback/user-10.png"
+import avatarFallback3xl from "assets/fallback/user-avatar-2xl.png"
 import { ImageFallback } from "ui/components"
 import { buildUserAvatarByIdUrl } from "utils"
 

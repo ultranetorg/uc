@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { SvgChevronLeftMd, SvgChevronRightMd } from "assets"
+import { SvgChevronLeftSm, SvgChevronRightSm } from "assets"
 import { getVideoType } from "utils"
 import { VideoType } from "types"
 import { VideoViewYouTube, VideoViewVk, VideoViewPlain } from "ui/components"
@@ -156,7 +156,7 @@ export const PublicationViewArts: React.FC<PublicationViewArtsProps> = ({ items 
                 className="absolute left-2 top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 hover:bg-white/10"
                 aria-label="Previous media"
               >
-                <SvgChevronLeftMd className="stroke-white" />
+                <SvgChevronLeftSm className="stroke-white" />
               </button>
 
               <button
@@ -164,7 +164,7 @@ export const PublicationViewArts: React.FC<PublicationViewArtsProps> = ({ items 
                 className="absolute right-2 top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 hover:bg-white/10"
                 aria-label="Next media"
               >
-                <SvgChevronRightMd className="stroke-white" />
+                <SvgChevronRightSm className="stroke-white" />
               </button>
             </>
           )}

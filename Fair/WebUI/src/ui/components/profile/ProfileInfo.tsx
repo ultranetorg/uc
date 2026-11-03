@@ -1,10 +1,9 @@
 import { useTranslation } from "react-i18next"
 
-import { PROFILE_SRC } from "testConfig"
 import { ButtonGhost, CopyButton, useTabsContext } from "ui/components"
 import { formatRoles } from "utils"
 
-import { SvgPencilSm } from "assets"
+import { SvgPencilSm, SvgPersonSquare } from "assets"
 import pngBackground from "./background.png"
 
 export type ProfileInfoProps = {
@@ -32,7 +31,7 @@ export const ProfileInfo = ({ nickname, address, roles, registrationDay, onTabSe
       </div>
       <div className="absolute left-6 top-26.5 size-32 rounded-full bg-white p-1">
         <div className="size-30 overflow-hidden">
-          <img src={PROFILE_SRC} className="size-full object-cover" />
+          <SvgPersonSquare className="fill-gray-300" />
         </div>
       </div>
       <div className="flex flex-col gap-4 px-6 pb-6 pt-21">

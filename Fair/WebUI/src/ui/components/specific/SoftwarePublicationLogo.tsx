@@ -1,4 +1,4 @@
-import { SvgSoftwareLogo } from "assets/fallback"
+import { SvgSoftwareLogo3Xl } from "assets/fallback"
 import { ImageFallback } from "ui/components"
 import { buildFileUrl, formatSoftwareCategories } from "utils"
 
@@ -18,7 +18,7 @@ export const SoftwarePublicationLogo = ({
   <div className="flex items-center gap-4">
     {showLogo && (
       <div className="size-17 overflow-hidden rounded-2xl">
-        <ImageFallback src={buildFileUrl(logoFileId)} fallback={<SvgSoftwareLogo className="size-17" />} />
+        <ImageFallback src={buildFileUrl(logoFileId)} fallback={<SvgSoftwareLogo3Xl className="size-17" />} />
       </div>
     )}
     <div className="flex flex-col gap-2 text-gray-800">

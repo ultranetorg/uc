@@ -57,7 +57,7 @@ export const UnpublishedPublicationPage = () => {
                       : t("publishNoTitle"),
                     type: "publication-publish" as OperationType,
                     publicationId: publication.id,
-                    redirectAfterProposalCreation: routes.moderation.publications(storeId!, "proposals"),
+                    redirectAfterProposalCreation: routes.moderation.publications(storeId!, "publishes"),
                     redirectAfterProposalExecution: routes.moderation.publications(storeId!, "unpublished"),
                   }}
                 >

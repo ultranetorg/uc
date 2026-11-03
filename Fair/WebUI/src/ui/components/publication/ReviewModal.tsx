@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from "react"
 
-import { SvgCheckCircleFill3XLColored, SvgX } from "assets"
+import { SvgCheckCircleFillColored4Xl, SvgX } from "assets"
 import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useCreatorIdentityForOperation, useEscapeKey, useResolveStoreId } from "hooks"
@@ -130,7 +130,7 @@ export const ReviewModal = memo(
         ) : (
           <div className="flex h-full items-center justify-center">
             <div className="flex flex-col items-center gap-6">
-              <SvgCheckCircleFill3XLColored />
+              <SvgCheckCircleFillColored4Xl />
               <span className="text-2xl font-medium leading-7 text-gray-800">{thankYouLabel}</span>
             </div>
           </div>
