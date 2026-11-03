@@ -201,7 +201,7 @@ export const GameSoftwarePublicationContent = memo(
             <TextModal
               title={t("eula")}
               text={eulaText!}
-              confirmLabel={t("common:ok")}
+              confirmLabel={t("buttons:ok")}
               onConfirm={() => setIsEulaOpen(false)}
             />
           )}

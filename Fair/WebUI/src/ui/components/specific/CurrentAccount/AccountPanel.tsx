@@ -205,8 +205,8 @@ export const AccountPanel = memo(() => {
           onClose={handleDeleteModalClose}
           onCancel={handleDeleteModalClose}
           onConfirm={handleDeleteModalConfirm}
-          cancelLabel={t("common:cancel")}
-          confirmLabel={t("common:delete")}
+          cancelLabel={t("buttons:cancel")}
+          confirmLabel={t("buttons:delete")}
         />
       )}
       <FileUpload ref={fileUploadRef} onUpload={handleUpload} />

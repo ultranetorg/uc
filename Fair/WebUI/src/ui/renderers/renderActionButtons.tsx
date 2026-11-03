@@ -12,7 +12,7 @@ export const renderActionButtons = (
   <div className="flex justify-end gap-5">
     <ButtonPrimary
       className="h-9 w-20 capitalize"
-      label={t("common:approve")}
+      label={t("buttons:approve")}
       loading={loadingAction === "approve"}
       disabled={loadingAction === "reject" || locked}
       onClick={e => {
@@ -23,7 +23,7 @@ export const renderActionButtons = (
     />
     <ButtonOutline
       className="h-9 w-20 capitalize"
-      label={t("common:reject")}
+      label={t("buttons:reject")}
       loading={loadingAction === "reject"}
       disabled={loadingAction === "approve" || locked}
       onClick={e => {

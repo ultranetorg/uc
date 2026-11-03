@@ -69,7 +69,7 @@ export const EditProfileInfo = memo(({ t, nickname }: EditProfileInfoProps) => {
         </div>
         <div className="mb-2 ml-40 mt-5 flex h-8 items-center gap-4">
           {/* <ButtonPrimary label={t("uploadAvatar")} className="h-9 w-33" onClick={handleUploadAvatar} />
-          <ButtonOutline label={t("delete")} className="h-9 w-25 capitalize" onClick={handleDeleteAvatar} /> */}
+          <ButtonOutline label={t("buttons:delete")} className="h-9 w-25 capitalize" onClick={handleDeleteAvatar} /> */}
         </div>
         <div className="m-6 flex flex-col gap-2">
           <span className="text-2xs font-medium capitalize leading-4">{t("common:nickname")}</span>
@@ -102,7 +102,7 @@ export const EditProfileInfo = memo(({ t, nickname }: EditProfileInfoProps) => {
         </div>
       </div>
       <ButtonPrimary
-        label={t("common:saveChanges")}
+        label={t("buttons:saveChanges")}
         className="w-33"
         type="submit"
         disabled={!isValid || currentNickname === nickname}

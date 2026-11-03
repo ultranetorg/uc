@@ -37,7 +37,7 @@ export const UserProfileButton = memo(({ storeId, t }: UserProfileButtonProps) =
       onClick={handleJoin}
       disabled={isExecuting}
     >
-      {t("common:join")}
+      {t("buttons:join")}
     </button>
   ) : (
     <Link to={routes.reviewer(storeId, user.id)} className={twMerge(MENU_ITEM_STYLE, "w-12")}>

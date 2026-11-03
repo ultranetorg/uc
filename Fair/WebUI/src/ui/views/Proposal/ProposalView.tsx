@@ -12,7 +12,15 @@ import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
 import { ModerationHeader, ModerationHeaderProps } from "ui/components/specific"
-import { getVoterIds, getVotedIndex, isReferendum as isReferendum_, isVoted, routes, showToast } from "utils"
+import {
+  getVoterIds,
+  getVotedIndex,
+  isReferendum as isReferendum_,
+  isVoted,
+  routes,
+  showToast,
+  isVotingRequired,
+} from "utils"
 
 import {
   DefaultContent,
@@ -217,14 +225,22 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
             <ButtonBar className="items-center">
               <ButtonPrimary
                 className="h-11 w-43.75"
-                label="Suggest to approve"
+                label={
+                  isVotingRequired(proposal.operation, store, policies)
+                    ? t("buttons:suggestApprove")
+                    : t("buttons:approve")
+                }
                 onClick={handleApprove}
                 disabled={voteStatus === "voting"}
                 loading={voteAction === "approve"}
               />
               <ButtonOutline
                 className="h-11 w-43.75"
-                label="Suggest to reject"
+                label={
+                  isVotingRequired(proposal.operation, store, policies)
+                    ? t("buttons:suggestReject")
+                    : t("buttons:reject")
+                }
                 onClick={handleReject}
                 disabled={voteStatus === "voting"}
                 loading={voteAction === "reject"}

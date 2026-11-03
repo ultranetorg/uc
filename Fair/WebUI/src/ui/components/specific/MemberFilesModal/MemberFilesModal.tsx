@@ -166,8 +166,8 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
           text={t("removeMessage")}
           onCancel={() => setRemoveModalOpen(false)}
           onConfirm={handleRemoveConfirmClick}
-          cancelLabel={t("common:cancel")}
-          confirmLabel={t("common:remove")}
+          cancelLabel={t("buttons:cancel")}
+          confirmLabel={t("buttons:remove")}
         />
       )}
     </>

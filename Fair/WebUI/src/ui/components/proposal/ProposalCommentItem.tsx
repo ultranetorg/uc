@@ -52,8 +52,8 @@ export const ProposalCommentItem = memo(({ comment }: ProposalCommentItemProps) 
       <CommentInput
         loading={isSubmitting}
         initialText={comment.text}
-        submitLabel={t("common:saveChanges")}
-        cancelLabel={t("common:cancel")}
+        submitLabel={t("buttons:saveChanges")}
+        cancelLabel={t("buttons:cancel")}
         onCancel={handleEditCancel}
         onCommentSubmit={handleEditSubmit}
       />

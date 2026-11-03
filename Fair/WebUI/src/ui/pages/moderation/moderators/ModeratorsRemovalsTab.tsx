@@ -89,7 +89,7 @@ const getItemRenderer =
           <div className="flex justify-center">
             <ButtonPrimary
               className="h-9 w-20 capitalize"
-              label={t("common:remove")}
+              label={t("buttons:remove")}
               loading={votingSurveyId === survey.id}
               disabled={!publisherId || votingSurveyId === survey.id || isPublisherVotedInSurvey(survey, publisherId!)}
               onClick={e => {

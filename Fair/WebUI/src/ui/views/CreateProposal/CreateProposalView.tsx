@@ -90,7 +90,7 @@ export const CreateProposalView = memo(() => {
     return <Navigate to={parentPath} />
   }
 
-  const title = isRequiredVoting ? t("createProposal") : t("common:ok")
+  const title = isRequiredVoting ? t("createProposal") : t("buttons:ok")
 
   if (
     !formData.type ||
@@ -153,7 +153,7 @@ export const CreateProposalView = memo(() => {
         <DebugPanel data={formData} />
 
         <div className="flex items-center justify-end gap-6">
-          <ButtonOutline label={t("common:cancel")} className="h-11 w-25" onClick={handleCancelClick} />
+          <ButtonOutline label={t("buttons:cancel")} className="h-11 w-25" onClick={handleCancelClick} />
           <ButtonPrimary
             label={title}
             className={twMerge("h-11 w-42.5", !isRequiredVoting && "w-25 uppercase")}

@@ -16,6 +16,6 @@ export const ResetAllButton = memo(({ disabled, onClick }: ResetAllButtonProps) 
     disabled={disabled}
   >
     <SvgXSm className={twMerge("fill-gray-800", disabled && "fill-gray-400")} />
-    <Trans ns="common" i18nKey="resetAll" />
+    <Trans ns="buttons" i18nKey="resetAll" />
   </button>
 ))

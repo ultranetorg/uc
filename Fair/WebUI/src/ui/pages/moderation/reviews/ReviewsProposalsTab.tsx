@@ -223,8 +223,8 @@ export const ReviewsProposalsTab = ({ useGetProposals }: ReviewsProposalsTabProp
           onCancel={handleRejectClick}
           onConfirm={handleApproveClick}
           onClose={handleCloseModal}
-          confirmLabel={t("common:approve")}
-          cancelLabel={t("common:reject")}
+          confirmLabel={t("buttons:approve")}
+          cancelLabel={t("buttons:reject")}
         />
       )}
     </>

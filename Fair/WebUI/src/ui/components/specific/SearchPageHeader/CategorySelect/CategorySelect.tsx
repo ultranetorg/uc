@@ -189,7 +189,7 @@ export const CategorySelect = memo(
               </div>
               <div className="flex items-center justify-between gap-2">
                 <ResetAllButton onClick={handleReset} disabled={draftIds.size === 0} />
-                <ButtonPrimary className="px-6 py-2" label={t("common:apply")} onClick={handleApply} />
+                <ButtonPrimary className="px-6 py-2" label={t("buttons:apply")} onClick={handleApply} />
               </div>
             </div>
           </FloatingPortal>

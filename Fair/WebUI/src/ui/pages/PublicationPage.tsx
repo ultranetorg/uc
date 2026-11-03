@@ -110,7 +110,7 @@ export const PublicationPage = () => {
           title={t("writeReview")}
           onClose={() => setReviewModalOpen(false)}
           onSubmit={handleReviewSubmit}
-          cancelLabel={t("common:cancel")}
+          cancelLabel={t("buttons:cancel")}
           submitLabel={t("submitReview")}
           thankYouLabel={t("thankYou")}
           writeReviewLabel={t("writeYourReview")}
@@ -126,8 +126,8 @@ export const PublicationPage = () => {
           title={t("editReview")}
           onClose={() => setEditReview(null)}
           onSubmit={handleReviewSubmit}
-          cancelLabel={t("common:cancel")}
-          submitLabel={t("common:saveChanges")}
+          cancelLabel={t("buttons:cancel")}
+          submitLabel={t("buttons:saveChanges")}
           thankYouLabel={t("thankYou")}
           writeReviewLabel={t("writeYourReview")}
           yourRatingLabel={t("yourRating")}
@@ -138,8 +138,8 @@ export const PublicationPage = () => {
         <TextModal
           title={t("deleteReview")}
           text={t("deleteReviewConfirm")}
-          cancelLabel={t("common:cancel")}
-          confirmLabel={t("common:delete")}
+          cancelLabel={t("buttons:cancel")}
+          confirmLabel={t("buttons:delete")}
           onCancel={() => setDeleteReview(null)}
           onConfirm={handleDeleteConfirm}
         />

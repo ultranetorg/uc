@@ -23,7 +23,7 @@ const renderDeleteActions = (
   <div className="flex justify-end gap-5">
     <ButtonPrimary
       className="h-9 w-20 capitalize"
-      label={t("common:delete")}
+      label={t("buttons:delete")}
       loading={loadingAction === "approve"}
       disabled={loadingAction === "reject" || locked}
       onClick={e => {
@@ -34,7 +34,7 @@ const renderDeleteActions = (
     />
     <ButtonOutline
       className="h-9 w-20 capitalize"
-      label={t("common:cancel")}
+      label={t("buttons:cancel")}
       loading={loadingAction === "reject"}
       disabled={loadingAction === "approve" || locked}
       onClick={e => {

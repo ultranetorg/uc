@@ -133,7 +133,7 @@ export const SignInModal = (props: SignInModalProps) => {
         <div className="flex justify-end gap-6">
           <ButtonPrimary
             className="w-full px-6 capitalize"
-            label={state === "sign-in" ? title : t("common:create")}
+            label={state === "sign-in" ? title : t("buttons:create")}
             onClick={handleSubmit}
             disabled={
               isPending ||

@@ -31,7 +31,7 @@ export const UploadZone = memo(({ t, showEmptyState = true, onUpload }: UploadZo
         }}
       >
         {showEmptyState && <span>{t("noImages")}</span>}
-        <ButtonPrimary className="capitalize" label={t("common:upload")} onClick={() => inputRef.current?.click()} />
+        <ButtonPrimary className="capitalize" label={t("buttons:upload")} onClick={() => inputRef.current?.click()} />
         <span>{t("dragImage")}</span>
 
         <input

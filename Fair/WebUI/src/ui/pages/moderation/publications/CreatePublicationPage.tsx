@@ -119,7 +119,7 @@ export const CreatePublicationPage = () => {
                     <ButtonBar className="items-center">
                       <ButtonPrimary
                         className="h-11 w-40 capitalize"
-                        label={t("common:create")}
+                        label={t("buttons:create")}
                         onClick={handleCreate}
                         disabled={isPending}
                         loading={isPending}

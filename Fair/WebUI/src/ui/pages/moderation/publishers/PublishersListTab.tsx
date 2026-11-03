@@ -57,7 +57,7 @@ const getItemRenderer =
                 redirectAfterProposalExecution: location.pathname,
               }}
             >
-              <ButtonPrimary className="h-9 w-20 capitalize" label={t("common:remove")} />
+              <ButtonPrimary className="h-9 w-20 capitalize" label={t("buttons:remove")} />
             </Link>
           </div>
         )

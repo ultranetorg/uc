@@ -79,7 +79,7 @@ const InstallModalGuide = ({ role, textKey }: InstallModalGuideProps) => {
       />
       <Link to={isUser ? DOWNLOAD_CLIENT_URL : HOW_TO_PUBLISH_URL} target="_blank">
         <ButtonPrimary
-          label={isUser ? t("common:download") : t("becomeAnAuthor")}
+          label={isUser ? t("buttons:download") : t("becomeAnAuthor")}
           className={twMerge("w-full", isUser && "capitalize")}
         />
       </Link>

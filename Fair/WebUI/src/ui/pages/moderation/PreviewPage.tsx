@@ -62,7 +62,7 @@ export const PreviewPage = () => {
               <ButtonPrimary
                 iconBefore={<SvgXSm className="fill-white" />}
                 className="h-11 w-40 capitalize"
-                label={t("common:close")}
+                label={t("buttons:close")}
               />
             </Link>
           )
