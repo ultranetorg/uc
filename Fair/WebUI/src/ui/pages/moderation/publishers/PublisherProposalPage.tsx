@@ -23,7 +23,6 @@ export const PublisherProposalPage = memo(() => {
       isFetching={isFetching}
       proposal={proposal}
       previousPath={routes.moderation.publishers(storeId!, "proposals")}
-      headerProps={{ showModeratorsCount: true }}
     />
   )
 })

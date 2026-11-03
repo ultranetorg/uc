@@ -84,7 +84,7 @@ export const CreatePublicationPage = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ModerationHeader title={t("searchProduct")} parentBreadcrumbs={parentBreadcrumbs} showModeratorsCount={true} />
+      <ModerationHeader title={t("searchProduct")} parentBreadcrumbs={parentBreadcrumbs} />
       <div className="flex flex-col gap-12">
         <div className="max-w-120">
           <Input

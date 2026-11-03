@@ -22,7 +22,7 @@ const routeToTabKey: Record<string, string> = {
 export const UsersPage = () => {
   const navigate = useNavigate()
   const { tabKey } = useParams()
-  const { t } = useTranslation("moderationUsersPage")
+  const { t } = useTranslation("usersPage")
 
   const canVoteOperation = useCanVoteOperation()
   const storeId = useResolveStoreId()
@@ -48,7 +48,7 @@ export const UsersPage = () => {
             route: "remove",
             operation: "user-unregistration" as const,
           },
-          { key: "users", label: t("common:users"), route: "users" },
+          { key: "users", label: t("all"), route: "users" },
         ],
         canVoteOperation,
       ),

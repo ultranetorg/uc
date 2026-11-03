@@ -27,7 +27,6 @@ export const ModerationPublicationPage = () => {
         storeId!,
         proposal?.operation ? PUBLICATION_PROPOSALS_TAB_KEYS[proposal.operation] : undefined,
       )}
-      headerProps={{ showModeratorsCount: true }}
     />
   )
 }

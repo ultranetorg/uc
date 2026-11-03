@@ -112,7 +112,6 @@ export const PublicationsPage = () => {
             )}
           </>
         }
-        showModeratorsCount={true}
       />
       <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">

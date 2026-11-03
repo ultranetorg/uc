@@ -56,7 +56,7 @@ export const ReviewsPage = () => {
       sortTabsByVoting(
         [
           ...PROPOSALS_TABS.map(x => ({ key: x.key, label: t(x.labelKey), route: x.key, operation: x.operation })),
-          { key: "deletions", label: t("common:deletions"), route: "deletions", operation: "review-deletion" as const },
+          { key: "deletions", label: t("deletion"), route: "deletions", operation: "review-deletion" as const },
         ],
         canVoteOperation,
       ),
@@ -65,7 +65,7 @@ export const ReviewsPage = () => {
 
   return (
     <>
-      <ModerationHeader title={t("title")} showModeratorsCount={true} />
+      <ModerationHeader title={t("title")} />
       <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">
           <TabsList

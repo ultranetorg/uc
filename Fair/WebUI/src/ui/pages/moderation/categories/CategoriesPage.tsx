@@ -87,7 +87,7 @@ export const CategoriesPage = () => {
 
   return (
     <>
-      <ModerationHeader title={t("title")} showModeratorsCount={true} />
+      <ModerationHeader title={t("title")} />
       <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">
           <TabsList
