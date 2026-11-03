@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Text.Json;
 using RocksDbSharp;
@@ -71,10 +73,10 @@ public abstract class Mcv /// Mutual chain voting
 
 	public List<OutworldResult>						OutworldResults = new();
 
-	List<Round>										_Tail = [];
-	public List<Round>								Tail
+	SortedSet<Round>								_Tail = new SortedSet<Round>(Comparer<Round>.Create((i, j) => j.Id.CompareTo(i.Id)));
+	public SortedSet<Round>							Tail
 													{
-														set => _Tail = value;
+														//set => _Tail = value;
 														get 
 														{
 															if(Constructed && !Monitor.IsEntered(Lock))
@@ -546,17 +548,11 @@ public abstract class Mcv /// Mutual chain voting
 		if(Constructed && !Monitor.IsEntered(Lock))
 			Debugger.Break();
 
-		var i = Tail.FindIndex(i => i.Id <= round.Id);
-			
-		if(i != -1)
-		{	
-			if(Tail[i].Id == round.Id)
-				Tail[i] = round;
-			else
-				Tail.Insert(i, round);
-		}
-		else
+		if(!Tail.Add(round))
+		{
+			Tail.Remove(Tail.First(i => i.Id == round.Id));
 			Tail.Add(round);
+		}
 	}
 
 	public void Examine(Transaction transaction)
@@ -726,7 +722,7 @@ public abstract class Mcv /// Mutual chain voting
 					var r = FindRound(i);
 				
 					r.Restore(r.Raw);
-					Tail.Insert(0, r);
+					Tail.Add(r);
 				
 					r.Confirmed = false;
 					r.Confirm();

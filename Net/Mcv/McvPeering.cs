@@ -288,7 +288,7 @@ public abstract class McvPeering : HomoPeering
 					stamp = Call(peer, new StampPpc(), Flow);
 	
 					lock(Mcv.Lock)
-						Mcv.Tail.RemoveAll(i => i.Id <= stamp.LastCommitedRound);
+						Mcv.Tail.RemoveWhere(i => i.Id <= stamp.LastCommitedRound);
 
 					foreach(var i in Mcv.Tables.Where(i => !i.IsIndex))
 					{
@@ -459,7 +459,7 @@ public abstract class McvPeering : HomoPeering
 					//	if(i <= ex.Round.Id)
 					//		SyncTail.Remove(i);
 
-					Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
+					Mcv.Tail.RemoveWhere(i => i.Id >= ex.Round.Id);
 					//LastConfirmedRound = Tail.First();
 				}
 			}
@@ -496,7 +496,7 @@ public abstract class McvPeering : HomoPeering
 	public void ProcessConfirmationException(ConfirmationException ex)
 	{
 		Flow.Log?.ReportError(this, ex.Message);
-		Mcv.Tail.RemoveAll(i => i.Id >= ex.Round.Id);
+		Mcv.Tail.RemoveWhere(i => i.Id >= ex.Round.Id);
 
 		Synchronize();
 	}

@@ -542,7 +542,7 @@ public abstract class Round : IBinarySerializable
 		
 		Confirmed = true;
 		Mcv.LastConfirmedRound = this;
-		Mcv.Tail.RemoveAll(i => i.Id < Id - Net.P);
+		Mcv.Tail.RemoveWhere(i => i.Id < Id - Net.P);
 		Mcv.Confirmed?.Invoke(this);
 
 		UpdateNextVoting();
@@ -552,9 +552,9 @@ public abstract class Round : IBinarySerializable
 	{
 		var r = Mcv.GetRound(Id + Mcv.JoinToVote);
 		
-		r.Senders = Id < Mcv.JoinToVote ?	[..Members]
-											:
-											[..Members.Where(i => i.Since <= Id)];
+		r.Senders = Id < Mcv.JoinToVote ? [..Members]
+										  :
+										  [..Members.Where(i => i.Since <= Id)];
 		r.UpdateVoters();
 	}
 
