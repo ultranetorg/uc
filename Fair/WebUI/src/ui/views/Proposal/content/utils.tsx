@@ -16,13 +16,12 @@ import {
   StoreAuthorsRemoval,
   StoreAvatarChange,
   StoreModeratorAddition,
-  StoreModeratorRemoval,
   StoreNameChange,
   StoreInfoUpdation,
 } from "types"
 import { AccountsList } from "ui/components"
 import { MembersList } from "ui/components/MembersList"
-import { buildFileUrl, buildUserAvatarByIdUrl, routes } from "utils"
+import { buildFileUrl, routes } from "utils"
 
 const getCategoryAvatarChange = (operation: CategoryAvatarChange): JSX.Element => (
   <>
@@ -242,24 +241,6 @@ const getStoreModeratorAddition = (operation: StoreModeratorAddition): JSX.Eleme
   )
 }
 
-const getStoreModeratorRemoval = (operation: StoreModeratorRemoval): JSX.Element => {
-  return (
-    <div className="flex flex-col gap-2">
-      <Trans ns="proposalView" i18nKey={`${operation.$type}`} parent={"p"} className="text-2sm leading-5" />
-      <AccountsList
-        items={[
-          {
-            id: operation.moderator.id,
-            title: operation.moderator.name,
-            avatarSrc: buildUserAvatarByIdUrl(operation.moderator.id),
-          },
-        ]}
-        fallbackSrc={userFallback}
-      />
-    </div>
-  )
-}
-
 export const renderDescription = (storeId: string, option: ProposalOption): ReactNode => {
   switch (option.operation.$type) {
     case "category-avatar-change":
@@ -289,8 +270,6 @@ export const renderDescription = (storeId: string, option: ProposalOption): Reac
       return getStoreAuthorsRemoval(option.operation as StoreAuthorsRemoval)
     case "store-moderator-addition":
       return getStoreModeratorAddition(option.operation as StoreModeratorAddition)
-    case "store-moderator-removal":
-      return getStoreModeratorRemoval(option.operation as StoreModeratorRemoval)
   }
 
   return null

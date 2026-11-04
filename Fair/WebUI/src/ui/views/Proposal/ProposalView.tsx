@@ -157,6 +157,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:publicationVoted"), "success")
+          invalidateOperation(proposal!.operation, { storeId: storeId!, publicationId })
           invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
           navigate(routes.moderation.publications(storeId!, "proposals"))
         },
@@ -167,7 +168,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         },
       })
     },
-    [mutate, navigate, proposal, storeId, t, approval, invalidateProposal],
+    [mutate, navigate, proposal, storeId, t, approval, invalidateOperation, invalidateProposal, publicationId],
   )
 
   const handleApprove = useCallback(() => vote("approve"), [vote])
