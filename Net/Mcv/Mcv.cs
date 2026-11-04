@@ -73,7 +73,7 @@ public abstract class Mcv /// Mutual chain voting
 
 	public List<OutworldResult>						OutworldResults = new();
 
-	SortedSet<Round>								_Tail = new SortedSet<Round>(Comparer<Round>.Create((i, j) => j.Id.CompareTo(i.Id)));
+	SortedSet<Round>								_Tail = new (Comparer<Round>.Create((i, j) => j.Id.CompareTo(i.Id)));
 	public SortedSet<Round>							Tail
 													{
 														//set => _Tail = value;
@@ -681,25 +681,23 @@ public abstract class Mcv /// Mutual chain voting
 
 		if(GraphState != null)
 		{
-			using var r = new Reader(GraphState, Net.Constructor);
+			using var rd = new Reader(GraphState, Net.Constructor);
 	
 			for(int i = 0; i < JoinToVote; i++)
 			{
-				var round = CreateRound();
-				round.ReadGraphState(r);
+				var r = CreateRound();
+				r.ReadGraphState(rd);
 
-				InsertRound(round);
+				InsertRound(r);
 
 				if(i == 0)
-					LastCommitedRound = round;
+					LastCommitedRound = r;
 			}
 
 			Hashify();
 
 			if(!GraphHash.SequenceEqual(Rocks.Get(__GraphHashKey)))
-			{
 				throw new IntegrityException();
-			}
 		}
 
 		if(Settings.Chain != null)
@@ -713,7 +711,7 @@ public abstract class Mcv /// Mutual chain voting
 				Clear();
 				Initialize();
 			} 
-			else
+			else /// load confirmed tail
 			{
 				LastConfirmedRound = LastCommitedRound;
 
@@ -722,7 +720,7 @@ public abstract class Mcv /// Mutual chain voting
 					var r = FindRound(i);
 				
 					r.Restore(r.Raw);
-					Tail.Add(r);
+					InsertRound(r);
 				
 					r.Confirmed = false;
 					r.Confirm();
