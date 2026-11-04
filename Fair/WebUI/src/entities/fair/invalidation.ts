@@ -95,8 +95,13 @@ const operationRules: Record<OperationType, InvalidationRule> = {
     ...(userName ? [usersKeys.detail(userName)] : []),
   ],
 
-  "user-registration": ({ storeId }) => [storesKeys.users(storeId)],
-  "user-unregistration": ({ storeId }) => [storesKeys.users(storeId), moderationKeys.root(storeId)],
+  // Одобрение или отзыв регистрации меняет членство пользователя в сторе (бейдж в профиле, кнопка Join).
+  "user-registration": ({ storeId }) => [storesKeys.users(storeId), usersKeys.storeMembers(storeId)],
+  "user-unregistration": ({ storeId }) => [
+    storesKeys.users(storeId),
+    usersKeys.storeMembers(storeId),
+    moderationKeys.root(storeId),
+  ],
 }
 
 // Смена политики голосования (policy survey) для любой операции.
