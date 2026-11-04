@@ -6,13 +6,14 @@ import { isNumber } from "lodash"
 import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublisherProposals } from "entities"
-import { useResolveStoreId, useUrlParamsState } from "hooks"
+import { useCanVoteOperation, useResolveStoreId, useUrlParamsState } from "hooks"
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger, routes } from "utils"
 
 import { getPublishersRemovalsItemRenderer } from "./publishersRemovalsItemRenderer"
 
 export const PublishersRemovalsTab = () => {
+  const canVoteOperation = useCanVoteOperation()
   const storeId = useResolveStoreId()
   const navigate = useNavigate()
   const { store } = useStoreContext()
@@ -20,6 +21,8 @@ export const PublishersRemovalsTab = () => {
   const { isModerator, publisherIds } = useStoreRolesContext()
   const { user } = useUserContext()
   const { t } = useTranslation("publishersRemovalsTab")
+
+  const canVote = canVoteOperation("store-authors-removal")
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -51,10 +54,12 @@ export const PublishersRemovalsTab = () => {
         type: "progress",
         className: "w-[18%]",
       },
-      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" },
+      ...(canVote
+        ? [{ accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" }]
+        : []),
       { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%] text-right" },
     ],
-    [t],
+    [canVote, t],
   )
 
   const moderatorId = isModerator ? user?.id : undefined

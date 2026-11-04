@@ -126,7 +126,7 @@ export const PublicationsPage = () => {
           {OPERATION_TABS.map(x => (
             <TabContent key={x.key} when={x.key}>
               <OperationPolicyInfo operation={x.operation} />
-              <PublicationsOperationTab useGetProposals={x.useGetProposals} />
+              <PublicationsOperationTab operation={x.operation} useGetProposals={x.useGetProposals} />
             </TabContent>
           ))}
           <TabContent when="changed">

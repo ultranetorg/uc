@@ -102,6 +102,7 @@ export const CategoriesPage = () => {
             <TabContent key={x.key} when={x.key}>
               <OperationPolicyInfo operation={x.operation} />
               <ProposalsOperationTab
+                operation={x.operation}
                 useGetProposals={x.useGetProposals}
                 getProposalPath={routes.moderation.categoryProposal}
               />

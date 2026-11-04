@@ -37,14 +37,14 @@ const getColumns = (t: TFunction, canVote: boolean) => [
     type: "progress",
     className: "w-1/5",
   },
-  {
-    accessor: "yourVote",
-    label: t("columns:yourVote"),
-    type: "your-vote",
-    className: "w-1/5 text-center",
-  },
   ...(canVote
     ? [
+        {
+          accessor: "yourVote",
+          label: t("columns:yourVote"),
+          type: "your-vote",
+          className: "w-1/5 text-center",
+        },
         {
           accessor: "actions",
           label: t("columns:actions"),

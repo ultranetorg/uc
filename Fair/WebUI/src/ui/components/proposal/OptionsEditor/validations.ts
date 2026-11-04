@@ -1,7 +1,7 @@
 import { TFunction } from "i18next"
 import { UseFormClearErrors, UseFormSetError } from "react-hook-form"
 
-import { UserBase, AuthorBaseAvatar, CreateProposalData, CreateProposalDataOption } from "types"
+import { UserBase, AuthorBaseAvatar, CreateProposalData, CreateProposalDataOption, ProductType } from "types"
 
 export const validateUniqueCategoryTitle = (t: TFunction) => (value: unknown, data: CreateProposalData) => {
   const duplicates = data.options.filter(opt => opt.categoryTitle === value)
@@ -47,6 +47,25 @@ const normalizeAuthors = (authors?: AuthorBaseAvatar[]) =>
     .map(x => x.id)
     .sort()
     .join("")
+
+export const validateCategoryTypeChange = (
+  t: TFunction,
+  options: CreateProposalDataOption[],
+  clearErrors: UseFormClearErrors<CreateProposalData>,
+  setError: UseFormSetError<CreateProposalData>,
+  lastEditedIndex: number,
+  categoryType?: ProductType,
+) => {
+  if (!options || lastEditedIndex >= options.length) return
+
+  const hasSameType = categoryType !== undefined && options.some(opt => opt.type === categoryType)
+
+  if (hasSameType) {
+    setError(`options.${lastEditedIndex}`, { type: "manual", message: t("validation:sameCategoryType") })
+  } else {
+    clearErrors(`options.${lastEditedIndex}`)
+  }
+}
 
 export const validateStoreAuthorsRemoval = (
   t: TFunction,
