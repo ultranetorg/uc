@@ -31,11 +31,17 @@ public class ReviewCreation : VotableOperation
 
 		return Publication == o.Publication && o.User.Id == User.Id;
 	}
-	
-	 public override bool ValidateProposal(FairExecution execution, out string error)
+
+	public override bool ValidateProposal(FairExecution execution, out string error)
 	{
 		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
+
+		if(!User.Stores.Contains(p.Store))
+		{
+			error = Denied;
+			return false;
+		}
 
 		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{

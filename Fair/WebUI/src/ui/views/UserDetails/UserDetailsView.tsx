@@ -4,10 +4,12 @@ import { useTranslation } from "react-i18next"
 import { useStoreContext } from "app"
 import avatarFallback from "assets/fallback/user-avatar-6xl.png"
 import { REVIEWS_PAGE_SIZE } from "config"
+import { useGetUserStoreExists } from "entities"
 import { Review, TotalItemsResult, UserAuthors } from "types"
 import { CopyAddressButton, ImageFallback, Pagination } from "ui/components"
 import { UserDetailsThreeDotsMenu } from "ui/components/specific"
-import { buildUserAvatarByIdUrl, formatRole, isUserModerator, isUserPublisher } from "utils"
+import { renderRole } from "ui/renderers"
+import { buildUserAvatarByIdUrl, isUserModerator, isUserPublisher } from "utils"
 
 import { ReviewsList } from "./ReviewsList"
 import { PublishersList } from "./PublishersList"
@@ -27,6 +29,8 @@ export const UserDetailsView = memo(
     const { t } = useTranslation("userDetailsView")
 
     const { store } = useStoreContext()
+
+    const { data: isJoined } = useGetUserStoreExists(user?.id, store?.id)
 
     if (!user || !reviews) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
 
@@ -63,7 +67,7 @@ export const UserDetailsView = memo(
               <span className="text-xl font-semibold leading-6">{user.name}</span>
               <CopyAddressButton address={user.owner} />
             </div>
-            <span className="text-2xs capitalize leading-4">{formatRole(t, isPublisher, isModerator)}</span>
+            <div className="text-2xs leading-4">{renderRole(t, isPublisher, isModerator, isJoined)}</div>
           </div>
         </div>
         <div className="flex flex-col gap-5 p-6">

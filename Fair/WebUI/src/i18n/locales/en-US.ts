@@ -626,6 +626,7 @@ export const enUS = {
     reviewsLeft: "Reviews left by this user",
     noReviews: "This user has no reviews",
     noPublishers: "This user has no publishers",
+    notMember: "Not a Member",
   },
 
   /* Modals */
