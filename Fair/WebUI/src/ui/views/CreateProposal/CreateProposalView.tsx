@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { Controller, useFormContext } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
-import { useStoreContext, useStorePoliciesContext, useUserContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { PROPOSAL_TEXT_MAX_LENGTH, PROPOSAL_TITLE_MAX_LENGTH } from "constants/"
 import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
@@ -23,7 +23,7 @@ import {
   ValidationWrapper,
 } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
-import { isVotingRequired, routes, showToast } from "utils"
+import { isModeratorCanVote, isProposal, isPublisherCanVote, isVotingRequired, routes, showToast } from "utils"
 
 import { prepareProposalOptions } from "./utils"
 
@@ -32,12 +32,14 @@ const LABEL_CLASSNAME = "first-letter:uppercase font-medium leading-4 text-2xs"
 export const CreateProposalView = memo(() => {
   const location = useLocation()
   const navigate = useNavigate()
-  const storeId = useResolveStoreId()
-  const { invalidateOperation, invalidateProposal } = useInvalidation()
   const { t } = useTranslation("createProposal")
 
-  const policies = useStorePoliciesContext()
+  const { invalidateOperation, invalidateProposal } = useInvalidation()
+  const storeId = useResolveStoreId()
   const { store } = useStoreContext()
+  const policies = useStorePoliciesContext()
+  const { isModerator, isPublisher } = useStoreRolesContext()
+  const { mutate, isPending } = useTransactMutationWithStatus()
   const { user } = useUserContext()
 
   const {
@@ -49,11 +51,13 @@ export const CreateProposalView = memo(() => {
   const formData: CreateProposalData = watch() // TODO: should be removed.
   const creator = useCreatorIdentityForOperation(formData.type)
 
-  const { mutate, isPending } = useTransactMutationWithStatus()
-
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as BreadcrumbsItemProps[] | undefined
   const parentPath = routes.store(storeId!)
-  const isRequiredVoting = isVotingRequired(formData.type, store, policies)
+  const isRequiredVoting =
+    isVotingRequired(formData.type, store, policies) ||
+    ((!isModerator || !isModeratorCanVote(formData.type, policies)) &&
+      (!isPublisher || !isPublisherCanVote(formData.type, policies)))
+  const isProposal_ = isProposal(formData.type, policies)
 
   const handleCancelClick = useCallback(() => navigate(-1), [navigate])
 
@@ -72,7 +76,13 @@ export const CreateProposalView = memo(() => {
           })
         }
 
-        const translationKey = isRequiredVoting ? "toast:proposalCreated" : "toast:proposalExecuted"
+        const translationKey = isRequiredVoting
+          ? isProposal_
+            ? "toast:proposalCreated"
+            : "toast:referendumCreated"
+          : isProposal_
+            ? "toast:proposalExecuted"
+            : "toast:referendumExecuted"
         showToast(t(translationKey, { operation: t(`operations:${data.type}`) }), "success")
 
         const navigateTo = isRequiredVoting
@@ -90,8 +100,6 @@ export const CreateProposalView = memo(() => {
     return <Navigate to={parentPath} />
   }
 
-  const title = isRequiredVoting ? t("createProposal") : t("buttons:ok")
-
   if (
     !formData.type ||
     !location.state?.redirectAfterProposalCreation ||
@@ -105,7 +113,13 @@ export const CreateProposalView = memo(() => {
       <PageHeader
         storeId={storeId!}
         homeLabel={t("common:home")}
-        title={(location.state?.title as string) ? location.state?.title : t("createProposal")}
+        title={
+          (location.state?.title as string)
+            ? location.state?.title
+            : isProposal_
+              ? t("common:createProposal")
+              : t("common:createReferendum")
+        }
         parentBreadcrumbs={parentBreadcrumbs ? parentBreadcrumbs : { title: t("moderation:title"), path: parentPath }}
       />
 
@@ -155,8 +169,14 @@ export const CreateProposalView = memo(() => {
         <div className="flex items-center justify-end gap-6">
           <ButtonOutline label={t("buttons:cancel")} className="h-11 w-25" onClick={handleCancelClick} />
           <ButtonPrimary
-            label={title}
-            className={twMerge("h-11 w-42.5", !isRequiredVoting && "w-25 uppercase")}
+            label={
+              isRequiredVoting
+                ? isProposal_
+                  ? t("common:createProposal")
+                  : t("common:createReferendum")
+                : t("buttons:ok")
+            }
+            className={twMerge("h-11 w-42.5", !isRequiredVoting && "w-25")}
             disabled={!isValid || Object.keys(errors).length > 0 || isPending}
             type="submit"
           />

@@ -23,6 +23,8 @@ export const PolicySurveysPage = () => {
 
   useStoreTitle(store?.title, "Policy Surveys")
 
+  const canVote = publisherIds !== undefined && publisherIds.length > 0
+
   const columns = useMemo(
     () => [
       {
@@ -50,14 +52,18 @@ export const PolicySurveysPage = () => {
         type: "progress",
         className: "w-1/6",
       },
-      {
-        accessor: "yourVote",
-        label: t("columns:yourVote"),
-        type: "your-vote",
-        className: "w-1/5 text-center",
-      },
+      ...(canVote
+        ? [
+            {
+              accessor: "yourVote",
+              label: t("columns:yourVote"),
+              type: "your-vote",
+              className: "w-1/5 text-center",
+            },
+          ]
+        : []),
     ],
-    [t],
+    [canVote, t],
   )
 
   const { data: surveys } = useGetPolicySurveys(storeId)

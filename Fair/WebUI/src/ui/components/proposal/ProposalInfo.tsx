@@ -58,7 +58,7 @@ export const ProposalInfo = memo(({ className, store, proposal, policies, voterI
       <InfoRow label={t("labels:action")}>{renderActionName(t, proposal.operation)}</InfoRow>
       <InfoRow label={t("labels:leadingOption")}>{renderLeadingOption(t, proposal)}</InfoRow>
       <InfoRow label={t("labels:progress")}>{renderProposalProgress(t, proposal, requiredToWin)}</InfoRow>
-      <InfoRow label={t("labels:yourVote")}>{renderYourVote(t, proposal, voterIds)}</InfoRow>
+      {voterIds.length > 0 && <InfoRow label={t("labels:yourVote")}>{renderYourVote(t, proposal, voterIds)}</InfoRow>}
       <InfoRow label={t("labels:openFor")}>
         <span>{getOpenFor(t, proposal.creationTime)}</span>
       </InfoRow>

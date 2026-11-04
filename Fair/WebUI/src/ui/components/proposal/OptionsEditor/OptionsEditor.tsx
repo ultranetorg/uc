@@ -10,14 +10,20 @@ import {
 } from "react-hook-form"
 
 import { CREATE_PROPOSAL_SINGLE_OPTION_OPERATION_TYPES } from "constants/"
-import { CreateProposalData, CreateProposalDataOption, OperationType } from "types"
+import { CreateProposalData, CreateProposalDataOption, OperationType, ProductType } from "types"
 import { ValidationWrapper } from "ui/components"
 import { useCreateProposalContext } from "ui/views"
 
 import { getEditorOperationsFields } from "./constants"
 import { OptionsEditorList } from "./OptionsEditorList"
 import { renderByParameterValueType } from "./renderers"
-import { validateStoreAuthorsRemoval, validateStoreModeratorChange, validateStoreInfoUpdation } from "./validations"
+import { useChangedCategoryType } from "./useChangedCategoryType"
+import {
+  validateCategoryTypeChange,
+  validateStoreAuthorsRemoval,
+  validateStoreModeratorChange,
+  validateStoreInfoUpdation,
+} from "./validations"
 
 const validationMap: Record<
   string,
@@ -27,12 +33,13 @@ const validationMap: Record<
     clearErrors: UseFormClearErrors<CreateProposalData>,
     setError: UseFormSetError<CreateProposalData>,
     lastEditedIndex: number,
+    categoryType?: ProductType,
   ) => void
 > = {
+  "category-type-change": validateCategoryTypeChange,
   "store-author-addition": validateStoreAuthorsRemoval,
   "store-authors-removal": validateStoreAuthorsRemoval,
   "store-moderator-addition": validateStoreModeratorChange,
-  "store-moderator-removal": validateStoreModeratorChange,
   "store-info-updation": validateStoreInfoUpdation,
 }
 
@@ -48,6 +55,7 @@ export const OptionsEditor = memo(({ t, labelClassName, isVotingRequired }: Opti
   const { fields, append, remove } = useFieldArray<CreateProposalData>({ control, name: "options" })
   const type = useWatch({ control, name: "type" })
   const options = useWatch({ control, name: "options" })
+  const categoryType = useChangedCategoryType()
 
   const operationField = useMemo(() => {
     const fields = getEditorOperationsFields(t)
@@ -61,8 +69,8 @@ export const OptionsEditor = memo(({ t, labelClassName, isVotingRequired }: Opti
     if (lastEditedOptionIndex === undefined || type === undefined) return
 
     clearErrors()
-    validationMap[type]?.(t, options, clearErrors, setError, lastEditedOptionIndex)
-  }, [clearErrors, lastEditedOptionIndex, options, setError, t, type])
+    validationMap[type]?.(t, options, clearErrors, setError, lastEditedOptionIndex, categoryType)
+  }, [categoryType, clearErrors, lastEditedOptionIndex, options, setError, t, type])
 
   return (
     <>

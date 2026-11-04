@@ -30,7 +30,7 @@ export const ProfileInfo = ({ nickname, address, roles, registrationDay, onTabSe
         <img src={pngBackground} alt="Background" className="size-full rounded-lg object-cover" />
       </div>
       <div className="absolute left-6 top-26.5 size-32 rounded-full bg-white p-1">
-        <div className="size-30 overflow-hidden">
+        <div className="size-30 overflow-hidden rounded-full">
           <SvgPersonSquare className="fill-gray-300" />
         </div>
       </div>

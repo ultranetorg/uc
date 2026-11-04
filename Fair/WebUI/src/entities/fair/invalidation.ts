@@ -25,7 +25,13 @@ const operationRules: Record<OperationType, InvalidationRule> = {
   "category-creation": ({ storeId }) => [categoriesKeys.all(storeId)],
   "category-deletion": ({ storeId }) => [categoriesKeys.all(storeId)],
   "category-movement": ({ storeId }) => [categoriesKeys.all(storeId)],
-  "category-type-change": ({ storeId }) => [categoriesKeys.all(storeId)], // TODO: update all except tree
+  // The category type is also shown in the category details and in the categories publications.
+  "category-type-change": ({ storeId }) => [
+    categoriesKeys.all(storeId),
+    categoriesKeys.details(),
+    publicationsKeys.categoriesPublications(storeId),
+    publicationsKeys.categoriesPublicationsAll(),
+  ],
 
   "publication-creation": ({ storeId }) => [storesKeys.detail(storeId), moderationKeys.root(storeId)],
   "publication-deletion": ({ storeId }) => [
@@ -89,8 +95,13 @@ const operationRules: Record<OperationType, InvalidationRule> = {
     ...(userName ? [usersKeys.detail(userName)] : []),
   ],
 
-  "user-registration": ({ storeId }) => [storesKeys.users(storeId)],
-  "user-unregistration": ({ storeId }) => [storesKeys.users(storeId), moderationKeys.root(storeId)],
+  // Одобрение или отзыв регистрации меняет членство пользователя в сторе (бейдж в профиле, кнопка Join).
+  "user-registration": ({ storeId }) => [storesKeys.users(storeId), usersKeys.storeMembers(storeId)],
+  "user-unregistration": ({ storeId }) => [
+    storesKeys.users(storeId),
+    usersKeys.storeMembers(storeId),
+    moderationKeys.root(storeId),
+  ],
 }
 
 // Смена политики голосования (policy survey) для любой операции.

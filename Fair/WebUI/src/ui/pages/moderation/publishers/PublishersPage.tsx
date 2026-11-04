@@ -39,10 +39,10 @@ export const PublishersPage = () => {
     () =>
       sortTabsByVoting(
         [
-          { key: "publishers", label: t("common:publishers"), route: "publishers" },
+          { key: "publishers", label: t("all"), route: "publishers" },
           {
             key: "removals",
-            label: t("common:removals"),
+            label: t("expel"),
             route: "removals",
             operation: "store-authors-removal" as const,
           },
@@ -54,7 +54,7 @@ export const PublishersPage = () => {
 
   return (
     <>
-      <ModerationHeader title={t("title")} showModeratorsCount={true} />
+      <ModerationHeader title={t("title")} />
       <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">
           <TabsList

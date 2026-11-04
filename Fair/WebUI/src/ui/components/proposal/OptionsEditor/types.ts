@@ -9,7 +9,6 @@ export type FieldValueType =
   | "category-type"
   | "file"
   | "moderators-additions"
-  | "moderators-removals"
   | "string"
   | "string-multiline"
   | "version"

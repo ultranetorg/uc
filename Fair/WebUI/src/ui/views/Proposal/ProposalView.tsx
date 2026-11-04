@@ -7,11 +7,11 @@ import { SvgArrowLeftSm, SvgEyeSm } from "assets"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetProposalComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useApprovalId, useApprovalIdentityForOperation, useResolveStoreId } from "hooks"
+import { useApprovalIdentityForOperation, useCreatorIdForProposalCommentCreation, useResolveStoreId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
-import { ModerationHeader, ModerationHeaderProps } from "ui/components/specific"
+import { ModerationHeader } from "ui/components/specific"
 import {
   getVoterIds,
   getVotedIndex,
@@ -32,7 +32,6 @@ import {
   VoteStatus,
 } from "./content"
 import { PageState } from "./types"
-import { useCanCreateComment } from "./useCanCreateComment"
 import { getProductId, getPublicationId } from "./utils"
 
 const renderByOperationType: Partial<Record<OperationType, ComponentType<ProposalViewContentProps>>> = {
@@ -49,15 +48,13 @@ export interface ProposalViewProps {
   isFetching: boolean
   proposal?: ProposalDetails
   previousPath: string
-  headerProps?: Partial<ModerationHeaderProps>
 }
 
-export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, headerProps }: ProposalViewProps) => {
+export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
   const navigate = useNavigate()
   const { t } = useTranslation("proposalView")
 
-  const approvalId = useApprovalId()
-  const canCreateComment = useCanCreateComment(proposal?.operation)
+  const commentCreatorId = useCreatorIdForProposalCommentCreation(proposal?.operation)
   const { invalidateOperation, invalidateProposal } = useInvalidation()
   const approval = useApprovalIdentityForOperation(proposal?.operation)
   const storeId = useResolveStoreId()
@@ -158,6 +155,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
       mutate(operation, {
         onSuccess: () => {
           showToast(t("toast:publicationVoted"), "success")
+          invalidateOperation(proposal!.operation, { storeId: storeId!, publicationId })
           invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
           navigate(routes.moderation.publications(storeId!, "proposals"))
         },
@@ -168,7 +166,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
         },
       })
     },
-    [mutate, navigate, proposal, storeId, t, approval, invalidateProposal],
+    [mutate, navigate, proposal, storeId, t, approval, invalidateOperation, invalidateProposal, publicationId],
   )
 
   const handleApprove = useCallback(() => vote("approve"), [vote])
@@ -178,7 +176,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
     (comment: string) => {
       setCommentSubmitting(true)
       if (!isPublicationProposal) setVotedValue(ALREADY_VOTED)
-      const operation = new ProposalCommentCreation(proposal!.id, approvalId!, comment)
+      const operation = new ProposalCommentCreation(proposal!.id, commentCreatorId!, comment)
       mutate(operation, {
         onSuccess: () => {
           invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
@@ -191,7 +189,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
         },
       })
     },
-    [isPublicationProposal, proposal, approvalId, mutate, invalidateProposal, storeId, t],
+    [isPublicationProposal, proposal, commentCreatorId, mutate, invalidateProposal, storeId, t],
   )
 
   useEffect(() => {
@@ -266,7 +264,6 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
             </ButtonBar>
           ) : undefined
         }
-        {...headerProps}
       />
       {NestedContent && <NestedContent t={t} storeId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
       <div className="flex gap-8">
@@ -294,7 +291,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath, h
           <CommentsSection
             inputDisabled={voteStatus === "voting" || commentSubmitting}
             inputLoading={commentSubmitting}
-            showCommentInput={canCreateComment}
+            showCommentInput={!!commentCreatorId}
             isFetching={isCommentsFetching}
             comments={comments}
             page={commentsPage}

@@ -1,8 +1,6 @@
 import { memo, ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Link } from "react-router-dom"
-import { useStoreContext, useStoreRolesContext } from "app"
 import { useResolveStoreId } from "hooks"
 import { Breadcrumbs, BreadcrumbsItemProps } from "ui/components"
 import { routes } from "utils"
@@ -13,21 +11,11 @@ export type ModerationHeaderProps = {
   breadcrumbTitle?: string
   parentBreadcrumbs?: BreadcrumbsItemProps | BreadcrumbsItemProps[]
   components?: ReactNode
-  showModeratorsCount?: boolean
 }
 
 export const ModerationHeader = memo(
-  ({
-    title,
-    subtitle,
-    breadcrumbTitle,
-    parentBreadcrumbs,
-    components,
-    showModeratorsCount = false,
-  }: ModerationHeaderProps) => {
+  ({ title, subtitle, breadcrumbTitle, parentBreadcrumbs, components }: ModerationHeaderProps) => {
     const storeId = useResolveStoreId()
-    const { store } = useStoreContext()
-    const { isModerator } = useStoreRolesContext()
     const { t } = useTranslation()
 
     return (
@@ -45,19 +33,6 @@ export const ModerationHeader = memo(
               { title: breadcrumbTitle ?? title },
             ]}
           />
-          {store &&
-            showModeratorsCount === true &&
-            (!isModerator ? (
-              <span className="text-2xs font-medium leading-5">
-                {store.moderatorsIds.length} {t("common:moderators", { count: store.moderatorsIds.length })}
-              </span>
-            ) : (
-              <Link to={routes.moderation.moderators(storeId!)}>
-                <span className="text-2xs font-medium leading-5">
-                  {store.moderatorsIds.length} {t("common:moderators", { count: store.moderatorsIds.length })}
-                </span>
-              </Link>
-            ))}
         </div>
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-2">

@@ -73,7 +73,7 @@ export const StoreOperationsPage = () => {
 
   return (
     <>
-      <ModerationHeader title={t("title")} showModeratorsCount={true} />
+      <ModerationHeader title={t("title")} />
       <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">
           <TabsList
@@ -88,6 +88,7 @@ export const StoreOperationsPage = () => {
             <TabContent key={x.key} when={x.key}>
               <OperationPolicyInfo operation={x.operation} />
               <ProposalsOperationTab
+                operation={x.operation}
                 useGetProposals={x.useGetProposals}
                 getProposalPath={routes.moderation.storeProposal}
               />

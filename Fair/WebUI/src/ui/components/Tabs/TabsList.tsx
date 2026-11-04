@@ -5,7 +5,7 @@ import { PropsWithClassName } from "types"
 
 import { useTabsContext } from "./TabsProvider"
 
-export type TabsListItem = { key: string; label: string }
+export type TabsListItem = { key: string; label: string; alignRight?: boolean }
 
 type TabsListBaseProps = {
   activeItemClassName?: string
@@ -18,6 +18,7 @@ export type TabsListProps = PropsWithClassName & TabsListBaseProps
 
 export const TabsList = memo(({ className, activeItemClassName, itemClassName, items, onTabSelect }: TabsListProps) => {
   const { activeKey, setActiveKey } = useTabsContext()
+  const firstRightKey = items.find(x => x.alignRight)?.key
 
   return (
     <div className={className}>
@@ -28,7 +29,11 @@ export const TabsList = memo(({ className, activeItemClassName, itemClassName, i
             setActiveKey(x.key)
             onTabSelect?.(x)
           }}
-          className={twMerge(itemClassName, activeKey === x.key && activeItemClassName)}
+          className={twMerge(
+            itemClassName,
+            activeKey === x.key && activeItemClassName,
+            x.key === firstRightKey && "ml-auto",
+          )}
         >
           {x.label}
         </span>

@@ -185,16 +185,6 @@ export const getEditorOperationsFields = (t: TFunction): EditorOperationFields[]
       ],
     },
     {
-      operationType: "store-moderator-removal",
-      fields: [
-        {
-          valueType: "moderators-removals",
-          name: "moderators",
-          placeholder: t("selectModeratorsToRemove"),
-        },
-      ],
-    },
-    {
       operationType: "store-renaming",
       fields: [
         {

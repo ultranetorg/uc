@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useMemo, useState } from "react"
+import { memo, ReactNode, useCallback, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { TFunction } from "i18next"
@@ -6,8 +6,8 @@ import { isNumber } from "lodash"
 
 import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
-import { useResolveStoreId, useUrlParamsState } from "hooks"
-import { Policy, PublicationProposal, Store, TotalItemsResult } from "types"
+import { useCanVoteOperation, useResolveStoreId, useUrlParamsState } from "hooks"
+import { OperationType, Policy, PublicationProposal, Store, TotalItemsResult } from "types"
 import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import {
   renderAuthor2,
@@ -63,6 +63,7 @@ const getItemRenderer =
   }
 
 export type PublicationsOperationTabProps = {
+  operation: OperationType
   useGetProposals: (
     storeId?: string,
     page?: number,
@@ -71,15 +72,18 @@ export type PublicationsOperationTabProps = {
   ) => { data?: TotalItemsResult<PublicationProposal> }
 }
 
-export const PublicationsOperationTab = ({ useGetProposals }: PublicationsOperationTabProps) => {
+export const PublicationsOperationTab = memo(({ operation, useGetProposals }: PublicationsOperationTabProps) => {
   const { t } = useTranslation("publicationsOperationTab")
   const navigate = useNavigate()
 
+  const canVoteOperation = useCanVoteOperation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
   const { isModerator, publisherIds } = useStoreRolesContext()
   const { user } = useUserContext()
+
+  const canVote = canVoteOperation(operation)
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -109,10 +113,12 @@ export const PublicationsOperationTab = ({ useGetProposals }: PublicationsOperat
         type: "progress",
         className: "w-[14%]",
       },
-      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[14%] text-center" },
+      ...(canVote
+        ? [{ accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[14%] text-center" }]
+        : []),
       { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%] text-right" },
     ],
-    [t],
+    [canVote, t],
   )
 
   const moderatorId = isModerator ? user?.id : undefined
@@ -149,4 +155,4 @@ export const PublicationsOperationTab = ({ useGetProposals }: PublicationsOperat
       </div>
     </div>
   )
-}
+})

@@ -43,7 +43,9 @@ export const PolicySurveyInfo = memo(({ className, survey, policies, publisherId
       <InfoRow label={t("labels:totalVotes")}>
         <span>{survey.totalVotes}</span>
       </InfoRow>
-      <InfoRow label={t("labels:yourVote")}>{renderYourVote(t, survey, publisherIds)}</InfoRow>
+      {publisherIds && publisherIds.length > 0 && (
+        <InfoRow label={t("labels:yourVote")}>{renderYourVote(t, survey, publisherIds)}</InfoRow>
+      )}
       <span className="text-2xs leading-4 text-gray-500">{t("votingHint", { count: survey.votesRequiredToWin })}</span>
     </div>
   )

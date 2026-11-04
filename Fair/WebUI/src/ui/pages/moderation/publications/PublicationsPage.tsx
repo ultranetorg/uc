@@ -112,7 +112,6 @@ export const PublicationsPage = () => {
             )}
           </>
         }
-        showModeratorsCount={true}
       />
       <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">
@@ -127,7 +126,7 @@ export const PublicationsPage = () => {
           {OPERATION_TABS.map(x => (
             <TabContent key={x.key} when={x.key}>
               <OperationPolicyInfo operation={x.operation} />
-              <PublicationsOperationTab useGetProposals={x.useGetProposals} />
+              <PublicationsOperationTab operation={x.operation} useGetProposals={x.useGetProposals} />
             </TabContent>
           ))}
           <TabContent when="changed">

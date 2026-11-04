@@ -7,7 +7,7 @@ import { isNumber } from "lodash"
 import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetModeratorProposals } from "entities"
-import { useResolveStoreId, useUrlParamsState } from "hooks"
+import { useCanVoteOperation, useResolveStoreId, useUrlParamsState } from "hooks"
 import { ModeratorProposal, Policy, Store } from "types"
 import { Badge, Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import { renderCreator, renderOpenFor, renderProposalProgress, renderUsersList, renderYourVote } from "ui/renderers"
@@ -59,11 +59,14 @@ export const ModeratorsAdditionsTab = () => {
   const navigate = useNavigate()
   const { t } = useTranslation("moderatorsAdditionsTab")
 
+  const canVoteOperation = useCanVoteOperation()
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
   const { isModerator, publisherIds } = useStoreRolesContext()
   const { user } = useUserContext()
+
+  const canVote = canVoteOperation("store-moderator-addition")
 
   const [state, setState] = useUrlParamsState({
     page: {
@@ -95,10 +98,12 @@ export const ModeratorsAdditionsTab = () => {
         type: "progress",
         className: "w-[18%]",
       },
-      { accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" },
+      ...(canVote
+        ? [{ accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" }]
+        : []),
       { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%] text-right" },
     ],
-    [t],
+    [canVote, t],
   )
 
   const currentUserId = user?.id

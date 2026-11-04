@@ -13,9 +13,6 @@ export const useCreatorIdentityForOperation = (operation?: OperationType): Opera
     if (!operation) return undefined
     if (!user) return undefined
 
-    const policy = policies?.find(x => x.operationClass === operation)
-    if (!policy) return undefined
-
     if (isModerator && isModeratorCanCreate(operation, policies)) {
       return { id: user.id, role: Role.Moderator }
     }

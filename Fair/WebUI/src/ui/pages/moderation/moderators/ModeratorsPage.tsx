@@ -43,16 +43,16 @@ export const ModeratorsPage = () => {
     () =>
       sortTabsByVoting(
         [
-          { key: "moderators", label: t("common:moderators"), route: "moderators" },
+          { key: "moderators", label: t("all"), route: "moderators" },
           {
             key: "removals",
-            label: t("common:removals"),
+            label: t("recall"),
             route: "removals",
             operation: "store-moderator-removal" as const,
           },
           {
             key: "additions",
-            label: t("common:additions"),
+            label: t("new"),
             route: "additions",
             operation: "store-moderator-addition" as const,
           },
@@ -88,7 +88,6 @@ export const ModeratorsPage = () => {
             )}
           </>
         }
-        showModeratorsCount={true}
       />
       <TabsProvider key={key ? undefined : tabsItems[0].key} defaultKey={key || tabsItems[0].key}>
         <div className="flex flex-col gap-6">

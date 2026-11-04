@@ -1,6 +1,6 @@
-import { memo, ReactNode, useCallback } from "react"
+import { memo, ReactNode } from "react"
 import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
 import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
@@ -11,16 +11,34 @@ import { OperationType, PropsWithClassName, StoreApprovalPolicyChange } from "ty
 import { Tooltip } from "ui/components"
 import { calculateVotesRequiredToWinProposal, findPolicy, isReferendum, routes } from "utils"
 
-type InfoItemProps = {
+type InfoCellProps = {
   label: string
+  locked?: boolean
+  lockedTooltip?: string
+  to?: string
   children: ReactNode
 }
 
-const InfoItem = ({ label, children }: InfoItemProps) => (
-  <div className="flex items-center gap-1 whitespace-nowrap">
-    <span className="text-gray-500">{label}:</span>
-    <span className="font-medium text-gray-800">{children}</span>
-  </div>
+const InfoCell = ({ label, locked, lockedTooltip, to, children }: InfoCellProps) => (
+  <>
+    <th className="whitespace-nowrap py-1 pr-4 text-left font-normal text-gray-500">{label}</th>
+    <td className="whitespace-nowrap py-1 pr-18 text-left font-medium text-gray-800 last:pr-0">
+      <div className="flex items-center gap-1">
+        {locked && (
+          <Tooltip text={lockedTooltip!}>
+            <SvgLock className="size-[14px] shrink-0 cursor-default fill-gray-800" />
+          </Tooltip>
+        )}
+        {to ? (
+          <Link to={to} className="hover:underline">
+            {children}
+          </Link>
+        ) : (
+          children
+        )}
+      </div>
+    </td>
+  </>
 )
 
 type OperationPolicyInfoBaseProps = {
@@ -34,7 +52,6 @@ export type OperationPolicyInfoProps = PropsWithClassName & OperationPolicyInfoB
  * Shows how the operation is created and approved in the store. Visible to moderators and publishers only.
  */
 export const OperationPolicyInfo = memo(({ className, operation, title }: OperationPolicyInfoProps) => {
-  const navigate = useNavigate()
   const { t } = useTranslation("operationPolicyInfo")
 
   const storeId = useResolveStoreId()
@@ -48,44 +65,47 @@ export const OperationPolicyInfo = memo(({ className, operation, title }: Operat
     x => (x.options?.[0]?.operation as StoreApprovalPolicyChange | undefined)?.operation === operation,
   )
   // The policy can be changed by a survey only if its approval is variable.
-  const isPolicyChangeable = survey?.isVariableApproval === true
+  const surveyPath =
+    survey?.isVariableApproval === true ? routes.moderation.policySurveyDetails(storeId!, survey.id) : undefined
   const isPolicyLocked = survey !== undefined && !survey.isVariableApproval
-
-  const handleClick = useCallback(() => {
-    if (survey && isPolicyChangeable) navigate(routes.moderation.policySurveyDetails(storeId!, survey.id))
-  }, [survey, isPolicyChangeable, navigate, storeId])
 
   const policy = findPolicy(operation, policies)
   if (!store || !policy || (!isModerator && !isPublisher)) return null
 
   const referendum = isReferendum(operation, policies)
   const votesRequired = calculateVotesRequiredToWinProposal(operation, store, policies)
-  const creators = policy.creators.filter(x => x !== "none").map(x => t(`roles.${x}`))
+  const creators = policy.creators.filter(x => x !== "none").map(x => t(`roles:${x}`))
+
+  const membersPath = referendum
+    ? routes.moderation.publishers(storeId!, "publishers")
+    : routes.moderation.moderators(storeId!, "moderators")
 
   return (
-    <div
-      className={twMerge(
-        "flex w-full items-center justify-between gap-8 rounded-lg border border-gray-300 bg-gray-100 px-6 py-4 text-2xs leading-4",
-        isPolicyChangeable && "cursor-pointer hover:border-gray-400",
-        className,
-      )}
-      onClick={handleClick}
-    >
+    <div className={twMerge("flex w-full items-start justify-between gap-8 rounded-lg text-2xs leading-4", className)}>
       {title && <span className="text-2sm font-semibold leading-5 text-gray-800">{title}</span>}
-      <div className="flex items-center gap-6">
-        {isPolicyLocked && (
-          <Tooltip text={t("policySurveysPage:unchangeablePolicy")}>
-            <SvgLock fill="fill-gray-800" className="cursor-default" />
-          </Tooltip>
-        )}
-        <InfoItem label={t("votingType")}>{referendum ? t("referendum") : t("proposal")}</InfoItem>
-      </div>
-      <InfoItem label={t("creationPolicy")}>{creators.length > 0 ? creators.join(", ") : "-"}</InfoItem>
-      <InfoItem label={t("votingPolicy")}>{t(`approvalRequirement:${policy.approval}`)}</InfoItem>
-      <InfoItem label={referendum ? t("publishers") : t("moderators")}>
-        {referendum ? store.authorsIds.length : store.moderatorsIds.length}
-      </InfoItem>
-      <InfoItem label={t("votesRequired")}>{votesRequired >= 0 ? votesRequired : "-"}</InfoItem>
+      <table className="ml-auto border-collapse">
+        <tbody>
+          <tr>
+            <InfoCell label={t("labels:creationPolicy")} to={surveyPath}>
+              {creators.length > 0 ? creators.join(", ") : "-"}
+            </InfoCell>
+            <InfoCell label={referendum ? t("labels:publishers") : t("labels:moderators")} to={membersPath}>
+              {referendum ? store.authorsIds.length : store.moderatorsIds.length}
+            </InfoCell>
+          </tr>
+          <tr>
+            <InfoCell
+              label={t("labels:approvalPolicy")}
+              locked={isPolicyLocked}
+              lockedTooltip={t("policySurveysPage:unchangeablePolicy")}
+              to={surveyPath}
+            >
+              {t(`approvalRequirement:${policy.approval}`)}
+            </InfoCell>
+            <InfoCell label={t("labels:votesRequired")}>{votesRequired >= 0 ? votesRequired : "-"}</InfoCell>
+          </tr>
+        </tbody>
+      </table>
     </div>
   )
 })
