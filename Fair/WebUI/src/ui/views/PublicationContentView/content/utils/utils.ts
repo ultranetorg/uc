@@ -28,7 +28,7 @@ export const buildBookFields = (fields?: FieldValue[]): BookFields => {
   }
 }
 
-type MovieFieldMap = {
+type VideoFieldMap = {
   director?: string
   writer?: string
   stars?: string
@@ -43,7 +43,7 @@ type MovieFieldMap = {
   about?: string
 }
 
-export function buildMovieFields(fields: FieldValue[] | undefined): MovieFieldMap {
+export function buildVideoFields(fields: FieldValue[] | undefined): VideoFieldMap {
   if (!fields?.length) return {}
 
   return {

@@ -9,13 +9,13 @@ import { buildFileUrl, formatAverageRating, routes } from "utils"
 
 import { ContentProps } from "../types"
 
-import { buildMovieFields, getMaxDescription } from "./utils"
+import { buildVideoFields, getMaxDescription } from "./utils"
 
 const LABEL_CLASSNAME = "w-40 text-2xs font-medium leading-4"
 const VALUE_CLASSNAME = "truncate text-2sm leading-5"
 const LONG_VALUE_CLASSNAME = "line-clamp-3 text-2sm leading-5"
 
-export const MoviePublicationContent = memo(
+export const VideoPublicationContent = memo(
   ({
     t,
     storeId,
@@ -29,11 +29,11 @@ export const MoviePublicationContent = memo(
   }: ContentProps) => {
     const fields = productOrPublication.fields
 
-    const movieFields = useMemo(() => buildMovieFields(fields), [fields])
+    const videoFields = useMemo(() => buildVideoFields(fields), [fields])
 
-    const posterSrc = useMemo(() => buildFileUrl(movieFields.posterId), [movieFields.posterId])
+    const posterSrc = useMemo(() => buildFileUrl(videoFields.posterId), [videoFields.posterId])
 
-    const aboutText = useMemo(() => movieFields.about ?? getMaxDescription(fields), [movieFields.about, fields])
+    const aboutText = useMemo(() => videoFields.about ?? getMaxDescription(fields), [videoFields.about, fields])
 
     const publisherAccountName = productOrPublication.authorTitle
 
@@ -82,82 +82,82 @@ export const MoviePublicationContent = memo(
                       "N/A"
                     )}
                   </span>
-                  {movieFields.imdb && (
-                    <span className="text-2sm leading-5 text-gray-900">IMDb: {movieFields.imdb}</span>
+                  {videoFields.imdb && (
+                    <span className="text-2sm leading-5 text-gray-900">IMDb: {videoFields.imdb}</span>
                   )}
                 </span>
               </div>
             )}
 
             {/* Director */}
-            {movieFields.director && (
+            {videoFields.director && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("director")}:</span>
-                <span className={VALUE_CLASSNAME}>{movieFields.director}</span>
+                <span className={VALUE_CLASSNAME}>{videoFields.director}</span>
               </div>
             )}
 
             {/* Writer */}
-            {movieFields.writer && (
+            {videoFields.writer && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("writer")}:</span>
-                <span className={VALUE_CLASSNAME}>{movieFields.writer}</span>
+                <span className={VALUE_CLASSNAME}>{videoFields.writer}</span>
               </div>
             )}
 
             {/* Stars */}
-            {movieFields.stars && (
+            {videoFields.stars && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("stars")}:</span>
-                {movieFields.stars && <p className="text-2sm leading-5 text-gray-900">{movieFields.stars}</p>}
+                {videoFields.stars && <p className="text-2sm leading-5 text-gray-900">{videoFields.stars}</p>}
               </div>
             )}
 
             {/* Time */}
-            {movieFields.time && (
+            {videoFields.time && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("time")}:</span>
-                <span className={VALUE_CLASSNAME}>{movieFields.time}</span>
+                <span className={VALUE_CLASSNAME}>{videoFields.time}</span>
               </div>
             )}
 
             {/* Release date */}
-            {movieFields.releaseDate && (
+            {videoFields.releaseDate && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("releaseDate")}:</span>
-                <span className={VALUE_CLASSNAME}>{movieFields.releaseDate}</span>
+                <span className={VALUE_CLASSNAME}>{videoFields.releaseDate}</span>
               </div>
             )}
 
             {/* Countries */}
-            {movieFields.countries && (
+            {videoFields.countries && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("countries")}:</span>
-                <span className={VALUE_CLASSNAME}>{movieFields.countries}</span>
+                <span className={VALUE_CLASSNAME}>{videoFields.countries}</span>
               </div>
             )}
 
             {/* Genre */}
-            {movieFields.genre && (
+            {videoFields.genre && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("genre")}:</span>
-                <span className={VALUE_CLASSNAME}>{movieFields.genre}</span>
+                <span className={VALUE_CLASSNAME}>{videoFields.genre}</span>
               </div>
             )}
 
             {/* Quality */}
-            {movieFields.quality && (
+            {videoFields.quality && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("quality")}:</span>
-                <span className={VALUE_CLASSNAME}>{movieFields.quality}</span>
+                <span className={VALUE_CLASSNAME}>{videoFields.quality}</span>
               </div>
             )}
 
             {/* Translation */}
-            {movieFields.translation && (
+            {videoFields.translation && (
               <div className="flex gap-6 py-1">
                 <span className={LABEL_CLASSNAME}>{t("translation")}:</span>
-                <span className={VALUE_CLASSNAME}>{movieFields.translation}</span>
+                <span className={VALUE_CLASSNAME}>{videoFields.translation}</span>
               </div>
             )}
 

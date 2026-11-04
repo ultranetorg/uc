@@ -6,7 +6,7 @@ import {
   BookPublicationContent,
   DefaultPublicationContent,
   GameSoftwarePublicationContent,
-  MoviePublicationContent,
+  VideoPublicationContent,
   MusicPublicationContent,
 } from "./content"
 import { ContentProps } from "./types"
@@ -14,7 +14,7 @@ import { ContentProps } from "./types"
 const publicationContentMap: Partial<Record<ProductType, ComponentType<ContentProps>>> = {
   book: BookPublicationContent,
   game: GameSoftwarePublicationContent,
-  movie: MoviePublicationContent,
+  movie: VideoPublicationContent,
   music: MusicPublicationContent,
   software: GameSoftwarePublicationContent,
 }

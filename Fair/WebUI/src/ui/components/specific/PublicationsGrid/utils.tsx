@@ -5,7 +5,7 @@ import {
   DefaultPublicationCard,
   BookPublicationCard,
   GamePublicationCard,
-  MoviePublicationCard,
+  VideoPublicationCard,
   MusicPublicationCard,
   SoftwarePublicationCard,
 } from "ui/components/specific"
@@ -19,7 +19,7 @@ export const getCardComponentForCategory = (
     case "game":
       return GamePublicationCard
     case "movie":
-      return MoviePublicationCard
+      return VideoPublicationCard
     case "music":
       return MusicPublicationCard
     case "software":
