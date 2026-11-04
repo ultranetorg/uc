@@ -40,7 +40,6 @@ const validationMap: Record<
   "store-author-addition": validateStoreAuthorsRemoval,
   "store-authors-removal": validateStoreAuthorsRemoval,
   "store-moderator-addition": validateStoreModeratorChange,
-  "store-moderator-removal": validateStoreModeratorChange,
   "store-info-updation": validateStoreInfoUpdation,
 }
 

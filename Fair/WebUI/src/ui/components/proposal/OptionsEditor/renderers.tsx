@@ -8,7 +8,6 @@ import {
   FileSelect,
   ProductVersionSelector,
   RemoveAuthorPanelList,
-  RemoveModeratorPanelList,
 } from "./components"
 import { CATEGORY_TYPES } from "./constants"
 import { EditorFieldRenderer, EditorOperationFields, FieldValueType, ParameterValueType } from "./types"
@@ -115,11 +114,6 @@ export const renderByValueType: Record<FieldValueType, EditorFieldRenderer> = {
   "moderators-additions": ({ errorMessage, value, onChange }) => (
     <ValidationWrapper message={errorMessage}>
       <AddModeratorPanelList value={value as UserBase[]} onChange={onChange} />
-    </ValidationWrapper>
-  ),
-  "moderators-removals": ({ errorMessage, value, onChange }) => (
-    <ValidationWrapper message={errorMessage}>
-      <RemoveModeratorPanelList value={value as UserBase[]} onChange={onChange} />
     </ValidationWrapper>
   ),
   string: ({ errorMessage, field, value, onChange }) => (
