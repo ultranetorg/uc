@@ -572,6 +572,7 @@ export const enUS = {
     about: "About",
     author: "Author",
     links: "Links",
+    on: "on",
     readLess: "Read Less",
     readMore: "Read More",
   },

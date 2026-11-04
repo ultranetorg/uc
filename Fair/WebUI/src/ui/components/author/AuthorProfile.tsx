@@ -4,6 +4,7 @@ import { TFunction } from "i18next"
 import { Link } from "react-router-dom"
 
 import { useStoreContext } from "app"
+import { SvgStoreLogo4Xl } from "assets/fallback"
 import avatarFallback from "assets/fallback/author-avatar-6xl.png"
 import { AuthorDetails, PropsWithClassName } from "types"
 import { ExpandableText, ImageFallback } from "ui/components"
@@ -41,24 +42,37 @@ export const AuthorProfile = memo(({ t, className, size = "compact", author, sho
     </div>
   )
 
+  const renderStoreCard = () =>
+    store && showStoreInfo ? (
+      <div className="-mt-1 flex min-w-0 items-center gap-3">
+        <span className="flex-none text-xl font-semibold leading-6">{t("authorProfile:on")}</span>
+        <Link
+          to={routes.store(store.id)}
+          className="group flex min-w-0 items-center gap-3 rounded-lg"
+          title={store.title}
+        >
+          <div className="size-8 flex-none overflow-hidden rounded-lg">
+            <ImageFallback
+              src={buildFileUrl(store.imageFileId)}
+              fallback={<SvgStoreLogo4Xl className="size-full object-cover" />}
+            />
+          </div>
+          <span className="truncate text-xl font-semibold leading-6 group-hover:font-bold">{store.title}</span>
+        </Link>
+      </div>
+    ) : null
+
   const renderTitle = () => (
-    <div className="flex flex-col gap-1">
-      <span className="text-xl font-semibold leading-6">
-        {author.title}{" "}
-        {store && showStoreInfo && (
-          <>
-            on{" "}
-            <Link to={routes.store(store.id)} className="underline">
-              {store.title} store
-            </Link>
-          </>
-        )}
-      </span>
-      <span className="flex gap-2 text-2xs leading-4 text-gray-500">
-        {author.ownersIds.map(x => (
-          <span key={x.id}>{x.name}</span>
-        ))}
-      </span>
+    <div className="flex w-full items-start gap-3">
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="text-xl font-semibold leading-6">{author.title}</span>
+        <span className="flex gap-2 text-2xs leading-4 text-gray-500">
+          {author.ownersIds.map(x => (
+            <span key={x.id}>{x.name}</span>
+          ))}
+        </span>
+      </div>
+      {renderStoreCard()}
     </div>
   )
 
@@ -98,7 +112,7 @@ export const AuthorProfile = memo(({ t, className, size = "compact", author, sho
       {size === "compact" ? (
         <>
           {renderAvatar()}
-          <div className="flex flex-col gap-6">
+          <div className="flex min-w-0 flex-1 flex-col gap-6">
             {renderTitle()}
             {author.description && renderAbout()}
             {author.references && author.references.length > 0 && renderLinks()}
