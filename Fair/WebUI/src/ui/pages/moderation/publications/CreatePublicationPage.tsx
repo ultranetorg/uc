@@ -3,13 +3,13 @@ import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 
-import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
-import { useApprovalId, useCanCreateOperation, useResolveStoreId, useStoreTitle } from "hooks"
+import { useStoreContext, useStorePoliciesContext } from "app"
+import { useCanCreateOperation, useCreatorIdentityForOperation, useResolveStoreId, useStoreTitle } from "hooks"
 import { SvgEyeSm, SvgSearch, SvgX } from "assets"
 import { SEARCH_DELAY } from "config"
 import { useGetUnpublishedStoreProduct, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { BaseVotableOperation, ProposalCreation, ProposalOption, Role } from "types"
+import { BaseVotableOperation, ProposalCreation, ProposalOption } from "types"
 import { ButtonBar, ButtonOutline, ButtonPrimary, Input, MessageBox } from "ui/components"
 import {
   ModerationPublicationHeader,
@@ -24,11 +24,10 @@ export const CreatePublicationPage = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("createPublicationPage")
 
-  const approvalId = useApprovalId()
   const canCreateOperation = useCanCreateOperation()
+  const creator = useCreatorIdentityForOperation("publication-creation")
   const { store } = useStoreContext()
   const policies = useStorePoliciesContext()
-  const { isModerator } = useStoreRolesContext()
   const { mutate, isPending } = useTransactMutationWithStatus()
   const { invalidateOperation } = useInvalidation()
 
@@ -55,7 +54,6 @@ export const CreatePublicationPage = () => {
   }, [setQuery])
 
   const handleCreate = useCallback(() => {
-    const role = isModerator ? Role.Moderator : Role.Publisher
     const options = [
       {
         title: "",
@@ -63,7 +61,7 @@ export const CreatePublicationPage = () => {
       },
     ] as ProposalOption[]
 
-    const operation = new ProposalCreation(storeId!, approvalId!, role, "", options, "")
+    const operation = new ProposalCreation(storeId!, creator!.id, creator!.role, "", options, "")
     mutate(operation, {
       onSuccess: () => {
         invalidateOperation("publication-creation", { storeId: storeId! })
@@ -78,7 +76,7 @@ export const CreatePublicationPage = () => {
       },
       onError: err => showToast(err.toString(), "error"),
     })
-  }, [approvalId, invalidateOperation, isModerator, isRequiredVoting, mutate, navigate, product, storeId, t])
+  }, [creator, invalidateOperation, isRequiredVoting, mutate, navigate, product, storeId, t])
 
   const isProductValid = !isError && !!product && !!product.fields && product.fields.length > 0
 

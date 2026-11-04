@@ -7,7 +7,7 @@ import { SvgArrowLeftSm, SvgEyeSm } from "assets"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetProposalComments, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
-import { useApprovalId, useApprovalIdentityForOperation, useResolveStoreId } from "hooks"
+import { useApprovalIdentityForOperation, useCreatorIdForProposalCommentCreation, useResolveStoreId } from "hooks"
 import { OperationType, ProposalCommentCreation, ProposalDetails, ProposalVoting, SpecialChoice } from "types"
 import { BreadcrumbsItemProps, ButtonBar, ButtonOutline, ButtonPrimary, Separator } from "ui/components"
 import { AlternativeOptions, CommentsSection, ProposalInfo } from "ui/components/proposal"
@@ -32,7 +32,6 @@ import {
   VoteStatus,
 } from "./content"
 import { PageState } from "./types"
-import { useCanCreateComment } from "./useCanCreateComment"
 import { getProductId, getPublicationId } from "./utils"
 
 const renderByOperationType: Partial<Record<OperationType, ComponentType<ProposalViewContentProps>>> = {
@@ -55,8 +54,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const navigate = useNavigate()
   const { t } = useTranslation("proposalView")
 
-  const approvalId = useApprovalId()
-  const canCreateComment = useCanCreateComment(proposal?.operation)
+  const commentCreatorId = useCreatorIdForProposalCommentCreation(proposal?.operation)
   const { invalidateOperation, invalidateProposal } = useInvalidation()
   const approval = useApprovalIdentityForOperation(proposal?.operation)
   const storeId = useResolveStoreId()
@@ -178,7 +176,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
     (comment: string) => {
       setCommentSubmitting(true)
       if (!isPublicationProposal) setVotedValue(ALREADY_VOTED)
-      const operation = new ProposalCommentCreation(proposal!.id, approvalId!, comment)
+      const operation = new ProposalCommentCreation(proposal!.id, commentCreatorId!, comment)
       mutate(operation, {
         onSuccess: () => {
           invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
@@ -191,7 +189,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
         },
       })
     },
-    [isPublicationProposal, proposal, approvalId, mutate, invalidateProposal, storeId, t],
+    [isPublicationProposal, proposal, commentCreatorId, mutate, invalidateProposal, storeId, t],
   )
 
   useEffect(() => {
@@ -293,7 +291,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
           <CommentsSection
             inputDisabled={voteStatus === "voting" || commentSubmitting}
             inputLoading={commentSubmitting}
-            showCommentInput={canCreateComment}
+            showCommentInput={!!commentCreatorId}
             isFetching={isCommentsFetching}
             comments={comments}
             page={commentsPage}

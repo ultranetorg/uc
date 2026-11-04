@@ -13,9 +13,6 @@ export const useApprovalIdentityForOperation = (operation?: OperationType): Oper
     if (!operation) return undefined
     if (!user) return undefined
 
-    const policy = policies?.find(x => x.operationClass === operation)
-    if (!policy) return undefined
-
     if (isProposal(operation, policies) && isModerator) {
       return { id: user.id, role: Role.Moderator }
     }
