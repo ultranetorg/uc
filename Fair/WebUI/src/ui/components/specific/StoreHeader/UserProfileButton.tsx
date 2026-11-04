@@ -10,6 +10,8 @@ import { routes, showToast } from "utils"
 
 import { MENU_ITEM_STYLE } from "./styles"
 
+const ALREADY_EXISTS_ERROR = "Already exists"
+
 export type UserProfileButtonProps = {
   storeId: string
   t: TFunction
@@ -24,7 +26,14 @@ export const UserProfileButton = memo(({ storeId, t }: UserProfileButtonProps) =
     { $type: "UserRegistration" },
     { id: user?.id, role: Role.User },
     () => showToast(t("toast:userRegistrationRequested"), "success"),
-    () => showToast(t("toast:userRegistrationFailed"), "error"),
+    (err: Error) => {
+      // Заявка на регистрацию уже была отправлена ранее — это не ошибка для пользователя.
+      if (err.message === ALREADY_EXISTS_ERROR) {
+        showToast(t("toast:userRegistrationAlreadyRequested"), "success")
+      } else {
+        showToast(t("toast:userRegistrationFailed"), "error")
+      }
+    },
   )
 
   const handleJoin = useCallback(() => execute(), [execute])

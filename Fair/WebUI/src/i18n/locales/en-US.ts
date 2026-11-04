@@ -293,6 +293,7 @@ export const enUS = {
     reviewDeletionRejected: "Review deletion proposal rejected",
     reviewDeletionCreated: "Review deletion proposal created",
     surveyVoted: `Publisher "{{publisher}}" successfully voted`,
+    userRegistrationAlreadyRequested: "Your join request has already been sent and is awaiting approval",
     userRegistrationApproved: `User "{{name}}" registration approved`,
     userRegistrationFailed: "Failed to request user registration",
     userUnregistrationApproved: `User "{{name}}" unregistration approved`,
