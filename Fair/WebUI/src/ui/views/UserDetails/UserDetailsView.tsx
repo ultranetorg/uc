@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStoreContext, useUserContext } from "app"
+import { useStoreContext } from "app"
 import avatarFallback from "assets/fallback/user-avatar-6xl.png"
 import { REVIEWS_PAGE_SIZE } from "config"
 import { Review, TotalItemsResult, UserAuthors } from "types"
@@ -24,14 +24,17 @@ export type UserDetailsViewProps = {
 
 export const UserDetailsView = memo(
   ({ storeId, user, reviews, reviewsPage, onReviewsPageChange }: UserDetailsViewProps) => {
-    const { store } = useStoreContext()
     const { t } = useTranslation("userDetailsView")
-    const { user: currentUser } = useUserContext()
+
+    const { store } = useStoreContext()
 
     if (!user || !reviews) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
 
-    const isPublisher = isUserPublisher(store, currentUser)
-    const isModerator = isUserModerator(store, currentUser)
+    const isPublisher = isUserPublisher(
+      store,
+      user.authors?.map(x => x.id),
+    )
+    const isModerator = isUserModerator(store, user.id)
     const pagesCount =
       reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / REVIEWS_PAGE_SIZE) : 0
 

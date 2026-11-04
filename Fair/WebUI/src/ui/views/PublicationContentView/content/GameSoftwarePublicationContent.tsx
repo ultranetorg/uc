@@ -205,7 +205,7 @@ export const GameSoftwarePublicationContent = memo(
               onConfirm={() => setIsEulaOpen(false)}
             />
           )}
-          {tags && <TagsList tags={tags} />}
+          {/* {tags && <TagsList tags={tags} />} */}
         </div>
       </>
     )
