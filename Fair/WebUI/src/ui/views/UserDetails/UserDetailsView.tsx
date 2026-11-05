@@ -20,13 +20,13 @@ export type UserDetailsViewProps = {
   storeId: string
   user?: UserAuthors
   reviews?: TotalItemsResult<Review>
-  isReviewsPending: boolean
+  isReviewsLoading: boolean
   reviewsPage: number
   onReviewsPageChange: (page: number) => void
 }
 
 export const UserDetailsView = memo(
-  ({ storeId, user, reviews, isReviewsPending, reviewsPage, onReviewsPageChange }: UserDetailsViewProps) => {
+  ({ storeId, user, reviews, isReviewsLoading, reviewsPage, onReviewsPageChange }: UserDetailsViewProps) => {
     const { t } = useTranslation("userDetailsView")
 
     const { store } = useStoreContext()
@@ -81,7 +81,7 @@ export const UserDetailsView = memo(
         </div>
         <div className="flex flex-col gap-5 p-6">
           <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>
-          {isReviewsPending || !reviews ? (
+          {isReviewsLoading || !reviews ? (
             <Spinner />
           ) : reviews.items.length > 0 ? (
             <ReviewsList reviews={reviews} />

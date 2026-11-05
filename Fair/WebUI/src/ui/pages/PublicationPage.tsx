@@ -27,14 +27,14 @@ export const PublicationPage = () => {
   const [editReview, setEditReview] = useState<{ id: string; text: string } | null>(null)
   const [deleteReview, setDeleteReview] = useState<{ id: string; text: string } | null>(null)
 
-  const { isPending, data: publication, error } = useGetPublicationDetails(publicationId)
+  const { isLoading, data: publication, error } = useGetPublicationDetails(publicationId)
   if (error) throw error
 
   useStoreTitle(store?.title, publication?.title ? `Publication - ${publication?.title}` : undefined)
 
   const {
     reviews,
-    isPending: isPendingReviews,
+    isLoading: isReviewsLoading,
     error: reviewsError,
     hasMoreReviews,
     fetchNextReviews,
@@ -81,7 +81,7 @@ export const PublicationPage = () => {
 
   const handleShowMore = useCallback(() => fetchNextReviews(), [fetchNextReviews])
 
-  if (isPending || !publication) {
+  if (isLoading || !publication) {
     return <div>Loading{import.meta.env.DEV ? " (PublicationPage)" : ""}</div>
   }
 
@@ -91,7 +91,7 @@ export const PublicationPage = () => {
         <PublicationHeader id={publicationId!} title={publication.title} logoFileId={publication.logoId} />
         <div className="flex gap-8">
           <PublicationContentView
-            isPendingReviews={isPendingReviews}
+            isReviewsLoading={isReviewsLoading}
             productOrPublication={publication}
             error={reviewsError}
             reviews={reviews}

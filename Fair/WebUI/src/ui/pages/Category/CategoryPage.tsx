@@ -28,10 +28,10 @@ export const CategoryPage = () => {
     },
   })
 
-  const { data: category, isPending, error } = useGetCategoryDetails(categoryId)
+  const { data: category, isLoading, error } = useGetCategoryDetails(categoryId)
   if (error) throw error
 
-  const { data: publications, isPending: isPendingPublications } = useGetCategoryPublications(category?.id, state.page)
+  const { data: publications, isLoading: isPublicationsLoading } = useGetCategoryPublications(category?.id, state.page)
 
   useStoreTitle(store?.title, category?.title ? `Category - ${category?.title}` : undefined)
 
@@ -63,7 +63,7 @@ export const CategoryPage = () => {
     [setLocalStorageView],
   )
 
-  if (isPending || !category || isPendingPublications || !publications) {
+  if (isLoading || !category || isPublicationsLoading || !publications) {
     return <div>Loading{import.meta.env.DEV ? " (CategoryPage)" : ""}</div>
   }
 
@@ -73,7 +73,7 @@ export const CategoryPage = () => {
       {publications.items.length !== 0 ? (
         view === "grid" ? (
           <PublicationsGrid
-            isPending={isPendingPublications}
+            isLoading={isPublicationsLoading}
             publications={publications.items}
             storeId={storeId!}
             productType={category.type}

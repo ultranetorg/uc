@@ -20,7 +20,7 @@ export const BookPublicationContent = memo(
     t,
     storeId,
     productOrPublication,
-    isPendingReviews,
+    isReviewsLoading,
     reviews,
     error,
     onLeaveReview,
@@ -131,9 +131,9 @@ export const BookPublicationContent = memo(
             )}
           </div>
 
-          {(reviews || isPendingReviews) && onLeaveReview && (
+          {(reviews || isReviewsLoading) && onLeaveReview && (
             <ReviewsList
-              isPending={!!isPendingReviews}
+              isLoading={!!isReviewsLoading}
               reviews={reviews}
               error={error}
               onLeaveReviewClick={onLeaveReview}

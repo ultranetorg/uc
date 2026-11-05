@@ -16,7 +16,7 @@ export type PublicationContentViewProps = PublicationContentViewBaseProps &
 
 export const PublicationContentView = memo(
   ({
-    isPendingReviews,
+    isReviewsLoading,
     productOrPublication,
     error,
     reviews,
@@ -34,7 +34,7 @@ export const PublicationContentView = memo(
     return (
       <ContentComponent
         t={t}
-        isPendingReviews={isPendingReviews}
+        isReviewsLoading={isReviewsLoading}
         productOrPublication={productOrPublication}
         storeId={storeId!}
         error={error}

@@ -14,14 +14,14 @@ export const ModerationPublicationPage = () => {
   const { store } = useStoreContext()
   const { t } = useTranslation()
 
-  const { isFetching, data: proposal } = useGetProposalDetails(storeId, proposalId)
+  const { isLoading, data: proposal } = useGetProposalDetails(storeId, proposalId)
 
   useStoreTitle(store?.title, proposal?.title ? `Publication - ${proposal?.title}` : "Publication")
 
   return (
     <ProposalView
       parentBreadcrumbs={{ title: t("common:publications"), path: routes.moderation.publications(storeId!) }}
-      isFetching={isFetching}
+      isLoading={isLoading}
       proposal={proposal}
       previousPath={routes.moderation.publications(
         storeId!,

@@ -41,14 +41,14 @@ export const StoresPage = () => {
   const [liteQuery, setLiteQuery] = useState("")
   const [debouncedLiteQuery] = useDebounceValue(liteQuery, SEARCH_DELAY)
 
-  const { data: defaultStores, isFetching: isDefaultStoresFetching } = useGetDefaultStores(!query)
-  const { data: liteStores, isFetching: isLiteFetching } = useSearchLiteStores(debouncedLiteQuery)
+  const { data: defaultStores, isLoading: isDefaultStoresLoading } = useGetDefaultStores(!query)
+  const { data: liteStores, isFetching: isLiteStoresFetching } = useSearchLiteStores(debouncedLiteQuery)
   const liteItems = useMemo(() => liteStores?.map(x => ({ value: x.id, label: x.title })), [liteStores])
-  const { isPending, data: stores } = useSearchStores(query, page)
+  const { isLoading: isStoresLoading, data: stores } = useSearchStores(query, page)
   const pagesCount = stores?.totalItems && stores.totalItems > 0 ? Math.ceil(stores.totalItems / DEFAULT_PAGE_SIZE) : 0
 
-  const isDefaultFetching = !query && (!defaultStores || isDefaultStoresFetching)
-  const isStoresFetching = query && (!stores || isPending)
+  const isDefaultLoading = !query && (!defaultStores || isDefaultStoresLoading)
+  const isSearchLoading = query && (!stores || isStoresLoading)
 
   const handleChange = useCallback(
     (item?: SearchDropdownItem) => {
@@ -92,7 +92,7 @@ export const StoresPage = () => {
     [query, setState],
   )
 
-  if (isDefaultFetching || isStoresFetching) {
+  if (isDefaultLoading || isSearchLoading) {
     return <div>Loading{import.meta.env.DEV ? " (StoresPage)" : ""}</div>
   }
 
@@ -102,7 +102,7 @@ export const StoresPage = () => {
       <div className="w-full max-w-[820px]">
         <SearchDropdown
           className="w-full"
-          isLoading={isLiteFetching}
+          isLoading={isLiteStoresFetching}
           inputValue={state.query}
           items={liteItems}
           noticeMessage={t("notice")}

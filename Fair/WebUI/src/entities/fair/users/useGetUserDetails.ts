@@ -9,11 +9,11 @@ const api = getFairApi()
 export const useGetUserDetails = (name?: string) => {
   const queryFn = () => api.getUserDetails(name!)
 
-  const { isFetching, isError, data, refetch } = useQuery({
+  const { isLoading, isError, data, refetch } = useQuery({
     queryKey: usersKeys.detail(name!),
     queryFn: queryFn,
     enabled: !!name,
   })
 
-  return { isFetching, isError, data, refetch }
+  return { isLoading, isError, data, refetch }
 }

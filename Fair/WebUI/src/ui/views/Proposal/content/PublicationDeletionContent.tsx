@@ -12,9 +12,9 @@ const getPublicationId = (proposal: Proposal): string =>
 export const PublicationDeletionContent = memo(({ storeId, proposal }: ProposalViewContentProps) => {
   const publicationId = useMemo(() => getPublicationId(proposal), [proposal])
 
-  const { isPending, data: publication } = useGetPublicationDetails(publicationId)
+  const { isLoading, data: publication } = useGetPublicationDetails(publicationId)
 
-  if (isPending || !publication) return <div>Loading{import.meta.env.DEV ? " (PublicationDeletionContent)" : ""}</div>
+  if (isLoading || !publication) return <div>Loading{import.meta.env.DEV ? " (PublicationDeletionContent)" : ""}</div>
 
   return (
     <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">

@@ -12,7 +12,7 @@ import { CommentsListEmptyState } from "./CommentsListEmptyState"
 export type CommentsListProps = {
   inputDisabled?: boolean
   inputLoading?: boolean
-  isPending: boolean
+  isLoading: boolean
   comments?: (Review | ProposalComment)[]
   error?: Error
   showCommentInput?: boolean
@@ -27,7 +27,7 @@ export const CommentsList = memo(
   ({
     inputDisabled,
     inputLoading,
-    isPending,
+    isLoading,
     comments,
     commentInputPlaceholder,
     noCommentsLabel,
@@ -47,7 +47,7 @@ export const CommentsList = memo(
             onCommentSubmit={onCommentSubmit}
           />
         )}
-        {isPending || !comments ? (
+        {isLoading || !comments ? (
           <Spinner />
         ) : comments.length === 0 ? (
           !showCommentInput && <CommentsListEmptyState label={noCommentsLabel} />

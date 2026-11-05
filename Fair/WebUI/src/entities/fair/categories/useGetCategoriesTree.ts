@@ -8,11 +8,11 @@ const api = getFairApi()
 export const useGetCategoriesTree = (storeId?: string, depth?: number) => {
   const queryFn = () => api.getCategoriesTree(storeId!, depth)
 
-  const { isPending, error, data, isFetching, refetch } = useQuery({
+  const { isLoading, error, data, isFetching, refetch } = useQuery({
     queryKey: categoriesKeys.tree(storeId!, depth),
     queryFn: queryFn,
     enabled: !!storeId && depth !== undefined,
   })
 
-  return { isPending, error: error ?? undefined, data, isFetching, refetch }
+  return { isLoading, error: error ?? undefined, data, isFetching, refetch }
 }

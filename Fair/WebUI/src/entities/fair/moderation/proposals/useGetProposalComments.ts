@@ -9,12 +9,12 @@ const api = getFairApi()
 export const useGetProposalComments = (storeId?: string, proposalId?: string, page?: number, pageSize?: number) => {
   const queryFn = () => api.getProposalComments(storeId!, proposalId!, page, pageSize)
 
-  const { isPending, isPlaceholderData, error, data, refetch } = useQuery({
+  const { isLoading, isPlaceholderData, error, data, refetch } = useQuery({
     queryKey: [...proposalCommentsKeys.all(storeId!, proposalId!), { page, pageSize }],
     queryFn: queryFn,
     enabled: !!storeId && !!proposalId,
     placeholderData: keepPreviousData,
   })
 
-  return { isPending: isPending || isPlaceholderData, error: error ?? undefined, data, refetch }
+  return { isLoading: isLoading || isPlaceholderData, error: error ?? undefined, data, refetch }
 }

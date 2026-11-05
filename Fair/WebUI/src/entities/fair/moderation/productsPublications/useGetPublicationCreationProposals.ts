@@ -14,11 +14,11 @@ export const useGetPublicationCreationProposals = (
 ) => {
   const queryFn = () => api.getPublicationCreationProposals(storeId!, page, pageSize, search)
 
-  const { isPending, isError, data } = useQuery({
+  const { isLoading, isError, data } = useQuery({
     queryKey: [...publicationProposalsKeys.creations(storeId!), { page, pageSize, search }],
     queryFn: queryFn,
     enabled: !!storeId,
   })
 
-  return { isPending, isError, data }
+  return { isLoading, isError, data }
 }

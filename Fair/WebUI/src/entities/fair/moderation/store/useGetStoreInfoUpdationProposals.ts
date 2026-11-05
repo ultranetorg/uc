@@ -14,11 +14,11 @@ export const useGetStoreInfoUpdationProposals = (
 ) => {
   const queryFn = () => api.getStoreInfoUpdationProposals(storeId!, page, pageSize, search)
 
-  const { isPending, isError, data } = useQuery({
+  const { isLoading, isError, data } = useQuery({
     queryKey: [...storeProposalsKeys.infoUpdations(storeId!), { page, pageSize, search }],
     queryFn: queryFn,
     enabled: !!storeId,
   })
 
-  return { isPending, isError, data }
+  return { isLoading, isError, data }
 }

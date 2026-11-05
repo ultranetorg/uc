@@ -24,8 +24,8 @@ export const PreviewPage = () => {
     | BreadcrumbsItemProps[]
     | undefined
 
-  const { data: product, isPending: isProductPending } = useGetProductDetails(productId)
-  const { data: publication, isPending: isPublicationPending } = useGetPublicationDetails(publicationId)
+  const { data: product, isLoading: isProductLoading } = useGetProductDetails(productId)
+  const { data: publication, isLoading: isPublicationLoading } = useGetPublicationDetails(publicationId)
 
   const pageTitle = product?.title ?? publication?.title
   useStoreTitle(store?.title, pageTitle ? `Preview - ${pageTitle}` : "Preview")
@@ -37,7 +37,7 @@ export const PreviewPage = () => {
 
   if (!previousPath || (!productId && !publicationId)) return <Navigate to={routes.store(storeId!)} />
 
-  if (isProductPending && isPublicationPending && !product && !publication) {
+  if ((isProductLoading || isPublicationLoading) && !product && !publication) {
     return <div>Loading{import.meta.env.DEV ? " (PreviewPage)" : ""}</div>
   }
 

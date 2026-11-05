@@ -33,7 +33,7 @@ export const PolicySurveyPage = () => {
   const [items, setItems] = useState<OptionsCollapsesListItem[] | undefined>()
 
   const { data: policies } = useGetStorePolicies(true, storeId)
-  const { data: survey, isFetching, refetch, error } = useGetPolicySurveyDetails(storeId, surveyId)
+  const { data: survey, isLoading, refetch, error } = useGetPolicySurveyDetails(storeId, surveyId)
   if (error) throw error
 
   const operation = (survey?.options[0].operation as StoreApprovalPolicyChange)?.operation
@@ -109,7 +109,7 @@ export const PolicySurveyPage = () => {
     })
   }, [publisherIds, survey, t])
 
-  if (!survey || isFetching) {
+  if (!survey || isLoading) {
     return <div>Loading{import.meta.env.DEV ? " (SurveyPage)" : ""}</div>
   }
 

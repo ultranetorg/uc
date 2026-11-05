@@ -7,11 +7,11 @@ const api = getFairApi()
 export const useGetAuthor = (authorId?: string) => {
   const queryFn = () => api.getAuthor(authorId!)
 
-  const { isPending, error, data } = useQuery({
+  const { isLoading, error, data } = useQuery({
     queryKey: ["authors", authorId],
     queryFn: queryFn,
     enabled: !!authorId,
   })
 
-  return { isPending, error: error ?? undefined, data }
+  return { isLoading, error: error ?? undefined, data }
 }

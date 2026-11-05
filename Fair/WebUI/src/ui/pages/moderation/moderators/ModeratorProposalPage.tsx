@@ -13,14 +13,14 @@ export const ModeratorProposalPage = memo(() => {
   const storeId = useResolveStoreId()
   const { store } = useStoreContext()
 
-  const { isFetching, data: proposal } = useGetProposalDetails(storeId, proposalId)
+  const { isLoading, data: proposal } = useGetProposalDetails(storeId, proposalId)
 
   useStoreTitle(store?.title, proposal?.title ? `Moderator Proposal - ${proposal?.title}` : "Moderator Proposal")
 
   return (
     <ProposalView
       parentBreadcrumbs={[{ title: t("common:moderators"), path: routes.moderation.moderators(storeId!, "proposals") }]}
-      isFetching={isFetching}
+      isLoading={isLoading}
       proposal={proposal}
       previousPath={routes.moderation.moderators(storeId!, "proposals")}
     />

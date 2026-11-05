@@ -13,7 +13,7 @@ export const AuthorPage = () => {
 
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>()
 
-  const { isPending, data: author, error } = useGetAuthor(authorId)
+  const { isLoading, data: author, error } = useGetAuthor(authorId)
   if (error) throw error
 
   useStoreTitle(author?.title ? `Author - ${author?.title}` : undefined)
@@ -22,7 +22,7 @@ export const AuthorPage = () => {
 
   const handleModalClose = useCallback(() => setSelectedProductId(undefined), [])
 
-  if (isPending || !author) {
+  if (isLoading || !author) {
     return <div>Loading{import.meta.env.DEV ? " (AuthorPage)" : ""}</div>
   }
 

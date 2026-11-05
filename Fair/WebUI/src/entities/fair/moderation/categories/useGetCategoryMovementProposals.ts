@@ -14,11 +14,11 @@ export const useGetCategoryMovementProposals = (
 ) => {
   const queryFn = () => api.getCategoryMovementProposals(storeId!, page, pageSize, search)
 
-  const { isPending, isError, data } = useQuery({
+  const { isLoading, isError, data } = useQuery({
     queryKey: [...categoryProposalsKeys.movements(storeId!), { page, pageSize, search }],
     queryFn: queryFn,
     enabled: !!storeId,
   })
 
-  return { isPending, isError, data }
+  return { isLoading, isError, data }
 }

@@ -27,7 +27,7 @@ export function useLoadMorePaginationQuery<T>({
     data,
     hasNext: query.hasNextPage,
     fetchNext: query.fetchNextPage,
-    isPending: query.isPending,
+    isLoading: query.isLoading,
     isFetchingNext: query.isFetchingNextPage,
     isError: query.isError,
     error: query.error,
