@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 20.0.0 (latest LTS recommended, tested on 25.1.0)
+- [Node.js](https://nodejs.org/) >= 22.18.0 (needed to run the TypeScript sync script natively; tested on 25.1.0)
 - npm (bundled with Node.js)
 
 ## Installation
@@ -37,7 +37,7 @@ npm run dev
 
 ## Build
 
-Standard production build (type-check + Vite build), output goes to `dist/`:
+Standard production build (node sync + type-check + Vite build), output goes to `dist/`. The [sync](#sync-with-node) runs automatically before the build and stops it on failure:
 
 ```bash
 npm run build
@@ -54,6 +54,22 @@ Preview a production build locally:
 ```bash
 npm run preview
 ```
+
+## Sync with node
+
+[tools/sync-with-node.ts](tools/sync-with-node.ts) copies node-side (C#) constants into the WebUI sources:
+
+| Source                          | Target                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------- |
+| `Fair/cs/FairNode.cs` `WelcomeMessage` | `<li>` items between `@sync-start/@sync-end` markers in `ParadigmDescription.tsx` |
+| `Net/Mcv/Operation.cs` error constants | constants marked with `// @sync Operation.<Name>` in `src/utils/errorUtils.ts`   |
+
+```bash
+npm run sync        # update the targets (also runs automatically before `npm run build`)
+npm run sync:check  # only report out-of-sync targets, exit code 1 if any
+```
+
+On any problem (missing file, marker or constant, unsupported C# syntax) the script prints `SYNC FAILED` with the reason and exits with code 1, which also stops the build. Edit the text in the C# files, not in the marked WebUI blocks — they are overwritten.
 
 ## Environment variables
 
