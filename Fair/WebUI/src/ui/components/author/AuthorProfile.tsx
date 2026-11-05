@@ -4,7 +4,6 @@ import { TFunction } from "i18next"
 import { Link } from "react-router-dom"
 
 import { useStoreContext } from "app"
-import { SvgStoreLogo4Xl } from "assets/fallback"
 import avatarFallback from "assets/fallback/author-avatar-6xl.png"
 import { AuthorDetails, PropsWithClassName } from "types"
 import { ExpandableText, ImageFallback } from "ui/components"
@@ -42,37 +41,32 @@ export const AuthorProfile = memo(({ t, className, size = "compact", author, sho
     </div>
   )
 
-  const renderStoreCard = () =>
-    store && showStoreInfo ? (
-      <div className="-mt-1 flex min-w-0 items-center gap-3">
-        <span className="flex-none text-xl font-semibold leading-6">{t("authorProfile:on")}</span>
-        <Link
-          to={routes.store(store.id)}
-          className="group flex min-w-0 items-center gap-3 rounded-lg"
-          title={store.title}
-        >
-          <div className="size-8 flex-none overflow-hidden rounded-lg">
-            <ImageFallback
-              src={buildFileUrl(store.imageFileId)}
-              fallback={<SvgStoreLogo4Xl className="size-full object-cover" />}
-            />
-          </div>
-          <span className="truncate text-xl font-semibold leading-6 group-hover:font-bold">{store.title}</span>
-        </Link>
-      </div>
-    ) : null
-
   const renderTitle = () => (
     <div className="flex w-full items-start gap-3">
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="text-xl font-semibold leading-6">{author.title}</span>
+        <div className="text-xl font-semibold leading-6">
+          {author.title}
+          {showStoreInfo && store && (
+            <>
+              {" "}
+              <span className="text-gray-400">{t("common:at")}</span>{" "}
+              <Link
+                to={routes.store(store.id)}
+                className="min-w-0hover:font-bold truncate text-gray-400 hover:font-bold"
+                title={store.title}
+              >
+                {store.title}
+              </Link>
+            </>
+          )}
+        </div>
+
         <span className="flex gap-2 text-2xs leading-4 text-gray-500">
           {author.ownersIds.map(x => (
             <span key={x.id}>{x.name}</span>
           ))}
         </span>
       </div>
-      {renderStoreCard()}
     </div>
   )
 
