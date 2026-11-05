@@ -42,23 +42,31 @@ export const AuthorProfile = memo(({ t, className, size = "compact", author, sho
   )
 
   const renderTitle = () => (
-    <div className="flex flex-col gap-1">
-      <span className="text-xl font-semibold leading-6">
-        {author.title}{" "}
-        {store && showStoreInfo && (
-          <>
-            on{" "}
-            <Link to={routes.store(store.id)} className="underline">
-              {store.title} store
-            </Link>
-          </>
-        )}
-      </span>
-      <span className="flex gap-2 text-2xs leading-4 text-gray-500">
-        {author.ownersIds.map(x => (
-          <span key={x.id}>{x.name}</span>
-        ))}
-      </span>
+    <div className="flex w-full items-start gap-3">
+      <div className="flex min-w-0 flex-col gap-1">
+        <div className="text-xl font-semibold leading-6">
+          {author.title}
+          {showStoreInfo && store && (
+            <>
+              {" "}
+              <span className="text-gray-400">{t("common:at")}</span>{" "}
+              <Link
+                to={routes.store(store.id)}
+                className="min-w-0hover:font-bold truncate text-gray-400 hover:font-bold"
+                title={store.title}
+              >
+                {store.title}
+              </Link>
+            </>
+          )}
+        </div>
+
+        <span className="flex gap-2 text-2xs leading-4 text-gray-500">
+          {author.ownersIds.map(x => (
+            <span key={x.id}>{x.name}</span>
+          ))}
+        </span>
+      </div>
     </div>
   )
 
@@ -98,7 +106,7 @@ export const AuthorProfile = memo(({ t, className, size = "compact", author, sho
       {size === "compact" ? (
         <>
           {renderAvatar()}
-          <div className="flex flex-col gap-6">
+          <div className="flex min-w-0 flex-1 flex-col gap-6">
             {renderTitle()}
             {author.description && renderAbout()}
             {author.references && author.references.length > 0 && renderLinks()}

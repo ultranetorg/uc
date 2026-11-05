@@ -16,7 +16,13 @@ export type BadgeProps = PropsWithChildren<PropsWithClassName> & {
 }
 
 export const Badge = memo(({ variant = "default", className, children }: BadgeProps) => (
-  <span className={twMerge("w-fit shrink-0 rounded px-2 py-0.5 text-2xs", VARIANT_CLASSNAMES[variant], className)}>
+  <span
+    className={twMerge(
+      "w-fit shrink-0 select-none rounded px-2 py-0.5 text-2xs",
+      VARIANT_CLASSNAMES[variant],
+      className,
+    )}
+  >
     {children}
   </span>
 ))

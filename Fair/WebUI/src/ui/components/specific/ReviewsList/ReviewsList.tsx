@@ -2,7 +2,7 @@ import { memo } from "react"
 
 import { useResolveStoreId } from "hooks"
 import { TotalItemsResult, Review } from "types"
-import { ButtonOutline } from "ui/components"
+import { ButtonOutline, Spinner } from "ui/components"
 import { Comment, CommentProps } from "ui/components/comments/Comment"
 import { buildCreatorAvatarUrl, buildCreatorLink } from "utils"
 
@@ -51,7 +51,7 @@ export const ReviewsList = memo(
         {error ? (
           <div>{error.message}</div>
         ) : isPending || !reviews ? (
-          <div>Loading{import.meta.env.DEV ? " (ReviewsList)" : ""}</div>
+          <Spinner />
         ) : reviews.items.length === 0 ? (
           <ReviewsListEmptyState label={noReviewsLabel} />
         ) : (

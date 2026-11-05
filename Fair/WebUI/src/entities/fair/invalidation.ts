@@ -96,7 +96,11 @@ const operationRules: Record<OperationType, InvalidationRule> = {
   ],
 
   // Одобрение или отзыв регистрации меняет членство пользователя в сторе (бейдж в профиле, кнопка Join).
-  "user-registration": ({ storeId }) => [storesKeys.users(storeId), usersKeys.storeMembers(storeId)],
+  "user-registration": ({ storeId }) => [
+    storesKeys.users(storeId),
+    usersKeys.storeMembers(storeId),
+    moderationKeys.root(storeId),
+  ],
   "user-unregistration": ({ storeId }) => [
     storesKeys.users(storeId),
     usersKeys.storeMembers(storeId),

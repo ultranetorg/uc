@@ -279,6 +279,7 @@ export const enUS = {
     favoriteRemoved: `Store "{{store}}" removed from favorites`,
     fileDeleted: `File "{{fileId}}" successfully deleted`,
     fileUploaded: `File "{{fileName}}" successfully uploaded`,
+    mustJoinStoreFirst: "You must join the store first before you can write a review",
     nicknameChanged: "Nickname changed successfully",
     proposalCreated: `Proposal "{{operation}}" created successfully`,
     proposalExecuted: `Proposal "{{operation}}" successfully executed`,
@@ -572,6 +573,7 @@ export const enUS = {
     about: "About",
     author: "Author",
     links: "Links",
+    at: "at",
     readLess: "Read Less",
     readMore: "Read More",
   },
@@ -626,6 +628,7 @@ export const enUS = {
     reviewsLeft: "Reviews left by this user",
     noReviews: "This user has no reviews",
     noPublishers: "This user has no publishers",
+    notMember: "Not a Member",
   },
 
   /* Modals */

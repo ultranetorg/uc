@@ -91,7 +91,6 @@ export const PublicationPage = () => {
         <PublicationHeader id={publicationId!} title={publication.title} logoFileId={publication.logoId} />
         <div className="flex gap-8">
           <PublicationContentView
-            isPending={isPending}
             isPendingReviews={isPendingReviews}
             productOrPublication={publication}
             error={reviewsError}

@@ -6,7 +6,7 @@ import { formatAverageRating } from "utils"
 
 import { PublicationCardProps } from "./types"
 
-export const MoviePublicationCard = memo(({ id, title, authorTitle, rating }: PublicationCardProps) => {
+export const VideoPublicationCard = memo(({ id, title, authorTitle, rating }: PublicationCardProps) => {
   const formattedRating = formatAverageRating(rating)
 
   return (

@@ -1,4 +1,4 @@
-import { AuthorDetails, Store, UserDetails } from "types"
+import { AuthorDetails, Store } from "types"
 
 export const isAuthorPublisher = (store: Store | undefined, author: AuthorDetails): boolean =>
   Boolean(store?.authorsIds?.includes(author.id))
@@ -6,8 +6,8 @@ export const isAuthorPublisher = (store: Store | undefined, author: AuthorDetail
 export const isAuthorModerator = (store: Store | undefined, author: AuthorDetails): boolean =>
   Boolean(store && author.ownersIds.some(owner => store.moderatorsIds.includes(owner.id)))
 
-export const isUserPublisher = (store: Store | undefined, user: UserDetails | undefined): boolean =>
-  store && user ? Boolean(store?.authorsIds?.some(id => user.authorsIds.includes(id))) : false
+export const isUserPublisher = (store?: Store, userAuthorsIds?: string[]): boolean =>
+  store && userAuthorsIds ? Boolean(store?.authorsIds?.some(id => userAuthorsIds?.includes(id))) : false
 
-export const isUserModerator = (store: Store | undefined, user: UserDetails | undefined): boolean =>
-  store && user ? Boolean(store?.moderatorsIds?.includes(user.id)) : false
+export const isUserModerator = (store: Store | undefined, userId?: string): boolean =>
+  store && userId ? Boolean(store?.moderatorsIds?.includes(userId)) : false

@@ -1,13 +1,15 @@
 import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { useStoreContext, useUserContext } from "app"
+import { useStoreContext } from "app"
 import avatarFallback from "assets/fallback/user-avatar-6xl.png"
 import { REVIEWS_PAGE_SIZE } from "config"
+import { useGetUserStoreExists } from "entities"
 import { Review, TotalItemsResult, UserAuthors } from "types"
-import { CopyAddressButton, ImageFallback, Pagination } from "ui/components"
+import { CopyAddressButton, ImageFallback, Pagination, Spinner } from "ui/components"
 import { UserDetailsThreeDotsMenu } from "ui/components/specific"
-import { buildUserAvatarByIdUrl, formatRole, isUserModerator, isUserPublisher } from "utils"
+import { renderRole } from "ui/renderers"
+import { buildUserAvatarByIdUrl, isUserModerator, isUserPublisher } from "utils"
 
 import { ReviewsList } from "./ReviewsList"
 import { PublishersList } from "./PublishersList"
@@ -18,20 +20,26 @@ export type UserDetailsViewProps = {
   storeId: string
   user?: UserAuthors
   reviews?: TotalItemsResult<Review>
+  isReviewsPending: boolean
   reviewsPage: number
   onReviewsPageChange: (page: number) => void
 }
 
 export const UserDetailsView = memo(
-  ({ storeId, user, reviews, reviewsPage, onReviewsPageChange }: UserDetailsViewProps) => {
-    const { store } = useStoreContext()
+  ({ storeId, user, reviews, isReviewsPending, reviewsPage, onReviewsPageChange }: UserDetailsViewProps) => {
     const { t } = useTranslation("userDetailsView")
-    const { user: currentUser } = useUserContext()
 
-    if (!user || !reviews) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
+    const { store } = useStoreContext()
 
-    const isPublisher = isUserPublisher(store, currentUser)
-    const isModerator = isUserModerator(store, currentUser)
+    const { data: isJoined } = useGetUserStoreExists(user?.id, store?.id)
+
+    if (!user) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
+
+    const isPublisher = isUserPublisher(
+      store,
+      user.authors?.map(x => x.id),
+    )
+    const isModerator = isUserModerator(store, user.id)
     const pagesCount =
       reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / REVIEWS_PAGE_SIZE) : 0
 
@@ -60,7 +68,7 @@ export const UserDetailsView = memo(
               <span className="text-xl font-semibold leading-6">{user.name}</span>
               <CopyAddressButton address={user.owner} />
             </div>
-            <span className="text-2xs capitalize leading-4">{formatRole(t, isPublisher, isModerator)}</span>
+            <div className="text-2xs leading-4">{renderRole(t, isPublisher, isModerator, isJoined)}</div>
           </div>
         </div>
         <div className="flex flex-col gap-5 p-6">
@@ -73,7 +81,13 @@ export const UserDetailsView = memo(
         </div>
         <div className="flex flex-col gap-5 p-6">
           <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>
-          {reviews.items.length > 0 ? <ReviewsList reviews={reviews} /> : <>{t("noReviews")}</>}
+          {isReviewsPending || !reviews ? (
+            <Spinner />
+          ) : reviews.items.length > 0 ? (
+            <ReviewsList reviews={reviews} />
+          ) : (
+            <>{t("noReviews")}</>
+          )}
           <Pagination
             className="self-end"
             pagesCount={pagesCount}

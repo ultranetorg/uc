@@ -3,7 +3,7 @@ import { sortBy } from "lodash"
 import { Trans } from "react-i18next"
 
 import { SvgImageSlash4Xl } from "assets"
-import { CommentContextMenuProps, Slider, TagsList, TextModal } from "ui/components"
+import { CommentContextMenuProps, Slider, TextModal } from "ui/components"
 import { Description, StoreLink, SoftwareInfo, SystemRequirementsTabs } from "ui/components/publication"
 import { CommentContextThreeDotsMenu, ReviewsList } from "ui/components/specific"
 
@@ -14,7 +14,6 @@ import {
   buildSystemRequirements,
   getReleases,
   getValueFrom,
-  getTags,
   getUiLanguages,
   getUrlFrom,
   getDescriptions,
@@ -94,7 +93,7 @@ export const GameSoftwarePublicationContent = memo(
       return releasesByVersion !== undefined ? buildSystemRequirements(t, releasesByVersion) : undefined
     }, [releasesByVersion, t])
 
-    const tags = useMemo(() => getTags(productOrPublication.fields!), [productOrPublication.fields])
+    //const tags = useMemo(() => getTags(productOrPublication.fields!), [productOrPublication.fields])
 
     const uiLanguages = useMemo(() => getUiLanguages(productOrPublication.fields!), [productOrPublication.fields])
 
@@ -145,9 +144,9 @@ export const GameSoftwarePublicationContent = memo(
               onTabChange={handlePlatformChange}
             />
           )}
-          {reviews && (
+          {(reviews || isPendingReviews) && (
             <ReviewsList
-              isPending={isPendingReviews!}
+              isPending={!!isPendingReviews}
               reviews={reviews}
               error={error}
               onLeaveReviewClick={onLeaveReview}
@@ -205,7 +204,7 @@ export const GameSoftwarePublicationContent = memo(
               onConfirm={() => setIsEulaOpen(false)}
             />
           )}
-          {tags && <TagsList tags={tags} />}
+          {/* {tags && <TagsList tags={tags} />} */}
         </div>
       </>
     )
