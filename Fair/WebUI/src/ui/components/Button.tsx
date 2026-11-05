@@ -1,9 +1,6 @@
 import { forwardRef, memo, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 
-import "@szhsin/react-menu/dist/index.css"
-import "@szhsin/react-menu/dist/transitions/zoom.css"
-
 import { PropsWithClassName } from "types"
 
 type ButtonBaseProps = {

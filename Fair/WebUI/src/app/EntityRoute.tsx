@@ -133,21 +133,21 @@ export const EntityRoute = () => {
           <Route path="publications/preview" element={<PreviewPage />} />
 
           <Route element={<ModerationLayout />}>
-            // Store
+            {/* Store */}
             <Route path="store/proposals/:proposalId" element={<StoreProposalPage />} />
             <Route path="store/:tabKey?" element={<StoreOperationsPage />} />
-            // Categories
+            {/* Categories */}
             <Route path="categories/proposals/:proposalId" element={<CategoryProposalPage />} />
             <Route path="categories/:tabKey?" element={<CategoriesPage />} />
-            // Moderators
+            {/* Moderators */}
             <Route path="moderators/proposals/:proposalId" element={<ModeratorProposalPage />} />
             <Route path="moderators/:tabKey?" element={<ModeratorsPage />} />
-            // Publications
+            {/* Publications */}
             <Route path="publications/proposals/:proposalId" element={<ModerationPublicationPage />} />
             <Route path="publications/changed/:publicationId" element={<ChangedPublicationPage />} />
             <Route path="publications/unpublished/:publicationId" element={<UnpublishedPublicationPage />} />
             <Route path="publications/:tabKey?" element={<PublicationsPage />} />
-            // Publishers
+            {/* Publishers */}
             <Route path="publishers/proposals/:proposalId" element={<PublisherProposalPage />} />
             <Route path="publishers/:tabKey?" element={<PublishersPage />} />
             <Route
@@ -160,9 +160,9 @@ export const EntityRoute = () => {
                 </PublishersLayout>
               }
             />
-            // Reviews
+            {/* Reviews */}
             <Route path="reviews/:tabKey?" element={<ReviewsPage />} />
-            // Users
+            {/* Users */}
             <Route path="users" element={<UsersSectionLayout />}>
               <Route path=":tabKey?" element={<UsersPage />} />
               <Route
