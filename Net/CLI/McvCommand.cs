@@ -43,18 +43,6 @@ public abstract class McvCommand : NetCommand
 		return rp;
 	}
 
-	public static ActionOnResult GetActionOnResult(IEnumerable<Xon> args)
-	{
-		var a = args.FirstOrDefault(i => i.Name == AORKeyword);
-
-		if(a != null)
-		{
-			return Enum.GetValues<ActionOnResult>().First(i => i.ToString().ToLower() == a.Get<string>());
-		}
-		else
-			return ActionOnResult.RetryUntilConfirmed;
-	}
-
 	protected AutoId GetAutoId(string paramenter)
 	{
 		var p = One(paramenter);

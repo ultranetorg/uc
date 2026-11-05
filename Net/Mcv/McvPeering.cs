@@ -1026,7 +1026,7 @@ public abstract class McvPeering : HomoPeering
 
 					foreach(var t in i.Value)
 					{ 
-						var r = atxs.FirstOrDefault(s => s.Tag.SequenceEqual(t.Tag));
+						var r = atxs.FirstOrDefault(s => Bytes.Equal(s.Tag, t.Tag));
 
 						if(r == null)
 						{

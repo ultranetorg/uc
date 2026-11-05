@@ -46,7 +46,11 @@ public abstract class McvCli : NetCli
 			}
 			else
 			{
-				var t = c.Transact(Api as McvApiClient, ops, c.GetString(NetCommand.ByKeyword), c.GetLong(NetCommand.BoostKeyword, 0), McvCommand.GetActionOnResult(args));
+				var t = c.Transact(	Api as McvApiClient, 
+									ops, 
+									c.GetString(NetCommand.ByKeyword), 
+									c.GetLong(NetCommand.BoostKeyword, 0), 
+									c.GetEnum(NetCommand.AORKeyword, ActionOnResult.CancelOnFailure));
 
 				c.Transacted?.Invoke();
 			}

@@ -166,7 +166,7 @@ public class PackageCommand : NexusCommand
 								
 								if(ops.Any())
 								{	
-									Transact(Rapi, ops, GetString(ByKeyword), GetLong(BoostKeyword, 0), McvCommand.GetActionOnResult(Args));
+									Transact(Rapi, ops, GetString(ByKeyword), GetLong(BoostKeyword, 0), GetEnum(NetCommand.AORKeyword, ActionOnResult.CancelOnFailure));
 																	
 									var r = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource;
 									

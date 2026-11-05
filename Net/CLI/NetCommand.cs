@@ -138,28 +138,30 @@ public abstract class NetCommand : Command
 										 Flow);
 		int n = 0;
 
-		do 
+		if(aor != ActionOnResult.DoNotCare)
 		{
-			t = api.Call<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
-
-			if(t.Status != TransactionStatus.FailedOrNotFound)
+			do 
 			{
-				foreach(var i in t.Log.Skip(n))
+				t = api.Call<TransactionApe>(new OutgoingTransactionApc {Tag = t.Tag}, Flow);
+	
+				if(t.Status != TransactionStatus.FailedOrNotFound)
 				{
-					foreach(var j in i.Text)
-						Report(j);
+					foreach(var i in t.Log.Skip(n))
+					{
+						foreach(var j in i.Text)
+							Report(j);
+					}
+		
+					n += t.Log.Length;
 				}
 	
-				n += t.Log.Length;
+				if(!NodeGlobals.NoWait)
+					Thread.Sleep(1);
 			}
-
-			if(!NodeGlobals.NoWait)
-				Thread.Sleep(1);
+			while(!(aor == ActionOnResult.RetryUntilConfirmed && t.Status == TransactionStatus.Confirmed || 
+					aor == ActionOnResult.ExpectFailure && t.Status == TransactionStatus.FailedOrNotFound ||
+					aor == ActionOnResult.CancelOnFailure && (t.Status == TransactionStatus.FailedOrNotFound || t.Status == TransactionStatus.Confirmed)));
 		}
-		while(!(aor == ActionOnResult.RetryUntilConfirmed && t.Status == TransactionStatus.Confirmed || 
-				aor == ActionOnResult.ExpectFailure && t.Status == TransactionStatus.FailedOrNotFound ||
-				aor == ActionOnResult.CancelOnFailure && (t.Status == TransactionStatus.FailedOrNotFound || t.Status == TransactionStatus.Confirmed) ||
-				aor == ActionOnResult.DoNotCare));
 
 		if(t.Status == TransactionStatus.Confirmed)
 			Flow.Log.Dump(t);
@@ -183,7 +185,7 @@ public abstract class NetCommand : Command
 			return def;
 	}
 
-	protected E GetEnum<E>(string paramenter, E def) where E : struct
+	public E GetEnum<E>(string paramenter, E def) where E : struct
 	{
 		var p = One(paramenter);
 
