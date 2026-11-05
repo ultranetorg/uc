@@ -1,10 +1,11 @@
-// Must match Operation.Denied on the node side.
-const ACCESS_DENIED_MESSAGE = "access denied"
-// Must match the "already exists" error returned by the node.
-const ALREADY_EXISTS_MESSAGE = "already exists"
+// The values below are synchronized with Operation.cs by `npm run sync` (see tools/sync-with-node.ts).
+// @sync Operation.Denied
+const ACCESS_DENIED_MESSAGE = "Access denied"
+// @sync Operation.AlreadyExists
+const ALREADY_EXISTS_MESSAGE = "Already exists"
 
 const hasMessage = (error: unknown, message: string): boolean =>
-  error instanceof Error && error.message.toLowerCase().includes(message)
+  error instanceof Error && error.message.toLowerCase().includes(message.toLowerCase())
 
 export const isAccessDeniedError = (error: unknown): boolean => hasMessage(error, ACCESS_DENIED_MESSAGE)
 

@@ -8,6 +8,9 @@
   },
   "scripts": {
     "dev": "vite",
+    "sync": "node tools/sync-with-node.ts",
+    "sync:check": "node tools/sync-with-node.ts --check",
+    "prebuild": "npm run sync",
     "build": "tsc -b && vite build",
     "build:serverless": "cross-env VITE_APP_SERVERLESS_BUILD=1 npm run build",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
