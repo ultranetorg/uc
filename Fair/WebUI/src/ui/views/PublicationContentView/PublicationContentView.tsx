@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useResolveStoreId } from "hooks"
@@ -13,37 +14,37 @@ type PublicationContentViewBaseProps = {
 export type PublicationContentViewProps = PublicationContentViewBaseProps &
   Omit<ContentProps, "publication" | "storeId" | "t">
 
-export const PublicationContentView = ({
-  isPending,
-  isPendingReviews,
-  productOrPublication,
-  error,
-  reviews,
-  onLeaveReview,
-  onEditReview,
-  onDeleteReview,
-  onShowMore,
-  hasMoreReviews,
-}: PublicationContentViewProps) => {
-  const storeId = useResolveStoreId()
-  const { t } = useTranslation("publicationPage")
+export const PublicationContentView = memo(
+  ({
+    isPendingReviews,
+    productOrPublication,
+    error,
+    reviews,
+    onLeaveReview,
+    onEditReview,
+    onDeleteReview,
+    onShowMore,
+    hasMoreReviews,
+  }: PublicationContentViewProps) => {
+    const storeId = useResolveStoreId()
+    const { t } = useTranslation("publicationPage")
 
-  const ContentComponent = getPublicationContentByType(productOrPublication.type)
+    const ContentComponent = getPublicationContentByType(productOrPublication.type)
 
-  return (
-    <ContentComponent
-      t={t}
-      isPending={isPending}
-      isPendingReviews={isPendingReviews}
-      productOrPublication={productOrPublication}
-      storeId={storeId!}
-      error={error}
-      reviews={reviews}
-      onLeaveReview={onLeaveReview}
-      onEditReview={onEditReview}
-      onDeleteReview={onDeleteReview}
-      onShowMore={onShowMore}
-      hasMoreReviews={hasMoreReviews}
-    />
-  )
-}
+    return (
+      <ContentComponent
+        t={t}
+        isPendingReviews={isPendingReviews}
+        productOrPublication={productOrPublication}
+        storeId={storeId!}
+        error={error}
+        reviews={reviews}
+        onLeaveReview={onLeaveReview}
+        onEditReview={onEditReview}
+        onDeleteReview={onDeleteReview}
+        onShowMore={onShowMore}
+        hasMoreReviews={hasMoreReviews}
+      />
+    )
+  },
+)

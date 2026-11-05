@@ -6,11 +6,9 @@ import { TFunction } from "i18next"
 import { useStoreRolesContext, useUserContext } from "app"
 import { useCreateProposal } from "hooks"
 import { Role } from "types"
-import { routes, showToast } from "utils"
+import { isAlreadyExistsError, routes, showToast } from "utils"
 
 import { MENU_ITEM_STYLE } from "./styles"
-
-const ALREADY_EXISTS_ERROR = "Already exists"
 
 export type UserProfileButtonProps = {
   storeId: string
@@ -28,7 +26,7 @@ export const UserProfileButton = memo(({ storeId, t }: UserProfileButtonProps) =
     () => showToast(t("toast:userRegistrationRequested"), "success"),
     (err: Error) => {
       // Заявка на регистрацию уже была отправлена ранее — это не ошибка для пользователя.
-      if (err.message === ALREADY_EXISTS_ERROR) {
+      if (isAlreadyExistsError(err)) {
         showToast(t("toast:userRegistrationAlreadyRequested"), "success")
       } else {
         showToast(t("toast:userRegistrationFailed"), "error")

@@ -69,10 +69,7 @@ export const PreviewPage = () => {
         }
       />
       <div className="flex gap-8">
-        <PublicationContentView
-          isPending={isProductPending || isPublicationPending}
-          productOrPublication={product! ?? publication!}
-        />
+        <PublicationContentView productOrPublication={product! ?? publication!} />
       </div>
     </div>
   )

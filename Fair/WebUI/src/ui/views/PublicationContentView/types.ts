@@ -5,7 +5,6 @@ export type ContentProps = {
   t: TFunction
   storeId: string
   productOrPublication: ProductDetails | PublicationDetails
-  isPending: boolean
   isPendingReviews?: boolean
   reviews?: TotalItemsResult<Review>
   error?: Error

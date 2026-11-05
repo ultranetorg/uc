@@ -1,4 +1,5 @@
 import { memo, useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { SvgCheckCircleFillColored4Xl, SvgX } from "assets"
 import { useInvalidation } from "entities"
@@ -6,7 +7,7 @@ import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useCreatorIdentityForOperation, useEscapeKey, useResolveStoreId } from "hooks"
 import { BaseVotableOperation, ProposalCreation, ProposalOption } from "types"
 import { ButtonOutline, ButtonPrimary, Modal, ModalProps, Textarea } from "ui/components"
-import { showToast } from "utils"
+import { isAccessDeniedError, showToast } from "utils"
 
 import { YourRatingBar } from "./YourRatingBar"
 
@@ -43,6 +44,8 @@ export const ReviewModal = memo(
     yourReviewLabel,
     ...rest
   }: ReviewModalProps) => {
+    const { t } = useTranslation()
+
     const isEditMode = !!reviewId
     const creator = useCreatorIdentityForOperation(isEditMode ? "review-edit" : "review-creation")
     const storeId = useResolveStoreId()
@@ -89,19 +92,28 @@ export const ReviewModal = memo(
             onSubmit?.()
           }, 2000)
         },
-        onError: err => showToast(err.toString(), "error"),
+        onError: err => {
+          if (isAccessDeniedError(err)) {
+            showToast(t("toast:mustJoinStoreFirst"), "warning")
+            onClose?.()
+          } else {
+            showToast(err.toString(), "error")
+          }
+        },
       })
     }, [
       creator,
       invalidateOperation,
       isEditMode,
       mutate,
+      onClose,
       onSubmit,
       publicationId,
       rating,
       reviewId,
       reviewText,
       storeId,
+      t,
     ])
 
     useEscapeKey(onClose)

@@ -10,7 +10,7 @@ export type CommentsSectionProps = {
   inputDisabled?: boolean
   inputLoading?: boolean
   showCommentInput?: boolean
-  isFetching: boolean
+  isPending: boolean
   comments: TotalItemsResult<ProposalComment> | undefined
   page: number
   pageSize: number
@@ -22,7 +22,7 @@ export const CommentsSection = ({
   inputDisabled,
   inputLoading,
   showCommentInput,
-  isFetching,
+  isPending,
   comments,
   page,
   pageSize,
@@ -46,7 +46,7 @@ export const CommentsSection = ({
         inputDisabled={inputDisabled}
         inputLoading={inputLoading}
         comments={comments?.items}
-        isFetching={isFetching}
+        isPending={isPending}
         commentInputPlaceholder={t("addComment")}
         noCommentsLabel={t("noComments")}
         showMoreCommentsLabel={t("showMore")}

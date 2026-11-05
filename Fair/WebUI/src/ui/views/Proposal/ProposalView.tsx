@@ -79,7 +79,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const [commentSubmitting, setCommentSubmitting] = useState(false)
 
   const [commentsPage, setCommentsPage] = useState(0)
-  const { isFetching: isCommentsFetching, data: comments } = useGetProposalComments(
+  const { isPending: isCommentsPending, data: comments } = useGetProposalComments(
     storeId,
     proposal?.id,
     commentsPage,
@@ -292,7 +292,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
             inputDisabled={voteStatus === "voting" || commentSubmitting}
             inputLoading={commentSubmitting}
             showCommentInput={!!commentCreatorId}
-            isFetching={isCommentsFetching}
+            isPending={isCommentsPending}
             comments={comments}
             page={commentsPage}
             pageSize={DEFAULT_PAGE_SIZE_20}
