@@ -14,8 +14,8 @@ export type FavoriteStoresMenuItemProps = {
 
 export const FavoriteStoresMenuItem = memo(({ storeId, title, fileId, onClick }: FavoriteStoresMenuItemProps) => (
   <Link to={routes.store(storeId)} title={title} onClick={onClick}>
-    <div className="flex cursor-pointer items-center gap-3 rounded p-2 text-2sm leading-5 hover:bg-gray-700">
-      <div className="size-10 shrink-0 overflow-hidden rounded">
+    <div className="flex cursor-pointer items-center gap-3 rounded-sm p-2 text-2sm leading-5 hover:bg-gray-700">
+      <div className="size-10 shrink-0 overflow-hidden rounded-sm">
         <ImageFallback
           className="size-10"
           src={buildFileUrl(fileId)}

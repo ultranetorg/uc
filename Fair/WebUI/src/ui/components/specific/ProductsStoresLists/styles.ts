@@ -1,4 +1,4 @@
-export const COLUMN_NAME_CLASSNAME = "flex min-w-0 flex-[2] items-center gap-2"
+export const COLUMN_NAME_CLASSNAME = "flex min-w-0 flex-2 items-center gap-2"
 
 export const COLUMN_CELL_CLASSNAME = "min-w-0 flex-1 truncate"
 

@@ -57,7 +57,7 @@ const DropdownInner = <IsMulti extends boolean>({
       classNames={{
         multiValue: () => "group",
         control: () =>
-          error ? "!border-error !hover:border-1.5 !hover:border-error !focus:border-1.5 !focus:border-error" : "",
+          error ? "border-error! !hover:border-1.5 !hover:border-error !focus:border-1.5 !focus:border-error" : "",
       }}
       components={{
         ClearIndicator: () => null,

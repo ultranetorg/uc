@@ -99,7 +99,7 @@ const SingleValue = (props: SingleValueProps<DropdownItem, false>) => {
   const formattedRating = rating > 0 ? formatAverageRating(rating) : "N/A"
   return (
     <components.SingleValue {...props}>
-      <div className="flex min-w-0 items-center justify-start rounded-sm">
+      <div className="flex min-w-0 items-center justify-start rounded-xs">
         <div className="flex flex-none items-center">
           {rating > 0 ? (
             <>

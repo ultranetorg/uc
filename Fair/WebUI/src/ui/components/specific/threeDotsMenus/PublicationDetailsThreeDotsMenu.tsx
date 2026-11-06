@@ -57,7 +57,7 @@ export const PublicationDetailsThreeDotsMenu = memo(
       <>
         <div
           className={twMerge(
-            "flex cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-3 py-2 hover:border-gray-400",
+            "flex cursor-pointer items-center gap-2 rounded-sm border border-gray-300 bg-gray-100 px-3 py-2 hover:border-gray-400",
             className,
           )}
           ref={refs.setReference}

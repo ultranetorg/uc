@@ -24,7 +24,7 @@ const BreadcrumbNode = ({ node, onSelect }: ProductFieldInfoProps) => {
         </>
       )}
       <span
-        className="cursor-pointer rounded-sm p-1 text-gray-600 hover:text-gray-900"
+        className="cursor-pointer rounded-xs p-1 text-gray-600 hover:text-gray-900"
         key={node.name}
         onClick={() => onSelect(node)}
       >

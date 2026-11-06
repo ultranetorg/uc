@@ -75,7 +75,7 @@ export const OptionCollapse = ({
             </div>
           )}
           <SvgChevronDownAltSm
-            className={twMerge("z-10 flex-shrink-0 stroke-gray-400", isExpanded && "rotate-180 stroke-gray-800")}
+            className={twMerge("z-10 shrink-0 stroke-gray-400", isExpanded && "rotate-180 stroke-gray-800")}
           />
         </div>
 

@@ -17,7 +17,7 @@ export const ProfileButton = memo(
     ({ className, label, iconBefore, iconAfter, onClick, ...rest }, ref) => (
       <div
         className={twMerge(
-          "box-border flex h-12 w-full cursor-pointer items-center gap-2 rounded bg-gray-600 py-3 pl-4 pr-3 text-2sm leading-5 text-white hover:bg-gray-550",
+          "box-border flex h-12 w-full cursor-pointer items-center gap-2 rounded-sm bg-gray-600 py-3 pl-4 pr-3 text-2sm leading-5 text-white hover:bg-gray-550",
           className,
         )}
         onClick={onClick}

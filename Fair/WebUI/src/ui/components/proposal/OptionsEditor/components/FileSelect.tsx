@@ -28,9 +28,9 @@ export const FileSelect = memo(({ value, onChange }: FileSelectProps) => {
           onClick={handleClick}
         />
         {value && (
-          <div className="flex h-20 w-full items-center justify-between rounded border border-gray-200 p-2">
+          <div className="flex h-20 w-full items-center justify-between rounded-sm border border-gray-200 p-2">
             <div className="flex items-center gap-3">
-              <div className="size-16 overflow-hidden rounded">
+              <div className="size-16 overflow-hidden rounded-sm">
                 <img
                   className="size-full object-cover object-center"
                   src={value ? `${BASE_URL}/files/${value}` : undefined}

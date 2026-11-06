@@ -35,7 +35,7 @@ export const MembersPanelList = memo(
     onSearchItemSelect,
     onSelectedItemRemove,
   }: MembersPanelListProps) => (
-    <div className="flex flex-col divide-y divide-gray-300 rounded border border-gray-300 bg-gray-100">
+    <div className="flex flex-col divide-y divide-gray-300 rounded-sm border border-gray-300 bg-gray-100">
       <span className="p-4 text-2sm font-semibold leading-5">
         {t(modeType === "add" ? "selectMembersToAdd" : "selectMembersToRemove", { memberType: capitalize(memberType) })}
       </span>

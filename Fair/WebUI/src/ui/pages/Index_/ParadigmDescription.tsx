@@ -2,7 +2,7 @@ import { memo } from "react"
 
 export const ParadigmDescription = memo(() => (
   <div className="flex w-135 flex-col gap-6">
-    <span className="text-center text-2xl font-semibold leading-7.5">How New Paradigm Works</span>
+    <span className="text-center text-2xl leading-7.5 font-semibold">How New Paradigm Works</span>
     <ul className="list-inside list-disc space-y-5 text-2sm leading-4.5 text-gray-950">
       {/* @sync-start FairNode.WelcomeMessage */}
       <li>This is a decentralized platform of autonomous, transparent, community-governed stores.</li>

@@ -68,10 +68,10 @@ export const Slider = memo(({ items }: SliderProps) => {
             ))}
         </Swiper>
 
-        <div className="swiper-button-prev absolute left-2 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 text-transparent hover:bg-black/10">
+        <div className="swiper-button-prev absolute top-1/2 left-2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3">
           <SvgChevronLeftSm className="stroke-white" />
         </div>
-        <div className="swiper-button-next absolute right-2 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3 text-transparent hover:bg-black/10">
+        <div className="swiper-button-next absolute top-1/2 right-2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full px-3">
           <SvgChevronRightSm className="stroke-white" />
         </div>
       </div>
@@ -84,7 +84,7 @@ export const Slider = memo(({ items }: SliderProps) => {
               type="button"
               onClick={() => swiper?.slideTo?.(idx)}
               className={twMerge(
-                "h-15 w-24 shrink-0 overflow-hidden rounded-md outline-none focus:outline-none focus-visible:outline-none",
+                "h-15 w-24 shrink-0 overflow-hidden rounded-md outline-hidden focus:outline-hidden focus-visible:outline-hidden",
                 idx !== slideIndex && "opacity-60 hover:opacity-100",
               )}
             >

@@ -9,5 +9,6 @@
   "importOrder": ["^@api/(.*)$", "^@assets/(.*)$", "^@entities/(.*)$", "^@types/(.*)$", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "plugins": ["prettier-plugin-tailwindcss"]
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "tailwindStylesheet": "./src/style.css"
 }

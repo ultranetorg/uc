@@ -53,7 +53,7 @@ export const UserDetailsThreeDotsMenu = memo(({ userId, userName }: UserDetailsT
   return (
     <>
       <div ref={refs.setReference} {...getReferenceProps()}>
-        <SvgThreeDotsVertical className="size-8 cursor-pointer rounded fill-gray-800 opacity-50 hover:opacity-100" />
+        <SvgThreeDotsVertical className="size-8 cursor-pointer rounded-sm fill-gray-800 opacity-50 hover:opacity-100" />
       </div>
       {isExpanded && (
         <FloatingPortal>

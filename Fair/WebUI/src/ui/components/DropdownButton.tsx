@@ -31,7 +31,7 @@ export const DropdownButton = memo(
       <>
         <button
           className={twMerge(
-            "flex items-center gap-2 rounded bg-gray-950 px-4 py-3 text-2sm leading-5 text-white",
+            "flex items-center gap-2 rounded-sm bg-gray-950 px-4 py-3 text-2sm leading-5 text-white",
             className,
           )}
           ref={menu.refs.setReference}

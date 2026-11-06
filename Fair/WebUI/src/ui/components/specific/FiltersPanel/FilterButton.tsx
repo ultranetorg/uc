@@ -12,7 +12,7 @@ export type FilterButtonProps = {
 export const FilterButton = memo(({ checked, icon: Icon, iconColor = "fill", text, onClick }: FilterButtonProps) => (
   <div
     className={twMerge(
-      "flex select-none items-center gap-2 rounded bg-gray-100 px-3 py-2 text-2sm leading-5",
+      "flex select-none items-center gap-2 rounded-sm bg-gray-100 px-3 py-2 text-2sm leading-5",
       checked ? "bg-gray-950 text-white" : "cursor-pointer",
     )}
     onClick={onClick}

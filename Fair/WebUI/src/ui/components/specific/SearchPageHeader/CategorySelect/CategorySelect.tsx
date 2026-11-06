@@ -157,7 +157,7 @@ export const CategorySelect = memo(
         <div
           ref={refs.setReference}
           className={twMerge(
-            "box-border flex h-10 w-37.5 cursor-pointer items-center justify-between gap-2 rounded border bg-gray-100 py-2 pl-3.5 pr-1.5 hover:border-gray-400",
+            "box-border flex h-10 w-37.5 cursor-pointer items-center justify-between gap-2 rounded-sm border bg-gray-100 py-2 pl-3.5 pr-1.5 hover:border-gray-400",
             isOpen ? "border-gray-400" : "border-gray-300",
           )}
           {...getReferenceProps()}
@@ -169,11 +169,11 @@ export const CategorySelect = memo(
           <FloatingPortal>
             <div
               ref={refs.setFloating}
-              className="z-60 flex w-75 flex-col gap-3 rounded border border-gray-300 bg-[#FCFCFC] p-3 shadow-md"
+              className="z-60 flex w-75 flex-col gap-3 rounded-sm border border-gray-300 bg-[#FCFCFC] p-3 shadow-md"
               style={floatingStyles}
               {...getFloatingProps()}
             >
-              <div className="flex max-h-84.5 flex-col gap-0.5 overflow-y-auto rounded border border-gray-300 bg-white">
+              <div className="flex max-h-84.5 flex-col gap-0.5 overflow-y-auto rounded-sm border border-gray-300 bg-white">
                 {categoriesTree.map(category => (
                   <CategorySelectItem
                     key={category.id}

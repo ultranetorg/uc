@@ -39,7 +39,7 @@ export const CommentInput = memo(
             disabled={loading}
             type="text"
             placeholder={placeholder}
-            className="bg-gray-100 outline-none"
+            className="bg-gray-100 outline-hidden"
             value={comment}
             onChange={handleCommentInput}
           />

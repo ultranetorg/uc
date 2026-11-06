@@ -6,7 +6,7 @@ import { PropsWithClassName, PropsWithStyle } from "types"
 import { chunkArray, makeKey } from "utils"
 
 const MENU_ITEM_CLASSNAME =
-  "w-40 truncate rounded-sm p-2 text-2sm leading-4.5 text-gray-900 hover:bg-gray-100 cursor-pointer first-letter:uppercase"
+  "w-40 truncate rounded-xs p-2 text-2sm leading-4.5 text-gray-900 hover:bg-gray-100 cursor-pointer first-letter:uppercase"
 
 const MENU_FLYOUT_CLASSNAME = "z-20 flex flex-col rounded-lg border border-gray-300 bg-gray-0 p-1 shadow-md"
 

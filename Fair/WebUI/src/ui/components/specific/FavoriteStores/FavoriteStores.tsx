@@ -63,7 +63,7 @@ export const FavoriteStores = () => {
           />
         ))}
         <div
-          className="flex size-8 cursor-pointer items-center justify-center rounded bg-gray-600 hover:bg-gray-550"
+          className="flex size-8 cursor-pointer items-center justify-center rounded-sm bg-gray-600 hover:bg-gray-550"
           ref={refs.setReference}
           {...getReferenceProps()}
         >

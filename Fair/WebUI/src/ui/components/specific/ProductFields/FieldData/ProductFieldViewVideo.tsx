@@ -67,7 +67,7 @@ export const ProductFieldViewVideo = memo(({ value, oldValue, status }: ProductF
               {oldPreview}
             </div>
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="rounded bg-red-600/30 px-2 py-1 text-sm text-white">Removed</div>
+              <div className="rounded-sm bg-red-600/30 px-2 py-1 text-sm text-white">Removed</div>
             </div>
           </div>
         </PreviewBox>

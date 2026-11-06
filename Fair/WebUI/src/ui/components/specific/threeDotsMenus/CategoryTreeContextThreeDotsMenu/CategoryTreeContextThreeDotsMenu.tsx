@@ -52,7 +52,7 @@ export const CategoryTreeContextThreeDotsMenu = memo(
     return (
       <>
         <div className={className} ref={refs.setReference} {...getReferenceProps()}>
-          <SvgThreeDotsSm className="size-5 cursor-pointer rounded bg-white fill-gray-500 opacity-50 hover:fill-gray-800 hover:opacity-80" />
+          <SvgThreeDotsSm className="size-5 cursor-pointer rounded-sm bg-white fill-gray-500 opacity-50 hover:fill-gray-800 hover:opacity-80" />
         </div>
         {isExpanded && (
           <FloatingPortal>

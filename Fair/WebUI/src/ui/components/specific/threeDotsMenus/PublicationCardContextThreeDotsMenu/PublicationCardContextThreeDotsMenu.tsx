@@ -58,7 +58,7 @@ export const PublicationCardContextThreeDotsMenu = memo(
         <div className={className} ref={refs.setReference} {...getReferenceProps()}>
           <SvgThreeDotsSm
             className={twMerge(
-              "size-5 cursor-pointer rounded bg-white fill-gray-500 opacity-50 hover:fill-gray-800 hover:opacity-80",
+              "size-5 cursor-pointer rounded-sm bg-white fill-gray-500 opacity-50 hover:fill-gray-800 hover:opacity-80",
               size === "large" && "size-8",
             )}
           />
