@@ -9,9 +9,9 @@ import { ModerationHeader, OperationPolicyInfo } from "ui/components/specific"
 import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { isModeratorCanCreate, isPublisherCanCreate, routes, sortTabsByVoting } from "utils"
 
-import { ModeratorsAdditionsTab } from "./ModeratorsAdditionsTab"
-import { ModeratorsListTab } from "./ModeratorsListTab"
-import { ModeratorsRemovalsTab } from "./ModeratorsRemovalsTab"
+import { ModeratorsAdditionsTab } from "./tabs/ModeratorsAdditionsTab"
+import { ModeratorsListTab } from "./tabs/ModeratorsListTab"
+import { ModeratorsRemovalsTab } from "./tabs/ModeratorsRemovalsTab"
 
 const routeToTabKey: Record<string, string> = {
   moderators: "moderators",

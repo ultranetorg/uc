@@ -9,9 +9,9 @@ import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { OperationPolicyInfo } from "ui/components/specific"
 import { routes, sortTabsByVoting } from "utils"
 
-import { UsersNewTab } from "./UsersNewTab"
-import { UsersRemovalsTab } from "./UsersRemovalsTab"
-import { UsersListTab } from "./UsersListTab"
+import { UsersNewTab } from "./tabs/UsersNewTab"
+import { UsersRemovalsTab } from "./tabs/UsersRemovalsTab"
+import { UsersListTab } from "./tabs/UsersListTab"
 
 const routeToTabKey: Record<string, string> = {
   new: "new-users",

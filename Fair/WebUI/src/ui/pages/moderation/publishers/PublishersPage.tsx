@@ -9,8 +9,8 @@ import { ModerationHeader, OperationPolicyInfo } from "ui/components/specific"
 import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { routes, sortTabsByVoting } from "utils"
 
-import { PublishersListTab } from "./PublishersListTab"
-import { PublishersRemovalsTab } from "./PublishersRemovalsTab"
+import { PublishersListTab } from "./tabs/PublishersListTab"
+import { PublishersRemovalsTab } from "./tabs/PublishersRemovalsTab"
 
 const routeToTabKey: Record<string, string> = {
   publishers: "publishers",

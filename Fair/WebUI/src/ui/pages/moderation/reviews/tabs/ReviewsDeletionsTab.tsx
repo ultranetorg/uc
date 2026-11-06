@@ -12,7 +12,7 @@ import { Pagination, Table, TableEmptyState, TableItem } from "ui/components"
 import { ReviewModal } from "ui/components/specific"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
-import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
+import { getReviewsPageItemRenderer } from "../reviewsPageItemRenderer"
 
 export const ReviewsDeletionsTab = () => {
   const { t } = useTranslation("reviewsPage")
