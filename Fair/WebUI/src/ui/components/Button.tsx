@@ -1,4 +1,4 @@
-import { forwardRef, memo, ReactNode } from "react"
+import { forwardRef, JSX, memo, ReactNode } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"

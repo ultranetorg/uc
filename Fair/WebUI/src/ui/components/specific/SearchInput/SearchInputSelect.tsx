@@ -1,3 +1,4 @@
+import { JSX, memo, useCallback, useState } from "react"
 import {
   autoUpdate,
   FloatingPortal,
@@ -10,7 +11,6 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
-import { memo, useCallback, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { SvgChevronDownAltSm } from "assets"

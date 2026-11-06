@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from "react"
+import { JSX, memo, useCallback, useState } from "react"
 import { MultiValue, SingleValue, components } from "react-select"
 import { twMerge } from "tailwind-merge"
 

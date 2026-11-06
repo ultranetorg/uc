@@ -1,4 +1,4 @@
-import { memo, useState } from "react"
+import { JSX, memo, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { PropsWithClassName } from "types"

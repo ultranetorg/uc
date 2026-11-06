@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from "react"
+import { JSX, memo, useCallback, useMemo, useState } from "react"
 import { components, OptionProps, SingleValue as SingleValueType, SingleValueProps, StylesConfig } from "react-select"
 import { twMerge } from "tailwind-merge"
 import { SvgStarXxs } from "assets"

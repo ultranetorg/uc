@@ -1,4 +1,4 @@
-import { memo, MouseEvent } from "react"
+import { JSX, memo, MouseEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { SvgSpinner } from "assets"

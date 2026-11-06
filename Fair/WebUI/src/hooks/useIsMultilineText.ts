@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useState } from "react"
 
-export const useIsMultilineText = (ref: RefObject<HTMLElement>, text?: string) => {
+export const useIsMultilineText = (ref: RefObject<HTMLElement | null>, text?: string) => {
   const [isMultiline, setIsMultiline] = useState(false)
 
   useEffect(() => {
