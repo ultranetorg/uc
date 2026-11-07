@@ -10,7 +10,7 @@ import { useCanVoteOperation, useResolveStoreId, useUrlParamsState } from "hooks
 import { Pagination, Table, TableEmptyState } from "ui/components"
 import { parseInteger, routes } from "utils"
 
-import { getPublishersRemovalsItemRenderer } from "./publishersRemovalsItemRenderer"
+import { getPublishersRemovalsItemRenderer } from "../publishersRemovalsItemRenderer"
 
 export const PublishersRemovalsTab = () => {
   const canVoteOperation = useCanVoteOperation()

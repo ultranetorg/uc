@@ -33,7 +33,7 @@ export const IndexPage = () => {
   useStoreTitle()
 
   const {
-    isPending: isProductsPending,
+    isLoading: isProductsLoading,
     data: products,
     page,
     loadedPagesCount,
@@ -41,7 +41,7 @@ export const IndexPage = () => {
     isFetchingNext,
     onPageChange,
   } = useSearchPaginatedProducts(scope === "products" ? search : undefined, filter)
-  const { isPending: isStoresPending, data: stores } = useSearchStores(scope === "stores" ? search : undefined)
+  const { isLoading: isStoresLoading, data: stores } = useSearchStores(scope === "stores" ? search : undefined)
 
   const handleClear = useCallback(() => {
     setState({ query: "", type: "none" })
@@ -82,7 +82,7 @@ export const IndexPage = () => {
 
   const searchMode = search !== ""
 
-  if (searchMode && ((scope === "products" && isProductsPending) || (scope === "stores" && isStoresPending))) {
+  if (searchMode && ((scope === "products" && isProductsLoading) || (scope === "stores" && isStoresLoading))) {
     return <div>Loading{import.meta.env.DEV ? " (IndexPage)" : ""}</div>
   }
 

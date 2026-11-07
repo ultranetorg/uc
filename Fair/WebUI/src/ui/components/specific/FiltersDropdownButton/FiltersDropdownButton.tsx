@@ -54,7 +54,7 @@ export const FiltersDropdownButton = memo(({ label }: FiltersDropdownButtonProps
       <div
         ref={refs.setReference}
         className={twMerge(
-          "box-border flex h-10 w-35 cursor-pointer items-center gap-2 rounded border border-gray-300 bg-gray-100 px-4 py-3 hover:border-gray-400",
+          "box-border flex h-10 w-35 cursor-pointer items-center gap-2 rounded-sm border border-gray-300 bg-gray-100 px-4 py-3 hover:border-gray-400",
           isExpanded && "border-gray-400",
         )}
         {...getReferenceProps()}

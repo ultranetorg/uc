@@ -40,7 +40,7 @@ export const HeadingsMenu = memo(
                   <Link
                     key={x.to.toString() + i}
                     to={x.to}
-                    className="truncate rounded-sm p-2 text-2sm font-semibold leading-4.5 hover:bg-gray-100"
+                    className="truncate rounded-xs p-2 text-2sm font-semibold leading-4.5 hover:bg-gray-100"
                     title={x.label}
                   >
                     {x.label}
@@ -48,13 +48,13 @@ export const HeadingsMenu = memo(
                   {x.items?.map(s => (
                     <Link
                       to={s.to}
-                      className="truncate rounded-sm px-2 py-1.5 text-2xs leading-4 hover:bg-gray-100"
+                      className="truncate rounded-xs px-2 py-1.5 text-2xs leading-4 hover:bg-gray-100"
                       title={s.label}
                     >
                       {s.label}
                     </Link>
                   ))}
-                  <Link to="" className="flex items-center rounded-sm px-2 py-1.5 text-2xs leading-4 hover:bg-gray-100">
+                  <Link to="" className="flex items-center rounded-xs px-2 py-1.5 text-2xs leading-4 hover:bg-gray-100">
                     View All <SvgChevronRight className="stroke-gray-500" />
                   </Link>
                 </div>

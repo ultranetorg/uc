@@ -18,7 +18,7 @@ export const Textarea = memo(({ value, className, onChange, ...rest }: TextareaP
   return (
     <textarea
       className={twMerge(
-        "resize-none rounded border border-gray-300 bg-gray-100 p-3 text-gray-800 placeholder-gray-500 outline-none hover:border-gray-400",
+        "resize-none rounded-sm border border-gray-300 bg-gray-100 p-3 text-gray-800 placeholder-gray-500 outline-hidden hover:border-gray-400",
         className,
       )}
       onChange={handleChange}

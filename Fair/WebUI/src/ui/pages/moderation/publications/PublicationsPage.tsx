@@ -16,9 +16,9 @@ import { ButtonPrimary, TabContent, TabsList, TabsListItem, TabsProvider } from 
 import { ModerationHeader, OperationPolicyInfo } from "ui/components/specific"
 import { routes, sortTabsByVoting } from "utils"
 
-import { PublicationsChangedTab } from "./PublicationsChangedTab"
-import { PublicationsOperationTab, PublicationsOperationTabProps } from "./PublicationsOperationTab"
-import { PublicationsUnpublishedTab } from "./PublicationsUnpublishedTab"
+import { PublicationsChangedTab } from "./tabs/PublicationsChangedTab"
+import { PublicationsOperationTab, PublicationsOperationTabProps } from "./tabs/PublicationsOperationTab"
+import { PublicationsUnpublishedTab } from "./tabs/PublicationsUnpublishedTab"
 
 const OPERATION_TABS: {
   key: string

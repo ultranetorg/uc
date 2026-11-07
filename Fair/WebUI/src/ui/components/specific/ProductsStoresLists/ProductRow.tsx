@@ -45,7 +45,7 @@ export const ProductRow = memo(
     const [selectedStoreId, setSelectedStoreId] = useState(() => pickRandomStoreId(publications))
     const [isFlashing, setIsFlashing] = useState(false)
 
-    const flashTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+    const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
     const isDropdownOpenRef = useRef(false)
     const isRowHoveredRef = useRef(false)
 

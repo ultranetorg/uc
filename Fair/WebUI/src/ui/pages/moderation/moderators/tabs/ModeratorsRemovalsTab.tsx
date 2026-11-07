@@ -21,7 +21,7 @@ import {
 } from "ui/components"
 import { isPublisherVotedInSurvey, parseInteger, showToast } from "utils"
 
-import { renderModerator } from "./utils"
+import { renderModerator } from "../utils"
 
 const getColumns = (t: TFunction, canVote: boolean) => [
   {

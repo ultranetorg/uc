@@ -8,11 +8,11 @@ const api = getFairApi()
 export const useGetCategoriesRoot = (storeId?: string) => {
   const queryFn = () => api.getCategoriesRoot(storeId!)
 
-  const { isPending, error, data, isFetching, refetch } = useQuery({
+  const { isLoading, error, data, isFetching, refetch } = useQuery({
     queryKey: categoriesKeys.root(storeId!),
     queryFn: queryFn,
     enabled: !!storeId,
   })
 
-  return { isPending, error: error ?? undefined, data, isFetching, refetch }
+  return { isLoading, error: error ?? undefined, data, isFetching, refetch }
 }

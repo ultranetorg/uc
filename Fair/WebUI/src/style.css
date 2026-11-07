@@ -1,0 +1,125 @@
+@import 'tailwindcss';
+
+@theme {
+  --animate-spin-slow: spin 3s linear infinite;
+
+  --border-width-1_5: 1.5px;
+
+  --shadow-md: 0 4px 14px 0 rgba(28, 38, 58, 0.1);
+
+  --color-favorite: #e3a427;
+  --color-error: #ee505a;
+  --color-light-green: #44b848;
+  --color-light-red: #d74c41;
+  --color-light-yellow: #e1a107;
+  --color-ivory: #f4f2e5;
+  --color-warning: #f8d31b66;
+
+  --color-dark-100: #14181f;
+
+  --color-gray-0: #ffffff;
+  --color-gray-50: #fcfcfd;
+  --color-gray-75: #fefefe;
+  --color-gray-100: #f3f4f9;
+  --color-gray-200: #e8e9f1;
+  --color-gray-250: #dddfeb;
+  --color-gray-300: #d2d4e4;
+  --color-gray-400: #9798a6;
+  --color-gray-500: #737582;
+  --color-gray-550: #525361;
+  --color-gray-600: #434454;
+  --color-gray-700: #3f3f46;
+  --color-gray-750: #292d32;
+  --color-gray-800: #2a2932;
+  --color-gray-950: #0c0e22;
+
+  --font-sans: Inter, sans-serif;
+
+  --text-2xs: 0.8125rem;
+  --text-2sm: 0.9375rem;
+  --text-2base: 1.0625rem;
+  --text-3_5xl: 2rem;
+
+  --tracking-tight-048: 0.48px;
+
+  --leading-11: 2.75rem;
+  --leading-3_5: 0.875rem;
+  --leading-3_75: 0.9375rem;
+  --leading-4_25: 1.0625rem;
+  --leading-4_5: 1.125rem;
+  --leading-4_75: 1.1875rem;
+  --leading-5_25: 1.3125rem;
+  --leading-7_5: 1.875rem;
+  --leading-9_75: 2.4375rem;
+
+  --breakpoint-xs: 475px;
+
+  --spacing-0_4375: 0.4375rem;
+
+  --z-index-60: 60;
+  --z-index-61: 61;
+  --z-index-62: 62;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+:root {
+  background-color: #ffffff;
+  color-scheme: light dark;
+  color: #2a2932;
+
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  font-synthesis: none;
+  font-weight: 400;
+
+  height: 100%;
+  width: 100%;
+
+  scrollbar-color: #d2d4e4 transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: 8px;
+
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-weight: 500;
+  font-size: 3.875rem;
+  line-height: 4.6875rem;
+}
+
+h2 {
+  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 100%;
+}
+
+h3 {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+  line-height: 1.625rem;
+}
+

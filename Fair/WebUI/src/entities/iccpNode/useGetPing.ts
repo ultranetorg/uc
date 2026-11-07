@@ -7,7 +7,7 @@ const api = getIccpNodeApi()
 export const useGetPing = (iccpNodeUrl?: string, refetchInterval?: number | false) => {
   const queryFn = () => api.ping(iccpNodeUrl!)
 
-  const { isPending, data, refetch } = useQuery({
+  const { isLoading, data, refetch } = useQuery({
     queryKey: ["ping"],
     queryFn: queryFn,
     enabled: !!iccpNodeUrl,
@@ -15,5 +15,5 @@ export const useGetPing = (iccpNodeUrl?: string, refetchInterval?: number | fals
     refetchInterval: refetchInterval,
   })
 
-  return { data, isPending, refetch }
+  return { data, isLoading, refetch }
 }

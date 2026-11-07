@@ -9,11 +9,11 @@ const api = getFairApi()
 export const useGetStore = (storesId?: string) => {
   const queryFn = () => api.getStore(storesId!)
 
-  const { isPending, error, data } = useQuery({
+  const { isLoading, error, data } = useQuery({
     queryKey: storesKeys.detail(storesId!),
     queryFn: queryFn,
     enabled: !!storesId,
   })
 
-  return { isPending, error: error ?? undefined, data }
+  return { isLoading, error: error ?? undefined, data }
 }

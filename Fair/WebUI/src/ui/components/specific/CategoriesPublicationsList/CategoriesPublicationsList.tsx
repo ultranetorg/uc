@@ -5,7 +5,7 @@ import { CategoriesPublicationsListChildrenProps } from "./types"
 
 type CategoriesPublicationsListBaseProps = {
   storeId: string
-  isPending: boolean
+  isLoading: boolean
   categoriesPublications?: CategoryPublicationsType[]
 }
 
@@ -14,11 +14,11 @@ export type CategoriesPublicationsListProps = CategoriesPublicationsListBaseProp
 
 export const CategoriesPublicationsList = ({
   storeId,
-  isPending,
+  isLoading,
   categoriesPublications,
   ...rest
 }: CategoriesPublicationsListProps) => {
-  return isPending || !categoriesPublications ? (
+  return isLoading || !categoriesPublications ? (
     <div>Loading{import.meta.env.DEV ? " (CategoriesPublicationsList)" : ""}</div>
   ) : (
     <>

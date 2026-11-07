@@ -26,7 +26,7 @@ export const Toast = ({ type = "default", text, closeToast }: ToastProps) => (
       {type === "error" && <SvgExclamationOctagon className="shrink-0 fill-white" />}
       {type === "default" && <SvgInfoCircle className="shrink-0 stroke-white" />}
 
-      <span className="mt-1 w-full break-words text-2xs font-medium leading-4">{text}</span>
+      <span className="mt-1 w-full wrap-break-word text-2xs font-medium leading-4">{text}</span>
     </div>
 
     <button

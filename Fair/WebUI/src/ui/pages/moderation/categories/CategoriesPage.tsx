@@ -16,7 +16,7 @@ import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader, OperationPolicyInfo } from "ui/components/specific"
 import { routes, sortTabsByVoting } from "utils"
 
-import { ProposalsOperationTab, ProposalsOperationTabProps } from "../ProposalsOperationTab"
+import { ProposalsOperationTab, ProposalsOperationTabProps } from "../tabs/ProposalsOperationTab"
 
 const OPERATION_TABS: {
   key: string

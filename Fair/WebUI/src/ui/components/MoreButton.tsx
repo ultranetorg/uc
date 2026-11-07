@@ -16,7 +16,7 @@ export const MoreButton = memo(
       <div
         ref={ref}
         className={twMerge(
-          "flex h-8.5 w-8.5 items-center justify-center rounded bg-gray-100 hover:bg-gray-200",
+          "flex h-8.5 w-8.5 items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200",
           onClick && "cursor-pointer",
           className,
         )}

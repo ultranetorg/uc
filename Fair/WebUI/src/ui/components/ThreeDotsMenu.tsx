@@ -28,7 +28,7 @@ export const ThreeDotsMenu = memo(({ className, items }: ThreeDotsMenuProps) => 
     <>
       <div
         className={twMerge(
-          "group box-border flex size-10 cursor-pointer items-center justify-center rounded border border-gray-300 bg-gray-100 hover:border-gray-400",
+          "group box-border flex size-10 cursor-pointer items-center justify-center rounded-sm border border-gray-300 bg-gray-100 hover:border-gray-400",
           menu.isOpen && "border-gray-400",
           className,
         )}

@@ -20,12 +20,12 @@ export const PublisherPage = memo(({ showDefaultBreadcrumbs = false }: Publisher
 
   const [isModalOpen, setModalOpen] = useState(false)
 
-  const { isPending, data: author, error } = useGetAuthor(publisherId)
+  const { isLoading, data: author, error } = useGetAuthor(publisherId)
   if (error) throw error
 
   useStoreTitle(author?.title ? `Publisher - ${author?.title}` : undefined)
 
-  if (isPending || !author) {
+  if (isLoading || !author) {
     return <div>Loading{import.meta.env.DEV ? " (PublisherPage)" : ""}</div>
   }
 

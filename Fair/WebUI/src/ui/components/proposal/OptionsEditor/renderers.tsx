@@ -1,3 +1,5 @@
+import { JSX } from "react"
+
 import { UserBase, AuthorBaseAvatar } from "types"
 import { Input, Textarea, ValidationWrapper } from "ui/components"
 

@@ -39,9 +39,9 @@ export const CommentInput = memo(
             disabled={loading}
             type="text"
             placeholder={placeholder}
-            className="bg-gray-100 outline-none"
+            className="bg-gray-100 outline-hidden"
             value={comment}
-            onInput={handleCommentInput}
+            onChange={handleCommentInput}
           />
           <div className="flex items-center justify-end gap-2">
             {/* <ButtonIcon icon={<SvgEmojiLaughing className="stroke-gray-500" />} /> */}

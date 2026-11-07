@@ -52,7 +52,7 @@ export const AuthenticationProvider = ({ children }: PropsWithChildren) => {
     users: [],
   })
 
-  const { mutate: authenticateMutation, isFetching: isAuthenticatePending } = useAuthenticateMutation()
+  const { mutate: authenticateMutation, isPending: isAuthenticatePending } = useAuthenticateMutation()
   const { mutate: registerMutation, isPending: isRegisterPending } = useRegisterMutation()
   const { mutate: transactMutation, isPending: isTransactPending } = useTransactMutationWithStatus()
   const {

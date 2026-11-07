@@ -12,9 +12,9 @@ const getOperationData = (proposal: Proposal): { publicationId: string; version:
 export const PublicationUpdationContent = memo(({ storeId, proposal }: ProposalViewContentProps) => {
   const data = useMemo(() => getOperationData(proposal), [proposal])
 
-  const { isFetching, data: publication } = useGetPublicationDetailsDiff(data.publicationId, data.version)
+  const { isLoading, data: publication } = useGetPublicationDetailsDiff(data.publicationId, data.version)
 
-  if (isFetching || !publication) return <div>Loading{import.meta.env.DEV ? " (PublicationUpdationContent)" : ""}</div>
+  if (isLoading || !publication) return <div>Loading{import.meta.env.DEV ? " (PublicationUpdationContent)" : ""}</div>
 
   return (
     <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">

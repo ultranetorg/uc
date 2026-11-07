@@ -35,9 +35,21 @@
 
 .swiper-button-prev,
 .swiper-button-next {
+  /*
+   * Swiper fills the arrow svg with currentColor (its blue theme colour by default), but our chevron is
+   * drawn only with a white stroke. Tailwind's `text-transparent` can't override it: utilities live in
+   * a cascade layer and lose to Swiper's unlayered CSS, so the colour is set here.
+   */
+  --swiper-navigation-color: transparent;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(6px);
+}
+
+/* Same cascade-layer issue as above: `hover:bg-*` utilities can't beat the unlayered `background` of the buttons. */
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .swiper-button-disabled {

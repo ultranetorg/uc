@@ -23,7 +23,7 @@ export const PublicationRow = memo(
         className="flex cursor-pointer items-center gap-4 bg-gray-100 p-4 text-2sm leading-5 text-gray-900 hover:bg-gray-200"
         title={title}
       >
-        <div className="flex min-w-0 max-w-[520px] flex-[2] items-center gap-2">
+        <div className="flex min-w-0 max-w-[520px] flex-2 items-center gap-2">
           <div className="size-8 flex-none overflow-hidden rounded-lg bg-gray-500">
             <ImageFallback
               src={buildFileUrl(logoFileId)}

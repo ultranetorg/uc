@@ -45,7 +45,7 @@ const ALREADY_VOTED = 100
 
 export interface ProposalViewProps {
   parentBreadcrumbs: BreadcrumbsItemProps | BreadcrumbsItemProps[]
-  isFetching: boolean
+  isLoading: boolean
   proposal?: ProposalDetails
   previousPath: string
 }
@@ -79,7 +79,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
   const [commentSubmitting, setCommentSubmitting] = useState(false)
 
   const [commentsPage, setCommentsPage] = useState(0)
-  const { isPending: isCommentsPending, data: comments } = useGetProposalComments(
+  const { isLoading: isCommentsLoading, data: comments } = useGetProposalComments(
     storeId,
     proposal?.id,
     commentsPage,
@@ -292,7 +292,7 @@ export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }:
             inputDisabled={voteStatus === "voting" || commentSubmitting}
             inputLoading={commentSubmitting}
             showCommentInput={!!commentCreatorId}
-            isPending={isCommentsPending}
+            isLoading={isCommentsLoading}
             comments={comments}
             page={commentsPage}
             pageSize={DEFAULT_PAGE_SIZE_20}

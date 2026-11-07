@@ -9,11 +9,11 @@ const api = getFairApi()
 export const useGetPolicySurveyDetails = (storeId?: string, surveyId?: string) => {
   const queryFn = () => api.getPolicySurveyDetails(storeId!, surveyId!)
 
-  const { isFetching, isError, data, error, refetch } = useQuery({
+  const { isLoading, isError, data, error, refetch } = useQuery({
     queryKey: surveyKeys.policyDetails(storeId!, surveyId!),
     queryFn: queryFn,
     enabled: !!storeId && surveyId !== undefined,
   })
 
-  return { isFetching, isError, data, refetch, error: error ?? undefined }
+  return { isLoading, isError, data, refetch, error: error ?? undefined }
 }

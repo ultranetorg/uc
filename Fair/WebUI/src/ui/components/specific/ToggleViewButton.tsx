@@ -23,13 +23,13 @@ export const ToggleViewButton = memo(({ view, onChange, gridTitle, listTitle }: 
 
   return (
     <div
-      className="box-border flex h-10.5 w-20 cursor-pointer select-none items-center gap-1 rounded border border-gray-300 bg-gray-100 p-1 hover:bg-gray-200"
+      className="box-border flex h-10.5 w-20 cursor-pointer select-none items-center gap-1 rounded-sm border border-gray-300 bg-gray-100 p-1 hover:bg-gray-200"
       onClick={handleClick}
     >
-      <div className={twMerge("rounded-sm p-0.4375", viewName === "grid" && "bg-gray-950")} title={gridTitle}>
+      <div className={twMerge("rounded-xs p-0.4375", viewName === "grid" && "bg-gray-950")} title={gridTitle}>
         <SvgGridSm className={twMerge("fill-gray-500", viewName === "grid" && "fill-gray-100")} />
       </div>
-      <div className={twMerge("rounded-sm p-0.4375", viewName === "list" && "bg-gray-950")} title={listTitle}>
+      <div className={twMerge("rounded-xs p-0.4375", viewName === "list" && "bg-gray-950")} title={listTitle}>
         <SvgViewStackedSm className={twMerge("fill-gray-500", viewName === "list" && "fill-gray-100")} />
       </div>
     </div>

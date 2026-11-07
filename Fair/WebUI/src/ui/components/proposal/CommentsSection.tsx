@@ -10,7 +10,7 @@ export type CommentsSectionProps = {
   inputDisabled?: boolean
   inputLoading?: boolean
   showCommentInput?: boolean
-  isPending: boolean
+  isLoading: boolean
   comments: TotalItemsResult<ProposalComment> | undefined
   page: number
   pageSize: number
@@ -22,7 +22,7 @@ export const CommentsSection = ({
   inputDisabled,
   inputLoading,
   showCommentInput,
-  isPending,
+  isLoading,
   comments,
   page,
   pageSize,
@@ -46,7 +46,7 @@ export const CommentsSection = ({
         inputDisabled={inputDisabled}
         inputLoading={inputLoading}
         comments={comments?.items}
-        isPending={isPending}
+        isLoading={isLoading}
         commentInputPlaceholder={t("addComment")}
         noCommentsLabel={t("noComments")}
         showMoreCommentsLabel={t("showMore")}

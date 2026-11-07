@@ -6,18 +6,18 @@ import { CategoryBase, CategoryParentBaseWithChildren, ProductType, Store } from
 import { buildCategoryTreeAndTypes } from "utils"
 
 type StoreContextType = {
-  isPending: boolean
+  isLoading: boolean
   store?: Store
   error?: Error
-  isCategoriesPending: boolean
+  isCategoriesLoading: boolean
   categoriesTree: CategoryParentBaseWithChildren[] | undefined
   categoriesTypes: ProductType[] | undefined
   rootCategories?: CategoryBase[]
 }
 
 const StoreContext = createContext<StoreContextType>({
-  isPending: false,
-  isCategoriesPending: false,
+  isLoading: false,
+  isCategoriesLoading: false,
   categoriesTree: undefined,
   categoriesTypes: undefined,
 })
@@ -25,10 +25,10 @@ const StoreContext = createContext<StoreContextType>({
 export const StoreProvider = memo(({ children }: PropsWithChildren) => {
   const effectiveStoreId = useResolveStoreId()
 
-  const { data: store, isPending, error } = useGetStore(effectiveStoreId)
+  const { data: store, isLoading, error } = useGetStore(effectiveStoreId)
   if (error) throw error
   const { data: rootCategories } = useGetCategoriesRoot(effectiveStoreId)
-  const { data: categories, isPending: isCategoriesPending } = useGetCategoriesTree(effectiveStoreId, 16)
+  const { data: categories, isLoading: isCategoriesLoading } = useGetCategoriesTree(effectiveStoreId, 16)
 
   const { tree: categoriesTree, types: categoriesTypes } = useMemo(
     () => (Array.isArray(categories) ? buildCategoryTreeAndTypes(categories) : { tree: [], types: [] }),
@@ -37,15 +37,15 @@ export const StoreProvider = memo(({ children }: PropsWithChildren) => {
 
   const value = useMemo<StoreContextType>(() => {
     return {
-      isPending,
+      isLoading,
       store,
       error,
-      isCategoriesPending,
+      isCategoriesLoading,
       categoriesTree: categoriesTree.length > 0 ? categoriesTree : undefined,
       categoriesTypes: categoriesTypes.length > 0 ? categoriesTypes : undefined,
       rootCategories,
     }
-  }, [isPending, store, error, isCategoriesPending, categoriesTree, categoriesTypes, rootCategories])
+  }, [isLoading, store, error, isCategoriesLoading, categoriesTree, categoriesTypes, rootCategories])
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 })

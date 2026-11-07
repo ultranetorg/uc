@@ -7,7 +7,7 @@ import { ToastContainer } from "react-toastify"
 import { Router, SearchQueryProvider } from "./app"
 
 import "./i18n"
-import "./styles/index.css"
+import "./style.css"
 
 // Все запросы выполняются только явно: первичная загрузка при монтировании (с учётом enabled)
 // и ручные refetch() / invalidateQueries(). Любые неявные фоновые обновления отключены.

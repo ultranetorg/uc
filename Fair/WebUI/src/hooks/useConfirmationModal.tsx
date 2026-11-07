@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { JSX, useCallback } from "react"
 import { TextModal, TextModalProps } from "ui/components"
 import { useModalOpen, UseModalOpenReturn } from "./useModalOpen"
 

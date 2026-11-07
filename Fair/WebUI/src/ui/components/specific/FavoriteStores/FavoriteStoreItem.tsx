@@ -22,7 +22,7 @@ export const FavoriteStoreItem = memo(({ storeId, name, logoId, isPending }: Fav
   >
     <div
       className={twMerge(
-        "box-border size-8 overflow-hidden rounded hover:border hover:border-gray-500",
+        "box-border size-8 overflow-hidden rounded-sm hover:border hover:border-gray-500",
         isPending && "animate-pulse hover:border-transparent",
       )}
     >

@@ -1,3 +1,4 @@
+import { JSX, memo, useCallback, useState } from "react"
 import {
   autoUpdate,
   FloatingPortal,
@@ -10,7 +11,6 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
-import { memo, useCallback, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { SvgChevronDownAltSm } from "assets"
@@ -99,14 +99,14 @@ const SearchInputSelectInner = <T extends string>({
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="z-20 flex min-w-30 flex-col rounded border border-gray-300 bg-gray-0 p-1 shadow-md"
+            className="z-20 flex min-w-30 flex-col rounded-sm border border-gray-300 bg-gray-0 p-1 shadow-md"
             {...getFloatingProps()}
           >
             {items.map(item => (
               <div
                 key={item.value}
                 className={twMerge(
-                  "cursor-pointer truncate rounded-sm px-3 py-2 text-2sm leading-5 text-gray-800 hover:bg-gray-100",
+                  "cursor-pointer truncate rounded-xs px-3 py-2 text-2sm leading-5 text-gray-800 hover:bg-gray-100",
                   item.value === selected?.value && "text-gray-950",
                 )}
                 onClick={() => handleSelect(item)}

@@ -26,7 +26,10 @@ export default tseslint.config(
       prettier: eslintPluginPrettier,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      // react-hooks v7 "recommended" also enables React Compiler rules (refs, set-state-in-effect, ...),
+      // which flag a lot of existing code. Keep only the classic rules until the codebase is ready for them.
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       // prettier
       ...eslintConfigPrettier.rules,
       ...eslintPluginPrettier.configs.recommended.rules,

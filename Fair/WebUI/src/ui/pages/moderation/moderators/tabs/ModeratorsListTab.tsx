@@ -9,7 +9,7 @@ import { Moderator } from "types"
 import { Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
 import { renderBannedStatus } from "ui/renderers"
 
-import { renderModerator } from "./utils"
+import { renderModerator } from "../utils"
 
 const getItemRenderer =
   (t: TFunction, currentUserId?: string) =>

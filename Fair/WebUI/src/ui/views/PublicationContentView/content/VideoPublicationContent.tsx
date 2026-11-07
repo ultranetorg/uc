@@ -20,7 +20,7 @@ export const VideoPublicationContent = memo(
     t,
     storeId,
     productOrPublication,
-    isPendingReviews,
+    isReviewsLoading,
     reviews,
     error,
     onLeaveReview,
@@ -170,9 +170,9 @@ export const VideoPublicationContent = memo(
             )}
           </div>
 
-          {(reviews || isPendingReviews) && onLeaveReview && (
+          {(reviews || isReviewsLoading) && onLeaveReview && (
             <ReviewsList
-              isPending={!!isPendingReviews}
+              isLoading={!!isReviewsLoading}
               reviews={reviews}
               error={error}
               onLeaveReviewClick={onLeaveReview}

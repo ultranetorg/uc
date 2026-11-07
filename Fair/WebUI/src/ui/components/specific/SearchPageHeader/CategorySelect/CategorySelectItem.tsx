@@ -48,7 +48,7 @@ export const CategorySelectItem = memo(
     return (
       <div>
         <div
-          className="flex items-center gap-1.5 rounded py-1.5 pr-2 hover:bg-gray-100"
+          className="flex items-center gap-1.5 rounded-sm py-1.5 pr-2 hover:bg-gray-100"
           style={{ paddingLeft: depth * 16 + 8 }}
         >
           {hasChildren ? (
@@ -80,7 +80,7 @@ export const CategorySelectItem = memo(
             ) : (
               <span
                 className={twMerge(
-                  "size-4 shrink-0 rounded border",
+                  "size-4 shrink-0 rounded-sm border",
                   isDisabled ? "border-gray-200 bg-gray-100" : "border-gray-300",
                 )}
               />

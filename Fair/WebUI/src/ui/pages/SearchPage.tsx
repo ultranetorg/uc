@@ -35,7 +35,7 @@ export const SearchPage = () => {
   useStoreTitle(store?.title, pageTitle ? `Search - ${pageTitle}` : undefined)
 
   const {
-    isPending,
+    isLoading,
     data: publications,
     page,
     loadedPagesCount,
@@ -93,11 +93,7 @@ export const SearchPage = () => {
       />
       {loadedPagesCount > 0 && publications.length > 0 ? (
         <>
-          <PublicationsList
-            publications={publications}
-            isLoading={isPending || !publications}
-            showPublicationType={state.type === ""}
-          />
+          <PublicationsList publications={publications} isLoading={isLoading} showPublicationType={state.type === ""} />
           <NextPagination
             hasNext={hasNext && !isFetchingNext}
             page={page}

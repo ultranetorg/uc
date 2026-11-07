@@ -7,16 +7,16 @@ import { getCardComponentForCategory } from "./utils"
 
 export type PublicationsGridProps = {
   storeId: string
-  isPending: boolean
+  isLoading: boolean
   publications?: (Publication | PublicationExtended)[]
   productType: ProductType
 }
 
-export const PublicationsGrid = ({ storeId, isPending, publications, productType }: PublicationsGridProps) => {
+export const PublicationsGrid = ({ storeId, isLoading, publications, productType }: PublicationsGridProps) => {
   const CardComponent = getCardComponentForCategory(productType)
   return (
     <div className="flex flex-wrap gap-4">
-      {isPending ? (
+      {isLoading ? (
         <div>Loading{import.meta.env.DEV ? " (PublicationsGrid)" : ""}</div>
       ) : (
         <>

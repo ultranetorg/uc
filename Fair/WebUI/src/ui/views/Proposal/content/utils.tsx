@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { JSX, ReactNode } from "react"
 import { Trans } from "react-i18next"
 import { Link } from "react-router-dom"
 
@@ -37,7 +37,7 @@ const getCategoryAvatarChange = (operation: CategoryAvatarChange): JSX.Element =
       }}
       parent={"p"}
     />
-    <img src={buildFileUrl(operation.fileId)} loading="lazy" className="size-35 rounded" />
+    <img src={buildFileUrl(operation.fileId)} loading="lazy" className="size-35 rounded-sm" />
   </>
 )
 
@@ -180,7 +180,7 @@ const getPublicationUnpublish = (operation: PublicationPublish): JSX.Element => 
 const getStoreAvatarChange = (operation: StoreAvatarChange): JSX.Element => (
   <>
     <Trans ns="proposalView" i18nKey={operation.$type} parent={"p"} />
-    <img src={buildFileUrl(operation.fileId)} loading="lazy" className="size-35 rounded" />
+    <img src={buildFileUrl(operation.fileId)} loading="lazy" className="size-35 rounded-sm" />
   </>
 )
 

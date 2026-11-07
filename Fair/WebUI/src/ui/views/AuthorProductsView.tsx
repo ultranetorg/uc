@@ -15,12 +15,12 @@ export const AuthorProductsView = memo(({ authorId, onProductStoresClick }: Auth
   const { t } = useTranslation()
 
   const [page, setPage] = useState(0)
-  const { data: products, isPending } = useGetAuthorProducts(authorId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: products, isLoading } = useGetAuthorProducts(authorId, page, DEFAULT_PAGE_SIZE_20)
 
   const pagesCount =
     products?.totalItems && products.totalItems > 0 ? Math.ceil(products.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  if (!products || isPending) {
+  if (!products || isLoading) {
     return <div>Loading{import.meta.env.DEV ? " (AuthorProductsView)" : ""}</div>
   }
 

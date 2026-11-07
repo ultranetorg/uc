@@ -13,14 +13,14 @@ export const PublisherProposalPage = memo(() => {
   const { store } = useStoreContext()
   const { t } = useTranslation()
 
-  const { isFetching, data: proposal } = useGetProposalDetails(storeId, proposalId)
+  const { isLoading, data: proposal } = useGetProposalDetails(storeId, proposalId)
 
   useStoreTitle(store?.title, proposal?.title ? `Publisher Proposal - ${proposal?.title}` : "Publisher Proposal")
 
   return (
     <ProposalView
       parentBreadcrumbs={[{ title: t("common:publishers"), path: routes.moderation.publishers(storeId!, "proposals") }]}
-      isFetching={isFetching}
+      isLoading={isLoading}
       proposal={proposal}
       previousPath={routes.moderation.publishers(storeId!, "proposals")}
     />

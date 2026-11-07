@@ -8,14 +8,14 @@ import { SignInModal, InstallModal } from "ui/components/specific"
 export type SignInRole = "user" | "author"
 
 type SignInContextType = {
-  isPending?: boolean
+  isLoading?: boolean
   startSignIn: (role: SignInRole) => void
   openSignInModal: () => void
   openAuthorRoleRequiredModal: () => void
 }
 
 const SignInContext = createContext<SignInContextType>({
-  isPending: false,
+  isLoading: false,
   startSignIn: () => {},
   openSignInModal: () => {},
   openAuthorRoleRequiredModal: () => {},
@@ -29,7 +29,7 @@ export const SignInProvider = ({ children }: PropsWithChildren) => {
 
   const nexus = useGetNexusUrl()
   const node = useGetIccpNodeUrl(nexus.data)
-  const { data: pong, isPending } = useGetPing(node.data, installModalRole !== undefined ? 3000 : false)
+  const { data: pong, isLoading } = useGetPing(node.data, installModalRole !== undefined ? 3000 : false)
 
   const handleStartSignIn = useCallback(
     (role: SignInRole) => {
@@ -53,12 +53,12 @@ export const SignInProvider = ({ children }: PropsWithChildren) => {
 
   const value = useMemo<SignInContextType>(
     () => ({
-      isPending,
+      isLoading,
       startSignIn: handleStartSignIn,
       openSignInModal: () => setSignInModalOpen(true),
       openAuthorRoleRequiredModal: () => setAuthorRoleRequiredModalOpen(true),
     }),
-    [handleStartSignIn, isPending],
+    [handleStartSignIn, isLoading],
   )
 
   return (

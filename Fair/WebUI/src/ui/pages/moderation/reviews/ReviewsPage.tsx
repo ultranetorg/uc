@@ -10,8 +10,8 @@ import { TabContent, TabsList, TabsListItem, TabsProvider } from "ui/components"
 import { ModerationHeader, OperationPolicyInfo } from "ui/components/specific"
 import { routes, sortTabsByVoting } from "utils"
 
-import { ReviewsDeletionsTab } from "./ReviewsDeletionsTab"
-import { ReviewsProposalsTab, ReviewsProposalsTabProps } from "./ReviewsProposalsTab"
+import { ReviewsDeletionsTab } from "./tabs/ReviewsDeletionsTab"
+import { ReviewsProposalsTab, ReviewsProposalsTabProps } from "./tabs/ReviewsProposalsTab"
 
 const PROPOSALS_TABS: {
   key: string

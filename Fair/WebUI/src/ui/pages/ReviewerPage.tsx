@@ -31,7 +31,7 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
   const { data: user, error } = useGetUserAuthors(userId)
   if (error) throw error
 
-  const { data: reviews, isPending: isReviewsPending } = useGetUserReviews(user?.id, state.page, REVIEWS_PAGE_SIZE)
+  const { data: reviews, isLoading: isReviewsLoading } = useGetUserReviews(user?.id, state.page, REVIEWS_PAGE_SIZE)
 
   useStoreTitle(user?.name ? `User - ${user?.name}` : undefined)
 
@@ -61,7 +61,7 @@ export const ReviewerPage = memo(({ showDefaultBreadcrumbs = false }: ReviewerPa
         storeId={storeId!}
         user={user}
         reviews={reviews}
-        isReviewsPending={isReviewsPending}
+        isReviewsLoading={isReviewsLoading}
         reviewsPage={page}
         onReviewsPageChange={handleReviewsPageChange}
       />

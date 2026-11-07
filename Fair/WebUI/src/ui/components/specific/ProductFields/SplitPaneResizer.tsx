@@ -1,7 +1,7 @@
 import { memo, RefObject, useEffect, useRef } from "react"
 
 export type SplitPaneResizerProps = {
-  containerRef: RefObject<HTMLDivElement>
+  containerRef: RefObject<HTMLDivElement | null>
   leftWidth: number | undefined
   onLeftWidthChange: (width: number) => void
 }

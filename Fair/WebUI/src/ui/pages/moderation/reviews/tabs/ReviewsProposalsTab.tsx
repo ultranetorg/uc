@@ -12,7 +12,7 @@ import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/c
 import { ReviewModal } from "ui/components/specific"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
-import { getReviewsPageItemRenderer } from "./reviewsPageItemRenderer"
+import { getReviewsPageItemRenderer } from "../reviewsPageItemRenderer"
 
 export type ReviewsProposalsTabProps = {
   useGetProposals: (

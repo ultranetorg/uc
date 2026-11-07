@@ -14,11 +14,11 @@ export const useGetStoreAvatarChangeProposals = (
 ) => {
   const queryFn = () => api.getStoreAvatarChangeProposals(storeId!, page, pageSize, search)
 
-  const { isPending, isError, data } = useQuery({
+  const { isLoading, isError, data } = useQuery({
     queryKey: [...storeProposalsKeys.avatarChanges(storeId!), { page, pageSize, search }],
     queryFn: queryFn,
     enabled: !!storeId,
   })
 
-  return { isPending, isError, data }
+  return { isLoading, isError, data }
 }

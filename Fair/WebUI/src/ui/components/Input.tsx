@@ -46,7 +46,7 @@ export const Input = memo(
     return (
       <div
         className={twMerge(
-          "box-border flex h-11 w-full items-center gap-2 rounded border border-gray-300 bg-gray-100 p-3 text-2sm leading-5 hover:border-gray-400 focus:border-gray-400",
+          "box-border flex h-11 w-full items-center gap-2 rounded-sm border border-gray-300 bg-gray-100 p-3 text-2sm leading-5 hover:border-gray-400 focus:border-gray-400",
           mode === "secondary" && "rounded-lg bg-gray-200",
           error && "border-error hover:border-1.5 hover:border-error focus:border-1.5 focus:border-error",
           disabled && "cursor-not-allowed border-gray-200 bg-gray-50 hover:border-gray-200",
@@ -59,7 +59,7 @@ export const Input = memo(
           autoFocus={autoFocus}
           type="text"
           className={twMerge(
-            "min-w-0 flex-1 bg-transparent outline-none",
+            "min-w-0 flex-1 bg-transparent outline-hidden",
             mode === "secondary" && "placeholder-gray-500",
             disabled && "cursor-not-allowed text-gray-400 placeholder-gray-400",
             className,

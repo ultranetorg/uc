@@ -15,7 +15,7 @@ export type FileCardProps = {
 export const FileCard = memo(({ fileId, refs, selected, onClick, notUsedLabel, usedLabel }: FileCardProps) => (
   <div
     className={twMerge(
-      "focused:border-gray-500 flex h-[152px] cursor-pointer flex-col overflow-hidden rounded border border-gray-300 bg-white text-center hover:border-gray-400",
+      "focused:border-gray-500 flex h-[152px] cursor-pointer flex-col overflow-hidden rounded-sm border border-gray-300 bg-white text-center hover:border-gray-400",
       selected && "border-[3px] border-gray-500",
     )}
     onClick={onClick}

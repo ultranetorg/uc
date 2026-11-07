@@ -1,3 +1,4 @@
+import { JSX } from "react"
 import { UseControllerProps } from "react-hook-form"
 
 import { UserBase, AuthorBaseAvatar, CreateProposalData, OperationType } from "types"

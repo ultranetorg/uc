@@ -41,7 +41,7 @@ export const UsersListTab = () => {
   })
   const [page, setPage] = useState(state.page)
 
-  const { data: users, isPending } = useGetStoreUsers(storeId, page, DEFAULT_PAGE_SIZE_20)
+  const { data: users, isLoading } = useGetStoreUsers(storeId, page, DEFAULT_PAGE_SIZE_20)
   const pagesCount = users?.totalItems && users.totalItems > 0 ? Math.ceil(users.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   const columns = useMemo(() => [{ accessor: "user", label: t("columns:user"), type: "user" }], [t])
@@ -61,7 +61,7 @@ export const UsersListTab = () => {
     [setState],
   )
 
-  if (!users || isPending) return <div>Loading{import.meta.env.DEV ? " (UsersListTab)" : ""}</div>
+  if (!users || isLoading) return <div>Loading{import.meta.env.DEV ? " (UsersListTab)" : ""}</div>
 
   return (
     <>

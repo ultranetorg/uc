@@ -73,7 +73,7 @@ export function useNextPaginationQuery<T>({
     loadedPagesCount: loadedPages.length,
     hasNext,
     onPageChange,
-    isPending: query.isPending,
+    isLoading: query.isLoading,
     isFetchingNext: query.isFetchingNextPage,
     isError: query.isError,
     error: query.error,

@@ -14,7 +14,7 @@ export const useGetPaginatedReviews = (publicationId?: string, pageSize?: number
     data: items,
     hasNext,
     fetchNext,
-    isPending,
+    isLoading,
     isFetchingNext,
     error,
     refetch,
@@ -29,13 +29,13 @@ export const useGetPaginatedReviews = (publicationId?: string, pageSize?: number
     enabled: !!publicationId,
   })
 
-  const reviews: TotalItemsResult<Review> | undefined = isPending
+  const reviews: TotalItemsResult<Review> | undefined = isLoading
     ? undefined
     : { items, totalItems, page: 0, pageSize: pageSize ?? items.length }
 
   return {
     reviews,
-    isPending,
+    isLoading,
     isFetchingNext,
     error: error ?? undefined,
     hasMoreReviews: hasNext,

@@ -9,7 +9,7 @@ import { buildCreatorAvatarUrl, buildCreatorLink } from "utils"
 import { ReviewsListEmptyState } from "./ReviewsListEmptyState"
 
 export type ReviewsListBaseProps = {
-  isPending: boolean
+  isLoading: boolean
   reviews?: TotalItemsResult<Review>
   error?: Error
   onLeaveReviewClick?: () => void
@@ -25,7 +25,7 @@ export type ReviewsListProps = ReviewsListBaseProps & Pick<CommentProps, "contex
 
 export const ReviewsList = memo(
   ({
-    isPending,
+    isLoading,
     reviews,
     error,
     onLeaveReviewClick,
@@ -50,7 +50,7 @@ export const ReviewsList = memo(
         </div>
         {error ? (
           <div>{error.message}</div>
-        ) : isPending || !reviews ? (
+        ) : isLoading || !reviews ? (
           <Spinner />
         ) : reviews.items.length === 0 ? (
           <ReviewsListEmptyState label={noReviewsLabel} />

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -34,11 +34,9 @@ export const ChangedPublicationPage = () => {
   const canCreateOperation = useCanCreateOperation()
   const { store } = useStoreContext()
   const { isModerator } = useStoreRolesContext()
-  const { mutate } = useTransactMutationWithStatus()
+  const { mutate, isPending } = useTransactMutationWithStatus()
 
   const isUpdateButtonVisible = canCreateOperation("publication-updation")
-
-  const [isPending, setPending] = useState<boolean | undefined>()
 
   const { isLoading, data: publication } = useGetChangedPublication(storeId, publicationId)
 
@@ -51,7 +49,6 @@ export const ChangedPublicationPage = () => {
   )
 
   const handleUpdatePublication = useCallback(() => {
-    setPending(true)
     const role = isModerator ? Role.Moderator : Role.Publisher
     const options = [
       {
@@ -94,8 +91,8 @@ export const ChangedPublicationPage = () => {
                   className="h-11 w-43.75"
                   label={t("updatePublication")}
                   onClick={handleUpdatePublication}
-                  disabled={!!isPending}
-                  loading={!!isPending}
+                  disabled={isPending}
+                  loading={isPending}
                 />
                 <Link
                   to={routes.moderation.preview(storeId!)}
@@ -106,7 +103,7 @@ export const ChangedPublicationPage = () => {
                   }}
                 >
                   <ButtonOutline
-                    disabled={!!isPending}
+                    disabled={isPending}
                     className="h-11 w-40 capitalize"
                     label={t("common:preview")}
                     iconBefore={<SvgEyeSm className="fill-gray-800" />}

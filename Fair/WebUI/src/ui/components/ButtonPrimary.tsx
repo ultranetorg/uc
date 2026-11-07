@@ -1,4 +1,4 @@
-import { memo, MouseEvent } from "react"
+import { JSX, memo, MouseEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { SvgSpinner } from "assets"
@@ -38,7 +38,7 @@ export const ButtonPrimary = memo(
     return (
       <button
         className={twMerge(
-          "flex cursor-pointer select-none items-center justify-center rounded bg-gray-800 px-4 py-3 text-2sm leading-5 text-gray-0 hover:bg-gray-950",
+          "flex cursor-pointer select-none items-center justify-center rounded-sm bg-gray-800 px-4 py-3 text-2sm leading-5 text-gray-0 hover:bg-gray-950",
           loading && "cursor-default py-2.5 hover:bg-gray-800",
           disabled && "cursor-not-allowed bg-gray-400 hover:bg-gray-400",
           (iconBefore || iconAfter) && "gap-2",

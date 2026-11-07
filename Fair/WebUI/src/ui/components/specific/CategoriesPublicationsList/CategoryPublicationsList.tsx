@@ -24,7 +24,7 @@ export const CategoryPublicationsList = memo(
           {seeAllLabel}
         </Link>
       </div>
-      <PublicationsGrid storeId={storeId} isPending={false} publications={publications} productType={type} />
+      <PublicationsGrid storeId={storeId} isLoading={false} publications={publications} productType={type} />
     </div>
   ),
 )

@@ -11,15 +11,15 @@ import { ChildCategoriesList } from "./Category/ChildCategoriesList"
 export const StorePage = () => {
   const storeId = useResolveStoreId()
   const { t } = useTranslation("storePage")
-  const { isPending, store, categoriesTree } = useStoreContext()
+  const { isLoading, store, categoriesTree } = useStoreContext()
 
   useStoreTitle(store?.title ? `Store - ${store?.title}` : "Store")
 
-  const { isPending: isCategoriesPublicationsPending, data: categoriesPublications } = useGetCategoriesPublications(
+  const { isLoading: isCategoriesPublicationsLoading, data: categoriesPublications } = useGetCategoriesPublications(
     store?.hasPublications ? store.id : undefined,
   )
 
-  if (isPending || !store || !storeId || (store.hasPublications && !categoriesPublications)) {
+  if (isLoading || !store || !storeId || (store.hasPublications && !categoriesPublications)) {
     return <div>Loading{import.meta.env.DEV ? " (StorePage)" : ""}</div>
   }
 
@@ -30,7 +30,7 @@ export const StorePage = () => {
         {categoriesPublications && categoriesPublications.length ? (
           <CategoriesPublicationsList
             storeId={storeId!}
-            isPending={isCategoriesPublicationsPending}
+            isLoading={isCategoriesPublicationsLoading}
             categoriesPublications={categoriesPublications}
             seeAllLabel={t("seeAll")}
           />
