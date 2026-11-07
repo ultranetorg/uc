@@ -171,26 +171,7 @@ public class PackageCommand : NexusCommand
 									var r = Rapi.Ppc(new ResourceByAddressPpc(Address), Flow).Resource;
 									
 									if(Has(publish))
-									{
 										Report($"Published under the resource with Id={r.Id}");
-
-										//Api(new PackageUpdateApc
-										//	{
-										//		Address = Address,
-										//		Id = r.Id,
-										//	});
-										//
-										//Report($"Resource Id assigned to package");
-
-										//Rapi.Send(	new ReleaseUpdateApc
-										//			{
-										//				Address = p.Release.Address,
-										//				Id= r.Id,
-										//			}, 
-										//			Flow);
-										//
-										//Report($"Id assigned to release");
-									}
 
 									if(Has(link))
 										foreach(var j in r.Outbounds)
