@@ -29,7 +29,7 @@ public class Dependency : IEquatable<Dependency>, IBinarySerializable
 	{
 	}
 
-	public Dependency(Ura address, DependencyNeed need = DependencyNeed.None, DependencyFlag flags = DependencyFlag.None)
+	public Dependency(Ura address, DependencyNeed need = DependencyNeed.Critical, DependencyFlag flags = DependencyFlag.None)
 	{
 		Address = address;
 		Need = need;
