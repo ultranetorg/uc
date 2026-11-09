@@ -1,10 +1,10 @@
-import { PropsWithChildren } from "react"
+import { memo, PropsWithChildren } from "react"
 import { Outlet, useRouteError } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
 import { ScrollToTop, StoreHeader } from "ui/components/specific"
 
-export const StoreLayout = ({ children }: PropsWithChildren) => {
+export const StoreLayout = memo(({ children }: PropsWithChildren) => {
   const error = useRouteError()
 
   return (
@@ -14,4 +14,4 @@ export const StoreLayout = ({ children }: PropsWithChildren) => {
       <div className="flex-1">{children ?? <Outlet />}</div>
     </div>
   )
-}
+})
