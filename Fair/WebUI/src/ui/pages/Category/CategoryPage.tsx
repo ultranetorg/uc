@@ -12,6 +12,7 @@ import { PublicationsGrid, PublicationsList, ViewType } from "ui/components/spec
 import { findCategoryById, parseInteger } from "utils"
 
 import { CategoryHeader } from "./CategoryHeader"
+import { CategoryPageSkeleton } from "./CategoryPage.Skeleton"
 import { ChildCategoriesList } from "./ChildCategoriesList"
 
 export const CategoryPage = () => {
@@ -64,7 +65,7 @@ export const CategoryPage = () => {
   )
 
   if (isLoading || !category || isPublicationsLoading || !publications) {
-    return <div>Loading{import.meta.env.DEV ? " (CategoryPage)" : ""}</div>
+    return <CategoryPageSkeleton view={view} />
   }
 
   return (

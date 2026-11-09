@@ -4,6 +4,7 @@ import { Publication, PublicationExtended } from "types"
 import { routes } from "utils"
 
 import { PublicationRow } from "./PublicationRow"
+import { PublicationsListSkeleton } from "./PublicationsList.Skeleton"
 
 export type PublicationsListProps = {
   isLoading?: boolean
@@ -13,7 +14,7 @@ export type PublicationsListProps = {
 
 export const PublicationsList = ({ isLoading, publications, showPublicationType }: PublicationsListProps) => {
   if (isLoading || !publications) {
-    return <div>Loading{import.meta.env.DEV ? " (PublicationsList)" : ""}</div>
+    return <PublicationsListSkeleton showPublicationType={showPublicationType} />
   }
 
   return (

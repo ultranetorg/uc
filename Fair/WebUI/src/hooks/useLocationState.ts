@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom"
 /** Форма `location.state`, которую мы кладём при открытии fullscreen-страниц (см. LinkFullscreen). */
 export type AppLocationState = {
   backgroundLocation?: Location
-  defaultTabKey?: string
   storeId?: string
 }
 

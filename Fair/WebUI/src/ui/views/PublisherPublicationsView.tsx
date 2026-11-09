@@ -4,18 +4,15 @@ import { useTranslation } from "react-i18next"
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetPublisherPublications } from "entities"
 import { AuthorDetails } from "types"
-import { Pagination } from "ui/components"
-import { AuthorProfileProps } from "ui/components/author"
+import { Pagination, TableSectionSkeleton } from "ui/components"
 import { PublicationsTable, ProductStoresModal } from "ui/components/specific"
 
-type PublisherPublicationsViewBaseProps = {
+export type PublisherPublicationsViewProps = {
   storeId: string
   author?: AuthorDetails
   isModalOpen: boolean
   onModalOpenChange: (open: boolean) => void
 }
-
-export type PublisherPublicationsViewProps = Pick<AuthorProfileProps, "size"> & PublisherPublicationsViewBaseProps
 
 export const PublisherPublicationsView = memo(
   ({ storeId, author, isModalOpen, onModalOpenChange }: PublisherPublicationsViewProps) => {
@@ -42,7 +39,7 @@ export const PublisherPublicationsView = memo(
     )
 
     if (!author || !publications) {
-      return <div>Loading{import.meta.env.DEV ? " (PublisherPublicationsView)" : ""}</div>
+      return <TableSectionSkeleton withCategory />
     }
 
     if (!publications.items.length) return null
@@ -51,7 +48,7 @@ export const PublisherPublicationsView = memo(
       <>
         <>
           <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold leading-10">
+            <span className="text-lg leading-10 font-semibold">
               {publications?.totalItems} {t("common:publications")}
             </span>
             <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />

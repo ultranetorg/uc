@@ -12,6 +12,7 @@ import { routes } from "utils"
 
 import { PublisherMembersDropdownButton } from "./PublisherMembersDropdownButton"
 import { StoreDropdownButton } from "./StoreDropdownButton"
+import { StoreHeaderSkeleton } from "./StoreHeader.Skeleton"
 import { UserProfileButton } from "./UserProfileButton"
 
 export const StoreHeader = () => {
@@ -91,7 +92,7 @@ export const StoreHeader = () => {
   }, [query, setStoreQuery])
 
   if (!store || !storeId) {
-    return null
+    return <StoreHeaderSkeleton />
   }
 
   return (

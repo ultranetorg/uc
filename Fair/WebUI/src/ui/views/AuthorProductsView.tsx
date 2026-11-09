@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetAuthorProducts } from "entities"
-import { Pagination } from "ui/components"
+import { Pagination, TableSectionSkeleton } from "ui/components"
 import { ProductsTable } from "ui/components/specific"
 
 export type AuthorProductsViewProps = {
@@ -21,13 +21,13 @@ export const AuthorProductsView = memo(({ authorId, onProductStoresClick }: Auth
     products?.totalItems && products.totalItems > 0 ? Math.ceil(products.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
   if (!products || isLoading) {
-    return <div>Loading{import.meta.env.DEV ? " (AuthorProductsView)" : ""}</div>
+    return <TableSectionSkeleton />
   }
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <span className="text-lg font-semibold leading-10">
+        <span className="text-lg leading-10 font-semibold">
           {products?.totalItems} {t("common:publications")}
         </span>
         <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />

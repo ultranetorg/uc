@@ -14,12 +14,13 @@ import { usePendingOperationsContext, useUserContext } from "app"
 import { SvgChevronDown } from "assets"
 
 import { FavoriteStoreItem } from "./FavoriteStoreItem"
+import { FavoriteStoresSkeleton } from "./FavoriteStores.Skeleton"
 import { FavoriteStoresMenu } from "./FavoriteStoresMenu/FavoriteStoresMenu"
 
 const MAX_VISIBLE_ITEMS = 12
 
 export const FavoriteStores = () => {
-  const { user } = useUserContext()
+  const { isLoading, user } = useUserContext()
   const { favoritesChanges } = usePendingOperationsContext()
 
   const [isOpen, setOpen] = useState(false)
@@ -37,6 +38,8 @@ export const FavoriteStores = () => {
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, click, role])
 
   const handleClose = useCallback(() => setOpen(false), [])
+
+  if (isLoading) return <FavoriteStoresSkeleton />
 
   if (!user) return null
 

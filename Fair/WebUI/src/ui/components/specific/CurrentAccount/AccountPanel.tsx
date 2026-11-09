@@ -12,6 +12,7 @@ import { FileUpload, FileUploadHandle, TextModal } from "ui/components"
 import { fileToBase64, routes, showToast } from "utils"
 
 import { AccountButton } from "./AccountButton"
+import { AccountButtonSkeleton } from "./AccountButton.Skeleton"
 import { AccountMenu, AccountMenuItem } from "./AccountMenu"
 import { PanelButton } from "./PanelButton"
 import { ProfilePanel } from "./ProfilePanel"
@@ -27,7 +28,7 @@ export const AccountPanel = memo(() => {
   const accountsMenu = useSubmenu({ placement: "right-end" })
   useScrollOrResize(() => profileMenu.setOpen(false))
 
-  const { user, refetch } = useUserContext()
+  const { isLoading, user, refetch } = useUserContext()
   const { selectedUserName, users, removeUser, selectUser } = useAuthenticationContext()
   const { startSignIn, openSignInModal } = useSignInContext()
 
@@ -160,6 +161,8 @@ export const AccountPanel = memo(() => {
           label={t("authenticate")}
           onClick={handleAuthenticate}
         />
+      ) : isLoading ? (
+        <AccountButtonSkeleton />
       ) : !user ? (
         <PanelButton
           iconBefore={<SvgPersonSquare className="fill-white" />}
