@@ -10,7 +10,7 @@ export const StoreLayout = ({ children }: PropsWithChildren) => {
   return (
     <div className={twMerge("p-6", !!error && "flex h-full flex-col")}>
       <ScrollToTop />
-      <StoreHeader />
+      {!error && <StoreHeader />}
       <div className="flex-1">{children ?? <Outlet />}</div>
     </div>
   )

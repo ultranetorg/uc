@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react"
 import { twMerge } from "tailwind-merge"
 import { last } from "lodash"
+import { useRouteError } from "react-router-dom"
 
 import { useStoreContext } from "app"
 import { useGetPublicationDetails } from "entities"
@@ -16,6 +17,8 @@ const SIDEBAR_CLASSNAME = "flex w-65 min-w-65 max-w-65 shrink-0 flex-col gap-8 p
 
 export const Sidebar = memo(({ className }: PropsWithClassName) => {
   const { categoryId, publicationId } = useParams()
+  const error = useRouteError()
+
   const storeId = useResolveStoreId()
   const { isLoading, isCategoriesLoading, store, categoriesTree, rootCategories } = useStoreContext()
   const { data: publication } = useGetPublicationDetails(publicationId)
@@ -33,7 +36,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
   // On category and publication pages the store is only known once their details are loaded.
   const isStoreResolving = !storeId && !!(categoryId ?? publicationId)
 
-  if (isLoading || isCategoriesLoading || isStoreResolving) {
+  if (!error && (isLoading || isCategoriesLoading || isStoreResolving)) {
     return (
       <div className={twMerge(SIDEBAR_CLASSNAME, className)}>
         <SidebarSkeleton />
@@ -41,7 +44,7 @@ export const Sidebar = memo(({ className }: PropsWithClassName) => {
     )
   }
 
-  if (!store) {
+  if (!store || error) {
     return null
   }
 
