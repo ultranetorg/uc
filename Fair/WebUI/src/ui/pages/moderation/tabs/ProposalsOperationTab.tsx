@@ -8,7 +8,7 @@ import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUser
 import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useCanVoteOperation, useResolveStoreId, useUrlParamsState } from "hooks"
 import { OperationType, Policy, Proposal, Store, TotalItemsResult } from "types"
-import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem, TableSkeleton } from "ui/components"
 import { renderCreator, renderOpenFor, renderProposalProgress, renderTitle, renderYourVote } from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, getVoterIds, parseInteger } from "utils"
 
@@ -18,6 +18,29 @@ type ProposalsVoting = {
   moderatorId?: string
   publisherIds?: string[]
 }
+
+const getColumns = (t: TFunction, canVote: boolean): TableColumn[] => [
+  { accessor: "title", label: t("columns:title"), type: "title", className: "w-[34%]" },
+  { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[20%]" },
+  {
+    accessor: "progress",
+    label: t("columns:progress.label"),
+    title: t("columns:progress.proposalTitle"),
+    type: "progress",
+    className: "w-[16%]",
+  },
+  ...(canVote
+    ? [
+        {
+          accessor: "yourVote",
+          label: t("columns:yourVote"),
+          type: "your-vote",
+          className: "w-[16%] text-center",
+        },
+      ]
+    : []),
+  { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%] text-right" },
+]
 
 const getItemRenderer =
   (t: TFunction, { store, policies, moderatorId, publisherIds }: ProposalsVoting = {}) =>
@@ -83,31 +106,8 @@ export const ProposalsOperationTab = memo(
     const pagesCount =
       proposals?.totalItems && proposals.totalItems > 0 ? Math.ceil(proposals.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-    const columns = useMemo<TableColumn[]>(
-      () => [
-        { accessor: "title", label: t("columns:title"), type: "title", className: "w-[34%]" },
-        { accessor: "by", label: t("columns:createdBy"), type: "account", className: "w-[20%]" },
-        {
-          accessor: "progress",
-          label: t("columns:progress.label"),
-          title: t("columns:progress.proposalTitle"),
-          type: "progress",
-          className: "w-[16%]",
-        },
-        ...(canVote
-          ? [
-              {
-                accessor: "yourVote",
-                label: t("columns:yourVote"),
-                type: "your-vote",
-                className: "w-[16%] text-center",
-              },
-            ]
-          : []),
-        { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[14%] text-right" },
-      ],
-      [canVote, t],
-    )
+    const columns = useMemo(() => getColumns(t, canVote), [canVote, t])
+    const skeletonColumns = useMemo(() => getColumns(t, true), [t])
 
     const moderatorId = isModerator ? user?.id : undefined
     const itemRenderer = useMemo(
@@ -130,14 +130,18 @@ export const ProposalsOperationTab = memo(
 
     return (
       <div className="flex flex-col gap-6">
-        <Table
-          columns={columns}
-          items={proposals?.items}
-          tableBodyClassName="text-2sm leading-5"
-          itemRenderer={itemRenderer}
-          emptyState={<TableEmptyState message={t("noProposals")} />}
-          onRowClick={handleTableRowClick}
-        />
+        {proposals ? (
+          <Table
+            columns={columns}
+            items={proposals.items}
+            tableBodyClassName="text-2sm leading-5"
+            itemRenderer={itemRenderer}
+            emptyState={<TableEmptyState message={t("noProposals")} />}
+            onRowClick={handleTableRowClick}
+          />
+        ) : (
+          <TableSkeleton columns={skeletonColumns} />
+        )}
         <div className="flex w-full justify-end">
           <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
         </div>

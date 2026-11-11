@@ -2,7 +2,12 @@ import { memo, useMemo } from "react"
 
 import { useGetPublicationDetailsDiff } from "entities"
 import { Proposal, PublicationUpdation } from "types"
-import { ModerationPublicationHeader, ProductFieldsDiff, ProductPublicationInformation } from "ui/components/specific"
+import {
+  ModerationPublicationHeader,
+  ModerationPublicationSkeleton,
+  ProductFieldsDiff,
+  ProductPublicationInformation,
+} from "ui/components/specific"
 
 import { ProposalViewContentProps } from "./types"
 
@@ -14,7 +19,7 @@ export const PublicationUpdationContent = memo(({ storeId, proposal }: ProposalV
 
   const { isLoading, data: publication } = useGetPublicationDetailsDiff(data.publicationId, data.version)
 
-  if (isLoading || !publication) return <div>Loading{import.meta.env.DEV ? " (PublicationUpdationContent)" : ""}</div>
+  if (isLoading || !publication) return <ModerationPublicationSkeleton />
 
   return (
     <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">

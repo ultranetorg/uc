@@ -10,6 +10,7 @@ import { routes } from "utils"
 import { useGetProductStores } from "entities"
 
 import { ProductStoreRow } from "./ProductStoreRow"
+import { ProductStoresModalSkeleton } from "./ProductStoresModal.Skeleton"
 
 export type ProductStoresItem = {
   storeTitle: string
@@ -27,24 +28,22 @@ export const ProductStoresModal = memo(({ onClose, productId }: ProductStoresMod
 
   useEscapeKey(onClose)
 
-  if (!stores) {
-    return <div>Loading{import.meta.env.DEV ? " (ProductStoresModal)" : ""}</div>
-  }
+  if (!stores) return <ProductStoresModalSkeleton onClose={onClose} />
 
   return (
     <Modal className="max-h-142.25 w-120 border border-gray-300 p-0">
       <div className="divide-y divide-gray-300">
         <div className="flex items-center justify-between gap-6 px-6 py-4">
-          <span className="select-none text-base font-semibold leading-5">
+          <span className="text-base leading-5 font-semibold select-none">
             Published in: {stores.totalItems} stores
           </span>
           <SvgX className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" onClick={onClose} />
         </div>
         <div className="p-4">
-          <div className="flex select-none items-center gap-3 p-2 text-2xs font-medium leading-4.25">
+          <div className="flex items-center gap-3 p-2 text-2xs leading-4.25 font-medium select-none">
             <span className="w-[56%]">Store</span>
           </div>
-          <div className="max-h-[448px] overflow-y-scroll">
+          <div className="max-h-112 overflow-y-scroll">
             {stores.items.map(x => (
               <Link to={routes.publication(x.publicationId)} title={x.title} key={x.storeId}>
                 <ProductStoreRow key={x.storeId} title={x.title} avatarId={x.avatarId} />

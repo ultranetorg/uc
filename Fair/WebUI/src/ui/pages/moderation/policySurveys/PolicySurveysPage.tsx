@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { TFunction } from "i18next"
 import { useStoreContext, useStoreRolesContext } from "app"
 import { useGetStorePolicies, useGetPolicySurveys as useGetPolicySurveys } from "entities"
 import { useResolveStoreId, useStoreTitle } from "hooks"
@@ -10,9 +11,49 @@ import { Table, TableEmptyState, TableItem } from "ui/components"
 import { ModerationHeader } from "ui/components/specific"
 import { routes } from "utils"
 
+import { SURVEY_CATEGORIES_SIZES } from "./constants"
+import { PolicySurveysSkeleton } from "./PolicySurveysPage.Skeleton"
 import { surveysItemRenderer } from "./surveysItemRenderer"
 
-const CATEGORIES_ORDER = ["store", "category", "publication", "review", "user"]
+const CATEGORIES_ORDER = Object.keys(SURVEY_CATEGORIES_SIZES)
+
+const getColumns = (t: TFunction, canVote: boolean) => [
+  {
+    accessor: "operation",
+    label: t("columns:operation"),
+    type: "operation",
+    className: "w-1/4",
+  },
+  {
+    accessor: "votedApproval",
+    label: t("columns:currentPolicy"),
+    type: "voted-approval",
+    className: "w-1/5",
+  },
+  {
+    accessor: "leadingOption",
+    label: t("columns:leadingOption"),
+    type: "leading-option",
+    className: "w-1/5",
+  },
+  {
+    accessor: "progress",
+    label: t("columns:progress.label"),
+    title: t("columns:progress.title"),
+    type: "progress",
+    className: "w-1/6",
+  },
+  ...(canVote
+    ? [
+        {
+          accessor: "yourVote",
+          label: t("columns:yourVote"),
+          type: "your-vote",
+          className: "w-1/5 text-center",
+        },
+      ]
+    : []),
+]
 
 export const PolicySurveysPage = () => {
   const storeId = useResolveStoreId()
@@ -25,46 +66,8 @@ export const PolicySurveysPage = () => {
 
   const canVote = publisherIds !== undefined && publisherIds.length > 0
 
-  const columns = useMemo(
-    () => [
-      {
-        accessor: "operation",
-        label: t("columns:operation"),
-        type: "operation",
-        className: "w-1/4",
-      },
-      {
-        accessor: "votedApproval",
-        label: t("columns:currentPolicy"),
-        type: "voted-approval",
-        className: "w-1/5",
-      },
-      {
-        accessor: "leadingOption",
-        label: t("columns:leadingOption"),
-        type: "leading-option",
-        className: "w-1/5",
-      },
-      {
-        accessor: "progress",
-        label: t("columns:progress.label"),
-        title: t("columns:progress.title"),
-        type: "progress",
-        className: "w-1/6",
-      },
-      ...(canVote
-        ? [
-            {
-              accessor: "yourVote",
-              label: t("columns:yourVote"),
-              type: "your-vote",
-              className: "w-1/5 text-center",
-            },
-          ]
-        : []),
-    ],
-    [canVote, t],
-  )
+  const columns = useMemo(() => getColumns(t, canVote), [canVote, t])
+  const skeletonColumns = useMemo(() => getColumns(t, true), [t])
 
   const { data: surveys } = useGetPolicySurveys(storeId)
   const { data: policies } = useGetStorePolicies(true, storeId)
@@ -93,7 +96,8 @@ export const PolicySurveysPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <ModerationHeader title={t("title")} />
-      {groups.length === 0 && (
+      {!surveys && <PolicySurveysSkeleton columns={skeletonColumns} />}
+      {surveys && groups.length === 0 && (
         <Table
           columns={columns}
           items={[]}

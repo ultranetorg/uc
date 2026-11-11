@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { TFunction } from "i18next"
 import { isNumber, isString } from "lodash"
 
 import { useStoreContext, useStorePoliciesContext } from "app"
@@ -8,11 +9,45 @@ import { useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, ReviewProposal, SpecialChoice, TotalItemsResult } from "types"
-import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem, TableSkeleton } from "ui/components"
 import { ReviewModal } from "ui/components/specific"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "../reviewsPageItemRenderer"
+
+const getColumns = (t: TFunction, canApproveOrReject: boolean): TableColumn[] => [
+  { accessor: "publication", label: t("columns:publication"), type: "publication", className: "w-[17%]" },
+  { accessor: "author", label: t("columns:reviewer"), type: "account", className: "w-[15%]" },
+  {
+    accessor: "text",
+    label: t("columns:text"),
+    type: "text",
+    className: canApproveOrReject ? "w-[23%]" : "w-[43%]",
+  },
+  {
+    accessor: "rating",
+    type: "rating",
+    label: t("columns:rating"),
+    className: "w-[8%] text-right",
+  },
+  {
+    accessor: "progress",
+    label: t("columns:progress.label"),
+    title: t("columns:progress.proposalTitle"),
+    type: "progress",
+    className: "w-[12%]",
+  },
+  ...(canApproveOrReject
+    ? [
+        {
+          accessor: "action",
+          label: t("columns:action"),
+          type: "review-action-buttons",
+          className: "w-[20%] text-center",
+        },
+      ]
+    : []),
+]
 
 export type ReviewsProposalsTabProps = {
   useGetProposals: (
@@ -56,42 +91,8 @@ export const ReviewsProposalsTab = ({ useGetProposals }: ReviewsProposalsTabProp
   const pagesCount =
     reviews?.totalItems && reviews.totalItems > 0 ? Math.ceil(reviews.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  const columns = useMemo<TableColumn[]>(
-    () => [
-      { accessor: "publication", label: t("columns:publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "author", label: t("columns:reviewer"), type: "account", className: "w-[15%]" },
-      {
-        accessor: "text",
-        label: t("columns:text"),
-        type: "text",
-        className: canApproveOrReject ? "w-[23%]" : "w-[43%]",
-      },
-      {
-        accessor: "rating",
-        type: "rating",
-        label: t("columns:rating"),
-        className: "w-[8%] text-right",
-      },
-      {
-        accessor: "progress",
-        label: t("columns:progress.label"),
-        title: t("columns:progress.proposalTitle"),
-        type: "progress",
-        className: "w-[12%]",
-      },
-      ...(canApproveOrReject
-        ? [
-            {
-              accessor: "action",
-              label: t("columns:action"),
-              type: "review-action-buttons",
-              className: "w-[20%] text-center",
-            },
-          ]
-        : []),
-    ],
-    [t, canApproveOrReject],
-  )
+  const columns = useMemo(() => getColumns(t, canApproveOrReject), [t, canApproveOrReject])
+  const skeletonColumns = useMemo(() => getColumns(t, true), [t])
 
   const handleTableRowClick = useCallback(
     (id: string) => {
@@ -202,15 +203,19 @@ export const ReviewsProposalsTab = ({ useGetProposals }: ReviewsProposalsTabProp
 
   return (
     <>
-      <Table
-        columns={columns}
-        items={reviews?.items}
-        itemRenderer={itemRenderer}
-        tableBodyClassName="text-2sm leading-5"
-        emptyState={<TableEmptyState message={t("noNewReviews")} />}
-        onRowClick={canApproveOrReject && !loadingItem ? handleTableRowClick : undefined}
-        isRowClickable={isRowClickable}
-      />
+      {reviews ? (
+        <Table
+          columns={columns}
+          items={reviews?.items}
+          itemRenderer={itemRenderer}
+          tableBodyClassName="text-2sm leading-5"
+          emptyState={<TableEmptyState message={t("noNewReviews")} />}
+          onRowClick={canApproveOrReject && !loadingItem ? handleTableRowClick : undefined}
+          isRowClickable={isRowClickable}
+        />
+      ) : (
+        <TableSkeleton columns={skeletonColumns} />
+      )}
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
       </div>

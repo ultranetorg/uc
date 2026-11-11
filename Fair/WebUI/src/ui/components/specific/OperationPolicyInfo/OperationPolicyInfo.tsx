@@ -3,13 +3,15 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
-import { useStoreContext, useStorePoliciesContext, useStoreRolesContext } from "app"
+import { useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { SvgLock } from "assets"
 import { useGetPolicySurveys } from "entities"
 import { useResolveStoreId } from "hooks"
 import { OperationType, PropsWithClassName, StoreApprovalPolicyChange } from "types"
 import { Tooltip } from "ui/components"
 import { calculateVotesRequiredToWinProposal, findPolicy, isReferendum, routes } from "utils"
+
+import { OperationPolicyInfoSkeleton } from "./OperationPolicyInfo.Skeleton"
 
 type InfoCellProps = {
   label: string
@@ -19,14 +21,14 @@ type InfoCellProps = {
   children: ReactNode
 }
 
-const InfoCell = ({ label, locked, lockedTooltip, to, children }: InfoCellProps) => (
+const InfoCell = memo(({ label, locked, lockedTooltip, to, children }: InfoCellProps) => (
   <>
-    <th className="whitespace-nowrap py-1 pr-4 text-left font-normal text-gray-500">{label}</th>
-    <td className="whitespace-nowrap py-1 pr-18 text-left font-medium text-gray-800 last:pr-0">
+    <th className="w-29 py-1 text-left font-normal whitespace-nowrap text-gray-500">{label}</th>
+    <td className="w-50 py-1 text-left font-medium whitespace-nowrap text-gray-800 last:w-6">
       <div className="flex items-center gap-1">
         {locked && (
           <Tooltip text={lockedTooltip!}>
-            <SvgLock className="size-[14px] shrink-0 cursor-default fill-gray-800" />
+            <SvgLock className="size-3.5 shrink-0 cursor-default fill-gray-800" />
           </Tooltip>
         )}
         {to ? (
@@ -39,7 +41,7 @@ const InfoCell = ({ label, locked, lockedTooltip, to, children }: InfoCellProps)
       </div>
     </td>
   </>
-)
+))
 
 type OperationPolicyInfoBaseProps = {
   operation: OperationType
@@ -48,14 +50,12 @@ type OperationPolicyInfoBaseProps = {
 
 export type OperationPolicyInfoProps = PropsWithClassName & OperationPolicyInfoBaseProps
 
-/**
- * Shows how the operation is created and approved in the store. Visible to moderators and publishers only.
- */
 export const OperationPolicyInfo = memo(({ className, operation, title }: OperationPolicyInfoProps) => {
   const { t } = useTranslation("operationPolicyInfo")
 
   const storeId = useResolveStoreId()
-  const { store } = useStoreContext()
+  const { isLoading: isStoreLoading, store } = useStoreContext()
+  const { isLoading: isUserLoading } = useUserContext()
   const policies = useStorePoliciesContext()
   const { isModerator, isPublisher } = useStoreRolesContext()
 
@@ -64,10 +64,14 @@ export const OperationPolicyInfo = memo(({ className, operation, title }: Operat
   const survey = surveys?.find(
     x => (x.options?.[0]?.operation as StoreApprovalPolicyChange | undefined)?.operation === operation,
   )
-  // The policy can be changed by a survey only if its approval is variable.
+
   const surveyPath =
     survey?.isVariableApproval === true ? routes.moderation.policySurveyDetails(storeId!, survey.id) : undefined
   const isPolicyLocked = survey !== undefined && !survey.isVariableApproval
+
+  if (isStoreLoading || isUserLoading || (store && !policies)) {
+    return <OperationPolicyInfoSkeleton className={className} title={title} />
+  }
 
   const policy = findPolicy(operation, policies)
   if (!store || !policy || (!isModerator && !isPublisher)) return null
@@ -82,7 +86,7 @@ export const OperationPolicyInfo = memo(({ className, operation, title }: Operat
 
   return (
     <div className={twMerge("flex w-full items-start justify-between gap-8 rounded-lg text-2xs leading-4", className)}>
-      {title && <span className="text-2sm font-semibold leading-5 text-gray-800">{title}</span>}
+      {title && <span className="text-2sm leading-5 font-semibold text-gray-800">{title}</span>}
       <table className="ml-auto border-collapse">
         <tbody>
           <tr>

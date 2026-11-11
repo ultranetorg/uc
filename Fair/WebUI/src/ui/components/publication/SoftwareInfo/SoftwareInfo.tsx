@@ -203,7 +203,7 @@ export const SoftwareInfo = memo(
         {languages && languages.length > 0 && (
           <div className="flex flex-col gap-2">
             <span className={LABEL_CLASSNAME}>{languagesLabel}</span>
-            <span className="text-2sm font-medium leading-5 text-gray-800">{formatUiLanguages(languages)}</span>
+            <span className="text-2sm leading-5 font-medium text-gray-800">{formatUiLanguages(languages)}</span>
           </div>
         )}
 

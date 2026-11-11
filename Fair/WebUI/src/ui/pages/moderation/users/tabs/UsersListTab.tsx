@@ -9,7 +9,7 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetStoreUsers } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { User } from "types"
-import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem, TableSkeleton } from "ui/components"
 import { renderUser, renderWithYouBadge } from "ui/renderers"
 import { parseInteger, routes } from "utils"
 
@@ -61,7 +61,7 @@ export const UsersListTab = () => {
     [setState],
   )
 
-  if (!users || isLoading) return <div>Loading{import.meta.env.DEV ? " (UsersListTab)" : ""}</div>
+  if (!users || isLoading) return <TableSkeleton columns={columns} />
 
   return (
     <>

@@ -67,7 +67,7 @@ export const OptionCollapse = ({
 
         <div className="z-10 flex items-center gap-2">
           {showResults && (
-            <div className="flex items-center gap-2 whitespace-nowrap text-2sm leading-5">
+            <div className="flex items-center gap-2 text-2sm leading-5 whitespace-nowrap">
               <span>
                 {votesCount} {votesText}
               </span>
@@ -80,7 +80,7 @@ export const OptionCollapse = ({
         </div>
 
         {showResults && (
-          <div className={`absolute left-0 top-0 h-full bg-gray-300`} style={{ width: `${votePercents}%` }} />
+          <div className={`absolute top-0 left-0 h-full bg-gray-300`} style={{ width: `${votePercents}%` }} />
         )}
       </div>
 

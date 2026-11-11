@@ -48,7 +48,7 @@ export const ProposalInfo = memo(({ className, store, proposal, policies, voterI
       )}
     >
       <InfoRow label={t("labels:createdBy")}>
-        <LinkFullscreen to={buildCreatorLink(store.id, proposal.creator)}>
+        <LinkFullscreen to={buildCreatorLink(store?.id, proposal.creator)}>
           {renderCreator(proposal.creator)}
         </LinkFullscreen>
       </InfoRow>

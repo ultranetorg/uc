@@ -13,6 +13,7 @@ import { ModerationHeader } from "ui/components/specific"
 import { routes, showToast } from "utils"
 
 import { PolicySurveyInfo } from "./PolicySurveyInfo"
+import { PolicySurveyPageSkeleton } from "./PolicySurveyPage.Skeleton"
 
 export type PageState = "voting" | "results"
 
@@ -110,7 +111,7 @@ export const PolicySurveyPage = () => {
   }, [publisherIds, survey, t])
 
   if (!survey || isLoading) {
-    return <div>Loading{import.meta.env.DEV ? " (SurveyPage)" : ""}</div>
+    return <PolicySurveyPageSkeleton />
   }
 
   return (

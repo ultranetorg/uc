@@ -23,6 +23,8 @@ import {
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { routes, showToast } from "utils"
 
+import { ModerationPublicationPageSkeleton } from "./ModerationPublicationPage.Skeleton"
+
 export const ChangedPublicationPage = () => {
   const navigate = useNavigate()
   const { publicationId } = useParams()
@@ -72,7 +74,7 @@ export const ChangedPublicationPage = () => {
     })
   }, [approval, invalidateOperation, isModerator, mutate, navigate, publication, publicationId, storeId, t])
 
-  if (!storeId || isLoading) return <div>Loading{import.meta.env.DEV ? " (ModeratorChangedPublicationPage)" : ""}</div>
+  if (!storeId || isLoading) return <ModerationPublicationPageSkeleton />
 
   if (!publication) {
     return <div>Not found</div>

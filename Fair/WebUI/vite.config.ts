@@ -23,17 +23,17 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      api: path.resolve(__dirname, "src/api"),
-      app: path.resolve(__dirname, "src/app"),
-      assets: path.resolve(__dirname, "src/assets"),
-      constants: path.resolve(__dirname, "src/constants"),
-      entities: path.resolve(__dirname, "src/entities"),
-      hooks: path.resolve(__dirname, "src/hooks"),
-      types: path.resolve(__dirname, "src/types"),
-      ui: path.resolve(__dirname, "src/ui"),
-      utils: path.resolve(__dirname, "src/utils"),
-      config: path.resolve(__dirname, "src/config.ts"),
-      testConfig: path.resolve(__dirname, "src/testConfig.tsx"),
+      api: path.resolve(import.meta.dirname, "src/api"),
+      app: path.resolve(import.meta.dirname, "src/app"),
+      assets: path.resolve(import.meta.dirname, "src/assets"),
+      constants: path.resolve(import.meta.dirname, "src/constants"),
+      entities: path.resolve(import.meta.dirname, "src/entities"),
+      hooks: path.resolve(import.meta.dirname, "src/hooks"),
+      types: path.resolve(import.meta.dirname, "src/types"),
+      ui: path.resolve(import.meta.dirname, "src/ui"),
+      utils: path.resolve(import.meta.dirname, "src/utils"),
+      config: path.resolve(import.meta.dirname, "src/config.ts"),
+      testConfig: path.resolve(import.meta.dirname, "src/testConfig.tsx"),
     },
   },
 })

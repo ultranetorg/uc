@@ -23,6 +23,7 @@ export const ModerationPublicationPage = () => {
       parentBreadcrumbs={{ title: t("common:publications"), path: routes.moderation.publications(storeId!) }}
       isLoading={isLoading}
       proposal={proposal}
+      skeletonVariant="publication"
       previousPath={routes.moderation.publications(
         storeId!,
         proposal?.operation ? PUBLICATION_PROPOSALS_TAB_KEYS[proposal.operation] : undefined,

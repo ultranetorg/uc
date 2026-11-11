@@ -4,9 +4,10 @@ import { SkeletonBlock, SkeletonText } from "ui/components"
 
 type CommentsListSkeletonProps = {
   count?: number
+  hideRating?: boolean
 }
 
-export const CommentsListSkeleton = memo(({ count = 3 }: CommentsListSkeletonProps) => (
+export const CommentsListSkeleton = memo(({ count = 3, hideRating }: CommentsListSkeletonProps) => (
   <div className="flex flex-col gap-4">
     {Array.from({ length: count }, (_, i) => (
       <div key={i} className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
@@ -18,7 +19,7 @@ export const CommentsListSkeleton = memo(({ count = 3 }: CommentsListSkeletonPro
               <SkeletonBlock className="h-3.5 w-24" rounded="xs" />
             </div>
           </div>
-          <SkeletonBlock className="h-5 w-28" rounded="xs" />
+          {hideRating !== true && <SkeletonBlock className="h-5 w-28" rounded="xs" />}
         </div>
         <SkeletonText lines={2} />
       </div>

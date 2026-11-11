@@ -9,7 +9,7 @@ import { useGetUserUnregistrationProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useUrlParamsState } from "hooks"
 import { ProposalVoting, UserUnregistrationProposal } from "types"
-import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem, TableSkeleton } from "ui/components"
 import {
   renderActionButtons,
   renderCreator,
@@ -20,6 +20,32 @@ import {
   renderYourVote,
 } from "ui/renderers"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
+
+const getColumns = (t: TFunction, canVote: boolean) => [
+  { accessor: "user", label: t("columns:user"), type: "user", className: "w-[22%]" },
+  { accessor: "createdBy", label: t("columns:createdBy"), type: "account", className: "w-[14%]" },
+  {
+    accessor: "progress",
+    label: t("columns:progress.label"),
+    title: t("columns:progress.proposalTitle"),
+    type: "progress",
+    className: "w-[14%]",
+  },
+  ...(canVote
+    ? [{ accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" }]
+    : []),
+  { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[12%] text-right" },
+  ...(canVote
+    ? [
+        {
+          accessor: "actions",
+          label: t("columns:actions"),
+          type: "action-buttons",
+          className: "w-[20%] text-center",
+        },
+      ]
+    : []),
+]
 
 const getItemRenderer =
   (
@@ -74,6 +100,8 @@ export const UsersRemovalsTab = () => {
   const policies = useStorePoliciesContext()
   const { user } = useUserContext()
 
+  const canVote = !!approval
+
   const [state, setState] = useUrlParamsState({
     page: {
       defaultValue: 0,
@@ -89,34 +117,8 @@ export const UsersRemovalsTab = () => {
 
   const { mutate } = useTransactMutationWithStatus()
 
-  const columns = useMemo(
-    () => [
-      { accessor: "user", label: t("columns:user"), type: "user", className: "w-[22%]" },
-      { accessor: "createdBy", label: t("columns:createdBy"), type: "account", className: "w-[14%]" },
-      {
-        accessor: "progress",
-        label: t("columns:progress.label"),
-        title: t("columns:progress.proposalTitle"),
-        type: "progress",
-        className: "w-[14%]",
-      },
-      ...(approval
-        ? [{ accessor: "yourVote", label: t("columns:yourVote"), type: "your-vote", className: "w-[16%] text-center" }]
-        : []),
-      { accessor: "lastsFor", label: t("columns:openFor"), type: "open-for", className: "w-[12%] text-right" },
-      ...(approval
-        ? [
-            {
-              accessor: "actions",
-              label: t("columns:actions"),
-              type: "action-buttons",
-              className: "w-[20%] text-center",
-            },
-          ]
-        : []),
-    ],
-    [t, approval],
-  )
+  const columns = useMemo(() => getColumns(t, canVote), [canVote, t])
+  const skeletonColumns = useMemo(() => getColumns(t, true), [t])
 
   const vote = useCallback(
     (id: string, name: string, action: "approve" | "reject") => {
@@ -168,13 +170,17 @@ export const UsersRemovalsTab = () => {
 
   return (
     <>
-      <Table
-        columns={columns}
-        items={users?.items}
-        tableBodyClassName="text-2sm leading-5"
-        itemRenderer={itemRenderer}
-        emptyState={<TableEmptyState message={t("noUserUnregistrations")} />}
-      />
+      {users ? (
+        <Table
+          columns={columns}
+          items={users?.items}
+          tableBodyClassName="text-2sm leading-5"
+          itemRenderer={itemRenderer}
+          emptyState={<TableEmptyState message={t("noUserUnregistrations")} />}
+        />
+      ) : (
+        <TableSkeleton columns={skeletonColumns} />
+      )}
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
       </div>
