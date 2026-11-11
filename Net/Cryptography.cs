@@ -81,7 +81,7 @@ public abstract class Cryptography
 	public static byte[] Hash(ReadOnlySpan<byte> data)
 	{
 		var h = new byte[32];
-		Blake3.Hasher.Hash(data, h);
+		Hasher.Hash(data, h);
 
 		return h;
 		//		return Blake2Fast.Blake2b.ComputeHash(32, data);
