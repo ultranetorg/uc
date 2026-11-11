@@ -1,9 +1,11 @@
+import { memo } from "react"
+
 import { SvgFilesSm } from "assets"
 
 export type CopyButtonProps = {
   onClick?: () => void
 }
 
-export const CopyButton = ({ onClick }: CopyButtonProps) => (
-  <SvgFilesSm className="cursor-pointer fill-gray-500 hover:fill-gray-950" onClick={onClick} />
-)
+export const CopyButton = memo(({ onClick }: CopyButtonProps) => (
+  <SvgFilesSm className="cursor-pointer fill-gray-300 hover:fill-gray-100" onClick={onClick} />
+))

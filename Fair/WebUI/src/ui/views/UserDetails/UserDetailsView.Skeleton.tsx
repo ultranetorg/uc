@@ -16,7 +16,6 @@ export const UserDetailsViewSkeleton = memo(() => (
       <div className="flex flex-col gap-4 p-6">
         <div className="flex flex-col">
           <SkeletonBlock className="h-6 w-48" rounded="xs" />
-          <SkeletonBlock className="h-5 w-28" rounded="xs" />
         </div>
         <SkeletonBlock className="h-4 w-32" rounded="xs" />
       </div>

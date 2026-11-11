@@ -1,12 +1,12 @@
-import { forwardRef, memo } from "react"
+import { forwardRef, memo, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SvgChevronRight, SvgPerson, SvgPersonSquare, SvgX } from "assets"
 import avatarFallback from "assets/fallback/user-avatar-5xl.png"
 import { useSubmenu } from "hooks"
 import { UserBaseAvatar, PropsWithStyle } from "types"
-import { ImageFallback } from "ui/components"
-import { buildUserAvatarByNameUrl } from "utils"
+import { CopyAddressButton, ImageFallback } from "ui/components"
+import { buildUserAvatarByNameUrl, showToast } from "utils"
 
 import { AccountMenu, AccountMenuBaseProps } from "./AccountMenu/AccountMenu"
 import { ProfileButton } from "./ProfileButton"
@@ -31,10 +31,12 @@ export const ProfilePanel = memo(
       const avatarMenu = useSubmenu({ placement: "right-start", customParentId, offset: 2 })
       const accountMenu = useSubmenu({ placement: "right-start", customParentId, offset: 2 })
 
+      const handleAddressCopy = useCallback(() => showToast(t("toast:addressCopied"), "success"), [t])
+
       return (
         <>
           <div
-            className="z-10 flex w-[340px] flex-col overflow-hidden rounded-lg bg-gray-800 text-white shadow-md"
+            className="z-10 flex w-85 flex-col overflow-hidden rounded-lg bg-gray-800 text-white shadow-md"
             ref={ref}
             style={style}
           >
@@ -42,18 +44,21 @@ export const ProfilePanel = memo(
               <SvgX className="cursor-pointer stroke-gray-300 hover:stroke-white" onClick={onClose} />
             </div>
             <div className="flex w-full flex-col items-center gap-4 p-2">
-              <div className="size-[90px] overflow-hidden rounded-full" title={selectedUserName}>
+              <div className="size-22.5 overflow-hidden rounded-full" title={selectedUserName}>
                 <ImageFallback
                   src={`${buildUserAvatarByNameUrl(selectedUserName!)}?v=${userSwitcherProps.avatarVersions?.[selectedUserName!] ?? 0}`}
                   fallbackSrc={avatarFallback}
                 />
               </div>
-              <span
-                className="min-w-0 overflow-hidden text-ellipsis text-nowrap text-xl font-semibold leading-6"
-                title={address}
-              >
-                {selectedUserName}
-              </span>
+              <div className="flex flex-col items-center">
+                <span
+                  className="min-w-0 overflow-hidden text-xl leading-6 font-semibold text-nowrap text-ellipsis"
+                  title={address}
+                >
+                  {selectedUserName}
+                </span>
+                <CopyAddressButton address={address} onCopy={handleAddressCopy} />
+              </div>
             </div>
             <div className="flex flex-col gap-2 p-2">
               {!hasAvatar ? (

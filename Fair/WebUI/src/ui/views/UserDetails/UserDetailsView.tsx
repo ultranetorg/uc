@@ -65,10 +65,7 @@ export const UserDetailsView = memo(
           </div>
 
           <div className="flex flex-col gap-4 p-6">
-            <div className="flex flex-col">
-              <span className="text-xl leading-6 font-semibold">{user.name}</span>
-              <CopyAddressButton address={user.owner} />
-            </div>
+            <span className="text-xl leading-6 font-semibold">{user.name}</span>
             <div className="text-2xs leading-4">{renderRole(t, isPublisher, isModerator, isJoined)}</div>
           </div>
         </div>

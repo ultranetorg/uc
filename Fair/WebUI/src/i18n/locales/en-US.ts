@@ -270,6 +270,7 @@ export const enUS = {
     stores: "Stores",
   },
   toast: {
+    addressCopied: "Address copied to clipboard",
     avatarDeleted: "Avatar successfully deleted",
     avatarUploaded: "Avatar successfully uploaded",
     commentAdded: "Comment successfully added",
