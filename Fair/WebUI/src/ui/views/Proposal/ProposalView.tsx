@@ -31,6 +31,7 @@ import {
   VoteAction,
   VoteStatus,
 } from "./content"
+import { ProposalViewSkeleton, ProposalViewSkeletonVariant } from "./ProposalView.Skeleton"
 import { PageState } from "./types"
 import { getProductId, getPublicationId } from "./utils"
 
@@ -48,278 +49,286 @@ export interface ProposalViewProps {
   isLoading: boolean
   proposal?: ProposalDetails
   previousPath: string
+  skeletonVariant?: ProposalViewSkeletonVariant
 }
 
-export const ProposalView = memo(({ parentBreadcrumbs, proposal, previousPath }: ProposalViewProps) => {
-  const navigate = useNavigate()
-  const { t } = useTranslation("proposalView")
+export const ProposalView = memo(
+  ({ parentBreadcrumbs, proposal, previousPath, skeletonVariant }: ProposalViewProps) => {
+    const navigate = useNavigate()
+    const { t } = useTranslation("proposalView")
 
-  const commentCreatorId = useCreatorIdForProposalCommentCreation(proposal?.operation)
-  const { invalidateOperation, invalidateProposal } = useInvalidation()
-  const approval = useApprovalIdentityForOperation(proposal?.operation)
-  const storeId = useResolveStoreId()
-  const { startSignIn } = useSignInContext()
-  const { store } = useStoreContext()
-  const policies = useStorePoliciesContext()
-  const { isModerator, publisherIds } = useStoreRolesContext()
-  const { user } = useUserContext()
-  const { mutate } = useTransactMutationWithStatus()
+    const commentCreatorId = useCreatorIdForProposalCommentCreation(proposal?.operation)
+    const { invalidateOperation, invalidateProposal } = useInvalidation()
+    const approval = useApprovalIdentityForOperation(proposal?.operation)
+    const storeId = useResolveStoreId()
+    const { startSignIn } = useSignInContext()
+    const { store } = useStoreContext()
+    const policies = useStorePoliciesContext()
+    const { isModerator, publisherIds } = useStoreRolesContext()
+    const { user } = useUserContext()
+    const { mutate } = useTransactMutationWithStatus()
 
-  const isReferendum = isReferendum_(proposal?.operation, policies)
+    const isReferendum = isReferendum_(proposal?.operation, policies)
 
-  const voterIds = useMemo(
-    () => (proposal ? getVoterIds(proposal.operation, policies, isModerator ? user?.id : undefined, publisherIds) : []),
-    [proposal, policies, isModerator, user?.id, publisherIds],
-  )
+    const voterIds = useMemo(
+      () =>
+        proposal ? getVoterIds(proposal.operation, policies, isModerator ? user?.id : undefined, publisherIds) : [],
+      [proposal, policies, isModerator, user?.id, publisherIds],
+    )
 
-  const [voteStatus, setVoteStatus] = useState<VoteStatus>("idle")
-  const [pageState, setPageState] = useState<PageState>("voting")
-  const [votedValue, setVotedValue] = useState<number | undefined>()
-  const [voteAction, setVoteAction] = useState<VoteAction | undefined>()
-  const [commentSubmitting, setCommentSubmitting] = useState(false)
+    const [voteStatus, setVoteStatus] = useState<VoteStatus>("idle")
+    const [pageState, setPageState] = useState<PageState>("voting")
+    const [votedValue, setVotedValue] = useState<number | undefined>()
+    const [voteAction, setVoteAction] = useState<VoteAction | undefined>()
+    const [commentSubmitting, setCommentSubmitting] = useState(false)
 
-  const [commentsPage, setCommentsPage] = useState(0)
-  const { isLoading: isCommentsLoading, data: comments } = useGetProposalComments(
-    storeId,
-    proposal?.id,
-    commentsPage,
-    DEFAULT_PAGE_SIZE_20,
-  )
-
-  const NestedContent = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
-  const isPublicationProposal = !!NestedContent
-
-  const productId = useMemo(
-    () => (isPublicationProposal ? getProductId(proposal) : undefined),
-    [isPublicationProposal, proposal],
-  )
-  const publicationId = useMemo(
-    () => (isPublicationProposal ? getPublicationId(proposal) : undefined),
-    [isPublicationProposal, proposal],
-  )
-
-  const headerBreadcrumbs = useMemo(
-    () => (Array.isArray(parentBreadcrumbs) ? [...parentBreadcrumbs] : [parentBreadcrumbs]),
-    [parentBreadcrumbs],
-  )
-
-  const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
-
-  const handleVoteClick = useCallback(
-    (value: number) => {
-      if (isReferendum && !approval) {
-        startSignIn("author")
-        return
-      }
-
-      setVotedValue(value)
-      setVoteStatus("voting")
-      const operation = new ProposalVoting(proposal!.id, approval!.id, value)
-      mutate(operation, {
-        onSuccess: () => {
-          showToast(t("toast:voted"), "success")
-          setVoteStatus("voted")
-
-          invalidateOperation(proposal!.operation, { storeId: storeId! })
-          invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
-
-          navigate(previousPath)
-        },
-        onError: err => {
-          showToast(err.toString(), "error")
-          setVoteStatus("idle")
-        },
-        onSettled: () => setVotedValue(undefined),
-      })
-    },
-    [
-      isReferendum,
-      approval,
-      proposal,
-      mutate,
-      startSignIn,
-      t,
-      invalidateOperation,
-      invalidateProposal,
-      navigate,
-      previousPath,
+    const [commentsPage, setCommentsPage] = useState(0)
+    const { isLoading: isCommentsLoading, data: comments } = useGetProposalComments(
       storeId,
-    ],
-  )
+      proposal?.id,
+      commentsPage,
+      DEFAULT_PAGE_SIZE_20,
+    )
 
-  const vote = useCallback(
-    (action: VoteAction) => {
-      setVoteStatus("voting")
-      setVoteAction(action)
-      const operation = new ProposalVoting(proposal!.id, approval!.id, action === "approve" ? 0 : SpecialChoice.Neither)
-      mutate(operation, {
-        onSuccess: () => {
-          showToast(t("toast:publicationVoted"), "success")
-          invalidateOperation(proposal!.operation, { storeId: storeId!, publicationId })
-          invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
-          navigate(routes.moderation.publications(storeId!, "proposals"))
-        },
-        onError: err => {
-          showToast(err.toString(), "error")
-          setVoteStatus("idle")
-          setVoteAction(undefined)
-        },
-      })
-    },
-    [mutate, navigate, proposal, storeId, t, approval, invalidateOperation, invalidateProposal, publicationId],
-  )
+    const NestedContent = proposal?.operation ? renderByOperationType[proposal.operation] : undefined
+    const isPublicationProposal = !!NestedContent
 
-  const handleApprove = useCallback(() => vote("approve"), [vote])
-  const handleReject = useCallback(() => vote("reject"), [vote])
+    const productId = useMemo(
+      () => (isPublicationProposal ? getProductId(proposal) : undefined),
+      [isPublicationProposal, proposal],
+    )
+    const publicationId = useMemo(
+      () => (isPublicationProposal ? getPublicationId(proposal) : undefined),
+      [isPublicationProposal, proposal],
+    )
 
-  const handleCommentSubmit = useCallback(
-    (comment: string) => {
-      setCommentSubmitting(true)
-      if (!isPublicationProposal) setVotedValue(ALREADY_VOTED)
-      const operation = new ProposalCommentCreation(proposal!.id, commentCreatorId!, comment)
-      mutate(operation, {
-        onSuccess: () => {
-          invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
-          showToast(t("toast:commentAdded"), "success")
-        },
-        onError: err => showToast(err.toString(), "error"),
-        onSettled: () => {
-          setCommentSubmitting(false)
-          if (!isPublicationProposal) setVotedValue(undefined)
-        },
-      })
-    },
-    [isPublicationProposal, proposal, commentCreatorId, mutate, invalidateProposal, storeId, t],
-  )
+    const headerBreadcrumbs = useMemo(
+      () => (Array.isArray(parentBreadcrumbs) ? [...parentBreadcrumbs] : [parentBreadcrumbs]),
+      [parentBreadcrumbs],
+    )
 
-  useEffect(() => {
-    if (!approval) return
+    const togglePageState = useCallback(() => setPageState(prev => (prev === "voting" ? "results" : "voting")), [])
 
-    if (isPublicationProposal) {
-      if (isVoted(approval.id, proposal)) {
-        setVoteStatus("voted")
-      }
-    } else {
-      const votedIndex = getVotedIndex(approval.id, proposal)
-      if (votedIndex !== undefined) {
-        setVoteStatus("voted")
-        setVotedValue(votedIndex)
-      }
-    }
-  }, [isPublicationProposal, proposal, approval, productId])
-
-  if (!proposal || !comments) {
-    return <div>Loading{import.meta.env.DEV ? " (ProposalView)" : ""}</div>
-  }
-
-  return (
-    <div className="flex flex-col gap-6">
-      <ModerationHeader
-        title={proposal.title ?? proposal.id}
-        subtitle={t(`policySurveysPage:${proposal?.operation}`)}
-        parentBreadcrumbs={headerBreadcrumbs}
-        components={
-          isPublicationProposal && !!approval && voteStatus !== "voted" ? (
-            <ButtonBar className="items-center">
-              <ButtonPrimary
-                className="h-11 w-43.75"
-                label={
-                  isVotingRequired(proposal.operation, store, policies)
-                    ? t("buttons:suggestApprove")
-                    : t("buttons:approve")
-                }
-                onClick={handleApprove}
-                disabled={voteStatus === "voting"}
-                loading={voteAction === "approve"}
-              />
-              <ButtonOutline
-                className="h-11 w-43.75"
-                label={
-                  isVotingRequired(proposal.operation, store, policies)
-                    ? t("buttons:suggestReject")
-                    : t("buttons:reject")
-                }
-                onClick={handleReject}
-                disabled={voteStatus === "voting"}
-                loading={voteAction === "reject"}
-              />
-              <Separator className="h-8" />
-              <Link
-                to={routes.moderation.preview(storeId!)}
-                state={{
-                  productId,
-                  publicationId,
-                  proposalId: proposal.id,
-                  previousPath: routes.moderation.moderatorPublication(storeId!, proposal.id),
-                  parentBreadcrumbs,
-                }}
-              >
-                <ButtonOutline
-                  disabled={voteStatus === "voting"}
-                  className="h-11 w-40 capitalize"
-                  label={t("common:preview")}
-                  iconBefore={<SvgEyeSm className="fill-gray-800" />}
-                />
-              </Link>
-            </ButtonBar>
-          ) : undefined
+    const handleVoteClick = useCallback(
+      (value: number) => {
+        if (isReferendum && !approval) {
+          startSignIn("author")
+          return
         }
-      />
-      {NestedContent && <NestedContent t={t} storeId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
-      <div className="flex gap-8">
-        <div className="flex w-full flex-col gap-8">
-          {!isPublicationProposal && (
-            <DefaultContent
-              t={t}
-              storeId={storeId!}
-              proposal={proposal}
-              showVoteButton={!!approval && voteStatus !== "voted"}
-              pageState={pageState}
-              voteStatus={voteStatus}
-              votedValue={votedValue}
-              onVoteClick={handleVoteClick}
-            />
-          )}
-          {!isPublicationProposal && !!approval && !isReferendum && (
-            <AlternativeOptions
-              hideVoteButton={voteStatus === "voted"}
-              votedValue={votedValue}
-              onVoteClick={handleVoteClick}
-            />
-          )}
-          <hr className="h-px border-0 bg-gray-300" />
-          <CommentsSection
-            inputDisabled={voteStatus === "voting" || commentSubmitting}
-            inputLoading={commentSubmitting}
-            showCommentInput={!!commentCreatorId}
-            isLoading={isCommentsLoading}
-            comments={comments}
-            page={commentsPage}
-            pageSize={DEFAULT_PAGE_SIZE_20}
-            onPageChange={setCommentsPage}
-            onCommentSubmit={handleCommentSubmit}
-          />
-        </div>
-        <div className="flex flex-col gap-6">
-          <ProposalInfo
-            className="w-87.5"
-            store={store!}
-            proposal={proposal}
-            policies={policies!}
-            voterIds={voterIds}
-          />
-          {!isPublicationProposal &&
-            (pageState === "voting" ? (
-              <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
-            ) : (
-              <ButtonPrimary
-                label="Back to options"
-                onClick={togglePageState}
-                iconBefore={<SvgArrowLeftSm className="fill-white" />}
+
+        setVotedValue(value)
+        setVoteStatus("voting")
+        const operation = new ProposalVoting(proposal!.id, approval!.id, value)
+        mutate(operation, {
+          onSuccess: () => {
+            showToast(t("toast:voted"), "success")
+            setVoteStatus("voted")
+
+            invalidateOperation(proposal!.operation, { storeId: storeId! })
+            invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
+
+            navigate(previousPath)
+          },
+          onError: err => {
+            showToast(err.toString(), "error")
+            setVoteStatus("idle")
+          },
+          onSettled: () => setVotedValue(undefined),
+        })
+      },
+      [
+        isReferendum,
+        approval,
+        proposal,
+        mutate,
+        startSignIn,
+        t,
+        invalidateOperation,
+        invalidateProposal,
+        navigate,
+        previousPath,
+        storeId,
+      ],
+    )
+
+    const vote = useCallback(
+      (action: VoteAction) => {
+        setVoteStatus("voting")
+        setVoteAction(action)
+        const operation = new ProposalVoting(
+          proposal!.id,
+          approval!.id,
+          action === "approve" ? 0 : SpecialChoice.Neither,
+        )
+        mutate(operation, {
+          onSuccess: () => {
+            showToast(t("toast:publicationVoted"), "success")
+            invalidateOperation(proposal!.operation, { storeId: storeId!, publicationId })
+            invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
+            navigate(routes.moderation.publications(storeId!, "proposals"))
+          },
+          onError: err => {
+            showToast(err.toString(), "error")
+            setVoteStatus("idle")
+            setVoteAction(undefined)
+          },
+        })
+      },
+      [mutate, navigate, proposal, storeId, t, approval, invalidateOperation, invalidateProposal, publicationId],
+    )
+
+    const handleApprove = useCallback(() => vote("approve"), [vote])
+    const handleReject = useCallback(() => vote("reject"), [vote])
+
+    const handleCommentSubmit = useCallback(
+      (comment: string) => {
+        setCommentSubmitting(true)
+        if (!isPublicationProposal) setVotedValue(ALREADY_VOTED)
+        const operation = new ProposalCommentCreation(proposal!.id, commentCreatorId!, comment)
+        mutate(operation, {
+          onSuccess: () => {
+            invalidateProposal({ storeId: storeId!, proposalId: proposal!.id })
+            showToast(t("toast:commentAdded"), "success")
+          },
+          onError: err => showToast(err.toString(), "error"),
+          onSettled: () => {
+            setCommentSubmitting(false)
+            if (!isPublicationProposal) setVotedValue(undefined)
+          },
+        })
+      },
+      [isPublicationProposal, proposal, commentCreatorId, mutate, invalidateProposal, storeId, t],
+    )
+
+    useEffect(() => {
+      if (!approval) return
+
+      if (isPublicationProposal) {
+        if (isVoted(approval.id, proposal)) {
+          setVoteStatus("voted")
+        }
+      } else {
+        const votedIndex = getVotedIndex(approval.id, proposal)
+        if (votedIndex !== undefined) {
+          setVoteStatus("voted")
+          setVotedValue(votedIndex)
+        }
+      }
+    }, [isPublicationProposal, proposal, approval, productId])
+
+    if (!proposal) {
+      return <ProposalViewSkeleton variant={skeletonVariant} />
+    }
+
+    return (
+      <div className="flex flex-col gap-6">
+        <ModerationHeader
+          title={proposal.title ?? proposal.id}
+          subtitle={t(`policySurveysPage:${proposal?.operation}`)}
+          parentBreadcrumbs={headerBreadcrumbs}
+          components={
+            isPublicationProposal && !!approval && voteStatus !== "voted" ? (
+              <ButtonBar className="items-center">
+                <ButtonPrimary
+                  className="h-11 w-43.75"
+                  label={
+                    isVotingRequired(proposal.operation, store, policies)
+                      ? t("buttons:suggestApprove")
+                      : t("buttons:approve")
+                  }
+                  onClick={handleApprove}
+                  disabled={voteStatus === "voting"}
+                  loading={voteAction === "approve"}
+                />
+                <ButtonOutline
+                  className="h-11 w-43.75"
+                  label={
+                    isVotingRequired(proposal.operation, store, policies)
+                      ? t("buttons:suggestReject")
+                      : t("buttons:reject")
+                  }
+                  onClick={handleReject}
+                  disabled={voteStatus === "voting"}
+                  loading={voteAction === "reject"}
+                />
+                <Separator className="h-8" />
+                <Link
+                  to={routes.moderation.preview(storeId!)}
+                  state={{
+                    productId,
+                    publicationId,
+                    proposalId: proposal.id,
+                    previousPath: routes.moderation.moderatorPublication(storeId!, proposal.id),
+                    parentBreadcrumbs,
+                  }}
+                >
+                  <ButtonOutline
+                    disabled={voteStatus === "voting"}
+                    className="h-11 w-40 capitalize"
+                    label={t("common:preview")}
+                    iconBefore={<SvgEyeSm className="fill-gray-800" />}
+                  />
+                </Link>
+              </ButtonBar>
+            ) : undefined
+          }
+        />
+        {NestedContent && <NestedContent t={t} storeId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
+        <div className="flex gap-8">
+          <div className="flex w-full flex-col gap-8">
+            {!isPublicationProposal && (
+              <DefaultContent
+                t={t}
+                storeId={storeId!}
+                proposal={proposal}
+                showVoteButton={!!approval && voteStatus !== "voted"}
+                pageState={pageState}
+                voteStatus={voteStatus}
+                votedValue={votedValue}
+                onVoteClick={handleVoteClick}
               />
-            ))}
+            )}
+            {!isPublicationProposal && !!approval && !isReferendum && (
+              <AlternativeOptions
+                hideVoteButton={voteStatus === "voted"}
+                votedValue={votedValue}
+                onVoteClick={handleVoteClick}
+              />
+            )}
+            <hr className="h-px border-0 bg-gray-300" />
+            <CommentsSection
+              inputDisabled={voteStatus === "voting" || commentSubmitting}
+              inputLoading={commentSubmitting}
+              showCommentInput={!!commentCreatorId}
+              isLoading={isCommentsLoading}
+              comments={comments}
+              page={commentsPage}
+              pageSize={DEFAULT_PAGE_SIZE_20}
+              onPageChange={setCommentsPage}
+              onCommentSubmit={handleCommentSubmit}
+            />
+          </div>
+          <div className="flex flex-col gap-6">
+            <ProposalInfo
+              className="w-87.5"
+              store={store!}
+              proposal={proposal}
+              policies={policies!}
+              voterIds={voterIds}
+            />
+            {!isPublicationProposal &&
+              (pageState === "voting" ? (
+                <ButtonOutline className="h-11 w-full" label={t("showResults")} onClick={togglePageState} />
+              ) : (
+                <ButtonPrimary
+                  label="Back to options"
+                  onClick={togglePageState}
+                  iconBefore={<SvgArrowLeftSm className="fill-white" />}
+                />
+              ))}
+          </div>
         </div>
       </div>
-    </div>
-  )
-})
+    )
+  },
+)

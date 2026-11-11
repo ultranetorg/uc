@@ -10,6 +10,8 @@ import { PublicationHeader } from "ui/components/publication"
 import { PublicationContentView } from "ui/views"
 import { routes } from "utils"
 
+import { PreviewPageSkeleton } from "./PreviewPage.Skeleton"
+
 export const PreviewPage = () => {
   const location = useLocation()
   const storeId = useResolveStoreId()
@@ -20,9 +22,7 @@ export const PreviewPage = () => {
   const publicationId = location.state?.publicationId as string | undefined
   const previousPath = location.state?.previousPath as string | undefined
   const parentBreadcrumbs = location.state?.parentBreadcrumbs as
-    | BreadcrumbsItemProps
-    | BreadcrumbsItemProps[]
-    | undefined
+    BreadcrumbsItemProps | BreadcrumbsItemProps[] | undefined
 
   const { data: product, isLoading: isProductLoading } = useGetProductDetails(productId)
   const { data: publication, isLoading: isPublicationLoading } = useGetPublicationDetails(publicationId)
@@ -38,7 +38,7 @@ export const PreviewPage = () => {
   if (!previousPath || (!productId && !publicationId)) return <Navigate to={routes.store(storeId!)} />
 
   if ((isProductLoading || isPublicationLoading) && !product && !publication) {
-    return <div>Loading{import.meta.env.DEV ? " (PreviewPage)" : ""}</div>
+    return <PreviewPageSkeleton showBreadcrumbs={!!parentBreadcrumbs} />
   }
 
   return (

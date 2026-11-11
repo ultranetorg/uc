@@ -17,6 +17,7 @@ import {
   TableColumn,
   TableEmptyState,
   TableItem,
+  TableSkeleton,
   VotesProgress,
 } from "ui/components"
 import { isPublisherVotedInSurvey, parseInteger, showToast } from "utils"
@@ -48,7 +49,7 @@ const getColumns = (t: TFunction, canVote: boolean) => [
         {
           accessor: "actions",
           label: t("columns:actions"),
-          type: "action-buttons",
+          type: "action-button",
           className: "w-1/5 text-center",
         },
       ]
@@ -84,7 +85,7 @@ const getItemRenderer =
           <Badge variant="warning">{t("common:notVoted")}</Badge>
         )
 
-      case "action-buttons":
+      case "action-button":
         return (
           <div className="flex justify-center">
             <ButtonPrimary
@@ -149,6 +150,7 @@ export const ModeratorsRemovalsTab = () => {
   )
 
   const columns = useMemo(() => getColumns(t, publisherIds !== undefined && publisherIds.length > 0), [publisherIds, t])
+  const skeletonColumns = useMemo(() => getColumns(t, true), [t])
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -165,13 +167,17 @@ export const ModeratorsRemovalsTab = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Table
-        columns={columns}
-        items={surveys?.items}
-        tableBodyClassName="text-2sm leading-5"
-        itemRenderer={itemRenderer}
-        emptyState={<TableEmptyState message={t("noModeratorSurveys")} />}
-      />
+      {surveys ? (
+        <Table
+          columns={columns}
+          items={surveys?.items}
+          tableBodyClassName="text-2sm leading-5"
+          itemRenderer={itemRenderer}
+          emptyState={<TableEmptyState message={t("noModeratorSurveys")} />}
+        />
+      ) : (
+        <TableSkeleton columns={skeletonColumns} />
+      )}
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
       </div>

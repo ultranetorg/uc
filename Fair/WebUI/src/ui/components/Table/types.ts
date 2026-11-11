@@ -4,6 +4,7 @@ import { PropsWithClassName } from "types"
 type TableBaseColumn = {
   accessor: string
   label?: string
+  /** Types ending with "action-button" / "action-buttons" are drawn as 1 / 2 button placeholders in `TableSkeleton`. */
   type?: string
   title?: string
 }

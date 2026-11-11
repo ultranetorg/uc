@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { TFunction } from "i18next"
 import { isNumber, isString } from "lodash"
 
 import { useStoreContext, useStorePoliciesContext } from "app"
@@ -8,11 +9,45 @@ import { useGetReviewDeletionsProposals, useInvalidation } from "entities"
 import { useTransactMutationWithStatus } from "entities/iccpNode"
 import { useApprovalIdentityForOperation, useResolveStoreId, useStoreTitle, useUrlParamsState } from "hooks"
 import { ProposalVoting, ReviewProposal, SpecialChoice } from "types"
-import { Pagination, Table, TableEmptyState, TableItem } from "ui/components"
+import { Pagination, Table, TableEmptyState, TableItem, TableSkeleton } from "ui/components"
 import { ReviewModal } from "ui/components/specific"
 import { calculateVotesRequiredToWinProposal, isUserVoted, parseInteger, showToast } from "utils"
 
 import { getReviewsPageItemRenderer } from "../reviewsPageItemRenderer"
+
+const getColumns = (t: TFunction, canDeleteOrCancel: boolean) => [
+  { accessor: "publication", label: t("columns:publication"), type: "publication", className: "w-[17%]" },
+  { accessor: "author", label: t("columns:reviewer"), type: "account", className: "w-[15%]" },
+  {
+    accessor: "text",
+    label: t("columns:text"),
+    type: "text",
+    className: canDeleteOrCancel ? "w-[23%]" : "w-[43%]",
+  },
+  {
+    accessor: "rating",
+    type: "rating",
+    label: t("columns:rating"),
+    className: "w-[8%] text-right",
+  },
+  {
+    accessor: "progress",
+    label: t("columns:progress.label"),
+    title: t("columns:progress.proposalTitle"),
+    type: "progress",
+    className: "w-[12%]",
+  },
+  ...(canDeleteOrCancel
+    ? [
+        {
+          accessor: "action",
+          label: t("columns:action"),
+          type: "delete-action-buttons",
+          className: "w-[20%] text-center",
+        },
+      ]
+    : []),
+]
 
 export const ReviewsDeletionsTab = () => {
   const { t } = useTranslation("reviewsPage")
@@ -47,42 +82,8 @@ export const ReviewsDeletionsTab = () => {
   const { mutate } = useTransactMutationWithStatus()
   const { invalidateOperation } = useInvalidation()
 
-  const columns = useMemo(
-    () => [
-      { accessor: "publication", label: t("columns:publication"), type: "publication", className: "w-[17%]" },
-      { accessor: "author", label: t("columns:reviewer"), type: "account", className: "w-[15%]" },
-      {
-        accessor: "text",
-        label: t("columns:text"),
-        type: "text",
-        className: canDeleteOrCancel ? "w-[23%]" : "w-[43%]",
-      },
-      {
-        accessor: "rating",
-        type: "rating",
-        label: t("columns:rating"),
-        className: "w-[8%] text-right",
-      },
-      {
-        accessor: "progress",
-        label: t("columns:progress.label"),
-        title: t("columns:progress.proposalTitle"),
-        type: "progress",
-        className: "w-[12%]",
-      },
-      ...(canDeleteOrCancel
-        ? [
-            {
-              accessor: "action",
-              label: t("columns:action"),
-              type: "delete-action-buttons",
-              className: "w-[20%] text-center",
-            },
-          ]
-        : []),
-    ],
-    [t, canDeleteOrCancel],
-  )
+  const columns = useMemo(() => getColumns(t, canDeleteOrCancel), [t, canDeleteOrCancel])
+  const skeletonColumns = useMemo(() => getColumns(t, true), [t])
 
   const handleTableRowClick = useCallback(
     (id: string) => {
@@ -171,15 +172,19 @@ export const ReviewsDeletionsTab = () => {
 
   return (
     <>
-      <Table
-        columns={columns}
-        items={reviews?.items}
-        itemRenderer={itemRenderer}
-        tableBodyClassName="text-2sm leading-5"
-        emptyState={<TableEmptyState message={t("newReviewDeletions")} />}
-        onRowClick={canDeleteOrCancel && !loadingItem ? handleTableRowClick : undefined}
-        isRowClickable={isRowClickable}
-      />
+      {reviews ? (
+        <Table
+          columns={columns}
+          items={reviews?.items}
+          itemRenderer={itemRenderer}
+          tableBodyClassName="text-2sm leading-5"
+          emptyState={<TableEmptyState message={t("newReviewDeletions")} />}
+          onRowClick={canDeleteOrCancel && !loadingItem ? handleTableRowClick : undefined}
+          isRowClickable={isRowClickable}
+        />
+      ) : (
+        <TableSkeleton columns={skeletonColumns} />
+      )}
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
       </div>

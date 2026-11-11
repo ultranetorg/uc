@@ -123,7 +123,7 @@ export const GameSoftwarePublicationContent = memo(
           {sliderItems.length > 0 ? (
             <Slider items={sliderItems} />
           ) : (
-            <div className="flex h-[416px] w-[750px] select-none flex-col items-center justify-center gap-6 rounded-lg bg-[#7E8095] text-center text-2xs text-gray-300">
+            <div className="flex h-104 w-[750px] flex-col items-center justify-center gap-6 rounded-lg bg-[#7E8095] text-center text-2xs text-gray-300 select-none">
               <SvgImageSlash4Xl className="stroke-[#A2A4AF]" />
               <Trans ns="publicationPage" i18nKey={"noScreenshots"} components={{ br: <br /> }} />
             </div>
@@ -190,7 +190,7 @@ export const GameSoftwarePublicationContent = memo(
           {eulaText && (
             <button
               type="button"
-              className="flex items-center justify-between rounded-lg border border-[#D7DDEB] bg-[#F3F5F8] px-6 py-4 text-left text-2sm font-medium leading-4.5 text-gray-800"
+              className="flex items-center justify-between rounded-lg border border-[#D7DDEB] bg-[#F3F5F8] px-6 py-4 text-left text-2sm leading-4.5 font-medium text-gray-800"
               onClick={() => setIsEulaOpen(true)}
             >
               {t("eula")}

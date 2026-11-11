@@ -6,7 +6,7 @@ import { useUserContext } from "app"
 import { useGetStoreModerators } from "entities"
 import { useResolveStoreId } from "hooks"
 import { Moderator } from "types"
-import { Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { Table, TableColumn, TableEmptyState, TableItem, TableSkeleton } from "ui/components"
 import { renderBannedStatus } from "ui/renderers"
 
 import { renderModerator } from "../utils"
@@ -55,6 +55,8 @@ export const ModeratorsListTab = () => {
       })),
     [moderators],
   )
+
+  if (!moderators) return <TableSkeleton columns={columns} />
 
   return (
     <Table

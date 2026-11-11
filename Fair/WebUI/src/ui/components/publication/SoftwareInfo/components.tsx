@@ -18,9 +18,7 @@ export const AuthorImageTitle = memo(({ title, authorFileId }: AuthorImageTitleP
       <ImageFallback src={buildFileUrl(authorFileId)} fallbackSrc={avatarFallback} className="size-full object-cover" />
     </div>
     <span
-      className={twMerge(
-        "cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap text-2sm font-medium leading-5 text-gray-800 hover:font-semibold",
-      )}
+      className={twMerge("cursor-pointer truncate text-2sm leading-5 font-medium text-gray-800 hover:font-semibold")}
     >
       {title}
     </span>

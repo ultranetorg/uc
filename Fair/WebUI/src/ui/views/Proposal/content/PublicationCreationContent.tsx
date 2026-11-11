@@ -2,7 +2,12 @@ import { memo, useMemo } from "react"
 import { Proposal, PublicationCreation } from "types"
 
 import { useGetProductDetails } from "entities"
-import { ModerationPublicationHeader, ProductFieldsTree, ProductPublicationInformation } from "ui/components/specific"
+import {
+  ModerationPublicationHeader,
+  ModerationPublicationSkeleton,
+  ProductFieldsTree,
+  ProductPublicationInformation,
+} from "ui/components/specific"
 
 import { ProposalViewContentProps } from "./types"
 
@@ -13,7 +18,7 @@ export const PublicationCreationContent = memo(({ storeId, proposal }: ProposalV
 
   const { isLoading, data: product } = useGetProductDetails(productId)
 
-  if (isLoading || !product) return <div>Loading{import.meta.env.DEV ? " (PublicationCreationContent)" : ""}</div>
+  if (isLoading || !product) return <ModerationPublicationSkeleton />
 
   return (
     <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">

@@ -17,6 +17,8 @@ import {
 import { ButtonBar, ButtonOutline, ButtonPrimary } from "ui/components"
 import { routes } from "utils"
 
+import { ModerationPublicationPageSkeleton } from "./ModerationPublicationPage.Skeleton"
+
 export const UnpublishedPublicationPage = () => {
   const { publicationId } = useParams()
   const { t } = useTranslation("unpublishedPublicationPage")
@@ -37,7 +39,7 @@ export const UnpublishedPublicationPage = () => {
   const pageTitle = publication?.title ?? publication?.id
   useStoreTitle(store?.title, pageTitle ? `Unpublished Publication - ${pageTitle}` : "Unpublished Publication")
 
-  if (isLoading || !publication) return <div>Loading{import.meta.env.DEV ? " (UnpublishedPublicationPage)" : ""}</div>
+  if (isLoading || !publication) return <ModerationPublicationPageSkeleton />
 
   return (
     <div className="flex flex-col gap-6">

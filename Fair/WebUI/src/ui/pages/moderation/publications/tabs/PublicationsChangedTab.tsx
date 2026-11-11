@@ -9,7 +9,7 @@ import { DEFAULT_PAGE_SIZE_20 } from "config"
 import { useGetChangedPublications } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { PublicationChanged } from "types"
-import { Pagination, Table, TableColumn, TableEmptyState, TableItem } from "ui/components"
+import { Pagination, Table, TableColumn, TableEmptyState, TableItem, TableSkeleton } from "ui/components"
 import { renderAuthor2, renderCategory, renderPublication2, renderWithYouBadge } from "ui/renderers"
 import { parseInteger, routes } from "utils"
 
@@ -107,14 +107,18 @@ export const PublicationsChangedTab = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Table
-        columns={columns}
-        items={publications?.items}
-        itemRenderer={itemRenderer}
-        tableBodyClassName="text-2sm leading-5"
-        emptyState={<TableEmptyState message={t("noPublications")} />}
-        onRowClick={handleTableRowClick}
-      />
+      {publications ? (
+        <Table
+          columns={columns}
+          items={publications.items}
+          itemRenderer={itemRenderer}
+          tableBodyClassName="text-2sm leading-5"
+          emptyState={<TableEmptyState message={t("noPublications")} />}
+          onRowClick={handleTableRowClick}
+        />
+      ) : (
+        <TableSkeleton columns={columns} />
+      )}
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={page} />
       </div>

@@ -11,9 +11,40 @@ import { DEFAULT_PAGE_SIZE_20, SEARCH_DELAY } from "config"
 import { useGetStorePublishers } from "entities"
 import { useResolveStoreId, useUrlParamsState } from "hooks"
 import { Publisher } from "types"
-import { Badge, ButtonPrimary, TableColumn, TableItem, Input, Pagination, Table, TableEmptyState } from "ui/components"
+import {
+  Badge,
+  ButtonPrimary,
+  TableColumn,
+  TableItem,
+  Input,
+  Pagination,
+  Table,
+  TableEmptyState,
+  TableSkeleton,
+} from "ui/components"
 import { renderAuthor, renderBannedStatus } from "ui/renderers"
 import { isModeratorCanCreate, isPublisherCanCreate, parseInteger, routes } from "utils"
+
+const getColumns = (t: TFunction, canRemovePublisher: boolean) => [
+  { accessor: "author", label: t("columns:author"), type: "author", className: "w-[55%]" },
+  {
+    accessor: "verifiedWebdomainRank",
+    label: t("columns:verifiedDomain"),
+    type: "verified",
+    className: "w-[15%] text-center",
+  },
+  { accessor: "bannedTill", label: t("columns:status"), type: "status", className: "w-[20%] text-center" },
+  ...(canRemovePublisher
+    ? [
+        {
+          accessor: "actions",
+          label: t("columns:actions"),
+          type: "action-button",
+          className: "w-[10%] text-center",
+        },
+      ]
+    : []),
+]
 
 const getItemRenderer =
   (t: TFunction, storeId: string, pathname: string, publisherIds?: string[]) =>
@@ -42,7 +73,7 @@ const getItemRenderer =
       case "status":
         return renderBannedStatus(t, publisher.bannedTill)
 
-      case "action-buttons":
+      case "action-button":
         return (
           <div className="flex justify-end">
             <Link
@@ -95,29 +126,8 @@ export const PublishersListTab = () => {
   const pagesCount =
     publishers?.totalItems && publishers.totalItems > 0 ? Math.ceil(publishers.totalItems / DEFAULT_PAGE_SIZE_20) : 0
 
-  const columns = useMemo(
-    () => [
-      { accessor: "author", label: t("columns:author"), type: "author", className: "w-[55%]" },
-      {
-        accessor: "verifiedWebdomainRank",
-        label: t("columns:verifiedDomain"),
-        type: "verified",
-        className: "w-[15%] text-center",
-      },
-      { accessor: "bannedTill", label: t("columns:status"), type: "status", className: "w-[20%] text-center" },
-      ...(canRemovePublisher
-        ? [
-            {
-              accessor: "actions",
-              label: t("columns:actions"),
-              type: "action-buttons",
-              className: "w-[10%] text-center",
-            },
-          ]
-        : []),
-    ],
-    [t, canRemovePublisher],
-  )
+  const columns = useMemo(() => getColumns(t, !!canRemovePublisher), [t, canRemovePublisher])
+  const skeletonColumns = useMemo(() => getColumns(t, true), [t])
 
   const itemRenderer = useMemo(
     () => getItemRenderer(t, storeId!, location.pathname, publisherIds),
@@ -167,13 +177,17 @@ export const PublishersListTab = () => {
           }
         />
       </div>
-      <Table
-        columns={columns}
-        items={items}
-        itemRenderer={itemRenderer}
-        tableBodyClassName="text-2sm leading-5"
-        emptyState={<TableEmptyState message={t("noPublishers")} />}
-      />
+      {publishers ? (
+        <Table
+          columns={columns}
+          items={items}
+          itemRenderer={itemRenderer}
+          tableBodyClassName="text-2sm leading-5"
+          emptyState={<TableEmptyState message={t("noPublishers")} />}
+        />
+      ) : (
+        <TableSkeleton columns={skeletonColumns} />
+      )}
       <div className="flex w-full justify-end">
         <Pagination pagesCount={pagesCount} onPageChange={handlePageChange} page={state.page} />
       </div>
