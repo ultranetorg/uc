@@ -13,6 +13,7 @@ import { buildUserAvatarByIdUrl, isUserModerator, isUserPublisher } from "utils"
 
 import { ReviewsList } from "./ReviewsList"
 import { PublishersList } from "./PublishersList"
+import { UserDetailsViewSkeleton } from "./UserDetailsView.Skeleton"
 
 const LABEL_CLASSNAME = "text-2base font-medium leading-5 first-letter:uppercase"
 
@@ -33,7 +34,7 @@ export const UserDetailsView = memo(
 
     const { data: isJoined } = useGetUserStoreExists(user?.id, store?.id)
 
-    if (!user) return <div>Loading{import.meta.env.DEV ? " (UserDetailsView)" : ""}</div>
+    if (!user) return <UserDetailsViewSkeleton />
 
     const isPublisher = isUserPublisher(
       store,
@@ -48,12 +49,12 @@ export const UserDetailsView = memo(
         <div className="flex flex-col">
           <div className="relative h-57.5">
             <div className="relative h-42.5 bg-gray-500">
-              <div className="absolute right-6 top-6">
+              <div className="absolute top-6 right-6">
                 <UserDetailsThreeDotsMenu userId={user.id} userName={user.name} />
               </div>
             </div>
             <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">
-              <div className="absolute left-1 top-1 size-30 overflow-hidden rounded-full">
+              <div className="absolute top-1 left-1 size-30 overflow-hidden rounded-full">
                 <ImageFallback
                   src={buildUserAvatarByIdUrl(user.id)}
                   fallbackSrc={avatarFallback}
@@ -65,7 +66,7 @@ export const UserDetailsView = memo(
 
           <div className="flex flex-col gap-4 p-6">
             <div className="flex flex-col">
-              <span className="text-xl font-semibold leading-6">{user.name}</span>
+              <span className="text-xl leading-6 font-semibold">{user.name}</span>
               <CopyAddressButton address={user.owner} />
             </div>
             <div className="text-2xs leading-4">{renderRole(t, isPublisher, isModerator, isJoined)}</div>

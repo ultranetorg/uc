@@ -1,4 +1,6 @@
+import { memo } from "react"
 import { CategoryPublications as CategoryPublicationsType } from "types"
+import { PublicationsGridSkeleton } from "ui/components/specific"
 
 import { CategoryPublicationsList } from "./CategoryPublicationsList"
 import { CategoriesPublicationsListChildrenProps } from "./types"
@@ -12,19 +14,16 @@ type CategoriesPublicationsListBaseProps = {
 export type CategoriesPublicationsListProps = CategoriesPublicationsListBaseProps &
   CategoriesPublicationsListChildrenProps
 
-export const CategoriesPublicationsList = ({
-  storeId,
-  isLoading,
-  categoriesPublications,
-  ...rest
-}: CategoriesPublicationsListProps) => {
-  return isLoading || !categoriesPublications ? (
-    <div>Loading{import.meta.env.DEV ? " (CategoriesPublicationsList)" : ""}</div>
-  ) : (
-    <>
-      {categoriesPublications.map(x => (
-        <CategoryPublicationsList key={x.id} storeId={storeId} {...x} {...rest} />
-      ))}
-    </>
-  )
-}
+export const CategoriesPublicationsList = memo(
+  ({ storeId, isLoading, categoriesPublications, ...rest }: CategoriesPublicationsListProps) => {
+    return isLoading || !categoriesPublications ? (
+      <PublicationsGridSkeleton />
+    ) : (
+      <>
+        {categoriesPublications.map(x => (
+          <CategoryPublicationsList key={x.id} storeId={storeId} {...x} {...rest} />
+        ))}
+      </>
+    )
+  },
+)

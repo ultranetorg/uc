@@ -2,8 +2,9 @@ import { memo } from "react"
 
 import { useResolveStoreId } from "hooks"
 import { TotalItemsResult, Review } from "types"
-import { ButtonOutline, Spinner } from "ui/components"
+import { ButtonOutline } from "ui/components"
 import { Comment, CommentProps } from "ui/components/comments/Comment"
+import { CommentsListSkeleton } from "ui/components/comments/CommentsList.Skeleton"
 import { buildCreatorAvatarUrl, buildCreatorLink } from "utils"
 
 import { ReviewsListEmptyState } from "./ReviewsListEmptyState"
@@ -42,7 +43,7 @@ export const ReviewsList = memo(
     return (
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <div className="flex gap-2 text-xl font-extrabold leading-6">
+          <div className="flex gap-2 text-xl leading-6 font-extrabold">
             <span className="text-gray-800">{reviewLabel}</span>
             {/* <span className="text-gray-500">{reviews?.totalItems}</span> */}
           </div>
@@ -51,7 +52,7 @@ export const ReviewsList = memo(
         {error ? (
           <div>{error.message}</div>
         ) : isLoading || !reviews ? (
-          <Spinner />
+          <CommentsListSkeleton />
         ) : reviews.items.length === 0 ? (
           <ReviewsListEmptyState label={noReviewsLabel} />
         ) : (

@@ -17,7 +17,6 @@ export * from "./SearchInput"
 export * from "./SearchPageHeader"
 export * from "./Sidebar"
 export * from "./StoreHeader"
-export * from "./StoresGrid"
 export * from "./threeDotsMenus"
 
 export * from "./AboutInfo"

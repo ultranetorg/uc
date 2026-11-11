@@ -7,6 +7,7 @@ import { ProductType } from "types"
 import { MessageBox, MultilineText, NextPagination } from "ui/components"
 import { FiltersPanel, ProductsList, StoresList, SearchInput, SearchScope } from "ui/components/specific"
 
+import { IndexPageSkeleton } from "./IndexPage.Skeleton"
 import { ParadigmDescription } from "./ParadigmDescription"
 
 export const IndexPage = () => {
@@ -83,7 +84,7 @@ export const IndexPage = () => {
   const searchMode = search !== ""
 
   if (searchMode && ((scope === "products" && isProductsLoading) || (scope === "stores" && isStoresLoading))) {
-    return <div>Loading{import.meta.env.DEV ? " (IndexPage)" : ""}</div>
+    return <IndexPageSkeleton scope={scope} />
   }
 
   return (
@@ -98,7 +99,7 @@ export const IndexPage = () => {
           </h5>
         </div>
       )}
-      <div className="flex w-full max-w-[900px] flex-col items-center gap-6">
+      <div className="flex w-full max-w-225 flex-col items-center gap-6">
         <div className="flex w-full flex-col items-center gap-4">
           <SearchInput
             scope={scope}
@@ -114,7 +115,7 @@ export const IndexPage = () => {
           <ParadigmDescription />
         ) : (
           <div className="flex w-full flex-col gap-4">
-            <span className="text-2base font-semibold leading-5">{t("searchResults")}</span>
+            <span className="text-2base leading-5 font-semibold">{t("searchResults")}</span>
             {(scope === "stores" ? (stores?.items.length ?? 0) : products.length) > 0 ? (
               <>
                 {scope === "stores" ? <StoresList items={stores?.items ?? []} /> : <ProductsList items={products} />}

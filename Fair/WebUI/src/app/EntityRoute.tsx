@@ -155,7 +155,7 @@ export const EntityRoute = () => {
               element={
                 <PublishersLayout>
                   <ConstrainedWidthLayout>
-                    <PublisherPage />
+                    <PublisherPage showStoreInfo={false} />
                   </ConstrainedWidthLayout>
                 </PublishersLayout>
               }
