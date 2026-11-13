@@ -32,11 +32,24 @@ public class PackageHub
 			{
 				var v = new Reader(i.Value());
 
- 				Packages.Add(new Package(this)
-							 {
-								Address	 = new Reader(i.Key()).Read<Ura>(),
-								Urn		 = v.Read<Urn>(),
-							 });
+				var p = new Package(this)
+						{
+							Address	 = new Reader(i.Key()).Read<Ura>(),
+							Urn		 = v.Read<Urn>(),
+						};
+
+ 				Packages.Add(p);
+
+			}
+		}
+
+		var f = new Flow();
+
+		foreach(var i in Packages)
+		{
+			if(i.Release.Availability != Availability.Complete && i.Release.Availability != Availability.Delta)
+			{
+				StartDownload(i.Address, true, f);
 			}
 		}
 	}

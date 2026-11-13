@@ -33,13 +33,13 @@ public static class AddressTests
 
 		void check(string a) => Assert.True(Snq.Parse(a).ToString() == a);
 
-		check($"n");
-		check($"n/e");
-		check($"/e");
-		check($"/e/x");
-		check($"s:n");
-		check($"s:n/e");
-		check($"s:sn.n/e");
+		check("n");
+		check("n/e");
+		check("/e");
+		check("/e/x");
+		check("s:n");
+		check("s:n/e");
+		check("s:sn.n/e");
 	}
 
  	[Fact]

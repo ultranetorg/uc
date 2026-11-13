@@ -58,6 +58,9 @@ public class Urn : EntityId, IBinarySerializable, IEquatable<Urn>, ITextSerialis
 	{
 		Snq.Parse(t, out var s, out var n, out var _);
 
+		if(n == null)
+			throw new FormatException();
+
 		var i = n.IndexOf(':');
 
 		if(i == -1)

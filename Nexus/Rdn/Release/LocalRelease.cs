@@ -12,7 +12,7 @@ public enum Availability : byte
 	Complete			= 0b____1000,
 	CompletePartial		= 0b___10000,
 	Delta				= 0b__100000,
-	IncrementalPartial	= 0b_1000000,
+	DeltaPartial		= 0b_1000000,
 }
 
 public enum ReleaseFileStatus

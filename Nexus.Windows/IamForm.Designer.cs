@@ -49,12 +49,12 @@ partial class IamForm
 		Sessions.Font = new Font("Segoe UI", 12F);
 		Sessions.Image = Properties.Resources.checked_figure;
 		Sessions.ImageAlign = ContentAlignment.MiddleLeft;
-		Sessions.Location = new Point(12, 156);
+		Sessions.Location = new Point(22, 333);
+		Sessions.Margin = new Padding(6, 6, 6, 6);
 		Sessions.Name = "Sessions";
-		Sessions.Padding = new Padding(10, 0, 0, 0);
-		Sessions.Size = new Size(230, 64);
+		Sessions.Padding = new Padding(19, 0, 0, 0);
+		Sessions.Size = new Size(427, 137);
 		Sessions.TabIndex = 2;
-		Sessions.TabStop = true;
 		Sessions.Text = " Sessions";
 		Sessions.TextImageRelation = TextImageRelation.ImageBeforeText;
 		Sessions.UseVisualStyleBackColor = true;
@@ -67,12 +67,12 @@ partial class IamForm
 		radioButton3.Font = new Font("Segoe UI", 12F);
 		radioButton3.Image = Properties.Resources.setting_2_1_;
 		radioButton3.ImageAlign = ContentAlignment.MiddleLeft;
-		radioButton3.Location = new Point(12, 622);
+		radioButton3.Location = new Point(22, 1327);
+		radioButton3.Margin = new Padding(6, 6, 6, 6);
 		radioButton3.Name = "radioButton3";
-		radioButton3.Padding = new Padding(10, 0, 0, 0);
-		radioButton3.Size = new Size(230, 64);
+		radioButton3.Padding = new Padding(19, 0, 0, 0);
+		radioButton3.Size = new Size(427, 137);
 		radioButton3.TabIndex = 2;
-		radioButton3.TabStop = true;
 		radioButton3.Text = " Settings";
 		radioButton3.TextImageRelation = TextImageRelation.ImageBeforeText;
 		radioButton3.UseVisualStyleBackColor = true;
@@ -84,12 +84,12 @@ partial class IamForm
 		Assets.Font = new Font("Segoe UI", 12F);
 		Assets.Image = Properties.Resources.coins;
 		Assets.ImageAlign = ContentAlignment.MiddleLeft;
-		Assets.Location = new Point(12, 226);
+		Assets.Location = new Point(22, 482);
+		Assets.Margin = new Padding(6, 6, 6, 6);
 		Assets.Name = "Assets";
-		Assets.Padding = new Padding(10, 0, 0, 0);
-		Assets.Size = new Size(230, 64);
+		Assets.Padding = new Padding(19, 0, 0, 0);
+		Assets.Size = new Size(427, 137);
 		Assets.TabIndex = 2;
-		Assets.TabStop = true;
 		Assets.Text = " Assets && Tokens";
 		Assets.TextImageRelation = TextImageRelation.ImageBeforeText;
 		Assets.UseVisualStyleBackColor = true;
@@ -101,12 +101,12 @@ partial class IamForm
 		Wallets.Font = new Font("Segoe UI", 12F);
 		Wallets.Image = Properties.Resources.users;
 		Wallets.ImageAlign = ContentAlignment.MiddleLeft;
-		Wallets.Location = new Point(12, 86);
+		Wallets.Location = new Point(22, 183);
+		Wallets.Margin = new Padding(6, 6, 6, 6);
 		Wallets.Name = "Wallets";
-		Wallets.Padding = new Padding(10, 0, 0, 0);
-		Wallets.Size = new Size(230, 64);
+		Wallets.Padding = new Padding(19, 0, 0, 0);
+		Wallets.Size = new Size(427, 137);
 		Wallets.TabIndex = 2;
-		Wallets.TabStop = true;
 		Wallets.Text = " Wallets && Keys";
 		Wallets.TextImageRelation = TextImageRelation.ImageBeforeText;
 		Wallets.UseVisualStyleBackColor = true;
@@ -114,9 +114,10 @@ partial class IamForm
 		// 
 		// Place
 		// 
-		Place.Location = new Point(262, 86);
+		Place.Location = new Point(487, 183);
+		Place.Margin = new Padding(6, 6, 6, 6);
 		Place.Name = "Place";
-		Place.Size = new Size(800, 600);
+		Place.Size = new Size(1486, 1280);
 		Place.TabIndex = 3;
 		// 
 		// Logo
@@ -125,10 +126,11 @@ partial class IamForm
 		Logo.BackgroundImageLayout = ImageLayout.None;
 		Logo.Image = (Image)resources.GetObject("Logo.Image");
 		Logo.InitialImage = null;
-		Logo.Location = new Point(16, 16);
+		Logo.Location = new Point(32, 32);
+		Logo.Margin = new Padding(6, 6, 6, 6);
 		Logo.Name = "Logo";
-		Logo.Size = new Size(32, 32);
-		Logo.SizeMode = PictureBoxSizeMode.AutoSize;
+		Logo.Size = new Size(64, 64);
+		Logo.SizeMode = PictureBoxSizeMode.Zoom;
 		Logo.TabIndex = 4;
 		Logo.TabStop = false;
 		// 
@@ -140,16 +142,17 @@ partial class IamForm
 		panel1.Location = new Point(0, 0);
 		panel1.Margin = new Padding(0);
 		panel1.Name = "panel1";
-		panel1.Size = new Size(1080, 64);
+		panel1.Size = new Size(2006, 137);
 		panel1.TabIndex = 5;
 		// 
 		// pictureBox1
 		// 
 		pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-		pictureBox1.Location = new Point(64, 16);
+		pictureBox1.Location = new Point(119, 32);
+		pictureBox1.Margin = new Padding(6, 6, 6, 6);
 		pictureBox1.Name = "pictureBox1";
-		pictureBox1.Size = new Size(230, 31);
-		pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
+		pictureBox1.Size = new Size(484, 64);
+		pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
 		pictureBox1.TabIndex = 5;
 		pictureBox1.TabStop = false;
 		// 
@@ -159,12 +162,12 @@ partial class IamForm
 		Transfer.Font = new Font("Segoe UI", 12F);
 		Transfer.Image = Properties.Resources.money_send;
 		Transfer.ImageAlign = ContentAlignment.MiddleLeft;
-		Transfer.Location = new Point(45, 296);
+		Transfer.Location = new Point(84, 631);
+		Transfer.Margin = new Padding(6, 6, 6, 6);
 		Transfer.Name = "Transfer";
-		Transfer.Padding = new Padding(10, 0, 0, 0);
-		Transfer.Size = new Size(197, 64);
+		Transfer.Padding = new Padding(19, 0, 0, 0);
+		Transfer.Size = new Size(366, 137);
 		Transfer.TabIndex = 2;
-		Transfer.TabStop = true;
 		Transfer.Text = "Net-to-Net Transfer";
 		Transfer.TextImageRelation = TextImageRelation.ImageBeforeText;
 		Transfer.UseVisualStyleBackColor = true;
@@ -172,9 +175,9 @@ partial class IamForm
 		// 
 		// IamForm
 		// 
-		AutoScaleDimensions = new SizeF(7F, 15F);
+		AutoScaleDimensions = new SizeF(13F, 32F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(1074, 696);
+		ClientSize = new Size(1995, 1485);
 		Controls.Add(panel1);
 		Controls.Add(Place);
 		Controls.Add(radioButton3);
@@ -182,12 +185,12 @@ partial class IamForm
 		Controls.Add(Assets);
 		Controls.Add(Wallets);
 		Controls.Add(Sessions);
+		Margin = new Padding(6, 6, 6, 6);
 		Name = "IamForm";
 		StartPosition = FormStartPosition.CenterScreen;
 		Text = "Identity and Activity Management";
 		((System.ComponentModel.ISupportInitialize)Logo).EndInit();
 		panel1.ResumeLayout(false);
-		panel1.PerformLayout();
 		((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
 		ResumeLayout(false);
 	}

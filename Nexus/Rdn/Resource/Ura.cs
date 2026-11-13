@@ -103,11 +103,34 @@ public class Ura : IBinarySerializable, IEquatable<Ura>, IComparable, IComparabl
 		Resource = r;
 	}
 
+	public static bool TryParse(string v, out Ura adsress)
+	{
+		Parse(v, out string domain, out string resource);
+
+		if(domain != null && resource != null)
+		{
+			adsress = new Ura(domain, resource);
+			return true;
+		} 
+		else
+		{
+			adsress = null;
+			return false;
+		}
+	}
+
 	public static void Parse(string v, out string domain, out string resource)
 	{
 		int i;
 		
 		Snq.Parse(v, out _, out _, out string o);
+
+		if(o == null)
+		{	
+			domain = null;
+			resource = null;
+			return;
+		}
 
 		var e = o.IndexOf('/');
 			
