@@ -319,7 +319,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 
 								h = ReadHello(r);
 							}
-							catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
+							catch(Exception ex) when(NodeGlobals.CatchCorrupted)
 							{
 								Flow.Log?.ReportError(this, $"From {ip}. WaitHello -> {ex.Message}");
 								goto failed;
@@ -368,7 +368,7 @@ public abstract class TcpPeering<P> : Peering where P : Peer
 								{
 									w.Write(CreateInboundHello(ip, h));
 								}
-								catch(Exception ex) when(!NodeGlobals.ThrowOnCorrupted)
+								catch(Exception ex) when(NodeGlobals.CatchCorrupted)
 								{
 									Flow.Log?.ReportError(this, $"From {ip}. SendHello -> {ex.Message}");
 									goto failed;

@@ -327,6 +327,7 @@ public abstract class HomoPeering : TcpPeering<HomoPeer>, IHomoPeer /// same typ
 		rq.Peering	= this;
 
 		return peer.CallMe((PeerRequest)rq, flow) as Rp;
+		return peer.CallMe((PeerRequest)rq, flow) as Rp;
 	}
 
 	public R Call<R>(Endpoint ep, Ppc<R> call, Flow flow) where R : Result

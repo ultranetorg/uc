@@ -44,14 +44,6 @@ public class FairNode : McvNode
 	{
 		base.Settings = settings;
 
-		if(Flow.Log != null)
-			new LogFile(Flow.Log, GetType().Name, Settings.Profile, flow);
-
-		if(NodeGlobals.Any)
-			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
-
-		InitializeVaultClient(NexusSettings.Host);
-
 		if(Settings.Mcv != null)
 		{
 			base.Mcv = new FairMcv(Net as Fair, Settings.Mcv, settings.DataPath, Path.Join(settings.Profile, "Mcv"), [Settings.Peering.Endpoint], clock ?? new RealClock());

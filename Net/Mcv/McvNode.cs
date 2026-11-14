@@ -55,6 +55,12 @@ public abstract class McvNode : Node
 
 	public McvNode(McvNet net, string profile, NexusSettings nexussettings, Flow flow) : base(net, profile, nexussettings,  flow)
 	{
+		if(Flow.Log != null)
+			new LogFile(Flow.Log, GetType().Name, profile, flow);
+
+		Flow.Log?.Report(this, NodeGlobals.ToString());
+
+		VaultApi = new VaultApiClient(Api.ForSystem(Net.Zone, nexussettings.Host, Api.Vault), null);
 	}
 
 	public override string ToString()

@@ -110,13 +110,16 @@ public class PeersReportApc : McvApc
 		lock(node.Peering.Lock)
 			return new Return{Peers = node.Peering.Peers.Where(i => i.Status == ConnectionStatus.OK && (Permanent is null || i.Permanent == Permanent))
 														.TakeLast(Limit)
-														.Select(i => new Return.Peer   {EP			= i.EP,			
-																						Status		= i.StatusDescription,
-																						PeerRank	= i.PeerRank,
-																						Roles		= i.Roles,
-																						LastSeen	= i.LastSeen,
-																						LastTry		= i.LastTry,
-																						Retries		= i.Retries}).ToArray()}; 
+														.Select(i => new Return.Peer
+																	 {
+																		EP			= i.EP,			
+																		Status		= i.StatusDescription,
+																		PeerRank	= i.PeerRank,
+																		Roles		= i.Roles,
+																		LastSeen	= i.LastSeen,
+																		LastTry		= i.LastTry,
+																		Retries		= i.Retries
+																	 }).ToArray()}; 
 	}
 
 	public class Return

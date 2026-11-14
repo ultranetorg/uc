@@ -32,14 +32,6 @@ public class RdnNode : McvNode
 	{
 		base.Settings = settings;
 
-		if(Flow.Log != null)
-			new LogFile(Flow.Log, GetType().Name, Settings.Profile, flow);
-
-		if(NodeGlobals.Any)
-			Flow.Log?.ReportWarning(this, $"Dev: {NodeGlobals.AsString}");
-
-		InitializeVaultClient(NexusSettings.Host);
-
 		if(Settings.Mcv != null)
 		{
 			base.Mcv = new RdnMcv(Net, Settings.Mcv, Settings.DataPath, Path.Join(Settings.Profile, "Mcv"), [Settings.Peering.Endpoint], [Settings.Peering.Endpoint], clock ?? new RealClock());

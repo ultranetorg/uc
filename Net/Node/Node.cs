@@ -49,11 +49,6 @@ public class Node : IProgram
 		Database = RocksDb.Open(DatabaseOptions, Path.Join(profile, "Node"), cf);
 	}
 
-	protected void InitializeVaultClient(IPAddress host)
-	{
-		VaultApi = new VaultApiClient(Api.ForSystem(Net.Zone, host, Api.Vault), null);
-	}
-
 	public virtual void Stop()
 	{
 		Database?.Dispose();

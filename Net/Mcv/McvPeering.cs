@@ -813,7 +813,15 @@ public abstract class McvPeering : HomoPeering
 
 			lock(Mcv.Lock)
 			{
-				Mcv.Examine(t);
+				try
+				{
+					Mcv.Examine(t);
+				}
+				catch(Exception ex) when(!NodeGlobals.CatchCorrupted)
+				{
+					res.Error = $"{nameof(Mcv.Examine)} failed : {ex.Message}";
+					continue;
+				}
 			}
 					
 			if(t.OverallError != null)
