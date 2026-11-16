@@ -230,6 +230,7 @@ public partial class TransferPage : Page
 																	FromEntity.Text,
 																	Nexus.GetApplicationSession(FromNet.Text, f),
 																	t.Hashify(),
+																	true,
 																	f)
 																	.Signature;
 

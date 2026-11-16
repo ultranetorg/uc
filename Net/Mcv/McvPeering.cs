@@ -948,12 +948,13 @@ public abstract class McvPeering : HomoPeering
 						t.Expiration = pre.LastConfirmedRound + Net.P * 2;
 						t.Signature  = VaultApi.Call<AuthorizationResult>(	new AuthorizeApc
 																			{
-																				Cryptography	= Net.Cryptography.Type,
-																				Net				= Net.Address,
-																				User			= t.User,
-																				Session			= t.Session,
-																				Hash			= t.Hashify(Net),
-																			}, 
+																				Cryptography			= Net.Cryptography.Type,
+																				Net						= Net.Address,
+																				User					= t.User,
+																				Session					= t.Session,
+																				Hash					= t.Hashify(Net),
+																				ManualApprovalRequired	= t.Operations.Any(i => i is UtilityTransfer or UserKeyChange)
+																			},
 																			t.Flow).Signature;
 
 

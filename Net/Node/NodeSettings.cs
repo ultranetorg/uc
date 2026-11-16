@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Reflection;
-
-namespace Uccs.Net;
+﻿namespace Uccs.Net;
 
 public class PeeringSettings : Settings
 {

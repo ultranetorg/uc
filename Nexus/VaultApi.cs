@@ -220,6 +220,6 @@ internal class AuthorizeApc : Uccs.Net.AuthorizeApc, IVaultApc
 	public object Execute(Vault vault, HttpListenerRequest request, HttpListenerResponse response, Flow flow)
 	{
 		lock(vault)
-			return vault.Authorize(Cryptography, Net, Operation, User, Session, Hash, flow);
+			return vault.Authorize(Cryptography, Net, Operation, User, Session, Hash, ManualApprovalRequired, flow);
 	}
 }

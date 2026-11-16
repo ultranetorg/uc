@@ -17,7 +17,7 @@ public enum OperationClass : uint
 	
 	User						= 001_000_000,
 		UserCreation			= 001_000_001, 
-		UserOwnerChange			= 001_000_002, 
+		UserKeyChange			= 001_000_002, 
 		UserPermissionAddition	= 001_000_003, 
 		UserPermissionRemoval	= 001_000_004, 
 		UserNameChange			= 001_000_005, 

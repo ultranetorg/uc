@@ -57,4 +57,5 @@ public class AuthorizeApc : Apc
 	public byte[]			Session { get; set; }
 	public string			Operation { get; set; }
 	public byte[]			Hash { get; set; }
+	public bool				ManualApprovalRequired { get; set; }
 }

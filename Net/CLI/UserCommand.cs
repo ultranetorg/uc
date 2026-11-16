@@ -47,20 +47,20 @@ public class UserCommand : McvCommand
 
 	public CommandAction Security_S()
 	{
-		const string owner = nameof(owner);
+		const string key = nameof(key);
 
 		var a = new CommandAction(this, MethodBase.GetCurrentMethod());
 
 		a.Description = "Manages the security settings for the specified user";
 		a.Arguments =	[
-							new (owner, PUBKEY, "Public address of the new account owner"),
+							new (key, PUBKEY, "Public address of the new account owner"),
 							ByArgument()
 						];
 
 		a.Execute = () =>	{
 								Flow.CancelAfter(Cli.Settings.PpcTimeout);
 
-								return new UserOwnerChange {Owner = GetPublicKey(owner)};
+								return new UserKeyChange {Key = GetPublicKey(key)};
 							};
 		return a;
 	}

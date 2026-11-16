@@ -205,7 +205,7 @@ public class Vault
 			throw new VaultException(VaultError.Rejected);
 	}
 
-	public AuthorizationResult Authorize(CryptographyType cryptography, string net, string operation, string user, byte[] session, byte[] Hash, Flow flow)
+	public AuthorizationResult Authorize(CryptographyType cryptography, string net, string operation, string user, byte[] session, byte[] Hash, bool manualapprovalrequired, Flow flow)
 	{
 		if(string.IsNullOrWhiteSpace(net) || session.Length != Cryptography.HashLength)
 			throw new VaultException(VaultError.IncorrectArgumets);
@@ -234,7 +234,7 @@ public class Vault
 		if(au == null)
 			throw new VaultException(VaultError.Corrupted);
 	
-		if(au.Trust == Trust.AskEveryTime)
+		if(au.Trust == Trust.AskEveryTime || manualapprovalrequired)
 			AuthorizationRequested(acc.Public, au, operation);
 
 		return	new AuthorizationResult
