@@ -20,26 +20,31 @@ export const PublicationRow = memo(
 
     return (
       <div
-        className="flex cursor-pointer items-center gap-4 bg-gray-100 p-4 text-2sm leading-5 text-gray-900 hover:bg-gray-200"
+        className="flex cursor-pointer items-center gap-3 bg-gray-100 p-3 text-2sm leading-5 text-gray-900 hover:bg-gray-200 sm:gap-4 sm:p-4"
         title={title}
       >
-        <div className="flex min-w-0 max-w-[520px] flex-2 items-center gap-2">
+        <div className="flex max-w-130 min-w-0 flex-2 items-center gap-2">
           <div className="size-8 flex-none overflow-hidden rounded-lg bg-gray-500">
             <ImageFallback
               src={buildFileUrl(logoFileId)}
               fallback={<SvgSoftwareLogo3Xl className="size-full object-cover" />}
             />
           </div>
-          <span className="truncate font-medium">{title}</span>
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate font-medium">{title}</span>
+            <span className="truncate text-2xs leading-4 text-gray-500 md:hidden">
+              {[authorTitle, categoryTitle].filter(Boolean).join(" · ")}
+            </span>
+          </div>
         </div>
         {showPublicationType && (
-          <Trans ns="categoryTypes" i18nKey={type} parent="span" className="w-24 flex-none truncate">
+          <Trans ns="categoryTypes" i18nKey={type} parent="span" className="hidden w-24 flex-none truncate md:block">
             {type}
           </Trans>
         )}
-        <span className="min-w-0 max-w-60 flex-1 truncate">{categoryTitle}</span>
-        <span className="min-w-0 max-w-60 flex-1 truncate">{authorTitle}</span>
-        <span className="flex w-16 flex-none items-center" title={formattedRating}>
+        <span className="hidden max-w-60 min-w-0 flex-1 truncate md:block">{categoryTitle}</span>
+        <span className="hidden max-w-60 min-w-0 flex-1 truncate md:block">{authorTitle}</span>
+        <span className="flex w-12 flex-none items-center sm:w-16" title={formattedRating}>
           {rating > 0 && (
             <>
               {formattedRating} <SvgStarXxs className="fill-favorite" />

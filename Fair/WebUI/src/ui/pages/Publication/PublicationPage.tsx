@@ -91,7 +91,7 @@ export const PublicationPage = () => {
     <>
       <div className="flex flex-col gap-6">
         <PublicationHeader id={publicationId!} title={publication.title} logoFileId={publication.logoId} />
-        <div className="flex gap-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
           <PublicationContentView
             isReviewsLoading={isReviewsLoading}
             productOrPublication={publication}

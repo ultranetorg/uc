@@ -4,9 +4,9 @@ export type TagsListProps = {
 
 export const TagsList = ({ tags }: TagsListProps) =>
   tags && tags.length > 0 ? (
-    <div className="flex select-none flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 select-none">
       {tags.map(tag => (
-        <span key={tag} className="rounded-sm bg-gray-200 px-2 py-1.5 text-2xs leading-4 text-gray-800">
+        <span key={tag} className="rounded-sm bg-gray-200 px-2 py-1.5 text-2xs leading-4">
           {tag}
         </span>
       ))}

@@ -74,7 +74,7 @@ const SearchInputSelectInner = <T extends string>({
       <div
         ref={refs.setReference}
         className={twMerge(
-          "flex shrink-0 cursor-pointer select-none items-center gap-1 text-gray-500 hover:text-gray-950",
+          "flex shrink-0 cursor-pointer items-center gap-1 text-gray-500 select-none hover:text-gray-950",
           isOpen && "text-gray-950",
           className,
         )}
@@ -106,7 +106,7 @@ const SearchInputSelectInner = <T extends string>({
               <div
                 key={item.value}
                 className={twMerge(
-                  "cursor-pointer truncate rounded-xs px-3 py-2 text-2sm leading-5 text-gray-800 hover:bg-gray-100",
+                  "cursor-pointer truncate rounded-xs px-3 py-2 text-2sm leading-5 hover:bg-gray-100",
                   item.value === selected?.value && "text-gray-950",
                 )}
                 onClick={() => handleSelect(item)}

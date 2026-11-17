@@ -13,7 +13,7 @@ const BreadcrumbsItem = memo(({ title, path }: BreadcrumbsItemProps) => {
   const formattedTitle = formatTitle(title)
 
   return path ? (
-    <Link className="capitalize text-gray-800 hover:font-medium" to={path} title={title}>
+    <Link className="capitalize hover:font-medium" to={path} title={title}>
       {formattedTitle}
     </Link>
   ) : (
@@ -34,7 +34,7 @@ export const Breadcrumbs = memo(({ fullPath = true, items }: BreadcrumbsProps) =
   }
 
   return (
-    <div className="flex max-w-220 select-none flex-wrap items-center gap-1 text-2xs leading-5">
+    <div className="flex max-w-220 flex-wrap items-center gap-1 text-2xs leading-5 select-none">
       {items.length === 1 ? (
         <BreadcrumbsItem {...items[0]} />
       ) : items.length === 2 ? (

@@ -11,8 +11,8 @@ export type AuthorProfileSkeletonProps = {
 const SectionLabel = () => <SkeletonBlock className="my-0.5 h-3 w-12" rounded="xs" />
 
 export const AuthorProfileSkeleton = memo(({ showRoles = true }: AuthorProfileSkeletonProps) => (
-  <div className="flex items-start gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
-    <SkeletonBlock className="size-30 shrink-0" rounded="full" />
+  <div className="flex flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-4 sm:flex-row sm:items-start sm:gap-6 sm:p-6">
+    <SkeletonBlock className="size-24 shrink-0 sm:size-30" rounded="full" />
     <div className="flex min-w-0 flex-1 flex-col gap-6">
       <div className="flex w-full items-start gap-3">
         <div className="flex min-w-0 flex-col gap-1">
@@ -24,7 +24,7 @@ export const AuthorProfileSkeleton = memo(({ showRoles = true }: AuthorProfileSk
         <SectionLabel />
         <div className="flex flex-wrap gap-2">
           {Array.from({ length: LINKS_COUNT }, (_, i) => (
-            <SkeletonBlock key={i} className="h-10 w-55 shrink-0" rounded="sm" />
+            <SkeletonBlock key={i} className="h-10 w-55 max-w-full shrink-0" rounded="sm" />
           ))}
         </div>
       </div>

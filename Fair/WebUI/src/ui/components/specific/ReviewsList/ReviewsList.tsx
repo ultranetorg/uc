@@ -42,10 +42,9 @@ export const ReviewsList = memo(
 
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex gap-2 text-xl leading-6 font-extrabold">
-            <span className="text-gray-800">{reviewLabel}</span>
-            {/* <span className="text-gray-500">{reviews?.totalItems}</span> */}
+            <span>{reviewLabel}</span>
           </div>
           {onLeaveReviewClick && <ButtonOutline label={leaveReviewLabel} onClick={onLeaveReviewClick} />}
         </div>

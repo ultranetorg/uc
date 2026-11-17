@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { TFunction } from "i18next"
 import { twMerge } from "tailwind-merge"
 
@@ -11,10 +12,10 @@ export type ModalFooterButtonBaseProps = {
 
 export type ModalFooterButtonProps = Pick<HTMLButtonElement, "disabled"> & ModalFooterButtonBaseProps
 
-export const ModalFooterButton = ({ disabled, t, onRemoveClick }: ModalFooterButtonProps) => (
+export const ModalFooterButton = memo(({ disabled, t, onRemoveClick }: ModalFooterButtonProps) => (
   <div className={twMerge("flex items-center gap-2", !disabled && "cursor-pointer")}>
     <button
-      className={twMerge("flex items-center gap-2 text-2xs leading-4 text-gray-800")}
+      className={twMerge("flex items-center gap-2 text-2xs leading-4")}
       onClick={onRemoveClick}
       disabled={disabled}
     >
@@ -27,4 +28,4 @@ export const ModalFooterButton = ({ disabled, t, onRemoveClick }: ModalFooterBut
       </span>
     </Tooltip>
   </div>
-)
+))

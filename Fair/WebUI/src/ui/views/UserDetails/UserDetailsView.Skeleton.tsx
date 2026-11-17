@@ -1,19 +1,17 @@
-import { memo } from "react"
-
 import { SkeletonBlock } from "ui/components"
 
 const REVIEWS_COUNT = 5
 
-export const UserDetailsViewSkeleton = memo(() => (
+export const UserDetailsViewSkeleton = () => (
   <div className="divide-y divide-gray-300 overflow-hidden rounded-lg border border-gray-300 bg-gray-100">
     <div className="flex flex-col">
       <div className="relative h-57.5">
         <SkeletonBlock className="h-42.5 w-full" rounded="none" />
-        <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">
+        <div className="absolute bottom-0 left-4 size-32 rounded-full bg-white sm:left-6">
           <SkeletonBlock className="absolute top-1 left-1 size-30" rounded="full" />
         </div>
       </div>
-      <div className="flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-4 p-4 sm:p-6">
         <div className="flex flex-col">
           <SkeletonBlock className="h-6 w-48" rounded="xs" />
         </div>
@@ -21,7 +19,7 @@ export const UserDetailsViewSkeleton = memo(() => (
       </div>
     </div>
 
-    <div className="flex flex-col gap-5 p-6">
+    <div className="flex flex-col gap-5 p-4 sm:p-6">
       <SkeletonBlock className="h-5 w-24" rounded="xs" />
       <div className="flex items-center gap-2">
         <SkeletonBlock className="size-8 shrink-0" rounded="full" />
@@ -29,7 +27,7 @@ export const UserDetailsViewSkeleton = memo(() => (
       </div>
     </div>
 
-    <div className="flex flex-col gap-5 p-6">
+    <div className="flex flex-col gap-5 p-4 sm:p-6">
       <SkeletonBlock className="h-5 w-32" rounded="xs" />
       <div className="flex flex-col gap-3">
         {Array.from({ length: REVIEWS_COUNT }, (_, i) => (
@@ -37,7 +35,7 @@ export const UserDetailsViewSkeleton = memo(() => (
             <div className="flex items-center gap-2">
               <SkeletonBlock className="size-10 shrink-0" rounded="full" />
               <div className="flex flex-col gap-1">
-                <SkeletonBlock className="h-4.5 w-40" rounded="xs" />
+                <SkeletonBlock className="h-4.5 w-40 max-w-full" rounded="xs" />
                 <SkeletonBlock className="h-4 w-24" rounded="xs" />
               </div>
             </div>
@@ -48,4 +46,4 @@ export const UserDetailsViewSkeleton = memo(() => (
       </div>
     </div>
   </div>
-))
+)

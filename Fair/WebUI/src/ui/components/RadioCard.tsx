@@ -25,8 +25,8 @@ export const RadioCard = memo(({ className, title, description, checked, onClick
   >
     <Radio checked={checked} />
     <div className="flex flex-col gap-1">
-      <span className="select-none text-2sm leading-5 text-gray-800">{title}</span>
-      <span className="select-none text-2xs leading-4 text-gray-500">{description}</span>
+      <span className="text-2sm leading-5 select-none">{title}</span>
+      <span className="text-2xs leading-4 text-gray-500 select-none">{description}</span>
     </div>
   </div>
 ))

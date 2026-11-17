@@ -46,22 +46,21 @@ export const PublisherPublicationsView = memo(
 
     return (
       <>
-        <>
-          <div className="flex items-center justify-between">
-            <span className="text-lg leading-10 font-semibold">
-              {publications?.totalItems} {t("common:publications")}
-            </span>
-            <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />
-          </div>
-          <PublicationsTable
-            className="flex flex-col rounded-lg border border-gray-300 bg-gray-100"
-            items={publications.items}
-            onProductStoresClick={handleProductStoreClick}
-          />
-          <div className="flex justify-end">
-            <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />
-          </div>
-        </>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span className="text-lg leading-10 font-semibold">
+            {publications?.totalItems} {t("common:publications")}
+          </span>
+          <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />
+        </div>
+        <PublicationsTable
+          className="flex flex-col rounded-lg border border-gray-300 bg-gray-100"
+          items={publications.items}
+          onProductStoresClick={handleProductStoreClick}
+        />
+        <div className="flex justify-end">
+          <Pagination pagesCount={pagesCount} onPageChange={setPage} page={page} />
+        </div>
+
         {isModalOpen && <ProductStoresModal onClose={handleModalClose} productId={selectedPublicationId!} />}
       </>
     )

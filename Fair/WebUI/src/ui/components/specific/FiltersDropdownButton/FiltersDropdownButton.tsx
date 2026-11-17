@@ -59,7 +59,7 @@ export const FiltersDropdownButton = memo(({ label }: FiltersDropdownButtonProps
         )}
         {...getReferenceProps()}
       >
-        <span className="w-21 text-2xs font-medium leading-4 text-gray-800">{label}</span>
+        <span className="w-21 text-2xs leading-4 font-medium">{label}</span>
         <SvgSlidersXs className="stroke-gray-500" />
       </div>
       {isExpanded && (

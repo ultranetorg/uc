@@ -85,7 +85,7 @@ export const CategorySelectItem = memo(
                 )}
               />
             )}
-            <span className={twMerge("truncate text-2sm leading-5", isDisabled ? "text-gray-400" : "text-gray-800")}>
+            <span className={twMerge("truncate text-2sm leading-5", isDisabled && "text-gray-400")}>
               {category.title}
             </span>
           </div>

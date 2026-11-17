@@ -38,12 +38,12 @@ export const Slider = memo(({ items }: SliderProps) => {
   )
 
   if (!items || !items.length) {
-    return <div className="h-[416px] max-w-[750px] rounded-lg bg-gray-100" />
+    return <div className="aspect-750/416 w-full rounded-lg bg-gray-100 lg:max-w-187.5" />
   }
 
   return (
-    <div className="flex max-w-[750px] flex-col gap-3">
-      <div className="relative h-[416px] overflow-hidden rounded-lg bg-white">
+    <div className="flex w-full min-w-0 flex-col gap-3 lg:max-w-187.5">
+      <div className="relative aspect-750/416 overflow-hidden rounded-lg bg-white">
         <Swiper
           className="size-full"
           effect="fade"

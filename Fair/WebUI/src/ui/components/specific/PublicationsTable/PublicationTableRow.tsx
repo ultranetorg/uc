@@ -31,9 +31,9 @@ export const PublicationTableRow = memo(
     const { t } = useTranslation("profile")
 
     return (
-      <div className="flex items-center justify-between p-4 text-2sm leading-5">
-        <div className="w-[43%]">
-          <Link to={routes.publication(id)} className="flex w-fit items-center gap-2">
+      <div className="flex flex-col items-start gap-3 p-4 text-2sm leading-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="w-full min-w-0 sm:w-[43%]">
+          <Link to={routes.publication(id)} className="flex w-fit max-w-full items-center gap-2">
             <div className="size-8 shrink-0 overflow-hidden rounded-lg">
               <ImageFallback
                 src={buildFileUrl(logoId)}
@@ -44,10 +44,10 @@ export const PublicationTableRow = memo(
             <span className="font-medium">{title}</span>
           </Link>
         </div>
-        <span className="w-[30%]">
+        <span className="w-full min-w-0 sm:w-[30%]">
           <Link to={routes.category(categoryId)}>{categoryTitle}</Link>
         </span>
-        <div className="flex w-[27%] justify-center">
+        <div className="flex w-full sm:w-[27%] sm:justify-center">
           <ButtonOutline
             className="h-9"
             label={`${publicationsCount} ${t("publication", { count: publicationsCount })}`}

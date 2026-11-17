@@ -18,8 +18,8 @@ export const ProductTableRow = memo(
     const { t } = useTranslation("profile")
 
     return (
-      <div className="flex items-center justify-between p-4 text-2sm leading-5">
-        <div className="flex w-[43%] items-center gap-2">
+      <div className="flex flex-col items-start gap-3 p-4 text-2sm leading-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex w-full min-w-0 items-center gap-2 sm:w-[43%]">
           <div className="size-8 shrink-0 overflow-hidden rounded-lg">
             <ImageFallback
               src={buildFileUrl(logoId)}
@@ -29,7 +29,7 @@ export const ProductTableRow = memo(
           </div>
           <span className="font-medium">{title ?? "Product has no title yet"}</span>
         </div>
-        <div className="flex w-[27%] justify-center">
+        <div className="flex w-full sm:w-[27%] sm:justify-center">
           <ButtonOutline
             className="h-9"
             label={`${publicationsCount} ${t("publication", { count: publicationsCount })}`}

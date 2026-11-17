@@ -55,10 +55,10 @@ export const AlternativeOptions = memo(({ hideVoteButton, votedValue, onVoteClic
   const handleVoteClick = useCallback(() => onVoteClick(checkedValue), [checkedValue, onVoteClick])
 
   return (
-    <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-ivory p-4 text-gray-800">
+    <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-ivory p-4">
       <div className="flex flex-col gap-2">
-        <span className="text-2base font-semibold leading-5.25">{t("title")}</span>
-        <span className="text-2xs font-medium leading-4 text-gray-500">{t("description")}</span>
+        <span className="text-2base leading-5.25 font-semibold">{t("title")}</span>
+        <span className="text-2xs leading-4 font-medium text-gray-500">{t("description")}</span>
       </div>
       <div className="grid grid-cols-2 gap-2">
         {optionItems.map((x, index) => (

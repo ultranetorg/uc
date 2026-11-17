@@ -22,10 +22,10 @@ export const ButtonOutline = memo(
     return (
       <span
         className={twMerge(
-          "box-border flex w-fit select-none items-center justify-center gap-2 rounded-sm border px-4 py-2 text-2sm leading-5",
+          "box-border flex w-fit items-center justify-center gap-2 rounded-sm border px-4 py-2 text-2sm leading-5 select-none",
           className,
           !isDisabled
-            ? "cursor-pointer border-gray-400 text-gray-800 hover:border-gray-950"
+            ? "cursor-pointer border-gray-400 hover:border-gray-950"
             : "cursor-default border-gray-200 text-gray-400",
           loading && "py-2",
         )}

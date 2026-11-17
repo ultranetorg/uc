@@ -38,11 +38,11 @@ export const TypeSelect = memo(({ availableTypes, value, onChange }: TypeSelectP
   if (!availableTypes) return null
 
   return (
-    <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <div className="min-w-0" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <DropdownSecondary
         isMulti={false}
         items={items}
-        className="w-37.5"
+        className="w-full"
         placeholder={t("allTypes")}
         defaultValue={null}
         controlled={true}

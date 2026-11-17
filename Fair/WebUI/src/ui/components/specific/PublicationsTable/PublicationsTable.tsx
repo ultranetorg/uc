@@ -17,7 +17,7 @@ export const PublicationsTable = memo(({ className, items, onProductStoresClick 
 
   return (
     <div className={className}>
-      <div className="flex justify-between bg-gray-200 px-4 py-2 text-2xs font-medium leading-4">
+      <div className="hidden justify-between bg-gray-200 px-4 py-2 text-2xs leading-4 font-medium sm:flex">
         <span className="w-[43%] capitalize">{t("common:publication")}</span>
         <span className="w-[30%] capitalize">{t("common:category")}</span>
         <span className="w-[27%] text-center">{t("totalPublications")}</span>

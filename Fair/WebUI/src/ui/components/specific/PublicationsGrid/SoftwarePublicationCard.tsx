@@ -16,7 +16,7 @@ export const SoftwarePublicationCard = memo(
 
     return (
       <div
-        className="relative flex h-40 w-67.75 flex-col items-center justify-center gap-4 rounded-lg bg-gray-100 p-4 hover:bg-gray-200"
+        className="relative flex h-40 w-full flex-col items-center justify-center gap-4 rounded-lg bg-gray-100 p-4 hover:bg-gray-200"
         title={title}
       >
         <div className="size-14 overflow-hidden rounded-lg">
@@ -25,8 +25,8 @@ export const SoftwarePublicationCard = memo(
             fallback={<SvgSoftwareLogo3Xl className="size-full object-cover" />}
           />
         </div>
-        <div className="flex w-40 flex-col gap-1 text-center">
-          <span className="truncate text-2sm leading-4.5 font-medium text-gray-800">{title}</span>
+        <div className="flex w-full max-w-40 flex-col gap-1 text-center">
+          <span className="truncate text-2sm leading-4.5 font-medium">{title}</span>
           <span className="truncate text-2xs leading-3.75 text-gray-500">{authorTitle}</span>
           <span className="truncate text-2xs leading-3.75 text-gray-500">{categoryTitle}</span>
         </div>

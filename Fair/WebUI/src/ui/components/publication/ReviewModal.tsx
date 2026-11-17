@@ -11,7 +11,7 @@ import { isAccessDeniedError, showToast } from "utils"
 
 import { YourRatingBar } from "./YourRatingBar"
 
-const LABEL_CLASSNAME = "text-2xs font-medium leading-4 text-gray-800 select-none"
+const LABEL_CLASSNAME = "text-2xs font-medium leading-4 select-none"
 
 type ReviewModalBaseProps = {
   publicationId: string
@@ -123,7 +123,7 @@ export const ReviewModal = memo(
         {step == 0 ? (
           <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between gap-2.5">
-              <div className="cursor-default select-none text-2xl font-semibold leading-7 text-gray-800">{title}</div>
+              <div className="cursor-default text-2xl leading-7 font-semibold select-none">{title}</div>
               {onClose && <SvgX onClick={onClose} className="cursor-pointer stroke-gray-500 hover:stroke-gray-800" />}
             </div>
             <div className="flex flex-col gap-2">
@@ -143,7 +143,7 @@ export const ReviewModal = memo(
           <div className="flex h-full items-center justify-center">
             <div className="flex flex-col items-center gap-6">
               <SvgCheckCircleFillColored4Xl />
-              <span className="text-2xl font-medium leading-7 text-gray-800">{thankYouLabel}</span>
+              <span className="text-2xl leading-7 font-medium">{thankYouLabel}</span>
             </div>
           </div>
         )}

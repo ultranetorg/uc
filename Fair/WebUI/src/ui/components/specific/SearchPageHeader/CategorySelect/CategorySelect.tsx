@@ -6,6 +6,7 @@ import {
   FloatingPortal,
   offset,
   safePolygon,
+  shift,
   useClick,
   useDismiss,
   useFloating,
@@ -54,7 +55,7 @@ export const CategorySelect = memo(
     )
 
     const { context, floatingStyles, refs } = useFloating({
-      middleware: [offset(4)],
+      middleware: [offset(4), shift({ padding: 8 })],
       open: isOpen,
       placement: "bottom-end",
       whileElementsMounted: autoUpdate,
@@ -157,19 +158,19 @@ export const CategorySelect = memo(
         <div
           ref={refs.setReference}
           className={twMerge(
-            "box-border flex h-10 w-37.5 cursor-pointer items-center justify-between gap-2 rounded-sm border bg-gray-100 py-2 pl-3.5 pr-1.5 hover:border-gray-400",
+            "box-border flex h-10 min-w-0 cursor-pointer items-center justify-between gap-2 rounded-sm border bg-gray-100 py-2 pr-1.5 pl-3.5 hover:border-gray-400",
             isOpen ? "border-gray-400" : "border-gray-300",
           )}
           {...getReferenceProps()}
         >
-          <span className="truncate text-2sm font-medium leading-4 text-gray-800">{label}</span>
+          <span className="truncate text-2sm leading-4 font-medium">{label}</span>
           <SvgDropdownIndicatorXs className="shrink-0 stroke-gray-500" />
         </div>
         {isOpen && (
           <FloatingPortal>
             <div
               ref={refs.setFloating}
-              className="z-60 flex w-75 flex-col gap-3 rounded-sm border border-gray-300 bg-[#FCFCFC] p-3 shadow-md"
+              className="z-60 flex w-75 max-w-[calc(100vw-1rem)] flex-col gap-3 rounded-sm border border-gray-300 bg-[#FCFCFC] p-3 shadow-md"
               style={floatingStyles}
               {...getFloatingProps()}
             >

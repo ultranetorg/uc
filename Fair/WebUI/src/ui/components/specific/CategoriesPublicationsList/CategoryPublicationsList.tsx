@@ -18,9 +18,9 @@ export type CategoryPublicationsListProps = CategoryPublicationsType &
 export const CategoryPublicationsList = memo(
   ({ id, title, type, publications, storeId, seeAllLabel }: CategoryPublicationsListProps) => (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between text-gray-800">
-        <span className="text-xl font-bold leading-6">{title}</span>
-        <Link className="text-sm font-medium leading-4.25 hover:font-semibold" to={routes.category(id)}>
+      <div className="flex items-center justify-between">
+        <span className="text-xl leading-6 font-bold">{title}</span>
+        <Link className="text-sm leading-4.25 font-medium hover:font-semibold" to={routes.category(id)}>
           {seeAllLabel}
         </Link>
       </div>

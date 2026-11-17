@@ -106,7 +106,7 @@ export const SignInModal = (props: SignInModalProps) => {
   return (
     <Modal className="w-160 gap-0 p-4" {...props}>
       <div className="flex flex-col gap-6 px-4 pb-4">
-        <span className="text-center text-[44px] font-semibold first-letter:uppercase">{title}</span>
+        <span className="text-center text-3xl font-semibold first-letter:uppercase sm:text-[44px]">{title}</span>
         <div className="flex flex-col gap-2">
           <span className="text-2xs font-medium first-letter:uppercase">{t("common:username")}</span>
           <ValidationWrapper {...(state === "sign-in" ? signInValidationProps : signUpValidationProps)}>

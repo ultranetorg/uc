@@ -10,6 +10,7 @@ type ListSkeletonBaseProps = {
   rows?: number
   compact?: boolean
   showHeader?: boolean
+  showNameSubtitle?: boolean
   nameClassName?: string
   columns?: string[]
 }
@@ -22,13 +23,17 @@ export const ListSkeleton = memo(
     rows = 10,
     compact = false,
     showHeader = false,
+    showNameSubtitle = false,
     nameClassName,
     columns = DEFAULT_COLUMNS,
   }: ListSkeletonProps) => (
     <div className={twMerge("overflow-hidden rounded-lg border border-gray-300 bg-gray-100", className)}>
       {showHeader && (
         <div
-          className={twMerge("flex h-7.5 items-center gap-4 border-b border-gray-300 px-4", compact && "gap-6 px-2")}
+          className={twMerge(
+            "flex h-7.5 items-center gap-3 border-b border-gray-300 px-3 sm:gap-4 sm:px-4",
+            compact && "gap-3 px-2 sm:gap-6 sm:px-2",
+          )}
         >
           <div className={twMerge("flex min-w-0 flex-2 items-center", nameClassName)}>
             <SkeletonBlock className="h-3 w-16" rounded="xs" />
@@ -42,10 +47,20 @@ export const ListSkeleton = memo(
       )}
       <div className="divide-y divide-gray-300">
         {Array.from({ length: rows }, (_, i) => (
-          <div key={i} className={twMerge("flex items-center gap-4 p-4", compact && "gap-6 p-2")}>
+          <div
+            key={i}
+            className={twMerge("flex items-center gap-3 p-3 sm:gap-4 sm:p-4", compact && "gap-3 p-2 sm:gap-6 sm:p-2")}
+          >
             <div className={twMerge("flex min-w-0 flex-2 items-center gap-2", nameClassName)}>
               <SkeletonBlock className="size-8 shrink-0" rounded="lg" />
-              <SkeletonBlock className="h-4 w-40 max-w-full" rounded="xs" />
+              {showNameSubtitle ? (
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <SkeletonBlock className="my-0.5 h-4 w-40 max-w-full" rounded="xs" />
+                  <SkeletonBlock className="my-0.5 h-3 w-24 max-w-full md:hidden" rounded="xs" />
+                </div>
+              ) : (
+                <SkeletonBlock className="h-4 w-40 max-w-full" rounded="xs" />
+              )}
             </div>
             {columns.map((column, j) => (
               <SkeletonBlock key={j} className={twMerge("h-4", column)} rounded="xs" />

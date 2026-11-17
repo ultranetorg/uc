@@ -30,7 +30,7 @@ export const AccountButton = memo(
       ref={ref}
       {...rest}
     >
-      <span className="text-2sm leading-4.5" title={name}>
+      <span className="min-w-0 truncate pr-2 text-2sm leading-4.5" title={name}>
         {name}
       </span>
     </PanelButton>

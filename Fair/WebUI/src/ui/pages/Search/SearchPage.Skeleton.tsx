@@ -11,11 +11,11 @@ type SearchPageSkeletonProps = {
 
 export const SearchPageSkeleton = memo(({ showPublicationType }: SearchPageSkeletonProps) => (
   <div className="flex flex-col gap-6">
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <SkeletonBlock className="h-5 w-32" rounded="xs" />
-      <div className="flex items-center gap-4">
-        <SkeletonBlock className="h-10 w-37.5" rounded="sm" />
-        <SkeletonBlock className="h-10 w-37.5" rounded="sm" />
+      <div className="grid grid-cols-2 items-center gap-3 sm:grid-cols-[repeat(2,9.375rem)] sm:gap-4">
+        <SkeletonBlock className="h-10 w-full" rounded="sm" />
+        <SkeletonBlock className="h-10 w-full" rounded="sm" />
       </div>
     </div>
     <PublicationsListSkeleton rows={ITEMS_COUNT} showPublicationType={showPublicationType} showRating />

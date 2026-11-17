@@ -36,7 +36,7 @@ export const ProfilePanel = memo(
       return (
         <>
           <div
-            className="z-10 flex w-85 flex-col overflow-hidden rounded-lg bg-gray-800 text-white shadow-md"
+            className="z-10 flex w-85 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-lg bg-gray-800 text-white shadow-md"
             ref={ref}
             style={style}
           >

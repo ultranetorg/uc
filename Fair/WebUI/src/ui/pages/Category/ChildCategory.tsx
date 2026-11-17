@@ -16,11 +16,13 @@ export const ChildCategory = memo(({ id, avatarId, title }: ChildCategoryProps) 
         <SvgImageSlash4Xl className="size-full stroke-gray-800" />
       )}
     </div>
-    <span className="text-2sm leading-4.5">{formatTitle(title)}</span>
+    <span className="max-w-full min-w-0 px-2 text-center text-2sm leading-4.5 wrap-break-word">
+      {formatTitle(title)}
+    </span>
     <CategoryTreeContextThreeDotsMenu
       categoryId={id}
       categoryTitle={title}
-      className="invisible absolute right-1 top-1 group-hover:visible"
+      className="invisible absolute top-1 right-1 group-hover:visible pointer-coarse:visible"
     />
   </div>
 ))

@@ -40,7 +40,7 @@ export const Modal = memo((props: ModalProps) => {
     <Backdrop onClick={isBackdropStatic ? undefined : onClose}>
       <div
         className={twMerge(
-          "items-centner z-61 m-auto flex max-w-190 flex-col justify-center gap-6 rounded-2xl bg-white p-8 shadow-md",
+          "z-61 m-auto flex max-w-[min(47.5rem,100%)] flex-col justify-center gap-6 rounded-2xl bg-white p-8 shadow-md",
           className,
         )}
         onClick={(e: MouseEvent) => e.stopPropagation()}
@@ -56,10 +56,7 @@ export const Modal = memo((props: ModalProps) => {
           >
             <div
               ref={titleRef}
-              className={twMerge(
-                "cursor-default select-none text-2xl font-semibold leading-7 text-gray-800",
-                titleClassName,
-              )}
+              className={twMerge("cursor-default text-2xl leading-7 font-semibold select-none", titleClassName)}
             >
               {title}
             </div>

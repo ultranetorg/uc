@@ -14,7 +14,7 @@ export const RatingBar = memo(({ value }: RatingBarProps) => {
 
   return (
     <div className="flex items-center gap-2" title={formattedRating}>
-      <div className="flex select-none items-center gap-1">
+      <div className="flex items-center gap-1 select-none">
         {times(5).map(i =>
           i < starsCount ? (
             <SvgStarXs className="fill-favorite stroke-favorite" key={i} />
@@ -23,7 +23,7 @@ export const RatingBar = memo(({ value }: RatingBarProps) => {
           ),
         )}
       </div>
-      <span className="text-2sm font-medium leading-4.5 text-gray-800">{formattedRating}</span>
+      <span className="text-2sm leading-4.5 font-medium">{formattedRating}</span>
     </div>
   )
 })

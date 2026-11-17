@@ -20,11 +20,11 @@ export type SystemRequirementsTabsProps = SystemRequirementsTabsBaseProps
 
 export const SystemRequirementsTabs = memo(({ label, tabs, activeTab, onTabChange }: SystemRequirementsTabsProps) =>
   tabs && tabs.length > 0 ? (
-    <div className="flex flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-6">
-      <span className="text-xl font-semibold leading-6">{label}</span>
+    <div className="flex flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-4 sm:p-6">
+      <span className="text-xl leading-6 font-semibold">{label}</span>
       <TabsProvider key={tabs[0].key} defaultKey={tabs[0].key} onActiveKeyChange={onTabChange} activeKey={activeTab}>
         <TabsList
-          className="flex gap-6"
+          className="flex flex-wrap gap-2 xs:flex-nowrap xs:gap-6"
           itemClassName="h-6 cursor-pointer text-2sm leading-4.5 text-gray-500 hover:text-gray-900"
           activeItemClassName="border-box border-b-2 border-gray-900 pb-2 text-gray-900"
           items={tabs}

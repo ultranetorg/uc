@@ -8,7 +8,7 @@ export const StoreLayout = memo(({ children }: PropsWithChildren) => {
   const error = useRouteError()
 
   return (
-    <div className={twMerge("p-6", !!error && "flex h-full flex-col")}>
+    <div className={twMerge("p-4 sm:p-6", !!error && "flex h-full flex-col")}>
       <ScrollToTop />
       {!error && <StoreHeader />}
       <div className="flex-1">{children ?? <Outlet />}</div>

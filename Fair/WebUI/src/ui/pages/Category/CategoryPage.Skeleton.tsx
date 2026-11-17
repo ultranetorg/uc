@@ -10,9 +10,9 @@ type CategoryPageSkeletonProps = {
 
 export const CategoryPageSkeleton = ({ view = "grid" }: CategoryPageSkeletonProps) => (
   <div className="flex flex-col gap-6">
-    <div className="flex items-center justify-between">
-      <SkeletonBlock className="h-10 w-90" rounded="sm" />
-      <SkeletonBlock className="h-10.5 w-20" rounded="sm" />
+    <div className="flex items-start justify-between gap-3 sm:items-center sm:gap-4">
+      <SkeletonBlock className="h-8 w-3/5 max-w-90 sm:h-10" rounded="sm" />
+      <SkeletonBlock className="h-10.5 w-20 shrink-0" rounded="sm" />
     </div>
     {view === "list" ? (
       <PublicationsListSkeleton rows={LIST_ROWS_COUNT} />

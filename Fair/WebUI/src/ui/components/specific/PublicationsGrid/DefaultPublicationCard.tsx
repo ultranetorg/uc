@@ -16,7 +16,7 @@ export const DefaultPublicationCard = memo(
 
     return (
       <div
-        className="relative flex w-67.75 flex-col items-center justify-center gap-4 rounded-lg bg-gray-100 p-4 hover:bg-gray-200"
+        className="relative flex w-full flex-col items-center justify-center gap-4 rounded-lg bg-gray-100 p-4 hover:bg-gray-200"
         title={title}
       >
         <div className="size-14 overflow-hidden rounded-lg">
@@ -25,8 +25,8 @@ export const DefaultPublicationCard = memo(
             fallback={<SvgSoftwareLogo3Xl className="size-full object-cover" />}
           />
         </div>
-        <div className="flex w-40 flex-col gap-1 text-center">
-          <span className="truncate text-2sm font-medium leading-4.5 text-gray-800">{title}</span>
+        <div className="flex w-full max-w-40 flex-col gap-1 text-center">
+          <span className="truncate text-2sm leading-4.5 font-medium">{title}</span>
           <span className="truncate text-2xs leading-3.75 text-gray-500">{authorTitle}</span>
           <span className="truncate text-2xs leading-3.75 text-gray-500">{categoryTitle}</span>
         </div>
@@ -42,7 +42,7 @@ export const DefaultPublicationCard = memo(
         <PublicationCardContextThreeDotsMenu
           publicationId={id}
           publicationTitle={title}
-          className="absolute right-1 top-1"
+          className="absolute top-1 right-1"
         />
       </div>
     )

@@ -14,7 +14,7 @@ export type OperationPolicyInfoSkeletonProps = PropsWithClassName & OperationPol
 
 export const OperationPolicyInfoSkeleton = memo(({ className, title }: OperationPolicyInfoSkeletonProps) => (
   <div className={twMerge("flex w-full items-start justify-between gap-8 rounded-lg text-2xs leading-4", className)}>
-    {title && <span className="text-2sm leading-5 font-semibold text-gray-800">{title}</span>}
+    {title && <span className="text-2sm leading-5 font-semibold">{title}</span>}
     <table className="ml-auto border-collapse">
       <tbody>
         {Array.from({ length: ROWS_COUNT }, (_, i) => (

@@ -88,7 +88,7 @@ export const IndexPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center gap-12 py-8">
+    <div className="flex flex-col items-center gap-8 px-4 py-6 sm:gap-12 sm:px-6 sm:py-8">
       {!searchMode && (
         <div className="flex flex-col gap-4 text-center">
           <h1>

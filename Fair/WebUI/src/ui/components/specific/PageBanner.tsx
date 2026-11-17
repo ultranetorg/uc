@@ -21,13 +21,13 @@ export const PageBanner = ({ className }: PropsWithClassName) => {
         ns="pageBanner"
         i18nKey="text"
         parent="div"
-        className="mx-auto my-0 py-4 text-center text-2xs leading-4 text-white"
+        className="mx-auto my-0 min-w-0 px-4 py-3 text-center text-2xs leading-4 text-white sm:py-4"
         components={{
           1: <a href={LINKS.ULTRANET} className="text-[#B1D5F5]" target="_blank" />,
           2: <a href={LINKS.ULTRANET_DOWNLOAD} className="text-[#B1D5F5]" target="_blank" />,
         }}
       />
-      <SvgXSm className="mr-3 cursor-pointer fill-gray-400 hover:fill-white" onClick={handleClose} />
+      <SvgXSm className="mr-3 shrink-0 cursor-pointer fill-gray-400 hover:fill-white" onClick={handleClose} />
     </div>
   )
 }

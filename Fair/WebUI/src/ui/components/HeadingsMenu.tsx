@@ -29,10 +29,10 @@ export const HeadingsMenu = memo(
       <div
         ref={ref}
         style={style}
-        className="rounded-lg border border-gray-300 bg-gray-0 p-4 text-gray-800 shadow-md"
+        className="rounded-lg border border-gray-300 bg-gray-0 p-4 shadow-md"
         onClick={onClick}
       >
-        <div className="flex max-w-[952px] flex-wrap gap-6">
+        <div className="flex max-w-238 flex-wrap gap-6">
           {chunks.map((chunk, i) => (
             <>
               {chunk.map(x => (
@@ -40,7 +40,7 @@ export const HeadingsMenu = memo(
                   <Link
                     key={x.to.toString() + i}
                     to={x.to}
-                    className="truncate rounded-xs p-2 text-2sm font-semibold leading-4.5 hover:bg-gray-100"
+                    className="truncate rounded-xs p-2 text-2sm leading-4.5 font-semibold hover:bg-gray-100"
                     title={x.label}
                   >
                     {x.label}

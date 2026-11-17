@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import {
   FloatingPortal,
   offset,
@@ -9,17 +9,21 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react"
+import { twMerge } from "tailwind-merge"
 
 import { usePendingOperationsContext, useUserContext } from "app"
 import { SvgChevronDown } from "assets"
+import { useScrollOrResize } from "hooks"
+import { PropsWithClassName } from "types"
 
 import { FavoriteStoreItem } from "./FavoriteStoreItem"
+import { FavoriteStoresMenu } from "./FavoriteStoresMenu"
 import { FavoriteStoresSkeleton } from "./FavoriteStores.Skeleton"
-import { FavoriteStoresMenu } from "./FavoriteStoresMenu/FavoriteStoresMenu"
+import { getFavoriteStoreVisibilityClassName } from "./utils"
 
 const MAX_VISIBLE_ITEMS = 12
 
-export const FavoriteStores = () => {
+export const FavoriteStores = memo(({ className }: PropsWithClassName) => {
   const { isLoading, user } = useUserContext()
   const { favoritesChanges } = usePendingOperationsContext()
 
@@ -39,7 +43,9 @@ export const FavoriteStores = () => {
 
   const handleClose = useCallback(() => setOpen(false), [])
 
-  if (isLoading) return <FavoriteStoresSkeleton />
+  useScrollOrResize(() => setOpen(false))
+
+  if (isLoading) return <FavoriteStoresSkeleton className={className} />
 
   if (!user) return null
 
@@ -55,10 +61,11 @@ export const FavoriteStores = () => {
 
   return (
     <>
-      <div className="flex items-center gap-2" ref={refs.setPositionReference}>
-        {visibleItems.map(x => (
+      <div className={twMerge("flex items-center gap-2", className)} ref={refs.setPositionReference}>
+        {visibleItems.map((x, i) => (
           <FavoriteStoreItem
             key={x.id}
+            className={getFavoriteStoreVisibilityClassName(i)}
             storeId={x.id}
             name={x.title}
             logoId={x.imageFileId}
@@ -87,4 +94,4 @@ export const FavoriteStores = () => {
       )}
     </>
   )
-}
+})

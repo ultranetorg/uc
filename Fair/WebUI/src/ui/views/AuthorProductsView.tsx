@@ -26,7 +26,7 @@ export const AuthorProductsView = memo(({ authorId, onProductStoresClick }: Auth
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="text-lg leading-10 font-semibold">
           {products?.totalItems} {t("common:publications")}
         </span>

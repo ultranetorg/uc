@@ -29,6 +29,7 @@ export const enUS = {
     home: "Home",
     language: "language",
     login: "login",
+    menu: "Menu",
     minimal: "Minimal",
     moderation: "moderation",
     moderator_one: "moderator",

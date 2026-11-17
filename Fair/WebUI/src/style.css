@@ -103,8 +103,8 @@
 
 h1 {
   font-weight: 500;
-  font-size: 3.875rem;
-  line-height: 4.6875rem;
+  font-size: 2.25rem;
+  line-height: 2.75rem;
 }
 
 h2 {
@@ -119,7 +119,27 @@ h3 {
 }
 
 h5 {
-  font-size: 1.125rem;
-  line-height: 1.625rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+/* Tailwind `sm` (40rem) and `lg` (64rem): the big landing headline only scales up where there is room for it. */
+@media (min-width: 40rem) {
+  h1 {
+    font-size: 3rem;
+    line-height: 3.625rem;
+  }
+
+  h5 {
+    font-size: 1.125rem;
+    line-height: 1.625rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  h1 {
+    font-size: 3.875rem;
+    line-height: 4.6875rem;
+  }
 }
 

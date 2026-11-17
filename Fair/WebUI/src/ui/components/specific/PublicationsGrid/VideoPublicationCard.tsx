@@ -10,8 +10,8 @@ export const VideoPublicationCard = memo(({ id, title, authorTitle, rating }: Pu
   const formattedRating = formatAverageRating(rating)
 
   return (
-    <div className="relative h-112.5 w-67.75 overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
-      <div className="flex h-91.25 items-center justify-center overflow-hidden bg-gray-400">
+    <div className="relative w-full overflow-hidden rounded-lg bg-gray-100 hover:bg-gray-200" title={title}>
+      <div className="flex aspect-271/365 items-center justify-center overflow-hidden bg-gray-400">
         <SvgFileEarmarkVideoSm className="size-20 stroke-gray-300" />
       </div>
       <div className="flex flex-col gap-1 p-3">
@@ -22,14 +22,14 @@ export const VideoPublicationCard = memo(({ id, title, authorTitle, rating }: Pu
             </>
           )}
         </span>
-        <span className="truncate text-sm font-medium leading-4.25 text-gray-800">{title}</span>
+        <span className="truncate text-sm leading-4.25 font-medium">{title}</span>
         <span className="truncate text-2xs leading-4 text-gray-500">{authorTitle}</span>
       </div>
 
       <PublicationCardContextThreeDotsMenu
         publicationId={id}
         publicationTitle={title}
-        className="absolute right-1 top-1"
+        className="absolute top-1 right-1"
       />
     </div>
   )

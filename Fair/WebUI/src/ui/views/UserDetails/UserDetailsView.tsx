@@ -49,11 +49,11 @@ export const UserDetailsView = memo(
         <div className="flex flex-col">
           <div className="relative h-57.5">
             <div className="relative h-42.5 bg-gray-500">
-              <div className="absolute top-6 right-6">
+              <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
                 <UserDetailsThreeDotsMenu userId={user.id} userName={user.name} />
               </div>
             </div>
-            <div className="absolute bottom-0 left-6 size-32 rounded-full bg-white">
+            <div className="absolute bottom-0 left-4 size-32 rounded-full bg-white sm:left-6">
               <div className="absolute top-1 left-1 size-30 overflow-hidden rounded-full">
                 <ImageFallback
                   src={buildUserAvatarByIdUrl(user.id)}
@@ -64,12 +64,12 @@ export const UserDetailsView = memo(
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 p-6">
-            <span className="text-xl leading-6 font-semibold">{user.name}</span>
+          <div className="flex flex-col gap-4 p-4 sm:p-6">
+            <span className="text-xl leading-6 font-semibold wrap-break-word">{user.name}</span>
             <div className="text-2xs leading-4">{renderRole(t, isPublisher, isModerator, isJoined)}</div>
           </div>
         </div>
-        <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-5 p-4 sm:p-6">
           <span className={LABEL_CLASSNAME}>{t("common:publishers")}</span>
           {user.authors.length > 0 ? (
             <PublishersList storeId={storeId} authors={user.authors} />
@@ -77,7 +77,7 @@ export const UserDetailsView = memo(
             <>{t("noPublishers")}</>
           )}
         </div>
-        <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-5 p-4 sm:p-6">
           <span className={LABEL_CLASSNAME}>{t("reviewsLeft")}</span>
           {isReviewsLoading || !reviews ? (
             <Spinner />

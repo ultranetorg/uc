@@ -28,8 +28,13 @@ export const AuthorProfile = memo(({ t, className, author, showStoreInfo }: Auth
   const isModerator = isAuthorModerator(store, author)
 
   return (
-    <div className={twMerge("flex items-start gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6", className)}>
-      <div className="size-30 shrink-0 overflow-hidden rounded-full" title={author.title}>
+    <div
+      className={twMerge(
+        "flex flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-4 sm:flex-row sm:items-start sm:gap-6 sm:p-6",
+        className,
+      )}
+    >
+      <div className="size-24 shrink-0 overflow-hidden rounded-full sm:size-30" title={author.title}>
         <ImageFallback
           src={buildFileUrl(author.avatarId)}
           fallbackSrc={avatarFallback}
@@ -39,7 +44,7 @@ export const AuthorProfile = memo(({ t, className, author, showStoreInfo }: Auth
       <div className="flex min-w-0 flex-1 flex-col gap-6">
         <div className="flex w-full items-start gap-3">
           <div className="flex min-w-0 flex-col gap-1">
-            <div className="text-xl leading-6 font-semibold">
+            <div className="text-xl leading-6 font-semibold wrap-break-word">
               {author.title}
               {showStoreInfo && store && (
                 <>

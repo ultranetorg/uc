@@ -44,7 +44,7 @@ export const ProductsList = memo(({ items, randomRefreshCount = DEFAULT_RANDOM_R
   return (
     <List
       header={
-        <ListHeader className="capitalize leading-4.25">
+        <ListHeader className="leading-4.25 capitalize">
           <span className={COLUMN_NAME_CLASSNAME}>{t("product")}</span>
           <span className={COLUMN_TYPE_CLASSNAME}>{t("type")}</span>
           <span className={COLUMN_CELL_CLASSNAME}>{t("author")}</span>

@@ -21,7 +21,7 @@ export const Pagination = memo(({ className, page, pagesCount, onPageChange }: P
   }
 
   return (
-    <div className={twMerge("flex gap-1", className)}>
+    <div className={twMerge("flex flex-wrap gap-1", className)}>
       <PaginationItem disabled={page === 0} onClick={() => onPageChange(page - 1)}>
         <SvgChevronLeft />
       </PaginationItem>

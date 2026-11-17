@@ -5,19 +5,22 @@ import { twMerge } from "tailwind-merge"
 import { SvgStoreLogo4Xl } from "assets/fallback"
 import { ImageFallback } from "ui/components"
 import { buildFileUrl, routes } from "utils"
+import { PropsWithClassName } from "types"
 
-export interface FavoriteStoreItemProps {
+export interface FavoriteStoreItemBaseProps {
   storeId: string
   name: string
   logoId?: string
   isPending?: boolean
 }
 
-export const FavoriteStoreItem = memo(({ storeId, name, logoId, isPending }: FavoriteStoreItemProps) => (
+export type FavoriteStoreItemProps = PropsWithClassName & FavoriteStoreItemBaseProps
+
+export const FavoriteStoreItem = memo(({ className, storeId, name, logoId, isPending }: FavoriteStoreItemProps) => (
   <Link
     to={routes.store(storeId)}
     title={name}
-    className={twMerge(isPending && "pointer-events-none")}
+    className={twMerge(className, isPending && "pointer-events-none")}
     aria-disabled={isPending}
   >
     <div

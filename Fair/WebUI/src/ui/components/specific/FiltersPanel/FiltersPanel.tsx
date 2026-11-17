@@ -56,7 +56,7 @@ export const FiltersPanel = memo(({ value, onChange }: FiltersPanelProps) => {
   ]
 
   return (
-    <div className="flex gap-3">
+    <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
       {items.map(x => (
         <FilterButton key={x.type} {...x} checked={value === x.type} onClick={() => onChange(x.type)} />
       ))}

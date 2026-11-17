@@ -19,7 +19,7 @@ export const StoresList = memo(({ items }: StoresListProps) => {
   return (
     <List
       header={
-        <ListHeader className="capitalize leading-4.25">
+        <ListHeader className="leading-4.25 capitalize">
           <span className={COLUMN_NAME_CLASSNAME}>{t("store")}</span>
         </ListHeader>
       }

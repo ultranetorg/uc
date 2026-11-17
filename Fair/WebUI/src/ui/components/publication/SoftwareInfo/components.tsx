@@ -13,13 +13,11 @@ export type AuthorImageTitleProps = {
 }
 
 export const AuthorImageTitle = memo(({ title, authorFileId }: AuthorImageTitleProps) => (
-  <div className="flex items-center gap-2">
-    <div className="size-8 overflow-hidden rounded-full">
+  <div className="flex min-w-0 items-center gap-2">
+    <div className="size-8 shrink-0 overflow-hidden rounded-full">
       <ImageFallback src={buildFileUrl(authorFileId)} fallbackSrc={avatarFallback} className="size-full object-cover" />
     </div>
-    <span
-      className={twMerge("cursor-pointer truncate text-2sm leading-5 font-medium text-gray-800 hover:font-semibold")}
-    >
+    <span className={twMerge("cursor-pointer truncate text-2sm leading-5 font-medium hover:font-semibold")}>
       {title}
     </span>
   </div>

@@ -68,7 +68,7 @@ const Option = (props: OptionProps<DropdownItem, false>) => {
   if (props.data.value === SHOW_ALL_VALUE) {
     return (
       <components.Option {...props}>
-        <span className="truncate text-2xs leading-4.5 text-gray-800">{props.data.label}</span>
+        <span className="truncate text-2xs leading-4.5">{props.data.label}</span>
       </components.Option>
     )
   }
@@ -78,8 +78,8 @@ const Option = (props: OptionProps<DropdownItem, false>) => {
 
   return (
     <components.Option {...props}>
-      <div className="flex items-center text-2xs leading-4.5 text-gray-800 transition-colors duration-700 ease-out">
-        <div className="flex min-w-10 max-w-10 items-center">
+      <div className="flex items-center text-2xs leading-4.5 transition-colors duration-700 ease-out">
+        <div className="flex max-w-10 min-w-10 items-center">
           {rating > 0 ? (
             <>
               {formattedRating} <SvgStarXxs className="fill-favorite" />

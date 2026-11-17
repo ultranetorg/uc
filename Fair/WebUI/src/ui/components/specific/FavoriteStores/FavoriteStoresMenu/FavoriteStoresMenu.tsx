@@ -19,12 +19,12 @@ export const FavoriteStoresMenu = memo(
 
     return (
       <div
-        className="z-10 flex max-h-205 w-120 flex-col divide-y divide-gray-700 overflow-hidden rounded-lg border bg-gray-800 shadow-md"
+        className="z-10 flex max-h-205 w-120 max-w-[calc(100vw-1rem)] flex-col divide-y divide-gray-700 overflow-hidden rounded-lg border bg-gray-800 shadow-md"
         ref={ref}
         style={style}
       >
         <div className="flex shrink-0 items-center justify-between gap-4 p-4">
-          <span className="select-none text-2base leading-5 text-white">{t("title")}</span>
+          <span className="text-2base leading-5 text-white select-none">{t("title")}</span>
           <SvgX className="cursor-pointer stroke-gray-300 hover:stroke-white" onClick={onClose} />
         </div>
         <div className="flex min-h-0 flex-col gap-1 overflow-y-auto p-2">

@@ -1,6 +1,7 @@
 import { ComponentType, memo, ReactNode } from "react"
 import { Link, To } from "react-router-dom"
 import { useTranslation } from "react-i18next"
+import { twMerge } from "tailwind-merge"
 
 import avatarFallback from "assets/fallback/user-avatar-2xl.png"
 import { ImageFallback, LinkFullscreen, RatingBar } from "ui/components"
@@ -45,14 +46,14 @@ export const Comment = memo((props: CommentProps) => {
   const displayName = creatorName ?? creatorId
 
   return props.style !== "compact" ? (
-    <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-6">
+    <div className="flex flex-col gap-6 rounded-lg border border-gray-300 bg-gray-100 p-4 sm:p-6">
       <div className="flex flex-col gap-4">
-        <div className="flex gap-4.5">
-          <div className="size-13 overflow-hidden rounded-full">
+        <div className="flex gap-3 sm:gap-4.5">
+          <div className="size-13 shrink-0 overflow-hidden rounded-full">
             <ImageFallback src={creatorAvatarSrc} fallbackSrc={avatarFallback} className="size-full object-cover" />
           </div>
-          <div className="flex flex-1 flex-col justify-center gap-2">
-            <div className="flex items-center justify-between">
+          <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+            <div className="flex items-center justify-between gap-2">
               <LinkFullscreen to={props.creatorLink} className={NAME_CLASSNAME} title={displayName}>
                 {displayName}
               </LinkFullscreen>
@@ -72,7 +73,7 @@ export const Comment = memo((props: CommentProps) => {
         </div>
         {rating && <RatingBar value={rating} />}
       </div>
-      <span className={TEXT_CLASSNAME}>{text}</span>
+      <span className={twMerge(TEXT_CLASSNAME, "wrap-break-word")}>{text}</span>
     </div>
   ) : (
     <div className="flex flex-col gap-4 rounded-lg border border-gray-300 bg-white p-4">
@@ -80,8 +81,8 @@ export const Comment = memo((props: CommentProps) => {
         <div className="size-10 overflow-hidden rounded-full">
           <ImageFallback src={creatorAvatarSrc} fallbackSrc={avatarFallback} className="size-full object-cover" />
         </div>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1 leading-4.5">
+        <div className="flex min-w-0 flex-col gap-1">
+          <div className="flex flex-wrap items-center gap-1 leading-4.5">
             <span className={NAME_CLASSNAME}>{displayName}</span>
             {publication && (
               <>

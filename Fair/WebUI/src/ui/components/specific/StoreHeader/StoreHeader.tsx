@@ -96,8 +96,8 @@ export const StoreHeader = () => {
   }
 
   return (
-    <div className="flex items-center justify-between gap-8 pb-8">
-      <div className="flex w-135 items-center justify-between gap-4">
+    <div className="flex flex-col gap-4 pb-6 md:flex-row md:items-center md:justify-between md:gap-8 md:pb-8">
+      <div className="flex w-full min-w-0 items-center justify-between gap-4 md:max-w-135 md:flex-1">
         <SearchDropdown
           key={storeQuery}
           size="medium"
@@ -113,7 +113,7 @@ export const StoreHeader = () => {
           placeholder={t("search")}
         />
       </div>
-      <div className="flex items-center gap-8">
+      <div className="flex shrink-0 items-center justify-end gap-6 md:gap-8">
         <StoreDropdownButton />
         {isPublisher && <PublisherMembersDropdownButton className="w-25" storeId={storeId} t={t} user={user!} />}
         <UserProfileButton storeId={storeId} t={t} />

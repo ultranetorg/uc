@@ -24,7 +24,7 @@ type InfoCellProps = {
 const InfoCell = memo(({ label, locked, lockedTooltip, to, children }: InfoCellProps) => (
   <>
     <th className="w-29 py-1 text-left font-normal whitespace-nowrap text-gray-500">{label}</th>
-    <td className="w-50 py-1 text-left font-medium whitespace-nowrap text-gray-800 last:w-6">
+    <td className="w-50 py-1 text-left font-medium whitespace-nowrap last:w-6">
       <div className="flex items-center gap-1">
         {locked && (
           <Tooltip text={lockedTooltip!}>
@@ -86,7 +86,7 @@ export const OperationPolicyInfo = memo(({ className, operation, title }: Operat
 
   return (
     <div className={twMerge("flex w-full items-start justify-between gap-8 rounded-lg text-2xs leading-4", className)}>
-      {title && <span className="text-2sm leading-5 font-semibold text-gray-800">{title}</span>}
+      {title && <span className="text-2sm leading-5 font-semibold">{title}</span>}
       <table className="ml-auto border-collapse">
         <tbody>
           <tr>

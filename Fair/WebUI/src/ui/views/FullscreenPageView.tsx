@@ -13,12 +13,12 @@ export const FullscreenPageView = memo(({ children }: PropsWithChildren) => {
   useEscapeKey(handleClick)
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-white scrollbar-gutter-stable">
+    <div className="fixed inset-0 z-50 scrollbar-gutter-stable overflow-y-auto bg-white">
       <div className={twMerge("mx-auto max-w-310", !!error && "h-full")}>
-        <div className={twMerge("flex pl-17", !!error && "h-full")}>
-          <div className="flex w-full gap-6">
-            <div className="flex w-full flex-col gap-6 py-8">{children}</div>
-            <div className="pt-7.5">
+        <div className={twMerge("flex px-4 sm:pr-0 sm:pl-17", !!error && "h-full")}>
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:gap-6">
+            <div className="order-2 flex w-full min-w-0 flex-col gap-6 pb-6 sm:order-1 sm:py-8">{children}</div>
+            <div className="order-1 flex shrink-0 justify-end pt-4 sm:order-2 sm:pt-7.5">
               <SvgProfilePageClose2Xl className="cursor-pointer" onClick={handleClick} />
             </div>
           </div>

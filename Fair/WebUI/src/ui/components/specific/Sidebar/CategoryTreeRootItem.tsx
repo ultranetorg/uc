@@ -17,7 +17,7 @@ export const CategoryTreeRootItem = memo(
     return (
       <Link
         className={twMerge(
-          "group mb-1 flex min-w-0 cursor-pointer select-none items-center gap-1 rounded-md p-1.5 text-2xs leading-4 first:mt-0 hover:bg-gray-200",
+          "group mb-1 flex min-w-0 cursor-pointer items-center gap-1 rounded-md p-1.5 text-2xs leading-4 select-none first:mt-0 hover:bg-gray-200",
           active && "bg-gray-100",
         )}
         to={routes.category(id)}
@@ -42,7 +42,7 @@ export const CategoryTreeRootItem = memo(
         <CategoryTreeContextThreeDotsMenu
           categoryId={id}
           categoryTitle={title}
-          className="invisible group-hover:visible"
+          className="invisible group-hover:visible pointer-coarse:visible"
         />
       </Link>
     )

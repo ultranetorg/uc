@@ -31,9 +31,9 @@ export const Description = ({ descriptions, descriptionLabel, showMoreLabel, sho
 
   return (
     <div className="divide-y divide-gray-300 rounded-lg border border-gray-300 bg-gray-100">
-      <div className="flex flex-col gap-6 p-6 text-gray-800">
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-semibold leading-6">{descriptionLabel}</span>
+      <div className="flex flex-col gap-6 p-4 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span className="text-xl leading-6 font-semibold">{descriptionLabel}</span>
           {hasMultipleLanguages && (
             <DropdownTertiary
               isMulti={false}
@@ -47,13 +47,13 @@ export const Description = ({ descriptions, descriptionLabel, showMoreLabel, sho
           )}
         </div>
         <div>
-          <span className="whitespace-pre-wrap text-2sm leading-5">{displayedText}</span>
+          <span className="text-2sm leading-5 whitespace-pre-wrap">{displayedText}</span>
         </div>
       </div>
       {isLong && (
         <div className="flex justify-center py-4">
           <ShowMoreButton
-            className="px-4 text-2xs text-gray-800"
+            className="px-4 text-2xs"
             isExpanded={expanded}
             onExpand={setExpanded}
             showMoreLabel={showMoreLabel}

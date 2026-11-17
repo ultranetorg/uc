@@ -119,11 +119,11 @@ export const GameSoftwarePublicationContent = memo(
 
     return (
       <>
-        <div className="flex flex-1 flex-col gap-8">
+        <div className="flex min-w-0 flex-1 flex-col gap-6 lg:gap-8">
           {sliderItems.length > 0 ? (
             <Slider items={sliderItems} />
           ) : (
-            <div className="flex h-104 w-[750px] flex-col items-center justify-center gap-6 rounded-lg bg-[#7E8095] text-center text-2xs text-gray-300 select-none">
+            <div className="flex aspect-750/416 w-full flex-col items-center justify-center gap-6 rounded-lg bg-[#7E8095] p-4 text-center text-2xs text-gray-300 select-none lg:max-w-[750px]">
               <SvgImageSlash4Xl className="stroke-[#A2A4AF]" />
               <Trans ns="publicationPage" i18nKey={"noScreenshots"} components={{ br: <br /> }} />
             </div>
@@ -160,7 +160,8 @@ export const GameSoftwarePublicationContent = memo(
             />
           )}
         </div>
-        <div className="flex w-87.5 flex-col gap-8">
+
+        <div className="order-first flex w-full flex-col gap-6 lg:order-0 lg:w-87.5 lg:shrink-0 lg:gap-8">
           <SoftwareInfo
             storeId={storeId}
             productOrPublication={productOrPublication}
@@ -190,7 +191,7 @@ export const GameSoftwarePublicationContent = memo(
           {eulaText && (
             <button
               type="button"
-              className="flex items-center justify-between rounded-lg border border-[#D7DDEB] bg-[#F3F5F8] px-6 py-4 text-left text-2sm leading-4.5 font-medium text-gray-800"
+              className="flex items-center justify-between rounded-lg border border-[#D7DDEB] bg-[#F3F5F8] p-4 text-left text-2sm leading-4.5 font-medium sm:px-6"
               onClick={() => setIsEulaOpen(true)}
             >
               {t("eula")}

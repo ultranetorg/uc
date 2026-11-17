@@ -53,9 +53,9 @@ export const SearchPageHeader = memo(
     )
 
     return (
-      <div className="flex items-center justify-between">
-        {searchResultsLabel && <span className="text-2base font-semibold leading-5">{searchResultsLabel}</span>}
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        {searchResultsLabel && <span className="text-2base leading-5 font-semibold">{searchResultsLabel}</span>}
+        <div className="grid grid-cols-2 items-center gap-3 sm:grid-cols-[repeat(2,9.375rem)] sm:gap-4">
           <TypeSelect value={selectedType} onChange={handleTypeChange} availableTypes={categoriesTypes} />
           <CategorySelect
             ref={categorySelectRef}
