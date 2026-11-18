@@ -1,8 +1,9 @@
 import { VAULT } from "constants/"
 import { IccpNode } from "types/nexus"
 
+import { keysToCamelCase } from "../utils"
+
 import { NexusApi } from "./NexusApi"
-import { keysToCamelCase } from "./utils"
 
 const getIccpNodeUrl = async (nexusUrl: string): Promise<IccpNode> => {
   const response = await fetch(`${nexusUrl}/IccpNode`, {

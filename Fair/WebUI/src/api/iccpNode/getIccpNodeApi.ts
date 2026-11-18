@@ -1,8 +1,9 @@
 import { BaseFairOperation } from "types"
 import { Pong, TransactionApe } from "types/iccpNode"
 
+import { keysToCamelCase, keysToPascalCase } from "../utils"
+
 import { IccpNodeApi } from "./IccpNodeApi"
-import { keysToCamelCase, keysToPascalCase } from "./utils"
 
 const { VITE_APP_ICCP_NODE_TEST_URL: BASE_URL } = import.meta.env
 

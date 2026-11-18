@@ -49,8 +49,9 @@ import {
   UserUnregistrationProposal,
 } from "types"
 
+import { buildUrlParams, fetchApi, toTotalItemsResult } from "../utils"
+
 import { FairApi } from "./FairApi"
-import { buildUrlParams, fetchApi, toTotalItemsResult } from "./utils"
 
 const { VITE_APP_API_BASE_URL: BASE_URL } = import.meta.env
 

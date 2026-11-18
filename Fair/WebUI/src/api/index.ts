@@ -1,6 +1,7 @@
+export * from "./fair"
+export * from "./iccpNode"
+export * from "./localFair"
+export * from "./nexus"
+export * from "./vault"
+
 export * from "./ApiError"
-export * from "./getFairApi"
-export * from "./getIccpNodeApi"
-export * from "./getLocalFairApi"
-export * from "./getNexusApi"
-export * from "./getVaultApi"

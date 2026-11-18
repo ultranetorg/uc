@@ -1,8 +1,9 @@
 import { VAULT } from "constants/"
 import { AuthenticationResult, Wallet } from "types/vault"
 
+import { keysToCamelCase } from "../utils"
+
 import { VaultApi } from "./VaultApi"
-import { keysToCamelCase } from "./utils"
 
 const authenticate = async (baseUrl: string, user: string, account: string): Promise<AuthenticationResult | null> => {
   const response = await fetch(`${baseUrl}/Authenticate`, {
