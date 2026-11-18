@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="Generic" timestamp="18/11/2026 15:03:10">
+    <testcase name="Fee Validation Test" className="FeeValidation" time="33.8677411s">
+      <system-out>wallet create name=1 accounts=0 password=!Market12345
+wallet unlock name=1 password=!Market12345
+wallet ak wallet=1 alias=user0
+Public Key : jyht3y034ateknrtmm0dmhuk0p99pyfc3fw5nwkfyfpm7x9hqlnqqcqswg5btes
+user create owner=jyht3y034ateknrtmm0dmhuk0p99pyfc3fw5nwkfyfpm7x9hqlnqqcqswg5btes by=user0 aor=retryuntilconfirmed
+Signed User=user0, Nonce=0, None, Operations=UserCreation, Explanation=Owner=jyht3y034ateknrtmm0dmhuk0p99pyfc3fw5nwkfyfpm7x9hqlnqqcqswg5btes, Expiration=12, Signature=CEFC7B1C, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 0
+Expiration : 12
+Tag : 3A36484A3612F641AA1DDDA3314E1D91
+Signature : CEFC7B1CD3E1928DB7C8E177A044DFCC92121C367B11E438DC54C20FFC0D470CF6BCED5F25CE1FEFE8318BB6B1B1EB7196B0966D5BA985A55F7D72EE558E7D67
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : RetryUntilConfirmed
+Operations : {1}
+Log : {4}
+utility t from=User/1 to=User/2 st=10000000 e=100000 by=f000
+Signed User=f000, Nonce=0, None, Operations=UtilityTransfer, Explanation=1/1 -&gt; 1/2, 100000 EC, 10000000 BD -&gt; 1/2, Expiration=19, Signature=629FE431, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Accepted - Member={U0,127.1.0.100:4002}
+Nonce : 0
+Expiration : 19
+Tag : D79615D86ADB914087CFB1CD7E1C012D
+Signature : 629FE4314F18EFE5BD03FE870E69005B44CE1C13A2A5248F807CFDA2C90EFB8AA17FCCBF92DB125E4623721F457F7F61F6F980B1D8E562CE371FC6ED0E895267
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint :
+__ExpectedStatus : CancelOnFailure
+Operations : {1}
+Log : {4}
+store c years=1 title="Site" by=user0 aor=retryuntilconfirmed
+Signed User=user0, Nonce=1, None, Operations=StoreCreation, Explanation=Site, Years1, Expiration=26, Signature=AB597434, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 1
+Expiration : 26
+Tag : ABD141A753D6DD4286D4BCD8AA6599C2
+Signature : AB597434CC38D92D432DF8CB127DAB3C6C62FD089992764B945E598DB57B14CC578D2CB3BC9F2DF6DFC1EA6638B6439EF31B730DE7E21620E02E110114CAB28A
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : RetryUntilConfirmed
+Operations : {1}
+Log : {4}
+store c years=7 title="Site" by=user0 aor=retryuntilconfirmed
+Signed User=user0, Nonce=2, None, Operations=StoreCreation, Explanation=Site, Years7, Expiration=33, Signature=F104EDD6, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 2
+Expiration : 33
+Tag : D8CE680918AE744AA3D0B7A55EDEDEEC
+Signature : F104EDD62B0EAB39C2D75B702484433BA321A8C089BB904D8221CCD0C731414A9779447FF86923A3D2DA42083786367CAA57396492004C11D2099281137C7DEB
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : RetryUntilConfirmed
+Operations : {1}
+Log : {4}
+utility t from=User/1 to=Store/1 e=1326801 st=130500230 by=f000
+Signed User=f000, Nonce=1, None, Operations=UtilityTransfer, Explanation=1/1 -&gt; 5/1, 1326801 EC, 130500230 BD -&gt; 5/1, Expiration=40, Signature=91202732, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 1
+Expiration : 40
+Tag : 42A69B254D12414C8591CC43E1DC38F1
+Signature : 9120273279CE3185D9034D6F45384CF67F8D436DE87C8ED0F990E4CC7B51AE7AA2D44C9ACFE4E11930AF9B3A18DB27301575C503D9797077BB8D9A27D18DF115
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint :
+__ExpectedStatus : CancelOnFailure
+Operations : {1}
+Log : {4}
+author c title="Author" years=1 by=user0 aor=retryuntilconfirmed
+Signed User=user0, Nonce=3, None, Operations=AuthorCreation, Explanation=Author, for 1 years, Expiration=47, Signature=16B5BABF, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Accepted - Member={U0, 127.1.0.100:4002, Outbound, Permanent=True, Roles=3, Forced=False}
+Placed
+Nonce : 3
+Expiration : 47
+Tag : 34361735D81FE447BE52A6EDB22E4038
+Signature : 16B5BABF5BE567456486C7BC2C13E83EB96747636BE81E696497307EEDB2F7A314726B843BF1A880B86F6FCCAB51D87FAC7170F34D9DE64DCB321F46B72A088D
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : RetryUntilConfirmed
+Operations : {1}
+Log : {4}
+author c title="Author" years=6 by=user0 aor=retryuntilconfirmed
+Signed User=user0, Nonce=4, None, Operations=AuthorCreation, Explanation=Author, for 6 years, Expiration=54, Signature=A0D730A6, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Accepted - Member={U0, 127.1.0.100:4002, Outbound, Permanent=True, Roles=3, Forced=False}
+Nonce : 4
+Expiration : 54
+Tag : 0C125F929F26FB45A00CEEFD3AD157E5
+Signature : A0D730A6AE865BA2F85CB4E5156EA98B6E1BF7C02F076CEA7948108227B9608ADA54500D986A9BF96DF9F4D4CE570E3E6FA62ADD42FCD714EEA63C1050B98734
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : RetryUntilConfirmed
+Operations : {1}
+Log : {4}
+utility t from=User/1 to=Author/1 e=1326801 st=13050230 by=f000
+Signed User=f000, Nonce=2, None, Operations=UtilityTransfer, Explanation=1/1 -&gt; 3/1, 1326801 EC, 13050230 BD -&gt; 3/1, Expiration=61, Signature=872A29F6, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 2
+Expiration : 61
+Tag : B29EE1484102DD4B892C6E65833C37E6
+Signature : 872A29F6E0BA461A1E57E11E86E1731829644D1E36C44DC5B7F888B5CF688F4560EEF7909C2DDADEEEBC459A48E3886E581AB240FF1224E9B7D31258A6795567
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint :
+__ExpectedStatus : CancelOnFailure
+Operations : {1}
+Log : {4}
+product c author=1 title=Title type=Software by=user0
+Signed User=user0, Nonce=5, None, Operations=ProductCreation, Explanation=1, Expiration=68, Signature=ED96978A, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 5
+Expiration : 68
+Tag : 36E8B33774B5BA45A827BDA1F6FB6FA2
+Signature : ED96978AA6CFC176586CFA24CA789FE365C888290E2F55BD91148B7B0265B4081D04C9BA3B43081BB5E6CC9F238835AAEBFA4CCC5C1C37D177C397374AA474AC
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : CancelOnFailure
+Operations : {1}
+Log : {4}
+product u id=1 definition=Tags=some_tag by=user0
+Signed User=user0, Nonce=6, None, Operations=ProductUpdation, Explanation=Product=1, Fields=1, Expiration=75, Signature=7F6E37C1, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 6
+Expiration : 75
+Tag : 1BFFFF9CDE5A6045B2B811D1DDBEB6AB
+Signature : 7F6E37C1197A968BCE40D8A7EB197357834C0055A05346DF31E3A451C0E1F13D766FFEFE2E09EC23EAE749FC687A942AB06E799161CD42217287DF43B221A1DE
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : CancelOnFailure
+Operations : {1}
+Log : {4}
+Signed User=user0, Nonce=7, None, Operations=ProposalCreation, Explanation=Store=1, By=1, As=Candidate, Options={PublicationCreation, Explanation=Product=1}, Text=, Expiration=82, Signature=559C1971, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Accepted - Member={U0, 127.1.0.100:4002, Outbound, Permanent=True, Roles=3, Forced=False}
+Placed
+Confirmed
+Signed User=user0, Nonce=8, None, Operations=ProposalCreation, Explanation=Store=1, By=2, As=User, Options={UserRegistration, Explanation=Store=}, Text=, Expiration=89, Signature=D38022AB, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Accepted - Member={U0, 127.1.0.100:4002, Outbound, Permanent=True, Roles=3, Forced=False}
+Placed
+Confirmed
+Signed User=user0, Nonce=9, None, Operations=ProposalCreation, Explanation=Store=1, By=2, As=Moderator, Options={CategoryCreation, Explanation=Title=Misc Parent=}, Text=, Expiration=96, Signature=7A1AEF65, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Accepted - Member={U0, 127.1.0.100:4002, Outbound, Permanent=True, Roles=3, Forced=False}
+Placed
+Confirmed
+Signed User=user0, Nonce=10, None, Operations=ProposalCreation, Explanation=Store=1, By=2, As=Moderator, Options={CategoryCreation, Explanation=Title=Misc Parent=}, Text=, Expiration=103, Signature=2F7A28F9, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Accepted - Member={U0, 127.1.0.100:4002, Outbound, Permanent=True, Roles=3, Forced=False}
+Placed
+Confirmed
+utility t from=User/1 to=Author/1 st=18373735 e=10000 by=f000
+Signed User=f000, Nonce=3, None, Operations=UtilityTransfer, Explanation=1/1 -&gt; 3/1, 10000 EC, 18373735 BD -&gt; 3/1, Expiration=110, Signature=823B81A9, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Accepted - Member={U0,127.1.0.100:4002}
+Nonce : 3
+Expiration : 110
+Tag : 0C1EE396D7A016499F96C575E6EF4870
+Signature : 823B81A92E8330FC2C02FBEF097D1188C07D375EC7B9667153DFFD8AA775CA004873DAE86266330A15E46F1380BFD3AD8647F868017574727ADDC3CC9221A06B
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint :
+__ExpectedStatus : CancelOnFailure
+Operations : {1}
+Log : {4}
+file c owner=Author/1 path=C:\Users\krs\Documents\Ultranet\uo\UC\TestAutomation\TestData\test_image.jpg mime=ImageJpg by=user0 aor=retryuntilconfirmed
+Signed User=user0, Nonce=11, None, Operations=FileCreation, Explanation=Owner=3/1, Data=50239, Expiration=117, Signature=9D6DA8ED, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 11
+Expiration : 117
+Tag : 77CE4D2FDD89544086A7CD4E83961B34
+Signature : 9D6DA8ED446A083DC31754CEA63C176A6067D0536F4D21617A1624FFCCFA311060F225933DEA8601CF873D845FC4B451FE4ED5F5592C2CAB5981D8CD1A362B00
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : RetryUntilConfirmed
+Operations : {1}
+Log : {4}
+file x id=1 by=user0 aor=retryuntilconfirmed
+Signed User=user0, Nonce=12, None, Operations=FileDeletion, Explanation=File=1, Expiration=124, Signature=682B9765, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 12
+Expiration : 124
+Tag : 831A6CAE534E8F489F51D50184C8B7C2
+Signature : 682B9765166C6460FC8C53F5AD2DC709DED64BF98B4AB938C0C521624D19FC1FBE4E9FB945C0BE11D116B5E53A006DD5D3D404EF1BE00E56C93062D95E5812BC
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : RetryUntilConfirmed
+Operations : {1}
+Log : {4}
+author info id=1 description="Big beautiful title" by=user0
+Signed User=user0, Nonce=13, None, Operations=AuthorInfoUpdation, Explanation=Author=1, Changes=1, Expiration=131, Signature=24065195, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+Nonce : 13
+Expiration : 131
+Tag : E69B9C53D6D6B64B95D41AE7F0C7FEC4
+Signature : 24065195ADC945C58BC38F2600A51EF911CF4F99F41AD6E6158759EE695F434BBB2F381D004E66DF94BFD454939D4DFC1729EF27D786EF26B7FAC47593443164
+Signer :
+Status : Confirmed
+Error :
+MemberEndpoint : 127.1.0.100:4002
+__ExpectedStatus : CancelOnFailure
+Operations : {1}
+Log : {4}
+author info id=1 title="Big beautiful title" by=user0
+Signed User=user0, Nonce=14, None, Operations=AuthorInfoUpdation, Explanation=Author=1, Changes=1, Expiration=138, Signature=2B955EAA, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+author info id=1 title="Big beautiful title" by=user0
+Signed User=user0, Nonce=14, None, Operations=AuthorInfoUpdation, Explanation=Author=1, Changes=1, Expiration=138, Signature=B1C0CEC2, Member Generator=1, Beneficiary=1, Since=7, GraphPpiEndpoints={1}
+</system-out>
+      <failure message="One or more errors occurred. (Exception has been thrown by the target of an invocation.)">
+Message: One or more errors occurred. (Exception has been thrown by the target of an invocation.)
+   at TestAutomation.Program.RunTimed(Action action, Int32 timeoutSec) in C:\Users\krs\Documents\Ultranet\uo\UC\TestAutomation\Program.cs:line 221
+   at TestAutomation.Program.RunTest(Type testClass) in C:\Users\krs\Documents\Ultranet\uo\UC\TestAutomation\Program.cs:line 196
+Message: Exception has been thrown by the target of an invocation.
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+   at TestAutomation.Program.&lt;&gt;c__DisplayClass5_1.&lt;RunTest&gt;b__0() in C:\Users\krs\Documents\Ultranet\uo\UC\TestAutomation\Program.cs:line 198
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task&amp; currentTaskSlot, Thread threadPoolThread)
+Message: Assertion failed.
+   at TestAutomation.TestBase.Assert(Boolean condition, String failMessage) in C:\Users\krs\Documents\Ultranet\uo\UC\TestAutomation\TestBase.cs:line 214
+   at TestAutomation.Tests.Fair.FeeValidation.Logic() in C:\Users\krs\Documents\Ultranet\uo\UC\TestAutomation\Tests\Fair\FeeValidation.cs:line 154
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="CommandLine" timestamp="18/11/2026 15:03:10" />
+  <testsuite name="EndToEnd" timestamp="18/11/2026 15:03:10" />
+  <testsuite name="TestSet" timestamp="18/11/2026 15:03:10" />
+</testsuites>
