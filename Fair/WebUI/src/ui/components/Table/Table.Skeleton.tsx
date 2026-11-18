@@ -6,6 +6,7 @@ import { ButtonSkeleton, SkeletonBlock } from "ui/components"
 import { TableHeader } from "./TableHeader"
 import { TableRow } from "./TableRow"
 import { TableColumn } from "./types"
+import { getTableMinWidth } from "./utils"
 
 const DEFAULT_ROWS = 10
 
@@ -29,8 +30,8 @@ type TableSkeletonBaseProps = {
 export type TableSkeletonProps = TableSkeletonBaseProps
 
 export const TableSkeleton = memo(({ columns, rows = DEFAULT_ROWS }: TableSkeletonProps) => (
-  <div className="overflow-hidden rounded-lg border border-gray-300">
-    <table className="w-full table-fixed border-collapse bg-gray-100">
+  <div className="overflow-x-auto rounded-lg border border-gray-300">
+    <table className="w-full table-fixed border-collapse bg-gray-100" style={{ minWidth: getTableMinWidth(columns) }}>
       <TableHeader columns={columns} />
       <tbody>
         {Array.from({ length: rows }, (_, i) => (

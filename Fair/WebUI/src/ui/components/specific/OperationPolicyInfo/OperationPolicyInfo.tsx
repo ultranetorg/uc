@@ -12,6 +12,7 @@ import { Tooltip } from "ui/components"
 import { calculateVotesRequiredToWinProposal, findPolicy, isReferendum, routes } from "utils"
 
 import { OperationPolicyInfoSkeleton } from "./OperationPolicyInfo.Skeleton"
+import { INFO_GRID_CLASSNAME } from "./styles"
 
 type InfoCellProps = {
   label: string
@@ -23,8 +24,8 @@ type InfoCellProps = {
 
 const InfoCell = memo(({ label, locked, lockedTooltip, to, children }: InfoCellProps) => (
   <>
-    <th className="w-29 py-1 text-left font-normal whitespace-nowrap text-gray-500">{label}</th>
-    <td className="w-50 py-1 text-left font-medium whitespace-nowrap last:w-6">
+    <dt className="py-1 whitespace-nowrap text-gray-500">{label}</dt>
+    <dd className="py-1 font-medium whitespace-nowrap">
       <div className="flex items-center gap-1">
         {locked && (
           <Tooltip text={lockedTooltip!}>
@@ -39,7 +40,7 @@ const InfoCell = memo(({ label, locked, lockedTooltip, to, children }: InfoCellP
           children
         )}
       </div>
-    </td>
+    </dd>
   </>
 ))
 
@@ -85,31 +86,30 @@ export const OperationPolicyInfo = memo(({ className, operation, title }: Operat
     : routes.moderation.moderators(storeId!, "moderators")
 
   return (
-    <div className={twMerge("flex w-full items-start justify-between gap-8 rounded-lg text-2xs leading-4", className)}>
+    <div
+      className={twMerge(
+        "flex w-full flex-col items-start gap-3 rounded-lg text-2xs leading-4 md:flex-row md:justify-between md:gap-8",
+        className,
+      )}
+    >
       {title && <span className="text-2sm leading-5 font-semibold">{title}</span>}
-      <table className="ml-auto border-collapse">
-        <tbody>
-          <tr>
-            <InfoCell label={t("labels:creationPolicy")} to={surveyPath}>
-              {creators.length > 0 ? creators.join(", ") : "-"}
-            </InfoCell>
-            <InfoCell label={referendum ? t("labels:publishers") : t("labels:moderators")} to={membersPath}>
-              {referendum ? store.authorsIds.length : store.moderatorsIds.length}
-            </InfoCell>
-          </tr>
-          <tr>
-            <InfoCell
-              label={t("labels:approvalPolicy")}
-              locked={isPolicyLocked}
-              lockedTooltip={t("policySurveysPage:unchangeablePolicy")}
-              to={surveyPath}
-            >
-              {t(`approvalRequirement:${policy.approval}`)}
-            </InfoCell>
-            <InfoCell label={t("labels:votesRequired")}>{votesRequired >= 0 ? votesRequired : "-"}</InfoCell>
-          </tr>
-        </tbody>
-      </table>
+      <dl className={INFO_GRID_CLASSNAME}>
+        <InfoCell label={t("labels:creationPolicy")} to={surveyPath}>
+          {creators.length > 0 ? creators.join(", ") : "-"}
+        </InfoCell>
+        <InfoCell label={referendum ? t("labels:publishers") : t("labels:moderators")} to={membersPath}>
+          {referendum ? store.authorsIds.length : store.moderatorsIds.length}
+        </InfoCell>
+        <InfoCell
+          label={t("labels:approvalPolicy")}
+          locked={isPolicyLocked}
+          lockedTooltip={t("policySurveysPage:unchangeablePolicy")}
+          to={surveyPath}
+        >
+          {t(`approvalRequirement:${policy.approval}`)}
+        </InfoCell>
+        <InfoCell label={t("labels:votesRequired")}>{votesRequired >= 0 ? votesRequired : "-"}</InfoCell>
+      </dl>
     </div>
   )
 })

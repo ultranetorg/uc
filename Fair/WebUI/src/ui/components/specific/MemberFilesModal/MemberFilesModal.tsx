@@ -106,7 +106,7 @@ export const MemberFilesModal = memo(({ onClose, onSelect }: MemberFilesModalPro
       <Modal
         title={t("title")}
         onClose={onClose}
-        className="h-165 w-205 max-w-205 gap-0 overflow-hidden p-0 pt-6"
+        className="h-165 max-h-[calc(100dvh-2rem)] w-205 max-w-full gap-0 overflow-hidden p-0 pt-6"
         headerClassName="px-6"
         footer={
           selectedFile && (

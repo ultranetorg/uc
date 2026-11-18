@@ -122,8 +122,8 @@ export const PolicySurveyPage = () => {
         breadcrumbTitle={title}
         parentBreadcrumbs={{ title: t("common:policySurveys"), path: routes.moderation.policySurveys(storeId!) }}
       />
-      <div className="flex items-start gap-8">
-        <div className="flex w-full max-w-187.5 flex-col gap-8">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+        <div className="flex w-full min-w-0 flex-col gap-8 lg:max-w-187.5">
           <OptionsCollapsesList
             items={items!}
             showResults={true}
@@ -134,7 +134,12 @@ export const PolicySurveyPage = () => {
             expandAll={true}
           />
         </div>
-        <PolicySurveyInfo className="w-87.5 shrink-0" survey={survey} policies={policies} publisherIds={publisherIds} />
+        <PolicySurveyInfo
+          className="w-full lg:w-87.5 lg:shrink-0"
+          survey={survey}
+          policies={policies}
+          publisherIds={publisherIds}
+        />
       </div>
     </div>
   )

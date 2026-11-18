@@ -43,7 +43,7 @@ export const ProposalInfo = memo(({ className, store, proposal, policies, voterI
   return (
     <div
       className={twMerge(
-        "flex max-h-fit flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-6 text-2sm leading-5",
+        "flex max-h-fit flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-4 text-2sm leading-5 sm:p-6",
         className,
       )}
     >

@@ -1,4 +1,4 @@
-import { memo, ReactElement, useCallback, useEffect, useRef, useState } from "react"
+import { CSSProperties, memo, ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FieldsTree } from "./FieldsTree"
@@ -31,8 +31,11 @@ export const ProductFields = memo(({ items, selected, onSelect, children }: Prod
 
   return (
     <div>
-      <div ref={containerRef} className="flex max-h-screen items-stretch">
-        <div className="overflow-auto" style={leftWidth ? { width: leftWidth } : { width: "20%" }}>
+      <div ref={containerRef} className="flex flex-col items-stretch gap-3 md:max-h-screen md:flex-row md:gap-0">
+        <div
+          className="max-h-72 overflow-auto md:max-h-none md:w-(--left-width)"
+          style={{ "--left-width": leftWidth ? `${leftWidth}px` : "20%" } as CSSProperties}
+        >
           <div className="w-fit">
             <FieldsTree items={items} selected={selected} onSelect={onSelect} />
           </div>
@@ -40,7 +43,7 @@ export const ProductFields = memo(({ items, selected, onSelect, children }: Prod
 
         <SplitPaneResizer containerRef={containerRef} leftWidth={leftWidth} onLeftWidthChange={handleWidthChange} />
 
-        <div className="flex-1 overflow-auto">
+        <div className="min-w-0 flex-1 overflow-auto">
           {children ?? <div className="p-4 text-gray-400"> {t("selectField")} </div>}
         </div>
       </div>

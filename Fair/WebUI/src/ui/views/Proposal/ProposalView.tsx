@@ -1,6 +1,7 @@
 import { ComponentType, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
+import { twMerge } from "tailwind-merge"
 
 import { useSignInContext, useStoreContext, useStorePoliciesContext, useStoreRolesContext, useUserContext } from "app"
 import { SvgArrowLeftSm, SvgEyeSm } from "assets"
@@ -228,9 +229,9 @@ export const ProposalView = memo(
           parentBreadcrumbs={headerBreadcrumbs}
           components={
             isPublicationProposal && !!approval && voteStatus !== "voted" ? (
-              <ButtonBar className="items-center">
+              <ButtonBar>
                 <ButtonPrimary
-                  className="h-11 w-43.75"
+                  className="h-11 w-full sm:w-43.75"
                   label={
                     isVotingRequired(proposal.operation, store, policies)
                       ? t("buttons:suggestApprove")
@@ -241,7 +242,7 @@ export const ProposalView = memo(
                   loading={voteAction === "approve"}
                 />
                 <ButtonOutline
-                  className="h-11 w-43.75"
+                  className="h-11 w-full sm:w-43.75"
                   label={
                     isVotingRequired(proposal.operation, store, policies)
                       ? t("buttons:suggestReject")
@@ -251,8 +252,9 @@ export const ProposalView = memo(
                   disabled={voteStatus === "voting"}
                   loading={voteAction === "reject"}
                 />
-                <Separator className="h-8" />
+                <Separator className="hidden h-8 sm:block" />
                 <Link
+                  className="w-full sm:w-auto"
                   to={routes.moderation.preview(storeId!)}
                   state={{
                     productId,
@@ -264,7 +266,7 @@ export const ProposalView = memo(
                 >
                   <ButtonOutline
                     disabled={voteStatus === "voting"}
-                    className="h-11 w-40 capitalize"
+                    className="h-11 w-full capitalize sm:w-40"
                     label={t("common:preview")}
                     iconBefore={<SvgEyeSm className="fill-gray-800" />}
                   />
@@ -274,9 +276,18 @@ export const ProposalView = memo(
           }
         />
         {NestedContent && <NestedContent t={t} storeId={storeId!} proposal={proposal} voteStatus={voteStatus} />}
-        <div className="flex gap-8">
-          <div className="flex w-full flex-col gap-8">
-            {!isPublicationProposal && (
+        {/*
+          Stacked, the order is: options, info card, comments. From `lg` it is a two-column grid: options and comments
+          on the left, the info card on the right spanning both left rows.
+        */}
+        <div
+          className={twMerge(
+            "flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_21.875rem] lg:items-start",
+            !isPublicationProposal && "lg:grid-rows-[auto_1fr]",
+          )}
+        >
+          {!isPublicationProposal && (
+            <div className="flex min-w-0 flex-col gap-8 lg:col-start-1">
               <DefaultContent
                 t={t}
                 storeId={storeId!}
@@ -287,30 +298,23 @@ export const ProposalView = memo(
                 votedValue={votedValue}
                 onVoteClick={handleVoteClick}
               />
+              {!!approval && !isReferendum && (
+                <AlternativeOptions
+                  hideVoteButton={voteStatus === "voted"}
+                  votedValue={votedValue}
+                  onVoteClick={handleVoteClick}
+                />
+              )}
+            </div>
+          )}
+          <div
+            className={twMerge(
+              "flex w-full flex-col gap-6 lg:col-start-2 lg:row-start-1",
+              !isPublicationProposal && "lg:row-span-2",
             )}
-            {!isPublicationProposal && !!approval && !isReferendum && (
-              <AlternativeOptions
-                hideVoteButton={voteStatus === "voted"}
-                votedValue={votedValue}
-                onVoteClick={handleVoteClick}
-              />
-            )}
-            <hr className="h-px border-0 bg-gray-300" />
-            <CommentsSection
-              inputDisabled={voteStatus === "voting" || commentSubmitting}
-              inputLoading={commentSubmitting}
-              showCommentInput={!!commentCreatorId}
-              isLoading={isCommentsLoading}
-              comments={comments}
-              page={commentsPage}
-              pageSize={DEFAULT_PAGE_SIZE_20}
-              onPageChange={setCommentsPage}
-              onCommentSubmit={handleCommentSubmit}
-            />
-          </div>
-          <div className="flex flex-col gap-6">
+          >
             <ProposalInfo
-              className="w-87.5"
+              className="w-full"
               store={store!}
               proposal={proposal}
               policies={policies!}
@@ -326,6 +330,20 @@ export const ProposalView = memo(
                   iconBefore={<SvgArrowLeftSm className="fill-white" />}
                 />
               ))}
+          </div>
+          <div className="flex min-w-0 flex-col gap-8 lg:col-start-1">
+            <hr className="h-px border-0 bg-gray-300" />
+            <CommentsSection
+              inputDisabled={voteStatus === "voting" || commentSubmitting}
+              inputLoading={commentSubmitting}
+              showCommentInput={!!commentCreatorId}
+              isLoading={isCommentsLoading}
+              comments={comments}
+              page={commentsPage}
+              pageSize={DEFAULT_PAGE_SIZE_20}
+              onPageChange={setCommentsPage}
+              onCommentSubmit={handleCommentSubmit}
+            />
           </div>
         </div>
       </div>

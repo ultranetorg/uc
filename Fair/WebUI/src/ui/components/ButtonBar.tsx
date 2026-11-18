@@ -12,5 +12,7 @@ export type ButtonBarBaseProps = {
 export type ButtonBarProps = PropsWithChildren & PropsWithClassName & ButtonBarBaseProps
 
 export const ButtonBar = ({ children, className, orientation = "horizontal" }: ButtonBarProps) => (
-  <div className={twMerge("flex gap-4", orientation === "vertical" && "flex-col", className)}>{children}</div>
+  <div className={twMerge("flex flex-wrap items-center gap-4", orientation === "vertical" && "flex-col", className)}>
+    {children}
+  </div>
 )

@@ -48,7 +48,6 @@ export const SplitPaneResizer = memo(({ containerRef, onLeftWidthChange }: Split
     width: 9,
     cursor: "col-resize",
     background: "transparent",
-    display: "flex",
     alignItems: "center",
     justifyContent: "center",
     userSelect: "none",
@@ -59,7 +58,7 @@ export const SplitPaneResizer = memo(({ containerRef, onLeftWidthChange }: Split
       role="separator"
       aria-orientation="vertical"
       onMouseDown={onMouseDown}
-      className="relative m-1 flex items-center rounded-full border-2 border-none hover:border-dashed"
+      className="relative m-1 hidden items-center rounded-full border-2 border-none hover:border-dashed md:flex"
       style={resizerStyle}
       title="Drag to resize"
     >

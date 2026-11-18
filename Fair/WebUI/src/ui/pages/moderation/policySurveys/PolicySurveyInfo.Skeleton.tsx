@@ -15,7 +15,10 @@ export type PolicySurveyInfoSkeletonProps = PolicySurveyInfoSkeletonBaseProps & 
 
 export const PolicySurveyInfoSkeleton = memo(({ className, rows = DEFAULT_ROWS }: PolicySurveyInfoSkeletonProps) => (
   <div
-    className={twMerge("flex max-h-fit flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-6", className)}
+    className={twMerge(
+      "flex max-h-fit flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-4 sm:p-6",
+      className,
+    )}
   >
     {Array.from({ length: rows }, (_, i) => (
       <div key={i} className="flex flex-col gap-2">

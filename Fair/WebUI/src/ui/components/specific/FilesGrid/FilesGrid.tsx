@@ -18,7 +18,12 @@ type FilesGridProps = PropsWithClassName & {
 export const FilesGrid = memo(
   forwardRef<HTMLDivElement, FilesGridProps>(
     ({ className, files, hasNextPage, selectedFileId, onSelect, notUsedLabel, usedLabel }, ref) => (
-      <div className={twMerge("grid w-full auto-rows-min grid-cols-5 gap-4 pb-4", className)}>
+      <div
+        className={twMerge(
+          "grid w-full auto-rows-min grid-cols-2 gap-3 pb-4 sm:grid-cols-3 sm:gap-4 md:grid-cols-5",
+          className,
+        )}
+      >
         {files.map(x => (
           <FileCard
             key={x.id}
@@ -32,7 +37,7 @@ export const FilesGrid = memo(
         ))}
 
         {hasNextPage === true && (
-          <div ref={ref} className="col-span-5 flex items-center justify-center">
+          <div ref={ref} className="col-span-full flex items-center justify-center">
             <SvgSpinnerXl className="animate-spin fill-gray-300" />
           </div>
         )}

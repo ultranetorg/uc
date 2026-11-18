@@ -28,7 +28,7 @@ export const DefaultContent = memo(
 
     return (
       <OptionsCollapsesList
-        className="max-w-187.5"
+        className="lg:max-w-187.5"
         items={items}
         showResults={pageState == "results"}
         showVoteButton={showVoteButton}

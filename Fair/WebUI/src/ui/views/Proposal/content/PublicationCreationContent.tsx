@@ -21,7 +21,7 @@ export const PublicationCreationContent = memo(({ storeId, proposal }: ProposalV
   if (isLoading || !product) return <ModerationPublicationSkeleton />
 
   return (
-    <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
+    <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-4 sm:p-6">
       <ModerationPublicationHeader
         storeId={storeId}
         title={product.title}

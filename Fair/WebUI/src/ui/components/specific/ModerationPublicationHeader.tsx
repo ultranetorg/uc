@@ -15,21 +15,21 @@ export type ModerationPublicationHeaderProps = {
 
 export const ModerationPublicationHeader = memo(
   ({ storeId, title, logoId, authorId, authorTitle, components }: ModerationPublicationHeaderProps) => (
-    <div className="flex min-w-0 items-center justify-between gap-4">
-      <div className="size-17 overflow-hidden rounded-2xl" title={title}>
-        <ImageFallback src={buildFileUrl(logoId)} fallback={<SvgSoftwareLogo3Xl className="size-17" />} />
+    <div className="flex min-w-0 flex-wrap items-center gap-4 md:flex-nowrap md:justify-between">
+      <div className="size-14 shrink-0 overflow-hidden rounded-2xl sm:size-17" title={title}>
+        <ImageFallback src={buildFileUrl(logoId)} fallback={<SvgSoftwareLogo3Xl className="size-full" />} />
       </div>
-      <div className="flex flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         {title && (
-          <span className="truncate text-2xl font-semibold leading-7.5" title={title}>
+          <span className="truncate text-2xl leading-7.5 font-semibold" title={title}>
             {title}
           </span>
         )}
-        <LinkFullscreen to={routes.publisher(storeId, authorId)} className="w-fit" title={authorTitle}>
-          <span className="truncate text-2sm font-medium leading-5">{authorTitle}</span>
+        <LinkFullscreen to={routes.publisher(storeId, authorId)} className="w-fit max-w-full" title={authorTitle}>
+          <span className="block truncate text-2sm leading-5 font-medium">{authorTitle}</span>
         </LinkFullscreen>
       </div>
-      {components}
+      {components && <div className="w-full md:w-auto md:shrink-0">{components}</div>}
     </div>
   ),
 )

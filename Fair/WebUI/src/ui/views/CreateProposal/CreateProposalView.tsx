@@ -18,11 +18,11 @@ import {
   DebugPanel,
   Input,
   MessageBox,
-  PageHeader,
   Textarea,
   ValidationWrapper,
 } from "ui/components"
 import { OptionsEditor } from "ui/components/proposal"
+import { ModerationHeader } from "ui/components/specific"
 import { isModeratorCanVote, isProposal, isPublisherCanVote, isVotingRequired, routes, showToast } from "utils"
 
 import { prepareProposalOptions } from "./utils"
@@ -109,10 +109,8 @@ export const CreateProposalView = memo(() => {
   }
 
   return (
-    <div className="flex max-w-[648px] flex-col gap-6">
-      <PageHeader
-        storeId={storeId!}
-        homeLabel={t("common:home")}
+    <div className="flex max-w-162 flex-col gap-6">
+      <ModerationHeader
         title={
           (location.state?.title as string)
             ? location.state?.title

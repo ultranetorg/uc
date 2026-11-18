@@ -15,7 +15,10 @@ export type ProposalInfoSkeletonProps = ProposalInfoSkeletonBaseProps & PropsWit
 
 export const ProposalInfoSkeleton = memo(({ className, rows = DEFAULT_ROWS }: ProposalInfoSkeletonProps) => (
   <div
-    className={twMerge("flex max-h-fit flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-6", className)}
+    className={twMerge(
+      "flex max-h-fit flex-col gap-4 rounded-lg border border-gray-300 bg-gray-100 p-4 sm:p-6",
+      className,
+    )}
   >
     <div className="flex flex-col gap-2">
       <SkeletonBlock className="my-0.5 h-4 w-20" rounded="xs" />

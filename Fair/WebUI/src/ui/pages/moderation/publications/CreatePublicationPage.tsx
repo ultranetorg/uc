@@ -104,7 +104,7 @@ export const CreatePublicationPage = () => {
         </div>
 
         {!!debouncedQuery && isProductValid ? (
-          <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
+          <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-4 sm:p-6">
             <ModerationPublicationHeader
               storeId={storeId!}
               title={product.title}
@@ -114,7 +114,7 @@ export const CreatePublicationPage = () => {
               components={
                 <>
                   {isProductValid && canCreateOperation("publication-creation") && (
-                    <ButtonBar className="items-center">
+                    <ButtonBar>
                       <ButtonPrimary
                         className="h-11 w-40 capitalize"
                         label={t("buttons:create")}

@@ -62,7 +62,7 @@ export const UsersSectionLayout = memo(({ children }: PropsWithChildren) => {
         components={
           <DropdownSearchAccount
             items={items}
-            className="w-110"
+            className="w-full md:w-110"
             placeholder={t("placeholders:enterUserNameOrId")}
             inputValue={query}
             onInputChange={setQuery}

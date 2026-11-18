@@ -34,9 +34,9 @@ export const ModerationHeader = memo(
             ]}
           />
         </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
           <div className="flex min-w-0 flex-col gap-2">
-            <span className="truncate text-3.5xl leading-11 font-semibold">{title}</span>
+            <span className="truncate text-2xl leading-8 font-semibold sm:text-3.5xl sm:leading-11">{title}</span>
             {subtitle && <span className="truncate text-2sm leading-6 text-gray-500">{subtitle}</span>}
           </div>
           {components}

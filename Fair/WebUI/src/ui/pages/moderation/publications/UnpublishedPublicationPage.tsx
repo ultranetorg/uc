@@ -49,7 +49,7 @@ export const UnpublishedPublicationPage = () => {
         components={
           <>
             {isPublishVisible && (
-              <ButtonBar className="items-center">
+              <ButtonBar>
                 <Link
                   to={routes.moderation.createProposal(storeId!)}
                   state={{
@@ -85,7 +85,7 @@ export const UnpublishedPublicationPage = () => {
         }
       />
 
-      <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-6">
+      <div className="flex flex-col gap-6 rounded-lg bg-gray-100 p-4 sm:p-6">
         <ModerationPublicationHeader
           storeId={storeId!}
           title={publication.title}
