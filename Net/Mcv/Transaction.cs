@@ -46,7 +46,7 @@ public class Transaction : IBinarySerializable
 		return	Uccs.Net.User.IsNameValid(User) &&
 				(Tag == null || Tag.Length <= TagLengthMax) &&
 				(Pow == null || Pow.Length == McvNet.PoWLength) &&
-				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.ExecutionCyclesPerTransactionLimit;
+				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.OperationsPerTransactionMaximum;
 	}
 
  	public Transaction()

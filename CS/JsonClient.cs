@@ -134,7 +134,7 @@ public class JsonClient
 		}
 	}
 	
-	public R Call<R>(Fpc<R> request, Flow flow, string credentials = null) where R : class
+	public R Call<R>(Fpc<R> request, Flow flow, string credentials = null)
 	{
 		using(var rp = Send(request, flow, credentials))
 		{

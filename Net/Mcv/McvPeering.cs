@@ -639,9 +639,6 @@ public abstract class McvPeering : HomoPeering
 						/// Compose txs list prioritizing higher fees but ensure continuous tx Nid sequence 
 						bool tryplace(Transaction t, bool isdeferred)	
 						{	
-							if(v.Transactions.Sum(i => i.Operations.Length) + 1 > pp.PerVoteOperationsMaximum)
-								return false;
-				
 							if(v.Transactions.Sum(i => i.Operations.Length) + t.Operations.Length > pp.PerVoteOperationsMaximum)
 								return false;
 				
@@ -705,37 +702,18 @@ public abstract class McvPeering : HomoPeering
 				
 						if(v.Transactions.Any() || must)
 						{
-							v.Signature	= VaultApi.Call<AuthorizationResult>(new AuthorizeApc
-																			 {
-																				Cryptography= Net.Cryptography.Type,
-																				Net			= Net.Address,
-																				User		= gs.Generator,
-																				Session		= s.Session,
-																				Hash		= v.Hashify()
-																			 }, 
-																			 Flow).Signature;
+							v.Signature	= VaultApi.Call(new AuthorizeApc
+														{
+															Cryptography= Net.Cryptography.Type,
+															Net			= Net.Address,
+															User		= gs.Generator,
+															Session		= s.Session,
+															Hash		= v.Hashify()
+														}, 
+														Flow).Signature;
 							votes.Add(v);
 						}
 					}
-			
-			 		///while(r.Previous != null && !r.Previous.Confirmed && r.Previous.VotersRound != null && r.Previous.Voters.Any(i => i.Address == g) && !r.Previous.VotesOfTry.Any(i => i.Generator == g))
-			 		///{
-			 		///	r = r.Previous;
-			 		///
-			 		///	var v = createvote(r);
-			 		///			
-					///	v.Generator = g;
-					///	v.Signature	= VaultApi.Call<byte[]>(new AuthorizeApc
-					///										{
-					///											Cryptography= Net.Cryptography.Type,
-					///											Application	= Name,
-					///											Net			= Net.Name,
-					///											User		= gs.User,
-					///											Session		= s.Session,
-					///											Hash		= v.Hashify()
-					///										}, Flow);						
-			 		///	votes.Add(v);
-			 		///}
 			
 					if(CandidateTransactions.Any(i => i.Status == TransactionStatus.Accepted) || Mcv.Tail.Any(i => Mcv.LastConfirmedRound.Id < i.Id && i.Payloads.Any()))
 						MainWakeup.Set();
@@ -862,7 +840,7 @@ public abstract class McvPeering : HomoPeering
 
 	public UserSessionSettings CreateSession(string application, string user, PublicKey key)
 	{
-		var a = VaultApi.Call<AuthenticationResult>(new AuthenticateApc {Application = application, Net = Net.Address, User = user, Key = key}, Flow); 
+		var a = VaultApi.Call(new AuthenticateApc {Application = application, Net = Net.Address, User = user, Key = key}, Flow); 
 
 		if(a == null)
 			return null;
@@ -946,16 +924,16 @@ public abstract class McvPeering : HomoPeering
 							
 						t.Nonce		 = pre.NextNonce;
 						t.Expiration = pre.LastConfirmedRound + Net.P * 2;
-						t.Signature  = VaultApi.Call<AuthorizationResult>(	new AuthorizeApc
-																			{
-																				Cryptography			= Net.Cryptography.Type,
-																				Net						= Net.Address,
-																				User					= t.User,
-																				Session					= t.Session,
-																				Hash					= t.Hashify(Net),
-																				ManualApprovalRequired	= t.Operations.Any(i => i is UtilityTransfer or UserKeyChange)
-																			},
-																			t.Flow).Signature;
+						t.Signature  = VaultApi.Call(	new AuthorizeApc
+														{
+															Cryptography			= Net.Cryptography.Type,
+															Net						= Net.Address,
+															User					= t.User,
+															Session					= t.Session,
+															Hash					= t.Hashify(Net),
+															ManualApprovalRequired	= t.Operations.Any(i => i is UtilityTransfer or UserKeyChange)
+														},
+														t.Flow).Signature;
 
 
 						var m = members.NearestBy(t.Signature);
@@ -1157,7 +1135,7 @@ public abstract class McvPeering : HomoPeering
 
  	public Transaction Transact(IEnumerable<Operation> operations, string user, long boost, byte[] tag, byte[] session, ActionOnResult aor, Flow flow)
  	{
-		if(operations.Count() > Net.ExecutionCyclesPerTransactionLimit)
+		if(operations.Count() > Net.OperationsPerTransactionMaximum)
 			throw new NodeException(NodeError.LimitExceeded);
 
 		if(!operations.Any() || operations.Any(i => !i.IsValid(Net)))

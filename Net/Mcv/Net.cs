@@ -119,7 +119,7 @@ public abstract class McvNet : Net
 	public const long							IdealRoundsPerDay						= IdealRoundsPerSecond * 60*60*24;
 	public const int							BandwidthRentMonthsMaximum				= 12;
 	public const int							BandwidthPeriodsMaximum					= BandwidthRentMonthsMaximum * 30 * 24;
-	public const int							OutworldTransactionsMaximum							= 1000;
+	public const int							OutworldTransactionsMaximum				= 1000;
 	public const int							PoWLength								= 32;
 	public virtual int							FreeSpaceMaximum						=> 0;
 	public Time									ECLifetime								= Time.FromYears(1);
@@ -129,14 +129,13 @@ public abstract class McvNet : Net
  	public Cryptography							Cryptography							= Cryptography.Mcv;
 	public int									AffectedCountMaximum					= 100_000;
 	public Time									OutworldVerificationDurationLimit		= Time.FromHours(1);
-	public int									MembersLimit							= 1000;
+	public int									MembersMaximum							= 1000;
 	public long									CandidatesMaximum						= 1000 * 10;
 	
-	public long									TransactionsPerRoundMaximum				= 100_000;
+	//public long									TransactionsPerRoundMaximum				= 100_000;
 	public long									OperationsPerRoundMaximum				= 100_000;
-	
-	public int									ExecutionCyclesPerTransactionLimit		= 200; /// Not more than 256, see OperationId.Oi
-	//public long									ExecutionCyclesPerRoundMaximum			=> TransactionsPerRoundExecutionLimit * ExecutionCyclesPerTransactionLimit;
+	public int									OperationsPerTransactionMaximum			=> (int)OperationsPerRoundMaximum/MembersMaximum; /// Not more than 256, see OperationId.Oi
+
 	public long									EnergyDailyEmission						=> OperationsPerRoundMaximum * IdealRoundsPerDay;
 	public long									EnergyHourlyEmission					=> OperationsPerRoundMaximum * IdealRoundsPerDay/24;
 	public long									EnergyEmission							=> EnergyDailyEmission * 365;

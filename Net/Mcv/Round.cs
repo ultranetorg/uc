@@ -508,7 +508,7 @@ public abstract class Round : IBinarySerializable
 			///	Debugger.Break();
 		}
 
-		foreach(var i in e.Candidates.TakeLast(Mcv.Net.MembersLimit - Members.Count).ToArray())
+		foreach(var i in e.Candidates.TakeLast(Mcv.Net.MembersMaximum - Members.Count).ToArray())
 		{
 			var c = e.AffectCandidate(i.Generator);
 			
