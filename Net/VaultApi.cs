@@ -32,30 +32,30 @@ public class VaultApiClient : JsonApiClient
 	}
 }
 
-public class IsAuthenticatedApc : Apc
+public class IsAuthenticatedApc : Fpc<bool>
 {
-	public string			Application { get; set; }
-	public string			Net { get; set; }
-	public string			User { get; set; }
-	public byte[]			Session { get; set; }
+	public string				Application { get; set; }
+	public string				Net { get; set; }
+	public string				User { get; set; }
+	public byte[]				Session { get; set; }
 }
 
-public class AuthenticateApc : Apc
+public class AuthenticateApc : Fpc<AuthenticationResult>
 {
-	public string			Application { get; set; }
-	public string			Net { get; set; } /// fair.rdn
-	public string			User { get; set; } /// optional
-	public byte[]			Logo { get; set; }
-	public PublicKey		Key { get; set; }/// suggested
+	public string				Application { get; set; }
+	public string				Net { get; set; } /// fair.rdn
+	public string				User { get; set; } /// optional
+	public byte[]				Logo { get; set; }
+	public PublicKey			Key { get; set; }/// suggested
 }
 
-public class AuthorizeApc : Apc
+public class AuthorizeApc : Fpc<AuthorizationResult>
 {
-	public CryptographyType	Cryptography { get; set; }
-	public string			Net { get; set; }
-	public string			User { get; set; }
-	public byte[]			Session { get; set; }
-	public string			Operation { get; set; }
-	public byte[]			Hash { get; set; }
-	public bool				ManualApprovalRequired { get; set; }
+	public CryptographyType		Cryptography { get; set; }
+	public string				Net { get; set; }
+	public string				User { get; set; }
+	public byte[]				Session { get; set; }
+	public string				Operation { get; set; }
+	public byte[]				Hash { get; set; }
+	public bool					ManualApprovalRequired { get; set; }
 }
