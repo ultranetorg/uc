@@ -189,7 +189,7 @@ public class HomoPeer : Peer, IHomoPeer
 			if(p.Exception == null)
 			{
 				if(p.Result == null)
-					throw new IntegrityException();
+					throw new OperationCanceledException(); /// Happens when Disconnected on exception
 
 				return p.Result;
 			}

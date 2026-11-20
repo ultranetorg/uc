@@ -205,7 +205,7 @@ public class Vault
 			throw new VaultException(VaultError.Rejected);
 	}
 
-	public AuthorizationResult Authorize(CryptographyType cryptography, string net, string operation, string user, byte[] session, byte[] Hash, bool manualapprovalrequired, Flow flow)
+	public AuthorizationResult Authorize(CryptographyType cryptography, string net, string operation, string user, byte[] session, byte[] hash, bool manualapprovalrequired, Flow flow)
 	{
 		if(string.IsNullOrWhiteSpace(net) || session.Length != Cryptography.HashLength)
 			throw new VaultException(VaultError.IncorrectArgumets);
@@ -227,9 +227,9 @@ public class Vault
 	
 		//acc = w.Accounts.Find(i => i.Address == Account);
 			
-		acc = w.Keys.FirstOrDefault(i => i.Authentications.Any(i =>	i.Session.SequenceEqual(session)));
+		acc = w.Keys.FirstOrDefault(i => i.Authentications.Any(i => Bytes.Equal(i.Session, session)));
 	
-		var au = acc?.Authentications.Find(i => i.Session.SequenceEqual(session));
+		var au = acc?.Authentications.Find(i => Bytes.Equal(i.Session, session));
 
 		if(au == null)
 			throw new VaultException(VaultError.Corrupted);
@@ -242,9 +242,9 @@ public class Vault
 					Signer = acc.Public, 
 					Signature = cryptography switch 
 					{
-						CryptographyType.No		=> Cryptography.No.Sign(acc.Secret, Hash, SigningFeatures.None),
-						CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Secret, Hash, SigningFeatures.None),
-						CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Secret, Hash, SigningFeatures.None),
+						CryptographyType.No		=> Cryptography.No.Sign(acc.Secret, hash, SigningFeatures.None),
+						CryptographyType.Mcv	=> Cryptography.Mcv.Sign(acc.Secret, hash, SigningFeatures.None),
+						CryptographyType.Iccp	=> Cryptography.Iccp.Sign(acc.Secret, hash, SigningFeatures.None),
 						_ => throw new VaultException(VaultError.UnknownCtyptography)
 					}
 				};

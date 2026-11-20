@@ -931,7 +931,7 @@ public abstract class McvPeering : HomoPeering
 															User					= t.User,
 															Session					= t.Session,
 															Hash					= t.Hashify(Net),
-															ManualApprovalRequired	= t.Operations.Any(i => i is UtilityTransfer or UserKeyChange)
+															ManualApprovalRequired	= Node.Settings.ManualApprovalRequired && t.Operations.Any(i => i is UtilityTransfer or UserKeyChange)
 														},
 														t.Flow).Signature;
 
