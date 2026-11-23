@@ -43,17 +43,15 @@ public abstract class Net
 	public Constructor					Constructor = new ();
 
 	public IPAddress[]					Initials;
-	public static readonly IPAddress[]	UOInitials = @" 78.47.204.100	
-														185.208.159.160	
-														5.42.221.102	
-														139.99.94.185	
-														216.73.158.45	
-														37.235.49.245	
-														89.31.120.33	
-														88.119.169.77	
-														41.77.143.118	
-														74.119.194.104	
-														138.124.180.13	"
+	public static readonly IPAddress[]	UOInitials = @"	78.47.204.100
+														103.214.68.151
+														206.245.167.28
+														103.214.71.53
+														162.35.243.129
+														86.107.168.171
+														31.207.4.76
+														10.100.62.4
+														"
 													.Split(['\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries)
 													.Select(IPAddress.Parse)
 													.ToArray();
