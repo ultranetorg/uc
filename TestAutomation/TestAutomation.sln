@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uccs", "..\CS\Uccs.csproj",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "O", "..\..\CS\O.csproj", "{543AD5C3-90CC-E7DD-7687-F4940E689344}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simulation", "..\..\Simulation\cs\Simulation.csproj", "{1AECEAA1-EC78-676B-2DF2-967157A29883}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{543AD5C3-90CC-E7DD-7687-F4940E689344}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{543AD5C3-90CC-E7DD-7687-F4940E689344}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{543AD5C3-90CC-E7DD-7687-F4940E689344}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AECEAA1-EC78-676B-2DF2-967157A29883}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AECEAA1-EC78-676B-2DF2-967157A29883}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AECEAA1-EC78-676B-2DF2-967157A29883}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AECEAA1-EC78-676B-2DF2-967157A29883}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

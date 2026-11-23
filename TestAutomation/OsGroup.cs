@@ -97,10 +97,11 @@ public class OsGroup
 
 		nf.WorkDirectory = os.Profile;
 
-		os.Nexus = new Nexus(new NetBoot { Zone = Zone, Profile = os.Profile }, ns, vs, nf);
+		os.Nexus = new Nexus(new NetBoot {Zone = Zone, Profile = os.Profile}, ns, vs, nf);
 		os.Nexus.Vault.AuthenticationRequested = 
 			(application, logo, net, user, key) => 
-			new AuthenticationChoice { PublickKey = key ?? os.Nexus.Vault.Find(user).Public, Trust = Trust.AlwaysAllow };
+				new AuthenticationChoice {PublickKey = key ?? os.Nexus.Vault.Find(user).Public, Trust = Trust.AlwaysAllow};
+		os.Nexus.Vault.AuthorizationRequested = (address, a, o) => true;
 
 		if(os.Nexus.Vault.Wallets.Count == 0)
 		{

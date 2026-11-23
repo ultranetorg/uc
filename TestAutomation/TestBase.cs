@@ -50,10 +50,11 @@ abstract public class TestBase
 	{
 		Name = testName;
 
-		NodeGlobals.NoWait = true;
-		NodeGlobals.InfiniteTimeouts = true;
-		NodeGlobals.TimeoutAfterTransactingError = 1;
-		NodeGlobals.ForceApproveOutworlds = true;
+		NodeGlobals.NoWait							= true;
+		NodeGlobals.InfiniteTimeouts				= true;
+		NodeGlobals.TimeoutAfterTransactingError	= 1;
+		NodeGlobals.CatchCorrupted					= false;
+		NodeGlobals.ForceApproveOutworlds			= true;
 
 		Flow = new Flow("Simulation", new Log());
 	}
