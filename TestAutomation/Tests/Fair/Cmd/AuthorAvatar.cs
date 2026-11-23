@@ -45,7 +45,7 @@ class AuthorAvatar : FairTest
 		CreateAuthorFile(a, authorId, filePath);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Image with no MIME, failure expected.
 		AutoId fileId = McvFind<Author>(authorId).Files[noMimeImageIdx];

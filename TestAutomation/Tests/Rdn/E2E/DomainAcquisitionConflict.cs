@@ -19,7 +19,7 @@ class DomainAcquisitionConflict : RdnTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// 1. Users A and B create wallets, users.
 		Actor a = CreateActor(topUp: true);

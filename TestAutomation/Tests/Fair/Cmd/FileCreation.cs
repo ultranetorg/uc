@@ -32,7 +32,7 @@ class FileCreation : FairTest
 		TopUpAuthor(authorId);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Image with no MIME.
 		CreateAuthorFile(a, authorId, imagePath);

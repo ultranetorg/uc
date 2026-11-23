@@ -18,7 +18,7 @@ class SoloCreator : FairTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Actor a = CreateActor(topUp: true);
 

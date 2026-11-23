@@ -32,7 +32,7 @@ class StorePolicyChange : FairTest
 		mods.Add(StoreAddNewMod(S.Id, authors));
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// AnyModerator -> ModeratorsMajority
 		ChangeStorePolicy(S.Id, authors, FairOperationClass.StoreInfoUpdation, ApprovalRequirement.ModeratorsMajority);

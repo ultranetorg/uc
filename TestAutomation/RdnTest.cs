@@ -28,8 +28,6 @@ abstract class RdnTest : TestBase
 
 	public RdnTest(string testName) : base(testName)
 	{
-		base.Init();
-
 		Net = Uccs.Rdn.Rdn.TA;
 		Group = new OsGroup(Path.Combine(G.Developer.Tmp, this.GetType().Name), Net.Initials);
 
@@ -56,22 +54,6 @@ abstract class RdnTest : TestBase
 		}
 	}
 
-	public override List<Os> CreateMinimalNetwork()
-	{
-		List<Os> oses = [];
-
-		oses.Add(Group.CreateOs("U0", "f=2 nn", Net.Father0EP.IP));
-		CreateNode(oses[^1], "mcv chain g=2 s run");
-		oses.Add(Group.CreateOs("U1", "f=2 nn", Group.Initials[1]));
-		CreateNode(oses[^1], "mcv chain g=2 s run");
-		oses.Add(Group.CreateOs("U2", "f=2 nn", Group.Initials[2]));
-		CreateNode(oses[^1], "mcv chain g=2 s run");
-
-		SyncAllPeering();
-
-		return oses;
-	}
-
 	public override Os CreateOsNodePair()
 	{
 		Os os = Group.CreateOs($"U{Oses.Count}", "nn", GetUnusedIp());
@@ -81,17 +63,17 @@ abstract class RdnTest : TestBase
 
 	public void UpdateResource(Actor a, Ura resource, string newData, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(a.Os, $"resource u address={resource} data={newData} by={a.User.Name} aor={aor.ToString().ToLower()}");
+		NetExec(a.Os, $"resource u address={resource} data={newData} by={a.User.Name} {Aor(aor)}");
 	}
 
 	public void DeleteResource(Actor a, Ura resource, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(a.Os, $"resource x address={resource} by={a.User.Name} aor={aor.ToString().ToLower()}");
+		NetExec(a.Os, $"resource x address={resource} by={a.User.Name} {Aor(aor)}");
 	}
 
 	public void DeleteLink(Actor a, Ura linkSource, int linkIndex, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(a.Os, $"link x from={linkSource} index={linkIndex} by={a.User.Name} aor={aor.ToString().ToLower()}");
+		NetExec(a.Os, $"link x from={linkSource} index={linkIndex} by={a.User.Name} {Aor(aor)}");
 	}
 
 	protected Resource FindResource(Ura resource)

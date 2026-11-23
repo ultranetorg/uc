@@ -26,7 +26,7 @@ class AuthorSecurity : FairTest
 		authorId = CreateAuthor(a1, "author_title", 3, topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a1.Os, $"author security id={authorId} addowner={a2.User.Id} by={a1.User.Name}");
 		Assert(McvFind<Author>(authorId).Owners.Length == 2);

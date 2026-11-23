@@ -28,7 +28,7 @@ class AuthorCreation : FairTest
 		actor = CreateActor();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Not sufficient funds. Expected to fail.
 		CreateAuthor(actor, "Title0", years: 1, aor: ActionOnResult.ExpectFailure);

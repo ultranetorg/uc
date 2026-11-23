@@ -33,7 +33,7 @@ class DiscussedProposalCloseFail : FairTest
 		ChangeStorePolicy(S.Id, authors, FairOperationClass.StoreInfoUpdation, ApprovalRequirement.PublishersMajority);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Propose(authors[0].Os, S.Id, FindFairUser(authors[0].User.Name).Authors[^1],
 			//new Uccs.Fair.SiteTextChange

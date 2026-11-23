@@ -28,7 +28,7 @@ class ResourceEntity : RdnTest
 		CreateResource(a, $"/{domain}/testResource", $"{Meaning.Raw}{{hex={data}}}");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a.Os, $"resource entity address=/{domain}/testResource");
 

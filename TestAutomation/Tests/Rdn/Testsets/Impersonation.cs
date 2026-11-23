@@ -25,7 +25,7 @@ class Impersonation : RdnTest
 		b = CreateActor(topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Attempt to acquire domain using foreign username.
 		ExpectException(() => CreateDomain(a.Os, domain, b.User.Name, years: 1));

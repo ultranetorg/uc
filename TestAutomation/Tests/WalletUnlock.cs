@@ -27,7 +27,7 @@ class WalletUnlock : RdnTest
 		w = WalletCreate(Oses[1], pass: pass);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Attempt to add an account to the locked wallet. Exception expected.
 		ExpectException(() => WalletAddAccount(Oses[1], w, GetUnusedUserName()));

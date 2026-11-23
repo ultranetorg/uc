@@ -28,7 +28,7 @@ class ResourceCreation : RdnTest
 		AcquireDomainWithDomainName(a, domain, 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// No resource meaning/type hint. Exception expected.
 		ExpectException(() =>

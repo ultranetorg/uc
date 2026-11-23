@@ -17,7 +17,7 @@ class Dependencies : RdnTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Actor a = CreateActor(topUp: true);
 		string domain = GetUnusedLongDomainName();

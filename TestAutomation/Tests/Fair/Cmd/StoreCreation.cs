@@ -36,7 +36,7 @@ class StoreCreation : FairTest
 		a1 = CreateActor();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Not sufficient funds. Expecting fail.
 		CreateStore(a1.Os, "A Nice Site", 1, a1.User.Name, aor: ActionOnResult.ExpectFailure);

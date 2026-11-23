@@ -32,7 +32,7 @@ class WalletImportAccountByKey : RdnTest
 		newWallet = WalletCreate(a.Os, "new_wallet", unlock: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// When 'name' is not specified, account is added to the default wallet.
 		VaultExec(a.Os, $"wallet addaccount key={key}");

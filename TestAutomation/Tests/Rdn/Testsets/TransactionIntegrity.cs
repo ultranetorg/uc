@@ -36,7 +36,7 @@ class TransactionIntegrity : RdnTest
 		b = CreateActor(topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// TODO: Moment where resources exceed 4KB and free plan gets canceled,
 		//		fee for all resources suddenly deducted.

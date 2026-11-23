@@ -31,7 +31,7 @@ class FileSharing : RdnTest
 		fileDownloadedPath = Path.Combine(currentDir, fileDownloadedPath);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// 1. User A creates a text file to share.
 		File.WriteAllText(fileSendPath, fileContent);

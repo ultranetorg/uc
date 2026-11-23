@@ -31,7 +31,7 @@ class AuthorInfo : FairTest
 		authorId = CreateAuthor(a, "Author", years: 3, topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Setting a title.
 		string newTitle = "Abobius The Third";

@@ -21,7 +21,7 @@ class DomainExpiration : RdnTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// 1. Actor creates a wallet, user.
 		Actor a = CreateActor(topUp: true);

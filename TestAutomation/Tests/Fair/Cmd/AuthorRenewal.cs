@@ -28,7 +28,7 @@ class AuthorRenewal : FairTest
 		TopUpAuthor(FindFairUser(a.User.Name).Authors[^1], 365 * 100);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Smoke test.
 		AuthorRenew(a, 1);

@@ -27,7 +27,7 @@ class AuthorEntity : FairTest
 		
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(Oses[1], $"author e id={authorId}");
 

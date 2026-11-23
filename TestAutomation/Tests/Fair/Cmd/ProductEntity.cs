@@ -27,7 +27,7 @@ class ProductEntity : FairTest
 		CreateProduct(a.Os, FindFairUser(a.User.Name).Authors[0], a.User.Name);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		AutoId productId = McvFind<Author>(FindFairUser(a.User.Name).Authors[0]).Products[0];
 

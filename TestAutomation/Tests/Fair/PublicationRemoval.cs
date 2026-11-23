@@ -34,7 +34,7 @@ class PublicationRemoval : FairTest
 		authors.Add(StoreAddNewAuthor(siteId, mods[0]));
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Assert(S.PublicationsCount == 1);
 		Assert(S.UnpublishedPublications.Length == 1);

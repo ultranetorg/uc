@@ -31,7 +31,7 @@ class ReleaseLocal : RdnTest
 		lra = CreateRelease(a.Os, releaseFile);
 	} 
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a.Os, $"release local address={lra!.Address}");
 

@@ -43,7 +43,7 @@ class RdnUserCreation : RdnTest
 		u2 = (os2, ak2);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// TODO: What if some cmd argument missing? I should think about this.
 

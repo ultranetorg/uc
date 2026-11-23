@@ -31,7 +31,7 @@ class DomainTransferCmd_Test : RdnTest
 		DomainAcquire(Oses[1], domain, u1.Name, 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(Oses[1], $"domain transfer {domain} to={receiverId} signer={aa1} aor=retryuntilconfirmed");
 		AssertStatusConfirmedOutput();

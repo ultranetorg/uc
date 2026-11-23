@@ -44,7 +44,7 @@ class AuthorExpiration : FairTest
 		Assert(McvFind<Store>(storeId).PublicationsCount == 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		TimeFastForward(TimeSpan.FromDays(366)); // Just over a year, enough to expire author.
 

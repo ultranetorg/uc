@@ -30,7 +30,7 @@ class RdnUserUtilityTransfer : RdnTest
 		a2 = CreateActor(topUp: false);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Basic smoke testing: successful utility transaction.
 		NetExec(a1.Os, $"utility t from=User/{a1.User.Id} to=User/{a2.User.Id} st=100by e=100 by={a1.User.Name}");

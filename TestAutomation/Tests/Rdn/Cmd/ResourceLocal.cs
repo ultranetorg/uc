@@ -38,7 +38,7 @@ class ResourceLocal : RdnTest
 		CreateResource(a, $"/{domain}/testResourceFile", $"{Meaning.ExternalContent}/{ContentType.File}{{address={lra.Address}}}");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// @Issue: https://www.notion.so/Local-availability-of-the-the-DataType-Data-resource-type-1cb4e2aecdb980d2a42fcfbeed794e08?pvs=4
 		NetExec(a.Os, $"resource local address=/{domain}/testResource");

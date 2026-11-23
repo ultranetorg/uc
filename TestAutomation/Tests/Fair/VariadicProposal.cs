@@ -40,7 +40,7 @@ class VariadicProposal : FairTest
 		ChangeStorePolicy(S.Id, authors, FairOperationClass.StoreRenaming, ApprovalRequirement.PublishersMajority);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Proposal for a new site nickname with multiple options(authors majority needed).
 		// Authors vote for a particular option until sufficient amount of votes reached.

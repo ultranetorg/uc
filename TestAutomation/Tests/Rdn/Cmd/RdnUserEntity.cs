@@ -26,7 +26,7 @@ class RdnUserEntity : RdnTest
 		u = CreateUserAccount(Oses[1], topUp: false);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(Oses[0], $"user entity name={Net.Father0Name}");
 		Assert(IsLogTailContainsSubstr(Net.Father0Signer.ToString(), userEntityCmdOutputLen));

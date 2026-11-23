@@ -24,7 +24,7 @@ class FairUserNameUpdate : RdnTest
 		NetExec(a.Os, $"user e name={a.User.Name}");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		string newName = "new_name";
 		NetExec(a.Os, $"user n newname={newName} by={a.User.Name}");

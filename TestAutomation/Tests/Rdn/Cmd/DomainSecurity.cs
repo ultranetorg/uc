@@ -25,7 +25,7 @@ class DomainSecurity : RdnTest
 		a2 = CreateActor(topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// TODO: What happens with the resources that live in the domain
 		// when it is transfered to another owner?

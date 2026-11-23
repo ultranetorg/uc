@@ -40,7 +40,7 @@ class ReviewCreationAndEdit : FairTest
 		Propose(mod.Os, S.Id, mod.User.Id, new PublicationPublish { Publication = publication, Category = S.Categories[0] }, mod.User.Name, Uccs.Fair.Role.Moderator);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Register 2 users.
 		Actor reviewer1 = CreateActor(topUp: true);

@@ -23,7 +23,7 @@ class OutsiderAnalysisPublication : RdnTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Creator of the analysis counsil, one of the analyzers in this counsil.
 		Actor a1 = CreateActor(topUp: true);

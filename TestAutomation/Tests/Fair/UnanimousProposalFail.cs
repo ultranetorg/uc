@@ -35,7 +35,7 @@ class UnanimousProposalFail : FairTest
 		ChangeStorePolicy(S.Id, authors, FairOperationClass.CategoryCreation, ApprovalRequirement.AllModerators);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Propose(mods[0].Os, S.Id, mods[0].User.Id,
 			new CategoryCreation

@@ -35,7 +35,7 @@ class DirectorySharing : RdnTest
 		dirDown = Path.Combine(currentDir, dirDown);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// 1. Users A creates a folder with files to share.
 		Directory.CreateDirectory(dir);

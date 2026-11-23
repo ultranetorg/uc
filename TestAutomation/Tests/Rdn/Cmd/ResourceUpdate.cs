@@ -30,7 +30,7 @@ class ResourceUpdate : RdnTest
 		CreateResource(a, $"/{domain}/testResource", $"{Meaning.Raw}{{hex={data}}}");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a.Os, $"resource update /{domain}/testResource data={Meaning.Raw}{{hex={newData}}} by={a.User.Name}");
 

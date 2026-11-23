@@ -24,7 +24,7 @@ class AuthorDomainVerification : FairTest
 		authorId = CreateAuthor(a, "Author", 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a.Os, $"author verification id={authorId} domain=aboba by={a.User.Name}");
 

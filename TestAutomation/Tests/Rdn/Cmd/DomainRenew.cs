@@ -24,7 +24,7 @@ class DomainRenew : RdnTest
 		CreateDomain(a, domain, 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		TimeFastForward(new(1, 0, 0, 0)); // 1 day.
 		NetExec(a.Os, $"domain renew name={domain} years=3 by={a.User.Name}");

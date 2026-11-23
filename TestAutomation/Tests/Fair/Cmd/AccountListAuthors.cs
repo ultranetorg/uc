@@ -25,7 +25,7 @@ class AccountListAuthors : FairTest
 		a = CreateActor(topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		VerifyAuthorsListOutput();
 

@@ -35,7 +35,7 @@ class StoreVoting : FairTest
 		ChangeStorePolicy(S.Id, authors, FairOperationClass.StoreRenaming, ApprovalRequirement.PublishersMajority);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Basic case: nickname change proposal -> 2/3 authors vote "Yes" -> assert nickname change.
 		Propose(mods[0].Os, S.Id, mods[0].User.Id,

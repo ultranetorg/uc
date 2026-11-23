@@ -18,7 +18,7 @@ class WalletAccountAdd : RdnTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		int prev = Oses[1].Nexus.Vault.Wallets[0].Keys.Count;
 		VaultExec(Oses[1], "wallet addaccount");

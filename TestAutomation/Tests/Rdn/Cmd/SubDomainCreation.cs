@@ -26,7 +26,7 @@ class SubDomainCreation : RdnTest
 		CreateDomain(Oses[1], domain, u.Name, 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(Oses[1], $"domain a address={subdomain}.{domain} for={u.Name} by={u.Name} years=1 aor=retryuntilconfirmed");
 		AssertStatusConfirmedOutput();

@@ -33,7 +33,7 @@ class ResourceDestroy : RdnTest
 		CreateResource(a, resUra.ToString(), $"{Meaning.Raw}{{hex={data}}}");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a.Os, $"resource x address={resUra} by={a.User.Name}");
 

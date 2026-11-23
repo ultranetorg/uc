@@ -47,7 +47,7 @@ class ResourceDownloadCancellation : RdnTest
 		NetExec(downloader.Os, $"resource download address=/{domain}/file localpath={fileDownloaded} nowait");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Thread.Sleep(1500);
 		NetExec(downloader.Os, $"resource dx address={lra.Address}");

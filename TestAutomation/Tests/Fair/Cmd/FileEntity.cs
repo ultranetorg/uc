@@ -33,7 +33,7 @@ class FileEntity : FairTest
 		CreateAuthorFile(a, authorId, imagePath);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a.Os, $"file e {McvFind<Author>(authorId).Files[0]}");
 

@@ -31,7 +31,7 @@ class ProductCreation : FairTest
 		CreateAuthor(a2, "title", 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Not sufficient funds attempt. Failure expected.
 		CreateProduct(a1.Os, a1AuthId, a1.User.Name, aor: ActionOnResult.ExpectFailure);

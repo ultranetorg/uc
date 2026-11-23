@@ -31,7 +31,7 @@ class LinkDeletion : RdnTest
 		CreateLink(a, $"/{domain}/testResource1", $"/{domain}/testResource2");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Default case.
 		NetExec(a.Os, $"link delete from=/{domain}/testResource1 index=0 by={a.User.Name} aor=retryuntilconfirmed");

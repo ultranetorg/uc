@@ -28,7 +28,7 @@ class WrongResourceDataType : RdnTest
 		File.Delete(releaseFile);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Actor a1 = CreateActor();
 		string domain = GetUnusedLongDomainName();

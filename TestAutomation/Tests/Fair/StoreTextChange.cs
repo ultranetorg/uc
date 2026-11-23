@@ -34,7 +34,7 @@ class StoreTextChange : FairTest
 			ApprovalRequirement.AllModerators);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		string newDesc = "New Description.";
 		Propose(mods[0].Os, S.Id, FindFairUser(mods[0].User.Name).Id,

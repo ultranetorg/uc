@@ -31,7 +31,7 @@ class ReleaseCreate : RdnTest
 		File.WriteAllText(releaseFile, "This is a content of a test release.");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Basic smoke case.
 		CreateRelease(a.Os, releaseFile);

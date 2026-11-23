@@ -27,7 +27,7 @@ class MiscTest : FairTest
 		storeId = CreateStore(storeCreator, "Store1", 1, topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Case where store creator and a first moderator attempts to change store policy.
 		// By default store policy perpetual surveys can only be voted on by publishers of the store.

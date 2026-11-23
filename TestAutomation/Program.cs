@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using CommonUtils.Ext;
@@ -45,7 +46,7 @@ namespace TestAutomation;
 /// class AccountUtilityTransfer : FairTest		<br/>
 /// {											<br/>
 /// 	public override void Init() { .. }		<br/>
-/// 	public void Logic() { .. }				<br/>
+/// 	public override void Logic() { .. }		<br/>
 /// }											<br/>
 /// 
 /// <br/><br/>
@@ -64,6 +65,38 @@ class Program
 
 	static int TimeoutSec = 60;
 
+	/// <summary> A test class together with the values of its [TestType] and [TestNetwork] attributes. </summary>
+	record TestInfo(Type Class, TestType TestType, TestNetwork Network);
+
+	/// <summary> Finds all test classes: non-abstract classes that indirectly inherit `TestBase`. </summary>
+	static List<TestInfo> FindTests(Assembly assembly)
+	{
+		List<TestInfo> tests = [];
+
+		foreach(Type t in assembly.GetTypes())
+		{
+			if(!t.IsSubclassOf(typeof(TestBase)) || t.IsAbstract)
+				continue;
+
+			TestTypeAttribute type = t.GetCustomAttribute<TestTypeAttribute>()
+				?? throw new Exception($"Test class '{t.Name}' has no [TestType] attribute.");
+
+			TestNetworkAttribute network = t.GetCustomAttribute<TestNetworkAttribute>()
+				?? throw new Exception($"Test class '{t.Name}' has no [TestNetwork] attribute.");
+
+			tests.Add(new TestInfo(t, type.TestType, network.TestNetwork));
+		}
+
+		return tests;
+	}
+
+	static void PrintGroup(string groupName, IEnumerable<TestInfo> tests)
+	{
+		Console.WriteLine($"{tests.Count()} {groupName} tests:");
+		Console.WriteLine(string.Join(' ', tests.Select(t => t.Class.Name)));
+		Console.WriteLine();
+	}
+
 	static void Main(string[] args)
 	{
 		// Pull test step execution timeout from env variable, if it is provided.
@@ -77,55 +110,25 @@ class Program
 		new DirectoryInfo(G.Developer.Tmp).Empty();
 		Assembly a = Assembly.GetAssembly(typeof(Program)) ?? throw new Exception("Could not acquaire current assembly");
 
-		// Select only classes that are tests - ones that are indirectly inherited from `TestBase` class.
-		List<Type> tests = [];
-		foreach(Type t in a.GetTypes())
-		{
-			if(t.IsSubclassOf(typeof(TestBase)) && !t.IsAbstract)
-				tests.Add(t);
-		}
+		List<TestInfo> tests = FindTests(a);
 
-		// Sort tests by TestType.
-		Dictionary<TestType, List<Type>> testsByType = [];
-		foreach(TestType tt in Enum.GetValues<TestType>()) testsByType.Add(tt, []); // Init dictionary of lists.
-		foreach(Type t in tests)
-		{
-			TestTypeAttribute tta = t.GetCustomAttribute<TestTypeAttribute>() ??
-				throw new Exception($"Could not check test type attribute of a test class '{t.Name}'. Maybe attribute is not set?");
-			testsByType[tta.TestType].Add(t);
-		}
-		foreach(var keyval in testsByType) // Print which test were found to be of which test type.
-		{
-			Console.WriteLine($"{keyval.Value.Count} {keyval.Key} tests:");
-			foreach(Type t in keyval.Value) Console.Write(t.Name + " ");
-			Console.Write("\n\n");
-		}
+		// Print which tests were found, by test type and by network.
+		foreach(var group in tests.GroupBy(t => t.TestType))
+			PrintGroup(group.Key.ToString(), group);
 
-		// Sort tests by tested network.
-		Dictionary<TestNetwork, List<Type>> testsByNet = [];
-		foreach(TestNetwork tt in Enum.GetValues(typeof(TestNetwork))) testsByNet.Add(tt, []); // Init dictionary of lists.
-		foreach(Type t in tests)
-		{
-			TestNetworkAttribute tta = t.GetCustomAttribute<TestNetworkAttribute>() ??
-				throw new Exception($"Could not check test network attribute of a test class '{t.Name}'. Maybe attribute is not set?");
-			testsByNet[tta.TestNetwork].Add(t);
-		}
-		foreach(var p in testsByNet) // Print which tests were found to be related to which network.
-		{
-			Console.WriteLine($"{p.Value.Count} {p.Key} tests:");
-			foreach(Type t in p.Value) Console.Write(t.Name + " ");
-			Console.Write("\n\n");
-		}
+		foreach(var group in tests.GroupBy(t => t.Network))
+			PrintGroup(group.Key.ToString(), group);
 
 		GetTestsToRunAndSkipFromEnv();
 
-		// Run tests, grouping by test type.
+		// Run tests, one suite per test type.
 		DateTime startTime = DateTime.Now;
-		foreach(TestType tt in Enum.GetValues<TestType>())
+		foreach(var group in tests.GroupBy(t => t.TestType).OrderBy(g => g.Key))
 		{
-			Reporter.BeginSuite(tt.ToString());
-			foreach(Type t in testsByType[tt])
-				RunTest(t);
+			Reporter.BeginSuite(group.Key.ToString());
+
+			foreach(TestInfo test in group)
+				RunTest(test.Class);
 		}
 		TimeSpan time = DateTime.Now - startTime;
 		Console.WriteLine($"TOTAL TIME: {time}");
@@ -167,10 +170,7 @@ class Program
 		if(Only.Count != 0 && !Only.Contains(testClass)) return;
 		if(TestsToSkip.Contains(testClass)) return;
 
-		ConstructorInfo constructor = testClass.GetConstructor(BindingFlags.Instance | BindingFlags.Public, null, CallingConventions.HasThis, [], null) ??
-			throw new Exception("Could not get constructor info");
-		TestBase test = constructor.Invoke(null) as TestBase ??
-			throw new Exception("Failed to construct test class.");
+		TestBase test = (TestBase)Activator.CreateInstance(testClass);
 
 		Reporter.BeginTest(test.Name, testClass.Name, test.Description);
 
@@ -192,11 +192,7 @@ class Program
 
 		try
 		{
-			MethodInfo method = testClass.GetMethod("Logic") ?? throw new Exception("Could not acquire method info");
-			bool first = RunTimed(() =>
-			{
-				method.Invoke(test, null);
-			}, Debugger.IsAttached ? int.MaxValue : TimeoutSec);
+			bool first = RunTimed(test.Logic, Debugger.IsAttached ? int.MaxValue : TimeoutSec);
 
 			if(!first) throw new Exception($"Test execution timeout. Test execution time exceeded {TimeoutSec} seconds.");
 

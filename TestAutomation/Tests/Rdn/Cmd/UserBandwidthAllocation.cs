@@ -25,7 +25,7 @@ class UserBandwidthAllocation : RdnTest
 		a = CreateActor(topUp: false);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Not sufficient funds. This operation needs 2*12month*30days*24hours=17_280 energy. Failure expected.
 		NetExec(a.Os, $"user ab bandwidth=2 months=12 by={a.User.Name} aor=expectfailure");

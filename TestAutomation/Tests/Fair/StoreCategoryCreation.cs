@@ -32,7 +32,7 @@ class StoreCategoryCreation: FairTest
 		ChangeStorePolicy(S.Id, authors, FairOperationClass.CategoryCreation, ApprovalRequirement.AllModerators);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Assert(S.Categories.Length == 0);
 

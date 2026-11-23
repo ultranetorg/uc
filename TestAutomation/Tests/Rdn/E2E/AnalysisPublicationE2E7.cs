@@ -37,7 +37,7 @@ class AnalysisPublication_E2E7 : RdnTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 
 	{
 		// TODO: Test idea - what happens if analysis result is being published by someone who is not an "analyzer" member of the consil?

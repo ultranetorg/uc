@@ -48,7 +48,7 @@ class FeeValidation : FairTest
 		siteCreator = CreateActor(topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Site creation, 1 year.
 		var diff = GetSpacetimeDiff(siteCreator.User, () => CreateStore(siteCreator, "Site", 1));

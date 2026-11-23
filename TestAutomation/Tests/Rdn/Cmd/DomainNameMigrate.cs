@@ -29,7 +29,7 @@ class DomainNameMigrate : RdnTest
 		a = CreateActor(topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a.Os, $"domainname m name={domain} wtld=org by={a.User.Name}");
 

@@ -34,7 +34,7 @@ class FileDestroy : FairTest
 		CreateAuthorFile(a, authorId, imagePath);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		DestroyFile(a, McvFind<Author>(authorId).Files[0]);
 		Assert(McvFind<Author>(authorId).Files.Length == 0);

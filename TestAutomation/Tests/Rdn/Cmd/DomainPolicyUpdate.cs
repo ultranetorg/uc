@@ -37,7 +37,7 @@ class DomainPolicyUpdate : RdnTest
 		SubDomainRegistration(a, $"{subdomain2}.{domain}", 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Generic case, smoke testing.
 		SubDomainPolicyUpdate(a.Os, $"{subdomain1}.{domain}", a.User.Name, OwnershipPolicy.FullOwnership);

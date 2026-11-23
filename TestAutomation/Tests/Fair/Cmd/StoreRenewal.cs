@@ -33,7 +33,7 @@ class StoreRenewal : FairTest
 		TopUpStore(siteId, 365 * 100); // Exact space/time required to hold a site for 1 year.
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		TimeFastForward(new(9 * 365 + 1, 0, 0, 0)); // 9 years. 
 

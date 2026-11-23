@@ -26,7 +26,7 @@ class StoreModerators: FairTest
 		mods.Add(authors[0]);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		mods.Add(StoreAddNewMod(S.Id, authors));
 		mods.Add(StoreAddNewMod(S.Id, authors));

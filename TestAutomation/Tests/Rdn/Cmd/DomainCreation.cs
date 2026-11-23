@@ -29,7 +29,7 @@ class DomainCreation : RdnTest
 		a2 = CreateActor(topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		AcquireDomainName(a1, longAvailableDomainName, 1);
 		CreateDomain(a1, longAvailableDomainName, 1);

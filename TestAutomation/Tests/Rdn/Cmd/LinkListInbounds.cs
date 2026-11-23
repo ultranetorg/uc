@@ -37,7 +37,7 @@ class LinkListInbounds : RdnTest
 		CreateLink(a, $"/{domain}/testResource1", $"/{domain}/testResource2");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		Flow.Log.Messages.Clear();
 		NetExec(a.Os, $"link li address=/{domain}/testResource2");

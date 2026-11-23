@@ -17,7 +17,7 @@ class EconomyCost : RdnTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(Oses[1], $"economy cost aor=retryuntilconfirmed");
 		ValidateOutput();

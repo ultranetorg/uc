@@ -32,7 +32,7 @@ class LinkCreate : RdnTest
 		CreateResource(a, $"/{domain}/testResource2", $"{Meaning.Raw}{{hex={data}}}");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		CreateLink(a, $"/{domain}/testResource1", $"/{domain}/testResource2");
 

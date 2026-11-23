@@ -41,13 +41,15 @@ abstract public class TestBase
 	protected abstract McvNode GetNode(Os os);
 	protected abstract McvNodeSettings CreateSettings(Os os);
 	protected abstract McvCli GetCli(Os os);
-	public abstract List<Os> CreateMinimalNetwork();
 
 	public static string UO_TA_LOGECHO;
 
 
 	public TestBase(string testName)
 	{
+		if(string.IsNullOrEmpty(testName))
+			throw new Exception("Test name is mandatory. Pass it to the base constructor.");
+
 		Name = testName;
 
 		NodeGlobals.NoWait							= true;
@@ -57,14 +59,6 @@ abstract public class TestBase
 		NodeGlobals.ForceApproveOutworlds			= true;
 
 		Flow = new Flow("Simulation", new Log());
-	}
-
-	public virtual void Init()
-	{
-		if(string.IsNullOrEmpty(Name))
-			throw new Exception("Test class field 'Name' is mandatory. Set it in the constructor.");
-
-		//ProfileFolderPrefix = this.GetType().Name + "Profile-";
 
 		UO_TA_LOGECHO = Environment.GetEnvironmentVariable("UO_TA_LOGECHO");
 
@@ -76,7 +70,30 @@ abstract public class TestBase
 					Reporter.Message(StandardOutputStreamType.Out, s);
 			};
 		}
+	}
 
+	/// <summary> Test preparation step: set up the network, actors and data. Runs before <see cref="Logic"/>. </summary>
+	public virtual void Init() { }
+
+	/// <summary> The test itself. Throw to fail. </summary>
+	public abstract void Logic();
+
+	protected static string Aor(ActionOnResult aor) => $"aor={aor.ToString().ToLower()}";
+
+	public virtual List<Os> CreateMinimalNetwork()
+	{
+		List<Os> oses = [];
+
+		oses.Add(Group.CreateOs("U0", "f=2 nn", Net.Father0EP.IP));
+		CreateNode(oses[^1], "mcv chain g=2 s run");
+		oses.Add(Group.CreateOs("U1", "f=2 nn", Group.Initials[1]));
+		CreateNode(oses[^1], "mcv chain g=2 s run");
+		oses.Add(Group.CreateOs("U2", "f=2 nn", Group.Initials[2]));
+		CreateNode(oses[^1], "mcv chain g=2 s run");
+
+		SyncAllPeering();
+
+		return oses;
 	}
 
 	protected virtual void Configure(Os os, Xon args, McvNodeSettings settings) { }
@@ -218,23 +235,23 @@ abstract public class TestBase
 	/// <summary> In RDN user creation is free: user creates itself. </summary>
 	public User UserCreate(Os creatorOs, string username, PublicKey owner, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(creatorOs, $"user create owner={owner} by={username} aor={aor.ToString().ToLower()}");
+		NetExec(creatorOs, $"user create owner={owner} by={username} {Aor(aor)}");
 		return FindUser(username);
 	}
 
 	protected DomainNameAcquisition AcquireDomainName(Os os, string name, string username, uint years, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		return NetExec(os, $"domainname a name={name} years={years} by={username} aor={aor.ToString().ToLower()}") as DomainNameAcquisition;
+		return NetExec(os, $"domainname a name={name} years={years} by={username} {Aor(aor)}") as DomainNameAcquisition;
 	}
 
 	protected DomainNameAcquisition AcquireDomainName(Actor a, string name, uint years, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		return NetExec(a.Os, $"domainname a name={name} years={years} by={a.User.Name} aor={aor.ToString().ToLower()}") as DomainNameAcquisition;
+		return NetExec(a.Os, $"domainname a name={name} years={years} by={a.User.Name} {Aor(aor)}") as DomainNameAcquisition;
 	}
 
 	public DomainCreation CreateDomain(Os os, string address, string username, uint years, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		return NetExec(os, $"domain c name={address} years={years} by={username} aor={aor.ToString().ToLower()}") as DomainCreation;
+		return NetExec(os, $"domain c name={address} years={years} by={username} {Aor(aor)}") as DomainCreation;
 	}
 
 	public DomainCreation CreateDomain(Actor a, string address, uint years, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
@@ -250,7 +267,7 @@ abstract public class TestBase
 
 	public DomainCreation SubDomainRegistration(Os os, string address, string newSubdomainOwnerUsername, string domainOwnerUsername, uint years, OwnershipPolicy policy = OwnershipPolicy.FullOwnership, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		return NetExec(os, $"domain a address={address} years={years} policy={policy} for={newSubdomainOwnerUsername} by={domainOwnerUsername} aor={aor.ToString().ToLower()}") as DomainCreation;
+		return NetExec(os, $"domain a address={address} years={years} policy={policy} for={newSubdomainOwnerUsername} by={domainOwnerUsername} {Aor(aor)}") as DomainCreation;
 	}
 
 	public DomainCreation SubDomainRegistration(Actor a, string address, uint years, OwnershipPolicy policy = OwnershipPolicy.FullOwnership, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
@@ -260,7 +277,7 @@ abstract public class TestBase
 
 	public void SubDomainPolicyUpdate(Os os, string address, string username, OwnershipPolicy newPolicy, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(os, $"domain up address={address} by={username} policy={newPolicy} aor={aor.ToString().ToLower()}");
+		NetExec(os, $"domain up address={address} by={username} policy={newPolicy} {Aor(aor)}");
 	}
 
 	public ResourceCreation CreateResource(Os os, string address, string data, string username, bool dependable = false, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
@@ -268,7 +285,7 @@ abstract public class TestBase
 		string cmd = $"resource create address={address} ";
 		if(!string.IsNullOrEmpty(data)) cmd += $"data={data} ";
 		if(dependable) cmd += "dependable ";
-		cmd += $"by={username} aor={aor.ToString().ToLower()}";
+		cmd += $"by={username} {Aor(aor)}";
 		return NetExec(os, cmd) as ResourceCreation;
 	}
 
@@ -294,7 +311,7 @@ abstract public class TestBase
 
 	protected PackageApe CreatePackage(Actor a, string address, string source, bool publish = true, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		return (PackageApe)NexusExec(a.Os, $"package c address={address} source={source} {(publish ? "publish" : "")} aor={aor.ToString().ToLower()} by={a.User.Name}");
+		return (PackageApe)NexusExec(a.Os, $"package c address={address} source={source} {(publish ? "publish" : "")} {Aor(aor)} by={a.User.Name}");
 	}
 
 	/// <summary> Get user's spacetime and energy balance.</summary>
@@ -365,7 +382,7 @@ abstract public class TestBase
 						ResourceLinkType type = ResourceLinkType.None,
 						ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(os, $"link create from={from} to={to} type={type} by={username} aor={aor.ToString().ToLower()}");
+		NetExec(os, $"link create from={from} to={to} type={type} by={username} {Aor(aor)}");
 	}
 
 	/// <summary> Sugar wrapper to use with 'class Actor'</summary>

@@ -29,7 +29,7 @@ class DomainEntity : RdnTest
 		CreateDomain(a, domain, 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		NetExec(a.Os, $"domain entity address={domain}");
 		AssertAddressOutput(domain);

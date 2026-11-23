@@ -28,7 +28,7 @@ class WalletLock : RdnTest
 		VaultExec(Oses[1], $"wallet unlock name={w.Name} password=!Market12345");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		VaultExec(Oses[1], $"wallet lock name={w?.Name}");
 

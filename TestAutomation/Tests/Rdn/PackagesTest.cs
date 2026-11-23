@@ -27,7 +27,7 @@ class PackagesTest : RdnTest
 		a2 = CreateActor();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		domainName = GetUnusedLongDomainName();
 		AcquireDomainWithDomainName(a1, domainName, years: 1);

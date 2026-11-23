@@ -24,7 +24,7 @@ class AuthorName : FairTest
 		authorId = CreateAuthor(a, "Author", years: 1, topUp: true);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		string name = "nicky";
 		// Nonexistent author id. Failure expected.

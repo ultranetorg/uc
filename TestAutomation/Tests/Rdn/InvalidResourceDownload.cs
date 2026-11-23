@@ -28,7 +28,7 @@ class InvalidResourceDownload : RdnTest
 		AcquireDomainWithDomainName(a1, domain, years: 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// Creation of the resource with incorrect URN (Unique Resource Name).
 		Urn badUrn = GetZeroUrn();

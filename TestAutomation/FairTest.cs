@@ -30,10 +30,8 @@ abstract class FairTest : TestBase
 	protected override McvNode GetNode(Os os) => os.FindNode<FairNode>();
 	protected override McvNodeSettings CreateSettings(Os os) => new FairNodeSettings(Path.Join(os.Profile, typeof(FairNode).FullName));
 
-	public FairTest(string testName) : base(testName) 
+	public FairTest(string testName) : base(testName)
 	{
-		base.Init();
-
 		Net = Uccs.Fair.Fair.TA;
 		Group = new OsGroup(Path.Combine(G.Developer.Tmp, this.GetType().Name), Net.Initials);
 	}
@@ -57,25 +55,6 @@ abstract class FairTest : TestBase
 		f.WorkDirectory = Path.Join(os.Profile, typeof(FairNode).FullName);
 
 		return new FairNode(Net.Zone, os.Nexus.Settings, settings as FairNodeSettings, Clock, f);
-	}
-
-	public override List<Os> CreateMinimalNetwork()
-	{
-		List<Os> oses = [];
-	
-		oses.Add(Group.CreateOs("U0", "f=2 nn", Net.Father0EP.IP));
-		CreateNode(oses[^1], "mcv chain g=2 s run");
-		oses.Add(Group.CreateOs("U1", "f=2 nn", Group.Initials[1]));
-		CreateNode(oses[^1], "mcv chain g=2 s run");
-		oses.Add(Group.CreateOs("U2", "f=2 nn", Group.Initials[2]));
-		CreateNode(oses[^1], "mcv chain g=2 s run");
-
-		SyncAllPeering();
-		// Uoses won't start synchronizing until there is a new round full of transactions to be synced.
-		// We trick uoses to sync by this.
-		//TransactUntilSync();
-
-		return oses;
 	}
 
 	public override Os CreateOsNodePair()
@@ -255,7 +234,7 @@ abstract class FairTest : TestBase
 
 	public AutoId CreateStore(Os os, string title, short years, string username, bool topUp = false, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(os, $"store c years={years} title=\"{title}\" by={username} aor={aor.ToString().ToLower()}");
+		NetExec(os, $"store c years={years} title=\"{title}\" by={username} {Aor(aor)}");
 		if(aor == ActionOnResult.ExpectFailure) return null;
 		AutoId siteId = FindFairUser(username).ModeratedStores[^1];
 		if(topUp) TopUpStore(siteId);
@@ -273,7 +252,7 @@ abstract class FairTest : TestBase
 	public AutoId SiteRenew(Actor a, short years, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
 		AutoId siteId = FindFairUser(a.User.Name).ModeratedStores[0];
-		NetExec(a.Os, $"site r {siteId} years={years} by={a.User.Name} aor={aor.ToString().ToLower()}");
+		NetExec(a.Os, $"site r {siteId} years={years} by={a.User.Name} {Aor(aor)}");
 		return siteId;
 	}
 
@@ -288,7 +267,7 @@ abstract class FairTest : TestBase
 	/// <returns> Id of the created product entity </returns>
 	public AutoId CreateProduct(Os os, AutoId authorId, string username, string title = "Product", ProductType prodType = ProductType.Software, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(os, $"product c author={authorId} type={ProductType.Software} title={title} by={username} aor={aor.ToString().ToLower()}");
+		NetExec(os, $"product c author={authorId} type={ProductType.Software} title={title} by={username} {Aor(aor)}");
 		AutoId productId = McvFind<Author>(authorId).Products[^1];
 		NetExec(os, $"product u id={productId} definition=\"{Token.Tags}=hype\" by={username}");
 		return productId;
@@ -296,7 +275,7 @@ abstract class FairTest : TestBase
 
 	public AutoId CreateAuthor(Os os, string title, short years, string username, bool topUp = false, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(os, $"author c title=\"{title}\" years={years} by={username} aor={aor.ToString().ToLower()}");
+		NetExec(os, $"author c title=\"{title}\" years={years} by={username} {Aor(aor)}");
 		if(aor != ActionOnResult.RetryUntilConfirmed) return null;
 		AutoId authorId = FindFairUser(username).Authors[^1];
 		if(topUp) TopUpAuthor(authorId);
@@ -311,13 +290,13 @@ abstract class FairTest : TestBase
 
 	public object AuthorRenew(Os os, AutoId authId, short years, string username, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		return NetExec(os, $"author r {authId} years={years} by={username} aor={aor.ToString().ToLower()}");
+		return NetExec(os, $"author r {authId} years={years} by={username} {Aor(aor)}");
 	}
 
 	/// <summary> This renews only latests created author of an actor. </summary>
 	public object AuthorRenew(Actor a, short years, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		return NetExec(a.Os, $"author r {FindFairUser(a.User.Name).Authors[^1]} years={years} by={a.User.Name} aor={aor.ToString().ToLower()}");
+		return NetExec(a.Os, $"author r {FindFairUser(a.User.Name).Authors[^1]} years={years} by={a.User.Name} {Aor(aor)}");
 	}
 
 	public void TopUpAuthor(AutoId authId, long st = 1000000, long e = 10000)
@@ -337,18 +316,18 @@ abstract class FairTest : TestBase
 
 	public AutoId CreateAuthorFile(Actor a, AutoId authorId, string filePath, FairMime mime = FairMime.None, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(a.Os, $"file c owner={FairTable.Author}/{authorId} path={filePath} mime={mime} by={a.User.Name} aor={aor.ToString().ToLower()}");
+		NetExec(a.Os, $"file c owner={FairTable.Author}/{authorId} path={filePath} mime={mime} by={a.User.Name} {Aor(aor)}");
 		return McvFind<Author>(authorId).Files[^1];
 	}
 
 	public void DestroyFile(Actor a, AutoId fileId, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(a.Os, $"file x id={fileId} by={a.User.Name} aor={aor.ToString().ToLower()}");
+		NetExec(a.Os, $"file x id={fileId} by={a.User.Name} {Aor(aor)}");
 	}
 
 	public void SetAuthorAvatar(Actor a, AutoId authorId, AutoId fileId, ActionOnResult aor = ActionOnResult.RetryUntilConfirmed)
 	{
-		NetExec(a.Os, $"author avatar {authorId} file={fileId} by={a.User.Name} aor={aor.ToString().ToLower()}");
+		NetExec(a.Os, $"author avatar {authorId} file={fileId} by={a.User.Name} {Aor(aor)}");
 	}
 
 	FairApiClient GetApi(Os os)

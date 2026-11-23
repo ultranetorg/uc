@@ -21,7 +21,7 @@ class WalletCreation : RdnTest
 		CreateMinimalNetwork();
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		// TODO: Test "accounts" parameter. (Why does it even exists? ?)
 

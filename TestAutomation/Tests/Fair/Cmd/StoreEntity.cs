@@ -26,7 +26,7 @@ class StoreEntity : FairTest
 		CreateStore(a, "Site", 1);
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		//FairAccount fa = FindFairAccount(a!.aa);
 

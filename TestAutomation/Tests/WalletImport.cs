@@ -23,7 +23,7 @@ class WalletImport : RdnTest
 		walletToImport = Path.Combine(Oses[0].GetProfileDirPath(this), "default.uwa");
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		VaultExec(Oses[1], $"wallet import name=imported path={walletToImport}");
 
