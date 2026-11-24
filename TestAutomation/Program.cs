@@ -119,11 +119,18 @@ class Program
 		foreach(var group in tests.GroupBy(t => t.Network))
 			PrintGroup(group.Key.ToString(), group);
 
-		GetTestsToRunAndSkipFromEnv();
+		if(!SelectTests(args, tests))
+		{
+			Environment.ExitCode = 1;
+			return;
+		}
+
+		List<TestInfo> toRun = tests.Where(t => (Only.Count == 0 || Only.Contains(t.Class)) && !TestsToSkip.Contains(t.Class)).ToList();
+		PrintGroup("selected", toRun);
 
 		// Run tests, one suite per test type.
 		DateTime startTime = DateTime.Now;
-		foreach(var group in tests.GroupBy(t => t.TestType).OrderBy(g => g.Key))
+		foreach(var group in toRun.GroupBy(t => t.TestType).OrderBy(g => g.Key))
 		{
 			Reporter.BeginSuite(group.Key.ToString());
 
@@ -136,40 +143,86 @@ class Program
 		Reporter.Write("Result.xml");
 	}
 
-	///<summary> This gets tests to skip and to run only from environment variables UO_TA_SKIP and UO_TA_ONLY
-	/// and populates `TestsToSkip` and `Only` lists with them accordingly. </summary>
-	static void GetTestsToRunAndSkipFromEnv()
+	/// <summary>
+	/// Fills `Only` and `TestsToSkip` from command line arguments or environment variables.
+	/// <br/><br/>
+	/// Command line: `TestAutomation [Test1 Test2 ...] [--skip Test3 Test4 ...]` <br/>
+	/// Names before `--skip` are the tests to run, names after it are the tests to skip.
+	/// <br/><br/>
+	/// Environment variables (space separated names): `UO_TA_ONLY`, `UO_TA_SKIP`.
+	/// <br/><br/>
+	/// For each list the first non-empty source wins: command line, then environment variable,
+	/// then the hardcoded list in this file. A name is a test class name, short (`FeeValidation`)
+	/// or full (`TestAutomation.Tests.Fair.FeeValidation`), case-insensitive.
+	/// Returns `false` if an argument or a test name is not valid.
+	/// </summary>
+	static bool SelectTests(string[] args, List<TestInfo> tests)
 	{
-		string toSkip = Environment.GetEnvironmentVariable("UO_TA_SKIP");
-		if(toSkip != null)
+		List<string> onlyArgs = [];
+		List<string> skipArgs = [];
+		List<string> current = onlyArgs;
+
+		foreach(string arg in args)
 		{
-			string[] toSkipArr = toSkip.Split(' ');
-			foreach(string t in toSkipArr)
+			if(arg.Equals("--skip", StringComparison.OrdinalIgnoreCase))
+				current = skipArgs;
+			else if(arg.StartsWith('-'))
 			{
-				Type testType = Type.GetType(t);
-				if(testType == null) continue;
-				TestsToSkip.Add(testType);
+				Console.Error.WriteLine($"Unknown option '{arg}'. Usage: TestAutomation [Test1 Test2 ...] [--skip Test3 Test4 ...]");
+				return false;
+			}
+			else
+				current.Add(arg);
+		}
+
+		static List<string> FromEnv(string name) =>
+			Environment.GetEnvironmentVariable(name)?.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? [];
+
+		if(onlyArgs.Count == 0) onlyArgs = FromEnv("UO_TA_ONLY");
+		if(skipArgs.Count == 0) skipArgs = FromEnv("UO_TA_SKIP");
+
+		bool ok = true;
+
+		if(onlyArgs.Count != 0)
+			ok &= ResolveTests(onlyArgs, tests, out Only);
+
+		if(skipArgs.Count != 0)
+			ok &= ResolveTests(skipArgs, tests, out TestsToSkip);
+
+		if(!ok)
+			Console.Error.WriteLine($"Available tests: {string.Join(' ', tests.Select(t => t.Class.Name).Order())}");
+
+		return ok;
+	}
+
+	/// <summary> Maps test names to test classes. Returns `false` if any name is unknown or matches more than one test. </summary>
+	static bool ResolveTests(List<string> names, List<TestInfo> tests, out List<Type> result)
+	{
+		result = [];
+		bool ok = true;
+
+		foreach(string name in names)
+		{
+			List<Type> matches = tests.Select(t => t.Class)
+									  .Where(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase) ||
+												  c.FullName.Equals(name, StringComparison.OrdinalIgnoreCase))
+									  .ToList();
+
+			if(matches.Count == 1)
+				result.Add(matches[0]);
+			else
+			{
+				ok = false;
+				Console.Error.WriteLine(matches.Count == 0 ? $"Unknown test '{name}'."
+														   : $"Test name '{name}' is ambiguous: {string.Join(", ", matches.Select(m => m.FullName))}. Use the full name.");
 			}
 		}
 
-		string only = Environment.GetEnvironmentVariable("UO_TA_ONLY");
-		if(only != null)
-		{
-			string[] onlyArr = only.Split(' ');
-			foreach(string t in onlyArr)
-			{
-				Type testType = Type.GetType(t);
-				if(testType == null) continue;
-				Only.Add(testType);
-			}
-		}
+		return ok;
 	}
 
 	static void RunTest(Type testClass)
 	{
-		if(Only.Count != 0 && !Only.Contains(testClass)) return;
-		if(TestsToSkip.Contains(testClass)) return;
-
 		TestBase test = (TestBase)Activator.CreateInstance(testClass);
 
 		Reporter.BeginTest(test.Name, testClass.Name, test.Description);

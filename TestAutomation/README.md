@@ -23,6 +23,23 @@ You can do this in VS IDE by building `TestAutomation.sln`, or by running `build
 - `UO`: path to the root `uo` folder.
 - `UO_Tmp`: path to a folder for temporary storage. Can be any empty folder.
 
+### Selecting tests
+
+By default all tests run. To run or skip particular tests, pass test class names on the command line:
+
+```
+dotnet run -- FeeValidation AccountUtilityTransfer        # run only these
+dotnet run -- --skip FeeValidation                        # run all except this
+dotnet run -- FeeValidation ReviewCreationAndEdit --skip ReviewCreationAndEdit
+```
+
+Names are test class names, short or with namespace, case-insensitive. An unknown name stops the run
+and prints the available tests.
+
+The same can be set with space-separated names in the `UO_TA_ONLY` and `UO_TA_SKIP` environment variables.
+For each list the first non-empty source wins: command line, then environment variable, then the hardcoded
+`Only` / `TestsToSkip` lists in `Program.cs`.
+
 ## TODO
 
 - [ ] Re-run and check `MiscTest` test. Node crash was present and reported by team(Perpetual voting with publisher parameter == null).
