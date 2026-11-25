@@ -31,10 +31,11 @@ public class OsGroup
 	public string WorkPath;
 	public Flow Flow;
 
-	public OsGroup(string workpath, IPAddress[] initials)
+	/// <param name="flow"> The test's flow. Aborting it also cancels every Nexus of this group. </param>
+	public OsGroup(string workpath, IPAddress[] initials, Flow flow)
 	{
 		WorkPath = workpath;
-		Flow = new Flow("TA Simulation", new Log());
+		Flow = flow.CreateNested("TA Simulation", new Log());
 
 		ExeDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		Initials = initials;
@@ -51,6 +52,8 @@ public class OsGroup
 
 	public Os CreateOs(string name, string args, IPAddress ip)
 	{
+		Flow.ThrowIfAborted();
+
 		var x = new Xon(args);
 
 		var profile = Path.Join(WorkPath, name);

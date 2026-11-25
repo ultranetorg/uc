@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -102,6 +102,8 @@ abstract public class TestBase
 
 	public Node CreateNode(Os os, string args, Action<McvNodeSettings> configure = null)
 	{
+		Flow.ThrowIfAborted();
+
 		McvNode node = null;
 		var x = new Xon(args);
 
@@ -135,12 +137,13 @@ abstract public class TestBase
 		{
 			node = StartNode(os, settings);
 
+			// Register the node right away so that Abort() stops it even if we are cancelled below.
+			os.Nodes.Add(node);
+
 			if(x.Has("s"))
 				foreach(var i in settings.Mcv.Memberships)
 					lock(node.Peering.Lock)
 						node.Peering.CreateSession(os.Name, i.Generator, null);
-
-			os.Nodes.Add(node);
 		}
 
 		os.NodeStarted?.Invoke(node);
@@ -150,8 +153,8 @@ abstract public class TestBase
 
 	protected void SyncAllPeering()
 	{
-		while(Flow.Active && McvPeering.All.Any(i => !i.MinimalPeersReached) && !McvPeering.All.Where(i => i.Mcv != null).Any(i => i.Synchronization == Synchronization.Synchronized))
-			Thread.Sleep(100);
+		while(McvPeering.All.Any(i => !i.MinimalPeersReached) && !McvPeering.All.Where(i => i.Mcv != null).Any(i => i.Synchronization == Synchronization.Synchronized))
+			Flow.Wait(100);
 	}
 
 	protected object VaultExec(Os os, string cmd)
@@ -207,11 +210,12 @@ abstract public class TestBase
 				t = transact();
 			}
 
-			Thread.Sleep(100);
+			Flow.Wait(100);
 		}
 		while(t.Status != (expectFailure ? TransactionStatus.FailedOrNotFound : TransactionStatus.Confirmed));
 
-		while(Group.Oses.SelectMany(i => i.Nodes).Where(i => i.Net == Net && i.Mcv != null && i.Peering.Synchronization == Synchronization.Synchronized).DistinctBy(i => i.Mcv.LastConfirmedRound.Id).Count() != 1) ;
+		while(Group.Oses.SelectMany(i => i.Nodes).Where(i => i.Net == Net && i.Mcv != null && i.Peering.Synchronization == Synchronization.Synchronized).DistinctBy(i => i.Mcv.LastConfirmedRound.Id).Count() != 1)
+			Flow.Wait(10);
 
 		return t;
 	}
@@ -607,16 +611,29 @@ abstract public class TestBase
 
 	public virtual void Abort()
 	{
-		try
+		Flow.Abort();
+
+		List<Exception> errors = [];
+
+		// Stop every Os even if some fail, so that nothing is left running.
+		foreach(Os os in Oses.ToList())
 		{
-			while(Oses.Count > 0) Oses[0].Stop();
-		}
-		catch(Exception e)
-		{
-			throw new Exception("Failed to abort the test.", e);
+			try
+			{
+				os.Stop();
+			}
+			catch(Exception e)
+			{
+				errors.Add(e);
+			}
+
+			Oses.Remove(os);
 		}
 
 		Flow.Log.Messages.Clear();
+
+		if(errors.Count > 0)
+			throw new AggregateException("Failed to abort the test.", errors);
 	}
 
 	// This variable is used to generate account address hex strings.
@@ -757,7 +774,7 @@ abstract public class TestBase
 				}
 			}
 
-			if(t == null || !synced) Thread.Sleep(100);
+			if(t == null || !synced) Flow.Wait(100);
 			else break;
 		}
 		return t;
@@ -766,17 +783,17 @@ abstract public class TestBase
 
 public static class Extensions
 {
-	public static void WaitSync(this Os os)
+	public static void WaitSync(this Os os, Flow flow)
 	{
 		while(true)
 		{
 			bool synced = os.FindNode<FairNode>().Peering.Synchronization == Synchronization.Synchronized;
 			if(synced) return;
-			Thread.Sleep(100);
+			flow.Wait(100);
 		}
 	}
 
-	public static T McvFind<T>(this Os os, AutoId id) where T : class
+	public static T McvFind<T>(this Os os, AutoId id, Flow flow) where T : class
 	{
 		McvNode node = os.Nodes[0];
 		T? t = null;
@@ -799,7 +816,7 @@ public static class Extensions
 					if(typeof(T) == typeof(ProposalComment)) t = fairMcv.ProposalComments.Latest(id) as T;
 				}
 			}
-			if(t == null || !synced) Thread.Sleep(100);
+			if(t == null || !synced) flow.Wait(100);
 			else break;
 		}
 		return t;

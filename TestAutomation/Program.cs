@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
+using CommonUtils;
 using CommonUtils.Ext;
 using JunitReporter;
 using O;
@@ -57,10 +59,89 @@ namespace TestAutomation;
 /// launcher detects everything that indirectly inherits 'TestBase' as a test. We implement 
 /// `Init()` and `Logic()` methods that our test launcher expectes test classes to have.
 /// </summary>
+/// 
+//InvalidResourceDownload PASSED
+//PackagesTest PASSED
+//WalletCreation PASSED
+//WalletLock PASSED
+//AuthorInfo PASSED
+//StoreCreation FAILED
+//DiscussedProposalCloseFail PASSED
+//FeeValidation FAILED
+//MiscTest FAILED
+//PublicationRemoval PASSED
+//ReviewCreationAndEdit PASSED
+//StoreCategoryCreation PASSED
+//StoreModerators PASSED
+//StorePolicyChange PASSED
+//StoreTextChange PASSED
+//StoreVoting PASSED
+//UnanimousProposalFail PASSED
+//VariadicProposal FAILED
+//FairUserNameUpdate PASSED
+//DomainCreation PASSED
+//DomainEntity FAILED
+//DomainNameMigrate PASSED
+//DomainPolicyUpdate FAILED
+//DomainRenew FAILED
+//DomainSecurity FAILED
+//EconomyCost FAILED
+//LinkCreate FAILED
+//LinkDeletion FAILED
+//LinkListInbounds FAILED
+//LinkListOutbounds FAILED
+//RdnUserCreation PASSED
+//RdnUserEntity PASSED
+//RdnUserNameUpdate PASSED
+//RdnUserUtilityTransfer FAILED
+//ResourceCreation PASSED
+//ResourceDestroy FAILED
+//ResourceDownloadCancellation FAILED
+//ResourceEntity FAILED
+//ResourceLocal FAILED
+//ResourceLocalSearch FAILED
+//ResourceUpdate FAILED
+//SubDomainCreation FAILED
+//UserBandwidthAllocation PASSED
+//WalletAccountAdd FAILED
+//WalletImport PASSED
+//WalletImportAccountByKey FAILED
+//WalletUnlock FAILED
+//AuthorExpiration PASSED
+//AccountListAuthors FAILED
+//AuthorAvatar FAILED
+//AuthorCreation PASSED
+//AuthorDomainVerification PASSED
+//AuthorEntity PASSED
+//AuthorName PASSED
+//AuthorRenewal FAILED
+//AuthorSecurity PASSED
+//FairUserCreation PASSED
+//FairUserEntity PASSED
+//FairUserUtilityTransfer FAILED
+//FileCreation PASSED
+//FileDestroy PASSED
+//FileEntity FAILED
+//ProductCreation FAILED
+//ProductEntity FAILED
+//StoreEntity FAILED
+//StoreRenewal FAILED
+//StoreExpiration PASSED
+//DirectorySharing FAILED
+//DomainAcquisitionConflict FAILED
+//DomainExpiration FAILED
+//FileSharing FAILED
+//OutsiderAnalysisPublication FAILED
+//SoloCreator FAILED
+//Dependencies PASSED
+//Impersonation PASSED
+//TransactionIntegrity FAILED
+//WrongResourceDataType FAILED
+
 class Program
 {
-	//static List<Type> Only = [];
-	static List<Type> Only = [typeof(FeeValidation)];
+	static List<Type> Only = [];
+	//static List<Type> Only = [typeof(FeeValidation)];
 	static List<Type> TestsToSkip = [];
 
 	static int TimeoutSec = 60;
@@ -230,7 +311,7 @@ class Program
 		try
 		{
 			int timeout = Debugger.IsAttached ? int.MaxValue : TimeoutSec;
-			bool first = RunTimed(test.Init, timeout);
+			bool first = RunTimed(test, test.Init, timeout);
 
 			if(!first) throw new Exception($"Test initialization timeout. Init() execution time exceeded {timeout} seconds.");
 		}
@@ -238,14 +319,14 @@ class Program
 		{
 			string msg = "Failed to initalize test class.";
 			Reporter.Report(e, msg);
-			test.Abort();
+			AbortTest(test);
 
 			return;
 		}
 
 		try
 		{
-			bool first = RunTimed(test.Logic, Debugger.IsAttached ? int.MaxValue : TimeoutSec);
+			bool first = RunTimed(test, test.Logic, Debugger.IsAttached ? int.MaxValue : TimeoutSec);
 
 			if(!first) throw new Exception($"Test execution timeout. Test execution time exceeded {TimeoutSec} seconds.");
 
@@ -256,19 +337,68 @@ class Program
 			Reporter.Report(e, e.Message);
 		}
 
-		// This should kill uoses and their underliyng tcp listeners if any, and free all the locks/ports, etc.
-		test.Abort();
+		AbortTest(test);
 	}
 
-	/// <summary> Returns `true` if an action ended execution earlier than a timeout, `false` otherwise </summary>
-	static bool RunTimed(Action action, int timeoutSec)
+	/// <summary>
+	/// Kills uoses and their underliyng tcp listeners if any, and frees all the locks/ports, etc.
+	/// A failure here is reported to the test output instead of ending the whole run.
+	/// </summary>
+	static void AbortTest(TestBase test)
 	{
-		Task mainTask = Task.Run(action);
-		Task<Task> race = Task.WhenAny(mainTask, Task.Delay(timeoutSec <= 0 ? int.MaxValue : (timeoutSec > int.MaxValue / 1000 ? int.MaxValue : timeoutSec * 1000)));
-		race.Wait();
-		if(race.Result != mainTask) return false;
-		if(race.Result.IsFaulted) throw race.Result.Exception;
-		return true;
+		try
+		{
+			test.Abort();
+		}
+		catch(Exception e)
+		{
+			Reporter.Message(StandardOutputStreamType.Err, $"Failed to clean up '{test.Name}':{e.GetFullStack()}");
+		}
+	}
+
+	/// <summary> How long to wait for a timed out test thread to react to cancellation before giving up on it. </summary>
+	const int StopGraceSec = 10;
+
+	/// <summary>
+	/// Returns `true` if an action ended execution earlier than a timeout, `false` otherwise.
+	/// On timeout the test's `Flow` is aborted, which also cancels its nodes, and we wait for the
+	/// test thread to exit. The caller cleans up afterwards, so cleanup never runs while the test
+	/// thread is still creating nodes.
+	/// </summary>
+	static bool RunTimed(TestBase test, Action action, int timeoutSec)
+	{
+		Task task = Task.Run(action);
+		int ms = timeoutSec <= 0 || timeoutSec > int.MaxValue / 1000 ? Timeout.Infinite : timeoutSec * 1000;
+
+		if(task.Wait(ms)) // Throws if the action failed.
+			return true;
+
+		test.Flow.Abort();
+
+		if(!WaitEnded(task, StopGraceSec))
+		{
+			// Something ignores cancellation. Stopping the nodes may unblock it.
+			Reporter.Message(StandardOutputStreamType.Err, $"WARNING: '{test.Name}' did not stop within {StopGraceSec} seconds after cancellation. Stopping its nodes while it runs.");
+			AbortTest(test);
+
+			if(!WaitEnded(task, StopGraceSec))
+				Reporter.Message(StandardOutputStreamType.Err, $"WARNING: '{test.Name}' is still running in the background.");
+		}
+
+		return false;
+	}
+
+	/// <summary> Waits for a task to end, successfully or not. Returns `false` if it is still running. </summary>
+	static bool WaitEnded(Task task, int timeoutSec)
+	{
+		try
+		{
+			return task.Wait(TimeSpan.FromSeconds(timeoutSec));
+		}
+		catch(AggregateException)
+		{
+			return true; // Expected: a cancelled test ends with OperationCanceledException or a failure caused by it.
+		}
 	}
 }
 

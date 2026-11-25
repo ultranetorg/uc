@@ -33,7 +33,7 @@ abstract class FairTest : TestBase
 	public FairTest(string testName) : base(testName)
 	{
 		Net = Uccs.Fair.Fair.TA;
-		Group = new OsGroup(Path.Combine(G.Developer.Tmp, this.GetType().Name), Net.Initials);
+		Group = new OsGroup(Path.Combine(G.Developer.Tmp, this.GetType().Name), Net.Initials, Flow);
 	}
 
 	protected override void Configure(Os os, Xon args, McvNodeSettings settings)
@@ -349,7 +349,7 @@ abstract class FairTest : TestBase
 
 	public (long, long) GetBalance(AutoId authorId)
 	{
-		Author au = Oses[0].McvFind<Author>(authorId);
+		Author au = Oses[0].McvFind<Author>(authorId, Flow);
 		return (au.Spacetime, au.Energy);
 	}
 
@@ -395,7 +395,7 @@ abstract class FairTest : TestBase
 			{
 				if(pair.Value != Synchronization.Synchronized)
 				{
-					Thread.Sleep(300);
+					Flow.Wait(300);
 					continue;
 				}
 			}
@@ -404,13 +404,13 @@ abstract class FairTest : TestBase
 
 	}
 
-	public static void WaitForSync(Os os)
+	public static void WaitForSync(Os os, Flow flow)
 	{
 		while(true)
 		{
 			bool synced = os.FindNode<FairNode>().Peering.Synchronization == Synchronization.Synchronized;
 			if(synced) break;
-			Thread.Sleep(100);
+			flow.Wait(100);
 			Console.Write("Syncing... ");
 		}
 

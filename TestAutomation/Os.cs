@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Collections.Generic;
 
 using Uccs.Net;
@@ -68,12 +69,23 @@ public class Os
 		return FindNode<RdnNode>().ResourceHub.Find(urn);
 	}
 
+	/// <summary> Stops all nodes and the Nexus. Keeps going if one of them fails and throws the collected errors at the end. </summary>
 	public void Stop()
 	{
-		foreach(var j in Nodes) j.Stop();
+		List<Exception> errors = [];
 
-		Nexus?.Stop();
+		foreach(var j in Nodes)
+		{
+			try { j.Stop(); }
+			catch(Exception e) { errors.Add(e); }
+		}
+
+		try { Nexus?.Stop(); }
+		catch(Exception e) { errors.Add(e); }
 
 		Stopped?.Invoke(this);
+
+		if(errors.Count > 0)
+			throw new AggregateException($"Failed to stop {Name}.", errors);
 	}
 }

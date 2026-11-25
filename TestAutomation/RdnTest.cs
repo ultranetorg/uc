@@ -29,7 +29,7 @@ abstract class RdnTest : TestBase
 	public RdnTest(string testName) : base(testName)
 	{
 		Net = Uccs.Rdn.Rdn.TA;
-		Group = new OsGroup(Path.Combine(G.Developer.Tmp, this.GetType().Name), Net.Initials);
+		Group = new OsGroup(Path.Combine(G.Developer.Tmp, this.GetType().Name), Net.Initials, Flow);
 
 		// OL.CreateHive(4, [Net]);
 	}

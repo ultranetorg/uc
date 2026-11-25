@@ -119,7 +119,7 @@ public abstract class LcpConnection
 			OutRequests.Clear();
 		}
 
-		Pipe?.Close();
+		Pipe?.Close(); // Null if Disconnect() is called before the connection was established.
 
 		if(Server != null)
 		{
