@@ -74,21 +74,27 @@ public class ProductUpdation : FairOperation
 		var f = v.Find(d, (f, i) =>	{
 										if(f.Type == FieldType.FileId)
 										{	
-											var x = execution.Files.Affect(i.AsAutoId);
+											var x = execution.Files.Find(i.AsAutoId);
 	
 											if(x == null)
 												return true;
 	
+											x = execution.Files.Affect(i.AsAutoId);
 											x.Refs++;
 	 									}
 	
 										return false;
-									});
-		if(f != null)
+									}, 
+									out Error);
+		
+		if(f != null) /// File not found
 		{
 			Error = NotFound;
 			return;
 		}
+
+		if(Error != null) /// Unknown field found
+			return;
 
 		execution.Allocate(a, a, v.Size);
 

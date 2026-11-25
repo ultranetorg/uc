@@ -44,6 +44,7 @@ public abstract class Operation : ITypeCode, IBinarySerializable
 	public const string			ExistingUserRequired = "Existing account required";
 	public const string			Expired = "Expired";
 	public const string			InvalidName = "Invalid name";
+	public const string			InvalidField = "Invalid field";
 	public const string			LimitExceeded = "Limit exceeded";
 	public const string			OutOfBounds = "Out of bounds";
 	public const string			Mismatch = "Mismatch";

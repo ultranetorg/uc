@@ -269,10 +269,12 @@ public class ProductVersion  : IBinarySerializable
 		return go(Fields);
 	}
 
-	public FieldValue Find(Field[] definition, Func<Field, FieldValue, bool> action)
+	public FieldValue Find(Field[] definition, Func<Field, FieldValue, bool> action, out string error)
 	{
-		FieldValue go(Field[] defs, FieldValue[] fields)
+		FieldValue go(Field[] defs, FieldValue[] fields, out string error)
 		{
+			error = null;
+
 			foreach(var i in fields)
 			{
 				var d = defs.FirstOrDefault(j => j.Name == i.Name);
@@ -282,14 +284,25 @@ public class ProductVersion  : IBinarySerializable
 					if(action(d, i))
 						return i;
 	
-					go(d.Fields, i.Fields);
+					var r = go(d.Fields, i.Fields, out error);
+
+					if(r != null) 
+						return r;
+					
+					if(error != null) 
+						return null;
+				}
+				else
+				{
+					error = Operation.InvalidField;
+					return null;
 				}
 			}
 
 			return null;
 		}
 
-		return go(definition, Fields);
+		return go(definition, Fields, out error);
 	}
 
 	public void ForEach(Action<FieldValue> action)

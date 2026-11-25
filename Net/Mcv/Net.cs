@@ -43,8 +43,7 @@ public abstract class Net
 	public Constructor					Constructor = new ();
 
 	public IPAddress[]					Initials;
-	public static readonly IPAddress[]	UOInitials = @"	78.47.204.100
-														103.214.68.151
+	public static readonly IPAddress[]	UOInitials = @"	168.119.54.200
 														206.245.167.28
 														103.214.71.53
 														162.35.243.129
