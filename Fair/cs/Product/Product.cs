@@ -120,12 +120,9 @@ public class FieldValue : IBinarySerializable
 	public byte[]				Value { get; set; }
 	public FieldValue[]			Fields { get; set; }
 	
-	public const int			ValueLengthMaximum = 1024*1024;
+	public const int			ValueLengthMaximum = Transaction.LengthMaximum;
 	public int					Size => (Value?.Length ?? 0) + Fields.Sum(i => i.Size);
 	public string				AsUtf8 => Encoding.UTF8.GetString(Value);
-
-
-	//public static bool			IsFile(Token type) => Types[type] >= FieldType.File;
 
 	public AutoId AsAutoId
 	{
@@ -178,14 +175,14 @@ public class FieldValue : IBinarySerializable
 
 	public FieldValue(Token name, string value, FieldValue[] fields) : this(name)
 	{
-		Name = name;
+		Name	= name;
 		Value	= Encoding.UTF8.GetBytes(value);
-		Fields = fields;
+		Fields	= fields;
 	}
 
 	public bool IsValid(McvNet net)
 	{
-		if(Value != null && Value.Length > FieldValue.ValueLengthMaximum)
+		if(Value != null && (Value.Length < 1 || Value.Length > FieldValue.ValueLengthMaximum))
 			return false;
 
 		return Fields.All(i => i.IsValid(net));
@@ -284,13 +281,16 @@ public class ProductVersion  : IBinarySerializable
 					if(action(d, i))
 						return i;
 	
-					var r = go(d.Fields, i.Fields, out error);
-
-					if(r != null) 
-						return r;
-					
-					if(error != null) 
-						return null;
+					if(d.Fields != null)
+					{
+						var r = go(d.Fields, i.Fields, out error);
+	
+						if(r != null) 
+							return r;
+						
+						if(error != null) 
+							return null;
+					}
 				}
 				else
 				{

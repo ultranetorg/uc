@@ -783,7 +783,7 @@ public abstract class McvPeering : HomoPeering
 
 			t.Length = (int)s.Length;
 
-			if(t.Length > Peer.PacketLengthMaximum)
+			if(t.Length > Transaction.LengthMaximum)
 			{	
 				res.Error = "PacketLengthMaximum Exceeded";
 				continue;

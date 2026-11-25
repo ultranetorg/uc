@@ -235,7 +235,8 @@ public class Vault
 			throw new VaultException(VaultError.Corrupted);
 	
 		if(au.Trust == Trust.AskEveryTime || manualapprovalrequired)
-			AuthorizationRequested(acc.Public, au, operation);
+			if(!AuthorizationRequested(acc.Public, au, operation))
+				throw new VaultException(VaultError.NotAuthorized);
 
 		return	new AuthorizationResult
 				{

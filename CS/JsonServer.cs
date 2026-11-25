@@ -45,24 +45,24 @@ public class Pong
 	public string Status { get; set; }
 }
 
-public class BatchApc : Apc
-{
-	public class Item
-	{
-		public string	Name { get; set; }
-		public dynamic	Call { get; set; }
-	}
-
-	public IEnumerable<Item> Calls { get; set; }
-
-	public void Add(Apc call)
-	{
-		if(Calls == null)
-			Calls = new List<Item>();
-
-		(Calls as List<Item>).Add(new Item {Name = Apc.NameOf(call.GetType()), Call = call});
-	}
-}
+//public class BatchApc : Apc
+//{
+//	public class Item
+//	{
+//		public string	Name { get; set; }
+//		public dynamic	Call { get; set; }
+//	}
+//
+//	public IEnumerable<Item> Calls { get; set; }
+//
+//	public void Add(Apc call)
+//	{
+//		if(Calls == null)
+//			Calls = new List<Item>();
+//
+//		(Calls as List<Item>).Add(new Item {Name = Apc.NameOf(call.GetType()), Call = call});
+//	}
+//}
 
 public class JsonConfiguration
 {
@@ -295,19 +295,19 @@ public abstract class JsonServer
 			return Execute(call, rq, rp, f);
 		}
 
-		if(c is BatchApc b)
-		{ 
-			var rs = new List<dynamic>();
-
-			foreach(var i in b.Calls)
-			{
-				var t = Create(i.Name + Apc.Postfix);
-				rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as Apc));
-			}
-
-			RespondJson(context.Response, rs);
-		}
-		else
+		//if(c is BatchApc b)
+		//{ 
+		//	var rs = new List<dynamic>();
+		//
+		//	foreach(var i in b.Calls)
+		//	{
+		//		var t = Create(i.Name + Apc.Postfix);
+		//		rs.Add(execute(JsonSerializer.Deserialize(i.Call, t, Options) as Apc));
+		//	}
+		//
+		//	RespondJson(context.Response, rs);
+		//}
+		//else
 		{
 			var r = execute(c);
 

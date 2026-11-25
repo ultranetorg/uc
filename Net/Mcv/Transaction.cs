@@ -16,6 +16,7 @@ public enum ActionOnResult : byte
 public class Transaction : IBinarySerializable
 {
 	public const int				TagLengthMax = 256;
+	public const int				LengthMaximum = Uccs.Net.Peer.PacketLengthMaximum/2;
 
 	public TransactionId			Id;
 	public Operation[]				Operations = {};
