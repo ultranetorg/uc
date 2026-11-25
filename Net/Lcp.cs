@@ -119,7 +119,7 @@ public abstract class LcpConnection
 			OutRequests.Clear();
 		}
 
-		Pipe.Close();
+		Pipe?.Close();
 
 		if(Server != null)
 		{

@@ -74,27 +74,25 @@ public class ProductUpdation : FairOperation
 		var f = v.Find(d, (f, i) =>	{
 										if(f.Type == FieldType.FileId)
 										{	
-											var x = execution.Files.Find(i.AsAutoId);
-	
-											if(x == null)
+											if(!CanAccessFile(execution, i.AsAutoId, new EntityAddress((byte)FairTable.Author, a.Id), out var x, out var error))
 												return true;
 	
-											x = execution.Files.Affect(i.AsAutoId);
+											x = execution.Files.Affect(x.Id);
 											x.Refs++;
 	 									}
 	
 										return false;
 									}, 
 									out Error);
+
+		if(Error != null) /// Unknown field found
+			return;
 		
 		if(f != null) /// File not found
 		{
 			Error = NotFound;
 			return;
 		}
-
-		if(Error != null) /// Unknown field found
-			return;
 
 		execution.Allocate(a, a, v.Size);
 
