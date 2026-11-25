@@ -45,6 +45,7 @@ public class Transaction : IBinarySerializable
 	public bool Valid(Mcv mcv)
 	{
 		return	Uccs.Net.User.IsNameValid(User) &&
+				Boost >= 0 &&
 				(Tag == null || Tag.Length <= TagLengthMax) &&
 				(Pow == null || Pow.Length == McvNet.PoWLength) &&
 				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.OperationsPerTransactionMaximum;
