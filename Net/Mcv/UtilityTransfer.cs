@@ -93,12 +93,9 @@ public class UtilityTransfer : Operation
 					Error = NotEnergyHolder;
 					return;
 				}
-	
-				if(User.Key != Mcv.God.Puplic)
-				{
-					s.Energy		-= Energy;
-					s.EnergyNext	-= EnergyNext;
-				}
+
+				s.Energy		-= Energy;
+				s.EnergyNext	-= EnergyNext;
 
 				execution.EnergySpenders.Add(s);
 			}

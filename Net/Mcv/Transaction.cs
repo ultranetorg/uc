@@ -15,7 +15,7 @@ public enum ActionOnResult : byte
 
 public class Transaction : IBinarySerializable
 {
-	public const int				TagLengthMax = 256;
+	public const int				TagLengthMaximum = 256;
 	public const int				LengthMaximum = Uccs.Net.Peer.PacketLengthMaximum/2;
 
 	public TransactionId			Id;
@@ -46,7 +46,9 @@ public class Transaction : IBinarySerializable
 	{
 		return	Uccs.Net.User.IsNameValid(User) &&
 				Boost >= 0 &&
-				(Tag == null || Tag.Length <= TagLengthMax) &&
+				Nonce >= 0 &&
+				Expiration > 0 &&
+				(Tag == null || Tag.Length <= TagLengthMaximum) &&
 				(Pow == null || Pow.Length == McvNet.PoWLength) &&
 				Operations.Any() && Operations.All(i => i.IsValid(mcv.Net)) && Operations.Length <= mcv.Net.OperationsPerTransactionMaximum;
 	}

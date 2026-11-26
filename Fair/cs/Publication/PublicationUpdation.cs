@@ -38,6 +38,12 @@ public class PublicationUpdation : VotableOperation
 		if(!PublicationExists(execution, Publication, out var p, out error))
 			return false;
 
+		if(p.Store != Store.Id)
+		{	
+			error = DoesNotBelogToStore;
+			return false;
+		}
+
 		if(!p.Flags.HasFlag(PublicationFlags.ApprovedByAuthor))
 		{
 			error = NotApproved;
