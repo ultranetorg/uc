@@ -343,6 +343,20 @@ public abstract class Mcv /// Mutual chain voting
 			vote.Status = VoteStatus.Violator;
 			return;
 		}
+
+		if(!r.Senders.Any(i => i.Generator == vote.Generator))
+		{	
+			vote.Status = VoteStatus.NotMemeber;
+			return;
+		}
+	
+		var u = Users.Latest(vote.Generator);
+							
+		if(!Net.Cryptography.Verify(u.Key, vote.Hash, vote.Signature))
+		{
+			vote.Status = VoteStatus.AccessDenied;
+			return;
+		}
 	
 		var e = r.VotesOfTry.FirstOrDefault(i => i.Generator == vote.Generator);
 				
@@ -354,44 +368,19 @@ public abstract class Mcv /// Mutual chain voting
 			vote.Status = VoteStatus.Fork; /// Let others know about incident
 			return;
 		}
-
-		//if(r.Id >= JoinToVote)
-		{
-			if(!r.Senders.Any(i => i.Generator == vote.Generator))
-			{	
-				vote.Status = VoteStatus.NotMemeber;
-				return;
-			}
 	
-			var u = Users.Latest(vote.Generator);
-							
-			if(!Net.Cryptography.Verify(u.Key, vote.Hash, vote.Signature))
-			{
-				vote.Status = VoteStatus.AccessDenied;
-				return;
-			}
+		vote.Restore();
 	
-			vote.Restore();
-	
-
-			//if(v.Transactions.Length > r.VotersRound.PerVoteTransactionsLimit)
-			//{	
-			//	//Flow.Log.ReportWarning(this, $"Vote rejected v.Transactions.Length > r.Parent.PerVoteTransactionsLimit : {v}");
-			//	return false;
-			//}
+		if(vote.Transactions.Sum(i => i.Operations.Length) > r.PerVoteOperationsMaximum)
+		{	
+			vote.Status = VoteStatus.PerVoteOperationsMaximumExceeded;
+			return;
+		}
 		
-			//if(vote.Transactions.Sum(i => i.Operations.Length) > Mcv.Net.OperationsPerRoundMaximum / r.Voters.Count()) //r.VotersRound.PerVoteOperationsMaximum)
-			if(vote.Transactions.Sum(i => i.Operations.Length) > r.PerVoteOperationsMaximum)
-			{	
-				vote.Status = VoteStatus.PerVoteOperationsMaximumExceeded;
-				return;
-			}
-		
-			if(vote.Transactions.Any(t => r.Senders.NearestBy(t.Signature).Generator != vote.Generator))
-			{	
-				vote.Status = VoteStatus.InvalidTransaction;
-				return;
-			}
+		if(vote.Transactions.Any(t => r.Senders.NearestBy(t.Signature).Generator != vote.Generator))
+		{	
+			vote.Status = VoteStatus.InvalidTransaction;
+			return;
 		}
 
 		vote.Status = VoteStatus.OK;
