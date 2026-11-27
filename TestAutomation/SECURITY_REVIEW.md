@@ -184,18 +184,27 @@ Nothing has been changed; this is only a suggestion for planning.
 These run on every user's machine. The vault holds the private keys; the Nexus and node APIs can start transactions and software. By design the public web UI talks to them from the browser, so "who is allowed to call them" is the central question — and at the moment the answer is close to "anyone".
 
 #### A1. `Batch` call skips the admin-password check — **Critical** · Verified
+> Notes by @krs:  
+**Isue:** https://app.notion.com/p/Batch-call-skips-the-admin-password-check-4234e2aecdb98003a0d3d085e37ab0b0?v=1cb4e2aecdb980608e90000c6175ad16&source=copy_link
+
 **Where:** [JsonServer.cs:190](../CS/JsonServer.cs#L190), [JsonServer.cs:298](../CS/JsonServer.cs#L298), restricted list in [VaultApi.cs:14](../Nexus/VaultApi.cs#L14)
 **What:** The server checks the "restricted" list only against the call name in the URL. A `Batch` request is not restricted, and its inner calls are created and executed with no check at all.
 **Abuse:** Anyone who can reach the vault API wraps `ImportWallet`, `Wallets`, `WalletKeys`, `UnlockWallet`, `LockWallet`, `AddKeyToWallet` or `OverrideAuthentication` in a `Batch` and it runs without the admin password. It works even when no admin password has been set.
 **Direction:** Apply the restriction check to every call that is executed, wherever it comes from; consider removing `Batch` from servers that have restricted calls.
 
 #### A2. `OverrideAuthentication` turns off the approval dialog — **Critical** · Verified
+> Notes by @krs:  
+This issue basically depends on A1, so just need to fix that.
+
 **Where:** [VaultApi.cs:174](../Nexus/VaultApi.cs#L174)
 **What:** This production API call replaces the "an application wants to authenticate" dialog with a handler that always answers "allow, always" for the key whose alias equals the requested user. It is protected only by the admin-password list, which A1 bypasses.
 **Abuse:** `Batch{OverrideAuthentication}` → `Authenticate` → receive a session with "always allow" → `Authorize` any hash. Every key in an unlocked wallet can then sign anything, with nothing shown to the user. `WalletKeys` (also via `Batch`) lists the aliases needed.
 **Direction:** Remove from production builds, or allow it only in test zones and never over the network API.
 
 #### A3. Rejecting a signing request still signs — **Critical** · Verified
+> Notes by @krs:  
+Issue: https://app.notion.com/p/Ignoring-authorization-request-results-4234e2aecdb980818d27f93554ac6833?v=1cb4e2aecdb980608e90000c6175ad16&source=copy_link
+
 **Where:** [Vault.cs:237](../Nexus/Vault.cs#L237), handler in [NexusWindows.cs:151](../Nexus.Windows/NexusWindows.cs#L151)
 **What:** `Authorize` calls the approval handler and throws its answer away: `AuthorizationRequested(acc.Public, au, operation);` then signs. The Windows handler returns `false` on Cancel, which nobody reads.
 **Abuse:** "Ask every time" and the "manual approval required" setting for transfers and key changes give no protection: the signature is returned whatever the user clicks. (On hosts with no handler the call throws instead, so they fail closed by accident.)
@@ -284,6 +293,10 @@ These run on every user's machine. The vault holds the private keys; the Nexus a
 ### B. Consensus engine (`Net/Mcv`)
 
 #### B1. Energy can be created out of nothing, in two ways — **Critical** · Verified
+> Notes by @krs:  
+Issue 1: https://app.notion.com/p/Minting-energy-using-negative-boost-4234e2aecdb980b4a7efce5acb32c69b?v=1cb4e2aecdb980608e90000c6175ad16&source=copy_link  
+Issue 2: https://app.notion.com/p/Anyone-can-create-an-account-with-God-key-and-mint-energy-4244e2aecdb980c29fb8ff79c1862d67?v=1cb4e2aecdb980608e90000c6175ad16&source=copy_link
+
 **Where:** negative boost: [Round.cs:379](../Net/Mcv/Round.cs#L379), [Round.cs:389](../Net/Mcv/Round.cs#L389), validity check [Transaction.cs:44](../Net/Mcv/Transaction.cs#L44); genesis-key exemption: [UtilityTransfer.cs:97](../Net/Mcv/UtilityTransfer.cs#L97), [Mcv.cs:45](../Net/Mcv/Mcv.cs#L45), [UserCreation.cs:34](../Net/User/UserCreation.cs#L34)
 **What:** (a) `Boost` is a signed number read from the transaction. Execution does `u.Energy -= t.Boost` and nothing checks its sign or the resulting balance (the signer is not put on the "spenders" list that is checked for negative balances). (b) `UtilityTransfer` does not deduct energy from the source when the signer's key equals the genesis ("God") key: `if(User.Key != Mcv.God.Puplic) { s.Energy -= Energy; … }` — but the receiver is still credited. That key's private half is a constant in the source (`[1, 0, 0, …]`), and nothing stops an account from being created with it.
 **Abuse:** (a) A transaction with `Boost = -1,000,000,000,000` adds that much energy to the sender. (b) Anyone registers an account whose key is the genesis public key, signs with the published private key, and transfers any amount of energy to any account without owning it. Energy can be transferred on, pays for bandwidth and pays the candidacy fee, so both also buy consensus seats (B11). A large positive boost a user cannot afford leaves a negative balance and still wins pool priority.
